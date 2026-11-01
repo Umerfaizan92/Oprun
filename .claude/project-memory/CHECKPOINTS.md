@@ -913,3 +913,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Review docs/connections/HANDOVER.md and delivery-verification.json; obtain explicit owner publication permission before any push; do not deploy or change provider accounts automatically
+
+## CP-066 2026-11-01T16:40:18+08:00 T-067 TESTING
+- Phase: Authorised Render deployment
+- Task: T-067 (TESTING)
+- Completed steps: Owner explicitly authorised push to Render; published exact tested tree ef7e10c via GitHub connector as 9a4226f; origin/main verified at that SHA; Render deploy dep-dbjflqc9v7es739vh330 accepted with exact target commit
+- Incomplete steps: Monitor deployment to terminal state; verify public health and released assets, inspect runtime errors; save final deployment evidence and provider acceptance boundaries
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 1acc29e (docs(memory): record tested connections candidate and recovery handover); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T084018Z (8fb8576)
+- Known errors: none
+- Next exact action: Get Render deploy dep-dbjflqc9v7es739vh330 status; do not trigger another deploy while this one runs
+
+## CP-067 2026-11-01T16:46:05+08:00 T-068 COMPLETED
+- Phase: Authorised Render deployment
+- Task: T-068 (COMPLETED)
+- Completed steps: Published exact tested tree as 9a4226f; Render deployment live; six public smoke checks and three deployed asset hashes pass; post-live log query empty; deployment record saved
+- Incomplete steps: T-067 provider consent and live two-workspace acceptance remain; unsupported adapters and provider approvals remain explicit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; docs/connections/DEPLOYMENT-2026-11-01.md
+- Tests executed: Render npm test; deploy:check; deployed asset SHA-256 comparison; post-live log query
+- Test results: 73 of 73; six checks passed; three assets identical; zero entries
+- Git branch: codex/connections-deployment-20261101
+- Commit: 9a4226f (fix(connections): publish verified subscriber-isolation candidate)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read docs/connections/DEPLOYMENT-2026-11-01.md; resume T-067 with subscriber-controlled provider consent and live acceptance. Do not redeploy or replay completed publication.

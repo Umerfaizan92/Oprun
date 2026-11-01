@@ -120,3 +120,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/portal-shell.*; saas/focused-workspace.*; saas/workspace-nav.js; office/console.*; scripts; docs/navigation
 - Acceptance: All 60 business entries and 34 founder tabs mapped; nested sidebar and contextual sections work across roles and sizes; tests and repository checks pass; changes committed and saved; deployment remains separate
 - Evidence: Implementation commit c10b382587ec87e9001f7c741f6f8616ee06c581; full npm test 45 contract files and 73/73 checks; committed-tree test:fast 69/69; navigation browser 575; reviewed visual 12; main UI 34 pipeline 15 automation 11 founder 16 SEO 11 comms 10 finance 11 reliability 7; module checks 66 with zero problems; quality smoke integration secrets manifest memory passed. Production unchanged. (recorded 2026-10-31 on codex/navigation-hierarchy-20261031 at c10b382)
+
+## T-068 Publish and deploy verified Connections candidate to Render
+- Added: 2026-11-01
+- Requirement: Owner explicitly requested push to render after reviewing the tested local candidate.
+- Files: Deployment record and project memory; published tested source tree
+- Acceptance: Exact tested tree published to GitHub; existing Render service deploy becomes live on intended source; read-only health readiness security checks and deployed asset hashes pass; deployment evidence saved.
+- Evidence: Published 9a4226f with exact tested tree ef7e10c. Render dep-dbjflqc9v7es739vh330 live at 1 Nov 2026 16:43:35 Perth. Render build passed 73/73. Six public deployment checks passed; Connections JS CSS and HTML SHA-256 hashes matched. Post-live error-level log query returned zero entries. Disk and configuration preserved. (recorded 2026-11-01 on codex/connections-deployment-20261101 at 9a4226f)
