@@ -1,0 +1,42 @@
+/* Connection hub inherits the application theme. */
+#self-service-integration-grid{align-items:start}
+.integration-card.self-service.connection-card{display:flex!important;flex-direction:column;align-items:stretch;gap:14px;min-width:0;height:auto!important;overflow:visible;grid-template-columns:none!important}
+.integration-card.self-service.connection-card.focus-page-hidden,.integration-card.self-service.connection-card[hidden]{display:none!important}
+.connection-card>*{min-width:0;max-width:100%}
+.connection-card-heading{display:flex;gap:12px;align-items:flex-start}
+.connection-card h3,.connection-card h4{margin:0 0 6px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.connection-card p,.connection-card small{margin:0;color:var(--muted);font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.connection-state{display:inline-block;font-size:12px;line-height:1.5;padding:4px 8px;border:1px solid var(--line);border-radius:8px;color:var(--text)}
+.connection-state.connected{border-color:var(--green);color:var(--text)}
+.connection-state.attention,.connection-diagnostic{border-color:var(--brand-line)}
+.integration-manager-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start}
+.connection-card button{position:static!important;min-height:44px;width:auto!important;max-width:100%;margin:0!important;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);color:var(--text);font:inherit;font-size:13px;white-space:normal;overflow-wrap:anywhere}
+.connection-card button:disabled{opacity:.6;cursor:not-allowed}
+.connection-card :is(button,input,summary,a):focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
+.connection-card details{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+.connection-card summary{cursor:pointer;min-height:32px;line-height:1.6}
+.connection-config,.integration-resource-picker,.connection-insights,[data-im-assistant]{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:12px}
+.connection-config[hidden],.integration-requirements-inline[hidden]{display:none!important}
+.connection-card form{display:grid;gap:12px;margin-top:10px}
+.connection-card form label{display:grid;gap:6px;font-size:13px;color:var(--text)}
+.connection-card form input{box-sizing:border-box;width:100%;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);padding:10px;font:inherit}
+.integration-resource-list{display:grid;gap:7px;max-height:280px;overflow:auto}
+.integration-resource-list label{display:flex!important;gap:10px;align-items:flex-start;padding:9px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
+.integration-resource-list input[type=checkbox]{width:18px!important;min-width:18px;height:18px!important;min-height:18px;flex:0 0 18px;margin:3px 0;padding:0}
+.integration-resource-list label>span{display:grid;gap:3px;min-width:0}
+.connection-diagnostic{border:1px solid var(--brand-line);background:var(--brand-soft);border-radius:9px;padding:12px;display:grid;gap:6px;color:var(--text)}
+.connection-error{color:var(--text);border-left:3px solid var(--brand);padding-left:10px}
+.connection-note{font-size:13px;color:var(--muted);line-height:1.7}
+.connection-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:10px;margin:12px 0}
+.connection-metrics>div{border:1px solid var(--line);border-radius:9px;padding:12px;min-width:0}
+.connection-metrics dd{font-size:22px;color:var(--text);margin:6px 0;font-weight:700;overflow-wrap:anywhere}
+.connection-metrics dt,.connection-service-status{font-size:13px;color:var(--muted)}
+.connection-card code,.connection-card dd{overflow-wrap:anywhere;word-break:break-word;white-space:normal;margin-left:0}
+.connection-card ul,.connection-card ol{padding-left:22px;font-size:13px;line-height:1.7}
+.connection-table{max-width:100%;overflow:auto}
+.connection-table table{min-width:420px;border-collapse:collapse;font-size:13px}
+.connection-table :is(td,th){padding:9px;border-bottom:1px solid var(--line);text-align:left}
+
+html[data-theme="light"] #integrations-view [role="tab"][aria-selected="true"]{color:var(--text);background:var(--panel-2)}
+
+html[data-theme="light"] #integration-self-service-tab{color:var(--text)!important;background:var(--panel)!important;text-shadow:none!important}

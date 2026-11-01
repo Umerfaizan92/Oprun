@@ -26,7 +26,7 @@ export function migrateComms(db) {
   `);
 }
 
-export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch, dispatch, pipeline, profileOf, notify = () => {}, emit = () => {}, aiReply = null, aiAvailable = () => false, engineRef = { current: null }, publicBase = () => '', log = console }) {
+export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch, transportEnv = () => env, dispatch, pipeline, profileOf, notify = () => {}, emit = () => {}, aiReply = null, aiAvailable = () => false, engineRef = { current: null }, publicBase = () => '', log = console }) {
   migrateComms(db);
   const isPlatform = (k) => k === 'platform';
   const secret = () => String(env.SESSION_SECRET || env.SAAS_SESSION_SECRET || 'dev-unsubscribe-secret');
@@ -368,21 +368,23 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     return { done: !left, sent_now: rows.length, left };
   }
   async function sendEmail(owner, b, c, r, text) {
-    const key = env.RESEND_API_KEY, from = isPlatform(owner) ? (env.PLATFORM_MAIL_FROM || env.SAAS_VERIFY_FROM) : env.SAAS_VERIFY_FROM;
+    const deliveryEnv=transportEnv(owner);
+    const key = deliveryEnv.RESEND_API_KEY, from = isPlatform(owner) ? (env.PLATFORM_MAIL_FROM || env.SAAS_VERIFY_FROM) : deliveryEnv.SAAS_VERIFY_FROM;
     if (!key || !from) throw Object.assign(new Error('Email sending is not set up (RESEND_API_KEY and a verified sender).'), { stopAll: true });
     const unsub = `${publicBase()}/u/${r.token}`, link = c.cta_url ? `${publicBase()}/c/${r.token}` : null;
     const esc = (s) => String(s).replace(/[&<>"]/g, (x) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]));
     const html = `<div style="font:16px/1.5 sans-serif;max-width:600px">${text.split(/\n{2,}/).map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('')}${link ? `<p><a href="${esc(link)}">${'Find out more'}</a></p>` : ''}<hr><p style="font-size:12px;color:#555">Sent by ${esc(b.name)}${b.abn ? ` · ABN ${esc(b.abn)}` : ''}${b.address ? ` · ${esc(b.address)}` : ''}. You are receiving this because you agreed to hear from us. <a href="${esc(unsub)}">Unsubscribe</a>.</p></div>`;
-    const res = await fetchImpl(`${String(env.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: [r.address], subject: c.subject, html, text: `${text}\n\n${link ? link + '\n\n' : ''}Sent by ${b.name}. Unsubscribe: ${unsub}`, headers: { 'List-Unsubscribe': `<${unsub}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, tags: [{ name: 'category', value: 'marketing' }] }) });
+    const res = await fetchImpl(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: [r.address], subject: c.subject, html, text: `${text}\n\n${link ? link + '\n\n' : ''}Sent by ${b.name}. Unsubscribe: ${unsub}`, headers: { 'List-Unsubscribe': `<${unsub}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, tags: [{ name: 'category', value: 'marketing' }] }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw Object.assign(new Error(j?.message || `Email provider answered ${res.status}`), { stopAll: [401, 403].includes(res.status) });
     return j.id || null;
   }
   async function sendSms(owner, b, c, r, text) {
-    const from = env.TELNYX_FROM_NUMBER || env.TELNYX_PHONE_NUMBER;
-    if (!env.TELNYX_API_KEY || !from) throw Object.assign(new Error('SMS sending is not set up (Telnyx).'), { stopAll: true });
+    const deliveryEnv=transportEnv(owner);
+    const from = deliveryEnv.TELNYX_FROM_NUMBER || deliveryEnv.TELNYX_PHONE_NUMBER;
+    if (!deliveryEnv.TELNYX_API_KEY || !from) throw Object.assign(new Error('SMS sending is not set up (Telnyx).'), { stopAll: true });
     const body = `${b.name}: ${text}${c.cta_url ? ` ${publicBase()}/c/${r.token}` : ''} Reply STOP to opt out`;
-    const res = await fetchImpl(`${String(env.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${env.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: r.address, text: body }) });
+    const res = await fetchImpl(`${String(deliveryEnv.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: r.address, text: body }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw Object.assign(new Error(j?.errors?.[0]?.detail || `SMS provider answered ${res.status}`), { stopAll: [401, 403].includes(res.status) });
     return j?.data?.id || null;

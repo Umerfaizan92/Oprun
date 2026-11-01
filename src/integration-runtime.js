@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import { createGoogleClient } from './seo/google.js';
+import { redactIntegrationError } from './integration-security.js';
 
 function useful(value){return value!==undefined&&value!==null&&String(value).trim()!==''}
 function nowIso(){return new Date().toISOString()}
@@ -65,10 +67,12 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     try{return JSON.parse(text)}catch{return {message:text.slice(0,1000)}}
   }
   async function requestJson(url,{method='GET',headers={},body}={}){
-    const response=await fetchImpl(url,{method,headers,body});
+    const response=await fetchImpl(url,{method,headers,body,signal:AbortSignal.timeout(20000)});
     const data=await readJson(response);
-    if(!response.ok){
-      const err=new Error(publicError(data,response.status));err.status=response.status;err.providerPayload=data;throw err;
+    const providerError=data?.error && (typeof data.error==='string' || (data.error.code!=='ok' && (data.error.code || data.error.message)));
+    if(!response.ok || providerError){
+      const credentials=[headers.authorization?.replace(/^(Bearer|Basic) /i,''),...new URLSearchParams(typeof body==='string'||body instanceof URLSearchParams?body:'').values()];
+      const err=new Error(redactIntegrationError(publicError(data,response.status),credentials));err.status=response.ok?400:response.status;throw err;
     }
     return data;
   }
@@ -89,7 +93,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
       next=await postForm('https://api.x.com/2/oauth2/token',{client_id:env.X_CLIENT_ID,grant_type:'refresh_token',refresh_token:bundle.refresh_token},{authorization:'Basic '+basic});
     }else if(provider==='snapchat'){
       const basic=Buffer.from(String(env.SNAPCHAT_CLIENT_ID||'')+':'+String(env.SNAPCHAT_CLIENT_SECRET||'')).toString('base64');
-      next=await postForm(String(env.SNAPCHAT_TOKEN_URL||''),{grant_type:'refresh_token',refresh_token:bundle.refresh_token},{authorization:'Basic '+basic});
+      next=await postForm(String(env.SNAPCHAT_TOKEN_URL||'https://accounts.snapchat.com/login/oauth2/access_token'),{grant_type:'refresh_token',refresh_token:bundle.refresh_token},{authorization:'Basic '+basic});
     }else{
       throw new Error('Automatic token refresh is not available for '+provider+'. Re-authorisation may be required when the provider token expires.');
     }
@@ -97,12 +101,14 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     return normalizeToken(next,bundle);
   }
   async function ensureFreshToken(provider,bundle){
-    const current=normalizeToken(bundle||{},bundle||{});
+    // Normalising an already-issued token extended expires_in on every read.
+    const current={...(bundle||{})};
+    if(!current.expires_at && Number(current.expires_in)>0 && current.issued_at) current.expires_at=new Date(new Date(current.issued_at).getTime()+Number(current.expires_in)*1000).toISOString();
     if(!expiring(current))return {bundle:current,refreshed:false};
     if(['youtube','google_business','google_seo','tiktok','x','snapchat'].includes(provider)&&current.refresh_token){
       return {bundle:await refreshToken(provider,current),refreshed:true};
     }
-    if(!current.access_token)throw new Error('This connection has no usable access token. Re-authorise the provider.');
+    if(!current.access_token || (current.expires_at && new Date(current.expires_at).getTime()<=Date.now()))throw Object.assign(new Error('This connection has no usable access token. Re-authorise the provider.'),{status:401});
     return {bundle:current,refreshed:false};
   }
   function authHeaders(bundle,extra={}){return {authorization:'Bearer '+bundle.access_token,...extra}}
@@ -112,6 +118,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
   }
   async function testMeta(bundle){
     const identity=await metaGet('me?fields=id,name',bundle);
+    if(!identity.id)throw new Error('Meta did not return an authorised account identity. Reconnect the account.');
     const resources=[];
     try{
       const pages=await metaGet('me/accounts?fields=id,name,instagram_business_account{id,username,name}',bundle);
@@ -120,28 +127,30 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
         const ig=page.instagram_business_account;
         if(ig?.id)resources.push({id:String(ig.id),type:'instagram_account',label:ig.username||ig.name||String(ig.id),parent_id:String(page.id)});
       }
-    }catch{}
+    }catch(error){return {identity:{id:String(identity.id||''),label:identity.name||'Meta account'},resources,service_checks:[{service:'pages_and_instagram',status:'permission_required',detail:redactIntegrationError(error,[bundle.access_token])}]}}
     return {identity:{id:String(identity.id||''),label:identity.name||'Meta account'},resources};
   }
   async function testWhatsApp(bundle){
-    const identity=await metaGet('me?fields=id,name',bundle),resources=[];
-    const businesses=await metaGet('me/businesses?fields=id,name',bundle).catch(()=>({data:[]}));
+    const identity=await metaGet('me?fields=id,name',bundle),resources=[],service_checks=[];
+    const read=async(path,service)=>{try{const data=await metaGet(path,bundle);service_checks.push({service,status:'pass',resource_count:data.data?.length||0});return data}catch(error){service_checks.push({service,status:'permission_required',detail:redactIntegrationError(error,[bundle.access_token])});return {data:[]}}};
+    const businesses=await read('me/businesses?fields=id,name','businesses');
     for(const business of (businesses.data||[]).slice(0,10)){
       resources.push({id:String(business.id),type:'meta_business',label:business.name||String(business.id)});
-      const wabas=await metaGet(String(business.id)+'/owned_whatsapp_business_accounts?fields=id,name',bundle).catch(()=>({data:[]}));
+      const wabas=await read(String(business.id)+'/owned_whatsapp_business_accounts?fields=id,name','whatsapp_accounts');
       for(const waba of (wabas.data||[]).slice(0,20)){
         resources.push({id:String(waba.id),type:'whatsapp_business_account',label:waba.name||String(waba.id),parent_id:String(business.id)});
-        const phones=await metaGet(String(waba.id)+'/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating',bundle).catch(()=>({data:[]}));
+        const phones=await read(String(waba.id)+'/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating','whatsapp_phone_numbers');
         for(const phone of phones.data||[]){
           resources.push({id:String(phone.id),type:'whatsapp_phone',label:phone.verified_name||phone.display_phone_number||String(phone.id),parent_id:String(waba.id),detail:phone.display_phone_number||''});
         }
       }
     }
-    return {identity:{id:String(identity.id||''),label:identity.name||'Meta account'},resources};
+    return {identity:{id:String(identity.id||''),label:identity.name||'Meta account'},resources,service_checks};
   }
   async function testTikTok(bundle){
     const d=await requestJson('https://open.tiktokapis.com/v2/user/info/?fields=open_id,union_id,display_name,avatar_url',{headers:authHeaders(bundle)});
     const u=d?.data?.user||{};
+    if(!u.open_id && !bundle.open_id)throw new Error('TikTok did not return an authorised account identity. Reconnect the account.');
     return {identity:{id:String(u.open_id||bundle.open_id||''),label:u.display_name||String(u.open_id||'TikTok account')},resources:[{id:String(u.open_id||bundle.open_id||''),type:'tiktok_account',label:u.display_name||'TikTok account'}].filter(x=>x.id)};
   }
   async function testYouTube(bundle){
@@ -151,27 +160,36 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
   }
   async function testGoogleBusiness(bundle){
     const d=await requestJson('https://mybusinessaccountmanagement.googleapis.com/v1/accounts',{headers:authHeaders(bundle,{'x-goog-api-format-version':'2'})});
-    const resources=[];
+    const resources=[],service_checks=[];
     for(const account of (d.accounts||[]).slice(0,10)){
       const accountName=String(account.name||'');
       if(!accountName)continue;
       resources.push({id:accountName,type:'google_business_account',label:account.accountName||accountName});
       const url='https://mybusinessbusinessinformation.googleapis.com/v1/'+accountName+'/locations?readMask=name,title,storefrontAddress,metadata';
-      const locations=await requestJson(url,{headers:authHeaders(bundle,{'x-goog-api-format-version':'2'})}).catch(()=>({locations:[]}));
+      const locations=await requestJson(url,{headers:authHeaders(bundle,{'x-goog-api-format-version':'2'})}).catch(error=>{service_checks.push({service:'business_locations',status:'permission_required',detail:redactIntegrationError(error,[bundle.access_token])});return {locations:[]}});
       for(const loc of locations.locations||[]){
         resources.push({id:String(loc.name||''),type:'google_business_location',label:loc.title||String(loc.name||''),parent_id:accountName});
       }
     }
-    return {identity:{id:resources[0]?.id||'',label:resources[0]?.label||'Google Business Profile'},resources};
+    return {identity:{id:resources[0]?.id||'',label:resources[0]?.label||'Google Business Profile'},resources,service_checks};
   }
   async function testGoogleSeo(bundle){
-    const d=await requestJson('https://searchconsole.googleapis.com/webmasters/v3/sites',{headers:authHeaders(bundle)});
-    const resources=(d.siteEntry||[]).map(x=>({id:String(x.siteUrl),type:'search_console_property',label:String(x.siteUrl)+' ('+String(x.permissionLevel||'')+')'}));
-    return {identity:{id:resources[0]?.id||'',label:resources.length?resources.length+' Search Console propert'+(resources.length===1?'y':'ies'):'Google account'},resources};
+    const google=createGoogleClient({env,fetchImpl}),resources=[],service_checks=[];
+    for(const [service,read,map] of [
+      ['search_console',()=>google.gscSites(bundle.access_token),x=>({id:x.site_url,type:'search_console_property',label:x.site_url+' ('+x.permission+')',permission:x.permission,usable:x.verified})],
+      ['analytics',()=>google.gaProperties(bundle.access_token),x=>({id:x.property,type:'analytics_property',label:x.name+' ('+x.account_name+')'})],
+      ['tag_manager',()=>google.gtmContainers(bundle.access_token),x=>({id:x.path,type:'tag_manager_container',label:x.container+' ('+x.public_id+')',public_id:x.public_id})]
+    ]) {
+      try { const found=await read(); resources.push(...found.map(map)); service_checks.push({service,status:'pass',resource_count:found.length}); }
+      catch(error) { service_checks.push({service,status:'unavailable',detail:redactIntegrationError(error,[bundle.access_token])}); }
+    }
+    if(!service_checks.some(c=>c.status==='pass'))throw Object.assign(new Error('Google discovery failed. Check the authorised scopes and enable the Search Console, Analytics Admin and Tag Manager APIs.'),{status:403});
+    return {identity:{id:resources[0]?.id||'',label:'Google account'},resources,service_checks};
   }
   async function testX(bundle){
     const d=await requestJson('https://api.x.com/2/users/me?user.fields=id,name,username,profile_image_url',{headers:authHeaders(bundle)});
     const u=d.data||{};
+    if(!u.id)throw new Error('X did not return an authorised account identity. Reconnect the account.');
     return {identity:{id:String(u.id||''),label:u.username?'@'+u.username:(u.name||'X account')},resources:[{id:String(u.id||''),type:'x_account',label:u.username?'@'+u.username:(u.name||'X account')}].filter(x=>x.id)};
   }
   async function testSnapchat(bundle){
@@ -179,6 +197,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     const d=await requestJson(base+'/v1/me',{headers:authHeaders(bundle)});
     const me=d?.me||d?.data||d;
     const id=String(me?.id||me?.member_id||me?.sub||'');
+    if(!id)throw new Error('Snapchat did not return an authorised Marketing API identity. Check app access and reconnect.');
     const label=me?.display_name||me?.name||me?.email||'Snapchat account';
     return {identity:{id,label},resources:id?[{id,type:'snapchat_account',label}]:[]};
   }
@@ -194,7 +213,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     else if(provider==='x')result=await testX(fresh.bundle);
     else if(provider==='snapchat')result=await testSnapchat(fresh.bundle);
     else throw new Error('Live connection testing is not implemented for '+provider+'.');
-    return {ok:true,provider,refreshed:fresh.refreshed,bundle:fresh.bundle,identity:result.identity,resources:result.resources||[],tested_at:nowIso()};
+    return {ok:true,provider,refreshed:fresh.refreshed,bundle:fresh.bundle,identity:result.identity,resources:result.resources||[],service_checks:result.service_checks||[],tested_at:nowIso()};
   }
   async function revokeConnection(provider,bundle){
     const token=String(bundle?.access_token||'');

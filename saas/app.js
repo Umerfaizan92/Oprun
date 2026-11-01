@@ -926,6 +926,7 @@ const integrationHelp={
   email_sms:'Connect the platform-managed email/SMS provider and configure sender identity/consent rules.'
 };
 async function loadSelfServiceIntegrations(force=false){
+  if(window.SuperProIntegrationManager?.render)return window.SuperProIntegrationManager.render(force);
   const view=$('#integrations-view');if(!view)return;
   if(!force&&Date.now()-integrationsLoadedAt<5000)return;integrationsLoadedAt=Date.now();
   const grid=$('#self-service-integration-grid');if(!grid)return;
@@ -1004,7 +1005,7 @@ async function loadBusinessSwitcher(){
   try{
     const q=new URLSearchParams(location.search),ok=q.get('integration_connected'),err=q.get('integration_error');
     if(!ok&&!err)return;
-    history.replaceState(null,'',location.pathname+'#marketing/connections');
+    history.replaceState(null,'',location.pathname+'#b08/connections');
     const tell=()=>{if(typeof note==='function')note(ok?`${ok.replace(/_/g,' ')} connected.`:`Connection did not finish: ${err}`,Boolean(err))};
     setTimeout(()=>{try{showView('integrations')}catch{}tell()},1800);
   }catch{}

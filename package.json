@@ -37,6 +37,7 @@
     "verify:manifest": "node scripts/verify-manifest.mjs",
     "postinstall": "node scripts/install-litestream.mjs",
     "test:ui": "node scripts/test-ui.mjs",
+    "test:connections-ui": "node scripts/test-connections-ui.mjs",
     "security:secrets": "node scripts/secret-scan.mjs",
     "storage:verify": "node scripts/verify-storage.mjs",
     "backup:restore-drill": "node scripts/restore-drill.mjs",

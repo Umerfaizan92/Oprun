@@ -1,3 +1,4 @@
+import {googleResourceLinks} from '../integration-resources.js';
 // Phase 06: the SEO platform's data and operations. Every row belongs to one owner: 'platform' (Super Pro's own public
 // website, Founder Console only) or one business's organisation id. No function reads across owners.
 import crypto from 'node:crypto';
@@ -66,8 +67,15 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
     const bundle = await connections.fresh(c, provider);
     return bundle.access_token;
   }
-  const link = (ownerKey, service) => db.prepare('SELECT * FROM seo_google_links WHERE owner_key=? AND service=?').get(ownerKey, service);
+  function permittedLink(ownerKey,service,resource){
+    if(isPlatform(ownerKey)||service==='ads')return true;
+    const provider=service==='business_profile'?'google_business':'google_seo',c=connections?.load(ownerKey,provider);
+    if(!Array.isArray(c?.settings?.selected_resources))return true; // Existing non-OAuth/service-account fixtures.
+    return c.row.status==='connected'&&googleResourceLinks(provider,c.settings.selected_resources).some(r=>r.service===service&&r.resource===resource);
+  }
+  const link = (ownerKey, service) => {const row=db.prepare('SELECT * FROM seo_google_links WHERE owner_key=? AND service=?').get(ownerKey, service);return row&&permittedLink(ownerKey,service,row.resource)?row:null};
   function setLink(ownerKey, service, resource, label, actor) {
+    if(!permittedLink(ownerKey,service,resource))throw Object.assign(new Error('Select and save this authorised resource in Connections first.'),{status:409});
     db.prepare('INSERT INTO seo_google_links(owner_key,service,resource,label,linked_by,linked_at) VALUES (?,?,?,?,?,?) ON CONFLICT(owner_key,service) DO UPDATE SET resource=excluded.resource,label=excluded.label,linked_by=excluded.linked_by,linked_at=excluded.linked_at').run(ownerKey, service, resource, label || resource, actor || null, iso());
   }
   function record(ownerKey, service, ok, detail, sample, actor) {

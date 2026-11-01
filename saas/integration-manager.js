@@ -1,148 +1,129 @@
+/* Workspace connection controls. Account passwords and OAuth app secrets stay off this page. */
 (()=>{
   if(window.SuperProIntegrationManager)return;
   const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const pendingSelections=new Map(),records=new Map();
+  let loading=null,identity='',canManage=false,canCheck=false;
+  const context=()=>`${window.GDS_SESSION?.user?.id||''}:${window.GDS_SESSION?.organisation?.id||''}`;
   const api=async(url,opt={})=>{
-    const r=await fetch(url,{credentials:'same-origin',headers:{'content-type':'application/json',...(opt.headers||{})},...opt});
+    const r=await fetch(url,{...opt,credentials:'same-origin',headers:{'content-type':'application/json',...(opt.headers||{})}});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(d.error||'The integration action could not be completed.');
+    if(!r.ok||d.ok===false){const e=new Error(d.error||d.diagnostic?.title||'This action could not be completed.');e.data=d;throw e;}
     return d;
   };
-  const notify=(message,type='success')=>{
-    if(window.GDSLive?.push)window.GDSLive.push(message,type);
-    else console[type==='error'?'error':'log'](message);
+  const friendly={
+    meta:'Connect on Meta to choose your Facebook Pages and linked Instagram professional accounts. App review and the granted permissions determine what is available.',
+    whatsapp:'Authorise your own Meta business and choose its WhatsApp phone number. Business verification, templates and messaging permissions are controlled by Meta.',
+    tiktok:'Authorise your TikTok account. Profile statistics require user.info.stats; recent videos require video.list. Publishing needs separate provider approval.',
+    youtube:'Authorise Google and choose your YouTube channel. Subscriber counts can be rounded or hidden by YouTube.',
+    google_seo:'Authorise Google, then select your Search Console properties, Analytics properties and Tag Manager containers separately. Each API is checked independently.',
+    google_business:'Authorise your own Business Profile locations. Google must approve the platform’s Business Profile API access.',
+    x:'Authorise your X account. Available endpoints and metrics depend on the platform’s X API access tier.',
+    snapchat:'Authorise Snapchat through its official screen. Marketing API identity does not provide personal-profile statistics; Public Profile insights need separate approved API access.',
+    website:'Save your website and prove ownership with the displayed DNS TXT record. Then connect its enquiry form to this workspace.',
+    email_sms:'Connect a workspace-owned business email service (Resend) or SMS service (Telnyx). Use provider API keys, not your email or social-media account password. Existing Gmail/Outlook mailbox sync is not included in this transport connection.'
   };
-  const style=document.createElement('style');
-  style.textContent=[
-    '.integration-card.self-service.has-integration-manager{grid-template-columns:44px minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-items:start!important;height:auto!important;min-height:0!important;overflow:visible!important}.integration-card.self-service.has-integration-manager>.integration-logo{grid-column:1;grid-row:1}.integration-card.self-service.has-integration-manager>div:not(.integration-manager){grid-column:2;grid-row:1;min-width:0}.integration-card.self-service.has-integration-manager>[data-connect-provider]{display:none!important}.integration-manager{grid-column:1/-1!important;grid-row:2!important;width:100%;min-width:0;margin-top:4px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);display:grid;gap:12px;align-self:stretch}',
-    '.integration-manager-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start}.integration-manager-actions button{position:static!important;grid-column:auto!important;width:auto!important;max-width:100%;margin:0!important}',
-    '.integration-resource-list{display:grid;gap:6px;max-height:220px;overflow:auto}',
-    '.integration-resource-list label{display:flex;gap:9px;align-items:flex-start;padding:8px 9px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025)}',
-    '.integration-resource-list label>span{display:grid;gap:2px}.integration-resource-list small{color:#8f9bab}',
-    '.integration-requirements-inline{grid-column:1/-1;margin-top:8px;padding:9px 10px;border:1px solid rgba(232,190,105,.25);border-radius:10px;background:rgba(232,190,105,.06);color:#c8b88e;line-height:1.5}',
-    '.integration-health-pass{color:#72d39a}.integration-health-fail{color:#ff8f8f}',
-    '.integration-manager-status{font-size:12px;line-height:1.5;color:#9aa5b4;overflow-wrap:anywhere}'
-  ].join('');
-  document.head.append(style);
-
-  const help={
-    meta:'Super Pro must be registered with Meta once. Each subscriber then signs in on Meta itself and authorises their own Facebook Pages and Instagram professional accounts.',
-    whatsapp:'Super Pro must be configured for Meta/WhatsApp Business. Each subscriber authorises their own Meta business, WhatsApp Business Account and phone number.',
-    tiktok:'Super Pro needs an approved TikTok developer app. Subscribers sign in on TikTok itself. Publishing appears only when the app is approved for the required publishing scope.',
-    youtube:'Super Pro needs a Google OAuth client. Subscribers sign in on Google itself and authorise their own YouTube channel.',
-    google_seo:'Super Pro needs a Google OAuth client with the Search Console, Analytics Admin, Analytics Data and Tag Manager APIs enabled. Subscribers authorise their own Google account; Super Pro reads search and analytics data and never changes your Google settings without approval.',
-    google_business:'Super Pro needs a Google OAuth client and Business Profile API access. Subscribers authorise their own Google Business Profile account and locations.',
-    x:'Super Pro needs its X OAuth application credentials. Subscribers sign in on X itself; Super Pro never receives their X password.',
-    snapchat:'Super Pro needs an approved Snapchat OAuth application. Subscribers sign in with Snapchat and authorise the resources granted by Snapchat.',
-    website:'Website/API credentials can be connected without exposing them to other workspaces.',
-    email_sms:'Email/SMS transport is currently platform-managed; customer-specific provider connections can be added as separate OAuth/API connectors.'
-  };
-
-  function managerHtml(x){
-    const resources=Array.isArray(x.resources)?x.resources:[];
+  const stamp=value=>value?new Date(value).toLocaleString():'Not checked yet';
+  function status(x){
+    if(x.last_test_status==='fail')return ['Needs attention','attention'];
+    if(x.status==='connected'&&x.connection_mode==='oauth'&&!x.resources?.length)return ['Authorised · no resources found','attention'];
+    if(x.status==='connected')return [x.last_test_status==='partial'?'Authorised · some services need attention':x.resources?.length&&!x.selected_resources?.length?'Authorised · choose resources':x.last_test_status==='pass'?'Connected · checked':'Authorised · test next',x.last_test_status==='partial'?'attention':'connected'];
+    if(x.status==='authorisation_pending')return ['Waiting for provider authorisation','attention'];
+    return [x.provider_ready?'Ready to set up':'Platform app setup required','setup'];
+  }
+  function diagnosticHtml(d){return d?`<div class="connection-diagnostic"><strong>${esc(d.title)}</strong><p>${esc(d.action)}</p>${d.reference?`<small>Reference: ${esc(d.reference)}</small>`:''}</div>`:'';}
+  function insightsHtml(x){
+    if(!x.insights)return '';
+    return `<section class="connection-insights" aria-label="${esc(x.display_name)} figures"><h3>Latest figures</h3><p>Last refresh attempt: ${esc(stamp(x.insights.fetched_at))}. Provider figures can be delayed.</p>${(x.insights.results||[]).map(r=>`<article><h4>${esc(r.label)}</h4><small>${esc(r.source)} · ${esc(r.period||'')} · ${esc(stamp(r.fetched_at))}</small>${r.status==='stale'?'<p>Refresh failed. Showing the last successful figures.</p>'+diagnosticHtml(r.diagnostic):''}${r.status==='unavailable'?diagnosticHtml(r.diagnostic):`<dl class="connection-metrics">${(r.metrics||[]).map(m=>`<div><dt>${esc(m.label)}</dt><dd>${m.value===null?'Not available':esc(Number(m.value).toLocaleString(undefined,{maximumFractionDigits:3}))}</dd>${m.note?`<small>${esc(m.note)}</small>`:''}</div>`).join('')}</dl>`}${r.recent_content?.length?`<details><summary>Recent videos (${r.recent_content.length})</summary><p>${esc(r.content_note)}</p><div class="connection-table"><table><thead><tr><th>Video</th><th>Views</th><th>Likes</th><th>Comments</th><th>Shares</th></tr></thead><tbody>${r.recent_content.map(v=>`<tr><th scope="row">${esc(v.title)}</th>${['views','likes','comments','shares'].map(k=>`<td>${v[k]===null?'Not available':esc(v[k])}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`:''}</article>`).join('')}${diagnosticHtml(x.insights_error)}</section>`;
+  }
+  function resourcesHtml(x){
+    if(!x.resources?.length)return '';
     const selected=new Set(pendingSelections.get(x.provider)||(x.selected_resources||[]).map(r=>String(r.id)));
-    const picker=resources.length?'<div class="integration-resource-picker"><b>Authorised resources</b><small>Select what this workspace may actually use.</small><div class="integration-resource-list">'+resources.map(r=>'<label><input type="checkbox" data-im-resource="'+esc(r.id)+'" '+(selected.has(String(r.id))?'checked':'')+'><span><b>'+esc(r.label||r.id)+'</b><small>'+esc(String(r.type||'resource').replaceAll('_',' ')+(r.detail?' · '+r.detail:''))+'</small></span></label>').join('')+'</div><button type="button" class="secondary-button compact" data-im-save="'+esc(x.provider)+'">Save selection</button></div>':'';
-    const health=x.last_test_status==='pass'?'<span class="integration-health-pass">Last connection test passed</span>':x.last_test_status==='fail'?'<span class="integration-health-fail">Last connection test failed</span>':'<span>Connection test recommended</span>';
-    return '<div class="integration-manager" data-im-manager="'+esc(x.provider)+'"><div class="integration-manager-status">'+health+(x.last_tested_at?' · '+esc(new Date(x.last_tested_at).toLocaleString()):'')+'</div><div class="integration-manager-actions"><button type="button" class="secondary-button compact" data-im-test="'+esc(x.provider)+'">Test connection</button><button type="button" class="secondary-button compact" data-im-disconnect="'+esc(x.provider)+'">Disconnect</button></div>'+picker+'</div>';
+    return `<section class="integration-resource-picker"><h3>Choose workspace resources</h3><p>Only saved selections are used for figures and connected actions.</p><div class="integration-resource-list">${x.resources.map(r=>`<label><input type="checkbox" data-im-resource="${esc(r.id)}" ${selected.has(String(r.id))?'checked':''} ${r.usable===false||!canCheck?'disabled':''}><span><b>${esc(r.label||r.id)}</b><small>${esc(String(r.type||'resource').replaceAll('_',' '))}${r.usable===false?' · ownership permission required':''}</small></span></label>`).join('')}</div><button type="button" data-im-save="${esc(x.provider)}" ${!canCheck?'disabled':''}>Save selection</button></section>`;
   }
-
-  const pendingSelections=new Map();
-  document.addEventListener('change',event=>{if(!event.target.matches('[data-im-resource]'))return;const card=event.target.closest('[data-provider-card]');pendingSelections.set(card.dataset.providerCard,[...card.querySelectorAll('[data-im-resource]:checked')].map(input=>input.dataset.imResource))});
-  let enhancing=null;
-  function enhance(){
-    if(enhancing)return enhancing;
-    enhancing=enhanceCards().finally(()=>{enhancing=null});
-    return enhancing;
+  function bodyHtml(x){
+    const [label,tone]=status(x),owned=x.connection_mode&&x.connection_mode!=='oauth',manage=canManage?'':'disabled';
+    const primary=owned?'Set up my '+(x.provider==='website'?'website':'email / SMS'):x.status==='connected'?'Reconnect':x.provider_ready?'Connect / Authorise':'What is needed';
+    return `<div class="connection-card-heading"><span class="integration-logo" aria-hidden="true">${esc((x.display_name||x.provider).slice(0,1))}</span><div><h3>${esc(x.display_name||x.provider)}</h3><span class="connection-state ${tone}">${esc(label)}</span></div></div><p>${esc(friendly[x.provider]||'Connect your own provider account securely.')}</p>${x.account_label?`<p><b>Account:</b> ${esc(x.account_label)}</p>`:''}<div class="integration-manager-actions"><button type="button" data-connect-provider="${esc(x.provider)}" data-ready="${x.provider_ready?'1':'0'}" data-status="${esc(x.status)}" ${manage}>${primary}</button>${x.status==='connected'||x.provider==='website'&&x.website?`<button type="button" data-im-test="${esc(x.provider)}" ${!canCheck?'disabled':''}>${x.provider==='website'?'Verify website':'Test connection'}</button><button type="button" data-im-insights="${esc(x.provider)}" ${!canCheck?'disabled':''}>Refresh figures</button>`:''}<button type="button" data-im-diagnose="${esc(x.provider)}">Troubleshoot</button>${x.status==='connected'?`<button type="button" data-im-disconnect="${esc(x.provider)}" ${manage}>Disconnect</button>`:''}</div><p class="integration-manager-status">Last connection check: ${esc(stamp(x.last_tested_at))}</p>${x.platform_transport_available&&x.provider==='email_sms'?'<p class="connection-note">Platform delivery is available separately. This does not connect your own mailbox or SMS account.</p>':''}${x.transport?`<dl class="connection-service-status"><dt>Business email</dt><dd>${esc(x.transport.email?.sender||'Not connected')}</dd><dt>SMS number</dt><dd>${esc(x.transport.sms?.number||'Not connected')}</dd></dl>`:''}${(x.service_checks||[]).length?`<ul class="connection-service-checks">${x.service_checks.map(c=>`<li><b>${esc(c.service.replaceAll('_',' '))}</b>: ${esc(c.status==='pass'?'Checked':c.status)}${c.detail?` · ${esc(c.detail)}`:''}</li>`).join('')}</ul>`:''}${diagnosticHtml(x.diagnostic)}${resourcesHtml(x)}${insightsHtml(x)}<div data-im-requirements="${esc(x.provider)}" class="integration-requirements-inline" hidden><p>${esc(friendly[x.provider])}</p><p>A platform administrator must register the provider app once. Each subscriber then authorises their own account and resources.</p><a href="#b08/help">Open support</a></div><div class="connection-action-result" role="status" aria-live="polite"></div>`;
   }
-  async function enhanceCards(){
-    const grid=document.querySelector('#self-service-integration-grid');
-    if(!grid)return;
-    let d;
-    try{d=await api('/api/saas/integrations/self-service')}catch{return}
-    for(const x of d.integrations||[]){
-      const card=grid.querySelector('[data-provider-card="'+CSS.escape(x.provider)+'"]');
-      if(!card)continue;
-      card.querySelector('[data-im-manager]')?.remove();
-      card.querySelector('[data-im-requirements]')?.remove();
-      const legacyAction=card.querySelector('[data-connect-provider]');
-      card.classList.toggle('has-integration-manager',x.status==='connected');
-      if(x.status==='connected'){
-        if(legacyAction){legacyAction.hidden=true;legacyAction.setAttribute('aria-hidden','true')}
-        card.insertAdjacentHTML('beforeend',managerHtml(x));
-      }else{
-        if(legacyAction){legacyAction.hidden=false;legacyAction.removeAttribute('aria-hidden')}
-      }
-      if(x.status!=='connected'&&!x.provider_ready){
-        const box=document.createElement('div');
-        box.className='integration-requirements-inline';
-        box.dataset.imRequirements=x.provider;
-        box.hidden=true;
-        box.textContent=help[x.provider]||'This provider needs Super Pro platform registration before subscribers can securely authorise their own account.';
-        card.append(box);
-      }
-    }
+  function paintCard(x){
+    const grid=document.getElementById('self-service-integration-grid');if(!grid)return;
+    let card=grid.querySelector(`[data-provider-card="${CSS.escape(x.provider)}"]`);
+    if(!card){card=document.createElement('article');card.dataset.providerCard=x.provider;card.className='integration-card self-service connection-card';grid.append(card);}
+    const config=card.querySelector('[data-im-config]');config?.remove();
+    const assistant=card.querySelector('[data-im-assistant]');assistant?.remove();
+    card.innerHTML=bodyHtml(x);if(config)card.append(config);if(assistant)card.append(assistant);
   }
-
+  async function render(){
+    if(loading)return loading;
+    const grid=document.getElementById('self-service-integration-grid');if(!grid)return;
+    const current=context();
+    if(identity!==current){identity=current;pendingSelections.clear();records.clear();grid.replaceChildren();}
+    loading=(async()=>{
+      try{
+        const d=await api('/api/saas/integrations/self-service');if(current!==context())return;
+        canManage=d.can_manage??['owner','admin','super_admin'].includes(window.GDS_SESSION?.user?.role);
+        canCheck=d.can_check??canManage;
+        for(const x of d.integrations||[]){records.set(x.provider,x);paintCard(x);}
+        let summary=document.getElementById('connection-hub-summary');
+        if(!summary){summary=document.createElement('p');summary.id='connection-hub-summary';summary.className='connection-note';grid.before(summary);}
+        summary.textContent=`${d.integrations?.length||0} services · ${[...records.values()].filter(x=>x.status==='connected').length} authorised for this workspace. Figures show their source and last refresh. Account passwords are never requested.`;
+      }catch(e){grid.replaceChildren();const p=document.createElement('p');p.className='gov-empty';p.textContent=e.message;grid.append(p);}
+    })().finally(()=>{loading=null});return loading;
+  }
+  const field=(label,name,type='text',hint='')=>`<label>${esc(label)}<input type="${type}" name="${name}" aria-label="${esc(label)}" autocomplete="off" ${['api_key','sender','number','url'].includes(name)?'required':''}>${hint?`<small>${esc(hint)}</small>`:''}</label>`;
+  function configure(card,x){
+    let box=card.querySelector('[data-im-config]');if(box){box.hidden=!box.hidden;return;}
+    box=document.createElement('section');box.dataset.imConfig=x.provider;box.className='connection-config';
+    if(x.provider==='website')box.innerHTML=`<h3>Connect your website</h3><form data-im-website>${field('Website address','url','url')}<button type="submit">Save website address</button></form><div data-im-website-proof></div>`;
+    else box.innerHTML=`<h3>Workspace-owned email & SMS</h3><p>Keys are stored encrypted and are never shown again. A provider account password is not an API key.</p><details><summary>Connect business email with Resend</summary><form data-im-credentials="email">${field('Resend API key','api_key','password','Use a key authorised to read verified domains and send email.')}${field('Verified sender email','sender','email')}${field('Resend webhook signing secret (optional)','webhook_secret','password','Needed for signed inbound email and delivery receipts.')}<button type="submit">Verify and save email</button></form></details><details><summary>Connect SMS with Telnyx</summary><form data-im-credentials="sms">${field('Telnyx API key','api_key','password')}${field('Your Telnyx number','number','tel','Use international format, for example +61412345678.')}${field('Telnyx webhook public key (optional)','public_key','text','Needed to verify inbound SMS and delivery signatures.')}<button type="submit">Verify and save SMS</button></form></details><p>Set your provider webhook to the workspace-specific address shown after saving. Provider delivery charges remain with that provider.</p><div data-im-webhook></div>`;
+    card.append(box);updateInstructions(card,x);
+  }
+  function updateInstructions(card,x){
+    const proof=card.querySelector('[data-im-website-proof]');
+    if(proof&&x.website){proof.innerHTML=`<p>Add this TXT record in your domain dashboard, then choose Verify website:</p><dl><dt>Name</dt><dd><code>${esc(x.website.verification_name)}</code></dd><dt>Value</dt><dd><code>${esc(x.website.verification_value)}</code></dd><dt>Status</dt><dd>${x.website.verified?'Ownership verified':'Waiting for verification'}</dd></dl>${x.website.verified?`<p>Use this workspace’s form endpoint with name, email or phone, and message fields:</p><code>${esc(location.origin+x.form_action)}</code><p>Recorded enquiries appear in the Unified Inbox. This is not a page-view tracking script.</p>`:''}`;}
+    const hooks=card.querySelector('[data-im-webhook]');
+    if(hooks&&x.transport){const org=window.GDS_SESSION?.organisation?.id;hooks.innerHTML=`<p>Signed provider webhook endpoints:</p><p>Email: <code>${esc(location.origin+'/api/webhooks/communications/resend/'+org)}</code></p><p>SMS: <code>${esc(location.origin+'/api/webhooks/communications/telnyx/'+org)}</code></p><p>Configure these in the provider dashboard. Inbound mail requires Resend Receiving for the connected domain; it does not sync an existing Gmail/Outlook inbox.</p>`;}
+  }
+  function announce(card,text,error=false){const p=card.querySelector('.connection-action-result');if(p){p.textContent=text;p.classList.toggle('connection-error',error);}}
+  document.addEventListener('change',e=>{
+    if(!e.target.matches('[data-im-resource]'))return;
+    const card=e.target.closest('[data-provider-card]');pendingSelections.set(card.dataset.providerCard,[...card.querySelectorAll('[data-im-resource]:checked')].map(i=>i.dataset.imResource));
+  });
   document.addEventListener('click',async e=>{
-    const noReady=e.target.closest('[data-connect-provider][data-ready="0"]');
-    if(noReady){
-      e.preventDefault();e.stopImmediatePropagation();
-      const card=noReady.closest('[data-provider-card]'),box=card?.querySelector('[data-im-requirements]');
-      if(box)box.hidden=!box.hidden;
-      return;
-    }
-    const already=e.target.closest('[data-connect-provider][data-status="connected"]');
-    if(already){
-      e.preventDefault();e.stopImmediatePropagation();
-      already.closest('[data-provider-card]')?.querySelector('[data-im-manager]')?.scrollIntoView({behavior:'smooth',block:'nearest'});
-      return;
-    }
-
-    const test=e.target.closest('[data-im-test]');
-    if(test){
-      const provider=test.dataset.imTest;test.disabled=true;test.textContent='Testing…';
-      try{
-        const r=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/test',{method:'POST',body:'{}'});
-        notify((r.account_label||provider)+': connection test passed'+(r.refreshed?' and token refreshed':'')+'.');
-      }catch(err){notify(err.message,'error')}
-      finally{await enhance();test.disabled=false}
-      return;
-    }
-
-    const save=e.target.closest('[data-im-save]');
-    if(save){
-      const provider=save.dataset.imSave,card=save.closest('[data-provider-card]');
-      const resource_ids=[...card.querySelectorAll('[data-im-resource]:checked')].map(x=>x.dataset.imResource);
-      save.disabled=true;
-      try{
-        await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/resources',{method:'POST',body:JSON.stringify({resource_ids})});
-        pendingSelections.delete(provider);notify('Authorised resource selection saved.');
-      }catch(err){notify(err.message,'error')}
-      finally{save.disabled=false;await enhance()}
-      return;
-    }
-
-    const disconnect=e.target.closest('[data-im-disconnect]');
-    if(disconnect){
-      const provider=disconnect.dataset.imDisconnect;
-      if(!confirm('Disconnect this provider from this workspace? Stored provider tokens will be removed from Super Pro.'))return;
-      disconnect.disabled=true;disconnect.textContent='Disconnecting…';
-      try{
-        const r=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider),{method:'DELETE'});
-        notify(r.remote_revoked?'Provider access revoked and local credentials removed.':'Local credentials removed. Review the provider connected-app settings if you also want to revoke remote access.');
-        if(typeof window.loadSelfServiceIntegrations==='function')await window.loadSelfServiceIntegrations(true);
-        else location.reload();
-      }catch(err){notify(err.message,'error');disconnect.disabled=false;disconnect.textContent='Disconnect'}
-      return;
-    }
+    const b=e.target.closest('[data-connect-provider],[data-im-test],[data-im-save],[data-im-disconnect],[data-im-insights],[data-im-diagnose]');if(!b)return;
+    const card=b.closest('[data-provider-card]');if(!card)return;
+    const provider=card.dataset.providerCard,x=records.get(provider);if(!x)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(b.hasAttribute('data-connect-provider')&&x.connection_mode!=='oauth'&&['website','email_sms'].includes(provider)){configure(card,x);return;}
+    if(b.hasAttribute('data-connect-provider')&&!x.provider_ready){const box=card.querySelector('[data-im-requirements]');box.hidden=!box.hidden;return;}
+    if(b.hasAttribute('data-im-disconnect')&&!confirm('Disconnect this provider from this workspace? Stored authorisation will be removed and connected actions will stop.'))return;
+    const original=b.textContent;b.disabled=true;b.textContent='Working…';announce(card,'');
+    try{
+      if(b.hasAttribute('data-im-diagnose')){
+        const d=await api('/api/saas/integrations/self-service/'+provider+'/diagnostics');let box=card.querySelector('[data-im-assistant]');if(!box){box=document.createElement('section');box.dataset.imAssistant=provider;card.append(box);}
+        box.innerHTML=`<h3>Connection assistant</h3><p>Guided checks based on this workspace’s connection state.</p>${diagnosticHtml(d.diagnostic)}<ol>${d.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p>${esc(d.note)}</p>`;return;
+      }
+      if(b.hasAttribute('data-connect-provider')){const d=await api('/api/saas/integrations/self-service/'+provider+'/authorise',{method:'POST',body:'{}'});if(d.authorize_url){location.assign(d.authorize_url);return;}}
+      else if(b.hasAttribute('data-im-test'))await api('/api/saas/integrations/self-service/'+provider+'/test',{method:'POST',body:'{}'});
+      else if(b.hasAttribute('data-im-insights'))await api('/api/saas/integrations/self-service/'+provider+'/insights',{method:'POST',body:'{}'});
+      else if(b.hasAttribute('data-im-save')){const resource_ids=[...card.querySelectorAll('[data-im-resource]:checked')].map(i=>i.dataset.imResource);await api('/api/saas/integrations/self-service/'+provider+'/resources',{method:'POST',body:JSON.stringify({resource_ids})});pendingSelections.delete(provider);}
+      else if(b.hasAttribute('data-im-disconnect'))await api('/api/saas/integrations/self-service/'+provider,{method:'DELETE'});
+      await render();const fresh=document.querySelector(`[data-provider-card="${CSS.escape(provider)}"]`);announce(fresh,'Connection information updated.');updateInstructions(fresh,records.get(provider));
+    }catch(error){announce(card,error.message+(error.data?.diagnostic?.reference?' Reference: '+error.data.diagnostic.reference:''),true);}
+    finally{if(b.isConnected){b.disabled=false;b.textContent=original;}}
   },true);
-
-  // Watch the renderer replacing cards, not this enhancer's own descendants.
-  // Subtree observation here used to trigger a request/mutation loop and reset page two.
-  const observer=new MutationObserver(()=>{clearTimeout(observer._t);observer._t=setTimeout(enhance,120)});
-  const start=()=>{
-    const grid=document.querySelector('#self-service-integration-grid');
-    if(grid){observer.observe(grid,{childList:true});if(grid.querySelector('[data-provider-card]'))enhance()}
-  };
-  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start):start();
-  window.SuperProIntegrationManager={enhance};
+  document.addEventListener('submit',async e=>{
+    const form=e.target;if(!form.matches('[data-im-credentials],[data-im-website]'))return;
+    e.preventDefault();const card=form.closest('[data-provider-card]'),provider=card.dataset.providerCard,b=form.querySelector('button[type=submit]');b.disabled=true;
+    try{
+      const values=Object.fromEntries(new FormData(form));
+      const endpoint=provider==='website'?'configure':'credentials';if(provider==='email_sms')values.kind=form.dataset.imCredentials;
+      await api('/api/saas/integrations/self-service/'+provider+'/'+endpoint,{method:'POST',body:JSON.stringify(values)});
+      form.reset();form.dispatchEvent(new Event('superpro:form-saved',{bubbles:true}));
+      await render();updateInstructions(card,records.get(provider));announce(card,provider==='website'?'Website saved. Complete ownership verification next.':'Provider verified and saved. Configure signed webhooks for inbound messages and receipts.');
+    }catch(error){announce(card,error.message,true);}finally{b.disabled=false;}
+  });
+  const onView=e=>{if(e.detail?.view==='integrations')render();};window.addEventListener('gds:viewchange',onView);
+  window.SuperProIntegrationManager={render,enhance:render};
 })();

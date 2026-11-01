@@ -801,3 +801,115 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Merge PR #54 into main (owner-authorised 2026-10-31 17:18), then owner deploys latest commit in Render
+
+## CP-058 2026-11-01T15:24:20+08:00 T-067 IN_PROGRESS
+- Phase: Current-live subscriber connection audit
+- Task: T-067 (IN_PROGRESS)
+- Completed steps: Verified live d19a257 and main 83b3066; preserved newer public assets; inspected both live connection pages; identified platform transport incorrectly presented as subscriber connection, incomplete Google discovery, raw errors and replayable unbound OAuth state
+- Incomplete steps: Implement secure OAuth lifecycle, truthful tenant-scoped setup and diagnostics, per-provider selected-resource metrics, responsive connection manager; meaningful security and workflow tests; release candidate and handover
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T072420Z (5a4c095)
+- Known errors: none
+- Next exact action: Implement OAuth state store and runtime error and discovery corrections before UI and metrics changes
+
+## CP-059 2026-11-01T15:37:10+08:00 T-067 IN_PROGRESS
+- Phase: Subscriber connections core repair implemented; UI and QA pending
+- Task: T-067 (IN_PROGRESS)
+- Completed steps: OAuth browser/session bound single-use state implemented with strict-cookie-safe callback flow and legacy TikTok bridge; fixed token expiry renewal bug and HTTP200 provider error handling; Google discovery covers Search Console Analytics Tag Manager with partial failures; workspace-owned encrypted transport setup and selected-resource insights implemented; delivery paths resolve workspace credentials; initial four security tests and runtime integration tests passed
+- Incomplete steps: Complete secure signed webhook routing and in-app connection manager; test ownership and callback end-to-end, transports and insights isolation; run regression and release checks; save candidate and handover
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; src/comms/service.js; src/integration-runtime.js; src/mail-centre.js; src/saas-platform.js; src/server.js; node_modules; scripts/integration-security.test.mjs; src/integration-insights.js; src/integration-security.js; src/integration-transports.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T073710Z (68eac64)
+- Known errors: none
+- Next exact action: Complete connection manager UI, then run contract and browser tests against fixture providers
+
+## CP-060 2026-11-01T15:47:27+08:00 T-067 IN_PROGRESS
+- Phase: Subscriber connections implementation
+- Task: T-067 (IN_PROGRESS)
+- Completed steps: Added isolated OAuth state callbacks token refresh; workspace-owned encrypted transports and DNS proof; provider metrics and diagnostics; redesigned connection cards; signed tenant webhook routing
+- Incomplete steps: Complete regression tests and browser verification; document provider prerequisites; commit verified candidate and deliver recoverable handover
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; saas/app.js; saas/integration-manager.js; saas/workspace.html; src/comms/service.js; src/integration-runtime.js; src/mail-centre.js; src/message-delivery.js; src/saas-platform.js; src/server.js; saas/integration-manager.css; scripts/integration-security.test.mjs; scripts/integration-tenant.test.mjs; src/integration-insights.js; src/integration-security.js; src/integration-transports.js; src/integration-webhooks.js
+- Tests executed: node --test scripts/integration-security.test.mjs
+- Test results: 4 of 4 passed
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T074727Z (3d20e24)
+- Known errors: none
+- Next exact action: Inspect tenant test and npm test results; fix failures; verify responsive connection UI
+
+## CP-061 2026-11-01T15:55:24+08:00 T-067 TESTING
+- Phase: Subscriber connections implementation
+- Task: T-067 (TESTING)
+- Completed steps: Focused connection UI verified; shared Google resource selection integrated; audit matrix and owner acceptance guide written
+- Incomplete steps: Finish accessibility and final regression checks; package reviewed candidate with exact test limitations
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; package.json; saas/app.js; saas/integration-manager.js; saas/workspace.html; src/comms/service.js; src/integration-runtime.js; src/mail-centre.js; src/message-delivery.js; src/saas-platform.js; src/seo/service.js; src/server.js; docs/connections/AUDIT-2026-11-01.md; docs/connections/OWNER-SETUP.md; saas/integration-manager.css; scripts/integration-security.test.mjs; scripts/integration-tenant.test.mjs; scripts/test-connections-ui.mjs; src/integration-insights.js; src/integration-resources.js; src/integration-security.js; src/integration-transports.js; src/integration-webhooks.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T075524Z (5a29832)
+- Known errors: none
+- Next exact action: Inspect focused accessibility result and full npm test; generate manifest and verified bundle/patch
+
+## CP-062 2026-11-01T16:00:27+08:00 T-067 TESTING
+- Phase: Subscriber connections implementation
+- Task: T-067 (TESTING)
+- Completed steps: Application regression passed 73 checks and 47 contract files; targeted security isolation and signed-webhook tests passed 11 of 11; navigation passed 576 checks; focused Connections UI and dark/light accessibility passed
+- Incomplete steps: Finish final full-suite rerun; manifest and secret scans; commit candidate and verify delivery bundle and patch; owner approval to publish followed by manual deployment and provider consent acceptance
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; package.json; saas/app.js; saas/integration-manager.js; saas/workspace.html; src/comms/service.js; src/integration-runtime.js; src/mail-centre.js; src/message-delivery.js; src/saas-platform.js; src/seo/service.js; src/server.js; docs/connections/AUDIT-2026-11-01.md; docs/connections/OWNER-SETUP.md; saas/integration-manager.css; scripts/integration-security.test.mjs; scripts/integration-tenant.test.mjs; scripts/test-connections-ui.mjs; src/integration-insights.js; src/integration-resources.js; src/integration-security.js; src/integration-transports.js; src/integration-webhooks.js
+- Tests executed: npm test; test-navigation-ui; test:connections-ui; integration security and tenant tests
+- Test results: 73 of 73; 576 navigation checks; UI and dark/light accessibility passed; 11 of 11
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T080027Z (9df0324)
+- Known errors: none
+- Next exact action: Finish release validation and prepare recoverable local handover without push or deploy
+
+## CP-063 2026-11-01T16:06:09+08:00 T-067 TESTING
+- Phase: Connections candidate release validation
+- Task: T-067 (TESTING)
+- Completed steps: Tenant-bound delayed receipt queue tested with replay and later cross-workspace record; owned transport sender inheritance corrected; audit, setup, validation and handover docs plus synthetic UI screenshots saved; staged secret scan passed
+- Incomplete steps: Await final complete-suite manifest run; commit candidate; verify incremental bundle and patch from exact source base; owner publication and deployment acceptance
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/connections/AUDIT-2026-11-01.md; docs/connections/HANDOVER.md; docs/connections/OWNER-SETUP.md; docs/connections/VALIDATION.md; docs/connections/screenshots/connections-desktop.png; docs/connections/screenshots/connections-mobile.png; package.json; saas/app.js; saas/integration-manager.css; saas/integration-manager.js; saas/workspace.html; scripts/integration-security.test.mjs; scripts/integration-tenant.test.mjs; scripts/test-connections-ui.mjs; src/comms/service.js; src/integration-insights.js; src/integration-resources.js; src/integration-runtime.js; src/integration-security.js; src/integration-transports.js; src/integration-webhooks.js; src/mail-centre.js; src/message-delivery.js; src/saas-platform.js; src/seo/service.js; src/server.js
+- Tests executed: integration security tenant and communication notification tests; security:secrets
+- Test results: 15 of 15 passed; 494 tracked files scanned clean
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T080609Z (c833206)
+- Known errors: none
+- Next exact action: Inspect /tmp/superpro-connections-complete-test.log, then commit and verify delivery artifacts
+
+## CP-064 2026-11-01T16:08:51+08:00 T-067 TESTING
+- Phase: Connections candidate release validation
+- Task: T-067 (TESTING)
+- Completed steps: Final npm test with manifest passed 74 of 74 including all 47 contract files; focused 15 security/delivery checks pass; connection UI plus dark/light accessibility and 576 navigation checks pass; audit/setup/handover and source candidate ready for review
+- Incomplete steps: Commit verified candidate and verify incremental bundle plus mailbox patch; owner permission to publish; manual deployment and live two-workspace provider acceptance; unsupported adapters and provider approvals remain explicit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/connections/AUDIT-2026-11-01.md; docs/connections/HANDOVER.md; docs/connections/OWNER-SETUP.md; docs/connections/VALIDATION.md; docs/connections/screenshots/connections-desktop.png; docs/connections/screenshots/connections-mobile.png; package.json; saas/app.js; saas/integration-manager.css; saas/integration-manager.js; saas/workspace.html; scripts/integration-security.test.mjs; scripts/integration-tenant.test.mjs; scripts/test-connections-ui.mjs; src/comms/service.js; src/integration-insights.js; src/integration-resources.js; src/integration-runtime.js; src/integration-security.js; src/integration-transports.js; src/integration-webhooks.js; src/mail-centre.js; src/message-delivery.js; src/saas-platform.js; src/seo/service.js; src/server.js
+- Tests executed: npm test -- --manifest; focused security and delivery tests; test:connections-ui; test:navigation-ui; integration:test; quality:check
+- Test results: 74 of 74; 15 of 15; passed with no serious/critical Connections axe violations; 576 checks; passed; 100 quality score
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 83b3066 (Merge PR #60: guide voice controls and new mark in guide avatars); branch not on remote
+- Recovery snapshot: refs/recovery/codex/subscriber-connections-20261101/20261101T080851Z (0823ccb)
+- Known errors: none
+- Next exact action: Commit source candidate then create and import-verify bundle and patch from base 83b3066; no push or deployment
+
+## CP-065 2026-11-01T16:10:05+08:00 T-067 TESTING
+- Phase: Connections candidate release validation
+- Task: T-067 (TESTING)
+- Completed steps: Source candidate committed as 8650277; 74 of 74 final checks passed; manifest and staged secret scan clean; incremental named-branch bundle imported from a fresh base-only clone and mailbox patch applied to identical tree
+- Incomplete steps: Explicit owner permission to publish reviewed branch; owner manual deployment and live two-workspace provider acceptance; external approvals and unsupported Snapchat Public Profile/Gmail/Outlook adapters remain outside delivered functionality
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md
+- Tests executed: npm test -- --manifest; targeted security/delivery; test:connections-ui; test:navigation-ui; fresh-base bundle fetch and git am tree comparison; verify:manifest; security:secrets; memory:validate
+- Test results: 74 of 74; 15 of 15; passed including dark/light accessibility; 576 checks; imported and identical tree; 492 files; 494 tracked files clean; passed
+- Git branch: codex/subscriber-connections-20261101
+- Commit: 8650277 (fix(connections): isolate subscriber setup and report verified provider health); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Review docs/connections/HANDOVER.md and delivery-verification.json; obtain explicit owner publication permission before any push; do not deploy or change provider accounts automatically

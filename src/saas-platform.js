@@ -133,7 +133,7 @@ export function recordTelnyxComms(db, eventType, payload) {
 
 // ---------------------------------------------------------------------------------------------
 export function installSaasPlatform(app, deps) {
-  const { db, env, requireSaasUser, requireSaasRole, requireAdmin, saasAudit, createWorkspaceApproval, generateAiText, aiProviderStatus, recomputeWorkerEligibility, createWorkerWithCompliance, workforceSeniorRoles, financeRoles, uploadRoot, canAccess } = deps;
+  const { db, env, requireSaasUser, requireSaasRole, requireAdmin, saasAudit, createWorkspaceApproval, generateAiText, aiProviderStatus, recomputeWorkerEligibility, createWorkerWithCompliance, workforceSeniorRoles, financeRoles, uploadRoot, canAccess, transportEnv = () => env, whatsappConnection } = deps;
   const ok = (res, data = {}, status = 200) => res.status(status).json({ ok: true, ...data });
   const fail = (res, status, error) => res.status(status).json({ ok: false, error });
   const exportLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 10, keyGenerator: (req) => `export:${req.saas?.user_id || 'anon'}`, standardHeaders: true, legacyHeaders: false, message: { ok: false, error: 'Export limit reached. Try again later.' } });
@@ -946,28 +946,30 @@ export function installSaasPlatform(app, deps) {
   });
 
   async function dispatch(msg) {
+    const deliveryEnv=['email','sms'].includes(msg.channel)?transportEnv(msg.organisation_id):env;
     const notConfigured = (what) => Object.assign(new Error(`${what} is not configured, so the approved message could not be sent.`), { code: 'NOT_CONFIGURED' });
     const set = (v) => Boolean(String(v || '').trim());
     if (msg.channel === 'sms') {
-      const from = env.TELNYX_FROM_NUMBER || env.TELNYX_PHONE_NUMBER;
-      if (!set(env.TELNYX_API_KEY) || !set(from)) throw notConfigured('SMS');
-      const r = await fetch(`${String(env.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${env.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: msg.contact_address, text: msg.body }) });
+      const from = deliveryEnv.TELNYX_FROM_NUMBER || deliveryEnv.TELNYX_PHONE_NUMBER;
+      if (!set(deliveryEnv.TELNYX_API_KEY) || !set(from)) throw notConfigured('SMS');
+      const r = await fetch(`${String(deliveryEnv.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: msg.contact_address, text: msg.body }) });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error('sms failed');
       return data?.data?.id || null;
     }
     if (msg.channel === 'whatsapp') {
-      if (!set(env.WHATSAPP_ACCESS_TOKEN) || !set(env.WHATSAPP_PHONE_NUMBER_ID)) throw notConfigured('WhatsApp');
-      const r = await fetch(`https://graph.facebook.com/${env.META_GRAPH_VERSION || 'v23.0'}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`, { method: 'POST', headers: { authorization: `Bearer ${env.WHATSAPP_ACCESS_TOKEN}`, 'content-type': 'application/json' }, body: JSON.stringify({ messaging_product: 'whatsapp', to: msg.contact_address.replace(/\D/g, ''), type: 'text', text: { body: msg.body } }) });
+      const own=whatsappConnection?await whatsappConnection(msg.organisation_id):{token:env.WHATSAPP_ACCESS_TOKEN,phone_id:env.WHATSAPP_PHONE_NUMBER_ID};
+      if (!set(own?.token) || !set(own?.phone_id)) throw notConfigured('This workspace WhatsApp account and selected phone');
+      const r = await fetch(`https://graph.facebook.com/${env.META_GRAPH_VERSION || 'v23.0'}/${own.phone_id}/messages`, { method: 'POST', headers: { authorization: `Bearer ${own.token}`, 'content-type': 'application/json' }, body: JSON.stringify({ messaging_product: 'whatsapp', to: msg.contact_address.replace(/\D/g, ''), type: 'text', text: { body: msg.body } }) });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error('whatsapp failed');
       return data?.messages?.[0]?.id || null;
     }
     if (msg.channel === 'email') {
-      if (!set(env.RESEND_API_KEY) || !set(env.SAAS_VERIFY_FROM)) throw notConfigured('Email');
+      if (!set(deliveryEnv.RESEND_API_KEY) || !set(deliveryEnv.SAAS_VERIFY_FROM)) throw notConfigured('Email');
       const brand=tenantBrandFor(db,uploadRoot,msg.organisation_id),rendered=renderEmail(brand,{heading:msg.subject||'Message from '+brand.name,paragraphs:[msg.body]});
       const replyTo=db.prepare("SELECT address FROM comms_channels WHERE organisation_id=? AND channel='email' AND status='active' LIMIT 1").get(msg.organisation_id)?.address;
-      const r = await fetch(`${String(env.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: env.SAAS_VERIFY_FROM, to: [msg.contact_address], subject: msg.subject ? `Re: ${msg.subject}` : 'Reply from us', text: rendered.text,html:rendered.html,...(replyTo?{reply_to:replyTo}:{}) }) });
+      const r = await fetch(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.RESEND_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: deliveryEnv.SAAS_VERIFY_FROM, to: [msg.contact_address], subject: msg.subject ? `Re: ${msg.subject}` : 'Reply from us', text: rendered.text,html:rendered.html,...(replyTo?{reply_to:replyTo}:{}) }) });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error('email failed');
       return data?.id || null;

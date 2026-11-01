@@ -41,6 +41,7 @@ export function installMailCentre(
     entitlements,
     timers = true,
     transport,
+    transportEnv = () => env,
   },
 ) {
   db.exec(`CREATE TABLE IF NOT EXISTS portal_mail(id TEXT PRIMARY KEY,scope TEXT NOT NULL CHECK(scope IN ('business','platform')),owner_id TEXT NOT NULL,direction TEXT NOT NULL DEFAULT 'outbound',recipient TEXT NOT NULL,subject TEXT NOT NULL,body TEXT NOT NULL,category TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft',revision INTEGER NOT NULL DEFAULT 1,created_by TEXT NOT NULL,approved_by TEXT,approval_hash TEXT,scheduled_at TEXT,scheduled_by TEXT,provider_id TEXT,read_at TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
@@ -200,10 +201,7 @@ export function installMailCentre(
         ok: true,
         messages,
         received,
-        provider_ready: Boolean(
-          env.RESEND_API_KEY &&
-          (env.PLATFORM_NOTICE_FROM || env.SAAS_VERIFY_FROM),
-        ),
+        provider_ready: providerReady(c.scope==='business'?c.owner:null),
         receipts_note:
           "Accepted is not delivered. Email opens are tracking signals, not proof a person read it.",
       });
@@ -445,11 +443,12 @@ export function installMailCentre(
         error: "Sender or approver access was revoked. Review again.",
       };
     }
+    let deliveryEnv;try{deliveryEnv=m.scope==="platform"?env:transportEnv(m.owner_id)}catch{return {ok:false,error:"Reconnect this workspace email provider before delivery."}}
     const from =
       m.scope === "platform"
         ? env.PLATFORM_NOTICE_FROM || env.SAAS_VERIFY_FROM
-        : env.SAAS_VERIFY_FROM;
-    if (!transport && (!env.RESEND_API_KEY || !from))
+        : deliveryEnv.SAAS_VERIFY_FROM;
+    if (!transport && (!deliveryEnv.RESEND_API_KEY || !from))
       return {
         ok: false,
         error:
@@ -491,7 +490,7 @@ export function installMailCentre(
           method: "POST",
           signal: AbortSignal.timeout(20000),
           headers: {
-            authorization: "Bearer " + env.RESEND_API_KEY,
+            authorization: "Bearer " + deliveryEnv.RESEND_API_KEY,
             "content-type": "application/json",
             "Idempotency-Key": "sp-mail-" + m.id + "-" + m.revision,
           },
@@ -650,6 +649,6 @@ export function installMailCentre(
     return m.id;
   }
   const mailStatus = (id, ownerId) => db.prepare("SELECT id,status,scheduled_at,recipient FROM portal_mail WHERE id=? AND owner_id=? AND scope='business'").get(id, ownerId) || null;
-  const providerReady = () => Boolean(transport || (env.RESEND_API_KEY && env.SAAS_VERIFY_FROM));
+  const providerReady = org => {try{const e=org?transportEnv(org):env;return Boolean(transport || (e.RESEND_API_KEY && (org?e.SAAS_VERIFY_FROM:e.PLATFORM_NOTICE_FROM||e.SAAS_VERIFY_FROM)))}catch{return false}};
   return { tick, dispatch, createDraft, queueApproved, mailStatus, providerReady };
 }

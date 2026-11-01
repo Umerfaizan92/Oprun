@@ -1,17 +1,19 @@
 import {portalMailReceipt,portalMailInbound} from './mail-centre.js';
 import crypto from 'node:crypto';
+import {installTenantIntegrationWebhooks} from './integration-webhooks.js';
 import {Resend} from 'resend';
 import {z} from 'zod';
 let active=null;
 export function trackCommunication(context,result){try{return active?.record(context,result)}catch{ return null }}
 export function communicationInbound(data){try{active?.inbound(data)}catch{}}
-export function installCommunicationTracking(app,{db,env,requireSaasUser,requireSaasRole,notify,verifyTelnyx,sendFollowUp,receiveEmail,onProviderEvent,timers=true}){
+export function installCommunicationTracking(app,{db,env,requireSaasUser,requireSaasRole,notify,verifyTelnyx,sendFollowUp,receiveEmail,onProviderEvent,tenantCredentials=()=>null,timers=true}){
  db.exec(`CREATE TABLE IF NOT EXISTS communication_deliveries(
  id TEXT PRIMARY KEY,organisation_id TEXT NOT NULL,user_id TEXT,channel TEXT NOT NULL,recipient TEXT NOT NULL,provider TEXT NOT NULL,provider_id TEXT,status TEXT NOT NULL,category TEXT NOT NULL,subject TEXT,created_at TEXT NOT NULL,delivered_at TEXT,opened_at TEXT,replied_at TEXT,detail TEXT,follow_up_at TEXT,follow_up_state TEXT,follow_up_json TEXT);
  CREATE UNIQUE INDEX IF NOT EXISTS delivery_provider_id ON communication_deliveries(provider,provider_id) WHERE provider_id IS NOT NULL;
  CREATE INDEX IF NOT EXISTS delivery_org_time ON communication_deliveries(organisation_id,created_at);
  CREATE TABLE IF NOT EXISTS communication_receipt_events(provider TEXT NOT NULL,event_id TEXT NOT NULL,provider_id TEXT,state TEXT,applied INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(provider,event_id));
  CREATE TABLE IF NOT EXISTS communication_settings(organisation_id TEXT PRIMARY KEY,follow_ups INTEGER NOT NULL DEFAULT 1);`);
+ let tenantWebhooks;
  const norm=(channel,value)=>channel==='email'?String(value||'').trim().toLowerCase():String(value||'').replace(/[^\d+]/g,'').replace(/^04/,'+614').replace(/^614/,'+614');
  const alert=(org,opts)=>{void notify.notifyRoles(org,['owner','admin'],opts).catch(()=>{})};
  function record(c,r){
@@ -21,6 +23,7 @@ export function installCommunicationTracking(app,{db,env,requireSaasUser,require
   const inserted=db.prepare(`INSERT OR IGNORE INTO communication_deliveries(id,organisation_id,user_id,channel,recipient,provider,provider_id,status,category,subject,created_at,detail,follow_up_at,follow_up_state,follow_up_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,c.organisationId,c.userId||null,c.channel,norm(c.channel,c.recipient),c.channel==='email'?'resend':'telnyx',r.email_id||r.message_id||null,status,category,String(c.subject||'Business message').slice(0,180),at,r.reason||null,follow?new Date(Date.now()+86400000).toISOString():null,follow?'pending':null,follow).changes;
   if(!inserted)return db.prepare('SELECT id FROM communication_deliveries WHERE provider=? AND provider_id=?').get(c.channel==='email'?'resend':'telnyx',r.email_id||r.message_id||null)?.id||null;
   for(const event of db.prepare('SELECT * FROM communication_receipt_events WHERE provider=? AND provider_id=? AND applied=0').all(c.channel==='email'?'resend':'telnyx',r.email_id||r.message_id||null))receipt(event.provider,event.event_id,event.provider_id,event.state);
+  tenantWebhooks?.applyPending(c.organisationId,c.channel==='email'?'resend':'telnyx',r.email_id||r.message_id||null);
   alert(c.organisationId,{kind:'message_delivery',title:r.sent?'Message accepted by provider':'Message could not be sent',body:`${c.channel.toUpperCase()} · ${c.subject||category}${r.sent?' · delivery confirmation pending':'. Check sender/provider settings and the delivery log.'}`,link:'#delivery',dedupe:`delivery:${id}`});return id;
  }
  function receipt(provider,eventId,messageId,state){
@@ -67,10 +70,11 @@ export function installCommunicationTracking(app,{db,env,requireSaasUser,require
   const event=req.body?.data,p=event?.payload;if(event?.event_type==='message.sent')receipt('telnyx',event.id,p?.id,'sent');if(event?.event_type==='message.finalized')receipt('telnyx',event.id,p?.id,p?.to?.some(t=>t.status==='delivered')?'delivered':'failed');
   res.json({ok:true});
  });
+ tenantWebhooks=installTenantIntegrationWebhooks(app,{db,credentials:tenantCredentials,verifyTelnyx,receiveEmail,receipt,onProviderEvent});
  let ticking=false;
  async function tick(){
   if(ticking)return;ticking=true;
-  try{const rows=db.prepare("SELECT d.* FROM communication_deliveries d LEFT JOIN communication_settings s ON s.organisation_id=d.organisation_id WHERE d.follow_up_state='pending' AND d.follow_up_at<=? AND d.replied_at IS NULL AND d.status<>'failed' AND COALESCE(s.follow_ups,1)=1 LIMIT 20").all(new Date().toISOString());
+  try{tenantWebhooks.flushPending();const rows=db.prepare("SELECT d.* FROM communication_deliveries d LEFT JOIN communication_settings s ON s.organisation_id=d.organisation_id WHERE d.follow_up_state='pending' AND d.follow_up_at<=? AND d.replied_at IS NULL AND d.status<>'failed' AND COALESCE(s.follow_ups,1)=1 LIMIT 20").all(new Date().toISOString());
    for(const row of rows){
     if(!db.prepare("UPDATE communication_deliveries SET follow_up_state='sending' WHERE id=? AND follow_up_state='pending' AND replied_at IS NULL").run(row.id).changes)continue;
     try{const payload=JSON.parse(row.follow_up_json);const r=await sendFollowUp(row,payload);db.prepare('UPDATE communication_deliveries SET follow_up_state=? WHERE id=?').run(r.sent?'sent':'failed',row.id)}catch{db.prepare("UPDATE communication_deliveries SET follow_up_state='failed' WHERE id=?").run(row.id)}
