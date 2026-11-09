@@ -941,3 +941,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start T-070 on branch claude/connections-accounts-tab-20261110: Accounts tab stages, confirm step, health lights, daily checks
+
+## CP-068 2026-11-09T23:54:50+00:00 T-070 IN_PROGRESS
+- Phase: Connections candidate release validation
+- Task: T-070 (IN_PROGRESS)
+- Completed steps: integration-health module, health in API, confirm step, daily sweep with alerts, Meta long-lived exchange, X address, capability ticks, page UI; unit and server tests pass
+- Incomplete steps: UI test for health and confirm; full npm test; commit; then T-071
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; saas/integration-manager.css; saas/integration-manager.js; saas/workspace.html; src/integration-runtime.js; src/server.js; scripts/connections-health.test.mjs; src/integration-health.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/connections-accounts-tab-20261110
+- Commit: 79b99ba (chore(memory): record T-069 merge and Render deploy; note S3 upload permission error); branch not on remote
+- Recovery snapshot: refs/recovery/claude/connections-accounts-tab-20261110/20261109T235450Z (fb61ac9)
+- Known errors: none
+- Next exact action: Extend scripts/test-connections-ui.mjs then run npm test

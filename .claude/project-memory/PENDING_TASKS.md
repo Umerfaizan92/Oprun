@@ -177,7 +177,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: New tests prove each guard; npm test and focused integration tests pass; deployed to Render only after tests pass; production health verified after deploy
 
 ## T-070 Accounts tab: stages, health lights, daily checks, reconnect alerts (Blueprint phase B)
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-09
 - Requirement: Owner 2026-11-10 blueprint phase B; see docs/social-integrations/BLUEPRINT.md section 2 tab 1
 - Files: saas/integration-manager.js; src/server.js; src/integration-runtime.js

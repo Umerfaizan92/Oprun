@@ -68,6 +68,7 @@ import { installActivity } from './activity.js';
 import { createAutomation } from './automation.js';
 import { aiProviderStatus, generateAiText, meaningfulConfigValue, resolveAiProviderConfig } from './ai-provider-shim.js';
 import { createIntegrationRuntime } from './integration-runtime.js';
+import { CONNECT_CHECKLIST, connectionHealth, healthCheckDue, providerActions } from './integration-health.js';
 import { checkOauthRedirect, createIntegrationOAuthStore, integrationDiagnostic, redactIntegrationError } from './integration-security.js';
 import { createTenantTransports } from './integration-transports.js';
 import {reconcileGoogleResourceLinks} from './integration-resources.js';
@@ -5569,7 +5570,7 @@ function oauthRedirectUri(provider,req){const base=(meaningfulConfigValue(env.PU
 function oauthPkceVerifier(stateData){return integrationOAuthStore.verifier(stateData.payload)}
 function integrationSettings(row){return safeJson(row?.settings_json,{})}
 function loadIntegrationBundle(row){const settings=integrationSettings(row);return settings.token_bundle?integrationRuntime.decryptBundle(settings.token_bundle):null}
-function saveIntegrationConnection({organisation_id,provider,account_label,capabilities,tokenBundle,resources=[]}){reconcileGoogleResourceLinks(db,organisation_id,provider,[],null);const now=new Date().toISOString(),normalized=integrationRuntime.normalizeToken(tokenBundle||{}),settings={token_bundle:integrationRuntime.encryptBundle(normalized),token_type:normalized.token_type||'Bearer',scope:normalized.scope||'',expires_at:normalized.expires_at||null,refresh_expires_at:normalized.refresh_expires_at||null,resources:Array.isArray(resources)?resources:[],selected_resources:[]};db.prepare(`UPDATE organisation_integrations SET status='connected',account_label=?,capabilities_json=?,settings_json=?,connected_at=?,updated_at=? WHERE organisation_id=? AND provider=?`).run(account_label||'Authorised account',JSON.stringify(capabilities||[]),JSON.stringify(settings),now,now,organisation_id,provider)}
+function saveIntegrationConnection({organisation_id,provider,account_label,capabilities,tokenBundle,resources=[]}){reconcileGoogleResourceLinks(db,organisation_id,provider,[],null);const now=new Date().toISOString(),normalized=integrationRuntime.normalizeToken(tokenBundle||{}),settings={token_bundle:integrationRuntime.encryptBundle(normalized),token_type:normalized.token_type||'Bearer',scope:normalized.scope||'',expires_at:normalized.expires_at||null,refresh_expires_at:normalized.refresh_expires_at||null,resources:Array.isArray(resources)?resources:[],selected_resources:[],account_confirmed:false};db.prepare(`UPDATE organisation_integrations SET status='connected',account_label=?,capabilities_json=?,settings_json=?,connected_at=?,updated_at=? WHERE organisation_id=? AND provider=?`).run(account_label||'Authorised account',JSON.stringify(capabilities||[]),JSON.stringify(settings),now,now,organisation_id,provider)}
 function persistIntegrationBundle(row,bundle,extra={}){const settings={...integrationSettings(row),...extra,token_bundle:integrationRuntime.encryptBundle(bundle),token_type:bundle.token_type||'Bearer',scope:bundle.scope||'',expires_at:bundle.expires_at||null,refresh_expires_at:bundle.refresh_expires_at||null};db.prepare(`UPDATE organisation_integrations SET settings_json=?,updated_at=? WHERE organisation_id=? AND provider=?`).run(JSON.stringify(settings),new Date().toISOString(),row.organisation_id,row.provider);return settings}
 function publicIntegrationRow(row,providerReady=false){
   const settings=integrationSettings(row),ownedTransport=Boolean(settings.tenant_transport),ownedWebsite=Boolean(settings.website?.verified);
@@ -5580,7 +5581,10 @@ function publicIntegrationRow(row,providerReady=false){
     connection_mode:row.provider==='email_sms'?'credentials':row.provider==='website'?'website':'oauth',
     operational:status==='connected'&&settings.last_test_status==='pass'&&(['email_sms','website'].includes(row.provider)||(settings.selected_resources||[]).length>0),last_tested_at:settings.last_tested_at||null,last_test_status:settings.last_test_status||null,
     diagnostic:settings.diagnostic||null,service_checks:settings.service_checks||[],transport:settings.transport||null,website:settings.website||null,
-    insights:settings.insights||null,insights_error:settings.insights_error||null,resources:Array.isArray(settings.resources)?settings.resources:[],selected_resources:Array.isArray(settings.selected_resources)?settings.selected_resources:[]};
+    insights:settings.insights||null,insights_error:settings.insights_error||null,resources:Array.isArray(settings.resources)?settings.resources:[],selected_resources:Array.isArray(settings.selected_resources)?settings.selected_resources:[],
+    // T-070: one health light, honest capability ticks, the before-you-connect checklist and the account confirm step.
+    health:connectionHealth({provider:row.provider,status,settings}),actions:providerActions(row.provider),checklist:CONNECT_CHECKLIST[row.provider]||[],
+    needs_confirmation:status==='connected'&&settings.account_confirmed===false,expires_at:settings.expires_at||null};
 }
 async function postForm(url,values,headers={}){return integrationRuntime.postForm(url,values,headers)}
 
@@ -5602,8 +5606,8 @@ app.post('/api/saas/integrations/self-service/:provider/authorise',requireSaasUs
   if(!oauthStateSecret())return res.status(503).json({ok:false,error:'Secure OAuth state signing is not configured on this deployment.'});const redirectCheck=oauthRedirectCheck(provider,req);if(!redirectCheck.ok){console.warn('[INTEGRATION OAUTH]',provider,'redirect_misconfigured',redirectCheck.reason);return res.status(409).json({ok:false,code:'redirect_misconfigured',error:'This connection has a setup problem on the Super Pro side, so it was stopped before you left this page. The Super Pro administrator needs to correct the callback address in the hosting settings.'})}const uri=redirectCheck.uri,flow=integrationOAuthStore.begin({organisation_id:req.saas.organisation_id,user_id:req.saas.user_id,session_id:req.saas.session_id,provider,redirect_uri:uri}),state=flow.state;res.append('Set-Cookie',flow.cookie);let authorizeUrl='';
   if(provider==='tiktok'){const scope=String(env.TIKTOK_SCOPES||'user.info.basic,video.list');authorizeUrl=`https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(env.TIKTOK_CLIENT_KEY)}&scope=${encodeURIComponent(scope)}&response_type=code&redirect_uri=${encodeURIComponent(uri)}&state=${encodeURIComponent(state)}&disable_auto_auth=1`}
   else if(provider==='youtube'||provider==='google_business'||provider==='google_seo'){const scope=provider==='google_seo'?['openid email profile https://www.googleapis.com/auth/webmasters https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/tagmanager.readonly',...(meaningfulConfigValue(env.GOOGLE_ADS_DEVELOPER_TOKEN)?['https://www.googleapis.com/auth/adwords']:[])].join(' '):provider==='youtube'?'openid email profile https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly':'openid email profile https://www.googleapis.com/auth/business.manage';authorizeUrl=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(env.GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&response_type=code&access_type=offline&prompt=${encodeURIComponent('select_account consent')}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`}
-  else if(provider==='meta'||provider==='whatsapp'){const scope=provider==='whatsapp'?'business_management,whatsapp_business_management,whatsapp_business_messaging':'pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish';authorizeUrl=`https://www.facebook.com/v23.0/dialog/oauth?client_id=${encodeURIComponent(env.META_APP_ID)}&redirect_uri=${encodeURIComponent(uri)}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(scope)}`}
-  else if(provider==='x'){const verifier=flow.verifier,challenge=crypto.createHash('sha256').update(verifier).digest('base64url'),scope='tweet.read tweet.write users.read offline.access';authorizeUrl=`https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${encodeURIComponent(env.X_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256`}
+  else if(provider==='meta'||provider==='whatsapp'){const scope=provider==='whatsapp'?'business_management,whatsapp_business_management,whatsapp_business_messaging':'pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish';authorizeUrl=`https://www.facebook.com/${encodeURIComponent(String(env.META_GRAPH_VERSION||'v23.0'))}/dialog/oauth?client_id=${encodeURIComponent(env.META_APP_ID)}&redirect_uri=${encodeURIComponent(uri)}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(scope)}`}
+  else if(provider==='x'){const verifier=flow.verifier,challenge=crypto.createHash('sha256').update(verifier).digest('base64url'),scope='tweet.read tweet.write users.read offline.access';authorizeUrl=`https://x.com/i/oauth2/authorize?response_type=code&client_id=${encodeURIComponent(env.X_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256`}
   else if(provider==='snapchat'){const scope=String(env.SNAPCHAT_SCOPES||'snapchat-marketing-api');authorizeUrl=`${String(env.SNAPCHAT_AUTHORIZE_URL||'https://accounts.snapchat.com/login/oauth2/authorize')}?response_type=code&client_id=${encodeURIComponent(env.SNAPCHAT_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`}
   if(!authorizeUrl)return res.status(409).json({ok:false,error:'Provider authorisation is not available for this connector.'});const now=new Date().toISOString();db.prepare(`UPDATE organisation_integrations SET status=CASE WHEN status='connected' THEN status ELSE 'authorisation_pending' END,updated_at=? WHERE organisation_id=? AND provider=?`).run(now,req.saas.organisation_id,provider);saasAudit(req,'integration.authorisation_started','integration',provider,{credential_scope:'platform_managed'});res.json({ok:true,status:'authorisation_pending',authorize_url:authorizeUrl});
 });
@@ -5613,7 +5617,7 @@ async function handleIntegrationOAuthCallback(req,res,pathProvider=req.params.pr
   const provider=state.p,row=db.prepare(`SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?`).get(state.o,provider);if(!row)return fail('Workspace integration record was not found.');const redirectUri=state.redirect_uri,key=state.o+':'+provider;if(integrationOperations.has(key))return fail('Another provider check is running. Start the connection again after it finishes.');integrationOperations.set(key,true);try{let token={},label='Authorised account';
     if(provider==='google_business'||provider==='youtube'||provider==='google_seo'){token=await postForm('https://oauth2.googleapis.com/token',{code:req.query.code,client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,redirect_uri:redirectUri,grant_type:'authorization_code'});try{const r=await fetch('https://openidconnect.googleapis.com/v1/userinfo',{headers:{authorization:`Bearer ${token.access_token}`}});const d=await r.json();if(r.ok)label=d.name||d.email||label}catch{}}
     else if(provider==='tiktok'){token=await postForm('https://open.tiktokapis.com/v2/oauth/token/',{client_key:env.TIKTOK_CLIENT_KEY,client_secret:env.TIKTOK_CLIENT_SECRET,code:req.query.code,grant_type:'authorization_code',redirect_uri:redirectUri});try{const r=await fetch('https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name',{headers:{authorization:`Bearer ${token.access_token}`}});const d=await r.json();if(r.ok)label=d?.data?.user?.display_name||d?.data?.user?.open_id||label}catch{}}
-    else if(provider==='meta'||provider==='whatsapp'){token=await postForm('https://graph.facebook.com/v23.0/oauth/access_token',{client_id:env.META_APP_ID,client_secret:env.META_APP_SECRET,redirect_uri:redirectUri,code:req.query.code});try{const r=await fetch(`https://graph.facebook.com/v23.0/me?fields=id,name`,{headers:{authorization:`Bearer ${token.access_token}`}});const d=await r.json();if(r.ok)label=d.name||d.id||label}catch{}}
+    else if(provider==='meta'||provider==='whatsapp'){token=await postForm(`https://graph.facebook.com/${String(env.META_GRAPH_VERSION||'v23.0')}/oauth/access_token`,{client_id:env.META_APP_ID,client_secret:env.META_APP_SECRET,redirect_uri:redirectUri,code:req.query.code});try{token=await integrationRuntime.extendMetaToken(integrationRuntime.normalizeToken(token))}catch(e){console.warn('[INTEGRATION OAUTH]',provider,'long_lived_exchange_failed')}try{const r=await fetch(`https://graph.facebook.com/${String(env.META_GRAPH_VERSION||'v23.0')}/me?fields=id,name`,{headers:{authorization:`Bearer ${token.access_token}`}});const d=await r.json();if(r.ok)label=d.name||d.id||label}catch{}}
     else if(provider==='x'){const verifier=oauthPkceVerifier(state),basic=Buffer.from(`${env.X_CLIENT_ID}:${env.X_CLIENT_SECRET}`).toString('base64');token=await postForm('https://api.x.com/2/oauth2/token',{code:req.query.code,grant_type:'authorization_code',redirect_uri:redirectUri,code_verifier:verifier,client_id:env.X_CLIENT_ID},{authorization:`Basic ${basic}`});try{const r=await fetch('https://api.x.com/2/users/me',{headers:{authorization:`Bearer ${token.access_token}`}});const d=await r.json();if(r.ok)label=d?.data?.name||d?.data?.username||label}catch{}}
     else if(provider==='snapchat'){const basic=Buffer.from(`${env.SNAPCHAT_CLIENT_ID}:${env.SNAPCHAT_CLIENT_SECRET}`).toString('base64');token=await postForm(String(env.SNAPCHAT_TOKEN_URL||'https://accounts.snapchat.com/login/oauth2/access_token'),{code:req.query.code,grant_type:'authorization_code',redirect_uri:redirectUri},{authorization:`Basic ${basic}`})}
     else return fail('This provider callback is not supported.');
@@ -5711,6 +5715,15 @@ app.post('/api/saas/integrations/self-service/:provider/insights',...connectionR
   })}catch(error){return connectionFailure(req,res,error,bundle)}
 });
 
+// T-070: after a provider sign-in the owner confirms the account shown is the right one before anything uses it.
+app.post('/api/saas/integrations/self-service/:provider/confirm',requireSaasUser,requireSaasRole('owner','admin','super_admin'),(req,res)=>{
+  const provider=req.params.provider,row=db.prepare(`SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?`).get(req.saas.organisation_id,provider);
+  if(!row)return res.status(404).json({ok:false,error:'Integration is not supported in this build.'});
+  if(row.status!=='connected')return res.status(409).json({ok:false,error:'Connect this provider first.'});
+  const settings=integrationSettings(row);
+  if(settings.account_confirmed===false){settings.account_confirmed=true;settings.account_confirmed_at=new Date().toISOString();db.prepare(`UPDATE organisation_integrations SET settings_json=?,updated_at=? WHERE organisation_id=? AND provider=?`).run(JSON.stringify(settings),settings.account_confirmed_at,req.saas.organisation_id,provider);saasAudit(req,'integration.account_confirmed','integration',provider,{account_label:row.account_label||null})}
+  res.json({ok:true,provider,account_label:row.account_label||null,confirmed:true});
+});
 // T-069: one external account (Page, Instagram account, WhatsApp number, channel, location) serves one workspace only.
 // Returns the first selected resource another connected workspace has already selected, or null. Search Console and
 // Analytics properties are left out: they are read-only reporting sources handled by reconcileGoogleResourceLinks.
@@ -5730,6 +5743,7 @@ app.post('/api/saas/integrations/self-service/:provider/resources',requireSaasUs
   const row=db.prepare(`SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?`).get(req.saas.organisation_id,provider);
   if(!row)return res.status(404).json({ok:false,error:'Integration is not supported in this build.'});
   if(row.status!=='connected')return res.status(409).json({ok:false,error:'Connect and test this provider before choosing resources.'});
+  if(integrationSettings(row).account_confirmed===false)return res.status(409).json({ok:false,code:'confirmation_required',error:'Confirm this is the right account for this business first.'});
   const settings=integrationSettings(row),available=Array.isArray(settings.resources)?settings.resources:[];
   const wanted=new Set(parsed.data.resource_ids);
   const selected=available.filter(resource=>wanted.has(String(resource.id))&&resource.usable!==false);
@@ -5866,6 +5880,45 @@ app.get('/api/saas/referrals',requireSaasUser,requireSaasRole('owner','admin','s
 
 installDiagnosticsRoute(app,{db,env,storage:storagePlan,requireAdmin,startedAt:startedAtMs});
 const notifications=installNotifications(app,{db,env,requireSaasUser});
+// T-070: background connection health. Once a day each connected provider is checked with the workspace's own
+// authorisation. A connection is only marked for reconnection when the provider says the sign-in is no longer valid
+// or lacks permission; a provider outage never turns a light red. Owners and admins are told once per day at most.
+async function integrationHealthSweep(limit=10){
+  const now=Date.now(),due=db.prepare("SELECT * FROM organisation_integrations WHERE status='connected' AND provider NOT IN ('website','email_sms')").all()
+    .filter(row=>healthCheckDue({provider:row.provider,status:row.status,settings:integrationSettings(row),now}))
+    .sort((a,b)=>String(integrationSettings(a).health_checked_at||'').localeCompare(String(integrationSettings(b).health_checked_at||''))).slice(0,limit);
+  const summary={checked:0,healthy:0,attention:0,skipped:0};
+  for(const row of due){
+    const org=row.organisation_id,provider=row.provider,key=org+':'+provider;
+    if(integrationOperations.has(key)){summary.skipped++;continue}
+    integrationOperations.set(key,true);let bundle=null;
+    try{
+      const stamp=new Date().toISOString(),day=stamp.slice(0,10),before=connectionHealth({provider,status:row.status,settings:integrationSettings(row)}).level;
+      bundle=loadIntegrationBundle(row);if(!bundle)throw Object.assign(new Error('No usable access token is stored. Re-authorise the provider.'),{status:401});
+      try{
+        const result=await integrationRuntime.testConnection(provider,bundle),resources=(result.resources||[]).slice(0,200),previous=integrationSettings(row).selected_resources||[];
+        const selected=previous.filter(old=>resources.some(r=>r.id===old.id&&r.type===old.type&&r.usable!==false)),changed=JSON.stringify(selected)!==JSON.stringify(previous);
+        if(changed)reconcileGoogleResourceLinks(db,org,provider,selected,null);
+        persistIntegrationBundle(row,result.bundle,{health_checked_at:stamp,last_tested_at:stamp,last_test_status:result.service_checks?.some(c=>c.status!=='pass')?'partial':'pass',diagnostic:null,resources,selected_resources:selected,...(changed?{insights:null,insights_error:null}:{}),service_checks:result.service_checks||[]});
+        summary.healthy++;
+      }catch(error){
+        const diagnostic=integrationDiagnostic(error,[bundle?.access_token,bundle?.refresh_token]),definite=['reconnect_required','permission_required'].includes(diagnostic.code);
+        const settings={...integrationSettings(row),health_checked_at:stamp,...(definite?{last_tested_at:stamp,last_test_status:'fail',diagnostic}:{})};
+        db.prepare('UPDATE organisation_integrations SET settings_json=?,updated_at=? WHERE organisation_id=? AND provider=?').run(JSON.stringify(settings),stamp,org,provider);
+        if(definite){summary.attention++;console.warn('[INTEGRATION HEALTH]',provider,diagnostic.code,diagnostic.reference);
+          if(before!=='red')await notifications.notifyRoles(org,['owner','admin'],{kind:'connection_attention',title:`${row.display_name||provider} needs reconnecting`,body:'Scheduled posts and replies for this account are on hold until it is reconnected in Setup & Trust, Connections.',link:'#b08/connections',dedupe:`connection:${provider}:${day}`}).catch(()=>{})}
+      }
+      const after=db.prepare('SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?').get(org,provider),health=connectionHealth({provider,status:after.status,settings:integrationSettings(after)});
+      if(health.level==='amber'&&health.title==='Sign-in expires soon')await notifications.notifyRoles(org,['owner','admin'],{kind:'connection_attention',title:`${row.display_name||provider} sign-in expires soon`,body:health.detail,link:'#b08/connections',dedupe:`connection-expiry:${provider}:${String(integrationSettings(after).expires_at||integrationSettings(after).refresh_expires_at||day).slice(0,10)}`}).catch(()=>{});
+      summary.checked++;
+    }catch(error){summary.skipped++;console.warn('[INTEGRATION HEALTH]',provider,redactIntegrationError(error,[bundle?.access_token,bundle?.refresh_token]))}
+    finally{integrationOperations.delete(key)}
+  }
+  return summary;
+}
+app.post('/api/admin/integrations/health-sweep',requireAdmin,async(req,res)=>{try{res.json({ok:true,...await integrationHealthSweep(25)})}catch(error){res.status(500).json({ok:false,error:'Health sweep could not run.'})}});
+if(env.NODE_ENV!=='test'){const runHealthSweep=()=>integrationHealthSweep().catch(e=>console.warn('[INTEGRATION HEALTH] sweep failed:',e.message));setTimeout(runHealthSweep,5*60*1000).unref?.();setInterval(runHealthSweep,60*60*1000).unref?.()}
+
 const communicationTracking=installCommunicationTracking(app,{db,env,requireSaasUser,requireSaasRole,notify:notifications,verifyTelnyx:verifyTelnyxWebhook,tenantCredentials:org=>tenantTransports.credentials(org),receiveEmail:data=>recordInbound(db,data),onProviderEvent:(id,kind)=>commsService.providerEvent(id,kind),timers:process.env.NODE_ENV!=='test',sendFollowUp:(row,payload)=>sendBrandedEmail(tenantTransports.environment(row.organisation_id,env),{to:row.recipient,subject:payload.subject,rendered:renderEmail(payload.brand||platformBrand(env),payload.frame),replyTo:payload.replyTo,delivery:{organisationId:row.organisation_id,userId:row.user_id,category:'follow_up',subject:payload.subject}})});
 const saasPlatform=installSaasPlatform(app,{db,env,transportEnv:org=>tenantTransports.environment(org,env),whatsappConnection:async org=>{const c=integrationConnections.load(org,'whatsapp');if(c?.row.status!=='connected')return null;const phone=(c.settings.selected_resources||[]).find(r=>r.type==='whatsapp_phone'&&(c.settings.resources||[]).some(a=>a.id===r.id&&a.type===r.type));if(!phone)return null;const bundle=await integrationConnections.fresh(c,'whatsapp');return {token:bundle.access_token,phone_id:phone.id}},requireSaasUser,requireSaasRole,requireAdmin,saasAudit,createWorkspaceApproval,generateAiText,aiProviderStatus,recomputeWorkerEligibility,createWorkerWithCompliance,workforceSeniorRoles,financeRoles,uploadRoot,canAccess:staffAccess.can});
 
