@@ -927,3 +927,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Open PR from claude/connections-safe-base-20261110, merge after CI, trigger Render deploy for srv-dan4rdqjnfac73fceor0, verify health
+
+## CP-067 2026-11-09T23:36:55+00:00 T-069 TESTING
+- Phase: Connections candidate release validation
+- Task: T-069 (TESTING)
+- Completed steps: PR #64 merged; Render deploy dep-dbp5g5c9v7es73alp900 live on 565417a; startup diagnostics 16/16
+- Incomplete steps: Owner opens /api/admin/integration-readiness and confirms /api/tiktok/login answers Unauthorized when signed out; then complete T-069; start T-070 then T-071
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/connections-accounts-tab-20261110
+- Commit: 565417a (Merge pull request #64: Connections safe base (T-069))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start T-070 on branch claude/connections-accounts-tab-20261110: Accounts tab stages, confirm step, health lights, daily checks
