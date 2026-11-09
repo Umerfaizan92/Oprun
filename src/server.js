@@ -13,7 +13,6 @@ import { createAutomationEngine } from './automation/engine.js';
 import { installAutomationRoutes } from './automation/routes.js';
 import { backupBucket as automationBackupBucket } from './backup-env.js';
 import {createFounderIdentity} from './founder-identity.js';
-import {createFounderVerification} from './founder-verification.js';
 import {createStaffAccess} from './staff-access.js';
 import {installStaffPresence} from './staff-presence.js';
 import {installCommunicationTracking,trackCommunication} from './message-delivery.js';
@@ -2559,14 +2558,7 @@ app.post('/api/saas/recovery/reset-password',authLimiter,(req,res)=>{
   const salt=crypto.randomBytes(16).toString('hex'),now=new Date().toISOString();db.transaction(()=>{db.prepare(`UPDATE users SET password_hash=?,password_salt=?,failed_login_attempts=0,locked_until=NULL,updated_at=? WHERE id=?`).run(passwordHash(parsed.data.password,salt),salt,now,row.user_id);db.prepare(`DELETE FROM user_sessions WHERE user_id=?`).run(row.user_id);db.prepare(`DELETE FROM account_recovery_challenges WHERE user_id=?`).run(row.user_id)})();res.json({ok:true,message:'Password changed successfully. Sign in with your new password.'});
 });
 
-const founderVerification=createFounderVerification({db,env,audit:saasAudit,
-  sendEmail:options=>sendSaasVerificationEmail(env,options),sendSms:sendSmsVerification,verifySms:verifySmsVerificationCode,
-  hash:sha256,code:otpCode,session:setSession,cookie:cookieValue,requireAdmin,
-  adminRecoveryAuthenticated:req=>Boolean(String(env.OPERATOR_TOTP_SECRET||'').trim())&&String(req.get('x-admin-key')||'').startsWith('sps.'),
-  verifyLimiter:otpVerifyLimiter,resendLimiter:otpResendLimiter});
-founderVerification.install(app);
-
-app.post('/api/saas/login',authLimiter,async(req,res)=>{
+app.post('/api/saas/login',authLimiter,(req,res)=>{
   const parsed=z.object({email:z.string().trim().email(),password:z.string().min(1).max(200),mfa_code:z.string().regex(/^\d{6}$/).optional()}).safeParse(req.body);if(!parsed.success)return res.status(400).json({ok:false,error:'Invalid sign-in details.'});
   const user=db.prepare(`SELECT * FROM users WHERE email=? AND status='active'`).get(parsed.data.email.toLowerCase());if(!user)return res.status(401).json({ok:false,error:'Invalid sign-in details.'});
   const now=new Date();if(user.locked_until&&new Date(user.locked_until)>now)return res.status(423).json({ok:false,error:'This account is temporarily locked after repeated failed sign-in attempts. Try again later.'});
@@ -2575,11 +2567,9 @@ app.post('/api/saas/login',authLimiter,async(req,res)=>{
   // Email verification is always required. Mobile verification is required for any business owner and for any account with a mobile number on record.
   // Invited staff (no mobile, not an owner) are verified through the owner's invitation plus a code sent to their mailbox.
   const holdsOwnerAccess=Boolean(db.prepare(`SELECT 1 FROM memberships WHERE user_id=? AND lower(role)='owner' LIMIT 1`).get(user.id));
-  const approvedFounderRecovery=founderVerification.eligible(user.id);
-  if(!approvedFounderRecovery&&(!user.email_verified||((user.phone||holdsOwnerAccess)&&!user.phone_verified)))return res.status(403).json({ok:false,error:'This account has not completed email and mobile verification.'});
+  if(!user.email_verified||((user.phone||holdsOwnerAccess)&&!user.phone_verified))return res.status(403).json({ok:false,error:'This account has not completed email and mobile verification.'});
   if(!db.prepare(`SELECT 1 FROM memberships WHERE user_id=? AND status='active' LIMIT 1`).get(user.id))return res.status(403).json({ok:false,error:'Your access to this workspace is not active. Contact the workspace owner.'});
   if(user.mfa_enabled&&!parsed.data.mfa_code)return res.status(401).json({ok:false,error:'MFA code required.',mfa_required:true});if(user.mfa_enabled&&!validTotp(user.mfa_secret,parsed.data.mfa_code))return res.status(401).json({ok:false,error:'Invalid MFA code.'});
-  if(approvedFounderRecovery)return founderVerification.start(req,res,user).catch(()=>res.status(503).json({ok:false,error:'Verification is temporarily unavailable. Try again later.'}));
   db.prepare(`UPDATE users SET failed_login_attempts=0,locked_until=NULL,last_login_at=?,updated_at=? WHERE id=?`).run(now.toISOString(),now.toISOString(),user.id);setSession(res,user.id,req);res.json({ok:true});
 });
 
