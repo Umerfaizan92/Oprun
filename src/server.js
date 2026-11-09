@@ -68,7 +68,7 @@ import { installActivity } from './activity.js';
 import { createAutomation } from './automation.js';
 import { aiProviderStatus, generateAiText, meaningfulConfigValue, resolveAiProviderConfig } from './ai-provider-shim.js';
 import { createIntegrationRuntime } from './integration-runtime.js';
-import { createIntegrationOAuthStore, integrationDiagnostic, redactIntegrationError } from './integration-security.js';
+import { checkOauthRedirect, createIntegrationOAuthStore, integrationDiagnostic, redactIntegrationError } from './integration-security.js';
 import { createTenantTransports } from './integration-transports.js';
 import {reconcileGoogleResourceLinks} from './integration-resources.js';
 import { createIntegrationInsights } from './integration-insights.js';
@@ -1363,8 +1363,12 @@ app.get(
 |--------------------------------------------------------------------------
 */
 
+// Founder only (T-069): this legacy single-business login replaces the one server-wide TikTok token, so it must never
+// be open to the public. A browser cannot send the Founder header, so the Founder Console asks for ?format=json and
+// opens the returned address. Subscriber businesses use /api/saas/integrations/self-service/tiktok/authorise.
 app.get(
   '/api/tiktok/login',
+  requireAdmin,
   (req, res) => {
 
     try {
@@ -1413,6 +1417,11 @@ app.get(
         'state',
         state
       );
+
+      if (req.query.format === 'json') {
+        res.set('Cache-Control', 'no-store');
+        return res.json({ ok: true, authorize_url: url.toString() });
+      }
 
       return res.redirect(
         url.toString()
@@ -1649,8 +1658,10 @@ Check social statistics
 |--------------------------------------------------------------------------
 */
 
+// Founder only (T-069): reports the single server-wide TikTok grant, which belongs to one business.
 app.get(
   '/api/tiktok/status',
+  requireAdmin,
   (req, res) => {
 
     const cfg =
@@ -1716,9 +1727,11 @@ app.get(
 
       await ensureTikTokAccessToken();
 
+      // Only the Founder may force new provider calls (T-069); anyone else is served the cached figures.
       const force =
-        req.query.refresh === '1' ||
-        req.query.refresh === 'true';
+        (req.query.refresh === '1' ||
+        req.query.refresh === 'true') &&
+        isAdminRequest(req);
 
       const stats =
         await socialStats.get({
@@ -2087,6 +2100,8 @@ const operatorSessionKey=()=>crypto.createHash('sha256').update('operator-sessio
 function operatorSessionIssue(){const exp=Date.now()+OPERATOR_SESSION_MS,mac=crypto.createHmac('sha256',operatorSessionKey()).update(String(exp)).digest('hex');return `sps.${exp}.${mac}`}
 function operatorSessionValid(token){const m=/^sps\.(\d{10,15})\.([0-9a-f]{64})$/.exec(String(token||''));if(!m||Number(m[1])<Date.now()||db.prepare('SELECT 1 FROM revoked_operator_sessions WHERE token_hash=?').get(crypto.createHash('sha256').update(String(token)).digest('hex')))return false;const mac=crypto.createHmac('sha256',operatorSessionKey()).update(m[1]).digest('hex');return crypto.timingSafeEqual(Buffer.from(mac),Buffer.from(m[2]))}
 const operatorMfaRequired=()=>Boolean(String(env.OPERATOR_TOTP_SECRET||'').trim())||operatorMfaEnforced(env);
+// True when the request carries valid Founder credentials; used where a public route offers the Founder something extra.
+function isAdminRequest(req){let ok=false;try{requireAdmin(req,{status:()=>({json:()=>null})},()=>{ok=true})}catch{ok=false}return ok}
 function requireAdmin(req,res,next){
   const expected=env.ADMIN_API_KEY,provided=req.get('x-admin-key');
   const deny=()=>res.status(401).json({ok:false,error:'Unauthorized'});
@@ -4735,7 +4750,7 @@ app.get('/api/admin/integration-readiness', requireAdmin, (req,res)=>{
   const where={google_seo:['Google Cloud Console','https://console.cloud.google.com/apis/credentials','Use the same OAuth client as Google Business Profile. Enable the Search Console API, Google Analytics Admin API, Google Analytics Data API and Tag Manager API, and add the callback address shown here. Google Ads reporting also needs GOOGLE_ADS_DEVELOPER_TOKEN.'],meta:['Meta for Developers','https://developers.facebook.com/apps/','Create an app with Facebook Login. Add the callback address shown here under Valid OAuth Redirect URIs. Posting to other people\'s pages needs Meta App Review (pages_manage_posts, instagram_content_publish).'],whatsapp:['Meta for Developers','https://developers.facebook.com/apps/','Uses the same Meta app. Needs WhatsApp Business permissions approved by Meta.'],tiktok:['TikTok for Developers','https://developers.tiktok.com/apps/','Create an app, add Login Kit, and register the callback address. Posting needs TikTok to approve the Content Posting API.'],youtube:['Google Cloud Console','https://console.cloud.google.com/apis/credentials','Create an OAuth client (Web). Add the callback address as an Authorised redirect URI and enable the YouTube Data API. Google must verify the app before the public can use upload scopes.'],google_business:['Google Cloud Console','https://console.cloud.google.com/apis/credentials','Uses the same Google OAuth client. Enable the Business Profile APIs (access is granted by Google on request).'],x:['X Developer Portal','https://developer.x.com/en/portal/dashboard','Create a project and app with OAuth 2.0 (user authentication). Add the callback address. Posting needs the right API access tier.'],snapchat:['Snap Business / Developers','https://developers.snap.com/','Create an OAuth app and supply its authorise and token addresses.'],website:['Your website host','','Set the website address and a shared webhook secret so website forms reach Super Pro.'],email_sms:['Resend / Telnyx','','Set an email provider key, or the Telnyx key and number for SMS.']};
   const names={meta:'Meta / Facebook & Instagram',whatsapp:'WhatsApp Business',tiktok:'TikTok',youtube:'YouTube',google_seo:'Google Search Console, Analytics & Tag Manager',google_business:'Google Business Profile',x:'X / Twitter',snapchat:'Snapchat',website:'Website',email_sms:'Email & SMS'};
   const fakeReq={protocol:'https',get:()=>String(env.PUBLIC_BASE_URL||'').replace(/^https?:\/\//,'')||'your-site.onrender.com'};
-  const integrations=Object.keys(names).map(p=>{const ready=Boolean(integrationReadiness(p)),oauth=!['website','email_sms'].includes(p);return {provider:p,name:names[p],ready,missing:integrationMissing(p),redirect_uri:oauth?oauthRedirectUri(p,fakeReq):null,register_at:where[p][0],register_url:where[p][1]||null,how:where[p][2]}});
+  const integrations=Object.keys(names).map(p=>{const ready=Boolean(integrationReadiness(p)),oauth=!['website','email_sms'].includes(p),check=oauth?oauthRedirectCheck(p,fakeReq):null;return {provider:p,name:names[p],ready,missing:integrationMissing(p),redirect_uri:oauth?check.uri:null,redirect_ok:oauth?check.ok:null,redirect_problem:oauth&&!check.ok?check.reason:null,register_at:where[p][0],register_url:where[p][1]||null,how:where[p][2]}});
   const extra=[['Resend Email',['RESEND_API_KEY']],['Voice / Telephone',['TELNYX_API_KEY','TELNYX_CONNECTION_ID','TELNYX_PUBLIC_KEY','TELNYX_PHONE_NUMBER']]].map(([name,keys])=>{const missing=keys.filter(k=>!meaningfulConfigValue(env[k]));return {provider:name.toLowerCase().replace(/\W+/g,'_'),name,ready:!missing.length,missing,redirect_uri:null,register_at:'',register_url:null,how:''}});
   res.json({ok:true,integrations:[...integrations,...extra],live_activation:false,public_base_url_set:meaningfulConfigValue(env.PUBLIC_BASE_URL),note:'Members connect their own accounts with one tap, but only after you have registered Super Pro as an app with each provider and added the keys on Render. Each provider also reviews apps that post for other businesses; that review is theirs, not ours, and takes days to weeks.'});
 });
@@ -5578,13 +5593,15 @@ app.get('/api/saas/integrations/self-service',requireSaasUser,requireSaasRole('o
 
 app.get('/api/saas/platform-capabilities',requireSaasUser,requireSaasRole('owner','admin','manager','super_admin','director'),(req,res)=>{const providers=['meta','whatsapp','tiktok','youtube','google_business','google_seo','snapchat','x','website','email_sms'],free=freeAiModeEnabled(),geminiReady=Boolean(geminiApiKey()),openAiReady=Boolean(openAiSpeechConfig()),voiceReady=free?geminiReady:(geminiReady||openAiReady);res.json({ok:true,credential_scope:'platform_managed',customer_secret_entry:false,secrets_exposed:false,capabilities:Object.fromEntries(providers.map(p=>[p,integrationReadiness(p)])),ai:aiProviderStatus(),voice_server_ready:voiceReady,note:'This endpoint reports readiness only and rejects placeholder deployment values. It never returns credential values.'})});
 
+// T-069: the redirect address must come back to this application on a supported callback route.
+function oauthRedirectCheck(provider,req){const uri=oauthRedirectUri(provider,req),hosts=[];if(meaningfulConfigValue(env.PUBLIC_BASE_URL)){try{hosts.push(new URL(String(env.PUBLIC_BASE_URL)).host)}catch{}}const requestHost=req.get('host');if(requestHost)hosts.push(requestHost);return {uri,...checkOauthRedirect({provider,uri,allowedHosts:hosts,production:env.NODE_ENV==='production'})}}
 app.post('/api/saas/integrations/self-service/:provider/authorise',requireSaasUser,requireSaasRole('owner','admin','super_admin'),(req,res)=>{
   const provider=req.params.provider,row=db.prepare(`SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?`).get(req.saas.organisation_id,provider);if(!row)return res.status(404).json({ok:false,error:'Integration is not supported in this build.'});if(!['website','email_sms'].includes(provider)&&!integrationReadiness(provider)){const missing=integrationMissing(provider);return res.status(409).json({ok:false,error:'This connection is not switched on yet. The Super Pro administrator needs to add'+(missing.length?': '+missing.join(', '):' the provider credentials')+' in the hosting settings, then try again.',missing_setup:missing})}
   if(integrationOperations.has(req.saas.organisation_id+':'+provider))return res.status(409).json({ok:false,error:'Wait for the provider check to finish.'});
   if(provider==='website'||provider==='email_sms')return res.status(409).json({ok:false,code:'workspace_setup_required',error:'Use the workspace setup form to connect your own website or email/SMS account. Platform transport is a separate service.'});
-  if(!oauthStateSecret())return res.status(503).json({ok:false,error:'Secure OAuth state signing is not configured on this deployment.'});const uri=oauthRedirectUri(provider,req),flow=integrationOAuthStore.begin({organisation_id:req.saas.organisation_id,user_id:req.saas.user_id,session_id:req.saas.session_id,provider,redirect_uri:uri}),state=flow.state;res.append('Set-Cookie',flow.cookie);let authorizeUrl='';
-  if(provider==='tiktok'){const scope=String(env.TIKTOK_SCOPES||'user.info.basic,video.list');authorizeUrl=`https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(env.TIKTOK_CLIENT_KEY)}&scope=${encodeURIComponent(scope)}&response_type=code&redirect_uri=${encodeURIComponent(uri)}&state=${encodeURIComponent(state)}`}
-  else if(provider==='youtube'||provider==='google_business'||provider==='google_seo'){const scope=provider==='google_seo'?['openid email profile https://www.googleapis.com/auth/webmasters https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/tagmanager.readonly',...(meaningfulConfigValue(env.GOOGLE_ADS_DEVELOPER_TOKEN)?['https://www.googleapis.com/auth/adwords']:[])].join(' '):provider==='youtube'?'openid email profile https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly':'openid email profile https://www.googleapis.com/auth/business.manage';authorizeUrl=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(env.GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&response_type=code&access_type=offline&prompt=consent&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`}
+  if(!oauthStateSecret())return res.status(503).json({ok:false,error:'Secure OAuth state signing is not configured on this deployment.'});const redirectCheck=oauthRedirectCheck(provider,req);if(!redirectCheck.ok){console.warn('[INTEGRATION OAUTH]',provider,'redirect_misconfigured',redirectCheck.reason);return res.status(409).json({ok:false,code:'redirect_misconfigured',error:'This connection has a setup problem on the Super Pro side, so it was stopped before you left this page. The Super Pro administrator needs to correct the callback address in the hosting settings.'})}const uri=redirectCheck.uri,flow=integrationOAuthStore.begin({organisation_id:req.saas.organisation_id,user_id:req.saas.user_id,session_id:req.saas.session_id,provider,redirect_uri:uri}),state=flow.state;res.append('Set-Cookie',flow.cookie);let authorizeUrl='';
+  if(provider==='tiktok'){const scope=String(env.TIKTOK_SCOPES||'user.info.basic,video.list');authorizeUrl=`https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(env.TIKTOK_CLIENT_KEY)}&scope=${encodeURIComponent(scope)}&response_type=code&redirect_uri=${encodeURIComponent(uri)}&state=${encodeURIComponent(state)}&disable_auto_auth=1`}
+  else if(provider==='youtube'||provider==='google_business'||provider==='google_seo'){const scope=provider==='google_seo'?['openid email profile https://www.googleapis.com/auth/webmasters https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/tagmanager.readonly',...(meaningfulConfigValue(env.GOOGLE_ADS_DEVELOPER_TOKEN)?['https://www.googleapis.com/auth/adwords']:[])].join(' '):provider==='youtube'?'openid email profile https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly':'openid email profile https://www.googleapis.com/auth/business.manage';authorizeUrl=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(env.GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&response_type=code&access_type=offline&prompt=${encodeURIComponent('select_account consent')}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`}
   else if(provider==='meta'||provider==='whatsapp'){const scope=provider==='whatsapp'?'business_management,whatsapp_business_management,whatsapp_business_messaging':'pages_show_list,pages_read_engagement,pages_manage_posts,instagram_basic,instagram_content_publish';authorizeUrl=`https://www.facebook.com/v23.0/dialog/oauth?client_id=${encodeURIComponent(env.META_APP_ID)}&redirect_uri=${encodeURIComponent(uri)}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(scope)}`}
   else if(provider==='x'){const verifier=flow.verifier,challenge=crypto.createHash('sha256').update(verifier).digest('base64url'),scope='tweet.read tweet.write users.read offline.access';authorizeUrl=`https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${encodeURIComponent(env.X_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256`}
   else if(provider==='snapchat'){const scope=String(env.SNAPCHAT_SCOPES||'snapchat-marketing-api');authorizeUrl=`${String(env.SNAPCHAT_AUTHORIZE_URL||'https://accounts.snapchat.com/login/oauth2/authorize')}?response_type=code&client_id=${encodeURIComponent(env.SNAPCHAT_CLIENT_ID)}&redirect_uri=${encodeURIComponent(uri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`}
@@ -5694,6 +5711,17 @@ app.post('/api/saas/integrations/self-service/:provider/insights',...connectionR
   })}catch(error){return connectionFailure(req,res,error,bundle)}
 });
 
+// T-069: one external account (Page, Instagram account, WhatsApp number, channel, location) serves one workspace only.
+// Returns the first selected resource another connected workspace has already selected, or null. Search Console and
+// Analytics properties are left out: they are read-only reporting sources handled by reconcileGoogleResourceLinks.
+const EXCLUSIVE_RESOURCE_PROVIDERS={meta:['meta','whatsapp'],whatsapp:['meta','whatsapp'],youtube:['youtube'],google_business:['google_business'],tiktok:['tiktok'],x:['x'],snapchat:['snapchat']};
+function integrationResourceClaimedElsewhere(organisationId,provider,selected){
+  const family=EXCLUSIVE_RESOURCE_PROVIDERS[provider];if(!family||!selected.length)return null;
+  const key=r=>String(r?.type||'')+':'+String(r?.id||''),wanted=new Map(selected.map(r=>[key(r),r]));
+  const rows=db.prepare(`SELECT settings_json FROM organisation_integrations WHERE organisation_id<>? AND status='connected' AND provider IN (${family.map(()=>'?').join(',')})`).all(organisationId,...family);
+  for(const other of rows){const taken=integrationSettings(other).selected_resources;if(!Array.isArray(taken))continue;for(const r of taken){const hit=wanted.get(key(r));if(hit)return hit}}
+  return null;
+}
 app.post('/api/saas/integrations/self-service/:provider/resources',requireSaasUser,requireSaasRole('owner','admin','manager','super_admin','director'),(req,res)=>{
   const provider=req.params.provider;
   if(integrationOperations.has(req.saas.organisation_id+':'+provider))return res.status(409).json({ok:false,error:'Wait for the provider check to finish before changing its selection.'});
@@ -5706,6 +5734,8 @@ app.post('/api/saas/integrations/self-service/:provider/resources',requireSaasUs
   const wanted=new Set(parsed.data.resource_ids);
   const selected=available.filter(resource=>wanted.has(String(resource.id))&&resource.usable!==false);
   if(selected.length!==wanted.size)return res.status(400).json({ok:false,error:'One or more selected resources are no longer available. Test the connection again.'});
+  const claimed=integrationResourceClaimedElsewhere(req.saas.organisation_id,provider,selected);
+  if(claimed){saasAudit(req,'integration.resource_in_use_elsewhere','integration',provider,{type:claimed.type});return res.status(409).json({ok:false,code:'resource_in_use',error:'"'+String(claimed.label||'This account')+'" is already connected to another Super Pro business. It can serve one business at a time. Disconnect it there first, or contact Super Pro support.'})}
   settings.selected_resources=selected;settings.insights=null;settings.insights_error=null;
   reconcileGoogleResourceLinks(db,req.saas.organisation_id,provider,selected,req.saas.user_id);
   db.prepare(`UPDATE organisation_integrations SET settings_json=?,updated_at=? WHERE organisation_id=? AND provider=?`).run(JSON.stringify(settings),new Date().toISOString(),req.saas.organisation_id,provider);

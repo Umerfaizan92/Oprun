@@ -1,7 +1,7 @@
 # Resume social integrations work
 
-Current task: **T-068**, read-only audit of subscriber social connections. Audit delivered 9 November 2026.
-No code, configuration, data, provider account or deployment was changed. Nothing is committed or pushed.
+Tasks: **T-068** audit (delivered 9 November 2026), **T-069** safe base (built 10 November 2026), T-070 to T-072
+planned. Plan: `BLUEPRINT.md`.
 
 Audited source: `main` at `6c548cf705849938cbcbc298ba576c6f2a9af945`.
 Production: Render `srv-dan4rdqjnfac73fceor0`, deploy `dep-dbos5d67bikc73a4hd90`, same commit, auto-deploy off.
@@ -46,16 +46,16 @@ Live URL: https://super-pro-ai-office-manager.onrender.com/saas/workspace.html#b
 
 ## Exact next action
 
-1. Ask the owner for blockers B1, B2 and B3 from `STATUS.md` section 6. B1 is one read-only Founder Console
-   request (`/api/admin/integration-readiness`) and returns no secrets.
-2. With the owner's approval, implement P0 items 1 and 2 only (guard the legacy TikTok login and the two public
-   endpoints). Before changing `/api/social-stats`, confirm whether the separate Fleet Parlour website reads it.
-3. Add a test that an anonymous request to `/api/tiktok/login` does not redirect to TikTok, and update
-   `scripts/route-guards.test.mjs` if the public list changes.
-4. Run `npm test`, `node --test scripts/integration-security.test.mjs scripts/integration-tenant.test.mjs`,
-   `npm run test:connections-ui`, `npm run security:secrets`, `npm run manifest:update`,
+Phase A (T-069) is built and tested: see `STATUS.md` section 9. Check `PROGRESS.md` and the Render deploy list for
+whether it has been merged and deployed.
+
+1. Ask the owner to open `/api/admin/integration-readiness` in the Founder Console. Any provider with
+   `redirect_ok: false` needs its redirect variable corrected in Render before subscribers can connect it.
+2. Collect blockers B2 and B3 (`STATUS.md` section 6).
+3. Start T-070 (Accounts tab: stages, confirm step, health lights, daily checks), then T-071 (lead sources).
+   Neither needs provider approval.
+4. Before every commit: `npm test`, `npm run security:secrets`, `npm run manifest:update`,
    `npm run verify:manifest`, `npm run memory:validate`.
-5. Decide P1 only after B1–B3 are answered.
 
 ## Rules for this work
 

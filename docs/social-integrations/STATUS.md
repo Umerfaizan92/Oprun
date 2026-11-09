@@ -355,3 +355,24 @@ before any deploy.
 
 Production data, the Render disk and environment, `INTEGRATION_ENCRYPTION_KEY` and session secrets, the global
 TikTok token file, Fleet Parlour's existing provider grants, the Fleet Parlour website, and all unrelated features.
+
+## 9. Changes applied on 10 November 2026 (T-069, Blueprint phase A)
+
+Owner instruction, 10 Nov: build task by task, preserve everything, audit, fix, then deploy to Render.
+
+| Finding | Change | Evidence |
+|---|---|---|
+| F1 | `/api/tiktok/login` and `/api/tiktok/status` now need Founder sign-in. The Founder Console can ask for `?format=json` and open the returned address. The callback is unchanged: it only accepts a state created by a Founder-started login. The global token file and its automatic renewal are untouched. | `scripts/connections-safe-base.test.mjs`, test 2 |
+| F2 | `/api/social-stats` stays readable (in case the Fleet Parlour website reads it), but `?refresh=1` is honoured only for the Founder. | Same test |
+| F3 | A redirect address must use https, be on this application's host and end in a supported callback route for that connector. Otherwise Connect stops with a clear message before the subscriber leaves. `/api/admin/integration-readiness` now reports `redirect_ok` and `redirect_problem` per provider. | Tests 1 and 3 |
+| F4 (part) | Google is asked for `select_account consent`; TikTok for `disable_auto_auth=1`. Meta, X and Snapchat have no verified chooser parameter; the on-screen confirm step is part of T-070. | Test 3 |
+| New rule | A Page, Instagram account, WhatsApp number, channel or location already selected by one connected workspace cannot be selected by another. The message does not identify the other workspace. Existing selections are not changed. | Test 4 |
+
+Not changed: Fleet Parlour's tokens and data, environment variables, the database schema, any subscriber page.
+
+Known limits of this phase:
+
+- The one-workspace rule covers selected resources. TikTok, X and Snapchat connections with no selectable resource
+  are not yet covered.
+- There is no Founder override for the one-workspace rule yet; the holding workspace must release the account.
+- Findings F5 to F9 are open. T-070, T-071 and T-072 hold the remaining phases.

@@ -913,3 +913,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Review docs/connections/HANDOVER.md and delivery-verification.json; obtain explicit owner publication permission before any push; do not deploy or change provider accounts automatically
+
+## CP-066 2026-11-09T23:26:13+00:00 T-069 TESTING
+- Phase: Connections candidate release validation
+- Task: T-069 (TESTING)
+- Completed steps: Founder guard on legacy TikTok login and status; anonymous refresh off; redirect validation with readiness reporting; Google and TikTok account chooser; one-workspace resource binding; scripts/connections-safe-base.test.mjs
+- Incomplete steps: Merge and deploy to Render with owner authorisation given 2026-11-10; verify production health; then T-070 and T-071
+- Files modified (uncommitted at checkpoint): docs/social-integrations/HANDOVER.md; docs/social-integrations/STATUS.md; scripts/route-guards.test.mjs; src/integration-security.js; src/server.js; scripts/connections-safe-base.test.mjs
+- Tests executed: npm test; node --test connections-safe-base, integration-security, integration-tenant, route-guards; security:secrets
+- Test results: 73/73 checks passed; 18 focused tests passed; secret scan passed
+- Git branch: claude/connections-safe-base-20261110
+- Commit: b91630a (docs(social-integrations): audit status, handover and Connections Manager blueprint); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Open PR from claude/connections-safe-base-20261110, merge after CI, trigger Render deploy for srv-dan4rdqjnfac73fceor0, verify health

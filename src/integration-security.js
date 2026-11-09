@@ -31,6 +31,25 @@ export function integrationDiagnostic(error, secrets = []) {
 
 // OAuth callbacks cross sites. A narrowly scoped Lax cookie binds the flow without
 // weakening the application's existing Strict session cookie.
+// Callback path segments one OAuth app may share between sibling connectors. Used by the state store and the redirect check.
+export const OAUTH_CALLBACK_ALIASES={google:['youtube','google_business','google_seo'],youtube:['youtube','google_business','google_seo'],meta:['meta','whatsapp']};
+
+// A configured redirect address is only safe when the provider will send the browser back to this application on a
+// callback route that exists for that connector. Anything else either strands the subscriber on another website or
+// fails after consent, so Connect is refused before the subscriber leaves (T-069). Returns {ok, reason}.
+export function checkOauthRedirect({provider,uri,allowedHosts=[],production=false}){
+  let url;try{url=new URL(String(uri||''))}catch{return {ok:false,reason:'The callback address is not a valid web address.'}}
+  const local=['localhost','127.0.0.1','[::1]'].includes(url.hostname);
+  if(url.username||url.password||url.hash)return {ok:false,reason:'The callback address must not contain sign-in details or a fragment.'};
+  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&local&&!production))return {ok:false,reason:'The callback address must use https.'};
+  const hosts=allowedHosts.map(h=>String(h||'').toLowerCase()).filter(Boolean);
+  if(!(local&&!production)&&hosts.length&&!hosts.includes(url.host.toLowerCase()))return {ok:false,reason:'The callback address points to a different website than this application.'};
+  const match=/^\/api\/saas\/integrations\/oauth\/([a-z_]+)\/callback$/.exec(url.pathname),segment=match?.[1];
+  const pathOk=(segment&&(segment===provider||OAUTH_CALLBACK_ALIASES[segment]?.includes(provider)))||(provider==='tiktok'&&url.pathname==='/api/tiktok/callback');
+  if(!pathOk)return {ok:false,reason:'The callback address does not end in a callback route this connection supports.'};
+  return {ok:true,reason:''};
+}
+
 export function createIntegrationOAuthStore({db, secret, production=false, clock=Date.now,authorised=()=>true}) {
   db.exec(`CREATE TABLE IF NOT EXISTS integration_oauth_sessions (
     state_hash TEXT PRIMARY KEY, organisation_id TEXT NOT NULL, user_id TEXT NOT NULL,
@@ -56,7 +75,7 @@ export function createIntegrationOAuthStore({db, secret, production=false, clock
     if (typeof raw!=='string' || !/^[\w-]{43}$/.test(raw)) return null;
     return db.transaction(()=>{
       const row=db.prepare('SELECT * FROM integration_oauth_sessions WHERE state_hash=?').get(hash(raw));
-      const aliases={google:['youtube','google_business','google_seo'],youtube:['youtube','google_business','google_seo'],meta:['meta','whatsapp']};
+      const aliases=OAUTH_CALLBACK_ALIASES;
       if (!row || row.consumed_at!==null || clock()-row.created_at>900000 || row.created_at>clock() || !(pathProvider===row.provider || aliases[pathProvider]?.includes(row.provider))) return null;
       const browser=String(cookieHeader).split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName(row.provider)+'='))?.split('=').slice(1).join('=') || '';
       if (!browser || hash(browser)!==row.browser_hash) return null;

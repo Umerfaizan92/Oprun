@@ -170,7 +170,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Findings with file and line evidence; unknowns and external blockers listed; prioritised plan; STATUS.md and HANDOVER.md delivered; owner supplies blockers B1 to B3 before any implementation
 
 ## T-069 Connections safe base (Blueprint phase A)
-- Status: IN_PROGRESS
+- Status: TESTING
 - Added: 2026-11-09
 - Requirement: Owner 2026-11-10: plan each task, build one by one, preserve everything, audit, fix, then push to Render. Phase A: require Founder sign-in on legacy /api/tiktok/login, its legacy callback and /api/tiktok/status; keep /api/social-stats readable but stop anonymous forced refresh; validate OAuth redirect addresses; force provider account chooser; bind each external account to one workspace only; no change to Fleet Parlour tokens, data or website
 - Files: src/server.js; src/integration-security.js; src/integration-runtime.js; scripts; docs/social-integrations
