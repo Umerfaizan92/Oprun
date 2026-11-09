@@ -55,35 +55,6 @@
     form.onsubmit=async e=>{e.preventDefault();show('');if(!businessVerified||verifiedFingerprint!==fingerprint()){invalidate();show('Verify the current Australian business identity before continuing.',true);status.scrollIntoView({behavior:'smooth',block:'center'});return}if(pass.value!==confirm.value){show('Passwords do not match.',true);confirm.focus();return}if(!form.elements.accept_terms.checked){show('Please accept the Terms of Service and Privacy Notice.',true);return}updateAddressPreview();const b=objectFrom(form);b.accept_terms=true;b.terms_version='terms-2026-10-26';submit.disabled=true;submit.textContent='Creating secure verification…';try{const d=await api('/api/saas/registration/start',{method:'POST',body:JSON.stringify(b)});sessionStorage.setItem('gds-pending-registration',JSON.stringify({pending_id:d.pending_id,email:d.email,phone:d.phone,business:d.business,test_mode:d.test_mode,test_codes:d.delivery?.test_codes||null,delivery:d.delivery||{},raw_email:b.email}));location.href='verify-account.html'}catch(err){if(err.payload?.code==='ACCOUNT_EXISTS'||err.payload?.code==='BUSINESS_EXISTS'){const label=err.payload?.business_name?`Workspace already exists for ${err.payload.business_name}. `:'';show(label+(err.message||'An account already exists.')+' Redirecting to sign in…',true);sessionStorage.setItem('gds-new-email',String(b.email||''));setTimeout(()=>{location.href=err.payload.sign_in_url||'sign-in.html'},1800);return;}show(err.message,true);submit.disabled=false;submit.textContent='Join your AI Office →'}};
   }
 
-  if(page==='verify'&&sessionStorage.getItem('sp-founder-verification')){
-    let state;try{state=JSON.parse(sessionStorage.getItem('sp-founder-verification'))}catch{sessionStorage.removeItem('sp-founder-verification');location.href='sign-in.html';return}
-    const base='/api/saas/founder-verification',form=$('#verification-form'),submit=$('#verification-submit');
-    submit.disabled=true;
-    const smsInput=form.elements.sms_code;
-    // Remain hidden until the server returns requirements for the cookie-bound request.
-    smsInput.closest('label').hidden=true;smsInput.disabled=true;smsInput.required=false;
-    document.querySelectorAll('[data-delivery="sms"],[data-resend="sms"]').forEach(el=>el.hidden=true);
-    document.querySelector('.auth-story-copy').textContent='Complete your approved Founder account verification. Never share a verification code.';
-    document.querySelector('.auth-title p:last-child').textContent='A fresh email code is required before sign-in completes.';
-    document.querySelector('.auth-form-top .back-link').textContent='← Return to sign in';
-    document.querySelector('.auth-form-top .back-link').href='sign-in.html';
-    $('#delivery-status-grid').hidden=true;
-    const payload=extra=>JSON.stringify({challenge_id:state.challenge_id,...extra});
-    api(base+'/status',{method:'POST',body:payload({})}).then(d=>{
-      smsInput.closest('label').hidden=!d.sms_required;smsInput.disabled=!d.sms_required;smsInput.required=d.sms_required;
-      document.querySelector('[data-resend="sms"]').hidden=!d.sms_required;
-      $('#verification-destination').textContent=d.sms_required?'Enter the 6-digit email code and the SMS code sent to your registered contact details.':'Enter the 6-digit code sent to your registered email address.';
-      submit.disabled=false;
-    }).catch(err=>show(err.message,true));
-    form.onsubmit=async e=>{e.preventDefault();if(submit.disabled)return;submit.disabled=true;try{
-      await api(base+'/verify',{method:'POST',body:payload(objectFrom(form))});sessionStorage.removeItem('sp-founder-verification');location.href='workspace.html#dashboard';
-    }catch(err){show(err.message,true);submit.disabled=false}};
-    document.querySelectorAll('[data-resend]').forEach(btn=>btn.onclick=async()=>{if(btn.disabled||btn.hidden)return;btn.disabled=true;try{
-      const d=await api(base+'/resend',{method:'POST',body:payload({channel:btn.dataset.resend})});show(d.message);
-    }catch(err){show(err.message,true)}finally{btn.disabled=false}});
-    return;
-  }
-
   if(page==='verify'){
     const raw=sessionStorage.getItem('gds-pending-registration');if(!raw){location.href='create-account.html';return}let state;try{state=JSON.parse(raw)}catch{location.href='create-account.html';return}
     $('#verification-destination').textContent=`Enter the 6-digit email code sent to ${state.email} and the SMS code exactly as received on ${state.phone}.`;
@@ -150,7 +121,7 @@
   if(page==='login'){
     const form=$('#login-form'),remember=form.elements.remember_email;const newEmail=sessionStorage.getItem('gds-new-email'),saved=localStorage.getItem(rememberKey);if(newEmail){form.elements.email.value=newEmail;show('Your verified workspace is ready. Sign in to continue.');sessionStorage.removeItem('gds-new-email')}else if(saved){form.elements.email.value=saved;remember.checked=true}
     const pending=sessionStorage.getItem('gds-pending-registration');if(pending)$('#pending-verification').hidden=false;
-    form.onsubmit=async e=>{e.preventDefault();show('');const b=objectFrom(form);delete b.remember_email;b.email=String(b.email||'').trim().toLowerCase();if(!b.mfa_code)delete b.mfa_code;try{const result=await api('/api/saas/login',{method:'POST',body:JSON.stringify(b)});if(result.founder_verification){sessionStorage.setItem('sp-founder-verification',JSON.stringify({challenge_id:result.challenge_id}));location.href='verify-account.html';return}if(remember.checked)localStorage.setItem(rememberKey,form.elements.email.value.trim());else localStorage.removeItem(rememberKey);if(sessionStorage.getItem('gds-first-login-tour')==='1'){sessionStorage.setItem('gds-run-tour','1');sessionStorage.removeItem('gds-first-login-tour')}const next=new URLSearchParams(location.search).get('next');location.href='workspace.html'+(/^#[a-z0-9][a-z0-9/_-]{0,80}$/i.test(next||'')?next:'#dashboard')}catch(err){if(err.payload?.mfa_required){$('#mfa-details').open=true;form.elements.mfa_code.focus()}show(err.message,true)}};
+    form.onsubmit=async e=>{e.preventDefault();show('');const b=objectFrom(form);delete b.remember_email;b.email=String(b.email||'').trim().toLowerCase();if(!b.mfa_code)delete b.mfa_code;try{await api('/api/saas/login',{method:'POST',body:JSON.stringify(b)});if(remember.checked)localStorage.setItem(rememberKey,form.elements.email.value.trim());else localStorage.removeItem(rememberKey);if(sessionStorage.getItem('gds-first-login-tour')==='1'){sessionStorage.setItem('gds-run-tour','1');sessionStorage.removeItem('gds-first-login-tour')}const next=new URLSearchParams(location.search).get('next');location.href='workspace.html'+(/^#[a-z0-9][a-z0-9/_-]{0,80}$/i.test(next||'')?next:'#dashboard')}catch(err){if(err.payload?.mfa_required){$('#mfa-details').open=true;form.elements.mfa_code.focus()}show(err.message,true)}};
   }
 
   if(page==='recover'){
