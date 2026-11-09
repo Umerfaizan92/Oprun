@@ -161,3 +161,38 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-01: audit current live Setup and Trust Connections errors; professionally redesign isolated subscriber connections for email SMS website Search Console Analytics Tag Manager Google Business Profile X Snapchat YouTube TikTok WhatsApp Meta Facebook Instagram; direct in-app authorised setup, actionable AI-assisted diagnostics, provider-supported up-to-date metrics; prepare tested changes for owner manual deployment; no production connection changes or password collection.
 - Files: src/integration-runtime.js; src/server.js; src/db.js; saas/integration-manager.js; saas/app.js; scripts; docs/connections
 - Acceptance: Provider capability and readiness matrix evidence; secure OAuth state and callbacks; per-tenant tokens resources metrics and diagnostics; truthful unavailable metrics; responsive accessible setup and error recovery; tests pass; reviewed changes committed and resumable handover saved; owner deploys separately
+
+## T-068 Read-only audit of subscriber social connections and provider capability
+- Status: TESTING
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-09: read-only audit of Connect flows for Facebook, Instagram, WhatsApp Business, TikTok, YouTube, X, Snapchat and Google Business Profile; investigate reported Invalid application error and Fleet Parlour links without guessing; capability matrix from official documentation; no push, merge, deploy, key rotation, data reset, publishing or spending
+- Files: docs/social-integrations/STATUS.md; docs/social-integrations/HANDOVER.md
+- Acceptance: Findings with file and line evidence; unknowns and external blockers listed; prioritised plan; STATUS.md and HANDOVER.md delivered; owner supplies blockers B1 to B3 before any implementation
+
+## T-069 Connections safe base (Blueprint phase A)
+- Status: TESTING
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10: plan each task, build one by one, preserve everything, audit, fix, then push to Render. Phase A: require Founder sign-in on legacy /api/tiktok/login, its legacy callback and /api/tiktok/status; keep /api/social-stats readable but stop anonymous forced refresh; validate OAuth redirect addresses; force provider account chooser; bind each external account to one workspace only; no change to Fleet Parlour tokens, data or website
+- Files: src/server.js; src/integration-security.js; src/integration-runtime.js; scripts; docs/social-integrations
+- Acceptance: New tests prove each guard; npm test and focused integration tests pass; deployed to Render only after tests pass; production health verified after deploy
+
+## T-070 Accounts tab: stages, health lights, daily checks, reconnect alerts (Blueprint phase B)
+- Status: NOT_STARTED
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10 blueprint phase B; see docs/social-integrations/BLUEPRINT.md section 2 tab 1
+- Files: saas/integration-manager.js; src/server.js; src/integration-runtime.js
+- Acceptance: Each connection shows state and one fix action; daily health check job; tests pass; fits phone, iPad, laptop
+
+## T-071 Lead sources: tagging, tracked links, QR codes, source report (Blueprint phase F)
+- Status: NOT_STARTED
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10 blueprint phase F; see docs/social-integrations/BLUEPRINT.md section 2 tab 5
+- Files: src/pipeline.js; src/db.js; saas
+- Acceptance: Every new enquiry records a source; tracked link and QR per campaign; source report per workspace; isolation tests pass
+
+## T-072 Provider-dependent phases C, D, E, G, H, I, J of the Connections blueprint
+- Status: BLOCKED
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10 blueprint; blocked on owner provider dashboards and Meta, Google, TikTok approvals (STATUS.md blockers B1 to B3)
+- Files: docs/social-integrations/BLUEPRINT.md
+- Acceptance: Each phase split into its own task when its blocker clears

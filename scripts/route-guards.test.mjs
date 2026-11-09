@@ -12,7 +12,7 @@ import { startServer } from './test-server.mjs';
 const PUBLIC_OK = new Set([
   'GET /api/health', 'GET /api/health/storage', 'GET /api/product-guide/status', 'GET /api/public/preview-status',
   'GET /api/saas/address/search', 'GET /api/saas/branding', 'GET /api/saas/plans', 'GET /api/saas/verification-provider/status',
-  'GET /api/social-stats', 'GET /api/tiktok/status'
+  'GET /api/social-stats'
 ]);
 const ID = '00000000-0000-4000-8000-000000000000';
 
