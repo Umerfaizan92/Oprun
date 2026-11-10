@@ -969,3 +969,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Ask the owner for blockers B1 to B3 in docs/social-integrations/STATUS.md; split T-072 into one task per phase as each blocker clears
+
+## CP-070 2026-11-10T01:40:56+00:00 T-073 TESTING
+- Phase: Connections candidate release validation
+- Task: T-073 (TESTING)
+- Completed steps: Code deployed; Google redirect setting corrected on Render
+- Incomplete steps: Owner supplies the Meta App ID number (not the secret) or sets it in Render; owner registers the redirect addresses in Meta and Google consoles; then re-test Connect on each card
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/connections-memory-2-20261110
+- Commit: 6f168a2 (Merge pull request #66: Malformed Meta App ID counts as not set up (T-073))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: When the owner sends the Meta App ID, set META_APP_ID on Render with a merge update, then ask the owner to press Connect on the Meta card
+
+## CP-071 2026-11-10T05:41:10+00:00 T-074 IN_PROGRESS
+- Phase: Connections candidate release validation
+- Task: T-074 (IN_PROGRESS)
+- Completed steps: src/meetings.js backend with rooms, guest waiting room, long-poll signalling; meet-call.js engine; workspace-meetings.js page; guest page; meetings.css; backend tests pass
+- Incomplete steps: Browser test with fake camera proving media flows; full npm test; docs; PR; deploy
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; saas/portal-workspace.js; saas/workspace.html; scripts/navigation-inventory.mjs; src/server.js; saas/meet-call.js; saas/meet-guest.js; saas/meet.html; saas/meetings.css; saas/workspace-meetings.js; scripts/meetings.test.mjs; src/meetings.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/video-meetings-20261110
+- Commit: bb6d80a (chore(memory): record PR #66 deploy and the outstanding owner settings)
+- Recovery snapshot: refs/recovery/claude/video-meetings-20261110/20261110T054110Z (be054cd)
+- Known errors: none
+- Next exact action: Write scripts/test-meetings-ui.mjs and run it

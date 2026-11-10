@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Join meeting · Super Pro</title>
+<link rel="stylesheet" href="meetings.css?v=20261110">
+</head>
+<body class="mg-body">
+<main class="mg-main" id="guest-main">
+  <h1 id="guest-title">Join meeting</h1>
+  <p id="guest-status" class="mc-status" role="status" aria-live="polite">Checking your link…</p>
+  <form id="guest-form" class="mg-form" hidden>
+    <label for="guest-name">Your name</label>
+    <input id="guest-name" name="name" required minlength="2" maxlength="60" autocomplete="name">
+    <p class="mg-help">Your browser will ask to use your microphone and camera. A member of the business lets you in. The call is not recorded by Super Pro.</p>
+    <button type="submit" class="mc-btn mc-admit">Ask to join</button>
+  </form>
+</main>
+<div id="guest-call" class="mc-overlay" role="dialog" aria-modal="true" aria-label="Call" hidden></div>
+<script src="meet-call.js?v=20261110"></script>
+<script src="meet-guest.js?v=20261110"></script>
+</body>
+</html>

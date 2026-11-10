@@ -39,6 +39,7 @@
     "test:ui": "node scripts/test-ui.mjs",
     "test:connections-ui": "node scripts/test-connections-ui.mjs",
     "test:lead-sources-ui": "node scripts/test-lead-sources-ui.mjs",
+    "test:meetings-ui": "node scripts/test-meetings-ui.mjs",
     "security:secrets": "node scripts/secret-scan.mjs",
     "storage:verify": "node scripts/verify-storage.mjs",
     "backup:restore-drill": "node scripts/restore-drill.mjs",

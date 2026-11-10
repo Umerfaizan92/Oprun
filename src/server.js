@@ -3,6 +3,7 @@ import {seedIsolatedPreview} from './preview-seed.js';
 import {installBusinessHub} from './business-hub.js';
 import { installPipeline } from './pipeline.js';
 import { installLeadSources } from './lead-sources.js';
+import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
 import {createSubscriptionPolicy} from './subscription-policy.js';
 import {createPlatformIdentity} from './platform-identity.js';
@@ -5887,6 +5888,8 @@ app.get('/api/saas/referrals',requireSaasUser,requireSaasRole('owner','admin','s
 
 installDiagnosticsRoute(app,{db,env,storage:storagePlan,requireAdmin,startedAt:startedAtMs});
 const notifications=installNotifications(app,{db,env,requireSaasUser});
+// T-074: built-in video and voice meetings. Rooms and signalling here; media goes browser to browser.
+installMeetings(app,{db,env,requireSaasUser,saasAudit,notifications});
 // T-070: background connection health. Once a day each connected provider is checked with the workspace's own
 // authorisation. A connection is only marked for reconnection when the provider says the sign-in is no longer valid
 // or lacks permission; a provider outage never turns a light red. Owners and admins are told once per day at most.
