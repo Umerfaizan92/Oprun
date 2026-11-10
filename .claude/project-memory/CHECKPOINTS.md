@@ -997,3 +997,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/video-meetings-20261110/20261110T054110Z (be054cd)
 - Known errors: none
 - Next exact action: Write scripts/test-meetings-ui.mjs and run it
+
+## CP-072 2026-11-10T06:00:29+00:00 T-073 TESTING
+- Phase: Connections candidate release validation
+- Task: T-073 (TESTING)
+- Completed steps: T-074 meetings live on Render
+- Incomplete steps: Owner tests a real call from two devices on different networks; decide on a TURN relay; Meta App ID and provider redirect registrations still outstanding
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/meetings-memory-20261110
+- Commit: 80274ce (Merge pull request #67: Built-in video and voice meetings (T-074))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Ask the owner for the result of a two-device call test and the Meta App ID

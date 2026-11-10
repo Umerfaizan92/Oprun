@@ -134,3 +134,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/pipeline.js; src/db.js; saas
 - Acceptance: Every new enquiry records a source; tracked link and QR per campaign; source report per workspace; isolation tests pass
 - Evidence: npm test 73/73 passed; scripts/lead-sources.test.mjs passed; scripts/test-lead-sources-ui.mjs passed at 390, 768 and 1440 px with accessibility check; navigation 576 checks passed; merged as PR #65 (6096efc); Render deploy dep-dbp6j2c9v7es73aorkig live (recorded 2026-11-10 on claude/connections-memory-20261110 at 6096efc)
+
+## T-074 Built-in video and voice meetings with direct calling from the workspace
+- Added: 2026-11-10
+- Requirement: Owner 2026-11-10: as a SaaS expert build in video meeting or call app integration, to directly call from the app; proper backend; everything in working condition. Native browser-to-browser calls with rooms and signalling on the SuperPro server, guest invite links with a waiting room, isolated per workspace
+- Files: src/meetings.js; src/server.js; saas/meet-call.js; saas/workspace-meetings.js; saas/meet.html; saas/meetings.css; saas/portal-workspace.js; scripts
+- Acceptance: Server test covers isolation, guest waiting room, limits and cleanup; browser test proves two staff and one guest see and hear each other with fake media; npm test passes; pages fit phone, tablet, laptop
+- Evidence: npm test 73/73 passed; scripts/meetings.test.mjs 2 tests passed; scripts/test-meetings-ui.mjs passed in real browsers with a test camera and microphone (owner and two guests, picture and sound both ways) at 390, 768 and 1440 px with accessibility check; navigation 576 checks passed; merged as PR #67 (80274ce); Render deploy dep-dbpb3ivf3r2c73fl51hg with startup diagnostics 16/16 (recorded 2026-11-10 on claude/meetings-memory-20261110 at 80274ce)
