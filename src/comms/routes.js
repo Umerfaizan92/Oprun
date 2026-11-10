@@ -73,7 +73,9 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
     const back = (q) => { const to = String(req.body?.return_to || '').startsWith('/sites/') ? String(req.body.return_to).split('?')[0] : null; if (!to) return false; res.redirect(303, `${to}?${q}#contact`); return true; };
     if (!b.success || (!b.data.email && !b.data.phone)) { if (isForm && back('form=error')) return; return res.status(400).json({ ok: false, error: 'Add your name, a message, and an email or phone number.' }); }
     if (b.data.website) { if (isForm && back('form=sent')) return; return res.status(201).json({ ok: true }); }
-    const r = comms.contactForm(req.params.slug, { ...b.data, email: b.data.email || null, phone: b.data.phone || null, marketing_consent: [true, 'on', 'yes'].includes(b.data.marketing_consent) });
+    // T-071: a visitor who arrived through a tracked link carries its code in the form or in the page address.
+    let spSrc = typeof b.data.sp_src === 'string' ? b.data.sp_src : ''; if (!spSrc) { try { spSrc = new URL(req.get('referer') || '').searchParams.get('sp_src') || ''; } catch { /* no usable referrer */ } }
+    const r = comms.contactForm(req.params.slug, { ...b.data, sp_src: /^[a-z0-9]{8}$/i.test(spSrc) ? spSrc.toLowerCase() : null, email: b.data.email || null, phone: b.data.phone || null, marketing_consent: [true, 'on', 'yes'].includes(b.data.marketing_consent) });
     if (!r.ok) { if (isForm && back('form=error')) return; return res.status(r.status).json(r); }
     if (isForm && back('form=sent')) return;
     res.status(201).json({ ok: true, message: 'Thanks. Your message has been sent to the business.' });

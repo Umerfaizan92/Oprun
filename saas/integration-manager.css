@@ -36,6 +36,18 @@
 .connection-table{max-width:100%;overflow:auto}
 .connection-table table{min-width:420px;border-collapse:collapse;font-size:13px}
 .connection-table :is(td,th){padding:9px;border-bottom:1px solid var(--line);text-align:left}
+/* T-070: health light, confirm step, checklist and capability list. Meaning is in the text; colour only supports it. */
+.connection-health{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;border:1px solid var(--line);border-left-width:4px;border-radius:9px;padding:10px 12px}
+.connection-health>div{display:grid;gap:3px;flex:1 1 180px;min-width:0}
+.connection-health b{font-size:13px;color:var(--text)}
+.health-dot{flex:0 0 12px;width:12px;height:12px;border-radius:50%;margin-top:4px;background:var(--muted)}
+.connection-health.health-green{border-left-color:var(--green)}.health-green .health-dot{background:var(--green)}
+.connection-health.health-amber{border-left-color:var(--brand)}.health-amber .health-dot{background:var(--brand)}
+.connection-health.health-red{border-left-color:var(--red,#c0392b)}.health-red .health-dot{background:var(--red,#c0392b)}
+.connection-confirm{border:1px solid var(--brand-line);background:var(--brand-soft);border-radius:9px;padding:12px;display:grid;gap:10px}
+.connection-confirm p,.connection-confirm h3{color:var(--text)}
+.connection-confirm p b,.connection-capabilities li b{display:inline}
+.connection-capabilities li.cap-not_yet,.connection-capabilities li.cap-not_offered{color:var(--muted)}
 
 html[data-theme="light"] #integrations-view [role="tab"][aria-selected="true"]{color:var(--text);background:var(--panel-2)}
 

@@ -201,6 +201,17 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     const label=me?.display_name||me?.name||me?.email||'Snapchat account';
     return {identity:{id,label},resources:id?[{id,type:'snapchat_account',label}]:[]};
   }
+  // Meta issues a sign-in token that lasts hours. Exchanging it on the server gives one that lasts about 60 days, so a
+  // subscriber is not asked to reconnect the same day (T-070, audit finding F5). Meta has no refresh token.
+  async function extendMetaToken(bundle){
+    if(!bundle?.access_token||!useful(env.META_APP_ID)||!useful(env.META_APP_SECRET))return bundle;
+    const version=String(env.META_GRAPH_VERSION||'v23.0'),query=new URLSearchParams({grant_type:'fb_exchange_token',client_id:String(env.META_APP_ID),client_secret:String(env.META_APP_SECRET),fb_exchange_token:String(bundle.access_token)});
+    let data;try{data=await requestJson('https://graph.facebook.com/'+version+'/oauth/access_token?'+query)}
+    catch(error){const safe=new Error(redactIntegrationError(error,[env.META_APP_SECRET,bundle.access_token]));safe.status=error?.status;throw safe} // these values travel in the address, so redact them here
+    if(!data?.access_token)return bundle;
+    const base={...bundle};delete base.expires_in;delete base.expires_at; // a reply without expires_in means the short expiry no longer applies
+    return normalizeToken({access_token:data.access_token,token_type:data.token_type||bundle.token_type,...(Number(data.expires_in)>0?{expires_in:Number(data.expires_in)}:{})},base);
+  }
   async function testConnection(provider,bundle){
     const fresh=await ensureFreshToken(provider,bundle);
     let result;
@@ -238,5 +249,5 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     }
   }
 
-  return {encryptBundle,decryptBundle,normalizeToken,ensureFreshToken,refreshToken,testConnection,revokeConnection,requestJson,postForm};
+  return {encryptBundle,decryptBundle,normalizeToken,ensureFreshToken,refreshToken,extendMetaToken,testConnection,revokeConnection,requestJson,postForm};
 }

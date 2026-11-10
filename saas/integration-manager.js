@@ -31,6 +31,27 @@
     if(x.status==='authorisation_pending')return ['Waiting for provider authorisation','attention'];
     return [x.provider_ready?'Ready to set up':'Platform app setup required','setup'];
   }
+  // T-070: one health light with the single action that fixes it. The meaning is always written out, never colour alone.
+  const healthWord={green:'Working',amber:'Needs action',red:'Reconnect',off:''};
+  function healthHtml(x){
+    const h=x.health;if(!h||h.level==='off')return '';
+    const fix={connect:['data-connect-provider',x.status==='connected'?'Reconnect now':'Connect'],test:['data-im-test','Test now'],confirm:null,select:null}[h.fix];
+    return `<div class="connection-health health-${esc(h.level)}" role="status"><span class="health-dot" aria-hidden="true"></span><div><b>${esc(healthWord[h.level]===h.title?h.title:(healthWord[h.level]||'')+': '+h.title)}</b>${h.detail?`<p>${esc(h.detail)}</p>`:''}<small>Last automatic check: ${esc(stamp(h.checked_at))}</small></div>${fix&&canCheck?`<button type="button" ${fix[0]}="${esc(x.provider)}" data-im-fix="1">${fix[1]}</button>`:''}</div>`;
+  }
+  function confirmHtml(x){
+    if(!x.needs_confirmation)return '';
+    const business=window.GDS_SESSION?.organisation?.name||'this business';
+    return `<section class="connection-confirm" role="group" aria-label="Confirm account"><h3>Is this the right account?</h3><p>You signed in as <b>${esc(x.account_label||'an account')}</b>. It will be used only for <b>${esc(business)}</b>. If your browser signed in to a different account, choose No and connect again.</p><div class="integration-manager-actions"><button type="button" data-im-confirm="${esc(x.provider)}" ${canManage?'':'disabled'}>Yes, use this account</button><button type="button" data-im-disconnect="${esc(x.provider)}" data-im-wrong="1" ${canManage?'':'disabled'}>No, disconnect</button></div></section>`;
+  }
+  const actionWord={working:'Available',partial:'Available with limits',not_yet:'Not available yet',not_offered:'Not offered by this provider'};
+  function actionsHtml(x){
+    if(!x.actions?.length)return '';
+    return `<details class="connection-capabilities"><summary>What this connection can do</summary><ul>${x.actions.map(a=>`<li class="cap-${esc(a.state)}"><b>${esc(a.label)}</b>: ${esc(actionWord[a.state]||a.state)}${a.note?` (${esc(a.note)})`:''}</li>`).join('')}</ul><p>Posts, replies and campaigns are only sent after a person approves them.</p></details>`;
+  }
+  function checklistHtml(x){
+    if(x.status==='connected'||!x.checklist?.length)return '';
+    return `<details class="connection-checklist"><summary>Before you connect</summary><ul>${x.checklist.map(c=>`<li>${esc(c)}</li>`).join('')}</ul><p>You sign in on the provider’s own page. Super Pro never sees or stores your password.</p></details>`;
+  }
   function diagnosticHtml(d){return d?`<div class="connection-diagnostic"><strong>${esc(d.title)}</strong><p>${esc(d.action)}</p>${d.reference?`<small>Reference: ${esc(d.reference)}</small>`:''}</div>`:'';}
   function insightsHtml(x){
     if(!x.insights)return '';
@@ -44,7 +65,7 @@
   function bodyHtml(x){
     const [label,tone]=status(x),owned=x.connection_mode&&x.connection_mode!=='oauth',manage=canManage?'':'disabled';
     const primary=owned?'Set up my '+(x.provider==='website'?'website':'email / SMS'):x.status==='connected'?'Reconnect':x.provider_ready?'Connect / Authorise':'What is needed';
-    return `<div class="connection-card-heading"><span class="integration-logo" aria-hidden="true">${esc((x.display_name||x.provider).slice(0,1))}</span><div><h3>${esc(x.display_name||x.provider)}</h3><span class="connection-state ${tone}">${esc(label)}</span></div></div><p>${esc(friendly[x.provider]||'Connect your own provider account securely.')}</p>${x.account_label?`<p><b>Account:</b> ${esc(x.account_label)}</p>`:''}<div class="integration-manager-actions"><button type="button" data-connect-provider="${esc(x.provider)}" data-ready="${x.provider_ready?'1':'0'}" data-status="${esc(x.status)}" ${manage}>${primary}</button>${x.status==='connected'||x.provider==='website'&&x.website?`<button type="button" data-im-test="${esc(x.provider)}" ${!canCheck?'disabled':''}>${x.provider==='website'?'Verify website':'Test connection'}</button><button type="button" data-im-insights="${esc(x.provider)}" ${!canCheck?'disabled':''}>Refresh figures</button>`:''}<button type="button" data-im-diagnose="${esc(x.provider)}">Troubleshoot</button>${x.status==='connected'?`<button type="button" data-im-disconnect="${esc(x.provider)}" ${manage}>Disconnect</button>`:''}</div><p class="integration-manager-status">Last connection check: ${esc(stamp(x.last_tested_at))}</p>${x.platform_transport_available&&x.provider==='email_sms'?'<p class="connection-note">Platform delivery is available separately. This does not connect your own mailbox or SMS account.</p>':''}${x.transport?`<dl class="connection-service-status"><dt>Business email</dt><dd>${esc(x.transport.email?.sender||'Not connected')}</dd><dt>SMS number</dt><dd>${esc(x.transport.sms?.number||'Not connected')}</dd></dl>`:''}${(x.service_checks||[]).length?`<ul class="connection-service-checks">${x.service_checks.map(c=>`<li><b>${esc(c.service.replaceAll('_',' '))}</b>: ${esc(c.status==='pass'?'Checked':c.status)}${c.detail?` · ${esc(c.detail)}`:''}</li>`).join('')}</ul>`:''}${diagnosticHtml(x.diagnostic)}${resourcesHtml(x)}${insightsHtml(x)}<div data-im-requirements="${esc(x.provider)}" class="integration-requirements-inline" hidden><p>${esc(friendly[x.provider])}</p><p>A platform administrator must register the provider app once. Each subscriber then authorises their own account and resources.</p><a href="#b08/help">Open support</a></div><div class="connection-action-result" role="status" aria-live="polite"></div>`;
+    return `<div class="connection-card-heading"><span class="integration-logo" aria-hidden="true">${esc((x.display_name||x.provider).slice(0,1))}</span><div><h3>${esc(x.display_name||x.provider)}</h3><span class="connection-state ${tone}">${esc(label)}</span></div></div><p>${esc(friendly[x.provider]||'Connect your own provider account securely.')}</p>${x.account_label?`<p><b>Account:</b> ${esc(x.account_label)}${x.connected_at?` · connected ${esc(new Date(x.connected_at).toLocaleDateString())}`:''}</p>`:''}${healthHtml(x)}${confirmHtml(x)}${checklistHtml(x)}<div class="integration-manager-actions"><button type="button" data-connect-provider="${esc(x.provider)}" data-ready="${x.provider_ready?'1':'0'}" data-status="${esc(x.status)}" ${manage}>${primary}</button>${x.status==='connected'||x.provider==='website'&&x.website?`<button type="button" data-im-test="${esc(x.provider)}" ${!canCheck?'disabled':''}>${x.provider==='website'?'Verify website':'Test connection'}</button><button type="button" data-im-insights="${esc(x.provider)}" ${!canCheck?'disabled':''}>Refresh figures</button>`:''}<button type="button" data-im-diagnose="${esc(x.provider)}">Troubleshoot</button>${x.status==='connected'?`<button type="button" data-im-disconnect="${esc(x.provider)}" ${manage}>Disconnect</button>`:''}</div>${actionsHtml(x)}<p class="integration-manager-status">Last connection check: ${esc(stamp(x.last_tested_at))}</p>${x.platform_transport_available&&x.provider==='email_sms'?'<p class="connection-note">Platform delivery is available separately. This does not connect your own mailbox or SMS account.</p>':''}${x.transport?`<dl class="connection-service-status"><dt>Business email</dt><dd>${esc(x.transport.email?.sender||'Not connected')}</dd><dt>SMS number</dt><dd>${esc(x.transport.sms?.number||'Not connected')}</dd></dl>`:''}${(x.service_checks||[]).length?`<ul class="connection-service-checks">${x.service_checks.map(c=>`<li><b>${esc(c.service.replaceAll('_',' '))}</b>: ${esc(c.status==='pass'?'Checked':c.status)}${c.detail?` · ${esc(c.detail)}`:''}</li>`).join('')}</ul>`:''}${diagnosticHtml(x.diagnostic)}${resourcesHtml(x)}${insightsHtml(x)}<div data-im-requirements="${esc(x.provider)}" class="integration-requirements-inline" hidden><p>${esc(friendly[x.provider])}</p><p>A platform administrator must register the provider app once. Each subscriber then authorises their own account and resources.</p><a href="#b08/help">Open support</a></div><div class="connection-action-result" role="status" aria-live="polite"></div>`;
   }
   function paintCard(x){
     const grid=document.getElementById('self-service-integration-grid');if(!grid)return;
@@ -91,7 +112,7 @@
     const card=e.target.closest('[data-provider-card]');pendingSelections.set(card.dataset.providerCard,[...card.querySelectorAll('[data-im-resource]:checked')].map(i=>i.dataset.imResource));
   });
   document.addEventListener('click',async e=>{
-    const b=e.target.closest('[data-connect-provider],[data-im-test],[data-im-save],[data-im-disconnect],[data-im-insights],[data-im-diagnose]');if(!b)return;
+    const b=e.target.closest('[data-connect-provider],[data-im-test],[data-im-save],[data-im-disconnect],[data-im-insights],[data-im-diagnose],[data-im-confirm]');if(!b)return;
     const card=b.closest('[data-provider-card]');if(!card)return;
     const provider=card.dataset.providerCard,x=records.get(provider);if(!x)return;
     e.preventDefault();e.stopImmediatePropagation();
@@ -105,6 +126,7 @@
         box.innerHTML=`<h3>Connection assistant</h3><p>Guided checks based on this workspace’s connection state.</p>${diagnosticHtml(d.diagnostic)}<ol>${d.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p>${esc(d.note)}</p>`;return;
       }
       if(b.hasAttribute('data-connect-provider')){const d=await api('/api/saas/integrations/self-service/'+provider+'/authorise',{method:'POST',body:'{}'});if(d.authorize_url){location.assign(d.authorize_url);return;}}
+      else if(b.hasAttribute('data-im-confirm'))await api('/api/saas/integrations/self-service/'+provider+'/confirm',{method:'POST',body:'{}'});
       else if(b.hasAttribute('data-im-test'))await api('/api/saas/integrations/self-service/'+provider+'/test',{method:'POST',body:'{}'});
       else if(b.hasAttribute('data-im-insights'))await api('/api/saas/integrations/self-service/'+provider+'/insights',{method:'POST',body:'{}'});
       else if(b.hasAttribute('data-im-save')){const resource_ids=[...card.querySelectorAll('[data-im-resource]:checked')].map(i=>i.dataset.imResource);await api('/api/saas/integrations/self-service/'+provider+'/resources',{method:'POST',body:JSON.stringify({resource_ids})});pendingSelections.delete(provider);}
