@@ -182,3 +182,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-10 blueprint; blocked on owner provider dashboards and Meta, Google, TikTok approvals (STATUS.md blockers B1 to B3)
 - Files: docs/social-integrations/BLUEPRINT.md
 - Acceptance: Each phase split into its own task when its blocker clears
+
+## T-073 Stop malformed Meta App ID reaching Facebook; record Invalid application cause
+- Status: TESTING
+- Added: 2026-11-10
+- Requirement: Owner 2026-11-10 screenshots: Facebook shows Invalid app ID on Meta and WhatsApp cards; Google cards blocked by redirect check. Owner: set everything for me. Treat a non-numeric META_APP_ID as not set up, ignore stray spaces, set GOOGLE_REDIRECT_URI in Render, document cause
+- Files: src/server.js; src/integration-runtime.js; scripts/connections-safe-base.test.mjs; docs/social-integrations/STATUS.md
+- Acceptance: Tests pass; deployed; owner sets the real App ID and registers redirect addresses with Meta and Google

@@ -97,6 +97,36 @@ test('Connect asks for an account choice and refuses a wrong callback address', 
   assert.equal(row('website').redirect_ok, null);
 });
 
+test('a malformed Meta App ID is treated as not set up; the subscriber is never sent to Facebook with it', async (t) => {
+  const s = await startServer({ META_APP_ID: 'fleet-parlour-business', META_APP_SECRET: 'test-secret' });
+  t.after(s.stop);
+  const owner = await seedOwner(s);
+  const list = await s.call('GET', '/api/saas/integrations/self-service', { cookie: owner.cookie });
+  const rows = list.json.integrations || list.json.data.integrations;
+  for (const p of ['meta', 'whatsapp']) {
+    assert.equal(rows.find((x) => x.provider === p).provider_ready, false, p + ' shows as needing platform setup');
+    const r = await s.call('POST', '/api/saas/integrations/self-service/' + p + '/authorise', { cookie: owner.cookie, body: {} });
+    assert.equal(r.status, 409, r.text);
+    assert.doesNotMatch(r.text, /authorize_url|facebook\.com/);
+    assert.match(r.text, /META_APP_ID \(must be the App ID number/);
+  }
+  const readiness = await s.call('GET', '/api/admin/integration-readiness', { headers: { 'x-admin-key': s.adminKey } });
+  const meta = (readiness.json.integrations || readiness.json.data?.integrations).find((x) => x.provider === 'meta');
+  assert.equal(meta.ready, false);
+  assert.match(meta.missing.join(' '), /must be the App ID number/);
+  assert.doesNotMatch(JSON.stringify(readiness.json), /fleet-parlour-business|test-secret/, 'the wrong value itself is never echoed');
+});
+
+test('a Meta App ID with stray spaces still works', async (t) => {
+  const s = await startServer({ META_APP_ID: ' 1234567890123456 ', META_APP_SECRET: 'test-secret' });
+  t.after(s.stop);
+  const owner = await seedOwner(s);
+  await s.call('GET', '/api/saas/integrations/self-service', { cookie: owner.cookie });
+  const r = await s.call('POST', '/api/saas/integrations/self-service/meta/authorise', { cookie: owner.cookie, body: {} });
+  assert.equal(r.status, 200, r.text);
+  assert.equal(new URL(JSON.stringify(r.json).match(/"authorize_url":"([^"]+)"/)[1]).searchParams.get('client_id'), '1234567890123456');
+});
+
 test('one external account serves one workspace only', async (t) => {
   const s = await startServer();
   t.after(s.stop);

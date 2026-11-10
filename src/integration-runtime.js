@@ -205,7 +205,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
   // subscriber is not asked to reconnect the same day (T-070, audit finding F5). Meta has no refresh token.
   async function extendMetaToken(bundle){
     if(!bundle?.access_token||!useful(env.META_APP_ID)||!useful(env.META_APP_SECRET))return bundle;
-    const version=String(env.META_GRAPH_VERSION||'v23.0'),query=new URLSearchParams({grant_type:'fb_exchange_token',client_id:String(env.META_APP_ID),client_secret:String(env.META_APP_SECRET),fb_exchange_token:String(bundle.access_token)});
+    const version=String(env.META_GRAPH_VERSION||'v23.0'),query=new URLSearchParams({grant_type:'fb_exchange_token',client_id:String(env.META_APP_ID).trim(),client_secret:String(env.META_APP_SECRET),fb_exchange_token:String(bundle.access_token)});
     let data;try{data=await requestJson('https://graph.facebook.com/'+version+'/oauth/access_token?'+query)}
     catch(error){const safe=new Error(redactIntegrationError(error,[env.META_APP_SECRET,bundle.access_token]));safe.status=error?.status;throw safe} // these values travel in the address, so redact them here
     if(!data?.access_token)return bundle;
