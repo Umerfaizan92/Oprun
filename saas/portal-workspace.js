@@ -35,7 +35,7 @@
     ],
     meetings: [
       "Video Meetings",
-      "Provider scheduling and secure meeting rooms require a configured video integration.",
+      "Call your team or a customer from here. Guests join with a private link and wait until you let them in.",
     ],
     website: [
       "Website & Domain",
@@ -250,6 +250,9 @@
         grid.append(
           el("p", "portal-empty", "No " + title.toLowerCase() + " yet."),
         );
+    } else if (id === "meetings" && window.SuperProMeetings) {
+      // T-074: built-in video and voice meetings replace the old request form.
+      window.SuperProMeetings.mount(host);
     } else if (services[id]) {
       const d = await api("/api/saas/service-requests/" + id);
       if (window.GDS_SESSION?.organisation?.id !== generation) return;

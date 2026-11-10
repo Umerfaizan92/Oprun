@@ -28,7 +28,7 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Business | Communications | Phone Numbers | /saas/workspace.html#b04/numbers | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
 | Business | Communications | Calls & SMS | /saas/workspace.html#b04/calls | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
 | Business | Communications | AI Receptionist | /saas/workspace.html#b04/receptionist | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Communications | Video Meetings | /saas/workspace.html#b04/meetings | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Communications | Video Meetings | /saas/workspace.html#b04/meetings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Team Chat | /saas/workspace.html#b04/team-chat | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Content & Growth | Media Studio | /saas/workspace.html#b05/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Content & Growth | Growth Engine | /saas/workspace.html#b05/growth | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |

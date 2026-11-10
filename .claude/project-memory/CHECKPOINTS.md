@@ -983,3 +983,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: When the owner sends the Meta App ID, set META_APP_ID on Render with a merge update, then ask the owner to press Connect on the Meta card
+
+## CP-071 2026-11-10T05:41:10+00:00 T-074 IN_PROGRESS
+- Phase: Connections candidate release validation
+- Task: T-074 (IN_PROGRESS)
+- Completed steps: src/meetings.js backend with rooms, guest waiting room, long-poll signalling; meet-call.js engine; workspace-meetings.js page; guest page; meetings.css; backend tests pass
+- Incomplete steps: Browser test with fake camera proving media flows; full npm test; docs; PR; deploy
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; saas/portal-workspace.js; saas/workspace.html; scripts/navigation-inventory.mjs; src/server.js; saas/meet-call.js; saas/meet-guest.js; saas/meet.html; saas/meetings.css; saas/workspace-meetings.js; scripts/meetings.test.mjs; src/meetings.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/video-meetings-20261110
+- Commit: bb6d80a (chore(memory): record PR #66 deploy and the outstanding owner settings)
+- Recovery snapshot: refs/recovery/claude/video-meetings-20261110/20261110T054110Z (be054cd)
+- Known errors: none
+- Next exact action: Write scripts/test-meetings-ui.mjs and run it
