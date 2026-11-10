@@ -5897,10 +5897,10 @@ async function integrationHealthSweep(limit=10){
       const stamp=new Date().toISOString(),day=stamp.slice(0,10),before=connectionHealth({provider,status:row.status,settings:integrationSettings(row)}).level;
       bundle=loadIntegrationBundle(row);if(!bundle)throw Object.assign(new Error('No usable access token is stored. Re-authorise the provider.'),{status:401});
       try{
-        const result=await integrationRuntime.testConnection(provider,bundle),resources=(result.resources||[]).slice(0,200),previous=integrationSettings(row).selected_resources||[];
-        const selected=previous.filter(old=>resources.some(r=>r.id===old.id&&r.type===old.type&&r.usable!==false)),changed=JSON.stringify(selected)!==JSON.stringify(previous);
-        if(changed)reconcileGoogleResourceLinks(db,org,provider,selected,null);
-        persistIntegrationBundle(row,result.bundle,{health_checked_at:stamp,last_tested_at:stamp,last_test_status:result.service_checks?.some(c=>c.status!=='pass')?'partial':'pass',diagnostic:null,resources,selected_resources:selected,...(changed?{insights:null,insights_error:null}:{}),service_checks:result.service_checks||[]});
+        // The background check never changes which accounts a workspace has chosen: a short or empty provider reply
+        // must not drop a saved selection. It renews the sign-in where the provider allows and records the result.
+        const result=await integrationRuntime.testConnection(provider,bundle);
+        persistIntegrationBundle(row,result.bundle,{health_checked_at:stamp,last_tested_at:stamp,last_test_status:result.service_checks?.some(c=>c.status!=='pass')?'partial':'pass',diagnostic:null,service_checks:result.service_checks||[]});
         summary.healthy++;
       }catch(error){
         const diagnostic=integrationDiagnostic(error,[bundle?.access_token,bundle?.refresh_token]),definite=['reconnect_required','permission_required'].includes(diagnostic.code);
