@@ -27,7 +27,8 @@ test('tracked links, visits, attribution and the source report stay inside one w
   const made = await link(a);
   assert.equal(made.status, 201, made.text);
   const L = made.json.link;
-  assert.match(L.short_url, new RegExp('^' + s.base.replace(/[.]/g, '\\.') + '/l/[a-z0-9]{8}$'));
+  assert.ok(L.short_url.startsWith(s.base + '/l/'));
+  assert.match(L.short_url.slice((s.base + '/l/').length), /^[a-z0-9]{8}$/);
   assert.match(L.code, /^[a-z0-9]{8}$/);
 
   // Another workspace cannot see, archive, print or attribute with it.
