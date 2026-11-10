@@ -955,3 +955,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/connections-accounts-tab-20261110/20261109T235450Z (fb61ac9)
 - Known errors: none
 - Next exact action: Extend scripts/test-connections-ui.mjs then run npm test
+
+## CP-069 2026-11-10T00:51:25+00:00 T-072 BLOCKED
+- Phase: Connections candidate release validation
+- Task: T-072 (BLOCKED)
+- Completed steps: Phases A, B and F of the blueprint are live on Render (PR #64, #65)
+- Incomplete steps: Owner: readiness check, provider app registration in SuperPro's name, Meta/Google/TikTok review, AWS s3:PutObject for uploads. Then inbox binding (F7), Facebook Login for Business (F5), WhatsApp Embedded Signup (F6), publishing, campaigns
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/connections-memory-20261110
+- Commit: 6096efc (Merge pull request #65: Accounts tab health and lead sources (T-070, T-071))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Ask the owner for blockers B1 to B3 in docs/social-integrations/STATUS.md; split T-072 into one task per phase as each blocker clears
