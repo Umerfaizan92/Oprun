@@ -120,3 +120,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/portal-shell.*; saas/focused-workspace.*; saas/workspace-nav.js; office/console.*; scripts; docs/navigation
 - Acceptance: All 60 business entries and 34 founder tabs mapped; nested sidebar and contextual sections work across roles and sizes; tests and repository checks pass; changes committed and saved; deployment remains separate
 - Evidence: Implementation commit c10b382587ec87e9001f7c741f6f8616ee06c581; full npm test 45 contract files and 73/73 checks; committed-tree test:fast 69/69; navigation browser 575; reviewed visual 12; main UI 34 pipeline 15 automation 11 founder 16 SEO 11 comms 10 finance 11 reliability 7; module checks 66 with zero problems; quality smoke integration secrets manifest memory passed. Production unchanged. (recorded 2026-10-31 on codex/navigation-hierarchy-20261031 at c10b382)
+
+## T-070 Accounts tab: stages, health lights, daily checks, reconnect alerts (Blueprint phase B)
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10 blueprint phase B; see docs/social-integrations/BLUEPRINT.md section 2 tab 1
+- Files: saas/integration-manager.js; src/server.js; src/integration-runtime.js
+- Acceptance: Each connection shows state and one fix action; daily health check job; tests pass; fits phone, iPad, laptop
+- Evidence: npm test 73/73 passed; scripts/connections-health.test.mjs 6 tests passed; Connections browser test passed at 390, 768 and 1440 px; merged as PR #65 (6096efc); Render deploy dep-dbp6j2c9v7es73aorkig live with startup diagnostics 16/16 (recorded 2026-11-10 on claude/connections-memory-20261110 at 6096efc)
+
+## T-071 Lead sources: tagging, tracked links, QR codes, source report (Blueprint phase F)
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10 blueprint phase F; see docs/social-integrations/BLUEPRINT.md section 2 tab 5
+- Files: src/pipeline.js; src/db.js; saas
+- Acceptance: Every new enquiry records a source; tracked link and QR per campaign; source report per workspace; isolation tests pass
+- Evidence: npm test 73/73 passed; scripts/lead-sources.test.mjs passed; scripts/test-lead-sources-ui.mjs passed at 390, 768 and 1440 px with accessibility check; navigation 576 checks passed; merged as PR #65 (6096efc); Render deploy dep-dbp6j2c9v7es73aorkig live (recorded 2026-11-10 on claude/connections-memory-20261110 at 6096efc)

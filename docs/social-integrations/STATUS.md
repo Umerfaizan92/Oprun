@@ -398,3 +398,19 @@ Limits to know:
 - Still open from the audit: F5 (Facebook Login for Business, missing permissions, Instagram-only accounts), F6
   (WhatsApp Embedded Signup), F7 (inbox binding). All depend on SuperPro-named provider apps and provider review.
 - Not verified on production from outside: the workspace cannot open the live site.
+
+## 11. "Invalid application" resolved to its cause, 10 November 2026
+
+Evidence: the owner's screenshots of production on 10 November, and the Render log.
+
+| Symptom | Confirmed cause | Fix | Who |
+|---|---|---|---|
+| Facebook, Instagram and WhatsApp cards open `facebook.com/oauth/error` with "Invalid app ID: The provided app ID does not look like a valid app ID" | `META_APP_ID` in Render is not a Meta App ID. This supersedes the candidate list in section 4: it is candidate 3 (wrong client ID), not app review. | Set `META_APP_ID` to the App ID number and `META_APP_SECRET` to the matching secret; register `https://<host>/api/saas/integrations/oauth/meta/callback` under Valid OAuth Redirect URIs. | Owner (Meta dashboard and Render) |
+| Google cards stop with "setup problem on the Super Pro side" | `GOOGLE_REDIRECT_URI` pointed to a path with no callback route (log: `redirect_misconfigured … does not end in a callback route`). | Set to `https://super-pro-ai-office-manager.onrender.com/api/saas/integrations/oauth/google/callback` in Render (done 10 Nov, deploy `dep-dbp75ic9v7es73aqj230`). The same address must be added to the Google OAuth client's Authorised redirect URIs. | Render: done. Google console: owner |
+
+Code change (T-073): a `META_APP_ID` that is not a number now counts as not set up. The Meta and WhatsApp cards show
+"Platform app setup required", `/api/admin/integration-readiness` names the problem without echoing the value, and
+stray spaces around a valid ID are ignored.
+
+App review remains a separate, later limit: once the App ID is right, only people with a role on the Meta app can
+connect until Meta grants Advanced Access.
