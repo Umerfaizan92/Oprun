@@ -50,3 +50,17 @@
 /* Workspace search: record results group (workspace-ops.js). */
 .finder-records{display:grid;gap:6px;margin:10px 0}
 .finder-records h3{margin:4px 0 2px;font-size:13px;font-weight:600;color:var(--sp-fg-muted,var(--muted))}
+
+/* T-071 lead sources panel */
+.ls-panel{margin:14px 0;min-width:0}.ls-panel>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600}
+.ls-panel h3{margin:18px 0 8px;font-size:15px}
+.ls-table{max-width:100%;overflow:auto}.ls-table table{width:100%;min-width:440px;border-collapse:collapse;font-size:13px}
+.ls-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ls-table :is(th,td){padding:9px;border-bottom:1px solid var(--line);text-align:left}.ls-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.ls-links{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ls-links li{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
+.ls-links li>div:first-child{display:grid;gap:4px;min-width:0;flex:1 1 220px}.ls-links code{overflow-wrap:anywhere;font-size:13px}
+.ls-links small{color:var(--muted)}.ls-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.ls-actions :is(button,a){min-height:44px;display:inline-flex;align-items:center}
+.ls-new{margin-top:12px}.ls-new>summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.ls-form{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}.ls-form small{color:var(--muted)}

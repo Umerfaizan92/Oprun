@@ -184,7 +184,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Each connection shows state and one fix action; daily health check job; tests pass; fits phone, iPad, laptop
 
 ## T-071 Lead sources: tagging, tracked links, QR codes, source report (Blueprint phase F)
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-09
 - Requirement: Owner 2026-11-10 blueprint phase F; see docs/social-integrations/BLUEPRINT.md section 2 tab 5
 - Files: src/pipeline.js; src/db.js; saas

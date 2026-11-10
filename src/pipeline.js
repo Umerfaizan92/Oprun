@@ -11,7 +11,7 @@ const GST_RATE = 0.1;
 
 export function gstFor(exCents, applies) { return applies ? Math.round(exCents * GST_RATE) : 0; }
 
-export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAccess, syncJobFinance, events = { emit() {} } }) {
+export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAccess, syncJobFinance, events = { emit() {} }, leadSources = { current: null } }) {
   const cols = new Set(db.prepare('PRAGMA table_info(tenant_documents)').all().map((c) => c.name));
   for (const [name, type] of [['source_id', 'TEXT'], ['work_order_id', 'TEXT'], ['gst_applies', 'INTEGER NOT NULL DEFAULT 1'], ['gst_cents', 'INTEGER NOT NULL DEFAULT 0'], ['issued_at', 'TEXT'], ['due_at', 'TEXT'], ['paid_at', 'TEXT'], ['channel', 'TEXT']]) {
     if (!cols.has(name)) db.exec(`ALTER TABLE tenant_documents ADD COLUMN ${name} ${type}`);
@@ -114,6 +114,8 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
     title: z.string().trim().min(2).max(240), details: z.string().trim().max(20000).default(''),
     channel: z.enum(['phone', 'email', 'website', 'walk_in', 'sms', 'social', 'receptionist', 'referral', 'other']).default('other'),
     customer_id: z.string().uuid().optional(),
+    // T-071: where the enquiry came from, when the person entering it knows.
+    source_code: z.string().trim().max(24).optional(), campaign: z.string().trim().max(120).optional(), area: z.string().trim().max(80).optional(),
     customer: z.object({ name: z.string().trim().min(2).max(160), email: z.string().trim().email().max(254).optional().or(z.literal('')), phone: z.string().trim().max(40).optional(), address: z.string().trim().max(300).optional() }).optional()
   }).strict().refine((d) => d.customer_id || d.customer, { message: 'Choose a customer or add a new one.' });
   // Shared by the enquiry form, website contact forms and inbound messages (Phase 07). The caller checks the customer belongs here.
@@ -129,6 +131,8 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
       db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,status,channel,created_by,created_at,updated_at) VALUES (?,?,'enquiry',?,?,?,'open',?,?,?,?)`)
         .run(id, org, customerId, d.title, d.details || '', d.channel || 'other', actorId, now, now);
     })();
+    // T-071: record the source when one is known. Attribution never blocks the enquiry itself.
+    if (d.source_code || d.campaign || d.area) { try { leadSources.current?.attribute(org, id, { source_code: d.source_code, campaign: d.campaign, area: d.area, set_by: /^[0-9a-f-]{36}$/.test(String(actorId)) ? actorId : null }); } catch (e) { console.warn('[lead-sources] attribution skipped:', e.message); } }
     events.emit(org, 'enquiry.created', { enquiry_id: id }, { key: id });
     return { id, customer_id: customerId };
   }

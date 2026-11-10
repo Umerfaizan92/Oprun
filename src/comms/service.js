@@ -193,7 +193,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const org = db.prepare('SELECT o.id FROM organisations o WHERE o.slug=?').get(slug)?.id || db.prepare('SELECT owner_key id FROM seo_sites WHERE slug=?').get(slug)?.id;
     if (!org || isPlatform(org)) return { ok: false, status: 404, error: 'This form is not available.' };
     const address = d.email || d.phone;
-    const r = pipeline.createEnquiry(org, 'website_form', { title: `Website enquiry from ${d.name}`.slice(0, 240), details: d.message, channel: 'website', customer: { name: d.name, email: d.email || null, phone: d.phone || null } });
+    const r = pipeline.createEnquiry(org, 'website_form', { title: `Website enquiry from ${d.name}`.slice(0, 240), details: d.message, channel: 'website', source_code: d.sp_src || undefined, customer: { name: d.name, email: d.email || null, phone: d.phone || null } });
     const inbound = recordInboundRef.current(db, { organisation_id: org, channel: 'website', contact_address: address, contact_name: d.name, subject: 'Website enquiry', body: d.message, provider: 'website_form', external_message_id: null });
     db.prepare('UPDATE comms_thread_meta SET enquiry_id=COALESCE(enquiry_id,?),customer_id=COALESCE(customer_id,?) WHERE thread_id=?').run(r.id, r.customer_id, inbound.thread_id);
     for (const [ch, a] of [['email', d.email], ['sms', d.phone]]) if (a && d.marketing_consent) consent(org, ch, a, { status: 'granted', source: 'website_form', evidence: `Ticked "${d.consent_text || 'Send me news and offers'}" on the contact form`, customer_id: r.customer_id }, null);

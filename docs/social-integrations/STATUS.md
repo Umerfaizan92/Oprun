@@ -376,3 +376,25 @@ Known limits of this phase:
   are not yet covered.
 - There is no Founder override for the one-workspace rule yet; the holding workspace must release the account.
 - Findings F5 to F9 are open. T-070, T-071 and T-072 hold the remaining phases.
+
+## 10. Changes built on 10 November 2026 (T-070 Accounts tab, T-071 Lead sources)
+
+| Area | What now exists | Evidence |
+|---|---|---|
+| Health light | Each connection shows Working, Needs action or Reconnect, with the one action that fixes it. A provider outage never shows as Reconnect. | `src/integration-health.js`; `scripts/connections-health.test.mjs` |
+| Confirm step (F4) | After any provider sign-in the owner sees "You signed in as X" and must confirm before an account can be selected. Applies to all providers, including Meta, X and Snapchat. | Same test; `scripts/test-connections-ui.mjs` |
+| Daily check | Every connected provider is checked once a day with the workspace's own authorisation. Owners and admins get one notice when a connection needs reconnecting, and one before a Meta sign-in expires. Founder can run it from `POST /api/admin/integrations/health-sweep`. | `integrationHealthSweep` in `src/server.js`; same test |
+| Meta sign-in length (F5 part) | The sign-in is exchanged for Meta's long-lived token (about 60 days). One setting, `META_GRAPH_VERSION`, now controls every Graph call. | `extendMetaToken` in `src/integration-runtime.js` |
+| X address (F9) | Sign-in uses `https://x.com/i/oauth2/authorize`. | `src/server.js` |
+| Capability list (F8) | Each card lists Posts, Video, Messages, Comments, Reviews and Figures as Available, Available with limits, Not available yet or Not offered, with the limit written out. | `PROVIDER_ACTIONS` |
+| Before you connect | Each card lists what the subscriber needs at the provider, and states that the password is never seen. | `CONNECT_CHECKLIST` |
+| Lead sources | Tracked links and QR codes per workspace; visits counted as a number only; enquiries attributed from the website form, the new-enquiry form or by hand; report of leads, quotes, bookings and paid revenue by source, campaign and area. Panel on the Enquiries page. | `src/lead-sources.js`; `scripts/lead-sources.test.mjs`; `scripts/test-lead-sources-ui.mjs` |
+
+Limits to know:
+
+- Meta has no background renewal. After about 60 days the owner must reconnect; the amber light and notice appear a week before.
+- A tracked link may open only the workspace's verified website or a page on a listed social or Google service.
+- Social comments and messages are not yet turned into leads automatically; that needs the inbox work in T-072.
+- Still open from the audit: F5 (Facebook Login for Business, missing permissions, Instagram-only accounts), F6
+  (WhatsApp Embedded Signup), F7 (inbox binding). All depend on SuperPro-named provider apps and provider review.
+- Not verified on production from outside: the workspace cannot open the live site.

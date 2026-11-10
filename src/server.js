@@ -2,6 +2,7 @@ import { assertIsolatedPreview } from './preview-preflight.js';
 import {seedIsolatedPreview} from './preview-seed.js';
 import {installBusinessHub} from './business-hub.js';
 import { installPipeline } from './pipeline.js';
+import { installLeadSources } from './lead-sources.js';
 import { installBusinessOps } from './business-ops.js';
 import {createSubscriptionPolicy} from './subscription-policy.js';
 import {createPlatformIdentity} from './platform-identity.js';
@@ -5980,7 +5981,9 @@ if(!/^(1|true|yes)$/i.test(String(env.JOBS_DISABLED||''))){
 const businessHubHooks={};
 installBusinessHub(app,{db,requireSaasUser,requireSaasRole,saasAudit,staffAccess,hooks:businessHubHooks});
 // Phase 04: connects enquiries, quotes, bookings and invoices to jobs, allocation, completion and payments.
-Object.assign(businessHubHooks,installPipeline(app,{db,requireSaasUser,saasAudit,staffAccess,syncJobFinance:saasPlatform.syncJobFinance,events:automationEvents}));
+const leadSourcesRef={current:null};
+Object.assign(businessHubHooks,installPipeline(app,{db,requireSaasUser,saasAudit,staffAccess,syncJobFinance:saasPlatform.syncJobFinance,events:automationEvents,leadSources:leadSourcesRef}));
+leadSourcesRef.current=installLeadSources(app,{db,env,requireSaasUser,saasAudit,staffAccess});
 businessHubHooks.emit=(...a)=>automationEvents.emit(...a);
 // Phase 04: offshore staff and the automation overview.
 installBusinessOps(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,staffAccess,aiConfigured:()=>aiProviderStatus().configured});

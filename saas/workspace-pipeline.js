@@ -224,17 +224,20 @@
       el('label', {}, 'Email', el('input', { name: 'email', type: 'email', maxlength: 254 })),
       el('label', {}, 'Address', el('input', { name: 'address', maxlength: 300 })));
     pick.addEventListener('change', () => { newCust.hidden = !!pick.value; });
+    const trackedLinks = (await window.SuperProLeadSources?.load?.()) || [];
     f.append(
       el('label', {}, 'What do they need?', el('input', { name: 'title', required: true, minlength: 2, maxlength: 240, placeholder: 'For example: leaking hot water system' })),
       el('label', {}, 'Details', el('textarea', { name: 'details', maxlength: 20000, rows: 2 })),
       el('label', {}, 'Came in by', el('select', { name: 'channel' }, CHANNELS.map(([v, t]) => el('option', { value: v, text: t })))),
+      // T-071: optional tracked source, when the customer says which post, flyer or sign they saw.
+      (trackedLinks.length ? el('label', {}, 'Tracked link or QR code (optional)', el('select', { name: 'source_code' }, el('option', { value: '', text: 'Not from a tracked link' }), trackedLinks.map((o) => el('option', { value: o.code, text: o.label })))) : null),
       el('label', {}, 'Customer', pick), newCust);
     const submit = el('button', { type: 'submit', class: 'portal-button primary', text: 'Save enquiry' });
     f.append(submit);
     f.addEventListener('submit', async (e) => {
       e.preventDefault(); submit.disabled = true;
       const v = Object.fromEntries(new FormData(f));
-      const body = { title: v.title, details: v.details || '', channel: v.channel };
+      const body = { title: v.title, details: v.details || '', channel: v.channel, ...(v.source_code ? { source_code: v.source_code } : {}) };
       if (v.customer_id) body.customer_id = v.customer_id;
       else {
         if (!String(v.name || '').trim()) { say(section, 'Add the customer’s name, or choose an existing customer.', true); submit.disabled = false; return; }
@@ -275,6 +278,7 @@
       if (window.GDS_SESSION?.organisation?.id !== org) return;
       body.replaceChildren(stripEl);
       if (id === 'enquiries' && can('customers', 'create')) { const w = await enquiryForm(s); w.open = !records.length; body.append(w); }
+      if (id === 'enquiries') window.SuperProLeadSources?.mount(body);
       const q = el('input', { type: 'search', class: 'portal-search', placeholder: `Search ${v.title.toLowerCase()} by title or customer`, 'aria-label': `Search ${v.title.toLowerCase()}`, value: filters[id]?.q || '' });
       const statuses = [...new Set(records.map((r) => r.status))];
       const st = el('select', { class: 'portal-search pl-filter', 'aria-label': 'Filter by status' }, el('option', { value: '', text: 'All statuses' }), statuses.map((x) => el('option', { value: x, text: STATUS[x] || x, selected: filters[id]?.status === x })));
