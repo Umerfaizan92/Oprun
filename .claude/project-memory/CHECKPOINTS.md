@@ -1403,3 +1403,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Publish desktop width correction and rerun complete PR CI before merge
+
+## CP-101 2026-11-12T07:16:30+08:00 T-084 TESTING
+- Phase: Legacy section deep-link preservation
+- Task: T-084 (TESTING)
+- Completed steps: All three responsive redesign checks passed in hosted browser; Hosted route traversal exposed legacy alias section query lost during canonicalisation; Preserved query only when it resolves to the same authorised target, with regression test
+- Incomplete steps: Rerun full hosted CI; Review final screenshots; Merge/deploy combined release; Live acceptance
+- Files modified (uncommitted at checkpoint): saas/app.js; saas/workspace.html; scripts/redesign-preservation.test.mjs
+- Tests executed: redesign preservation contracts; hosted responsive redesign
+- Test results: 4/4 contracts pass; 390/768/1440px redesign pass; full hosted rerun pending
+- Git branch: codex/brand-sidebar-20261112
+- Commit: 7ea8997 (Keep desktop content compact with the business drawer); 2 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Publish alias query preservation fix and require all PR checks before deployment
