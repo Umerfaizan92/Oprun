@@ -1151,3 +1151,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T141517Z (dc31b80)
 - Known errors: none
 - Next exact action: Publish restoration to PR70 and require latest CI pass before deploy
+
+## CP-083 2026-11-11T16:16:54+00:00 T-078 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-078 (TESTING)
+- Completed steps: Fixed the two failing PR70 CI checks: test-ui now asserts the preserved Operator sign-in link and opens the Accounts section; comms UI refresh test no longer races its route handler
+- Incomplete steps: Push, confirm PR70 CI green, merge, deploy to Render, live verification
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; scripts/test-comms-ui.mjs; scripts/test-ui.mjs
+- Tests executed: npm test; test:ui; all recovered-release UI suites; integration; smoke; channel isolation unit suites
+- Test results: 73/73; 34/34; every suite passed locally with Chrome
+- Git branch: codex/channel-operations-20261111
+- Commit: 1d5df7e (Verify inbox contents remain visible during a delayed refresh)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Push fixes to PR70 and wait for CI
