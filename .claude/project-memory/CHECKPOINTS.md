@@ -1165,3 +1165,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Push fixes to PR70 and wait for CI
+
+## CP-084 2026-11-11T17:19:24+00:00 T-079 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-079 (TESTING)
+- Completed steps: Sync stores provider link, preview, player, date and totals; hub redesigned in plain language with detail dialog; CSP allows TikTok covers and player
+- Incomplete steps: PR, CI, merge, deploy, owner re-syncs TikTok and confirms
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/connections/CHANNEL_OPERATIONS.md; saas/channel-operations.css; saas/channel-operations.js; saas/integration-manager.js; saas/workspace.html; scripts/channel-operations.test.mjs; scripts/test-channel-operations-ui.mjs; src/channel-providers.js; src/server.js
+- Tests executed: npm test; test:ui; channels, connections, comms, mobile, site UI; integration; smoke
+- Test results: 73/73; 34/34; all suites passed
+- Git branch: claude/channel-content-view-20261112
+- Commit: 51fcc82 (Merge PR #70: Channel operations hub and restored Operator sign-in)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Open PR and wait for CI

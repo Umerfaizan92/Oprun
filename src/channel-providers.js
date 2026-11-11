@@ -2,6 +2,16 @@
 // come from server-verified selections, never arbitrary client URLs.
 const id = encodeURIComponent;
 const cut = (v, n = 5000) => String(v ?? '').slice(0, n);
+// Links and previews shown to the user are rebuilt or checked here: https only,
+// on the provider's own hosts. Anything else is dropped, never passed through.
+export function providerLink(value, hosts) {
+  try {
+    const u = new URL(String(value || ''));
+    return u.protocol === 'https:' && !u.username && !u.password && !u.port && hosts.some(h => u.hostname === h || u.hostname.endsWith('.' + h)) ? cut(u.href, 1500) : undefined;
+  } catch { return undefined; }
+}
+const when = v => { const d = typeof v === 'number' ? new Date(v * 1000) : new Date(String(v || '')); return Number.isFinite(d.getTime()) ? d.toISOString() : undefined; };
+const total = (list, key) => { const values = list.map(v => v?.[key]); return values.length && values.every(v => Number.isFinite(Number(v)) && v !== null && v !== undefined) ? values.reduce((sum, v) => sum + Number(v), 0) : null; };
 export const CHANNEL_PROVIDERS = {
   meta: 'Facebook & Instagram', whatsapp: 'WhatsApp Business', youtube: 'YouTube',
   gmail: 'Gmail', tiktok: 'TikTok', x: 'X', google_business: 'Google Business Profile',
@@ -31,12 +41,16 @@ export function createChannelProviderClient({runtime, env = {}}) {
       const playlist = channel.contentDetails?.relatedPlaylists?.uploads;
       if (playlist) {
         const videos = await call('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=' + id(playlist), token);
-        for (const v of videos.items || []) add(v.snippet?.resourceId?.videoId, 'video', v.snippet?.title, v.snippet?.description);
+        for (const v of videos.items || []) {
+          const vid = String(v.snippet?.resourceId?.videoId || '');
+          if (/^[\w-]{6,20}$/.test(vid)) add(vid, 'video', v.snippet?.title, v.snippet?.description, {url:'https://www.youtube.com/watch?v=' + vid, thumbnail:'https://i.ytimg.com/vi/' + vid + '/mqdefault.jpg', embed:'https://www.youtube.com/embed/' + vid, occurred_at:when(v.snippet?.publishedAt)});
+        }
       }
       const comments = await call('https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&maxResults=30&textFormat=plainText&allThreadsRelatedToChannelId=' + id(resource.id), token);
       for (const thread of comments.items || []) {
         const c = thread.snippet?.topLevelComment;
-        if (c?.id) add(c.id, 'comment', c.snippet?.authorDisplayName, c.snippet?.textDisplay, {can_reply:Boolean(thread.snippet?.canReply)});
+        const vid = String(thread.snippet?.videoId || '');
+        if (c?.id) add(c.id, 'comment', c.snippet?.authorDisplayName, c.snippet?.textDisplay, {can_reply:Boolean(thread.snippet?.canReply), occurred_at:when(c.snippet?.publishedAt), metrics:{likes:c.snippet?.likeCount, replies:thread.snippet?.totalReplyCount}, ...(/^[\w-]{6,20}$/.test(vid) ? {url:'https://www.youtube.com/watch?v=' + vid + '&lc=' + id(c.id)} : {})});
       }
     } else if (provider === 'gmail') {
       const profile = await call('https://gmail.googleapis.com/gmail/v1/users/me/profile', token);
@@ -48,16 +62,16 @@ export function createChannelProviderClient({runtime, env = {}}) {
         const headers = Object.fromEntries((m.payload?.headers || []).map(h => [h.name.toLowerCase(), h.value]));
         const address = cut(headers['reply-to'] || headers.from, 300), recipient = address.match(/<([^>]+)>/)?.[1] || address;
         const plain = p => p?.mimeType === 'text/plain' && p.body?.data ? Buffer.from(p.body.data, 'base64url').toString('utf8') : (p?.parts || []).map(plain).filter(Boolean).join('\n');
-        add(m.id, 'message', headers.subject, plain(m.payload) || m.snippet, {thread_id:m.threadId, recipient, message_id:cut(headers['message-id'], 300), can_reply:/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(recipient)});
+        add(m.id, 'message', headers.subject, plain(m.payload) || m.snippet, {url:/^[0-9a-f]{6,32}$/i.test(m.threadId || '') ? 'https://mail.google.com/mail/?authuser=' + id(resource.id) + '#all/' + m.threadId : undefined, occurred_at:when(Number(m.internalDate) / 1000), thread_id:m.threadId, recipient, message_id:cut(headers['message-id'], 300), can_reply:/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(recipient)});
       }
     } else if (provider === 'google_business') {
       if (!/^accounts\/[^/]+$/.test(resource.parent_id || '') || !/^locations\/[^/]+$/.test(resource.id)) throw new Error('Invalid Business Profile selection.');
       const parent = resource.parent_id + '/' + resource.id;
       const reviews = await call('https://mybusiness.googleapis.com/v4/' + parent + '/reviews?pageSize=30', token);
       if (reviews.totalReviewCount !== undefined) metrics.push({key:'reviews', value:Number(reviews.totalReviewCount), source:'Google Business Profile'});
-      for (const r of reviews.reviews || []) add(r.reviewId, 'review', r.reviewer?.displayName, r.comment, {can_reply:true, rating:r.starRating, reply:cut(r.reviewReply?.comment)});
+      for (const r of reviews.reviews || []) add(r.reviewId, 'review', r.reviewer?.displayName, r.comment, {can_reply:true, rating:r.starRating, reply:cut(r.reviewReply?.comment), occurred_at:when(r.createTime)});
       const posts = await call('https://mybusiness.googleapis.com/v4/' + parent + '/localPosts?pageSize=20', token);
-      for (const p of posts.localPosts || []) add(p.name, 'post', p.topicType || 'Local post', p.summary);
+      for (const p of posts.localPosts || []) add(p.name, 'post', p.topicType || 'Local post', p.summary, {url:providerLink(p.searchUrl, ['google.com']), occurred_at:when(p.createTime)});
     } else if (provider === 'google_seo' && resource.type === 'google_ads_customer') {
       if(!/^\d{6,20}$/.test(resource.id) || !env.GOOGLE_ADS_DEVELOPER_TOKEN)throw Object.assign(new Error('Connect an approved Google Ads customer account.'),{status:409});
       const version=/^v\d{1,3}$/.test(env.GOOGLE_ADS_API_VERSION||'')?env.GOOGLE_ADS_API_VERSION:'v26';
@@ -68,14 +82,29 @@ export function createChannelProviderClient({runtime, env = {}}) {
         metrics.push({key:key==='costMicros'?'cost_micros_account_currency':key,value:values.length&&values.every(v=>v!==undefined)?values.reduce((sum,v)=>sum+Number(v),0):null,source:'Google Ads '+resource.id+' / last 30 days / up to 50 campaigns'});
       }
     } else if (provider === 'tiktok') {
-      const d = await call('https://open.tiktokapis.com/v2/video/list/?fields=id,title,view_count,like_count,comment_count,share_count', token, json('POST', {max_count:20}));
+      const d = await call('https://open.tiktokapis.com/v2/video/list/?fields=id,title,video_description,create_time,duration,cover_image_url,share_url,view_count,like_count,comment_count,share_count', token, json('POST', {max_count:20}));
       if (d.error?.code && d.error.code !== 'ok') throw new Error('TikTok refused video access. Check the video.list permission.');
-      for (const v of d.data?.videos || []) add(v.id, 'video', v.title, '', {metrics:{views:v.view_count, likes:v.like_count, comments:v.comment_count, shares:v.share_count}});
+      const videos = d.data?.videos || [];
+      for (const v of videos) {
+        const vid = String(v.id || ''), caption = cut(v.video_description || v.title, 12000);
+        add(vid, 'video', v.title || caption, caption === cut(v.title) ? '' : caption, {
+          url:providerLink(v.share_url, ['tiktok.com']), thumbnail:providerLink(v.cover_image_url, ['tiktokcdn.com', 'tiktokcdn-us.com', 'tiktokcdn-eu.com']),
+          embed:/^\d{6,32}$/.test(vid) ? 'https://www.tiktok.com/player/v1/' + vid : undefined, occurred_at:when(Number(v.create_time)), duration_seconds:Number.isFinite(Number(v.duration)) ? Number(v.duration) : undefined,
+          metrics:{views:v.view_count, likes:v.like_count, comments:v.comment_count, shares:v.share_count}});
+      }
+      const sample = 'TikTok / latest ' + videos.length + ' videos';
+      metrics.push({key:'videos_in_sample', value:videos.length, source:sample});
+      for (const [key, field] of [['views','view_count'],['likes','like_count'],['comments','comment_count'],['shares','share_count']]) metrics.push({key, value:total(videos, field), source:sample});
+      if (String(bundle.scope || '').split(/[ ,]+/).includes('user.info.stats')) {
+        // Profile totals need a separately granted permission; without it they are simply not shown.
+        const profile = await call('https://open.tiktokapis.com/v2/user/info/?fields=follower_count,likes_count,video_count', token).catch(() => null), u = profile?.data?.user || {};
+        for (const [key, field] of [['followers','follower_count'],['profile_likes','likes_count'],['profile_videos','video_count']]) if (Number.isFinite(Number(u[field])) && u[field] !== null && u[field] !== undefined) metrics.push({key, value:Number(u[field]), source:'TikTok profile'});
+      }
     } else if (provider === 'x') {
       const me = await call('https://api.x.com/2/users/me', token);
       if (me.data?.id !== resource.id) throw Object.assign(new Error('The X account no longer matches this workspace selection.'), {status:403});
       const d = await call('https://api.x.com/2/users/' + id(resource.id) + '/tweets?max_results=20&tweet.fields=public_metrics,created_at', token);
-      for (const p of d.data || []) add(p.id, 'post', 'X post', p.text, {can_reply:true, metrics:p.public_metrics || {}});
+      for (const p of d.data || []) add(p.id, 'post', 'X post', p.text, {can_reply:true, metrics:p.public_metrics || {}, url:/^\d{5,32}$/.test(String(p.id)) ? 'https://x.com/i/web/status/' + p.id : undefined, occurred_at:when(p.created_at)});
     } else throw Object.assign(new Error('Use this service’s existing inbox or insights workflow; content sync is not enabled.'), {status:409});
     return {items:items.slice(0,100), metrics, fetched_at:new Date().toISOString(), coverage:'Bounded recent sample, not complete provider history'};
   }
