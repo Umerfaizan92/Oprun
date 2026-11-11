@@ -1,5 +1,5 @@
 import {googleResourceLinks} from '../integration-resources.js';
-// Phase 06: the SEO platform's data and operations. Every row belongs to one owner: 'platform' (Super Pro's own public
+// Phase 06: the SEO platform's data and operations. Every row belongs to one owner: 'platform' (Oprun's own public
 // website, Founder Console only) or one business's organisation id. No function reads across owners.
 import crypto from 'node:crypto';
 import { crawlSite, auditCrawl, parsePage } from './audit.js';
@@ -48,7 +48,7 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
 
   // ---------------- verified facts ----------------
   function facts(ownerKey) {
-    if (isPlatform(ownerKey)) return { business_name: 'Super Pro AI Office Manager', services: ['AI office manager', 'business operations software', 'job management software', 'AI receptionist'], areas: ['Australia'], website_url: env.PUBLIC_BASE_URL || ownBase(), email: env.SUPPORT_EMAIL || '', phone: '', schema_type: 'Organization' };
+    if (isPlatform(ownerKey)) return { business_name: 'Oprun', services: ['AI office manager', 'business operations software', 'job management software', 'AI receptionist'], areas: ['Australia'], website_url: env.PUBLIC_BASE_URL || ownBase(), email: env.SUPPORT_EMAIL || '', phone: '', schema_type: 'Organization' };
     const p = profileOf(ownerKey) || {};
     const ob = db.prepare('SELECT email FROM users u JOIN memberships m ON m.user_id=u.id WHERE m.organisation_id=? AND m.role=\'owner\' LIMIT 1').get(ownerKey);
     const prices = (() => { try { return db.prepare("SELECT name, unit_price_cents FROM stock_items WHERE organisation_id=? AND active=1 AND unit_price_cents>0 LIMIT 20").all(ownerKey).map((r) => ({ name: r.name, price: '$' + (r.unit_price_cents / 100).toFixed(2) })); } catch { return []; } })();
@@ -108,7 +108,7 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
   }
   function storeCwv(ownerKey, r) { db.prepare('INSERT INTO seo_cwv(id,owner_key,url,strategy,field_json,lab_json,fetched_at) VALUES (?,?,?,?,?,?,?)').run(uid(), ownerKey, r.url, r.strategy, r.field ? JSON.stringify(r.field) : null, JSON.stringify(r.lab), r.fetched_at); }
 
-  // Pull measured data from Google into Super Pro (Search Console, GA4, PageSpeed, Business Profile).
+  // Pull measured data from Google into Oprun (Search Console, GA4, PageSpeed, Business Profile).
   async function syncGoogle(ownerKey, { days = 28, actor = null } = {}) {
     const end = Date.now() - 2 * DAY, start = end - days * DAY, out = {};
     const gsc = link(ownerKey, 'search_console');
@@ -348,12 +348,12 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
       measured: {
         search_console: cur.n ? { clicks: cur.clicks, impressions: cur.impressions, ctr: cur.impressions ? cur.clicks / cur.impressions : 0, position: cur.position, previous: prev.n ? { clicks: prev.clicks, impressions: prev.impressions, ctr: prev.impressions ? prev.clicks / prev.impressions : 0, position: prev.position } : null, source: 'Google Search Console', top_pages: topPages, top_queries: topQueries } : null,
         analytics: ga.n ? { organic_sessions: ga.sessions, organic_key_events: ga.key_events, organic_revenue: ga.revenue, currency: ga.currency, source: 'Google Analytics 4 (channel: Organic Search)', landing_pages: landing } : null,
-        leads: leads === null ? null : { website_enquiries: leads, qualified: qualified, source: 'Super Pro records: enquiries with the channel "website"; qualified = a quote was prepared' },
-        revenue_attribution: revenue === null ? null : { paid_cents: revenue, source: 'Super Pro records: payments from customers whose enquiry came from the website. This is first-touch attribution by Super Pro, not Google.' },
-        technical: audit ? { score: audit.score, fixes: audit.counts.fix, improvements: audit.counts.improve, audited_at: audit.created_at, source: 'Super Pro technical audit' } : null,
+        leads: leads === null ? null : { website_enquiries: leads, qualified: qualified, source: 'Oprun records: enquiries with the channel "website"; qualified = a quote was prepared' },
+        revenue_attribution: revenue === null ? null : { paid_cents: revenue, source: 'Oprun records: payments from customers whose enquiry came from the website. This is first-touch attribution by Oprun, not Google.' },
+        technical: audit ? { score: audit.score, fixes: audit.counts.fix, improvements: audit.counts.improve, audited_at: audit.created_at, source: 'Oprun technical audit' } : null,
         core_web_vitals: cwv.length ? cwv : null
       },
-      estimates: plan ? { priorities: (plan.priorities || []).slice(0, 10), source: 'Super Pro estimates from the reasons listed; not Google data', created_at: plan.created_at } : null
+      estimates: plan ? { priorities: (plan.priorities || []).slice(0, 10), source: 'Oprun estimates from the reasons listed; not Google data', created_at: plan.created_at } : null
     };
   }
 
@@ -367,7 +367,7 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
     if (audit) for (const c of audit.checks.filter((x) => x.level === 'fix').slice(0, 5)) recs.push(`Fix: ${c.title}${c.how ? ' — ' + c.how : ''}`);
     if (plan) for (const p of (plan.priorities || []).slice(0, 3)) recs.push(`${p.action === 'create' ? 'Create a page for' : 'Improve the page for'} "${p.primary}" (estimate: ${p.reasons.slice(0, 2).join('; ')})`);
     if (!d.measured.search_console) recs.push('Connect Google Search Console so clicks, impressions and positions can be measured.');
-    const r = { kind, created_at: iso(), period: d.period, measured: d.measured, estimates: d.estimates, technical: audit ? { score: audit.score, counts: audit.counts, new_issues: newIssues, fixed } : null, clusters: kind === 'monthly' && plan ? { count: plan.clusters?.length || 0, gaps: (plan.gaps || []).slice(0, 10), pillars: (plan.pillars || []).slice(0, 6) } : null, freshness: kind !== 'daily' ? freshness(ownerKey) : [], recommendations: recs, note: 'Measured figures come from the named sources. Estimates are marked. Super Pro cannot guarantee indexing or rankings.' };
+    const r = { kind, created_at: iso(), period: d.period, measured: d.measured, estimates: d.estimates, technical: audit ? { score: audit.score, counts: audit.counts, new_issues: newIssues, fixed } : null, clusters: kind === 'monthly' && plan ? { count: plan.clusters?.length || 0, gaps: (plan.gaps || []).slice(0, 10), pillars: (plan.pillars || []).slice(0, 6) } : null, freshness: kind !== 'daily' ? freshness(ownerKey) : [], recommendations: recs, note: 'Measured figures come from the named sources. Estimates are marked. Oprun cannot guarantee indexing or rankings.' };
     const id = uid(); db.prepare('INSERT INTO seo_reports(id,owner_key,kind,period_start,period_end,created_at,report_json) VALUES (?,?,?,?,?,?,?)').run(id, ownerKey, kind, d.period.start, d.period.end, r.created_at, JSON.stringify(r));
     db.prepare('DELETE FROM seo_reports WHERE owner_key=? AND id NOT IN (SELECT id FROM seo_reports WHERE owner_key=? ORDER BY created_at DESC LIMIT 120)').run(ownerKey, ownerKey);
     return { id, ...r };

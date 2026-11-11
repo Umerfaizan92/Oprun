@@ -49,7 +49,7 @@
       job_changes:'Job scheduling or allocation changes',
       customer_record_changes:'Material customer-record changes'
     };
-    return '<article class="panel"><div class="panel-head"><div><span class="panel-kicker">APPROVAL POLICY</span><h2>Human control rules</h2><p>Choose what Super Pro must hold for authorised human approval before an external or consequential action proceeds.</p></div></div>'+
+    return '<article class="panel"><div class="panel-head"><div><span class="panel-kicker">APPROVAL POLICY</span><h2>Human control rules</h2><p>Choose what Oprun must hold for authorised human approval before an external or consequential action proceeds.</p></div></div>'+
       '<label><span>Approval mode</span><select id="approval-policy-mode"><option value="everything">Approve everything</option><option value="external_actions">Approve external actions</option><option value="custom">Custom</option></select></label>'+
       '<div class="approval-policy-grid">'+Object.entries(labels).map(([k,label])=>'<label><input type="checkbox" data-approval-rule="'+k+'" '+(rules[k]?'checked':'')+'><span><b>'+esc(label)+'</b><small>Require approval when this rule applies.</small></span></label>').join('')+'</div>'+
       '<div class="approval-actions"><button type="button" class="primary-button compact" id="save-approval-policy">Save approval policy</button></div></article>';

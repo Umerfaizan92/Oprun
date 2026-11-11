@@ -148,7 +148,7 @@ test('one external account serves one workspace only', async (t) => {
   const refused = await choose(b, ['page-111']);
   assert.equal(refused.status, 409, refused.text);
   assert.match(refused.text, /resource_in_use/);
-  assert.match(refused.text, /already connected to another Super Pro business/);
+  assert.match(refused.text, /already connected to another Oprun business/);
   assert.doesNotMatch(refused.text, new RegExp(a.org), 'the other workspace is never identified');
   assert.equal((await choose(b, ['page-222'])).status, 200, 'a different Page is fine');
   assert.equal((await choose(a, ['page-111'])).status, 200, 'the holder can save its own selection again');

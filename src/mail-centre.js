@@ -385,7 +385,7 @@ export function installMailCentre(
             system:
               "Draft professional email text for " +
               (c.scope === "platform"
-                ? "Super Pro AI"
+                ? "Oprun"
                 : "one isolated business") +
               ". Use only supplied facts. Never send or invent facts. Return a draft for review.",
             messages: [{ role: "user", content: p.data.brief }],

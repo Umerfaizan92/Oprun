@@ -6,7 +6,7 @@ import path from 'node:path';
 import Database from 'better-sqlite3';
 import { analysePage, analyseRobots, scoreOf, installVisibility } from '../src/visibility.js';
 
-const GOOD = `<!doctype html><html lang="en"><head><title>Super Pro AI Office Manager for service businesses</title><meta name="description" content="Run jobs, customers, staff and marketing from one place, with every message and post approved by you before it goes out."><meta name="viewport" content="width=device-width"><link rel="canonical" href="https://x.test/saas/"><meta property="og:title" content="a"><meta property="og:description" content="b"><meta property="og:image" content="c"><meta property="og:url" content="d"><script type="application/ld+json">{"@type":"SoftwareApplication","offers":{"@type":"Offer","price":"49"}}</script></head><body><h1>One office</h1><h2>A</h2><h2>B</h2><p>${'word '.repeat(200)}</p></body></html>`;
+const GOOD = `<!doctype html><html lang="en"><head><title>Oprun for service businesses</title><meta name="description" content="Run jobs, customers, staff and marketing from one place, with every message and post approved by you before it goes out."><meta name="viewport" content="width=device-width"><link rel="canonical" href="https://x.test/saas/"><meta property="og:title" content="a"><meta property="og:description" content="b"><meta property="og:image" content="c"><meta property="og:url" content="d"><script type="application/ld+json">{"@type":"SoftwareApplication","offers":{"@type":"Offer","price":"49"}}</script></head><body><h1>One office</h1><h2>A</h2><h2>B</h2><p>${'word '.repeat(200)}</p></body></html>`;
 
 test('a well-formed page scores well and a bare page does not', () => {
   const g = analysePage(GOOD, { expectedPrices: [49] });

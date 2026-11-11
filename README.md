@@ -1,4 +1,6 @@
-# Super Pro AI Office Manager
+# Oprun
+
+**Run your world.** Your office runs. You approve.
 
 Multi-tenant office manager for Australian service businesses. One workspace for operations, workforce compliance, finance and governance:
 
@@ -7,7 +9,9 @@ Multi-tenant office manager for Australian service businesses. One workspace for
 - **Finance:** job ledger and billing.
 - **Governance:** human approvals for every AI action that leaves the building, a tamper-evident audit log, privacy requests and statutory retention, data migration (CSV/JSON import with a dry run), and an owner-only export and backup hub.
 
-The brand name is still provisional. It lives in `package.json` (`name`, `description`), `render.yaml` (`name`) and the `saas/` pages.
+Brand: **Oprun** (tagline "Run your world.", slogan "Your office runs. You approve."). Logo files: `saas/oprun-icon.svg` (app icon), `saas/oprun-mark.svg` (mark), `saas/oprun-logo.svg` (full mark with world), PNG icons and `saas/favicon.ico`. Site copy lives in `scripts/site/content.mjs` (`SITE`).
+
+Infrastructure identifiers keep their original names on purpose so nothing breaks: the Render service `super-pro-ai-office-manager`, its disk, the database file `super-pro.sqlite`, S3 prefixes `super-pro/...`, and code identifiers such as `superpro_*` storage keys and `window.SuperPro*`. The old `superpro-icon*` files remain as copies of the new icon so existing links keep working.
 
 ## Run it locally
 

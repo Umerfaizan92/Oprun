@@ -147,7 +147,7 @@
         approve.onclick = () => {
           approve.disabled = true; steps[gateAt].removeAttribute('data-waiting');
           for (let k = gateAt; k < steps.length; k += 1) steps[k].setAttribute('data-on', '');
-          status.textContent = 'Approved. Done.'; window.SPMotion?.toast('Approved. In Super Pro this is recorded in your activity log.');
+          status.textContent = 'Approved. Done.'; window.SPMotion?.toast('Approved. In Oprun this is recorded in your activity log.');
         };
         $('[data-flow-reset]', panel).onclick = () => run(panel);
       };

@@ -1,6 +1,6 @@
-/* Super Pro luxury design layer: black and gold.
+/* Oprun luxury design layer: black and gold.
    Single source for tokens, type scale, surfaces, controls and shell tidy-up. Loaded after the page styles on every page.
-   Brand name is intentionally unchanged; machine identifiers stay as they are. */
+   Brand: Oprun ("Run your world."). Machine identifiers (superpro_* keys, window.SuperPro*, super-pro paths) stay as they are. */
 @font-face{font-family:"Manrope";src:url("fonts/manrope-latin-wght-normal.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
 @font-face{font-family:"Bodoni Moda";src:url("fonts/bodoni-moda-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Bodoni Moda";src:url("fonts/bodoni-moda-latin-600-normal.woff2") format("woff2");font-weight:600 800;font-style:normal;font-display:swap}

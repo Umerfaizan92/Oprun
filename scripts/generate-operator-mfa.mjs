@@ -4,4 +4,4 @@ import crypto from 'node:crypto';
 const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 let bits = 0, value = 0, secret = '';
 for (const byte of crypto.randomBytes(20)) { value = (value << 8) | byte; bits += 8; while (bits >= 5) { secret += A[(value >>> (bits - 5)) & 31]; bits -= 5; } }
-console.log(`OPERATOR_TOTP_SECRET=${secret}\n\nAuthenticator link (paste into a QR code maker, or type the secret manually):\notpauth://totp/${encodeURIComponent('Super Pro operator')}?secret=${secret}&issuer=${encodeURIComponent('Super Pro AI Office Manager')}\n\nOnce this is set on Render, the operator console needs the admin key plus a 6-digit code, and the admin key alone stops working for the API.`);
+console.log(`OPERATOR_TOTP_SECRET=${secret}\n\nAuthenticator link (paste into a QR code maker, or type the secret manually):\notpauth://totp/${encodeURIComponent('Oprun operator')}?secret=${secret}&issuer=${encodeURIComponent('Oprun')}\n\nOnce this is set on Render, the operator console needs the admin key plus a 6-digit code, and the admin key alone stops working for the API.`);

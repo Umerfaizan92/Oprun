@@ -55,7 +55,7 @@ export function localAudit({ facts = {}, site = null, gbp = null, reviews = null
   // Reviews and photos
   if (reviews) {
     const unanswered = reviews.reviews.filter((r) => !r.reply);
-    add('reviews', unanswered.length ? 'improve' : 'good', `${reviews.total ?? reviews.reviews.length} Google review(s), average ${reviews.average ?? 'not shown'}`, unanswered.length ? `${unanswered.length} without a reply.` : 'Every review has a reply.', 'Reply to every review, good or bad. Super Pro drafts replies; you approve each one.');
+    add('reviews', unanswered.length ? 'improve' : 'good', `${reviews.total ?? reviews.reviews.length} Google review(s), average ${reviews.average ?? 'not shown'}`, unanswered.length ? `${unanswered.length} without a reply.` : 'Every review has a reply.', 'Reply to every review, good or bad. Oprun drafts replies; you approve each one.');
   } else add('reviews', 'setup', 'Reviews not read yet', 'Connect Google Business Profile to read reviews.');
   if (photos !== null) add('photos', photos >= 10 ? 'good' : photos ? 'improve' : 'fix', `${photos} photo(s) on your Google profile`, '', 'Add real photos of your work, team and vehicles. Only use photos you own.');
   return checks;

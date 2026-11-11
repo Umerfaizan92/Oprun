@@ -53,7 +53,7 @@
     [
       "f05",
       "team",
-      "Super Pro team",
+      "Oprun team",
       "users",
       [
         ["records:staff_task", "Team work"],
@@ -63,7 +63,7 @@
     [
       "f06",
       "marketing",
-      "Super Pro marketing",
+      "Oprun marketing",
       "spark",
       [
         ["records:prospect", "Prospect CRM"],
@@ -361,7 +361,7 @@
           host.append(
             panel(
               "No records yet",
-              "Saved here only for Super Pro operations.",
+              "Saved here only for Oprun operations.",
             ),
           );
       } else if (route === "audit") {

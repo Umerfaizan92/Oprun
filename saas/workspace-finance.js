@@ -41,7 +41,7 @@
     const [o,jobs,oh,ledger]=await Promise.all([api('/api/saas/finance/overview'),api('/api/saas/finance/jobs'),api('/api/saas/finance/overheads'),api('/api/saas/finance')]);
     T={...T,...o.terms};
     $('#fin-title').textContent=`Profit on every ${T.job.toLowerCase()}, without the spreadsheet`;
-    $('#fin-intro').textContent=`Enter what a ${T.job.toLowerCase()} is worth and what ${T.customer.toLowerCase()==='customer'?'the customer':'the '+T.customer.toLowerCase()} paid. Super Pro works out ${T.revenue.toLowerCase()}, ${T.costs.toLowerCase()}, labour and overheads for you.`;
+    $('#fin-intro').textContent=`Enter what a ${T.job.toLowerCase()} is worth and what ${T.customer.toLowerCase()==='customer'?'the customer':'the '+T.customer.toLowerCase()} paid. Oprun works out ${T.revenue.toLowerCase()}, ${T.costs.toLowerCase()}, labour and overheads for you.`;
     $('#fin-jobs-title').textContent=T.jobs;
     renderOverview(o);
     $('#fin-jobs').replaceChildren(...(jobs.jobs.length?jobs.jobs.map(jobCard):[el('div',{class:'empty-state'},el('b',{text:`No ${T.jobs.toLowerCase()} yet`}),el('span',{text:`Create a ${T.job.toLowerCase()} in Customers & Work and it will appear here.`}))]));

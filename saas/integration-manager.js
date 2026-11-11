@@ -50,7 +50,7 @@
   }
   function checklistHtml(x){
     if(x.status==='connected'||!x.checklist?.length)return '';
-    return `<details class="connection-checklist"><summary>Before you connect</summary><ul>${x.checklist.map(c=>`<li>${esc(c)}</li>`).join('')}</ul><p>You sign in on the provider’s own page. Super Pro never sees or stores your password.</p></details>`;
+    return `<details class="connection-checklist"><summary>Before you connect</summary><ul>${x.checklist.map(c=>`<li>${esc(c)}</li>`).join('')}</ul><p>You sign in on the provider’s own page. Oprun never sees or stores your password.</p></details>`;
   }
   function diagnosticHtml(d){return d?`<div class="connection-diagnostic"><strong>${esc(d.title)}</strong><p>${esc(d.action)}</p>${d.reference?`<small>Reference: ${esc(d.reference)}</small>`:''}</div>`:'';}
   function insightsHtml(x){

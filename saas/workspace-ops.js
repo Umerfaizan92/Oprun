@@ -14,7 +14,7 @@
   }
   const VIEWS = {
     offshore: ['Offshore Staff', 'Team members who work for you from outside Australia. They are never offered on-site jobs, and you record how customer information is protected when they can see it.'],
-    automation: ['Automation', 'Everything Super Pro does on its own, in one place. Anything that reaches a customer still waits for approval.']
+    automation: ['Automation', 'Everything Oprun does on its own, in one place. Anything that reaches a customer still waits for approval.']
   };
   const say = (s, t, bad = false) => { const p = s.querySelector('[data-ops-status]'); if (!p) return; p.textContent = t; p.dataset.tone = bad ? 'bad' : 'good'; if (!bad) window.SPMotion?.toast?.(t); };
   function ensure(id) {

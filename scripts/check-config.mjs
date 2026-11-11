@@ -61,7 +61,7 @@ function present(k){
   return true;
 }
 const ready=g=>g.sets.some(set=>set.every(present));
-console.log('\nSuper Pro AI Office Manager configuration readiness (secret values are never printed)\n');
+console.log('\nOprun configuration readiness (secret values are never printed)\n');
 let configured=0;
 for(const g of groups){
   const ok=ready(g);

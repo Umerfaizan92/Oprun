@@ -1,4 +1,4 @@
-// Emails from Super Pro to its own subscribers: welcome, trial reminders, plan changes, subscription receipts and refusals.
+// Emails from Oprun to its own subscribers: welcome, trial reminders, plan changes, subscription receipts and refusals.
 // These are platform emails only. They never touch a business's own customer invoices or receipts (see payments.js).
 import { RULES } from './entitlements.js';
 import crypto from 'node:crypto';

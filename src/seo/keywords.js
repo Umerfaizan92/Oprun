@@ -6,8 +6,8 @@
 //   site            phrases from the business's own page titles and headings
 //   business_facts  the services and areas the business told us
 //   manual          typed by a person
-//   combination     a service + area pairing suggested by Super Pro (no evidence of demand until it shows in Search Console)
-// Search volume is never estimated. Priority is a Super Pro estimate and is labelled as one, with its reasons.
+//   combination     a service + area pairing suggested by Oprun (no evidence of demand until it shows in Search Console)
+// Search volume is never estimated. Priority is an Oprun estimate and is labelled as one, with its reasons.
 
 const STOP = new Set('a an and are as at be by for from how i in is it my of on or our the to what when where which who why with your you me near can do does should will best top'.split(' '));
 const TRANSACTIONAL = /\b(buy|book|booking|hire|price|prices|pricing|cost|costs|quote|quotes|cheap|affordable|emergency|same day|24 ?7|24 hour|near me|repair|install|installation|replace|replacement|service|services|company|companies|contractor|contractors)\b/;
@@ -154,7 +154,7 @@ export function buildPlan({ keywords, clusters, pages = [], linkGraph = {}, serv
     if (!imp && !vol.length) reasons.push('no measured demand yet: treat as a hypothesis');
     return { cluster: c.id, primary: c.primary, score: Math.round(Math.min(100, score)), basis: 'estimate', reasons, action: c.page ? 'optimise' : 'create' };
   }).sort((a, b) => b.score - a.score);
-  return { clusters: withService, pillars, gaps, internal_links: links.slice(0, 60), cannibalisation, priorities, note: 'Search volumes appear only when your uploaded list or Search Console provides them. Priority scores are Super Pro estimates from the reasons shown.', brand };
+  return { clusters: withService, pillars, gaps, internal_links: links.slice(0, 60), cannibalisation, priorities, note: 'Search volumes appear only when your uploaded list or Search Console provides them. Priority scores are Oprun estimates from the reasons shown.', brand };
 }
 
 // Parse an uploaded keyword list (CSV: keyword[,volume]) without inventing anything missing.

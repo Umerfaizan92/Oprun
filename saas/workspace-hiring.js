@@ -88,7 +88,7 @@
       body.replaceChildren(...(roles.length?roles.map(r=>el('article',{class:'panel hire-card'},el('div',{class:'hire-row'},el('b',{text:r.title}),el('span',{class:'status-pill '+(r.status==='open'?'ok':'neutral'),text:r.status==='open'?'Open':'Closed'})),
         el('p',{class:'muted',text:`${r.employment_label}${r.location?' · '+r.location:''}${r.pay_text?' · '+r.pay_text:''}`}),el('p',{class:'muted',text:`${r.applicants} applicant${r.applicants===1?'':'s'}`}),
         el('div',{class:'hire-actions'},btn('Advertise',()=>adsDialog(r),'primary-button compact'),btn('Edit',()=>roleForm(r,render)),btn('Copy apply link',()=>copy(r.apply_link)),
-          btn(r.status==='open'?'Close role':'Reopen',async()=>{try{await api(`/api/saas/hiring/roles/${r.id}/${r.status==='open'?'close':'open'}`,{method:'POST',body:'{}'});render()}catch(e){note(e.message,true)}})))):[el('p',{class:'muted',text:'No roles yet. Create one and Super Pro will help you advertise it everywhere.'})]));
+          btn(r.status==='open'?'Close role':'Reopen',async()=>{try{await api(`/api/saas/hiring/roles/${r.id}/${r.status==='open'?'close':'open'}`,{method:'POST',body:'{}'});render()}catch(e){note(e.message,true)}})))):[el('p',{class:'muted',text:'No roles yet. Create one and Oprun will help you advertise it everywhere.'})]));
     }else{
       const {applicants}=await api('/api/saas/hiring/applicants');
       body.replaceChildren(...(applicants.length?applicants.map(a=>el('article',{class:'panel hire-card'},el('div',{class:'hire-row'},el('b',{text:a.full_name}),el('span',{class:'status-pill '+(a.status==='new'?'warn':'neutral'),text:a.status})),

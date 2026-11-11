@@ -163,7 +163,7 @@
     },
     {
       "page": "legacy-landing",
-      "url": "/saas/",
+      "url": "/saas/index.html",
       "group": "existing",
       "width": 1440,
       "theme": "dark",
@@ -174,14 +174,14 @@
           "help": "Elements must have their visible text as part of their accessible name",
           "count": 1,
           "targets": [
-            ".brand[href$=\"saas/\"]"
+            "a[href=\"/\"]"
           ]
         }
       ]
     },
     {
       "page": "legacy-landing",
-      "url": "/saas/",
+      "url": "/saas/index.html",
       "group": "existing",
       "width": 390,
       "theme": "dark",
@@ -192,7 +192,7 @@
           "help": "Elements must have their visible text as part of their accessible name",
           "count": 1,
           "targets": [
-            ".brand[href$=\"saas/\"]"
+            "a[href=\"/\"]"
           ]
         },
         {
@@ -208,7 +208,7 @@
     },
     {
       "page": "legacy-landing",
-      "url": "/saas/",
+      "url": "/saas/index.html",
       "group": "existing",
       "width": 1440,
       "theme": "light",
@@ -219,7 +219,7 @@
           "help": "Elements must have their visible text as part of their accessible name",
           "count": 1,
           "targets": [
-            ".brand[href$=\"saas/\"]"
+            "a[href=\"/\"]"
           ]
         }
       ]
@@ -304,7 +304,7 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 7,
+          "count": 6,
           "targets": [
             ".gx-gold.gx-tile[data-jump=\"comms\"]",
             ".gx-good.gx-tile[data-jump=\"approvals\"]",
@@ -346,10 +346,9 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 3,
+          "count": 2,
           "targets": [
             ".search-button",
-            "button[aria-label=\"Expand main navigation\"]",
             ".copilot-launch"
           ]
         }
@@ -366,9 +365,8 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 2,
+          "count": 1,
           "targets": [
-            "button[aria-label=\"Expand main navigation\"]",
             ".copilot-launch"
           ]
         }
@@ -385,10 +383,9 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 3,
+          "count": 2,
           "targets": [
             ".search-button",
-            "button[aria-label=\"Expand main navigation\"]",
             ".copilot-launch"
           ]
         }

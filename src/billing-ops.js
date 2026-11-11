@@ -1,6 +1,6 @@
 // The operator's side of subscriptions: monthly invoice drafts you approve one by one and schedule, reminders set in
 // advance, a "needs your attention" list, and a profile page for each subscriber. Everything here is account-level.
-// Platform invoices belong to Super Pro and its subscribers only. They share nothing with a business's own customer invoices.
+// Platform invoices belong to Oprun and its subscribers only. They share nothing with a business's own customer invoices.
 import crypto from 'node:crypto';
 import { z } from 'zod';
 import { appendAuditLog } from './db.js';

@@ -124,7 +124,7 @@ export function installOperatorConsole(
       res.status(r.status || 200).json(r);
     },
   );
-  // No legacy rows are relabelled as Super Pro prospects, income or customer conversations.
+  // No legacy rows are relabelled as Oprun prospects, income or customer conversations.
   app.get("/api/operator/legacy-inventory", ...guard("founder"), (req, res) => {
     const tables = [
       "enquiries",

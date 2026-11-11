@@ -31,7 +31,7 @@ async function setup() {
   const mock = await mockProviders();
   const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
   const raw = publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64');
-  const s = await startServer({ TELNYX_API_BASE_URL: mock.base + '/telnyx', RESEND_API_BASE_URL: mock.base + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: raw, TELNYX_PHONE_NUMBER: '+61800000000', TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', RESEND_WEBHOOK_SECRET: 'whsec_' + Buffer.from('comms-test-secret-0123456789abcdef').toString('base64'), SAAS_VERIFY_FROM: 'Super Pro <noreply@example.test>', PLATFORM_MAIL_FROM: 'Super Pro <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
+  const s = await startServer({ TELNYX_API_BASE_URL: mock.base + '/telnyx', RESEND_API_BASE_URL: mock.base + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: raw, TELNYX_PHONE_NUMBER: '+61800000000', TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', RESEND_WEBHOOK_SECRET: 'whsec_' + Buffer.from('comms-test-secret-0123456789abcdef').toString('base64'), SAAS_VERIFY_FROM: 'Oprun <noreply@example.test>', PLATFORM_MAIL_FROM: 'Oprun <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
   const owner = await seedOwner(s, { business: 'Harbour Plumbing Pty Ltd' });
   const O = (m, u, b) => s.call(m, u, { cookie: owner.cookie, body: b });
   await O('PUT', '/api/saas/seo/profile', { business_name: 'Harbour Plumbing', services: ['Blocked drains', 'Hot water repairs'], areas: ['Fremantle', 'Cottesloe'], phone: '0400 111 222', website_url: '' });
@@ -264,7 +264,7 @@ test('founder separation: platform campaigns go only to newsletter subscribers, 
   sql("INSERT INTO newsletter_subscribers(id,email,full_name,source,status,consent_text,subscribed_at,updated_at) VALUES (?,?,?,?,?,?,?,?)", crypto.randomUUID(), 'gone@example.test', 'Gone', 'public_site', 'unsubscribed', 'x', new Date().toISOString(), new Date().toISOString());
   await hook('message.received', sms('+61412999000', 'Private customer message for the business'));
   assert.equal((await F('POST', '/api/operator/campaigns', { name: 'SMS blast', channel: 'sms', body: 'Hi all', segment: {} })).status, 400, 'platform campaigns are email to subscribers only');
-  let r = await F('POST', '/api/operator/campaigns', { name: 'October update', channel: 'email', subject: 'What is new in Super Pro', body: 'Hi {first_name}, here is what changed this month.', segment: {} });
+  let r = await F('POST', '/api/operator/campaigns', { name: 'October update', channel: 'email', subject: 'What is new in Oprun', body: 'Hi {first_name}, here is what changed this month.', segment: {} });
   assert.equal(r.status, 201, r.text); assert.equal(r.json.campaign.audience.eligible, 1);
   const pid = r.json.campaign.id;
   r = await F('POST', `/api/operator/campaigns/${pid}/submit`, {});
@@ -274,7 +274,7 @@ test('founder separation: platform campaigns go only to newsletter subscribers, 
   assert.equal((await O('GET', '/api/saas/approvals')).json.approvals.some((a) => a.automation_run_id === r.json.run.id), false, 'not in any business approval queue');
   await F('POST', `/api/operator/automation/approvals/${pa.id}/decision`, { decision: 'approve' }); await sleep(900);
   const mail = mock.calls.filter((c) => c.path === '/resend/emails');
-  assert.equal(mail.length, 1); assert.deepEqual(mail[0].body.to, ['reader@example.test']); assert.equal(mail[0].body.from, 'Super Pro <hello@example.test>');
+  assert.equal(mail.length, 1); assert.deepEqual(mail[0].body.to, ['reader@example.test']); assert.equal(mail[0].body.from, 'Oprun <hello@example.test>');
   assert.equal((await O('GET', '/api/saas/growth/campaigns')).json.campaigns.length, 0, 'businesses never see platform campaigns');
   assert.equal((await O('GET', `/api/saas/growth/campaigns/${pid}`)).status, 404);
   const ov = (await F('GET', '/api/operator/comms/overview')).json;

@@ -65,7 +65,7 @@ export function resumeReport(root) {
 
 export function formatReport(r) {
   const L = [];
-  L.push('=== Super Pro project memory: resume check (read CLAUDE.md for the rules) ===');
+  L.push('=== Oprun project memory: resume check (read CLAUDE.md for the rules) ===');
   L.push(`Branch ${r.branch} at ${r.head} "${r.subject}"${r.remoteBranch ? (r.ahead ? `, ${r.ahead} commit(s) not pushed to ${r.remoteBranch}` : `, in step with ${r.remoteBranch}`) : ', not on GitHub yet'}.`);
   L.push(`Working tree: ${r.changed.length} changed, ${r.untracked.length} new file(s).${r.changed.length + r.untracked.length ? ' ' + [...r.changed, ...r.untracked].slice(0, 8).join(', ') : ''}`);
   const h = r.handover;

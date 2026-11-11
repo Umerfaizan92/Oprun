@@ -6,7 +6,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const icon = (id, cls = 'sp-icon') => `<svg class="${cls}" aria-hidden="true"><use href="/saas/ds/icons.svg#${id}"/></svg>`;
 const V = '20261030';
 const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`;
-const ORG = { '@type': 'Organization', '@id': `${BASE}/#organization`, name: SITE.name, url: `${BASE}/`, logo: `${BASE}/saas/superpro-icon-512.png` };
+const ORG = { '@type': 'Organization', '@id': `${BASE}/#organization`, name: SITE.name, url: `${BASE}/`, logo: `${BASE}/saas/oprun-icon-512.png` };
 const faqLd = (items) => ({ '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const crumbs = (trail) => ({ '@type': 'BreadcrumbList', itemListElement: trail.map(([name, path], i) => ({ '@type': 'ListItem', position: i + 1, name, item: `${BASE}${path}` })) });
 const offers = () => PLANS.map((p) => ({ '@type': 'Offer', name: p.name, price: String(p.price), priceCurrency: 'AUD', description: 'Monthly plan price, plus GST.' }));
@@ -27,11 +27,11 @@ export function page({ path, title, description, body, graph = [], scripts = [],
 <meta property="og:title" content="${esc(fullTitle)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${BASE}${path}">
-<meta property="og:image" content="${BASE}/saas/superpro-icon-512.png">
+<meta property="og:image" content="${BASE}/saas/oprun-icon-512.png">
 <meta property="og:locale" content="en_AU">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="/saas/superpro-icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/saas/superpro-icon-192.png">
+<link rel="icon" href="/saas/oprun-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/saas/oprun-icon-192.png">
 <link rel="manifest" href="/saas/manifest.webmanifest">
 <link rel="preload" href="/saas/fonts/bodoni-moda-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/saas/fonts/manrope-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -59,7 +59,7 @@ function nav(current) {
   const link = (n) => `<li><a href="${n.href}"${current === n.href || (n.href !== '/' && current.startsWith(n.href + '/')) ? ' aria-current="page"' : ''}>${esc(n.label)}</a></li>`;
   return `<header class="sp-nav" data-nav>
   <div class="sp-nav__inner">
-    <a class="sp-brand" href="/"><img src="/saas/superpro-icon-192.png" alt="" width="34" height="34">Super Pro</a>
+    <a class="sp-brand" href="/"><img src="/saas/oprun-icon-192.png" alt="" width="34" height="34">${esc(SITE.name)}</a>
     <nav aria-label="Main"><ul class="sp-nav__links" id="sp-nav-links">${NAV.map(link).join('')}<li class="sp-nav__signin"><a href="/saas/sign-in.html">Sign in</a></li></ul></nav>
     <div class="sp-nav__actions">
       <a class="sp-btn sp-btn--ghost" href="/saas/sign-in.html">Sign in</a>
@@ -75,14 +75,14 @@ function footer() {
   return `<footer class="sp-footer">
   <div class="sp-page">
     <div class="sp-footer__grid">
-      <div><a class="sp-brand" href="/"><img src="/saas/superpro-icon-192.png" alt="" width="34" height="34" loading="lazy">Super Pro</a><p style="margin-top:var(--sp-3);max-width:32ch">The AI office manager for Australian service businesses. Prices in AUD, plus GST.</p></div>
+      <div><a class="sp-brand" href="/"><img src="/saas/oprun-icon-192.png" alt="" width="34" height="34" loading="lazy">${esc(SITE.name)}</a><p style="margin-top:var(--sp-3);max-width:32ch"><strong>${esc(SITE.tagline)}</strong> The AI office manager for Australian service businesses. Prices in AUD, plus GST.</p></div>
       ${col('Product', [['Features', '/features'], ['AI receptionist', '/receptionist'], ['Pricing', '/pricing'], ['Example scenarios', '/stories']])}
       ${col('Industries', INDUSTRIES.map((i) => [i.name, `/for/${i.slug}`]))}
       ${col('Help', [['Help centre', '/help'], ['Product answers', '/saas/answers.html'], ['Contact us', '/contact'], ['Sign in', '/saas/sign-in.html']])}
       ${col('Trust', [['Trust centre', '/saas/trust-center.html'], ['Privacy', '/saas/privacy.html'], ['Terms', '/saas/terms.html'], ['Complaints', '/saas/complaints.html'], ['Subprocessors', '/saas/subprocessors.html']])}
     </div>
     <hr class="sp-rule" style="margin-block:var(--sp-6) var(--sp-4)">
-    <p>© <span data-year>2026</span> Super Pro AI Office Manager.</p>
+    <p>© <span data-year>2026</span> Oprun. ${esc(SITE.tagline)}</p>
   </div>
 </footer>`;
 }
@@ -115,7 +115,7 @@ const posterSvg = () => `<svg class="sp-hero3d__poster" viewBox="0 0 1200 700" p
 export function home() {
   const storySteps = [
     ['call', '7:02', 'A call you could not take', 'You are on the tools. The receptionist add-on answers, takes the details and creates an enquiry.'],
-    ['draft', '7:05', 'A reply is drafted', 'Super Pro writes a reply from the enquiry and your services, then waits.'],
+    ['draft', '7:05', 'A reply is drafted', 'Oprun writes a reply from the enquiry and your services, then waits.'],
     ['approve', '7:40', 'You approve it on the train', 'Read it, change a word if you like, and approve. Only then does it send.'],
     ['book', '10:15', 'The quote is accepted', 'A booking is proposed and the worker you pick is checked for work rights and licences.'],
     ['done', '3:30', 'The job is finished', 'Before and after photos are saved to the job; the invoice is drafted from the quote.'],
@@ -127,8 +127,8 @@ export function home() {
   <div class="sp-hero__veil" aria-hidden="true"></div>
   <div class="sp-page sp-hero__inner">
     <div class="sp-hero__copy">
-      <h1 class="sp-display" id="hero-title">Your office runs.<br>You approve.</h1>
-      <p class="sp-lede">Super Pro answers enquiries, drafts quotes and invoices, and keeps your team's paperwork in order. Nothing leaves your business until you say yes.</p>
+      <h1 class="sp-display" id="hero-title">Run your world.</h1>
+      <p class="sp-lede"><strong>Your office runs. You approve.</strong> Oprun answers enquiries, drafts quotes and invoices, and keeps your team's paperwork in order. Nothing leaves your business until you say yes.</p>
       <div class="sp-actions">
         <a class="sp-btn sp-btn--primary sp-btn--lg" href="/start">Start your ${SITE.trialDays}-day free trial</a>
         <a class="sp-btn sp-btn--ghost sp-btn--lg" href="#demo">Ask it a question</a>
@@ -146,7 +146,7 @@ export function home() {
   <div class="sp-page sp-split">
     <div class="sp-section-head" data-reveal>
       <h2 class="sp-h2" id="demo-title">Ask it what your mornings are like</h2>
-      <p class="sp-lede">This is the same product guide that sits inside Super Pro. Ask anything about how it would work for your business.</p>
+      <p class="sp-lede">This is the same product guide that sits inside Oprun. Ask anything about how it would work for your business.</p>
       <ul class="sp-checks">
         <li>${icon('check')}Answers in plain language, by text or voice</li>
         <li>${icon('check')}Explains what needs your approval and why</li>
@@ -154,9 +154,9 @@ export function home() {
       </ul>
     </div>
     <div class="sp-glass sp-chat" data-ai-demo data-reveal>
-      <div class="sp-chat__head"><span class="sp-chat__avatar" aria-hidden="true"><span><img src="/saas/superpro-mark.svg" alt="" width="30" height="30"></span></span><div><strong>Super Pro guide</strong><span class="sp-chat__status"><span class="sp-live" data-ai-live></span><span data-ai-state>Ready</span></span></div><button class="sp-btn sp-btn--quiet sp-chat__speak" type="button" data-ai-speak aria-pressed="false" aria-label="Read answers aloud" title="Read answers aloud">${icon('speaker')}</button></div>
+      <div class="sp-chat__head"><span class="sp-chat__avatar" aria-hidden="true"><span><img src="/saas/oprun-mark.svg" alt="" width="30" height="30"></span></span><div><strong>Oprun guide</strong><span class="sp-chat__status"><span class="sp-live" data-ai-live></span><span data-ai-state>Ready</span></span></div><button class="sp-btn sp-btn--quiet sp-chat__speak" type="button" data-ai-speak aria-pressed="false" aria-label="Read answers aloud" title="Read answers aloud">${icon('speaker')}</button></div>
       <div class="sp-chat__log" data-ai-log role="log" aria-live="polite" aria-relevant="additions">
-        <div class="sp-msg sp-msg--ai"><p>Hello. Ask me how Super Pro would handle a missed call, a quote, a new worker or getting paid.</p></div>
+        <div class="sp-msg sp-msg--ai"><p>Hello. Ask me how Oprun would handle a missed call, a quote, a new worker or getting paid.</p></div>
       </div>
       <div class="sp-chat__prompts" data-ai-prompts>
         <button type="button" class="sp-chip">What happens when I miss a call?</button>
@@ -220,7 +220,7 @@ ${workflowDemo()}
   <div class="sp-page sp-split">
     <div data-reveal>
       <h2 class="sp-h2" id="compliance-title">Know who can legally work before you book them</h2>
-      <p class="sp-lede" style="margin-top:var(--sp-4)">Record work rights, VEVO results and licence expiry dates for every worker. Super Pro shows who is eligible before you offer a job, and reminds you before anything lapses.</p>
+      <p class="sp-lede" style="margin-top:var(--sp-4)">Record work rights, VEVO results and licence expiry dates for every worker. Oprun shows who is eligible before you offer a job, and reminds you before anything lapses.</p>
       <div class="sp-actions" style="margin-top:var(--sp-5)"><a class="sp-btn sp-btn--ghost" href="/features/people">How compliance works</a></div>
     </div>
     <div class="sp-roster sp-glass" data-reveal aria-label="Example worker eligibility">
@@ -252,7 +252,7 @@ ${storiesSection(true)}
 
 ${newsletter()}
 ${cta()}`;
-  return page({ path: '/', title: SITE.tagline, description: 'Super Pro is the AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with every outgoing action approved by you.', body, scripts: ['/saas/product-guide.js?v=20261028.2'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
+  return page({ path: '/', title: SITE.tagline, description: 'Oprun is the AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with every outgoing action approved by you.', body, scripts: ['/saas/product-guide.js?v=20261028.2'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
 }
 
 function workflowDemo() {
@@ -265,7 +265,7 @@ function workflowDemo() {
   <div class="sp-page">
     <div class="sp-section-head" data-reveal>
       <h2 class="sp-h2" id="flow-title">Try the approval gate</h2>
-      <p class="sp-lede">Pick something that happens in your week. Super Pro does the work up to the gold gate, then waits for you.</p>
+      <p class="sp-lede">Pick something that happens in your week. Oprun does the work up to the gold gate, then waits for you.</p>
     </div>
     <div class="sp-stage sp-flow__stage" data-flow>
       <div class="sp-tabs" role="tablist" aria-label="Choose a situation">
@@ -305,7 +305,7 @@ function storiesSection(preview = false) {
   return `<section class="sp-section" aria-labelledby="stories-title">
   <div class="sp-page">
     <div class="sp-section-head" data-reveal>
-      <h2 class="sp-h2" id="stories-title">${preview ? 'What a week with Super Pro looks like' : 'Stories and example scenarios'}</h2>
+      <h2 class="sp-h2" id="stories-title">${preview ? 'What a week with Oprun looks like' : 'Stories and example scenarios'}</h2>
       <p class="sp-lede">We are onboarding our first businesses now. Real customer stories appear here once they have agreed to share them; until then, these are labelled examples.</p>
     </div>
     <div class="sp-testimonials" data-testimonials hidden></div>
@@ -332,7 +332,7 @@ function newsletter() {
 export function features() {
   const body = `
 <section class="sp-section sp-pagehead"><div class="sp-page">
-  <h1 class="sp-h1">What Super Pro does</h1>
+  <h1 class="sp-h1">What Oprun does</h1>
   <p class="sp-lede" style="margin-top:var(--sp-4)">Six parts of running a service business, sharing one set of records. Each one does the work and leaves the decisions to you.</p>
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page sp-chapters">
@@ -345,7 +345,7 @@ export function features() {
   </article>`).join('')}
 </div></section>
 ${cta()}`;
-  return page({ path: '/features', title: 'Features', description: 'Customers and work, money, communications, growth, people and compliance, and AI with human approval: everything Super Pro does for an Australian service business.', body, graph: [crumbs([['Home', '/'], ['Features', '/features']])] });
+  return page({ path: '/features', title: 'Features', description: 'Customers and work, money, communications, growth, people and compliance, and AI with human approval: everything Oprun does for an Australian service business.', body, graph: [crumbs([['Home', '/'], ['Features', '/features']])] });
 }
 
 export function domainPage(d) {
@@ -371,7 +371,7 @@ export function industriesIndex() {
   ${INDUSTRIES.map((i) => `<a class="sp-card sp-card--lit sp-industry sp-industry--tall" href="/for/${i.slug}" data-reveal>${icon(i.icon, 'sp-icon sp-icon--lg')}<strong>${esc(i.name)}</strong><span class="sp-muted">${esc(i.title)}</span></a>`).join('')}
 </div></section>
 ${cta()}`;
-  return page({ path: '/for', title: 'Industries', description: 'Super Pro for trades, allied health and clinics, retail, agencies and cleaning businesses in Australia.', body, graph: [crumbs([['Home', '/'], ['Industries', '/for']])] });
+  return page({ path: '/for', title: 'Industries', description: 'Oprun for trades, allied health and clinics, retail, agencies and cleaning businesses in Australia.', body, graph: [crumbs([['Home', '/'], ['Industries', '/for']])] });
 }
 
 export function industryPage(i) {
@@ -382,7 +382,7 @@ export function industryPage(i) {
   <div class="sp-glass sp-pains" data-reveal><h2 class="sp-h3">Sound familiar?</h2><ul>${i.pains.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></div>
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page">
-  <div class="sp-section-head"><h2 class="sp-h2">A day with Super Pro</h2></div>
+  <div class="sp-section-head"><h2 class="sp-h2">A day with Oprun</h2></div>
   <ol class="sp-timeline" data-reveal-group>${i.day.map(([t, x]) => `<li data-reveal><time>${esc(t)}</time><p>${esc(x)}</p></li>`).join('')}</ol>
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page"><div class="sp-section-head"><h2 class="sp-h2">The parts you will use most</h2></div>
@@ -404,7 +404,7 @@ ${pricingSection(false)}
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page sp-split sp-split--top"><div class="sp-section-head"><h2 class="sp-h2">Pricing questions</h2></div>${faqList(pf)}</div></section>
 ${cta()}`;
-  return page({ path: '/pricing', title: 'Pricing', description: 'Super Pro plans: Starter A$49, Operations A$99 and Scale A$149 a month, plus GST, with a 14-day free trial.', body, graph: [crumbs([['Home', '/'], ['Pricing', '/pricing']]), { '@type': 'Product', name: SITE.name, offers: offers() }, faqLd(pf)] });
+  return page({ path: '/pricing', title: 'Pricing', description: 'Oprun plans: Starter A$49, Operations A$99 and Scale A$149 a month, plus GST, with a 14-day free trial.', body, graph: [crumbs([['Home', '/'], ['Pricing', '/pricing']]), { '@type': 'Product', name: SITE.name, offers: offers() }, faqLd(pf)] });
 }
 
 export function receptionist() {
@@ -420,12 +420,12 @@ export function receptionist() {
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page sp-split sp-split--top"><div class="sp-section-head"><h2 class="sp-h2">Receptionist questions</h2></div>${faqList(rf)}</div></section>
 ${cta('Hear it answer your own number', 'Tell us about your calls and we will set up the receptionist add-on with you.')}`;
-  return page({ path: '/receptionist', title: 'AI receptionist', description: 'The Super Pro AI receptionist add-on answers your business calls, takes details, offers times and texts you a summary. Bookings wait for your approval.', body, graph: [crumbs([['Home', '/'], ['AI receptionist', '/receptionist']]), faqLd(rf)] });
+  return page({ path: '/receptionist', title: 'AI receptionist', description: 'The Oprun AI receptionist add-on answers your business calls, takes details, offers times and texts you a summary. Bookings wait for your approval.', body, graph: [crumbs([['Home', '/'], ['AI receptionist', '/receptionist']]), faqLd(rf)] });
 }
 
 function callPlayer() {
   return `<div class="sp-stage sp-call" data-call>
-    <div class="sp-call__head"><span class="sp-chat__avatar" aria-hidden="true"><span><img src="/saas/superpro-mark.svg" alt="" width="30" height="30"></span></span><div><strong>Sample call</strong><span class="sp-muted sp-small">Harbour Plumbing is an example business</span></div>
+    <div class="sp-call__head"><span class="sp-chat__avatar" aria-hidden="true"><span><img src="/saas/oprun-mark.svg" alt="" width="30" height="30"></span></span><div><strong>Sample call</strong><span class="sp-muted sp-small">Harbour Plumbing is an example business</span></div>
       <button type="button" class="sp-btn sp-btn--primary" data-call-play aria-pressed="false">${icon('play')}<span>Play sample call</span></button></div>
     <div class="sp-wave" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div>
     <ol class="sp-call__lines" data-call-lines aria-live="polite" tabindex="0" aria-label="Call transcript">
@@ -437,14 +437,14 @@ function callPlayer() {
 
 export function stories() {
   const body = `
-<section class="sp-section sp-pagehead"><div class="sp-page"><h1 class="sp-h1">Stories</h1><p class="sp-lede" style="margin-top:var(--sp-4)">How businesses use Super Pro. Customer stories are published only with the customer's written agreement.</p></div></section>
+<section class="sp-section sp-pagehead"><div class="sp-page"><h1 class="sp-h1">Stories</h1><p class="sp-lede" style="margin-top:var(--sp-4)">How businesses use Oprun. Customer stories are published only with the customer's written agreement.</p></div></section>
 ${storiesSection(false)}
 <section class="sp-section sp-section--tight"><div class="sp-page sp-glass sp-launch">
-  <div><h2 class="sp-h3">Be one of our launch customers</h2><p class="sp-muted">Launch customers get help setting up and a direct line to the people building Super Pro.</p></div>
+  <div><h2 class="sp-h3">Be one of our launch customers</h2><p class="sp-muted">Launch customers get help setting up and a direct line to the people building Oprun.</p></div>
   <a class="sp-btn sp-btn--primary" href="/contact?topic=launch">Talk to us</a>
 </div></section>
 ${cta()}`;
-  return page({ path: '/stories', title: 'Stories and example scenarios', description: 'How Australian service businesses can run their office with Super Pro: real customer stories once published, and clearly labelled example scenarios.', body, graph: [crumbs([['Home', '/'], ['Stories', '/stories']])] });
+  return page({ path: '/stories', title: 'Stories and example scenarios', description: 'How Australian service businesses can run their office with Oprun: real customer stories once published, and clearly labelled example scenarios.', body, graph: [crumbs([['Home', '/'], ['Stories', '/stories']])] });
 }
 
 export function help() {
@@ -460,7 +460,7 @@ export function help() {
   <p class="sp-help__empty" data-help-empty hidden>No answers match that search. <a href="/contact">Ask us directly</a>.</p></div>
 </div></section>
 ${cta('Still stuck?', 'Send us a message and a person will reply.')}`;
-  return page({ path: '/help', title: 'Help centre', description: 'Help with Super Pro: getting started, AI approvals, plans and billing, staff and compliance, security and privacy.', body, graph: [crumbs([['Home', '/'], ['Help', '/help']]), faqLd(all)] });
+  return page({ path: '/help', title: 'Help centre', description: 'Help with Oprun: getting started, AI approvals, plans and billing, staff and compliance, security and privacy.', body, graph: [crumbs([['Home', '/'], ['Help', '/help']]), faqLd(all)] });
 }
 
 export function contact() {
@@ -486,7 +486,7 @@ export function contact() {
     <p class="sp-form-status" data-status role="status"></p>
   </form>
 </div></section>`;
-  return page({ path: '/contact', title: 'Contact', description: 'Contact Super Pro for a walkthrough, questions before you start, the AI receptionist add-on, or help with your account.', body, graph: [crumbs([['Home', '/'], ['Contact', '/contact']])] });
+  return page({ path: '/contact', title: 'Contact', description: 'Contact Oprun for a walkthrough, questions before you start, the AI receptionist add-on, or help with your account.', body, graph: [crumbs([['Home', '/'], ['Contact', '/contact']])] });
 }
 
 export const PAGES = () => [

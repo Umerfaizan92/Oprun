@@ -5,9 +5,9 @@
   const view=document.getElementById('dashboard-view');if(!view||document.getElementById('sp-askbar'))return;
   const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
   const serverCapture=Boolean(navigator.mediaDevices?.getUserMedia&&window.MediaRecorder),voiceAvailable=serverCapture||Rec;
-  const bar=document.createElement('section');bar.id='sp-askbar';bar.className='sp-askbar';bar.setAttribute('aria-label','Ask Super Pro');
+  const bar=document.createElement('section');bar.id='sp-askbar';bar.className='sp-askbar';bar.setAttribute('aria-label','Ask Oprun');
   bar.innerHTML=`<div class="sp-ask-head"><h2>What would you like done today?</h2><p class="sp-ask-status" role="status" aria-live="polite"><span class="pulse-dot"></span><span data-ask-state>Ready</span></p></div>
-  <form class="sp-ask-form" autocomplete="off"><label class="sr-only" for="sp-ask-input">Ask Super Pro</label>
+  <form class="sp-ask-form" autocomplete="off"><label class="sr-only" for="sp-ask-input">Ask Oprun</label>
   <input id="sp-ask-input" type="text" placeholder="Type a request, or press the microphone and speak" maxlength="2000"/>
   <button type="button" class="sp-ask-mic" aria-pressed="false" aria-label="Speak your request" title="Speak your request"${voiceAvailable?'':' disabled'}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>${voiceAvailable?'Speak':'Voice unavailable'}</span></button>
   <button type="submit" class="primary-button sp-ask-send">Send</button></form>

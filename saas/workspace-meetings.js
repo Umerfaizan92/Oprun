@@ -98,7 +98,7 @@
       d.meetings.length ? el('ul', { class: 'mt-list' }, d.meetings.map(card)) : el('p', { class: 'portal-empty', text: 'No open meetings. Start a call now or create one for later.' }),
       el('details', { class: 'portal-panel mt-new' }, el('summary', { text: 'Create a meeting for later' }), form),
       d.past.length ? el('details', { class: 'portal-panel mt-past' }, el('summary', { text: `Ended meetings (${d.past.length})` }), el('ul', { class: 'mt-list' }, d.past.map((m) => el('li', { class: 'mt-card' }, el('div', {}, el('b', { text: m.title }), el('small', { text: `Ended ${when(m.ended_at)} · ${m.joins} join${m.joins === 1 ? '' : 's'}` })))))) : null,
-      el('p', { class: 'portal-note', text: `Up to ${d.max_participants} people per call. Sound and picture go directly between the people in the call and are not recorded or stored by Super Pro.` + (d.relay_configured ? '' : ' On some office or mobile networks a direct call cannot connect; the other person can try a different network.') }),
+      el('p', { class: 'portal-note', text: `Up to ${d.max_participants} people per call. Sound and picture go directly between the people in the call and are not recorded or stored by Oprun.` + (d.relay_configured ? '' : ' On some office or mobile networks a direct call cannot connect; the other person can try a different network.') }),
     ].filter(Boolean));
   }
 

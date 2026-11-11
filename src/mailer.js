@@ -118,7 +118,7 @@ function usableEnvValue(value) {
   return Boolean(text) && !/^(YOUR_|REPLACE_|CHANGE_ME|CHANGEME)/i.test(text);
 }
 
-function normaliseSender(value, defaultName = 'Super Pro AI Office Manager Security') {
+function normaliseSender(value, defaultName = 'Oprun Security') {
   if (!usableEnvValue(value)) return null;
   const raw = String(value).trim().replace(/^["']|["']$/g, '');
   const emailMatch = raw.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
@@ -152,7 +152,7 @@ export async function sendSaasVerificationEmail(env, { to, code, businessName })
   if(!candidates.length)return {sent:false,reason:'sender_not_configured'};
   const payload = {
     to: [to],
-    subject: 'Super Pro AI Office Manager security verification code',
+    subject: 'Oprun security verification code',
     ...renderEmail(platformBrand(env),{
       heading:'Verify your email',
       paragraphs:[`Confirm your identity to continue with ${businessName}.`],
@@ -180,9 +180,9 @@ export async function sendWorkerOnboardingInviteEmail(env,{to,workerName,busines
   if(!usableEnvValue(env.RESEND_API_KEY)||!to)return {sent:false,reason:'resend_not_configured'};
   const resend=new Resend(env.RESEND_API_KEY);
   const from=
-    normaliseSender(env.WORKFORCE_FROM,'Super Pro AI Office Manager Workforce')||
-    normaliseSender(env.SAAS_VERIFY_FROM,'Super Pro AI Office Manager Workforce')||
-    normaliseSender(env.NOTIFY_FROM,'Super Pro AI Office Manager Workforce')||
+    normaliseSender(env.WORKFORCE_FROM,'Oprun Workforce')||
+    normaliseSender(env.SAAS_VERIFY_FROM,'Oprun Workforce')||
+    normaliseSender(env.NOTIFY_FROM,'Oprun Workforce')||
     env.SAAS_VERIFY_FROM;
   const {data,error}=await resend.emails.send({
     from,to:[to],
@@ -210,7 +210,7 @@ export async function sendSupportEscalationEmail(env, { to, supportCase }) {
     to: [to],
     subject: `[${supportCase.reference_code}] ${String(supportCase.severity).toUpperCase()} support escalation — ${supportCase.subject}`,
     ...renderEmail(platformBrand(env),{heading:'Support escalation',paragraphs:([
-      'SUPER PRO AI OFFICE MANAGER — SUPPORT / GOVERNANCE ESCALATION',
+      'OPRUN — SUPPORT / GOVERNANCE ESCALATION',
       '',
       `Reference: ${supportCase.reference_code}`,
       `Severity: ${supportCase.severity}`,
@@ -283,14 +283,14 @@ export async function sendPlatformAnnouncementEmail(env, { to, announcement, acc
     button: { label: 'Open your workspace', url: `${base}/saas/sign-in.html` },
     notes: [`Our current terms and privacy notice apply to this change: ${base}/saas/terms.html and ${base}/saas/privacy.html`, 'You can read every notice again from the bell inside the app.']
   });
-  const result = await sendBrandedEmail(env, { to,delivery:account?.organisation_id?{organisationId:account.organisation_id,category:'platform_announcement',subject:announcement.title}:null, subject: `[${announcement.reference_code}] ${announcement.title}`, rendered, kind: 'platform', fromName: 'Super Pro AI Office Manager Updates' });
+  const result = await sendBrandedEmail(env, { to,delivery:account?.organisation_id?{organisationId:account.organisation_id,category:'platform_announcement',subject:announcement.title}:null, subject: `[${announcement.reference_code}] ${announcement.title}`, rendered, kind: 'platform', fromName: 'Oprun Updates' });
   if (!result.sent) throw new Error(`Platform notice email failed: ${result.reason}`);
   return result;
 }
 
 // Sends one branded email (see email-templates.js). `kind` picks the sender: platform emails use the platform sender, emails
 // sent for a business use that business's display name on the shared sender address. Never throws; reports why it did not send.
-export async function sendBrandedEmail(env, { to, subject, rendered, kind = 'platform', fromName = 'Super Pro AI Office Manager', replyTo = null, attachments = [], delivery = null }) {
+export async function sendBrandedEmail(env, { to, subject, rendered, kind = 'platform', fromName = 'Oprun', replyTo = null, attachments = [], delivery = null }) {
   const finish=result=>{trackCommunication(delivery?{...delivery,channel:'email',recipient:to}:null,result);return result};
   if (!usableEnvValue(env.RESEND_API_KEY)) return finish({ sent: false, reason: 'email_not_configured' });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(to || ''))) return finish({ sent: false, reason: 'no_valid_email_address' });

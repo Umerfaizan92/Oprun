@@ -1,6 +1,6 @@
 // T-074 Video and voice meetings. Rooms, sign-in checks, the guest waiting room and call signalling run on this server;
 // sound and picture travel directly between the participants' browsers (WebRTC), so no recording or media passes
-// through or is stored by Super Pro. Every room belongs to one workspace. A guest needs the room's private link and
+// through or is stored by Oprun. Every room belongs to one workspace. A guest needs the room's private link and
 // must be let in by a signed-in member of that workspace.
 //
 // Live call state is held in memory on the single application instance. A restart ends calls in progress; people

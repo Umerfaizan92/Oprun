@@ -1,6 +1,6 @@
 // Payment provider activation: what each provider needs, what is certified by whom, and the owner's written
-// authorisation to connect it. Super Pro never holds card numbers; the provider's own certifications (for example
-// PCI DSS) belong to the provider and are shown here as information only, never as a Super Pro certification.
+// authorisation to connect it. Oprun never holds card numbers; the provider's own certifications (for example
+// PCI DSS) belong to the provider and are shown here as information only, never as an Oprun certification.
 import { z } from 'zod';
 import crypto from 'node:crypto';
 import { appendAuditLog } from './db.js';
@@ -13,7 +13,7 @@ export const PROVIDER_CHECKS = {
   stripe: {
     name: 'Stripe (card, Apple Pay, Google Pay)',
     needs: 'A Stripe account in your business name, with identity checks completed and payouts to your bank turned on.',
-    certification: 'Stripe is certified by the card schemes as a PCI DSS Level 1 service provider. That certification belongs to Stripe. Card details go straight to Stripe and never reach Super Pro.',
+    certification: 'Stripe is certified by the card schemes as a PCI DSS Level 1 service provider. That certification belongs to Stripe. Card details go straight to Stripe and never reach Oprun.',
     statements: [
       ['own', 'This Stripe account belongs to my business and I am authorised to connect it.'],
       ['terms', 'I have read and accept Stripe\'s terms for my account, and I am responsible for them.'],
@@ -32,7 +32,7 @@ export const PROVIDER_CHECKS = {
   bank: {
     name: 'Bank transfer / PayID',
     needs: 'Your business bank account name, BSB and account number (and PayID if you use one).',
-    certification: 'No card data is involved. Customers pay from their own bank. Bank transfers are confirmed by you, because a bank does not tell Super Pro when money arrives.',
+    certification: 'No card data is involved. Customers pay from their own bank. Bank transfers are confirmed by you, because a bank does not tell Oprun when money arrives.',
     statements: [
       ['own', 'This bank account is in my business\'s name and I am authorised to receive payments into it.'],
       ['accurate', 'The account details I entered are correct. I understand customers will be shown them on invoices and pay links.']

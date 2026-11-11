@@ -1,7 +1,7 @@
 {
-  "name": "super-pro-ai-office-manager",
+  "name": "oprun",
   "version": "19.0.0",
-  "description": "Multi-tenant AI office manager for Australian service businesses: workforce compliance (Fair Work, VEVO), omnichannel inbox with human-approved AI drafts, job ledger and a tamper-evident audit trail.",
+  "description": "Oprun: Run your world. Multi-tenant AI office manager for Australian service businesses: workforce compliance (Fair Work, VEVO), omnichannel inbox with human-approved AI drafts, job ledger and a tamper-evident audit trail.",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",

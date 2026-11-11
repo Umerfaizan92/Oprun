@@ -1,4 +1,4 @@
-/* Super Pro design tokens (Phase 03).
+/* Oprun design tokens (Phase 03).
    Midnight and graphite surfaces. Gold is the one action colour. Cyan means live or AI. Violet appears only in data.
    Every text/background pair below passes WCAG 2.2 AA in both themes (checked in docs/design/DESIGN_SYSTEM.md). */
 @font-face{font-family:'Bodoni Moda';src:url('../fonts/bodoni-moda-latin-500-normal.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}

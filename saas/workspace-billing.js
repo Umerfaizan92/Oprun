@@ -55,7 +55,7 @@
       return el('div',{class:'row-card bill-card'},...body);
     });
     const grid=panel.querySelector('#billing-provider-grid');
-    grid.className='bill-grid';grid.replaceChildren(...cards,el('p',{class:'muted bill-foot',text:'Certifications shown belong to the provider, not to Super Pro. Wallets (Apple Pay, Google Pay) appear on the pay page only when your Stripe account has them switched on. Where a provider requires its own review or app approval, that happens in the provider\'s dashboard and only they can grant it.'}));
+    grid.className='bill-grid';grid.replaceChildren(...cards,el('p',{class:'muted bill-foot',text:'Certifications shown belong to the provider, not to Oprun. Wallets (Apple Pay, Google Pay) appear on the pay page only when your Stripe account has them switched on. Where a provider requires its own review or app approval, that happens in the provider\'s dashboard and only they can grant it.'}));
   }
   window.addEventListener('gds:viewchange',e=>{if(e.detail?.view==='billing')load().catch(()=>{})});
 })();

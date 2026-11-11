@@ -2,9 +2,11 @@
 // or is labelled as an add-on or an example. Edit copy here, then run `npm run build:site`.
 
 export const SITE = {
-  name: 'Super Pro AI Office Manager',
-  short: 'Super Pro',
-  tagline: 'Your office runs. You approve.',
+  name: 'Oprun',
+  short: 'Oprun',
+  tagline: 'Run your world.',
+  slogan: 'Your office runs. You approve.',
+  descriptor: 'AI Office Manager',
   trialDays: 14
 };
 
@@ -41,7 +43,7 @@ export const DOMAINS = [
     title: 'Invoice the moment the job is done, get paid on the spot',
     lede: 'Invoices, payment links, tap-to-pay QR codes and receipts, with profit per job worked out as you go.',
     blocks: [
-      ['Pay links your customers trust', 'Take card payments through your own Stripe or PayPal account, or show bank transfer details. Super Pro never holds your money.'],
+      ['Pay links your customers trust', 'Take card payments through your own Stripe or PayPal account, or show bank transfer details. Oprun never holds your money.'],
       ['Tap to pay on site', 'Show a QR code on your phone; the customer pays on theirs, and you send the receipt in one tap.'],
       ['Profit per job', 'Revenue, materials, labour and overheads come together on each job, so you can see which work is worth taking.'],
       ['Reminders without awkward calls', 'Overdue invoices get a polite reminder drafted for you to approve, with late fees applied once if you use them.']
@@ -52,7 +54,7 @@ export const DOMAINS = [
   {
     slug: 'communications', icon: 'message', name: 'Communications',
     title: 'Calls, texts and email in one inbox, with replies drafted for you',
-    lede: 'Every conversation with a customer is in one place. Super Pro drafts the reply; you read it, change it if you like, and send it.',
+    lede: 'Every conversation with a customer is in one place. Oprun drafts the reply; you read it, change it if you like, and send it.',
     blocks: [
       ['One inbox for every channel', 'Email, SMS, WhatsApp and call notes sit in one thread per customer, with delivery and read receipts where the provider gives them.'],
       ['An email centre with real control', 'Drafts, scheduled sends and sent mail are kept apart. Editing a draft resets its approval, so what goes out is exactly what was approved.'],
@@ -86,12 +88,12 @@ export const DOMAINS = [
       ['Permissions per person', 'Owners decide exactly what each staff member can see and do. Workers and contractors can never be given access to money or the customer list.']
     ],
     approval: 'Marking work rights as verified and changing permissions are owner decisions.',
-    faq: [['Does Super Pro check VEVO for me?', 'You run the check on the government VEVO service and record the result in Super Pro, where it is kept with the worker\'s record.']]
+    faq: [['Does Oprun check VEVO for me?', 'You run the check on the government VEVO service and record the result in Oprun, where it is kept with the worker\'s record.']]
   },
   {
     slug: 'ai', icon: 'spark', name: 'AI and approvals',
     title: 'An assistant that does the paperwork and asks before it acts',
-    lede: 'Ask in plain words, by typing or speaking. Super Pro answers from your own records and prepares the work; you decide what happens.',
+    lede: 'Ask in plain words, by typing or speaking. Oprun answers from your own records and prepares the work; you decide what happens.',
     blocks: [
       ['Ask about your business', 'Who owes you money, which jobs are short a worker, what is waiting on you today.'],
       ['Drafts, not surprises', 'Replies, quotes, invoices and posts are drafted and placed in your approvals queue.'],
@@ -99,7 +101,7 @@ export const DOMAINS = [
       ['Speaks your language', 'Ask in English or many other languages, by voice or text.']
     ],
     approval: 'Anything that sends, pays, publishes or deletes needs a person to approve it.',
-    faq: [['Which AI does it use?', 'Super Pro uses leading AI providers through its own gateway. Your business data is only used to answer your requests.']]
+    faq: [['Which AI does it use?', 'Oprun uses leading AI providers through its own gateway. Your business data is only used to answer your requests.']]
   }
 ];
 
@@ -107,14 +109,14 @@ export const INDUSTRIES = [
   {
     slug: 'trades', icon: 'wrench', name: 'Trades',
     title: 'The office manager every tradie needs and never has time to hire',
-    lede: 'Quotes at night, missed calls on the tools, chasing invoices on Friday. Super Pro takes the office off your hands and checks with you before anything goes out.',
+    lede: 'Quotes at night, missed calls on the tools, chasing invoices on Friday. Oprun takes the office off your hands and checks with you before anything goes out.',
     pains: ['Calls missed while you are up a ladder', 'Quotes written at the kitchen table at 10pm', 'Chasing invoices instead of doing paid work', 'Licences and white cards expiring without notice'],
     day: [['7:00', 'You open My day: three jobs, addresses and notes.'], ['10:20', 'A missed call becomes an enquiry with a reply drafted.'], ['12:30', 'You approve the reply and a quote from your phone.'], ['3:40', 'Job done, before and after photos saved, invoice drafted.'], ['3:45', 'The customer pays by QR on site.']]
   },
   {
     slug: 'clinics', icon: 'clinic', name: 'Allied health and clinics',
     title: 'Front-desk admin handled, so your team can stay with clients',
-    lede: 'Bookings, reminders, payments and staff paperwork in one place. Clinical records stay in your clinical system; Super Pro runs the business side.',
+    lede: 'Bookings, reminders, payments and staff paperwork in one place. Clinical records stay in your clinical system; Oprun runs the business side.',
     pains: ['Phones ringing during sessions', 'Rebooking and reminder messages by hand', 'Contractor paperwork and registrations to track', 'Invoices and receipts across several systems'],
     day: [['8:00', 'The day\'s bookings and who is working are on one screen.'], ['9:15', 'An enquiry from the website gets a reply drafted.'], ['11:00', 'A contractor\'s registration expiry reminder arrives.'], ['4:30', 'Payments taken and receipts sent.']]
   },
@@ -153,13 +155,13 @@ export const FAQ = [
   ['Is there a free trial?', 'Yes. Every plan starts with a 14-day free trial. Choose a plan when you are ready.'],
   ['Are prices in Australian dollars?', 'Yes. All prices are in AUD and exclude GST.'],
   ['Will the AI send things without asking?', 'No. Anything that sends, pays, publishes or deletes waits in your approvals until a person you authorise approves it.'],
-  ['Who can see my data?', 'Only people in your business, limited by the permissions you set. Super Pro support can only look at limited summaries if you approve a time-limited request.'],
+  ['Who can see my data?', 'Only people in your business, limited by the permissions you set. Oprun support can only look at limited summaries if you approve a time-limited request.'],
   ['Where is my data kept?', 'In encrypted cloud storage with continuous backups. You can export everything at any time.'],
   ['Can I cancel?', 'Yes, any time. Your records are kept and can be exported.']
 ];
 
 export const HELP = [
-  { id: 'start', name: 'Getting started', items: [['How do I start a trial?', 'Choose Start free trial, enter your business details and verify your email and mobile. A guided tour sets up the basics.'], ['Can I import from another system?', 'Yes. Import customers, workers and records from a spreadsheet or another system\'s export, with a preview before anything is saved.'], ['Can I use it on my phone?', 'Yes. Super Pro works in any modern browser and can be installed on your home screen like an app.']] },
+  { id: 'start', name: 'Getting started', items: [['How do I start a trial?', 'Choose Start free trial, enter your business details and verify your email and mobile. A guided tour sets up the basics.'], ['Can I import from another system?', 'Yes. Import customers, workers and records from a spreadsheet or another system\'s export, with a preview before anything is saved.'], ['Can I use it on my phone?', 'Yes. Oprun works in any modern browser and can be installed on your home screen like an app.']] },
   { id: 'approvals', name: 'AI and approvals', items: [['What needs approval?', 'Anything that leaves the business or cannot be undone: messages, quotes, invoices, posts, refunds and permission changes.'], ['Can I let a manager approve?', 'Yes. Owners can give approval rights to specific people.'], ['Can the AI be wrong?', 'Yes, which is why it drafts rather than acts. Every draft shows what it was based on.']] },
   { id: 'billing', name: 'Plans and billing', items: [['What do plans cost?', 'Starter A$49, Operations A$99 and Scale A$149 a month, plus GST.'], ['What are add-on packs?', 'Extra usage such as storage and AI requests. Operations saves 25% and Scale saves 50% on packs.'], ['How do I change plans?', 'From Plans and usage in your workspace, at any time.']] },
   { id: 'people', name: 'Staff and compliance', items: [['What can workers see?', 'Only the jobs assigned to them, without prices or the customer list.'], ['How are work rights recorded?', 'Record VEVO results and Fair Work requirements against each worker, with expiry reminders.']] },

@@ -50,7 +50,7 @@ export function checkpoint(root, opts) {
 
   const handover = [
     START,
-    `PROJECT: Super Pro AI Office Manager (Umerfaizan92/fleet-office-ai)`,
+    `PROJECT: Oprun (Umerfaizan92/fleet-office-ai)`,
     `CURRENT BRANCH: ${state.repo ? state.branch : 'n/a'}${state.repo && !state.remoteBranch ? ' (not on GitHub yet)' : ''}`,
     `LATEST VERIFIED COMMIT: ${verifiedCommit}`,
     `CURRENT PHASE: ${opts.phase || previous['CURRENT PHASE'] || 'not set'}`,

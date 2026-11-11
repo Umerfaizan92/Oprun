@@ -170,7 +170,7 @@
     await ensureVoicesReady();
     const matched=findLanguageVoice(locale).voice;
     if(lang!=='en'&&!matched){
-      setVoiceStatus(`Super Pro AI ${locale} server voice is temporarily unavailable. This device has no matching ${locale} browser voice, so partial English-only playback was blocked.`,'limited');
+      setVoiceStatus(`Oprun ${locale} server voice is temporarily unavailable. This device has no matching ${locale} browser voice, so partial English-only playback was blocked.`,'limited');
       return false;
     }
     if(reason)setVoiceStatus(`Server voice unavailable (${reason}). Using this device's ${locale} voice.`,'limited');
@@ -211,7 +211,7 @@
 
   async function playPreparedSpeech(prepared,locale,run){
     if(run!==speechRun||!prepared?.ok)return false;
-    setVoiceStatus(`Speaking naturally in ${locale} using Super Pro AI voice.`,'speaking');
+    setVoiceStatus(`Speaking naturally in ${locale} using Oprun AI voice.`,'speaking');
     if(prepared.type==='buffer'){
       await new Promise(resolve=>{
         if(run!==speechRun)return resolve();
@@ -294,7 +294,7 @@
           src.onended=()=>{const p=streamSources.indexOf(src);if(p>=0)streamSources.splice(p,1);try{src.disconnect()}catch{}};
           src.start(nextStart);
           lastEnd=nextStart+buffer.duration;nextStart=lastEnd;
-          setVoiceStatus(`Speaking naturally in ${speechLocale(lang)} using streaming Super Pro AI voice.`,'speaking');
+          setVoiceStatus(`Speaking naturally in ${speechLocale(lang)} using streaming Oprun AI voice.`,'speaking');
         }
       }
       clearTimeout(firstTimer);
@@ -381,12 +381,12 @@
   input.addEventListener('input',resize);
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
   function resize(){input.style.height='auto';input.style.height=Math.min(110,input.scrollHeight)+'px'}
-  $('#clear-chat').onclick=()=>{stopSpeech();conversationLanguage='auto';lastLanguage='en';try{localStorage.removeItem('superpro_conversation_language')}catch{}log.innerHTML='<div class="message ai"><span>AI</span><div><b>Fresh conversation.</b><p>Ask me anything about Super Pro AI Office Manager—features, AI, plans, security, setup, industries, jobs, calls, content or integrations.</p></div></div>';lastTopic='';satisfaction.hidden=true;conversion.hidden=true;setQuick(['What can this software do?','Can AI answer calls and messages?','How secure is account creation?']);setVoiceStatus('Fresh conversation ready. Speak or type in your preferred language.','ready')};
+  $('#clear-chat').onclick=()=>{stopSpeech();conversationLanguage='auto';lastLanguage='en';try{localStorage.removeItem('superpro_conversation_language')}catch{}log.innerHTML='<div class="message ai"><span>AI</span><div><b>Fresh conversation.</b><p>Ask me anything about Oprun—features, AI, plans, security, setup, industries, jobs, calls, content or integrations.</p></div></div>';lastTopic='';satisfaction.hidden=true;conversion.hidden=true;setQuick(['What can this software do?','Can AI answer calls and messages?','How secure is account creation?']);setVoiceStatus('Fresh conversation ready. Speak or type in your preferred language.','ready')};
 
   const voiceOutput=$('#voice-output');
   function paintVoiceToggle(){if(!voiceOutput)return;voiceOutput.classList.toggle('active',voiceReplies);voiceOutput.textContent=voiceReplies?'🔊':'🔇';voiceOutput.title=voiceReplies?'Voice replies on':'Voice replies off';voiceOutput.setAttribute('aria-pressed',String(voiceReplies))}
   paintVoiceToggle();
-  voiceOutput.onclick=()=>{voiceReplies=!voiceReplies;localStorage.setItem('superpro_voice_replies',voiceReplies?'on':'off');paintVoiceToggle();if(!voiceReplies){stopSpeech();setVoiceStatus('Spoken replies are off. Text replies will continue.','limited')}else{primeSpeech();setVoiceStatus('Spoken replies are on. Super Pro AI server voice is preferred; the device voice is used only as a fallback.','ready')}};
+  voiceOutput.onclick=()=>{voiceReplies=!voiceReplies;localStorage.setItem('superpro_voice_replies',voiceReplies?'on':'off');paintVoiceToggle();if(!voiceReplies){stopSpeech();setVoiceStatus('Spoken replies are off. Text replies will continue.','limited')}else{primeSpeech();setVoiceStatus('Spoken replies are on. Oprun AI server voice is preferred; the device voice is used only as a fallback.','ready')}};
 
   let recognitionSessionText='',recognitionSubmitTimer=null,recognitionNoSpeechTimer=null,recognitionSubmitting=false,recognitionActive=false;
   function initRecognition(){
@@ -587,7 +587,7 @@
     const select=document.createElement('select');select.id='guide-language';select.className='guide-language';select.title='Reply and voice-input language';select.setAttribute('aria-label','Reply language');select.innerHTML='<option value="auto">Auto language</option><option value="en">English</option><option value="ur">Urdu</option><option value="hi">Hindi</option><option value="pa">Punjabi</option><option value="ar">Arabic</option><option value="zh">Chinese</option><option value="ja">Japanese</option><option value="ko">Korean</option><option value="bn">Bengali</option><option value="ta">Tamil</option><option value="es">Spanish</option><option value="fr">French</option>';
     const savedLanguage=localStorage.getItem('superpro_guide_language');if([...select.options].some(o=>o.value===savedLanguage))select.value=savedLanguage;
     guideHeader.prepend(voice);guideHeader.prepend(select);
-    select.onchange=()=>{localStorage.setItem('superpro_guide_language',select.value);conversationLanguage='auto';try{localStorage.removeItem('superpro_conversation_language')}catch{}if(select.value==='auto')lastLanguage='en';else lockConversationLanguage(select.value);if(recognition)recognition.lang=speechLocale(activeInputLanguage());setVoiceStatus(select.value==='auto'?'Auto language is on. Each typed or spoken turn is detected independently using the server transcription service when available.':`Voice input and replies set to ${select.selectedOptions[0].textContent}. Super Pro will prefer a matching installed voice and otherwise request this locale from the device speech service.`,'ready')};
+    select.onchange=()=>{localStorage.setItem('superpro_guide_language',select.value);conversationLanguage='auto';try{localStorage.removeItem('superpro_conversation_language')}catch{}if(select.value==='auto')lastLanguage='en';else lockConversationLanguage(select.value);if(recognition)recognition.lang=speechLocale(activeInputLanguage());setVoiceStatus(select.value==='auto'?'Auto language is on. Each typed or spoken turn is detected independently using the server transcription service when available.':`Voice input and replies set to ${select.selectedOptions[0].textContent}. Oprun will prefer a matching installed voice and otherwise request this locale from the device speech service.`,'ready')};
     voice.onchange=()=>{localStorage.setItem('superpro_voice_preference',voice.value);setVoiceStatus(`Voice preference set to ${voice.selectedOptions[0].textContent.replace('Voice: ','')}. Language matching takes priority; gender preference is applied only when the device exposes a suitable named voice.`,'ready')};
   }
 

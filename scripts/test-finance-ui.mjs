@@ -83,11 +83,11 @@ try {
     assert.deepEqual(await axe(page, '#finsales-view'), [], 'invoice view is accessible');
   });
 
-  await check('Quotes & Invoices: Super Pro prepares a draft from a completed job', async () => {
+  await check('Quotes & Invoices: Oprun prepares a draft from a completed job', async () => {
     const v = await go('b07/sales', 'finsales');
     await v.getByRole('button', { name: 'Prepare invoice draft' }).click();
     await statusIs('finsales', /Draft invoice prepared/);
-    await v.locator('.fx-detail').getByText(/prepared by Super Pro/).waitFor();
+    await v.locator('.fx-detail').getByText(/prepared by Oprun/).waitFor();
     assert.match(await v.locator('.fx-detail').textContent(), /Labour: 2 hours/);
   });
 
@@ -128,7 +128,7 @@ try {
     await v.getByRole('button', { name: 'Import statement' }).click();
     await statusIs('finreconcile', /Imported 2 line/);
     const row = v.getByRole('row', { name: /BUNNINGS/ });
-    assert.equal(await row.getByRole('combobox').inputValue(), 'Materials and supplies', 'Super Pro suggested the category');
+    assert.equal(await row.getByRole('combobox').inputValue(), 'Materials and supplies', 'Oprun suggested the category');
     await row.getByRole('button', { name: 'Save category' }).click(); await statusIs('finreconcile', /recorded as an expense/);
     await v.getByRole('row', { name: /TELSTRA/ }).getByRole('button', { name: 'Ignore' }).click(); await statusIs('finreconcile', /Ignored/);
     assert.deepEqual(await axe(page, '#finreconcile-view'), [], 'reconciliation is accessible');

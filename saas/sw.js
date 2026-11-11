@@ -14,8 +14,8 @@ const PUBLIC=[
   '/saas/common.js?v=20260919.6',
   '/saas/install.js?v=20260919.6',
   '/saas/answers.html',
-  '/saas/superpro-icon-192.png',
-  '/saas/superpro-icon-512.png'
+  '/saas/oprun-icon-192.png',
+  '/saas/oprun-icon-512.png'
 ];
 self.addEventListener('install',e=>{
   self.skipWaiting();

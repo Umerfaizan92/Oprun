@@ -1,7 +1,7 @@
 // Phase 06: Website & Visibility workspace views: SEO Command Centre, Technical Audit, Keyword Clusters, Google,
 // Content Studio, Website Builder, Local SEO, SEO Analytics and SEO Reports. The same file serves the Founder Console
-// (window.SuperProSeo.mount(host, '/api/operator/seo', api)) for Super Pro's own website.
-// Every number shown names its source; measured figures and Super Pro estimates are never mixed.
+// (window.SuperProSeo.mount(host, '/api/operator/seo', api)) for Oprun's own website.
+// Every number shown names its source; measured figures and Oprun estimates are never mixed.
 (() => {
   const el = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
@@ -23,14 +23,14 @@
   const chip = (level, text) => el('span', { class: 'portal-status ' + (LEVEL[level]?.[1] || 'pl-draft'), text: text || LEVEL[level]?.[0] || level });
   const source = (t) => el('p', { class: 'sx-source', text: 'Source: ' + t });
   const VIEWS = {
-    seocentre: ['SEO Command Centre', 'Your website, search visibility and Google data in one place. Measured figures always name their source; Super Pro estimates are marked as estimates. Nobody can guarantee Google indexing or rankings.'],
-    seoaudit: ['Technical Audit', 'Super Pro reads your site the way a search crawler does and lists what to fix: crawling, indexing, sitemaps, redirects, broken links, titles, headings, images, mobile, https and more.'],
+    seocentre: ['SEO Command Centre', 'Your website, search visibility and Google data in one place. Measured figures always name their source; Oprun estimates are marked as estimates. Nobody can guarantee Google indexing or rankings.'],
+    seoaudit: ['Technical Audit', 'Oprun reads your site the way a search crawler does and lists what to fix: crawling, indexing, sitemaps, redirects, broken links, titles, headings, images, mobile, https and more.'],
     seoclusters: ['Keyword Clusters', 'Topics people search for, grouped by intent and mapped to your pages, with content gaps and internal links. Search volumes appear only from Search Console or a list you upload.'],
     seogoogle: ['Google', 'Connect Search Console, Analytics 4, Business Profile, Tag Manager, Google Ads reporting and PageSpeed Insights. A service shows as verified only after a real call to Google worked.'],
     seostudio: ['Content Studio', 'Drafts for pages, FAQs, articles, meta descriptions, schema and alt text, written from your business facts. Claims that need checking are listed before anything can be published.'],
     seobuilder: ['Website Builder', 'Build pages from sections, preview them, and publish. Small wording fixes can go live under your rule; new claims, design changes and first releases wait for approval.'],
     seolocal: ['Local SEO', 'Check your business details match everywhere, your Google profile, service areas and reviews. Review replies are drafted for you and posted only after approval.'],
-    seoanalytics: ['SEO Analytics', 'Clicks, impressions, CTR and position from Search Console; sessions and key events from Analytics; leads and revenue from your Super Pro records.'],
+    seoanalytics: ['SEO Analytics', 'Clicks, impressions, CTR and position from Search Console; sessions and key events from Analytics; leads and revenue from your Oprun records.'],
     seoreports: ['SEO Reports', 'Daily checks, weekly analysis and monthly reports. Turn on the scheduled jobs in the Command Centre.']
   };
 
@@ -80,7 +80,7 @@
         if (!d.facts.website_url && !d.sites.length && !founder) b.append(el('p', { class: 'portal-note', text: 'Add your website address in Website & Visibility > Search & AI visibility (Business facts), or build pages with the Website Builder, so audits can run.' }));
         if (d.alerts.length) b.append(section('Needs attention', el('ul', { class: 'sx-list' }, d.alerts.map((x) => el('li', {}, el('b', { text: x.title }), el('span', { class: 'pl-body', text: x.body }), el('small', { class: 'pl-meta', text: when(x.created_at) }))))));
         if (a?.top?.length) b.append(section('Top problems from the last audit', el('ul', { class: 'sx-list' }, a.top.map((c) => el('li', {}, chip(c.level), ` ${c.category_name}: ${c.title}`)))));
-        if (k?.top?.length) b.append(section('Opportunities (Super Pro estimates)', el('ul', { class: 'sx-list' }, k.top.map((p) => el('li', {}, el('b', { text: `${p.primary} · ${p.score}` }), el('span', { class: 'pl-meta', text: p.reasons.join('; ') })))), source('Super Pro estimate from the reasons shown; not Google data.')));
+        if (k?.top?.length) b.append(section('Opportunities (Oprun estimates)', el('ul', { class: 'sx-list' }, k.top.map((p) => el('li', {}, el('b', { text: `${p.primary} · ${p.score}` }), el('span', { class: 'pl-meta', text: p.reasons.join('; ') })))), source('Oprun estimate from the reasons shown; not Google data.')));
         b.append(section('Google', el('div', { class: 'sx-chips' }, d.google.map((g) => el('span', { class: 'sx-gchip', 'data-status': g.status }, `${g.name}: ${({ verified: 'verified', failing: 'failing', connected_unverified: 'connected, not yet verified', not_connected: 'not connected' })[g.status]}`))), el('button', { type: 'button', class: 'portal-button', text: 'Open Google', onclick: () => go('seogoogle') })));
         const sched = section('Scheduled SEO jobs', el('p', { class: 'pl-meta', text: 'Daily: crawl errors, outages, indexing and broken pages. Weekly: Google data, opportunities and technical issues. Monthly: report, clusters and recommendations. They run through AI Automations and never change your website.' }),
           table([['label', 'Job'], ['frequency', 'When'], ['status', 'Status', (v) => chip(v === 'active' ? 'good' : 'setup', v === 'active' ? 'On' : v === 'not_set_up' ? 'Not set up' : 'Off')], ['last_run_at', 'Last run', (v, r) => (v ? `${when(v)} · ${String(r.last_status || '').replace(/_/g, ' ')}` : 'Not yet')]], d.schedules));
@@ -92,7 +92,7 @@
       // ---------------- Technical Audit ----------------
       async seoaudit(b) {
         const d = await get('/audit');
-        const url = el('input', { type: 'url', placeholder: founder ? 'Super Pro website (default)' : 'https://your-website.com.au', 'aria-label': 'Website address', value: d.audit?.site_url || '' });
+        const url = el('input', { type: 'url', placeholder: founder ? 'Oprun website (default)' : 'https://your-website.com.au', 'aria-label': 'Website address', value: d.audit?.site_url || '' });
         b.append(el('form', { class: 'pl-toolbar sx-form', onsubmit: (e) => { e.preventDefault(); busy(e.submitter || e.target.querySelector('button'), async () => { await post('/audit', url.value ? { url: url.value } : {}); say('Audit finished.'); await render('seoaudit'); }); } }, url, el('button', { type: 'submit', class: 'portal-button primary', text: 'Run audit' })));
         const a = d.audit;
         if (!a) { b.append(empty('No audit yet. Run one to see what to fix.')); return; }
@@ -113,14 +113,14 @@
         const src = el('input', { placeholder: 'Where the list came from, e.g. Google Keyword Planner', maxlength: 80 });
         const file = el('input', { type: 'file', accept: '.csv,text/csv,text/plain', 'aria-label': 'Upload CSV', onchange: async () => { const f = file.files[0]; if (f) csv.value = (await f.text()).slice(0, 500000); } });
         b.append(el('details', { class: 'pl-newwrap', open: !d.plan }, el('summary', { text: 'Add keywords' }), el('div', { class: 'portal-panel sx-form-grid' }, el('label', {}, 'Your own keywords', manual), el('label', {}, 'Keyword list (CSV)', csv, file), el('label', {}, 'Source', src),
-          el('p', { class: 'pl-meta', text: 'Volumes are stored exactly as your source gives them and always show the source. Super Pro never invents search volumes.' }),
+          el('p', { class: 'pl-meta', text: 'Volumes are stored exactly as your source gives them and always show the source. Oprun never invents search volumes.' }),
           el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Add keywords', onclick: (e) => busy(e.target, async () => { const r = await post('/keywords/inputs', { manual: manual.value.split('\n').map((x) => x.trim()).filter(Boolean), csv: csv.value, source_name: src.value.trim() || 'Uploaded list' }); say(`${r.added} keyword(s) added, ${r.with_volume} with a volume.`); manual.value = ''; csv.value = ''; }) })))));
         b.append(el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button primary', text: d.plan ? 'Rebuild clusters' : 'Build clusters', onclick: (e) => busy(e.target, async () => { await post('/keywords/plan', {}); say('Clusters updated.'); await render('seoclusters'); }) })));
         const p = d.plan;
         if (!p) { b.append(empty('No clusters yet. They use your services and areas, your pages (from the last audit), Search Console and any list you add.')); return; }
         const s = p.summary;
         b.append(el('p', { class: 'pl-meta', text: `${s.keywords} keywords in ${s.clusters} clusters · ${s.measured_keywords} measured in Search Console · ${s.with_volume} with an uploaded volume · ${s.pages_used} page(s) from the audit · ${when(p.created_at)}` }), el('p', { class: 'sx-source', text: p.note }));
-        b.append(section('Priorities (Super Pro estimates)', table([['primary', 'Topic'], ['score', 'Priority'], ['action', 'Action', (v) => (v === 'create' ? 'Create a page' : 'Improve the page')], ['reasons', 'Why', (v) => v.join('; ')]], p.priorities.slice(0, 15))));
+        b.append(section('Priorities (Oprun estimates)', table([['primary', 'Topic'], ['score', 'Priority'], ['action', 'Action', (v) => (v === 'create' ? 'Create a page' : 'Improve the page')], ['reasons', 'Why', (v) => v.join('; ')]], p.priorities.slice(0, 15))));
         if (p.pillars.length) b.append(section('Pillar pages', el('ul', { class: 'sx-list' }, p.pillars.map((x) => el('li', {}, el('b', { text: x.title }), el('span', { class: 'pl-body', text: x.recommendation }), x.supporting.length ? el('small', { class: 'pl-meta', text: `${x.supporting.length} supporting cluster(s)` }) : null)))));
         if (p.gaps.length) b.append(section('Content gaps', table([['primary', 'Topic'], ['intent', 'Intent'], ['suggested_page', 'Suggested page'], ['reason', 'Why'], ['primary', '', (v, r) => el('button', { type: 'button', class: 'portal-button', text: 'Draft it', onclick: () => { sessionStorage.setItem('sx-studio-topic', JSON.stringify({ topic: v, kind: r.intent === 'informational' ? 'blog' : r.suggested_page.startsWith('Service-area') ? 'location' : 'service' })); go('seostudio'); } })]], p.gaps.slice(0, 20))));
         if (p.cannibalisation.length) b.append(section('Pages competing for the same search', el('ul', { class: 'sx-list' }, p.cannibalisation.map((c) => el('li', {}, el('b', { text: c.keyword }), ' ', chip(c.basis === 'measured' ? 'fix' : 'improve', c.basis === 'measured' ? 'Measured' : 'Possible'), el('span', { class: 'pl-body', text: c.pages.map((x) => x.url + (x.impressions ? ` (${x.impressions} impressions)` : '')).join(' · ') }), el('small', { class: 'pl-meta', text: c.note }))))));
@@ -141,7 +141,7 @@
       async seogoogle(b) {
         const d = await get('/google');
         b.append(el('p', { class: 'sx-source', text: d.note }));
-        if (founder) b.append(el('p', { class: 'portal-note', text: 'For Super Pro’s own site, add a Google service account (GOOGLE_SERVICE_ACCOUNT_JSON in Render) and add its email as a user of the Search Console and GA4 properties. PageSpeed needs PAGESPEED_API_KEY.' }));
+        if (founder) b.append(el('p', { class: 'portal-note', text: 'For Oprun’s own site, add a Google service account (GOOGLE_SERVICE_ACCOUNT_JSON in Render) and add its email as a user of the Search Console and GA4 properties. PageSpeed needs PAGESPEED_API_KEY.' }));
         const grid = el('div', { class: 'pl-grid' });
         for (const g of d.services) {
           const c = el('article', { class: 'portal-card pl-card', 'data-google': g.service },
@@ -257,7 +257,7 @@
           const c = el('article', { class: 'portal-card au-runcard', 'data-review': r.review_id }, el('div', { class: 'pl-card-head' }, el('h3', { text: `${r.reviewer} · ${r.rating ?? '?'} star(s)` }), chip(r.reply ? 'good' : r.reply_status === 'awaiting_approval' ? 'improve' : 'setup', r.reply ? 'Replied' : r.reply_status === 'awaiting_approval' ? 'Reply waiting for approval' : 'No reply')), el('p', { class: 'pl-body', text: r.comment || '(No comment)' }), r.reply ? el('p', { class: 'pl-meta', text: 'Your reply: ' + r.reply }) : null);
           if (!r.reply) { const t = el('textarea', { rows: 3, 'aria-label': 'Reply', value: r.reply_draft || '' }); c.append(t, el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Draft a reply', onclick: (e) => busy(e.target, async () => { const x = await post(`/local/reviews/${encodeURIComponent(r.review_id)}/draft`, {}); t.value = x.reply_draft; }) }), el('button', { type: 'button', class: 'portal-button primary', text: 'Send for approval', onclick: (e) => busy(e.target, async () => { const x = await post(`/local/reviews/${encodeURIComponent(r.review_id)}/reply`, { comment: t.value }); say(x.message); await render('seolocal'); }) }))); }
           return c;
-        })) : empty('No reviews yet. Connect Google Business Profile and sync. Super Pro never writes or buys reviews.')));
+        })) : empty('No reviews yet. Connect Google Business Profile and sync. Oprun never writes or buys reviews.')));
         b.append(section('Service-area and location pages', table([['area', 'Area'], ['type', 'Page type', (v) => (v === 'location' ? 'Location (you have an address here)' : 'Service area (you travel here)')], ['exists', 'Page exists', (v) => (v ? 'Yes' : 'No')], ['note', 'Note'], ['area', '', (v, r) => (r.exists ? '' : el('button', { type: 'button', class: 'portal-button', text: 'Draft page', onclick: () => { sessionStorage.setItem('sx-studio-topic', JSON.stringify({ topic: v, kind: 'location' })); go('seostudio'); } }))]], d.location_pages, 'Add the areas you serve in Business facts.')));
       },
       // ---------------- Analytics ----------------
@@ -272,11 +272,11 @@
             el('h2', { class: 'au-h', text: 'Measured' }),
             section('Search (Google Search Console)', sc ? [el('div', { class: 'au-stats' }, stat('Clicks', num(sc.clicks), sc.previous ? `previous: ${num(sc.previous.clicks)}` : undefined), stat('Impressions', num(sc.impressions), sc.previous ? `previous: ${num(sc.previous.impressions)}` : undefined), stat('CTR', pct(sc.ctr), sc.previous ? `previous: ${pct(sc.previous.ctr)}` : undefined), stat('Average position', num(sc.position, 1), sc.previous ? `previous: ${num(sc.previous.position, 1)}` : undefined)), source(sc.source + ` · ${d.period.start} to ${d.period.end} · Google's data is usually 2 to 3 days behind`), el('h3', { text: 'Top pages' }), table([['page', 'Page'], ['clicks', 'Clicks', (v) => num(v)], ['impressions', 'Impressions', (v) => num(v)], ['position', 'Position', (v) => num(v, 1)]], sc.top_pages), el('h3', { text: 'Top searches' }), table([['query', 'Search'], ['clicks', 'Clicks', (v) => num(v)], ['impressions', 'Impressions', (v) => num(v)], ['position', 'Position', (v) => num(v, 1)]], sc.top_queries)] : empty('Not measured: connect and link Search Console, then sync.')),
             section('Landing pages and conversions (Google Analytics 4)', m.analytics ? [el('div', { class: 'au-stats' }, stat('Organic sessions', num(m.analytics.organic_sessions)), stat('Key events', num(m.analytics.organic_key_events)), stat('Revenue', money(m.analytics.organic_revenue, m.analytics.currency))), source(m.analytics.source), table([['landing_page', 'Landing page'], ['sessions', 'Sessions', (v) => num(v)], ['key_events', 'Key events', (v) => num(v)], ['revenue', 'Revenue', (v) => money(v, m.analytics.currency)]], m.analytics.landing_pages)] : empty('Not measured: connect and link a GA4 property, then sync.')),
-            !founder ? section('Leads and revenue (your Super Pro records)', m.leads ? [el('div', { class: 'au-stats' }, stat('Website enquiries', num(m.leads.website_enquiries)), stat('Qualified (quoted)', num(m.leads.qualified)), stat('Paid revenue attributed', money((m.revenue_attribution?.paid_cents || 0) / 100))), source(m.leads.source), source(m.revenue_attribution.source)] : empty('Not available.')) : null,
+            !founder ? section('Leads and revenue (your Oprun records)', m.leads ? [el('div', { class: 'au-stats' }, stat('Website enquiries', num(m.leads.website_enquiries)), stat('Qualified (quoted)', num(m.leads.qualified)), stat('Paid revenue attributed', money((m.revenue_attribution?.paid_cents || 0) / 100))), source(m.leads.source), source(m.revenue_attribution.source)] : empty('Not available.')) : null,
             section('Technical errors', m.technical ? [el('div', { class: 'au-stats' }, stat('Audit score', `${m.technical.score}/100`), stat('To fix', num(m.technical.fixes)), stat('To improve', num(m.technical.improvements))), source(`${m.technical.source}, ${when(m.technical.audited_at)}`)] : empty('Run a technical audit.')),
             section('Core Web Vitals (PageSpeed Insights)', m.core_web_vitals ? table([['strategy', 'Device'], ['field', 'Real users (LCP / CLS / INP)', (v) => (v ? `${(v.lcp_ms / 1000).toFixed(1)} s / ${v.cls ?? '—'} / ${v.inp_ms ?? '—'} ms` : 'Not enough Chrome data')], ['lab', 'Lab test (LCP / CLS / score)', (v) => `${v.lcp_ms ? (v.lcp_ms / 1000).toFixed(1) + ' s' : '—'} / ${v.cls ?? '—'} / ${v.performance_score ?? '—'}`], ['fetched_at', 'Measured', when]], m.core_web_vitals) : empty('Not measured: run PageSpeed in Google.')),
             el('h2', { class: 'au-h', text: 'Estimates' }),
-            section('Opportunities (Super Pro estimates, not measurements)', d.estimates ? [table([['primary', 'Topic'], ['score', 'Priority'], ['reasons', 'Reasons', (v) => v.join('; ')]], d.estimates.priorities), source(d.estimates.source)] : empty('Build keyword clusters to see estimated opportunities.')));
+            section('Opportunities (Oprun estimates, not measurements)', d.estimates ? [table([['primary', 'Topic'], ['score', 'Priority'], ['reasons', 'Reasons', (v) => v.join('; ')]], d.estimates.priorities), source(d.estimates.source)] : empty('Build keyword clusters to see estimated opportunities.')));
         }
         await load();
       },

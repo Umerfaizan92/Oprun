@@ -21,7 +21,7 @@
     return el('div',{},...kids);
   }
   function planCard(k){
-    const p=O.plans[k.kind],extra=k.kind==='competitor_study'?el('textarea',{placeholder:'Paste the text of 3 to 5 top posts from similar pages here (optional). Super Pro cannot browse other pages for you.',maxlength:'12000'}):null;
+    const p=O.plans[k.kind],extra=k.kind==='competitor_study'?el('textarea',{placeholder:'Paste the text of 3 to 5 top posts from similar pages here (optional). Oprun cannot browse other pages for you.',maxlength:'12000'}):null;
     const run=el('button',{class:'primary-button compact',type:'button',text:p?'Create again':'Create'});
     run.onclick=async()=>{run.disabled=true;run.textContent='Working…';try{await api('/api/saas/growth/generate',{method:'POST',body:JSON.stringify({kind:k.kind,samples:extra?.value||''})});await load()}catch(e){note(e.message,true);run.disabled=false;run.textContent=p?'Create again':'Create'}};
     const all=p?p.content.sections.map(s=>s.title+'\n'+s.items.join('\n')).join('\n\n'):'';

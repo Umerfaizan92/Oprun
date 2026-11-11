@@ -14,7 +14,7 @@ export function installNotifications(app, { db, env, requireSaasUser }) {
     db.prepare('INSERT INTO notification_preferences(organisation_id,user_id,muted,sound,browser,sms) VALUES (?,?,?,?,?,?) ON CONFLICT(organisation_id,user_id) DO UPDATE SET muted=excluded.muted,sound=excluded.sound,browser=excluded.browser,sms=excluded.sms').run(req.saas.organisation_id,req.saas.user_id,...['muted','sound','browser','sms'].map(k=>Number(p.data[k])));
     res.json({ok:true,preferences:p.data});
   });
-  const orgName = (org) => db.prepare(`SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?`).get(org)?.n || 'Super Pro';
+  const orgName = (org) => db.prepare(`SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?`).get(org)?.n || 'Oprun';
 
   async function notifyUser(org, userId, { kind, title, body = '', link = '', urgent = false, dedupe = null }) {
     if(!db.prepare("SELECT 1 FROM memberships WHERE organisation_id=? AND user_id=? AND status='active'").get(org,userId))return null;

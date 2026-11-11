@@ -1,4 +1,4 @@
-// Weekly SEO and AI-search (GEO) check of Super Pro's own public pages, with an optional, polite competitor comparison.
+// Weekly SEO and AI-search (GEO) check of Oprun's own public pages, with an optional, polite competitor comparison.
 // Own pages are read from disk. Competitor pages are fetched only when the operator lists them, over https, honouring robots.txt.
 // No scraping of logged-in or private pages, and nothing here touches any subscriber's data.
 import fs from 'node:fs';
