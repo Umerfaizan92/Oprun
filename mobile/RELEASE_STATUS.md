@@ -31,15 +31,14 @@ Branch: `codex/oprun-mobile-readiness-20261111`, based on production commit
 
 ## Publication boundary
 
-No branch push, pull request, merge, deployment or store upload was completed.
-Automatic approval review rejected source publication twice, including after
-verification of the public `Umerfaizan92/Oprun` repository. Do not retry through
-another tool without explicit owner authorization to publish this branch.
-Production remains on the original commit. Production data and credentials
-were not changed.
+The owner explicitly approved publication and Render deployment on 11 November
+2026. The matching source tree was published through the connected GitHub
+account as commit `4079a2e98bb58fea2549a03ffaedcfbb16a2cfbf`; PR #69 runs the
+web and native CI checks. Earlier automatic publication denials are superseded
+by that explicit approval. Production data and credentials were not changed.
 
-After approval: publish the branch, run web/browser/native CI, resolve any
-failures, merge passing changes and deploy to the existing Oprun Render service.
+Next: resolve web/browser/native CI failures, merge passing changes and deploy
+to the existing Oprun Render service.
 Its persistent disk can cause a brief deployment interruption. Verify the live
 site after deployment. Then complete signing, domain proof, device tests,
 privacy/billing/reviewer preparation and store gates in `README.md`.
