@@ -72,7 +72,7 @@ try {
     p.on('response', r => { if (r.url().includes('/api/') && r.status() >= 500) errors.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     await p.goto(s.base + '/saas/workspace.html'); await p.locator('#business-navigation .navigation-page').first().waitFor({ state: 'attached' });
     assert.equal(await p.locator('#business-navigation .navigation-page').count(), 60);
-    assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 7);
+    assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 8);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
     await p.locator('#workspace-command button').waitFor();
     assert.ok(await p.locator('#workspace-start a').count() > 0, 'Command Centre provides permitted next steps');
@@ -104,11 +104,11 @@ try {
     }
     await p.goto(s.base + '/saas/workspace.html#b04/unified');
     await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
-    await p.locator('#workspace-workflows [aria-label="Inbox"]').waitFor();
-    await p.locator('#workspace-workflows a[href="#b04/email"]').click();
+    await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
+    await p.locator('#workspace-workflows a[href="#communications/email"]').click();
     await p.locator('#mail-view').waitFor({state:'visible'});
     assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),'','selected secondary tool expands');
-    checked('Business','b04/unified','Inbox context opens retained Email Centre and reveals its More group',width);
+    checked('Business','b04/unified','Inbox context opens the Email folder and reveals its More group',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
     await p.getByRole('tab', { name: 'Costs & overheads', exact: true }).click();

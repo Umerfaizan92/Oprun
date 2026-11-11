@@ -54,7 +54,7 @@
           el('label', {}, 'Campaign (optional)', el('input', { name: 'campaign', maxlength: 120, placeholder: 'For example: Spring 2026' })),
           el('label', {}, 'Suburb, postcode or area (optional)', el('input', { name: 'area', maxlength: 80, placeholder: 'For example: Cockburn 6164' })),
           el('label', {}, 'Address it opens', el('input', { name: 'destination', type: 'url', required: true, maxlength: 600, placeholder: 'https://', 'aria-describedby': 'ls-dest-help' }),
-            el('small', { id: 'ls-dest-help', text: d.own_website ? `Your website (${d.own_website}) or your page on a social or Google service.` : 'Your page on a social or Google service. To use your own website, verify it first in Setup & Trust, Connections, Website.' })),
+            el('small', { id: 'ls-dest-help', text: d.own_website ? `Your website (${d.own_website}) or your page on a social or Google service.` : 'Your page on a social or Google service. To use your own website, verify it first in Setup > Connections > Website.' })),
           el('button', { type: 'submit', class: 'portal-button primary', text: 'Create tracked link' }));
         form.addEventListener('submit', async (e) => {
           e.preventDefault(); const b = form.querySelector('[type=submit]'); b.disabled = true;

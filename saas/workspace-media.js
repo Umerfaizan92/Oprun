@@ -50,7 +50,7 @@
   drop?.addEventListener('drop',e=>upload(e.dataTransfer?.files||[]));
   input?.addEventListener('change',()=>{upload(input.files);input.value=''});
   $('#organize-library')?.addEventListener('click',choose);
-  $('#add-demo-assets')?.addEventListener('click',()=>{note('Importing straight from a social account needs that platform to approve this app. For now, save the clip from the platform and upload it here. Connect accounts under Marketing & Channels.');});
+  $('#add-demo-assets')?.addEventListener('click',()=>{note('Importing straight from a social account needs that platform to approve this app. For now, save the clip from the platform and upload it here. Connect accounts under Setup > Connections.');});
   document.querySelectorAll('[data-source-mode]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.sourceMode;document.querySelectorAll('[data-source-mode]').forEach(x=>x.classList.toggle('active',x===b));draw()}));
   $('#media-library-search')?.addEventListener('input',draw);$('#media-library-sort')?.addEventListener('change',draw);
   onView('video',{enter:load});

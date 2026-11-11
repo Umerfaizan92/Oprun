@@ -1,4 +1,4 @@
-// Single source of truth: seven business groups, stable legacy routes.
+// Single source of truth: seven business groups plus Setup, clean names, stable legacy routes.
 // The rail, page finder and contextual workflow links share these definitions.
 // app.js, the page finder and the manual read from this list; nothing else
 // should hard-code view names, labels or role gates.
@@ -56,30 +56,38 @@
    {id:'b08',label:'Setup & Trust',kicker:'B08 · SETUP & TRUST',icon:'i-shield',items:[take('onboarding','b08/settings'),take('integrations','b08/connections'),take('migration','b08/import'),take('exports','b08/print'),take('governance','b08/trust'),extra('automation','b08/automation','Automation Settings','i-shield'),take('support','b08/help'),extra('supportaccess','b08/support-access','Support Access','i-shield',['owner']),take('manual','b08/manual')]},
    {id:'b09',label:'Plans & Usage',kicker:'B09 · PLANS & USAGE',icon:'i-doc',items:[take('billing','b09/usage','Plans, Billing & Add-ons'),extra('finplan','b09/change-plan','Change Plan','i-doc',['owner','admin','super_admin'])]}
   ];
-  // Presentation-only regrouping. Keep route IDs, aliases and item permissions intact.
+  // Clean, unnumbered navigation (Master prompt 2026-11-12). The B01–B09 inventory groups above stay only as
+  // legacy route sources: every old b0x/... hash, earlier path and alias still resolves to the same view.
   const originalDomains = DOMAINS;
-  const communications = DOMAINS.find(d => d.id === 'b04');
-  communications.items.unshift(communications.items.splice(communications.items.findIndex(i => i.view === 'unifiedinbox'), 1)[0]);
-  const domain = id => originalDomains.find(d => d.id === id);
-  const combined = (id, label, ids) => ({...domain(id), label, kicker:label.toUpperCase(), items:ids.flatMap(key => domain(key).items)});
-  DOMAINS = [domain('b01'), domain('b02'), domain('b03'), domain('b04'),
-    combined('b05','Growth',['b05','b06']), domain('b07'), combined('b08','Setup & Trust',['b08','b09'])];
-  const contextualOnly = new Set(['archive','comms','mail','phone','calls','receptionist','businesscampaigns','consent','seoaudit','seoclusters','seogoogle','seostudio','seolocal','seoanalytics','seoreports','website','visibility','searchconsole','backlinks','finsales','migration','exports','automation','supportaccess','finplan']);
+  const legacy = view => originalDomains.flatMap(d => d.items).find(i => i.view === view);
+  const at = (view, path, label) => { const i = legacy(view); return {...i, path, alias:[...new Set([i.path, ...(i.alias||[])].filter(a => a !== path))], ...(label ? {label} : {})}; };
+  DOMAINS = [
+    {id:'today',label:'Today',kicker:'TODAY',icon:'i-grid',items:[at('dashboard','today/home','Command Centre'),at('assistant','today/assistant'),at('approvals','today/approvals'),at('automations','today/automations')]},
+    {id:'work',label:'Work',kicker:'WORK',icon:'i-briefcase',items:[at('enquiries','work/enquiries'),at('quotes','work/quotes'),at('bookings','work/bookings'),at('jobs','work/jobs'),at('stock','work/stock','Stock & Supplies'),at('archive','work/archive','Archived records')]},
+    {id:'customers',label:'Customers',kicker:'CUSTOMERS',icon:'i-users',items:[at('customers','customers/directory','Customer Directory')]},
+    {id:'people',label:'People',kicker:'PEOPLE',icon:'i-users',items:[at('workforce','people/workers'),at('team','people/staff'),at('hiring','people/hiring','Hiring'),at('offshore','people/offshore')]},
+    {id:'communications',label:'Communications',kicker:'COMMUNICATIONS',icon:'i-bell',items:[at('unifiedinbox','communications/inbox'),at('voiceflow','communications/call-handling'),at('receptionist','communications/receptionist'),at('meetings','communications/meetings'),at('teamchat','communications/team-chat'),at('mail','communications/email','Email folder'),at('comms','communications/channels','Channel inbox (classic view)'),at('phone','communications/numbers','Phone numbers setup'),at('calls','communications/calls-sms','Calls & SMS setup')]},
+    {id:'growth',label:'Growth',kicker:'GROWTH',icon:'i-video',items:[at('growth','growth/hub','Growth Hub'),at('campaignstudio','growth/campaigns','Campaign Studio'),at('video','growth/media'),at('consent','growth/consent'),at('seocentre','growth/seo'),at('seobuilder','growth/website-builder'),at('seoaudit','growth/seo-audit','SEO · Audit'),at('seoclusters','growth/seo-keywords','SEO · Keywords'),at('seogoogle','growth/seo-google','SEO · Google'),at('seostudio','growth/seo-content','SEO · Content'),at('seolocal','growth/seo-local','SEO · Local'),at('seoanalytics','growth/seo-analytics','SEO · Analytics'),at('seoreports','growth/seo-reports','SEO · Reports'),at('businesscampaigns','growth/drafts','Older campaign drafts'),at('visibility','growth/search-readiness','Search readiness (older)'),at('searchconsole','growth/search-connection','Search connection request'),at('backlinks','growth/backlinks','Backlink suggestions'),at('website','growth/website-domain','Website & domain request')]},
+    {id:'money',label:'Money',kicker:'MONEY',icon:'i-briefcase',items:[at('finance','money/ledger'),at('businessinvoices','money/invoices','Invoices & Quotes'),at('finpayments','money/payments'),at('finreconcile','money/reconcile'),at('finreports','money/reports'),at('fincompliance','money/settings'),at('finsales','money/sales','Sales documents (older view)')]},
+    {id:'setup',label:'Setup',kicker:'SETUP',icon:'i-shield',utility:true,items:[at('onboarding','setup/settings'),at('integrations','setup/connections'),at('billing','setup/plans','Plans, Billing & Add-ons'),at('governance','setup/trust'),at('automation','setup/automation'),at('support','setup/help'),at('manual','setup/manual'),at('migration','setup/import'),at('exports','setup/export'),at('supportaccess','setup/support-access'),at('finplan','setup/change-plan')]}
+  ];
+  const contextualOnly = new Set(['archive','comms','mail','phone','calls','businesscampaigns','seoaudit','seoclusters','seogoogle','seostudio','seolocal','seoanalytics','seoreports','website','visibility','searchconsole','backlinks','finsales','migration','exports','supportaccess','finplan']);
   DOMAINS.forEach(d => d.items.forEach(i => { i.secondary = contextualOnly.has(i.view); }));
   // Consolidation happens through related workflows, never by deleting stores/forms.
   const WORKFLOWS = [
     {label:'Work pipeline', views:['enquiries','customers','quotes','bookings','jobs','businessinvoices','archive']},
-    {label:'Inbox', views:['unifiedinbox','mail','comms','consent']},
-    {label:'Communications setup', views:['voiceflow','phone','calls','receptionist']},
-    {label:'Campaigns', views:['growth','campaignstudio','businesscampaigns','video','consent']},
-    {label:'SEO & website', views:['seocentre','seoaudit','seoclusters','seogoogle','seostudio','seobuilder','seolocal','seoanalytics','seoreports','visibility','searchconsole','backlinks','website']},
+    {label:'Unified Inbox', views:['unifiedinbox','mail','comms','teamchat','consent']},
+    {label:'Communications setup', views:['voiceflow','receptionist','phone','calls','meetings']},
+    {label:'Growth Hub', views:['growth','campaignstudio','video','consent','businesscampaigns']},
+    {label:'SEO Command Centre', views:['seocentre','seoaudit','seoclusters','seogoogle','seostudio','seobuilder','seolocal','seoanalytics','seoreports','visibility','searchconsole','backlinks','website']},
     {label:'Documents & payments', views:['finance','businessinvoices','finsales','finpayments','finreconcile','finreports','fincompliance']},
     {label:'Connections & setup', views:['integrations','website','phone','receptionist','voiceflow','onboarding']},
-    {label:'Plans', views:['billing','finplan']}
+    {label:'Plans', views:['billing','finplan']},
+    {label:'People', views:['workforce','team','hiring','offshore']}
   ];
   const contexts = (view, role) => WORKFLOWS.filter(w => w.views.includes(view)).map(w => ({label:w.label,items:visibleItems(role).filter(i => w.views.includes(i.view)).sort((a,b) => w.views.indexOf(a.view)-w.views.indexOf(b.view))}));
   // Bare legacy group links remain valid after re-grouping.
-  for(const [old,view] of Object.entries({today:'dashboard',customers:'customers',people:'workforce',marketing:'video',money:'finance',setup:'onboarding'})){oldItems.find(i=>i.view===view);const item=DOMAINS.flatMap(d=>d.items).find(i=>i.view===view);item.alias.push(old)}
+  for(const [old,view] of Object.entries({today:'dashboard',work:'enquiries',customers:'customers',people:'workforce',communications:'unifiedinbox',marketing:'video',growth:'growth',money:'finance',setup:'onboarding'})){const item=DOMAINS.flatMap(d=>d.items).find(i=>i.view===view);if(!item.alias.includes(old))item.alias.push(old)}
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const featureFor={finsales:'finance',finpayments:'finance',finreconcile:'finance',finreports:'finance',fincompliance:'finance',finplan:'billing',unifiedinbox:'inbox',voiceflow:'settings',campaignstudio:'growth',consent:'growth',offshore:'workforce',automation:'settings',automations:'settings',seocentre:'visibility',seoaudit:'visibility',seoclusters:'visibility',seogoogle:'visibility',seostudio:'visibility',seobuilder:'visibility',seolocal:'visibility',seoanalytics:'visibility',seoreports:'visibility',mail:'mail',enquiries:'customers',quotes:'customers',bookings:'jobs',archive:'customers',phone:'settings',calls:'inbox',receptionist:'settings',meetings:'inbox',teamchat:'staff_chat',businesscampaigns:'growth',website:'settings',searchconsole:'visibility',backlinks:'visibility',businessinvoices:'finance',supportaccess:'governance',dashboard:'dashboard',assistant:'ai',approvals:'approvals',customers:'customers',stock:'stock',comms:'inbox',jobs:'jobs',workforce:'workforce',hiring:'hiring',video:'content',growth:'growth',visibility:'visibility',integrations:'integrations',finance:'finance',billing:'billing',onboarding:'settings',governance:'governance'};
   const allowed=(item,role)=>{if(item.view==='integrations')return role==='owner'||Boolean(window.GDS_SESSION?.channel_access?.length);const access=window.GDS_SESSION?.access;if(role!=='owner'&&['inbox','mail','content','growth','visibility'].includes(featureFor[item.view]))return Boolean(access?.grants?.includes(featureFor[item.view]+'.read'));if(access?.mode==='custom'&&featureFor[item.view])return access.grants.includes(featureFor[item.view]+'.read');return !item.roles||item.roles.includes(role)};
@@ -94,7 +102,7 @@
   function resolve(hash,role){
     const h=String(hash||'').replace(/^#/,'').split('?')[0].replace(/\/+$/,'').toLowerCase();if(!h)return null;
     const items=visibleItems(role);
-    const hit=items.find(i=>i.path===h||i.view===h||(i.alias||[]).includes(h))||(originalDomains.find(d=>d.id===h)&&items.find(i=>originalDomains.find(d=>d.id===h).items.includes(i)));
+    const hit=items.find(i=>i.path===h||i.view===h||(i.alias||[]).includes(h))||[...DOMAINS,...originalDomains].filter(d=>d.id===h).map(d=>items.find(i=>d.items.some(x=>x.view===i.view))).find(Boolean);
     return hit?hit.view:null;
   }
   function pageMeta(){

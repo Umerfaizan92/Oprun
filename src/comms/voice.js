@@ -135,7 +135,7 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
       try {
         const r = recordInbound(db, { organisation_id: fresh.organisation_id, channel: 'voice', contact_address: fresh.from_number, kind: 'call_log', body, summary: fresh.transcript.trim() ? summarise(fresh.transcript.replace(/^\w+:\s*/gm, '')).summary : kind, provider: 'telnyx', external_message_id: fresh.call_session_id || id, duration_seconds: duration });
         update(id, { inbox_message_id: r?.id || null });
-        if (fresh.voicemail || missed) notify(fresh.organisation_id, { kind: fresh.voicemail ? 'voicemail' : 'missed_call', title: fresh.voicemail ? 'New voicemail' : 'Missed call', body: `From ${fresh.from_number}`, link: '#b04/inbox', urgent: Boolean(fresh.voicemail) });
+        if (fresh.voicemail || missed) notify(fresh.organisation_id, { kind: fresh.voicemail ? 'voicemail' : 'missed_call', title: fresh.voicemail ? 'New voicemail' : 'Missed call', body: `From ${fresh.from_number}`, link: '#communications/channels', urgent: Boolean(fresh.voicemail) });
       } catch (e) { fail(id, 'inbox', e); }
     }
     onCallEnded(call(id));

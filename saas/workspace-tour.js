@@ -4,7 +4,7 @@
   const doc=document;
   const STEPS=[
     {title:'Welcome to your office',text:'This quick tour shows you where everything is. It takes about a minute, and you can replay it any time from the ? button.'},
-    {sel:'.workspace-nav',title:'Everything is grouped here',text:'Today, Customers & Work, People, Marketing, Money and Setup & Trust. Open a group to see its pages.',side:'right'},
+    {sel:'.workspace-nav',title:'Everything is grouped here',text:'Today, Work, Customers, People, Communications, Growth and Money, with Setup at the bottom. Open a group to see its pages.',side:'right'},
     {sel:'.search-button',title:'Ask or search',text:'Type or speak what you need, such as “new job for Sam” or “unpaid invoices”, and jump straight to it.',side:'bottom'},
     {sel:'#pad-open',title:'Get paid',text:'Taking a payment on site? Pick the job, show the QR code or send the link, and the receipt goes to your customer automatically.',side:'bottom'},
     {sel:'#open-digital-manual',title:'User Manual',text:'Plain-English help for every page, based on your role.',side:'bottom'},

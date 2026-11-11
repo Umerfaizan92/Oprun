@@ -1,4 +1,4 @@
-// Marketing > Growth Engine: business profile, content plans, 30-day calendar with approval, and post reuse. DOM built with textContent only.
+// Growth > Growth Hub: business profile, content plans, 30-day calendar with approval, and post reuse. DOM built with textContent only.
 (()=>{
   const {el,api,onView,note}=window.SuperProUI;
   const $=s=>document.querySelector(s);

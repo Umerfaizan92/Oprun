@@ -2,28 +2,28 @@
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "business": [
     {
-      "id": "b01",
+      "id": "today",
       "label": "Today",
-      "kicker": "B01 · TODAY",
+      "kicker": "TODAY",
       "icon": "i-grid",
       "items": [
         {
           "view": "dashboard",
-          "path": "b01/home",
+          "path": "today/home",
           "alias": [
-            "today/home",
+            "b01/home",
             "operations/command",
             "today"
           ],
-          "label": "Home & AI Command",
+          "label": "Command Centre",
           "icon": "i-grid",
           "secondary": false
         },
         {
           "view": "assistant",
-          "path": "b01/assistant",
+          "path": "today/assistant",
           "alias": [
-            "today/assistant",
+            "b01/assistant",
             "operations/receptionist"
           ],
           "label": "AI Assistant",
@@ -39,9 +39,9 @@
         },
         {
           "view": "approvals",
-          "path": "b01/approvals",
+          "path": "today/approvals",
           "alias": [
-            "today/approvals",
+            "b01/approvals",
             "governance/approvals"
           ],
           "label": "Approvals",
@@ -51,7 +51,7 @@
         },
         {
           "view": "automations",
-          "path": "b01/automations",
+          "path": "today/automations",
           "label": "AI Automations",
           "icon": "i-grid",
           "roles": [
@@ -61,19 +61,22 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b01/automations"
+          ],
           "secondary": false
         }
       ]
     },
     {
-      "id": "b02",
-      "label": "Customers & Work",
-      "kicker": "B02 · CUSTOMERS & WORK",
+      "id": "work",
+      "label": "Work",
+      "kicker": "WORK",
       "icon": "i-briefcase",
       "items": [
         {
           "view": "enquiries",
-          "path": "b02/enquiries",
+          "path": "work/enquiries",
           "label": "Enquiries",
           "icon": "i-doc",
           "roles": [
@@ -83,30 +86,15 @@
             "super_admin",
             "director"
           ],
-          "secondary": false
-        },
-        {
-          "view": "customers",
-          "path": "b02/customers",
           "alias": [
-            "customers/list",
-            "customers",
-            "customers"
-          ],
-          "label": "Customers",
-          "icon": "i-users",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
+            "b02/enquiries",
+            "work"
           ],
           "secondary": false
         },
         {
           "view": "quotes",
-          "path": "b02/quotes",
+          "path": "work/quotes",
           "label": "Quotes",
           "icon": "i-doc",
           "roles": [
@@ -116,11 +104,14 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b02/quotes"
+          ],
           "secondary": false
         },
         {
           "view": "bookings",
-          "path": "b02/bookings",
+          "path": "work/bookings",
           "label": "Bookings",
           "icon": "i-doc",
           "roles": [
@@ -130,12 +121,16 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b02/bookings"
+          ],
           "secondary": false
         },
         {
           "view": "jobs",
-          "path": "b02/jobs",
+          "path": "work/jobs",
           "alias": [
+            "b02/jobs",
             "customers/jobs",
             "operations/dispatch"
           ],
@@ -146,8 +141,9 @@
         },
         {
           "view": "stock",
-          "path": "b02/stock",
+          "path": "work/stock",
           "alias": [
+            "b02/stock",
             "customers/stock",
             "stock"
           ],
@@ -164,8 +160,8 @@
         },
         {
           "view": "archive",
-          "path": "b02/archive",
-          "label": "Records & Archive",
+          "path": "work/archive",
+          "label": "Archived records",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -174,21 +170,51 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b02/archive"
+          ],
           "secondary": true
         }
       ]
     },
     {
-      "id": "b03",
+      "id": "customers",
+      "label": "Customers",
+      "kicker": "CUSTOMERS",
+      "icon": "i-users",
+      "items": [
+        {
+          "view": "customers",
+          "path": "customers/directory",
+          "alias": [
+            "b02/customers",
+            "customers/list",
+            "customers"
+          ],
+          "label": "Customer Directory",
+          "icon": "i-users",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "secondary": false
+        }
+      ]
+    },
+    {
+      "id": "people",
       "label": "People",
-      "kicker": "B03 · PEOPLE",
+      "kicker": "PEOPLE",
       "icon": "i-users",
       "items": [
         {
           "view": "workforce",
-          "path": "b03/workers",
+          "path": "people/workers",
           "alias": [
-            "people/workers",
+            "b03/workers",
             "workforce/compliance",
             "people"
           ],
@@ -198,9 +224,9 @@
         },
         {
           "view": "team",
-          "path": "b03/staff",
+          "path": "people/staff",
           "alias": [
-            "people/staff",
+            "b03/staff",
             "workforce/staff"
           ],
           "label": "Staff Accounts & Roles",
@@ -212,12 +238,12 @@
         },
         {
           "view": "hiring",
-          "path": "b03/hiring",
+          "path": "people/hiring",
           "alias": [
-            "people/hiring",
+            "b03/hiring",
             "hiring"
           ],
-          "label": "Hiring (owner & admin only)",
+          "label": "Hiring",
           "icon": "i-briefcase",
           "roles": [
             "owner",
@@ -227,7 +253,7 @@
         },
         {
           "view": "offshore",
-          "path": "b03/offshore",
+          "path": "people/offshore",
           "label": "Offshore Staff",
           "icon": "i-users",
           "roles": [
@@ -237,19 +263,22 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b03/offshore"
+          ],
           "secondary": false
         }
       ]
     },
     {
-      "id": "b04",
+      "id": "communications",
       "label": "Communications",
-      "kicker": "B04 · COMMUNICATIONS",
+      "kicker": "COMMUNICATIONS",
       "icon": "i-bell",
       "items": [
         {
           "view": "unifiedinbox",
-          "path": "b04/unified",
+          "path": "communications/inbox",
           "label": "Unified Inbox",
           "icon": "i-bell",
           "roles": [
@@ -259,29 +288,15 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b04/unified",
+            "communications"
+          ],
           "secondary": false
         },
         {
-          "view": "comms",
-          "path": "b04/inbox",
-          "alias": [
-            "customers/inbox",
-            "operations/inbox"
-          ],
-          "label": "Inbox (all channels)",
-          "icon": "i-bell",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
           "view": "voiceflow",
-          "path": "b04/voice",
+          "path": "communications/call-handling",
           "label": "Call Handling",
           "icon": "i-bell",
           "roles": [
@@ -291,13 +306,83 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b04/voice"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "receptionist",
+          "path": "communications/receptionist",
+          "label": "AI Receptionist",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b04/receptionist"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "meetings",
+          "path": "communications/meetings",
+          "label": "Video Meetings",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b04/meetings"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "teamchat",
+          "path": "communications/team-chat",
+          "label": "Team Chat",
+          "icon": "i-users",
+          "roles": null,
+          "alias": [
+            "b04/team-chat"
+          ],
           "secondary": false
         },
         {
           "view": "mail",
-          "path": "b04/email",
-          "label": "Email Centre",
+          "path": "communications/email",
+          "label": "Email folder",
           "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b04/email"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "comms",
+          "path": "communications/channels",
+          "alias": [
+            "b04/inbox",
+            "customers/inbox",
+            "operations/inbox"
+          ],
+          "label": "Channel inbox (classic view)",
+          "icon": "i-bell",
           "roles": [
             "owner",
             "admin",
@@ -309,8 +394,8 @@
         },
         {
           "view": "phone",
-          "path": "b04/numbers",
-          "label": "Phone Numbers",
+          "path": "communications/numbers",
+          "label": "Phone numbers setup",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -318,13 +403,16 @@
             "manager",
             "super_admin",
             "director"
+          ],
+          "alias": [
+            "b04/numbers"
           ],
           "secondary": true
         },
         {
           "view": "calls",
-          "path": "b04/calls",
-          "label": "Calls & SMS",
+          "path": "communications/calls-sms",
+          "label": "Calls & SMS setup",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -332,57 +420,61 @@
             "manager",
             "super_admin",
             "director"
+          ],
+          "alias": [
+            "b04/calls"
           ],
           "secondary": true
-        },
-        {
-          "view": "receptionist",
-          "path": "b04/receptionist",
-          "label": "AI Receptionist",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "meetings",
-          "path": "b04/meetings",
-          "label": "Video Meetings",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": false
-        },
-        {
-          "view": "teamchat",
-          "path": "b04/team-chat",
-          "label": "Team Chat",
-          "icon": "i-users",
-          "roles": null,
-          "secondary": false
         }
       ]
     },
     {
-      "id": "b05",
+      "id": "growth",
       "label": "Growth",
       "kicker": "GROWTH",
       "icon": "i-video",
       "items": [
         {
-          "view": "video",
-          "path": "b05/studio",
+          "view": "growth",
+          "path": "growth/hub",
           "alias": [
+            "b05/growth",
+            "marketing/growth",
+            "growth"
+          ],
+          "label": "Growth Hub",
+          "icon": "i-spark",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "campaignstudio",
+          "path": "growth/campaigns",
+          "label": "Campaign Studio",
+          "icon": "i-video",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b05/campaign-studio"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "video",
+          "path": "growth/media",
+          "alias": [
+            "b05/studio",
             "marketing/studio",
             "workforce/growth",
             "marketing"
@@ -399,54 +491,8 @@
           "secondary": false
         },
         {
-          "view": "growth",
-          "path": "b05/growth",
-          "alias": [
-            "marketing/growth",
-            "growth"
-          ],
-          "label": "Growth Engine",
-          "icon": "i-spark",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": false
-        },
-        {
-          "view": "businesscampaigns",
-          "path": "b05/campaigns",
-          "label": "Campaign Drafts",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "campaignstudio",
-          "path": "b05/campaign-studio",
-          "label": "Campaign Studio",
-          "icon": "i-video",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": false
-        },
-        {
           "view": "consent",
-          "path": "b05/consent",
+          "path": "growth/consent",
           "label": "Consent & Unsubscribes",
           "icon": "i-shield",
           "roles": [
@@ -456,11 +502,14 @@
             "super_admin",
             "director"
           ],
-          "secondary": true
+          "alias": [
+            "b05/consent"
+          ],
+          "secondary": false
         },
         {
           "view": "seocentre",
-          "path": "b06/seo",
+          "path": "growth/seo",
           "label": "SEO Command Centre",
           "icon": "i-link",
           "roles": [
@@ -470,67 +519,14 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b06/seo"
+          ],
           "secondary": false
         },
         {
-          "view": "seoaudit",
-          "path": "b06/audit",
-          "label": "Technical Audit",
-          "icon": "i-shield",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "seoclusters",
-          "path": "b06/keywords",
-          "label": "Keyword Clusters",
-          "icon": "i-grid",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "seogoogle",
-          "path": "b06/google",
-          "label": "Google",
-          "icon": "i-link",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "seostudio",
-          "path": "b06/studio",
-          "label": "Website Content Studio",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
           "view": "seobuilder",
-          "path": "b06/builder",
+          "path": "growth/website-builder",
           "label": "Website Builder",
           "icon": "i-grid",
           "roles": [
@@ -540,13 +536,16 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b06/builder"
+          ],
           "secondary": false
         },
         {
-          "view": "seolocal",
-          "path": "b06/local",
-          "label": "Local SEO",
-          "icon": "i-users",
+          "view": "seoaudit",
+          "path": "growth/seo-audit",
+          "label": "SEO · Audit",
+          "icon": "i-shield",
           "roles": [
             "owner",
             "admin",
@@ -554,12 +553,15 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b06/audit"
+          ],
           "secondary": true
         },
         {
-          "view": "seoanalytics",
-          "path": "b06/analytics",
-          "label": "SEO Analytics",
+          "view": "seoclusters",
+          "path": "growth/seo-keywords",
+          "label": "SEO · Keywords",
           "icon": "i-grid",
           "roles": [
             "owner",
@@ -568,12 +570,32 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b06/keywords"
+          ],
           "secondary": true
         },
         {
-          "view": "seoreports",
-          "path": "b06/reports",
-          "label": "SEO Reports",
+          "view": "seogoogle",
+          "path": "growth/seo-google",
+          "label": "SEO · Google",
+          "icon": "i-link",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/google"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "seostudio",
+          "path": "growth/seo-content",
+          "label": "SEO · Content",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -582,12 +604,49 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b06/studio"
+          ],
           "secondary": true
         },
         {
-          "view": "website",
-          "path": "b06/website",
-          "label": "Website & Domain",
+          "view": "seolocal",
+          "path": "growth/seo-local",
+          "label": "SEO · Local",
+          "icon": "i-users",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/local"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "seoanalytics",
+          "path": "growth/seo-analytics",
+          "label": "SEO · Analytics",
+          "icon": "i-grid",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/analytics"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "seoreports",
+          "path": "growth/seo-reports",
+          "label": "SEO · Reports",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -595,18 +654,39 @@
             "manager",
             "super_admin",
             "director"
+          ],
+          "alias": [
+            "b06/reports"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "businesscampaigns",
+          "path": "growth/drafts",
+          "label": "Older campaign drafts",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b05/campaigns"
           ],
           "secondary": true
         },
         {
           "view": "visibility",
-          "path": "b06/search",
+          "path": "growth/search-readiness",
           "alias": [
+            "b06/search",
             "marketing/search",
             "seo",
             "visibility"
           ],
-          "label": "Search & AI Visibility",
+          "label": "Search readiness (older)",
           "icon": "i-spark",
           "roles": [
             "owner",
@@ -619,8 +699,8 @@
         },
         {
           "view": "searchconsole",
-          "path": "b06/search-console",
-          "label": "Search Connection Request",
+          "path": "growth/search-connection",
+          "label": "Search connection request",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -629,12 +709,15 @@
             "super_admin",
             "director"
           ],
+          "alias": [
+            "b06/search-console"
+          ],
           "secondary": true
         },
         {
           "view": "backlinks",
-          "path": "b06/backlinks",
-          "label": "Backlink Suggestions",
+          "path": "growth/backlinks",
+          "label": "Backlink suggestions",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -642,22 +725,42 @@
             "manager",
             "super_admin",
             "director"
+          ],
+          "alias": [
+            "b06/backlinks"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "website",
+          "path": "growth/website-domain",
+          "label": "Website & domain request",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/website"
           ],
           "secondary": true
         }
       ]
     },
     {
-      "id": "b07",
+      "id": "money",
       "label": "Money",
-      "kicker": "B07 · MONEY",
+      "kicker": "MONEY",
       "icon": "i-briefcase",
       "items": [
         {
           "view": "finance",
-          "path": "b07/ledger",
+          "path": "money/ledger",
           "alias": [
-            "money/ledger",
+            "b07/ledger",
             "finance/ledger",
             "money"
           ],
@@ -672,31 +775,22 @@
         },
         {
           "view": "businessinvoices",
-          "path": "b07/invoices",
-          "label": "Invoices",
+          "path": "money/invoices",
+          "label": "Invoices & Quotes",
           "icon": "i-doc",
           "roles": [
             "owner",
             "admin",
             "super_admin"
+          ],
+          "alias": [
+            "b07/invoices"
           ],
           "secondary": false
         },
         {
-          "view": "finsales",
-          "path": "b07/sales",
-          "label": "Quotes & Invoices",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "super_admin"
-          ],
-          "secondary": true
-        },
-        {
           "view": "finpayments",
-          "path": "b07/payments-refunds",
+          "path": "money/payments",
           "label": "Payments & Refunds",
           "icon": "i-briefcase",
           "roles": [
@@ -704,11 +798,14 @@
             "admin",
             "super_admin"
           ],
+          "alias": [
+            "b07/payments-refunds"
+          ],
           "secondary": false
         },
         {
           "view": "finreconcile",
-          "path": "b07/reconcile",
+          "path": "money/reconcile",
           "label": "Bank Reconciliation",
           "icon": "i-grid",
           "roles": [
@@ -716,11 +813,14 @@
             "admin",
             "super_admin"
           ],
+          "alias": [
+            "b07/reconcile"
+          ],
           "secondary": false
         },
         {
           "view": "finreports",
-          "path": "b07/reports",
+          "path": "money/reports",
           "label": "Reports & GST",
           "icon": "i-grid",
           "roles": [
@@ -728,11 +828,14 @@
             "admin",
             "super_admin"
           ],
+          "alias": [
+            "b07/reports"
+          ],
           "secondary": false
         },
         {
           "view": "fincompliance",
-          "path": "b07/compliance",
+          "path": "money/settings",
           "label": "Finance Settings & Compliance",
           "icon": "i-shield",
           "roles": [
@@ -740,21 +843,40 @@
             "admin",
             "super_admin"
           ],
+          "alias": [
+            "b07/compliance"
+          ],
           "secondary": false
+        },
+        {
+          "view": "finsales",
+          "path": "money/sales",
+          "label": "Sales documents (older view)",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "super_admin"
+          ],
+          "alias": [
+            "b07/sales"
+          ],
+          "secondary": true
         }
       ]
     },
     {
-      "id": "b08",
-      "label": "Setup & Trust",
-      "kicker": "SETUP & TRUST",
+      "id": "setup",
+      "label": "Setup",
+      "kicker": "SETUP",
       "icon": "i-shield",
+      "utility": true,
       "items": [
         {
           "view": "onboarding",
-          "path": "b08/settings",
+          "path": "setup/settings",
           "alias": [
-            "setup/settings",
+            "b08/settings",
             "governance/settings",
             "setup"
           ],
@@ -771,8 +893,9 @@
         },
         {
           "view": "integrations",
-          "path": "b08/connections",
+          "path": "setup/connections",
           "alias": [
+            "b08/connections",
             "marketing/connections",
             "workforce/connections"
           ],
@@ -788,10 +911,77 @@
           "secondary": false
         },
         {
-          "view": "migration",
-          "path": "b08/import",
+          "view": "billing",
+          "path": "setup/plans",
           "alias": [
-            "setup/import",
+            "b09/usage",
+            "money/billing",
+            "finance/billing"
+          ],
+          "label": "Plans, Billing & Add-ons",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "super_admin"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "governance",
+          "path": "setup/trust",
+          "alias": [
+            "b08/trust",
+            "governance/trust"
+          ],
+          "label": "Trust & Security",
+          "icon": "i-shield",
+          "secondary": false
+        },
+        {
+          "view": "automation",
+          "path": "setup/automation",
+          "label": "Automation Settings",
+          "icon": "i-shield",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b08/automation"
+          ],
+          "secondary": false
+        },
+        {
+          "view": "support",
+          "path": "setup/help",
+          "alias": [
+            "b08/help",
+            "governance/help"
+          ],
+          "label": "Help & Complaints",
+          "icon": "i-bell",
+          "secondary": false
+        },
+        {
+          "view": "manual",
+          "path": "setup/manual",
+          "alias": [
+            "b08/manual",
+            "governance/manual"
+          ],
+          "label": "User Manual",
+          "icon": "i-doc",
+          "secondary": false
+        },
+        {
+          "view": "migration",
+          "path": "setup/import",
+          "alias": [
+            "b08/import",
             "governance/migration"
           ],
           "label": "Import Your Data",
@@ -807,8 +997,9 @@
         },
         {
           "view": "exports",
-          "path": "b08/print",
+          "path": "setup/export",
           "alias": [
+            "b08/print",
             "setup/print",
             "governance/exports"
           ],
@@ -820,87 +1011,30 @@
           "secondary": true
         },
         {
-          "view": "governance",
-          "path": "b08/trust",
-          "alias": [
-            "setup/trust",
-            "governance/trust"
-          ],
-          "label": "Trust & Security",
-          "icon": "i-shield",
-          "secondary": false
-        },
-        {
-          "view": "automation",
-          "path": "b08/automation",
-          "label": "Automation Settings",
-          "icon": "i-shield",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "support",
-          "path": "b08/help",
-          "alias": [
-            "setup/help",
-            "governance/help"
-          ],
-          "label": "Help & Complaints",
-          "icon": "i-bell",
-          "secondary": false
-        },
-        {
           "view": "supportaccess",
-          "path": "b08/support-access",
+          "path": "setup/support-access",
           "label": "Support Access",
           "icon": "i-shield",
           "roles": [
             "owner"
           ],
+          "alias": [
+            "b08/support-access"
+          ],
           "secondary": true
         },
         {
-          "view": "manual",
-          "path": "b08/manual",
-          "alias": [
-            "setup/manual",
-            "governance/manual"
-          ],
-          "label": "User Manual",
-          "icon": "i-doc",
-          "secondary": false
-        },
-        {
-          "view": "billing",
-          "path": "b09/usage",
-          "alias": [
-            "money/billing",
-            "finance/billing"
-          ],
-          "label": "Plans, Billing & Add-ons",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "super_admin"
-          ],
-          "secondary": false
-        },
-        {
           "view": "finplan",
-          "path": "b09/change-plan",
+          "path": "setup/change-plan",
           "label": "Change Plan",
           "icon": "i-doc",
           "roles": [
             "owner",
             "admin",
             "super_admin"
+          ],
+          "alias": [
+            "b09/change-plan"
           ],
           "secondary": true
         }

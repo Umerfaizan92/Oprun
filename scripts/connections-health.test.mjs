@@ -141,5 +141,5 @@ test('the sweep alerts the owner when a working connection stops working', async
   assert.equal(notes.length, 1);
   assert.equal(notes[0].organisation_id, a.org);
   assert.match(notes[0].title, /needs reconnecting/);
-  assert.equal(notes[0].link, '#b08/connections');
+  assert.equal(notes[0].link, '#setup/connections');
 });

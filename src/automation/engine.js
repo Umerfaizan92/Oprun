@@ -322,7 +322,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
       db.prepare("INSERT INTO workspace_approvals(id,organisation_id,reference_code,approval_type,source_module,title,summary,entity_type,entity_id,risk_level,status,draft_payload_json,requested_by_user_id,requested_by_label,required_role,requested_at,expires_at,updated_at,ai_generated,policy_level,data_involved_json,expected_outcome,estimated_cost_cents,automation_run_id) VALUES (?,?,?,?,'automation',?,?,'automation_run',?,?,'pending',?,NULL,?,'senior',?,?,?,?,?,?,?,?,?)")
         .run(approvalId, run.organisation_id, ref, run.action, fields.title, fields.summary, run.id, fields.risk, fields.payload, 'AI automation' + (run.workflow_id ? ': ' + (db.prepare('SELECT name FROM automation_workflows WHERE id=?').get(run.workflow_id)?.name || '') : ''), now, expires, now, safe(run.analysis_json, {}).method === 'ai' ? 1 : 0, pol.level, fields.data, fields.outcome, fields.cost, run.id);
       db.prepare("INSERT INTO workspace_approval_events(id,approval_id,organisation_id,actor_user_id,event_type,detail_json,created_at) VALUES (?,?,?,NULL,'requested',?,?)").run(crypto.randomUUID(), approvalId, run.organisation_id, JSON.stringify({ reference_code: ref, source_module: 'automation', risk_level: fields.risk, policy_level: pol.level, by: 'AI automation' }), now);
-      deps.notifyRoles?.(run.organisation_id, ['owner', 'admin', 'manager'], { kind: 'automation_approval', title: 'Approval needed: ' + fields.title, body: fields.outcome.slice(0, 200), link: '#b01/approvals', dedupe: 'automation-approval:' + approvalId });
+      deps.notifyRoles?.(run.organisation_id, ['owner', 'admin', 'manager'], { kind: 'automation_approval', title: 'Approval needed: ' + fields.title, body: fields.outcome.slice(0, 200), link: '#today/approvals', dedupe: 'automation-approval:' + approvalId });
     }
     transition(run, 'awaiting_approval', { approval_id: approvalId, expires_at: expires }, { reference_code: ref });
     return approvalId;
@@ -384,7 +384,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
   }
   function notifyFailure(run, message) {
     if (run.scope === 'platform') return;
-    deps.notifyRoles?.(run.organisation_id, ['owner', 'admin'], { kind: 'automation_failed', title: 'An automation needs attention', body: `${ACTIONS[run.action]?.label || run.action}: ${String(message).slice(0, 160)}`, link: '#b01/automations', dedupe: 'automation-failed:' + run.id });
+    deps.notifyRoles?.(run.organisation_id, ['owner', 'admin'], { kind: 'automation_failed', title: 'An automation needs attention', body: `${ACTIONS[run.action]?.label || run.action}: ${String(message).slice(0, 160)}`, link: '#today/automations', dedupe: 'automation-failed:' + run.id });
   }
 
   // Called after a person decides an automation approval.
@@ -435,7 +435,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     add(ctx, { kind, title, body, link }) {
       const id = crypto.randomUUID(), now = iso(clock());
       db.prepare("INSERT INTO automation_outputs(id,scope,organisation_id,run_id,kind,title,body,link,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,'open',?,?)").run(id, ctx.scope, ctx.org, ctx.run.id, kind, String(title).slice(0, 240), String(body).slice(0, 8000), link, now, now);
-      return { ref: id, summary: title, link: link || '#b01/automations' };
+      return { ref: id, summary: title, link: link || '#today/automations' };
     }
   };
   function mark(org, markName, ref) { db.prepare('INSERT OR IGNORE INTO automation_marks(organisation_id,mark,ref,created_at) VALUES (?,?,?,?)').run(org, markName, ref, iso(clock())); }

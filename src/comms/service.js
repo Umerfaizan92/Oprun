@@ -62,7 +62,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     if (!m.organisation_id || m.kind === 'call_log' && !m.body) return;
     const a = analyse(m.organisation_id, m.thread_id); if (!a) return;
     if (a.category === 'unsubscribe' && ['sms', 'whatsapp', 'email'].includes(m.channel)) { suppress(m.organisation_id, m.channel === 'email' ? 'email' : 'sms', m.contact_address, m.channel === 'email' ? 'unsubscribe_reply' : 'stop_reply', 'inbound message', null); db.prepare("UPDATE comms_threads SET status='closed' WHERE id=?").run(m.thread_id); }
-    if (a.escalation.level === 'urgent' || a.escalation.level === 'high') notify(m.organisation_id, { kind: 'comms_escalation', title: a.escalation.level === 'urgent' ? 'Urgent message' : 'Message needs a personal reply', body: `${m.contact_name || m.contact_address}: ${a.summary}`, link: '#b04/inbox', urgent: a.escalation.level === 'urgent', dedupe: `esc:${m.thread_id}:${a.escalation.level}` });
+    if (a.escalation.level === 'urgent' || a.escalation.level === 'high') notify(m.organisation_id, { kind: 'comms_escalation', title: a.escalation.level === 'urgent' ? 'Urgent message' : 'Message needs a personal reply', body: `${m.contact_name || m.contact_address}: ${a.summary}`, link: '#communications/channels', urgent: a.escalation.level === 'urgent', dedupe: `esc:${m.thread_id}:${a.escalation.level}` });
     emit(m.organisation_id, 'inbox.message', { thread_id: m.thread_id, message_id: m.id }, { key: m.id });
   }
 
@@ -174,7 +174,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
       const msg = db.prepare('SELECT m.*,t.contact_address,t.channel,t.subject FROM comms_messages m JOIN comms_threads t ON t.id=m.thread_id WHERE m.id=?').get(s.message_id);
       if (['email', 'sms'].includes(msg.channel) && db.prepare('SELECT 1 FROM marketing_suppressions WHERE owner_key=? AND channel=? AND address=? AND reason IN (\'bounce\',\'complaint\')').get(msg.organisation_id, msg.channel, normAddr(msg.channel, msg.contact_address))) { db.prepare("UPDATE comms_messages SET status='failed' WHERE id=?").run(msg.id); db.prepare("UPDATE comms_message_schedule SET state='failed',error=?,updated_at=? WHERE message_id=?").run('The address bounced or complained before; not sent.', iso(), msg.id); continue; }
       try { const ext = await dispatch(msg); db.prepare("UPDATE comms_messages SET status='sent',external_message_id=COALESCE(?,external_message_id) WHERE id=?").run(ext, msg.id); db.prepare("UPDATE comms_message_schedule SET state='sent',updated_at=? WHERE message_id=?").run(iso(), msg.id); sent++; }
-      catch (e) { db.prepare("UPDATE comms_messages SET status='failed' WHERE id=?").run(msg.id); db.prepare("UPDATE comms_message_schedule SET state='failed',error=?,updated_at=? WHERE message_id=?").run(String(e.message).slice(0, 300), iso(), msg.id); notify(msg.organisation_id, { kind: 'comms_failed', title: 'A scheduled message could not be sent', body: String(e.message).slice(0, 160), link: '#b04/inbox' }); }
+      catch (e) { db.prepare("UPDATE comms_messages SET status='failed' WHERE id=?").run(msg.id); db.prepare("UPDATE comms_message_schedule SET state='failed',error=?,updated_at=? WHERE message_id=?").run(String(e.message).slice(0, 300), iso(), msg.id); notify(msg.organisation_id, { kind: 'comms_failed', title: 'A scheduled message could not be sent', body: String(e.message).slice(0, 160), link: '#communications/channels' }); }
     }
     return { sent, due: due.length };
   }
@@ -197,7 +197,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const inbound = recordInboundRef.current(db, { organisation_id: org, channel: 'website', contact_address: address, contact_name: d.name, subject: 'Website enquiry', body: d.message, provider: 'website_form', external_message_id: null });
     db.prepare('UPDATE comms_thread_meta SET enquiry_id=COALESCE(enquiry_id,?),customer_id=COALESCE(customer_id,?) WHERE thread_id=?').run(r.id, r.customer_id, inbound.thread_id);
     for (const [ch, a] of [['email', d.email], ['sms', d.phone]]) if (a && d.marketing_consent) consent(org, ch, a, { status: 'granted', source: 'website_form', evidence: `Ticked "${d.consent_text || 'Send me news and offers'}" on the contact form`, customer_id: r.customer_id }, null);
-    notify(org, { kind: 'website_enquiry', title: 'New website enquiry', body: `${d.name}: ${String(d.message).slice(0, 120)}`, link: '#b02/enquiries' });
+    notify(org, { kind: 'website_enquiry', title: 'New website enquiry', body: `${d.name}: ${String(d.message).slice(0, 120)}`, link: '#work/enquiries' });
     return { ok: true, enquiry_id: r.id };
   }
   const recordInboundRef = { current: null };

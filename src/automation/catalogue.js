@@ -109,33 +109,33 @@ export const ACTIONS = {
     analyse(ctx) { const { category } = classify(`${ctx.facts.enquiry.title} ${ctx.untrusted}`); const amount = ctx.params.prices?.[category] ?? ctx.params.default_amount; return amount ? { enquiry_id: ctx.facts.enquiry.id, amount, gst_applies: ctx.params.gst_applies !== false, category } : null; },
     schema: z.object({ enquiry_id: z.string().uuid(), amount: z.number().positive().max(1000000), gst_applies: z.boolean(), category: z.enum(CATEGORIES) }),
     preview: (ctx, p) => ({ description: `Quote draft for "${ctx.facts.enquiry.title}"`, data_involved: ['Enquiry', 'Your price list in this automation'], expected_outcome: `Draft quote ${money(p.amount * 100)} ex GST (${p.category.replace(/_/g, ' ')}). Nothing is sent: you approve and send it.`, cost_cents: null }),
-    execute(ctx, p) { const r = ctx.deps.pipeline.createQuoteFromEnquiry(ctx.org, 'automation', p.enquiry_id, { amount: p.amount, gst_applies: p.gst_applies }); if (!r.ok) throw Object.assign(new Error(r.error), { permanent: true }); return { ref: r.id, summary: `Quote draft ${money(r.total_cents)} incl. GST`, link: '#b02/quotes' }; },
+    execute(ctx, p) { const r = ctx.deps.pipeline.createQuoteFromEnquiry(ctx.org, 'automation', p.enquiry_id, { amount: p.amount, gst_applies: p.gst_applies }); if (!r.ok) throw Object.assign(new Error(r.error), { permanent: true }); return { ref: r.id, summary: `Quote draft ${money(r.total_cents)} incl. GST`, link: '#work/quotes' }; },
     verify(ctx, p, r) { const q = ctx.db.prepare("SELECT status FROM tenant_documents WHERE id=? AND organisation_id=? AND kind='quote'").get(r.ref, ctx.org); return q?.status === 'draft' ? { ok: true, detail: 'Quote draft waiting for your review in Quotes.' } : { ok: false, detail: 'Quote draft not found.' }; } },
 
   suggest_appointment_times: { label: 'Suggest appointment times', capability: 5, level: 1, effect: 'output', feature: 'jobs', triggers: ['quote.accepted', 'manual'], params: z.object({ hours: z.number().positive().max(12).default(2), timezone: z.string().max(64).default('Australia/Perth') }).strict(),
     analyse: (ctx) => ({ title: ctx.facts.quote?.title || 'New work', slots: freeSlots(ctx.db, ctx.org, ctx.params.hours || 2, 3, ctx.params.timezone || 'Australia/Perth') }),
     schema: z.object({ title: z.string().max(240), slots: z.array(z.string()).max(5) }),
     preview: (ctx, p) => ({ description: `Find free times for "${p.title}"`, data_involved: ['Your job calendar'], expected_outcome: p.slots.length ? p.slots.map((s) => new Date(s).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short', timeZone: ctx.params.timezone || 'Australia/Perth' })).join(' · ') : 'No free time found in the next 10 work days.' }),
-    execute: (ctx, p) => output(ctx, 'suggestion', `Free times for ${p.title}`, p.slots.length ? p.slots.map((s) => '• ' + new Date(s).toLocaleString('en-AU', { dateStyle: 'full', timeStyle: 'short', timeZone: ctx.params.timezone || 'Australia/Perth' })).join('\n') : 'No free time found in the next 10 work days.', '#b02/quotes'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'suggestion', `Free times for ${p.title}`, p.slots.length ? p.slots.map((s) => '• ' + new Date(s).toLocaleString('en-AU', { dateStyle: 'full', timeStyle: 'short', timeZone: ctx.params.timezone || 'Australia/Perth' })).join('\n') : 'No free time found in the next 10 work days.', '#work/quotes'), verify: outputVerify },
 
   draft_customer_message: { label: 'Draft a reply to the customer', capability: 6, level: 1, effect: 'output', feature: 'mail', triggers: ['enquiry.created'], params: z.object({ sign_off: z.string().max(120).default('') }).strict(), ai: { fields: ['body'], instruction: 'Write a short, friendly reply acknowledging the enquiry and saying the business will be in touch. Do not promise prices, dates or anything not in the enquiry. Plain text, under 120 words.' },
     analyse(ctx) { const c = ctx.facts.customer; if (!c?.email) return null; return { to: c.email, subject: `Re: ${ctx.facts.enquiry.title}`.slice(0, 200), body: `Hi ${c.name.split(' ')[0]},\n\nThanks for getting in touch about "${ctx.facts.enquiry.title}". We have your enquiry and will be in touch shortly.\n\n${ctx.params.sign_off || ctx.facts.business}` }; },
     schema: z.object({ to: z.string().email(), subject: z.string().min(2).max(200), body: z.string().min(10).max(4000) }),
     preview: (ctx, p) => ({ description: `Draft a reply to ${ctx.facts.customer?.name}`, data_involved: ['Customer name and email', 'Enquiry title'], expected_outcome: 'An email draft in the Email Centre. It is not sent until someone approves and sends it.' }),
-    execute(ctx, p) { const id = ctx.deps.mail.createDraft({ ownerId: ctx.org, recipient: p.to, subject: p.subject, body: p.body, category: 'enquiries', createdBy: 'automation' }); return { ref: id, summary: 'Reply draft in the Email Centre', link: '#b04/email' }; },
+    execute(ctx, p) { const id = ctx.deps.mail.createDraft({ ownerId: ctx.org, recipient: p.to, subject: p.subject, body: p.body, category: 'enquiries', createdBy: 'automation' }); return { ref: id, summary: 'Reply draft in the Email Centre', link: '#communications/email' }; },
     verify(ctx, p, r) { const m = ctx.deps.mail.mailStatus(r.ref, ctx.org); return m?.status === 'draft' ? { ok: true, detail: 'Draft waiting in the Email Centre.' } : { ok: false, detail: 'Draft not found.' }; } },
 
   propose_work_order: { label: 'Propose booking the job', capability: 7, level: 1, effect: 'output', feature: 'jobs', triggers: ['quote.accepted'], params: P,
     analyse: (ctx) => ({ quote_id: ctx.facts.quote.id, title: ctx.facts.quote.title, slot: freeSlots(ctx.db, ctx.org, 2, 1)[0] || null }),
     schema: z.object({ quote_id: z.string().uuid(), title: z.string().max(240), slot: z.string().nullable() }),
     preview: (ctx, p) => ({ description: `Suggest booking "${p.title}"`, data_involved: ['Accepted quote', 'Your job calendar'], expected_outcome: `A suggestion to book${p.slot ? ' for ' + new Date(p.slot).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' }) : ''}. Booking stays your decision.` }),
-    execute: (ctx, p) => output(ctx, 'suggestion', `Book "${p.title}"`, `${ctx.facts.customer?.name || 'The customer'} accepted the quote.${p.slot ? ' First free time: ' + new Date(p.slot).toLocaleString('en-AU', { dateStyle: 'full', timeStyle: 'short' }) + '.' : ''} Open Quotes and choose "Book the job".`, '#b02/quotes'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'suggestion', `Book "${p.title}"`, `${ctx.facts.customer?.name || 'The customer'} accepted the quote.${p.slot ? ' First free time: ' + new Date(p.slot).toLocaleString('en-AU', { dateStyle: 'full', timeStyle: 'short' }) + '.' : ''} Open Quotes and choose "Book the job".`, '#work/quotes'), verify: outputVerify },
 
   recommend_staff: { label: 'Recommend workers for a booked job', capability: 8, level: 1, effect: 'output', feature: 'jobs', triggers: ['job.booked'], params: P,
     analyse(ctx) { const r = ctx.deps.offers.evaluate(ctx.org, ctx.facts.job); return { work_order_id: ctx.facts.job.id, eligible: r.eligible.map((w) => w.full_name).slice(0, 10), not_ready: r.evaluated.filter((x) => !x.eligible).length }; },
     schema: z.object({ work_order_id: z.string().uuid(), eligible: z.array(z.string()).max(10), not_ready: z.number().int().min(0) }),
     preview: (ctx, p) => ({ description: `Check who can do "${ctx.facts.job.title}"`, data_involved: ['Worker skills, availability and compliance status'], expected_outcome: p.eligible.length ? `Eligible: ${p.eligible.join(', ')}` : 'Nobody is eligible yet.' }),
-    execute: (ctx, p) => output(ctx, 'suggestion', `Workers for ${ctx.facts.job.title}`, p.eligible.length ? `Eligible now: ${p.eligible.join(', ')}.${p.not_ready ? ` ${p.not_ready} other worker(s) are missing skills or compliance.` : ''} Use "Offer to workers" in Bookings.` : 'No worker is eligible yet. Check availability, skills and compliance in People > Workers.', '#b02/bookings'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'suggestion', `Workers for ${ctx.facts.job.title}`, p.eligible.length ? `Eligible now: ${p.eligible.join(', ')}.${p.not_ready ? ` ${p.not_ready} other worker(s) are missing skills or compliance.` : ''} Use "Offer to workers" in Bookings.` : 'No worker is eligible yet. Check availability, skills and compliance in People > Workers.', '#work/bookings'), verify: outputVerify },
 
   draft_invoice: { label: 'Prepare the invoice when a job is completed', capability: 9, level: 1, effect: 'output', feature: 'finance', triggers: ['job.completed'], params: P,
     analyse: (ctx) => (ctx.facts.invoiced ? null : { work_order_id: ctx.facts.job.id }),
@@ -144,8 +144,8 @@ export const ACTIONS = {
     execute(ctx, p) {
       // Someone may have invoiced the job by hand in the meantime: never create a second invoice.
       const existing = ctx.db.prepare("SELECT id FROM tenant_documents WHERE organisation_id=? AND kind='invoice' AND work_order_id=? AND status<>'cancelled'").get(ctx.org, p.work_order_id);
-      if (existing) return { ref: existing.id, existing: true, summary: 'The job already has an invoice; nothing new was created.', link: '#b07/invoices' };
-      const r = ctx.deps.pipeline.createInvoiceFromJob(ctx.org, 'automation', p.work_order_id); if (!r.ok) throw Object.assign(new Error(r.error), { permanent: true }); return { ref: r.id, summary: `Invoice draft ${money(r.total_cents)} incl. GST`, link: '#b07/invoices' };
+      if (existing) return { ref: existing.id, existing: true, summary: 'The job already has an invoice; nothing new was created.', link: '#money/invoices' };
+      const r = ctx.deps.pipeline.createInvoiceFromJob(ctx.org, 'automation', p.work_order_id); if (!r.ok) throw Object.assign(new Error(r.error), { permanent: true }); return { ref: r.id, summary: `Invoice draft ${money(r.total_cents)} incl. GST`, link: '#money/invoices' };
     },
     verify(ctx, p, r) { const i = ctx.db.prepare("SELECT status FROM tenant_documents WHERE id=? AND organisation_id=? AND kind='invoice'").get(r.ref, ctx.org); if (r.existing) return i ? { ok: true, detail: 'An invoice already existed for this job.' } : { ok: false, detail: 'Invoice not found.' }; return i?.status === 'draft' ? { ok: true, detail: 'Invoice draft waiting in Invoices.' } : { ok: false, detail: 'Invoice draft not found.' }; } },
 
@@ -156,7 +156,7 @@ export const ACTIONS = {
     execute(ctx, p) {
       if (p.invoice_id) { const inv = ctx.db.prepare('SELECT * FROM tenant_documents WHERE id=? AND organisation_id=?').get(p.invoice_id, ctx.org); ctx.deps.pipeline.refreshInvoice(ctx.org, inv); }
       const problem = !p.invoice_id ? 'A payment arrived for a job with no invoice.' : p.paid_cents > p.total_cents ? `Overpaid by ${money(p.paid_cents - p.total_cents)}.` : null;
-      if (problem) return output(ctx, 'alert', `Payment check: ${ctx.facts.job.title}`, problem + ' Review it in Money.', '#b07/ledger');
+      if (problem) return output(ctx, 'alert', `Payment check: ${ctx.facts.job.title}`, problem + ' Review it in Money.', '#money/ledger');
       return { ref: p.invoice_id, summary: 'Invoice matches the payments received.' };
     },
     verify(ctx, p, r) { if (!p.invoice_id || r.summary !== 'Invoice matches the payments received.') return outputVerify(ctx, p, r); const i = ctx.db.prepare('SELECT status FROM tenant_documents WHERE id=?').get(p.invoice_id); const want = p.paid_cents >= p.total_cents ? 'paid' : p.paid_cents > 0 ? 'part_paid' : null; return !want || i?.status === want || i?.status === 'draft' || i?.status === 'approved' ? { ok: true, detail: `Invoice status: ${i?.status}.` } : { ok: false, detail: `Invoice shows ${i?.status}, expected ${want}.` }; } },
@@ -173,7 +173,7 @@ export const ACTIONS = {
     },
     schema: z.object({ lines: z.array(z.string().max(200)).max(20) }),
     preview: (ctx, p) => ({ description: 'Weekly report for the last 7 days', data_involved: ['Payments, invoices, enquiries, bookings and jobs (totals only)'], expected_outcome: p.lines.join('; ') }),
-    execute: (ctx, p) => output(ctx, 'report', `Weekly report to ${new Date().toLocaleDateString('en-AU', { dateStyle: 'medium' })}`, p.lines.map((l) => '• ' + l).join('\n'), '#b07/ledger'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'report', `Weekly report to ${new Date().toLocaleDateString('en-AU', { dateStyle: 'medium' })}`, p.lines.map((l) => '• ' + l).join('\n'), '#money/ledger'), verify: outputVerify },
 
   detect_overdue: { label: 'Find overdue work and payments', capability: 12, level: 1, effect: 'output', feature: 'dashboard', triggers: ['schedule.daily', 'manual'], params: z.object({ enquiry_days: z.number().int().min(1).max(30).default(2), quote_days: z.number().int().min(1).max(60).default(7) }).strict(),
     analyse(ctx) {
@@ -189,20 +189,20 @@ export const ACTIONS = {
     },
     schema: z.object({ items: z.array(z.string().max(300)).min(1).max(30) }),
     preview: (ctx, p) => ({ description: `${p.items.length} item(s) need attention`, data_involved: ['Titles of invoices, enquiries, quotes, jobs and approvals'], expected_outcome: 'A list in AI suggestions and a notification to owners and admins.' }),
-    execute(ctx, p) { const r = output(ctx, 'alert', `${p.items.length} item(s) need attention`, p.items.map((i) => '• ' + i).join('\n'), '#b01/home'); ctx.deps.notify(ctx.org, { kind: 'automation_alert', title: `${p.items.length} item(s) need attention`, body: p.items.slice(0, 3).join('; '), link: '#b01/automations', dedupe: `overdue:${ctx.org}:${iso().slice(0, 10)}` }); return r; }, verify: outputVerify },
+    execute(ctx, p) { const r = output(ctx, 'alert', `${p.items.length} item(s) need attention`, p.items.map((i) => '• ' + i).join('\n'), '#today/home'); ctx.deps.notify(ctx.org, { kind: 'automation_alert', title: `${p.items.length} item(s) need attention`, body: p.items.slice(0, 3).join('; '), link: '#today/automations', dedupe: `overdue:${ctx.org}:${iso().slice(0, 10)}` }); return r; }, verify: outputVerify },
 
   prepare_campaign: { label: 'Prepare a marketing campaign draft', capability: 13, level: 1, effect: 'output', feature: 'growth', triggers: ['schedule.monthly', 'manual'], params: P, ai: { fields: ['body'], instruction: 'Write a short campaign idea (under 120 words) for a local service business based on the facts given. No customer names. No prices unless given.' },
     analyse(ctx) { const top = ctx.db.prepare("SELECT COALESCE(ai_category,'general') c,COUNT(*) n FROM tenant_documents WHERE organisation_id=? AND kind='enquiry' AND created_at>=? GROUP BY c ORDER BY n DESC LIMIT 1").get(ctx.org, iso(Date.now() - 60 * DAY)); const month = new Date().toLocaleString('en-AU', { month: 'long' }); const theme = (top?.c || 'general').replace(/_/g, ' '); return { title: `${month} campaign: ${theme}`, body: `Idea: remind past customers about ${theme} before the busy season. Offer a simple next step (book a check or ask for a quote). Use one photo of recent work, with the customer's permission.` }; },
     schema: z.object({ title: z.string().max(200), body: z.string().max(4000) }),
     preview: (ctx, p) => ({ description: `Campaign draft "${p.title}"`, data_involved: ['Enquiry categories from the last 60 days (no customer details)'], expected_outcome: 'A campaign draft in Campaigns. Launching it needs your approval.' }),
-    execute(ctx, p) { const id = ctx.deps.docs.create(ctx.org, 'campaign', p.title, p.body); return { ref: id, summary: 'Campaign draft created', link: '#b05/campaigns' }; },
+    execute(ctx, p) { const id = ctx.deps.docs.create(ctx.org, 'campaign', p.title, p.body); return { ref: id, summary: 'Campaign draft created', link: '#growth/drafts' }; },
     verify(ctx, p, r) { return ctx.db.prepare("SELECT 1 FROM tenant_documents WHERE id=? AND organisation_id=? AND kind='campaign' AND status='draft'").get(r.ref, ctx.org) ? { ok: true, detail: 'Draft waiting in Campaigns.' } : { ok: false, detail: 'Campaign draft not found.' }; } },
 
   social_content: { label: 'Draft a social post about completed work', capability: 14, level: 1, effect: 'output', feature: 'content', triggers: ['job.completed'], params: P, ai: { fields: ['body'], instruction: 'Write a short social media post (under 60 words) about a completed job of this type. Never include the customer\'s name or address.' },
     analyse: (ctx) => ({ title: `Social post: ${ctx.facts.job.title}`, body: `Another job done: ${ctx.facts.job.title.toLowerCase()}. Thanks for trusting us with your property. Need something similar? Get in touch for a quote.` }),
     schema: z.object({ title: z.string().max(240), body: z.string().max(1000) }),
     preview: (ctx, p) => ({ description: p.title, data_involved: ['Job title only (no customer name or address)'], expected_outcome: 'A post draft in AI suggestions. Publishing is your choice.' }),
-    execute: (ctx, p) => output(ctx, 'draft', p.title, p.body, '#b05/growth'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'draft', p.title, p.body, '#growth/hub'), verify: outputVerify },
 
   analyse_seo: { label: 'Analyse search performance', capability: 15, level: 1, effect: 'output', feature: 'visibility', triggers: ['schedule.weekly', 'manual'], params: P,
     analyse(ctx) {
@@ -213,13 +213,13 @@ export const ACTIONS = {
     },
     schema: z.object({ lines: z.array(z.string().max(200)).max(20) }),
     preview: (ctx, p) => ({ description: 'Search performance review', data_involved: ['Search numbers you recorded'], expected_outcome: p.lines.join('; ') }),
-    execute: (ctx, p) => output(ctx, 'report', 'Search performance', p.lines.map((l) => '• ' + l).join('\n'), '#b06/search'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'report', 'Search performance', p.lines.map((l) => '• ' + l).join('\n'), '#growth/search-readiness'), verify: outputVerify },
 
   prepare_website_update: { label: 'Prepare website content updates', capability: 16, level: 1, effect: 'output', feature: 'settings', triggers: ['schedule.monthly', 'manual'], params: P, ai: { fields: ['body'], instruction: 'Suggest a short services section (under 150 words) for the business website based on the job types given. No customer details.' },
     analyse(ctx) { const kinds = ctx.db.prepare("SELECT title FROM work_orders WHERE organisation_id=? AND completed_at IS NOT NULL ORDER BY completed_at DESC LIMIT 10").all(ctx.org).map((r) => r.title); return { title: 'Website update: services you do most', body: kinds.length ? `Suggested "Our recent work" section:\n${[...new Set(kinds)].slice(0, 6).map((k) => '• ' + k).join('\n')}` : 'Complete a few jobs first; the suggestion is built from your recent work.' }; },
     schema: z.object({ title: z.string().max(200), body: z.string().max(4000) }),
     preview: (ctx, p) => ({ description: p.title, data_involved: ['Titles of recently completed jobs'], expected_outcome: 'A content draft in AI suggestions. Publishing to a website is not connected yet.' }),
-    execute: (ctx, p) => output(ctx, 'draft', p.title, p.body, '#b06/website'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'draft', p.title, p.body, '#growth/website-domain'), verify: outputVerify },
 
   detect_failed_integrations: { label: 'Detect failed connections', capability: 18, level: 1, effect: 'output', feature: 'integrations', triggers: ['schedule.hourly', 'schedule.daily', 'manual'], params: P,
     analyse(ctx) {
@@ -231,13 +231,13 @@ export const ACTIONS = {
     },
     schema: z.object({ items: z.array(z.string().max(300)).min(1).max(20) }),
     preview: (ctx, p) => ({ description: `${p.items.length} connection problem(s)`, data_involved: ['Connection and delivery status'], expected_outcome: p.items.join('; ') }),
-    execute(ctx, p) { const r = output(ctx, 'alert', 'Connection problems', p.items.map((i) => '• ' + i).join('\n'), '#b08/connections'); ctx.deps.notify(ctx.org, { kind: 'automation_alert', title: 'A connection needs attention', body: p.items[0], link: '#b08/connections', dedupe: `integrations:${ctx.org}:${iso().slice(0, 13)}` }); return r; }, verify: outputVerify },
+    execute(ctx, p) { const r = output(ctx, 'alert', 'Connection problems', p.items.map((i) => '• ' + i).join('\n'), '#setup/connections'); ctx.deps.notify(ctx.org, { kind: 'automation_alert', title: 'A connection needs attention', body: p.items[0], link: '#setup/connections', dedupe: `integrations:${ctx.org}:${iso().slice(0, 13)}` }); return r; }, verify: outputVerify },
 
   prepare_follow_up: { label: 'Draft follow-ups for quotes waiting on the customer', capability: 19, level: 1, effect: 'output', feature: 'mail', triggers: ['schedule.daily', 'manual'], params: z.object({ after_days: z.number().int().min(1).max(60).default(3) }).strict(),
     analyse(ctx) { const qs = followUpCandidates(ctx); return qs.length ? { quotes: qs } : null; },
     schema: z.object({ quotes: z.array(z.object({ id: z.string().uuid(), to: z.string().email(), name: z.string(), title: z.string() })).min(1).max(10) }),
     preview: (ctx, p) => ({ description: `Follow-up drafts for ${p.quotes.length} quote(s)`, data_involved: ['Customer names and emails', 'Quote titles'], expected_outcome: 'Email drafts in the Email Centre, not sent.' }),
-    execute(ctx, p) { const ids = p.quotes.map((q) => ctx.deps.mail.createDraft({ ownerId: ctx.org, recipient: q.to, subject: `Following up: ${q.title}`.slice(0, 200), body: followUpBody(ctx, q), category: 'general', createdBy: 'automation' })); markFollowedUp(ctx, p.quotes); return { ref: ids.join(','), summary: `${ids.length} follow-up draft(s)`, link: '#b04/email' }; },
+    execute(ctx, p) { const ids = p.quotes.map((q) => ctx.deps.mail.createDraft({ ownerId: ctx.org, recipient: q.to, subject: `Following up: ${q.title}`.slice(0, 200), body: followUpBody(ctx, q), category: 'general', createdBy: 'automation' })); markFollowedUp(ctx, p.quotes); return { ref: ids.join(','), summary: `${ids.length} follow-up draft(s)`, link: '#communications/email' }; },
     verify(ctx, p, r) { const ids = String(r.ref || '').split(',').filter(Boolean); return ids.length && ids.every((id) => ctx.deps.mail.mailStatus(id, ctx.org)?.status === 'draft') ? { ok: true, detail: `${ids.length} draft(s) in the Email Centre.` } : { ok: false, detail: 'Follow-up drafts not found.' }; } },
 
   recommend_improvements: { label: 'Recommend business improvements', capability: 20, level: 1, effect: 'output', feature: 'dashboard', triggers: ['schedule.weekly', 'manual'], params: P,
@@ -256,7 +256,7 @@ export const ACTIONS = {
     },
     schema: z.object({ tips: z.array(z.string().max(400)).max(10) }),
     preview: (ctx, p) => ({ description: 'Improvement recommendations', data_involved: ['Counts of enquiries, quotes, bookings and overdue invoices'], expected_outcome: p.tips.join(' ') }),
-    execute: (ctx, p) => output(ctx, 'report', 'Recommendations', p.tips.map((t) => '• ' + t).join('\n'), '#b01/automations'), verify: outputVerify },
+    execute: (ctx, p) => output(ctx, 'report', 'Recommendations', p.tips.map((t) => '• ' + t).join('\n'), '#today/automations'), verify: outputVerify },
 
   // ---------------- Level 2: rule-based automatic ----------------
   send_acknowledgement: { label: 'Send a routine acknowledgement to new enquiries', capability: 6, level: 2, rule: 'routine_acknowledgements', effect: 'external', feature: 'mail', triggers: ['enquiry.created'], params: P,
@@ -275,7 +275,7 @@ export const ACTIONS = {
     preview: (ctx, p) => ({ description: `Remind ${p.reminders.length} customer(s) about tomorrow's appointments`, data_involved: ['Customer names and emails', 'Job titles, times and addresses'], expected_outcome: p.reminders.map((r) => `${r.name}: ${r.title}`).join('; ') }),
     execute(ctx, p) {
       const ids = []; for (const r of p.reminders) { ids.push(sendMail(ctx, { to: r.to, subject: `Reminder: ${r.title}`.slice(0, 200), body: `Hi ${r.name.split(' ')[0]},\n\nA reminder that we are booked for "${r.title}" on ${new Date(r.start_at).toLocaleString('en-AU', { dateStyle: 'full', timeStyle: 'short' })}${r.address ? ' at ' + r.address : ''}.\n\nReply to this email if you need to change it.\n\n${ctx.facts.business}` }, 'general').ref); ctx.deps.mark(ctx.org, 'reminded', r.id); }
-      return { ref: ids.join(','), summary: `${ids.length} reminder(s) queued`, link: '#b04/email' };
+      return { ref: ids.join(','), summary: `${ids.length} reminder(s) queued`, link: '#communications/email' };
     },
     verify: verifyMail },
 
@@ -283,7 +283,7 @@ export const ACTIONS = {
     analyse(ctx) { const qs = followUpCandidates(ctx, ctx.rule?.limits?.max_per_day || 10); return qs.length ? { quotes: qs } : null; },
     schema: z.object({ quotes: z.array(z.object({ id: z.string().uuid(), to: z.string().email(), name: z.string(), title: z.string() })).min(1).max(20) }),
     preview: (ctx, p) => ({ description: `Follow up ${p.quotes.length} quote(s)`, data_involved: ['Customer names and emails', 'Quote titles'], expected_outcome: p.quotes.map((q) => `${q.name}: ${q.title}`).join('; ') }),
-    execute(ctx, p) { const ids = p.quotes.map((q) => sendMail(ctx, { to: q.to, subject: `Following up: ${q.title}`.slice(0, 200), body: followUpBody(ctx, q) }, 'general').ref); markFollowedUp(ctx, p.quotes); return { ref: ids.join(','), summary: `${ids.length} follow-up(s) queued`, link: '#b04/email' }; },
+    execute(ctx, p) { const ids = p.quotes.map((q) => sendMail(ctx, { to: q.to, subject: `Following up: ${q.title}`.slice(0, 200), body: followUpBody(ctx, q) }, 'general').ref); markFollowedUp(ctx, p.quotes); return { ref: ids.join(','), summary: `${ids.length} follow-up(s) queued`, link: '#communications/email' }; },
     verify: verifyMail },
 
   auto_offer_job: { label: 'Offer booked jobs to eligible workers', capability: 8, level: 2, rule: 'internal_transitions', effect: 'internal_write', feature: 'jobs', triggers: ['job.booked'], params: P,
@@ -349,7 +349,7 @@ export const ACTIONS = {
     escalate: (ctx, p) => (p && !p.low_risk ? p.risk_reasons.map((r) => 'Needs approval: ' + r) : []),
     schema: z.object({ page_id: z.string().uuid(), version: z.number().int(), url: z.string(), title: z.string().max(240), publish_at: z.string().nullable(), low_risk: z.boolean(), risk_reasons: z.array(z.string()), blocked: z.boolean(), claims: z.array(z.string()) }),
     preview: (ctx, p) => ({ description: `Publish "${p.title}" (version ${p.version})`, data_involved: ['Page content', ...(p.claims.length ? ['Public claims to check'] : [])], expected_outcome: `${p.publish_at ? 'Goes live at ' + new Date(p.publish_at).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' }) : 'Goes live now'} at ${p.url}.${p.claims.length ? ' Claims to confirm: ' + p.claims.join(' | ') : ''}${p.risk_reasons.length ? ' Why it needs approval: ' + p.risk_reasons.join(' ') : ' Low-risk change.'}` }),
-    execute(ctx, p) { if (p.blocked) throw Object.assign(new Error('The page has problems that must be fixed before publishing.'), { permanent: true }); const r = ctx.deps.seo.publishVersion(ctx.org || 'platform', p.page_id, p.version, { publish_at: p.publish_at }); return { ref: p.page_id, summary: r.scheduled_for ? `Scheduled to go live ${new Date(r.scheduled_for).toLocaleString('en-AU')}` : `Published at ${p.url}`, link: '#b06/builder', scheduled: Boolean(r.scheduled_for) }; },
+    execute(ctx, p) { if (p.blocked) throw Object.assign(new Error('The page has problems that must be fixed before publishing.'), { permanent: true }); const r = ctx.deps.seo.publishVersion(ctx.org || 'platform', p.page_id, p.version, { publish_at: p.publish_at }); return { ref: p.page_id, summary: r.scheduled_for ? `Scheduled to go live ${new Date(r.scheduled_for).toLocaleString('en-AU')}` : `Published at ${p.url}`, link: '#growth/website-builder', scheduled: Boolean(r.scheduled_for) }; },
     verify(ctx, p, r) { const row = ctx.db.prepare('SELECT status,published_version,scheduled_version FROM seo_site_pages WHERE id=?').get(p.page_id); if (r.scheduled) return row?.status === 'scheduled' && row.scheduled_version === p.version ? { ok: true, detail: 'Scheduled; it goes live automatically at the set time.' } : { ok: false, detail: 'The schedule was not saved.' }; if (row?.published_version !== p.version) return { ok: false, detail: 'The page is not showing the approved version.' }; const slug = p.url.split('/'); const live = ctx.deps.seo.renderPublic(slug[2], slug[3] || 'home'); return live?.status === 200 ? { ok: true, detail: `Live at ${p.url}.` } : { ok: false, detail: 'The published page did not render.' }; } },
   reply_to_review: { label: 'Post a reply to a Google review', capability: 6, level: 3, effect: 'external', feature: 'visibility', triggers: ['manual'], params: z.object({ review_id: z.string().min(1).max(200), comment: z.string().trim().min(2).max(4000) }).strict(),
     analyse(ctx) { const r = ctx.db.prepare('SELECT reviewer,rating,comment FROM seo_reviews WHERE owner_key=? AND review_id=?').get(ctx.org || 'platform', ctx.params.review_id); return r ? { review_id: ctx.params.review_id, reviewer: r.reviewer, rating: r.rating, comment: ctx.params.comment } : null; },
@@ -367,14 +367,14 @@ export const ACTIONS = {
     analyse: (ctx) => ctx.deps.comms.campaignProposal(ctx.org || 'platform', ctx.params.campaign_id, ctx.params.revision),
     schema: z.object({ campaign_id: z.string().uuid(), revision: z.number().int(), current_revision: z.number().int(), name: z.string(), channel: z.enum(['email', 'sms', 'social']), recipients: z.number().int(), excluded: z.object({ no_consent: z.number(), suppressed: z.number(), no_address: z.number() }), sample: z.array(z.string()), send_at: z.string().nullable(), subject: z.string().nullable(), body: z.string(), estimated_cost_cents: z.number().nullable(), social_targets: z.array(z.any()) }),
     preview: (ctx, p) => ({ description: `Send the ${p.channel} campaign "${p.name}"`, data_involved: [p.channel === 'social' ? 'Social posts' : `${p.recipients} recipient(s) who agreed to marketing`, 'Message content'], expected_outcome: p.channel === 'social' ? `Scheduled on ${p.social_targets.map((t) => t.platform || t).join(', ')}${p.send_at ? ' for ' + new Date(p.send_at).toLocaleString('en-AU') : ''}.` : `${p.recipients} ${p.channel === 'sms' ? 'text message' : 'email'}(s)${p.send_at ? ' at ' + new Date(p.send_at).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' }) : ' straight after approval'}. Left out: ${p.excluded.no_consent} without consent, ${p.excluded.suppressed} unsubscribed or suppressed, ${p.excluded.no_address} without an address. Sample: ${p.sample.join(', ')}`, cost_cents: p.estimated_cost_cents }),
-    execute(ctx, p) { const owner = ctx.org || 'platform'; const r = ctx.deps.comms.approveCampaign(owner, p, ctx.run.approver_id); if (p.channel !== 'social') ctx.deps.comms.enqueueSend(owner, p.campaign_id, r.send_at); return { ref: p.campaign_id, summary: p.channel === 'social' ? `${r.calendar_items} post(s) added to the content calendar` : `${r.queued} message(s) queued${r.send_at ? ' for ' + new Date(r.send_at).toLocaleString('en-AU') : ''}`, link: '#b05/campaigns' }; },
+    execute(ctx, p) { const owner = ctx.org || 'platform'; const r = ctx.deps.comms.approveCampaign(owner, p, ctx.run.approver_id); if (p.channel !== 'social') ctx.deps.comms.enqueueSend(owner, p.campaign_id, r.send_at); return { ref: p.campaign_id, summary: p.channel === 'social' ? `${r.calendar_items} post(s) added to the content calendar` : `${r.queued} message(s) queued${r.send_at ? ' for ' + new Date(r.send_at).toLocaleString('en-AU') : ''}`, link: '#growth/drafts' }; },
     verify(ctx, p, r) { const c = ctx.db.prepare('SELECT status,approved_revision,revision FROM comms_campaigns WHERE id=?').get(p.campaign_id); return c && c.approved_revision === c.revision ? { ok: true, detail: p.channel === 'social' ? 'Posts are in the content calendar.' : `Campaign ${c.status.replace(/_/g, ' ')}; sending progress shows in Campaigns.` } : { ok: false, detail: 'The campaign was not approved for sending.' }; } },
   // ---------------- Phase 08: money adjustments always need a person ----------------
   apply_credit_note: { label: 'Issue an adjustment (credit) note', capability: 9, level: 3, effect: 'internal_write', feature: 'finance', triggers: ['manual'], params: z.object({ credit_note_id: z.string().uuid() }).strict(),
     analyse: (ctx) => ctx.deps.finance.creditProposal(ctx.org, ctx.params.credit_note_id),
     schema: z.object({ credit_note_id: z.string().uuid(), invoice_id: z.string(), invoice_number: z.string(), reason: z.string(), total_cents: z.number().int(), gst_cents: z.number().int(), owing_cents: z.number().int(), refund_due_cents: z.number().int() }),
     preview: (ctx, p) => ({ description: `Credit ${money(p.total_cents)} against invoice ${p.invoice_number}`, data_involved: ['Invoice and job balance', 'GST adjustment'], expected_outcome: `An adjustment note is issued for ${money(p.total_cents)} (GST ${money(p.gst_cents)}). Reason: ${p.reason}.${p.refund_due_cents ? ` ${money(p.refund_due_cents)} more than is owing has been paid, so request a refund afterwards.` : ''}`, cost_cents: p.total_cents }),
-    execute(ctx, p) { const r = ctx.deps.finance.applyCreditNote(ctx.org, p, ctx.run.approver_id || ctx.actor); if (!r.applied) throw Object.assign(new Error('This credit note is no longer waiting for approval.'), { permanent: true }); return { ref: p.credit_note_id, summary: `Adjustment note ${r.number} issued for ${money(p.total_cents)}`, link: '#b07/fin-invoices' }; },
+    execute(ctx, p) { const r = ctx.deps.finance.applyCreditNote(ctx.org, p, ctx.run.approver_id || ctx.actor); if (!r.applied) throw Object.assign(new Error('This credit note is no longer waiting for approval.'), { permanent: true }); return { ref: p.credit_note_id, summary: `Adjustment note ${r.number} issued for ${money(p.total_cents)}`, link: '#money/invoices' }; },
     verify(ctx, p) { const d = ctx.db.prepare('SELECT status,number FROM tenant_documents WHERE id=?').get(p.credit_note_id); return d?.status === 'issued' ? { ok: true, detail: `Adjustment note ${d.number} is issued.` } : { ok: false, detail: 'The adjustment note was not issued.' }; } },
   issue_refund: { label: 'Refund a customer payment', capability: 10, level: 3, effect: 'external', feature: 'finance', triggers: ['manual'], params: z.object({ refund_id: z.string().uuid() }).strict(),
     analyse: (ctx) => ctx.deps.finance.refundProposal(ctx.org, ctx.params.refund_id),
@@ -418,10 +418,10 @@ function seoOps(key, label, trigger, period) {
       const owner = ctx.org || 'platform', r = await ctx.deps.seo[period](owner);
       if (period === 'daily' && (r.critical?.length || r.outage || r.not_indexed?.length)) {
         const lines = [...(r.outage ? ['The home page did not load.'] : []), ...r.critical.map((c) => `${c.title} (${c.count})`), ...r.not_indexed.map((n) => `Google: ${n.url} is ${n.coverage || 'not indexed'}`)];
-        ctx.deps.outputs.add(ctx, { kind: 'alert', title: 'SEO: critical problems found today', body: lines.map((l) => '• ' + l).join('\n'), link: '#b06/seo' });
-        if (ctx.org) ctx.deps.notify(ctx.org, { kind: 'seo_alert', title: 'Website problems found', body: lines.slice(0, 3).join('; '), link: '#b06/seo', dedupe: `seo-daily:${ctx.org}:${new Date().toISOString().slice(0, 10)}` });
+        ctx.deps.outputs.add(ctx, { kind: 'alert', title: 'SEO: critical problems found today', body: lines.map((l) => '• ' + l).join('\n'), link: '#growth/seo' });
+        if (ctx.org) ctx.deps.notify(ctx.org, { kind: 'seo_alert', title: 'Website problems found', body: lines.slice(0, 3).join('; '), link: '#growth/seo', dedupe: `seo-daily:${ctx.org}:${new Date().toISOString().slice(0, 10)}` });
       }
-      return { ref: r.report_id || r.audit_id || null, summary: r.skipped || (period === 'daily' ? `Audit score ${r.score}; ${r.critical.length} critical problem(s).` : period === 'weekly' ? `${r.clusters} topic clusters; weekly report ready.` : `Monthly report ready; ${r.gaps} content gap(s).`), link: '#b06/reports' };
+      return { ref: r.report_id || r.audit_id || null, summary: r.skipped || (period === 'daily' ? `Audit score ${r.score}; ${r.critical.length} critical problem(s).` : period === 'weekly' ? `${r.clusters} topic clusters; weekly report ready.` : `Monthly report ready; ${r.gaps} content gap(s).`), link: '#growth/seo-reports' };
     },
     verify(ctx, p, r) { if (!r.ref) return { ok: true, warning: true, detail: r.summary }; const ok = ctx.db.prepare('SELECT 1 FROM seo_reports WHERE id=? UNION SELECT 1 FROM seo_audits WHERE id=?').get(r.ref, r.ref); return ok ? { ok: true, detail: 'Report saved in Website & Visibility > Reports.' } : { ok: false, detail: 'The report was not saved.' }; } });
   return { [key]: def('business'), ['platform_' + key]: def('platform') };
@@ -447,7 +447,7 @@ function markFollowedUp(ctx, quotes) { for (const q of quotes) ctx.deps.mark(ctx
 function sendMail(ctx, p, category) {
   if (!ctx.accountable) throw Object.assign(new Error('No accountable approver for this message.'), { permanent: true });
   const id = ctx.deps.mail.queueApproved({ ownerId: ctx.org, recipient: p.to, subject: p.subject, body: p.body, category, approvedBy: ctx.accountable });
-  return { ref: id, summary: ctx.deps.mail.providerReady() ? 'Queued for sending' : 'Queued; sends once an email provider is connected', link: '#b04/email' };
+  return { ref: id, summary: ctx.deps.mail.providerReady() ? 'Queued for sending' : 'Queued; sends once an email provider is connected', link: '#communications/email' };
 }
 function verifyMail(ctx, p, r) {
   const ids = String(r?.ref || '').split(',').filter(Boolean), rows = ids.map((id) => ctx.deps.mail.mailStatus(id, ctx.org));
