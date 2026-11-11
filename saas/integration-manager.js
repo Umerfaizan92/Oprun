@@ -76,6 +76,7 @@
     card.innerHTML=bodyHtml(x);if(config)card.append(config);if(assistant)card.append(assistant);
   }
   async function render(){
+    if(window.GDS_SESSION?.user?.role!=='owner'){const accounts=document.getElementById('integration-self-service');if(accounts)accounts.hidden=true;return;}
     if(loading)return loading;
     const grid=document.getElementById('self-service-integration-grid');if(!grid)return;
     const current=context();

@@ -52,11 +52,21 @@ try {
 
   await check('Unified Inbox lists SMS and website messages, flags the escalation and summarises the conversation', async () => {
     const v = await go('b04/unified', 'unifiedinbox');
-    await v.locator('.cx-item').first().waitFor();
-    assert.equal(await v.locator('.cx-item').count(), 2);
+    await page.waitForFunction(() => document.querySelectorAll('#unifiedinbox-view .cx-item').length === 2 && document.querySelector('#unifiedinbox-view')?.getAttribute('aria-busy') !== 'true');
     assert.match(await v.locator('.cx-suggest').textContent(), /Escalation/);
     assert.match(await v.textContent(), /Urgent/);
     assert.deepEqual(await axe(page, '#unifiedinbox-view'), [], 'inbox list is accessible');
+    let releaseRefresh;
+    const refreshGate = new Promise(resolve => { releaseRefresh = resolve; });
+    const delayRefresh = async route => { await refreshGate; await route.continue().catch(() => {}); };
+    await page.route('**/api/saas/comms/unified?*', delayRefresh);
+    await v.getByRole('button', { name: 'Refresh', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('#unifiedinbox-view')?.getAttribute('aria-busy') === 'true');
+    assert.equal(await v.locator('.cx-item').count(), 2, 'refresh retains the visible inbox while the next response is pending');
+    releaseRefresh();
+    await page.waitForFunction(() => document.querySelector('#unifiedinbox-view')?.getAttribute('aria-busy') === 'false');
+    await page.unroute('**/api/saas/comms/unified?*', delayRefresh);
+
     await v.locator('.cx-item', { hasText: 'Riley Quinn' }).first().click().catch(async () => { await v.locator('.cx-item', { hasText: '+61412345678' }).first().click(); });
     const d = v.locator('.cx-detail'); await d.locator('.cx-msgs').waitFor();
     assert.match(await d.textContent(), /Possible safety issue/);

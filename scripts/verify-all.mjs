@@ -362,14 +362,14 @@ await stage('live', 'RBAC matrix and the end-to-end pipeline on a real server', 
       ['owner 200: finance ledger', 'GET', '/api/saas/finance', 'owner', 200],
       ['worker 403: create work order', 'POST', '/api/saas/work-orders', 'worker', 403, { title: 'Nope', start_at: '2026-12-01T08:00:00+08:00', required_workers: 1, required_level: 1 }],
       ['worker 403: omnichannel inbox', 'GET', '/api/saas/comms/threads', 'worker', 403],
-      ['manager 200: omnichannel inbox', 'GET', '/api/saas/comms/threads', 'manager', 200],
+      ['manager 403: inbox needs owner assignment', 'GET', '/api/saas/comms/threads', 'manager', 403],
       ['worker 403: migration dry run', 'POST', '/api/saas/migration/preview', 'worker', 403, { entity: 'workers', rows: [{ n: 'x' }], mapping: { full_name: 'n' } }],
       ['worker 403: channel settings', 'GET', '/api/saas/comms/channels', 'worker', 403],
       ['manager 403: change channel address (owner only)', 'PUT', '/api/saas/comms/channels/email', 'manager', 403, { address: 'x@y.example' }],
       ['worker 403: connections list', 'GET', '/api/saas/integrations/self-service', 'worker', 403],
       ['worker 403: disconnect a social account', 'DELETE', '/api/saas/integrations/self-service/meta', 'worker', 403],
       ['manager 403: disconnect a social account (owner/admin only)', 'DELETE', '/api/saas/integrations/self-service/meta', 'manager', 403],
-      ['manager 200: connections list', 'GET', '/api/saas/integrations/self-service', 'manager', 200],
+      ['manager 403: account setup is owner only', 'GET', '/api/saas/integrations/self-service', 'manager', 403],
       ['worker 403: content studio renders', 'GET', '/api/saas/video-renders', 'worker', 403],
       ['worker 403: AI threads', 'GET', '/api/saas/ai/threads', 'worker', 403],
       ['worker 403: referrals', 'GET', '/api/saas/referrals', 'worker', 403],
@@ -390,6 +390,13 @@ await stage('live', 'RBAC matrix and the end-to-end pipeline on a real server', 
     // ---------------- pipeline
     const ids = {};
     await check('1 ingestion: signed inbound email reaches the right tenant inbox (and a bad signature does not)', async () => {
+      // Channel work no longer follows a senior-role default. The owner explicitly
+      // assigns business-wide inbox access before this manager handles messages.
+      const managerId=db.prepare("SELECT user_id FROM memberships WHERE organisation_id=? AND role='manager'").get(orgId).user_id;
+      const current=(await call('GET','/api/saas/access/me',{cookie:cookies.manager})).json.access;
+      const assigned=await call('PUT','/api/saas/team-accounts/members/'+managerId+'/permissions',{cookie:cookies.owner,body:{mode:'custom',revision:current.revision,grants:[...current.grants,'inbox.read','inbox.create','inbox.edit','inbox.approve']}});
+      assert.equal(assigned.status,200,assigned.text);
+
       assert.equal((await call('PUT', '/api/saas/comms/channels/email', { cookie: cookies.owner, body: { address: 'desk@verify.example' } })).status, 202);
       const rw2 = (await import('better-sqlite3')).default(dbPath);
       rw2.prepare("UPDATE comms_channels SET status='active' WHERE organisation_id=? AND channel='email'").run(orgId); rw2.close();

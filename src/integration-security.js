@@ -32,7 +32,7 @@ export function integrationDiagnostic(error, secrets = []) {
 // OAuth callbacks cross sites. A narrowly scoped Lax cookie binds the flow without
 // weakening the application's existing Strict session cookie.
 // Callback path segments one OAuth app may share between sibling connectors. Used by the state store and the redirect check.
-export const OAUTH_CALLBACK_ALIASES={google:['youtube','google_business','google_seo'],youtube:['youtube','google_business','google_seo'],meta:['meta','whatsapp']};
+export const OAUTH_CALLBACK_ALIASES={google:['youtube','google_business','google_seo','gmail'],youtube:['youtube','google_business','google_seo','gmail'],meta:['meta','whatsapp']};
 
 // A configured redirect address is only safe when the provider will send the browser back to this application on a
 // callback route that exists for that connector. Anything else either strands the subscriber on another website or

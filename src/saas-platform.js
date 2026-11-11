@@ -686,19 +686,26 @@ export function installSaasPlatform(app, deps) {
     if (!secret) return fail(res, 503, 'WhatsApp webhook is not configured.');
     const sig = String(req.get('x-hub-signature-256') || '');
     if (!req.rawBody || !safeEqual(sig, 'sha256=' + hmacHex(secret, req.rawBody))) return fail(res, 401, 'Invalid signature.');
-    res.status(200).json({ ok: true });
     try {
       for (const entry of req.body?.entry || []) for (const change of entry.changes || []) {
         const v = change.value || {};
         const org = organisationForAddress(db, 'whatsapp', '+' + String(v.metadata?.display_phone_number || '').replace(/\D/g, ''));
         if (!org) continue;
+        // A display number alone cannot bind a delivery to a business. Require the
+        // provider phone ID that this owner confirmed and selected for the inbox.
+        const binding = db.prepare("SELECT status,settings_json FROM organisation_integrations WHERE organisation_id=? AND provider='whatsapp'").get(org);
+        if (binding?.status !== 'connected') continue;
+        let settings; try { settings = JSON.parse(binding.settings_json || '{}'); } catch { continue; }
+        const phoneId = String(v.metadata?.phone_number_id || '');
+        if (!phoneId || settings.account_confirmed !== true || !(settings.selected_resources || []).some(r => r.type === 'whatsapp_phone' && r.id === phoneId && (settings.resources || []).some(a => a.type === r.type && a.id === r.id && a.usable !== false))) continue;
         for (const m of v.messages || []) {
           const name = (v.contacts || []).find((c) => c.wa_id === m.from)?.profile?.name;
           const wr = recordInbound(db, { organisation_id: org, channel: 'whatsapp', contact_address: '+' + String(m.from).replace(/\D/g, ''), contact_name: name, body: m.text?.body || `[${m.type || 'message'}]`, provider: 'whatsapp', external_message_id: m.id });
           if (wr && !wr.duplicate) queueAutoDraft(org, wr.thread_id);
         }
       }
-    } catch (error) { console.error('[WHATSAPP WEBHOOK]', error.message); }
+    } catch (error) { console.error('[WHATSAPP WEBHOOK]', error.message); return fail(res, 503, 'Delivery could not be stored. Retry the webhook.'); }
+    res.status(200).json({ ok: true });
   });
 
   // ===== Universal data migration: preview (dry run) then commit =====

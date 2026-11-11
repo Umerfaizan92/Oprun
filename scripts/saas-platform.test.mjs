@@ -86,6 +86,9 @@ try{
   assert.equal((await call('POST','/api/webhooks/inbound-email',null,badBody,{'x-webhook-timestamp':String(Math.floor(Date.now()/1000)),'x-webhook-signature':'0'.repeat(64)})).status,401);
   const oldTs=String(Math.floor(Date.now()/1000)-3600);
   assert.equal((await call('POST','/api/webhooks/inbound-email',null,badBody,{'x-webhook-timestamp':oldTs,'x-webhook-signature':createHmac('sha256',MAIL_SECRET).update(`${oldTs}.${badBody}`).digest('hex')})).status,401,'replay');
+  assert.equal((await call('GET','/api/saas/comms/threads',cookies.manager)).status,403,'manager needs owner-assigned inbox access');
+  const access=(await call('GET','/api/saas/access/me',cookies.manager)).json.access;
+  assert.equal((await call('PUT',`/api/saas/team-accounts/members/${ids.manager}/permissions`,cookies.owner,{mode:'custom',revision:access.revision,grants:[...access.grants,'inbox.read','inbox.create','inbox.edit','inbox.approve']})).status,200);
   const threads=await call('GET','/api/saas/comms/threads',cookies.manager);
   assert.equal(threads.json.threads.length,1);
   assert.equal((await call('GET','/api/saas/comms/threads',cookies.worker)).status,403);
@@ -95,9 +98,17 @@ try{
   // WhatsApp
   assert.equal((await call('GET','/api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=verify-me&hub.challenge=abc123')).text,'abc123');
   assert.equal((await call('GET','/api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=abc123')).status,403);
-  const wa=JSON.stringify({entry:[{changes:[{value:{metadata:{display_phone_number:'61400000000'},contacts:[{wa_id:'61411111111',profile:{name:'Pat'}}],messages:[{id:'wamid.1',from:'61411111111',type:'text',text:{body:'Hi'}}]}}]}]});
+  const wa=JSON.stringify({entry:[{changes:[{value:{metadata:{display_phone_number:'61400000000',phone_number_id:'phone-a'},contacts:[{wa_id:'61411111111',profile:{name:'Pat'}}],messages:[{id:'wamid.1',from:'61411111111',type:'text',text:{body:'Hi'}}]}}]}]});
   assert.equal((await call('POST','/api/webhooks/whatsapp',null,wa,{'x-hub-signature-256':'sha256='+'0'.repeat(64)})).status,401);
   assert.equal((await call('POST','/api/webhooks/whatsapp',null,wa,{'x-hub-signature-256':'sha256='+createHmac('sha256',META_SECRET).update(wa).digest('hex')})).status,200);
+  db.prepare("INSERT INTO comms_channels(organisation_id,channel,address,status,created_at) VALUES (?,'whatsapp','+61400000000','active',?)").run(A,now);
+  const phone={id:'phone-a',type:'whatsapp_phone'};
+  db.prepare("INSERT OR REPLACE INTO organisation_integrations(organisation_id,provider,display_name,status,capabilities_json,settings_json,updated_at) VALUES (?,'whatsapp','WhatsApp','connected','[]',?,?)").run(A,JSON.stringify({account_confirmed:true,resources:[phone],selected_resources:[phone]}),now);
+  const deliverWhatsApp=body=>call('POST','/api/webhooks/whatsapp',null,body,{'x-hub-signature-256':'sha256='+createHmac('sha256',META_SECRET).update(body).digest('hex')});
+  await deliverWhatsApp(wa.replace('phone-a','phone-other'));
+  assert.equal(db.prepare("SELECT count(*) n FROM comms_threads WHERE organisation_id=? AND channel='whatsapp'").get(A).n,0,'wrong provider phone ID must not route');
+  await deliverWhatsApp(wa);
+  assert.equal(db.prepare("SELECT count(*) n FROM comms_threads WHERE organisation_id=? AND channel='whatsapp'").get(A).n,1,'confirmed selected phone routes to its own business');
   // Social channels
   assert.equal((await call('PUT','/api/saas/comms/channels/instagram',cookies.owner,{address:'@Acme.Plumbing'})).status,202);
   assert.equal((await call('PUT','/api/saas/comms/channels/facebook',cookies.manager,{address:'12345'})).status,403);
@@ -133,6 +144,9 @@ try{
   const sent=await call('POST',`/api/saas/comms/messages/${msg}/send`,cookies.manager);
   assert.equal(sent.status,409,'email provider is not configured in test');
   assert.equal(db.prepare('SELECT status FROM comms_messages WHERE id=?').get(msg).status,'approved','failed dispatch must stay approved');
+
+  // The inbox exercise is complete; restore the manager role policy for unrelated module contracts.
+  assert.equal((await call('PUT',`/api/saas/team-accounts/members/${ids.manager}/permissions`,cookies.owner,{mode:'role',revision:1,grants:[]})).status,200);
 
   // 6. privacy requests and statutory erasure
   const held=randomUUID(),free=randomUUID(),past=new Date(Date.now()-86400000).toISOString(),future=new Date(Date.now()+86400000*400).toISOString();

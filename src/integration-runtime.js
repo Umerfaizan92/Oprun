@@ -84,7 +84,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
   async function refreshToken(provider,bundle){
     if(!bundle?.refresh_token)throw new Error('This provider did not return a refresh token. Re-authorisation is required.');
     let next;
-    if(provider==='youtube'||provider==='google_business'||provider==='google_seo'){
+    if(provider==='youtube'||provider==='google_business'||provider==='google_seo'||provider==='gmail'){
       next=await postForm('https://oauth2.googleapis.com/token',{client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,refresh_token:bundle.refresh_token,grant_type:'refresh_token'});
     }else if(provider==='tiktok'){
       next=await postForm('https://open.tiktokapis.com/v2/oauth/token/',{client_key:env.TIKTOK_CLIENT_KEY,client_secret:env.TIKTOK_CLIENT_SECRET,grant_type:'refresh_token',refresh_token:bundle.refresh_token});
@@ -105,7 +105,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     const current={...(bundle||{})};
     if(!current.expires_at && Number(current.expires_in)>0 && current.issued_at) current.expires_at=new Date(new Date(current.issued_at).getTime()+Number(current.expires_in)*1000).toISOString();
     if(!expiring(current))return {bundle:current,refreshed:false};
-    if(['youtube','google_business','google_seo','tiktok','x','snapchat'].includes(provider)&&current.refresh_token){
+    if(['youtube','google_business','google_seo','gmail','tiktok','x','snapchat'].includes(provider)&&current.refresh_token){
       return {bundle:await refreshToken(provider,current),refreshed:true};
     }
     if(!current.access_token || (current.expires_at && new Date(current.expires_at).getTime()<=Date.now()))throw Object.assign(new Error('This connection has no usable access token. Re-authorise the provider.'),{status:401});
@@ -178,7 +178,8 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     for(const [service,read,map] of [
       ['search_console',()=>google.gscSites(bundle.access_token),x=>({id:x.site_url,type:'search_console_property',label:x.site_url+' ('+x.permission+')',permission:x.permission,usable:x.verified})],
       ['analytics',()=>google.gaProperties(bundle.access_token),x=>({id:x.property,type:'analytics_property',label:x.name+' ('+x.account_name+')'})],
-      ['tag_manager',()=>google.gtmContainers(bundle.access_token),x=>({id:x.path,type:'tag_manager_container',label:x.container+' ('+x.public_id+')',public_id:x.public_id})]
+      ['tag_manager',()=>google.gtmContainers(bundle.access_token),x=>({id:x.path,type:'tag_manager_container',label:x.container+' ('+x.public_id+')',public_id:x.public_id})],
+      ...(env.GOOGLE_ADS_DEVELOPER_TOKEN?[['ads',()=>google.adsCustomers(bundle.access_token),x=>({id:x.id,type:'google_ads_customer',label:'Google Ads '+x.id})]]:[])
     ]) {
       try { const found=await read(); resources.push(...found.map(map)); service_checks.push({service,status:'pass',resource_count:found.length}); }
       catch(error) { service_checks.push({service,status:'unavailable',detail:redactIntegrationError(error,[bundle.access_token])}); }
@@ -217,6 +218,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     let result;
     if(provider==='meta')result=await testMeta(fresh.bundle);
     else if(provider==='whatsapp')result=await testWhatsApp(fresh.bundle);
+    else if(provider==='gmail'){const d=await requestJson('https://gmail.googleapis.com/gmail/v1/users/me/profile',{headers:authHeaders(fresh.bundle)});if(!d.emailAddress)throw new Error('Gmail did not return an authorised mailbox.');result={identity:{id:d.emailAddress,label:d.emailAddress},resources:[{id:d.emailAddress.toLowerCase(),type:'gmail_mailbox',label:d.emailAddress}]}}
     else if(provider==='tiktok')result=await testTikTok(fresh.bundle);
     else if(provider==='youtube')result=await testYouTube(fresh.bundle);
     else if(provider==='google_business')result=await testGoogleBusiness(fresh.bundle);
@@ -230,7 +232,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     const token=String(bundle?.access_token||'');
     if(!token)return {remote_revoked:false,reason:'no_access_token'};
     try{
-      if(provider==='youtube'||provider==='google_business'||provider==='google_seo'){
+      if(provider==='youtube'||provider==='google_business'||provider==='google_seo'||provider==='gmail'){
         await postForm('https://oauth2.googleapis.com/revoke',{token});
         return {remote_revoked:true};
       }

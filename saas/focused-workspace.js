@@ -6,7 +6,7 @@
     workforce: {selector:'.two-column-layout > article', preferred:'People'},
     jobs: {selector:'.two-column-layout > article', preferred:'Open work orders'},
     team: {selector:':scope > article, :scope > details', labels:['Business members','Invitation history']},
-    integrations: {selector:':scope > article', preferred:'Your business connections'},
+    integrations: {selector:':scope > article', preferred:'Channel operations'},
     governance: {selector:':scope > article, .gov-hero-grid > article, .gov-grid > article'},
     support: {selector:'.dashboard-grid > article'},
     manual: {selector:'.manual-layout > article, .manual-side > article, .manual-grid > article', labels:['Workspace map','Current area','Your role','Next steps','Connections guide','Help']},

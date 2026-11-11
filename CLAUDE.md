@@ -71,6 +71,7 @@ permission for every direct edit (an unattended session cannot edit them at all)
 - Preserve the current Render deployment (`render.yaml`) until a tested migration is approved.
 - Never trust a client-supplied `workspace_id`. Never assume backup credentials are primary storage credentials.
 - Every existing button, menu, link, form, route, API endpoint and element ID keeps working.
+- Preserve the visible Operator sign-in entry (`#signin-operator-link`) on the Business sign-in page (`saas/sign-in.html`). Never remove, hide or move it behind a business login unless the owner explicitly requests that change. Keep separate operator authentication and the phone/tablet/desktop navigation regression checks. The Business sign-in page must not show an Install option; retain the dedicated public Install page.
 - Do not rewrite the frontend just to adopt a library. Avoid copying competitor intellectual property.
 - Do not touch the Fleet Parlour website. No invented testimonials.
 - Reply to the owner (Faizan) in English. Pages must fit phone, iPad and laptop. No looping animation.

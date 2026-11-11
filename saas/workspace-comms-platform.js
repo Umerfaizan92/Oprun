@@ -39,7 +39,8 @@
     const say = (t, bad = false) => { const p = host.querySelector('[data-cx-status]'); if (p) { p.textContent = t; p.dataset.tone = bad ? 'bad' : 'good'; } if (!bad) window.SPMotion?.toast?.(t); };
     const busy = async (btn, fn) => { if (btn) btn.disabled = true; try { await fn(); } catch (e) { say(e.message, true); } finally { if (btn) btn.disabled = false; } };
     const post = (p, b, m = 'POST') => api(p, { method: m, body: JSON.stringify(b || {}) });
-    const body = () => { let b = host.querySelector('[data-cx-body]'); const n = el('div', { 'data-cx-body': '' }); if (b) b.replaceWith(n); else host.append(n); return n; };
+    const body = () => el('div', { 'data-cx-body': '' });
+    let renderSequence = 0;
     const section = (title, ...kids) => el('section', { class: 'portal-panel cx-panel' }, el('h2', { text: title }), ...kids);
     const empty = (t) => el('p', { class: 'portal-empty', text: t });
     const table = (cols, rows, emptyText = 'Nothing yet.') => {
@@ -52,9 +53,18 @@
     async function render(view, arg) {
       host.dataset.cxView = view;
       if (!host.querySelector('[data-cx-status]')) host.append(el('p', { class: 'portal-note pl-status', role: 'status', 'aria-live': 'polite', 'data-cx-status': '' }));
-      const b = body();
+      const sequence = ++renderSequence, previous = host.querySelector('[data-cx-body]'), b = body();
       b.append(el('p', { class: 'pl-meta', text: 'Loading…' }));
+      // Keep the last result visible during refresh. Build its replacement off
+      // screen and attach only the latest completed request, so a duplicate
+      // navigation event cannot briefly erase the inbox or restore stale data.
+      if (!previous) host.append(b);
+      host.setAttribute('aria-busy', 'true');
       try { await R[view](b, arg); b.querySelector(':scope > .pl-meta')?.remove(); } catch (e) { b.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); }
+      if (sequence !== renderSequence) return;
+      const current = host.querySelector('[data-cx-body]');
+      if (current !== b) { if (current) current.replaceWith(b); else host.append(b); }
+      host.setAttribute('aria-busy', 'false');
     }
 
     const state = { folder: 'inbox', view: 'all', q: '', open: null };

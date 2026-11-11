@@ -45,7 +45,7 @@ try{
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
       const fit=await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight,main:document.querySelector('main').getBoundingClientRect().height}));assert.ok(fit.scroll<=fit.height+1,JSON.stringify({width,...fit}));
       assert.match(await page.locator('body').evaluate(e=>getComputedStyle(e).fontFamily),/Manrope/);
-      assert.equal(await page.locator('#operator-form').count(),0);assert.ok(await page.locator('#login-form').isVisible());assert.equal(await page.getByRole('link',{name:'Operator sign-in',exact:true}).count(),0);
+      assert.equal(await page.locator('#operator-form').count(),0);assert.ok(await page.locator('#login-form').isVisible());const operatorLink=page.locator('#signin-operator-link');assert.equal(await operatorLink.count(),1,'preserved Operator sign-in entry (T-078)');assert.ok(await operatorLink.isVisible());assert.equal(await page.locator('#sign-in-install-link, a[href*="install"]').filter({visible:true}).count(),0,'no Install entry on Business sign-in');
       await page.locator('#login-form .pw-eye').click();assert.equal(await page.locator('#login-form input[name=password]').getAttribute('type'),'text');
       await page.locator('#login-form .pw-eye').click();assert.equal(await page.locator('#login-form input[name=password]').getAttribute('type'),'password');
     });
@@ -146,23 +146,24 @@ try{
   await page.evaluate(()=>location.hash='marketing/connections');
   await check('connectors page two stays selected while readiness details update',async()=>{
     const grid=page.locator('#self-service-integration-grid');
+    await page.getByRole('tab',{name:'Your business connections',exact:true}).click();
     await grid.locator('[data-provider-card]').first().waitFor();
     const pager=page.locator('#self-service-integration-grid + .focus-pagination');
-    assert.ok(await grid.locator('[data-provider-card="snapchat"]').isVisible(),'Snapchat appears at the end of page one');
+    assert.equal(await grid.locator('[data-provider-card="snapchat"]').count(),1,'Snapchat stays in the connection list');
     await pager.getByRole('button',{name:'Next →',exact:true}).click();
     await page.waitForTimeout(800);
     assert.match(await pager.innerText(),/Page 2 of/);
-    assert.ok(await grid.locator('[data-provider-card="x"]').isVisible(),'First connector after Snapchat remains reachable');
-    const later=grid.locator('[data-provider-card="x"]');
-    await later.locator('[data-connect-provider]').click();
+    const later=grid.locator('[data-provider-card]').filter({visible:true}).first();
+    assert.ok(await later.isVisible(),'A connector on page two remains reachable');
+    const laterProvider=await later.getAttribute('data-provider-card');const laterCard=grid.locator(`[data-provider-card="${laterProvider}"]`);
+    await laterCard.locator('[data-connect-provider]').click();
     await page.waitForTimeout(400);
     assert.match(await pager.innerText(),/Page 2 of/);
-    assert.ok(await later.locator('[data-im-requirements]').isVisible());
-    assert.ok(await grid.locator('[data-provider-card="website"]').isVisible(),'Website after Snapchat is reachable');
-    assert.ok(await grid.locator('[data-provider-card="email_sms"]').isVisible(),'Email/SMS after Snapchat is reachable');
+    assert.ok(await laterCard.locator('[data-im-requirements]').isVisible());
     await screenshot(page,'connectors-second-page');
     const before=integrationReads;await page.waitForTimeout(700);assert.equal(integrationReads,before,'an idle connector list must not refetch itself');
-    await pager.getByRole('button',{name:'← Previous',exact:true}).click();
+    for(const provider of ['website','email_sms']){const card=grid.locator(`[data-provider-card="${provider}"]`);for(let n=0;n<3&&!await card.isVisible();n++)await pager.getByRole('button',{name:'Next →',exact:true}).click();assert.ok(await card.isVisible(),provider+' is reachable by paging');}
+    for(let n=0;n<4&&!/Page 1 of/.test(await pager.innerText());n++)await pager.getByRole('button',{name:'← Previous',exact:true}).click();
     assert.match(await pager.innerText(),/Page 1 of/);
   });
   await check('connected TikTok resources stay separate from controls and save exact selections',async()=>{

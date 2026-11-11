@@ -1039,3 +1039,129 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Publish test synchronization fixes and wait for PR69 CI before merge
+
+## CP-075 2026-11-11T20:52:32+08:00 T-076 BLOCKED
+- Phase: Oprun merged; Render connector unavailable
+- Task: T-076 (BLOCKED)
+- Completed steps: All final PR69 CI and security jobs passed; Android and iOS artifacts built; merged into main f3be2404499606765abfcd1803f903a41ebd8661; live health and ready endpoints return 200
+- Incomplete steps: Finish Render deploy of main f3be240; verify installation and account-deletion pages live; complete signing and real-device store gates
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: GitHub CI 43022193335; Security 43022193498; Mobile 43022193312; live HTTP probes
+- Test results: All CI jobs success; security success; Android and iOS success; live old site healthy but new pages 404
+- Git branch: codex/oprun-release-ci-round4
+- Commit: 9e34eb5 (Synchronize pipeline and connector browser tests with their own responses); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: Render trigger_deploy timed out; list_deploys timed out on both existing connections; no deployment ID returned
+- Next exact action: Obtain approval to finish through Render Dashboard, inspect deployment history before triggering a duplicate deploy
+
+## CP-076 2026-11-11T21:02:26+08:00 T-076 BLOCKED
+- Phase: Render dashboard sign-in incomplete
+- Task: T-076 (BLOCKED)
+- Completed steps: Owner approved dashboard fallback; opened exact Oprun service dashboard; secure browser authentication requested
+- Incomplete steps: Authenticate to Render and inspect deployment history; deploy main f3be240 if absent; verify live behavior; signing and device store gates
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: codex/oprun-release-ci-round4
+- Commit: 46e3d5d (Checkpoint merged candidate and Render connector timeout); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Resume only after owner chooses to complete secure Render authentication; no repeated sign-in request after decline
+
+## CP-077 2026-11-11T21:25:06+08:00 T-076 BLOCKED
+- Phase: Web update live; native store release gates remain
+- Task: T-076 (BLOCKED)
+- Completed steps: Owner deployed manually; live install and account-deletion pages verified in browser; Scale preselection confirmed; heading y150 with no desktop overflow; readiness database and jobs true; signed-out member and operator routes refused; association endpoints fail closed
+- Incomplete steps: Configure real Android signing fingerprint and Apple team; signed-device and OAuth testing; privacy billing reviewer and store submission gates
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: Live browser verification 2026-11-11; final PR69 CI; mobile build workflow
+- Test results: New web features observed live; readiness healthy; sign-in guards active; Android APK AAB lint and iOS simulator builds passed in CI
+- Git branch: codex/oprun-release-ci-round4
+- Commit: 8425235 (Record Render dashboard authentication blocker); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Complete native signing, app-domain association and real-device QA before store submission
+
+## CP-078 2026-11-11T21:37:14+08:00 T-077 IN_PROGRESS
+- Phase: Channel operations audit and implementation
+- Task: T-077 (IN_PROGRESS)
+- Completed steps: Verified main f3be240 baseline and preserved earlier handovers; audited existing encrypted OAuth, insights, growth and inbox modules; Elementor directory search returned no plugin
+- Incomplete steps: Build provider-scoped owner delegation and channel hub; implement bounded sync and approval-controlled actions; local campaigns and AI recommendations; security and UI tests; publish and live validation
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/channel-operations-20261111
+- Commit: 226d2be (Record successful live Oprun verification and remaining store gates); branch not on remote
+- Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T133714Z (140f317)
+- Known errors: none
+- Next exact action: Implement isolated channel operations module and provider adapters; keep unsupported provider actions visibly gated
+
+## CP-079 2026-11-11T21:50:08+08:00 T-077 IN_PROGRESS
+- Phase: Channel hub implementation and security verification
+- Task: T-077 (IN_PROGRESS)
+- Completed steps: Built channel provider adapters, resource-scoped owner assignments, reviewed drafts with immutable reply targets, at-most-once sending, local campaigns and AI guidance; added Gmail OAuth; organized workspace hub; focused channel tests pass 5 cases
+- Incomplete steps: Complete regression and browser checks; verify email SMS WhatsApp inbox plumbing; check permission compatibility; document provider gates; publish CI and deploy
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; saas/app.js; saas/integration-manager.js; saas/workspace-nav.js; saas/workspace.html; src/integration-health.js; src/integration-runtime.js; src/integration-security.js; src/server.js; src/staff-access.js; saas/channel-operations.css; saas/channel-operations.js; scripts/channel-operations.test.mjs; src/channel-operations.js; src/channel-providers.js
+- Tests executed: node --test scripts/channel-operations.test.mjs
+- Test results: 5/5 passed
+- Git branch: codex/channel-operations-20261111
+- Commit: 226d2be (Record successful live Oprun verification and remaining store gates); branch not on remote
+- Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T135008Z (c77ecef)
+- Known errors: none
+- Next exact action: Finish integration regression fixes, then run full npm test and responsive channel UI tests
+
+## CP-080 2026-11-11T22:02:21+08:00 T-077 IN_PROGRESS
+- Phase: Channel operations regression verification
+- Task: T-077 (IN_PROGRESS)
+- Completed steps: Implemented channel hub and scoped grants; hardened WhatsApp provider phone routing; added immutable approval target and deletion tests
+- Incomplete steps: Finish regression and browser CI; publish PR; deploy and live verify; provider approvals and unsupported actions remain gated
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; SHA256SUMS.txt; package.json; saas/app.js; saas/channel-operations.css; saas/channel-operations.js; saas/integration-manager.js; saas/workspace-nav.js; saas/workspace.html; scripts/channel-operations.test.mjs; scripts/saas-platform.test.mjs; scripts/verify-all.mjs; src/channel-operations.js; src/channel-providers.js; src/growth.js; src/integration-health.js; src/integration-runtime.js; src/integration-security.js; src/saas-platform.js; src/seo/google.js; src/server.js; src/staff-access.js; docs/connections/CHANNEL_OPERATIONS.md; scripts/test-channel-operations-ui.mjs
+- Tests executed: focused channel and integration suites
+- Test results: 18 earlier focused tests passed; new regression checks running
+- Git branch: codex/channel-operations-20261111
+- Commit: 226d2be (Record successful live Oprun verification and remaining store gates); branch not on remote
+- Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T140221Z (50bf059)
+- Known errors: none
+- Next exact action: Complete npm test and run channel UI on CI
+
+## CP-081 2026-11-11T22:07:31+08:00 T-077 IN_PROGRESS
+- Phase: Verified source ready for browser CI
+- Task: T-077 (IN_PROGRESS)
+- Completed steps: 73/73 full checks passed; 22/22 focused tests passed; manifest memory and secret checks passed
+- Incomplete steps: Publish branch and run browser CI; merge passing release; Render deployment and live verification; external provider gates remain
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; SHA256SUMS.txt; package.json; saas/app.js; saas/channel-operations.css; saas/channel-operations.js; saas/integration-manager.js; saas/workspace-nav.js; saas/workspace.html; scripts/channel-operations.test.mjs; scripts/saas-platform.test.mjs; scripts/verify-all.mjs; src/channel-operations.js; src/channel-providers.js; src/growth.js; src/integration-health.js; src/integration-runtime.js; src/integration-security.js; src/saas-platform.js; src/seo/google.js; src/server.js; src/staff-access.js; docs/connections/CHANNEL_OPERATIONS.md; scripts/test-channel-operations-ui.mjs
+- Tests executed: npm test; focused channel integration suites
+- Test results: 73/73 passed; 22/22 passed
+- Git branch: codex/channel-operations-20261111
+- Commit: 226d2be (Record successful live Oprun verification and remaining store gates); branch not on remote
+- Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T140731Z (445dde5)
+- Known errors: none
+- Next exact action: Publish exact tested source through GitHub and inspect UI CI
+
+## CP-082 2026-11-11T22:15:17+08:00 T-078 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-078 (TESTING)
+- Completed steps: Audited original operator entry and restored it; recorded standing preservation requirement; removed Install entry from sign-in only at owner request; added keyboard and responsive navigation checks
+- Incomplete steps: Run updated CI before merge and Render deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; CLAUDE.md; SHA256SUMS.txt; docs/connections/CHANNEL_OPERATIONS.md; saas/sign-in.html; scripts/test-mobile-readiness.mjs
+- Tests executed: mobile readiness and runtime security unit tests
+- Test results: Local focused tests running; browser CI pending
+- Git branch: codex/channel-operations-20261111
+- Commit: 401746a (Add owner-controlled channel operations and reviewed publishing); 4 commit(s) not on origin/codex/channel-operations-20261111
+- Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T141517Z (dc31b80)
+- Known errors: none
+- Next exact action: Publish restoration to PR70 and require latest CI pass before deploy
+
+## CP-083 2026-11-11T16:16:54+00:00 T-078 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-078 (TESTING)
+- Completed steps: Fixed the two failing PR70 CI checks: test-ui now asserts the preserved Operator sign-in link and opens the Accounts section; comms UI refresh test no longer races its route handler
+- Incomplete steps: Push, confirm PR70 CI green, merge, deploy to Render, live verification
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; scripts/test-comms-ui.mjs; scripts/test-ui.mjs
+- Tests executed: npm test; test:ui; all recovered-release UI suites; integration; smoke; channel isolation unit suites
+- Test results: 73/73; 34/34; every suite passed locally with Chrome
+- Git branch: codex/channel-operations-20261111
+- Commit: 1d5df7e (Verify inbox contents remain visible during a delayed refresh)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Push fixes to PR70 and wait for CI

@@ -25,8 +25,9 @@ try{
  await page.route('**/api/saas/integrations/self-service/meta/confirm',async route=>{metaConfirmed=true;await route.fulfill({json:{ok:true,confirmed:true}})});
  await page.route('**/api/saas/integrations/self-service/email_sms/credentials',async route=>{assert.equal(route.request().postDataJSON().api_key,'test-write-only-key');emailSaved=true;await route.fulfill({json:{ok:true,secret_stored:true}})});
  await page.goto(server.base+'/saas/workspace.html#b08/connections');await page.locator('#integrations-view').waitFor({state:'visible'});
+ await page.getByRole('tab',{name:'Your business connections',exact:true}).click();
  const grid=page.locator('#self-service-integration-grid'),tk=grid.locator('[data-provider-card="tiktok"]'),pager=page.locator('#self-service-integration-grid + .focus-pagination');
- await tk.locator('[data-im-resource]').waitFor();assert.equal(await grid.locator('[data-provider-card]').count(),10);
+ await tk.locator('[data-im-resource]').waitFor();assert.equal(await grid.locator('[data-provider-card]').count(),11);
  for(const width of [390,768,1440]){
   await page.setViewportSize({width,height:1000});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no document overflow at '+width);
@@ -46,16 +47,18 @@ try{
  assert.equal(await meta.locator('.connection-confirm').count(),0);assert.match(await meta.locator('.connection-health').innerText(),/^Working\n/);
  if(process.env.UI_SCREENSHOT_DIR)await meta.screenshot({path:path.join(process.env.UI_SCREENSHOT_DIR,'connections-healthy.png')});
  await tk.locator('[data-im-resource]').uncheck();await tk.getByRole('button',{name:'Save selection',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('[data-provider-card="tiktok"] [data-im-save]')?.disabled);assert.deepEqual(saved,[]);
- await pager.getByRole('button',{name:'Next →',exact:true}).click();await grid.locator('[data-provider-card="email_sms"]').waitFor({state:'visible'});
- const email=grid.locator('[data-provider-card="email_sms"]');await email.locator('[data-connect-provider]').click();await email.getByText('Connect business email with Resend',{exact:true}).click();
+ const email=grid.locator('[data-provider-card="email_sms"]');
+ for(let pageNumber=0;pageNumber<3&&!await email.isVisible();pageNumber++)await pager.getByRole('button',{name:'Next →',exact:true}).click();
+ await email.waitFor({state:'visible'});
+ await email.locator('[data-connect-provider]').click();await email.getByText('Connect business email with Resend',{exact:true}).click();
  await email.getByLabel('Resend API key',{exact:true}).fill('test-write-only-key');await email.getByLabel('Verified sender email',{exact:true}).fill('hello@synthetic-business.org');
  assert.equal(await email.getByLabel('Resend API key',{exact:true}).getAttribute('type'),'password');
  await email.getByRole('button',{name:'Verify and save email',exact:true}).click();await email.getByText('Provider verified and saved.',{exact:false}).waitFor();
- assert.equal(await email.getByLabel('Resend API key',{exact:true}).inputValue(),'');assert.match(await pager.innerText(),/Page 2 of/);
+ assert.equal(await email.getByLabel('Resend API key',{exact:true}).inputValue(),'');assert.match(await pager.innerText(),/Page [23] of/);
  assert.match(await email.locator('[data-im-webhook]').innerText(),new RegExp('/resend/'+owner.org));
  assert.equal(await page.evaluate(()=>JSON.stringify({...localStorage}).includes('test-write-only-key')),false);
  await email.getByRole('button',{name:'Troubleshoot',exact:true}).click();await email.locator('[data-im-assistant]').waitFor();assert.match(await email.locator('[data-im-assistant]').innerText(),/cannot approve provider apps/);
  await page.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8'));
  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await page.waitForTimeout(450);const violations=await page.evaluate(async()=>{const result=await axe.run(document.querySelector('#integrations-view'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary,html:n.html}))}))});assert.deepEqual(violations,[],theme+' Connections accessibility');}
- assert.deepEqual(errors,[]);console.log('PASS Connections: 10 providers, pagination, three viewport sizes, truthful metrics, account confirm step, health light, capability list, resource save, write-only credential form, clearing secrets, tenant webhook instructions and diagnostics.');
+ assert.deepEqual(errors,[]);console.log('PASS Connections: 11 providers, pagination, three viewport sizes, truthful metrics, account confirm step, health light, capability list, resource save, write-only credential form, clearing secrets, tenant webhook instructions and diagnostics.');
 }finally{await browser?.close();await server.stop()}
