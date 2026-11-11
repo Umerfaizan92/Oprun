@@ -224,3 +224,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-12 screenshots: TikTok connected but synced content cannot be clicked or viewed (no video, comments, likes detail); Overview shows no measurements after sync. Audit every connection and fix.
 - Files: src/channel-providers.js; src/server.js; saas/channel-operations.js; saas/channel-operations.css; scripts
 - Acceptance: Synced items carry validated provider link, thumbnail and date; cards open detail with in-app player where the provider allows and an Open on provider link; Overview shows measured totals after sync; unsupported data (TikTok comment text) labelled honestly; tests pass; phone tablet laptop fit
+
+## T-080 Connections speed, comments section, site-style hover and close control
+- Status: TESTING
+- Added: 2026-11-11
+- Requirement: Owner 2026-11-12: improve performance on all Connections sections; comments still cannot be clicked to read and reply; close button not appropriate; add hover/overlay on each section like the rest of the site.
+- Files: saas/channel-operations.js; saas/channel-operations.css; src/channel-providers.js; src/server.js; scripts
+- Acceptance: Fewer and parallel requests, panels drawn on demand, versioned assets cached; Comments opens a comments section with text and reply where the provider gives it and an honest link-out where it does not; icon close; hover matches site; tests pass

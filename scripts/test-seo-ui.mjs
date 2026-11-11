@@ -35,6 +35,7 @@ try {
 
   await check('SEO Command Centre opens from Website & Visibility and turns on the scheduled jobs', async () => {
     const v = await go('b06/seo', 'seocentre');
+    await v.getByText('Technical audit').first().waitFor(); // the centre fills in after its first response
     assert.match(await v.textContent(), /Technical audit/); assert.match(await v.textContent(), /Not measured/);
     await v.getByRole('button', { name: 'Turn scheduled jobs on' }).click();
     await v.getByRole('button', { name: 'Turn scheduled jobs off' }).waitFor();

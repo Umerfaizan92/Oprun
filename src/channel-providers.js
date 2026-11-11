@@ -50,7 +50,7 @@ export function createChannelProviderClient({runtime, env = {}}) {
       for (const thread of comments.items || []) {
         const c = thread.snippet?.topLevelComment;
         const vid = String(thread.snippet?.videoId || '');
-        if (c?.id) add(c.id, 'comment', c.snippet?.authorDisplayName, c.snippet?.textDisplay, {can_reply:Boolean(thread.snippet?.canReply), occurred_at:when(c.snippet?.publishedAt), metrics:{likes:c.snippet?.likeCount, replies:thread.snippet?.totalReplyCount}, ...(/^[\w-]{6,20}$/.test(vid) ? {url:'https://www.youtube.com/watch?v=' + vid + '&lc=' + id(c.id)} : {})});
+        if (c?.id) add(c.id, 'comment', c.snippet?.authorDisplayName, c.snippet?.textDisplay, {can_reply:Boolean(thread.snippet?.canReply), parent_id:/^[\w-]{6,20}$/.test(vid) ? vid : undefined, occurred_at:when(c.snippet?.publishedAt), metrics:{likes:c.snippet?.likeCount, replies:thread.snippet?.totalReplyCount}, ...(/^[\w-]{6,20}$/.test(vid) ? {url:'https://www.youtube.com/watch?v=' + vid + '&lc=' + id(c.id)} : {})});
       }
     } else if (provider === 'gmail') {
       const profile = await call('https://gmail.googleapis.com/gmail/v1/users/me/profile', token);
