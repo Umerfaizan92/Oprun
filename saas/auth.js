@@ -16,6 +16,12 @@
 
   if(page==='register'){
     const form=$('#register-form'), status=$('#business-verification-status'), verifyButton=$('#verify-business'), submit=$('#registration-submit');
+    // The URL is a selection hint, never an entitlement. The server validates
+    // plan_id again when it creates the verified workspace.
+    const requestedPlan=new URLSearchParams(location.search).get('plan');
+    if(['starter','operations','scale'].includes(requestedPlan)){
+      for(const input of form.querySelectorAll('input[name="plan_id"]'))input.checked=input.value===requestedPlan;
+    }
     const idType=form.elements.identifier_type,idInput=form.elements.business_identifier,idLabel=$('#identifier-label'),idHelp=$('#identifier-help');
     let businessVerified=false,verifiedFingerprint='';
     const idMeta={ABN:{label:'ABN',placeholder:'11 digit ABN',help:'ABN has 11 digits. Production validation uses the Australian Business Register when configured.',max:14},ACN:{label:'ACN',placeholder:'9 digit ACN',help:'ACN has 9 digits. Production validation uses the official ABN Lookup ACN lookup when configured.',max:12},OTHER:{label:'Australian registration identifier',placeholder:'Enter registration identifier',help:'Other identifiers are captured for authorised manual verification where an automated registry check is unavailable.',max:80}};

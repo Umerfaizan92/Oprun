@@ -1,0 +1,50 @@
+name: Mobile build validation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-builds.yml'
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Compile test APK and unsigned release bundle
+        working-directory: mobile/android
+        run: gradle --no-daemon :app:assembleDebug :app:bundleRelease :app:lintRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oprun-android-test-and-unsigned-release
+          path: |
+            mobile/android/app/build/outputs/apk/debug/*.apk
+            mobile/android/app/build/outputs/bundle/release/*.aab
+            mobile/android/app/build/reports/lint-results-release.html
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - name: Generate native project
+        working-directory: mobile/ios
+        run: xcodegen generate
+      - name: Compile simulator app without distribution credentials
+        working-directory: mobile/ios
+        run: xcodebuild -project Oprun.xcodeproj -scheme Oprun -sdk iphonesimulator -configuration Release -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oprun-ios-simulator
+          path: mobile/ios/build/Build/Products/Release-iphonesimulator/Oprun.app

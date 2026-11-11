@@ -1,0 +1,34 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'ai.oprun.app'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'ai.oprun.app'
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '1.0.0'
+    }
+    // Configure signing only in a secret-managed release environment. No
+    // production signing key is generated or stored in the source tree.
+    signingConfigs {
+        if (System.getenv('OPRUN_KEYSTORE_PATH')) {
+            release {
+                storeFile file(System.getenv('OPRUN_KEYSTORE_PATH'))
+                storePassword System.getenv('OPRUN_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('OPRUN_KEY_ALIAS')
+                keyPassword System.getenv('OPRUN_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (System.getenv('OPRUN_KEYSTORE_PATH')) signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+
+dependencies { implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4' }

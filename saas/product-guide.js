@@ -1,5 +1,7 @@
 (() => {
   const topics = [
+    {id:'missed-call',title:'Missed calls',keys:['miss a call','missed call','miss calls','cannot answer','can’t answer'],answer:'With the receptionist add-on configured and active, Oprun can answer an incoming call, collect the caller’s details and create an enquiry. A reply can then be drafted for you to review. It is sent only after the required approval. Call handling depends on your connected number, provider setup and available usage.',next:['How do approvals work?','How do I set up the receptionist?']},
+    {id:'worker-pricing',title:'Worker access to prices',keys:['workers see prices','worker see prices','staff see prices','workers see pricing'],answer:'Standard workers see their assigned operational work rather than private pricing or company financials. Owners manage access through People and permissions. Financial access must be checked on the server for each request; hiding a screen alone is not sufficient.',next:['How do I manage staff permissions?','How do approvals work?']},
     {id:'overview',title:'What is Oprun?',keys:['what is','what does','overview','about','product','software','office manager','ai office','platform'],answer:'Oprun is an AI-assisted operating system for service businesses. It brings enquiries, customers, CRM, quotes, bookings, jobs, workforce, communications, content workflows, integrations and owner-approved AI actions into one connected workspace.',next:['What are the main modules?','Who is Oprun built for?','How do I get started?']},
     {id:'voice-conversation',title:'Talk to the AI product guide',keys:['can i talk to you','talk to you','talk with you','speak to you','speak with you','voice chat','voice conversation','can you hear me','use microphone','microphone','talk by voice'],answer:'Yes. You can talk to the Oprun Product Guide by pressing the microphone button, allowing microphone access, and speaking naturally. Choose Auto language or select the language you plan to speak for better recognition. If spoken replies are enabled, the guide will also read its answer aloud using the best matching voice your device exposes, or the device speech service when a named browser voice is not listed.',next:['Which languages can I use?','How do I turn spoken replies on?','What can I ask the product guide?']},
     {id:'modules',title:'What is included?',keys:['module','modules','feature','features','included','products','tools','capabilities','everything included'],answer:'The product is organised around a Command Centre, Business Setup, People & Workforce, Jobs & Allocation, AI Operations, Content Studio, Connections, Plans & Billing, customer and lead workflows, plus Trust & Governance. Global AI Search and the Oprun Co-pilot help users find the right area quickly.',next:['Tell me about AI Operations','How does workforce management work?','What can Content Studio do?']},
@@ -219,7 +221,10 @@
           // “yes, I can speak this language” message, even when the customer
           // had asked a specific product question.
           result.source='server-localized-product-fallback';
-          result.text=plainText(d.text)||plainText(local.text);
+          // English has a richer, topic-aware verified knowledge base in this
+          // client. Do not replace it with a generic provider-outage greeting.
+          // Preserve localized server answers for the other supported languages.
+          result.text=plainText(detected==='en'?local.text:d.text)||plainText(local.text);
         }
         remember(context,q,result.text,result);return result;
       }

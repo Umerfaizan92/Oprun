@@ -45,7 +45,7 @@ try{
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
       const fit=await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight,main:document.querySelector('main').getBoundingClientRect().height}));assert.ok(fit.scroll<=fit.height+1,JSON.stringify({width,...fit}));
       assert.match(await page.locator('body').evaluate(e=>getComputedStyle(e).fontFamily),/Manrope/);
-      assert.equal(await page.locator('#operator-form').count(),0);assert.ok(await page.locator('#login-form').isVisible());assert.equal(await page.getByRole('link',{name:'Operator sign-in',exact:true}).getAttribute('href'),'operator-sign-in.html');
+      assert.equal(await page.locator('#operator-form').count(),0);assert.ok(await page.locator('#login-form').isVisible());assert.equal(await page.getByRole('link',{name:'Operator sign-in',exact:true}).count(),0);
       await page.locator('#login-form .pw-eye').click();assert.equal(await page.locator('#login-form input[name=password]').getAttribute('type'),'text');
       await page.locator('#login-form .pw-eye').click();assert.equal(await page.locator('#login-form input[name=password]').getAttribute('type'),'password');
     });

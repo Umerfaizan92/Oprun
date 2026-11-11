@@ -9,7 +9,7 @@ export const PUBLIC_ROUTES = [
   ['/for', 'industries.html', 0.8],
   ...['trades', 'clinics', 'retail', 'agencies', 'cleaning'].map((s) => [`/for/${s}`, `for-${s}.html`, 0.8]),
   ['/pricing', 'pricing.html', 0.9], ['/receptionist', 'receptionist.html', 0.8], ['/stories', 'stories.html', 0.6],
-  ['/help', 'help.html', 0.7], ['/contact', 'contact.html', 0.6]
+  ['/help', 'help.html', 0.7], ['/contact', 'contact.html', 0.6], ['/install', 'install.html', 0.7], ['/account-deletion', 'account-deletion.html', 0.6]
 ];
 
 export function installPublicSite(app, { env, siteRoot }) {

@@ -4,7 +4,7 @@ import { SITE, NAV, PLANS, DOMAINS, INDUSTRIES, SCENARIOS, FAQ, HELP, RECEPTIONI
 const BASE = '__PUBLIC_BASE_URL__';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const icon = (id, cls = 'sp-icon') => `<svg class="${cls}" aria-hidden="true"><use href="/saas/ds/icons.svg#${id}"/></svg>`;
-const V = '20261030';
+const V = '20261111';
 const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`;
 const ORG = { '@type': 'Organization', '@id': `${BASE}/#organization`, name: SITE.name, url: `${BASE}/`, logo: `${BASE}/saas/oprun-icon-512.png` };
 const faqLd = (items) => ({ '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
@@ -76,10 +76,10 @@ function footer() {
   <div class="sp-page">
     <div class="sp-footer__grid">
       <div><a class="sp-brand" href="/"><img src="/saas/oprun-icon-192.png" alt="" width="34" height="34" loading="lazy">${esc(SITE.name)}</a><p style="margin-top:var(--sp-3);max-width:32ch"><strong>${esc(SITE.tagline)}</strong> The AI office manager for Australian service businesses. Prices in AUD, plus GST.</p></div>
-      ${col('Product', [['Features', '/features'], ['AI receptionist', '/receptionist'], ['Pricing', '/pricing'], ['Example scenarios', '/stories']])}
+      ${col('Product', [['Features', '/features'], ['AI receptionist', '/receptionist'], ['Pricing', '/pricing'], ['Install Oprun', '/install'], ['Example scenarios', '/stories']])}
       ${col('Industries', INDUSTRIES.map((i) => [i.name, `/for/${i.slug}`]))}
       ${col('Help', [['Help centre', '/help'], ['Product answers', '/saas/answers.html'], ['Contact us', '/contact'], ['Sign in', '/saas/sign-in.html']])}
-      ${col('Trust', [['Trust centre', '/saas/trust-center.html'], ['Privacy', '/saas/privacy.html'], ['Terms', '/saas/terms.html'], ['Complaints', '/saas/complaints.html'], ['Subprocessors', '/saas/subprocessors.html']])}
+      ${col('Trust', [['Trust centre', '/saas/trust-center.html'], ['Privacy', '/saas/privacy.html'], ['Account deletion', '/account-deletion'], ['Terms', '/saas/terms.html'], ['Complaints', '/saas/complaints.html'], ['Subprocessors', '/saas/subprocessors.html']])}
     </div>
     <hr class="sp-rule" style="margin-block:var(--sp-6) var(--sp-4)">
     <p>© <span data-year>2026</span> Oprun. ${esc(SITE.tagline)}</p>
@@ -252,7 +252,7 @@ ${storiesSection(true)}
 
 ${newsletter()}
 ${cta()}`;
-  return page({ path: '/', title: SITE.tagline, description: 'Oprun is the AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with every outgoing action approved by you.', body, scripts: ['/saas/product-guide.js?v=20261028.2'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
+  return page({ path: '/', title: SITE.tagline, description: 'Oprun is the AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with every outgoing action approved by you.', body, scripts: ['/saas/product-guide.js?v=20261111.1'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
 }
 
 function workflowDemo() {
@@ -489,8 +489,52 @@ export function contact() {
   return page({ path: '/contact', title: 'Contact', description: 'Contact Oprun for a walkthrough, questions before you start, the AI receptionist add-on, or help with your account.', body, graph: [crumbs([['Home', '/'], ['Contact', '/contact']])] });
 }
 
+export function install() {
+  const body = `<section class="sp-section sp-pagehead"><div class="sp-page">
+    <h1 class="sp-h1">Install Oprun</h1>
+    <p class="sp-lede">Keep your office one tap away on your phone, tablet or computer.</p>
+    <p class="sp-small sp-muted">Browser installation is available now. Google Play and App Store downloads will appear here after their releases are approved.</p>
+    <div class="sp-actions" style="margin-top:var(--sp-5)">
+      <button class="sp-btn sp-btn--primary" id="install-superpro" type="button">Install Oprun</button>
+      <a class="sp-btn sp-btn--ghost" href="/saas/workspace.html">Open workspace</a>
+    </div>
+    <p id="install-readiness" class="sp-small" role="status">Checking this device…</p>
+    <p id="install-status" class="sp-small" aria-live="polite"></p>
+    <div class="sp-actions">
+      <button class="sp-btn sp-btn--ghost" data-install-help="mobile" type="button">Phone and tablet steps</button>
+      <button class="sp-btn sp-btn--ghost" data-install-help="desktop" type="button">Computer steps</button>
+      <button class="sp-btn sp-btn--ghost" data-install-help="security" type="button">Privacy and offline use</button>
+    </div>
+    <div id="install-detail" class="sp-glass" tabindex="-1" hidden style="padding:var(--sp-5);margin-top:var(--sp-5)"></div>
+    <div class="sp-domain-grid" style="margin-top:var(--sp-6)">
+      <article class="sp-glass" style="padding:var(--sp-5)"><h2 class="sp-h3">iPhone and iPad</h2><ol><li>Open Oprun in Safari.</li><li>Tap Share.</li><li>Choose Add to Home Screen, then Add.</li></ol></article>
+      <article class="sp-glass" style="padding:var(--sp-5)"><h2 class="sp-h3">Android</h2><ol><li>Open Oprun in Chrome.</li><li>Tap Install Oprun if offered, or use the browser menu.</li><li>Choose Install app or Add to Home screen.</li></ol></article>
+      <article class="sp-glass" style="padding:var(--sp-5)"><h2 class="sp-h3">Computer</h2><p>Use Chrome or Edge’s install option, or Safari’s Add to Dock on supported macOS versions.</p></article>
+    </div>
+    <p class="sp-small sp-muted" style="margin-top:var(--sp-5)">An internet connection is required for your workspace, messages, files and approvals. Installing does not download private business records for offline access.</p>
+  </div></section>`;
+  return page({ path:'/install', title:'Install Oprun', description:'Install Oprun on Android, iPhone, iPad and desktop with browser installation and clear device-specific steps.', body,
+    scripts:['/saas/common.js?v=20261111.1','/saas/install.js?v=20261111.1'] });
+}
+
+export function accountDeletion() {
+  return page({ path:'/account-deletion', title:'Account and data deletion',
+    description:'How Oprun account holders can request account and workspace data deletion, verify their identity, and contact support.',
+    body:`<section class="sp-section sp-pagehead"><div class="sp-page">
+      <h1 class="sp-h1">Account and data deletion</h1>
+      <p class="sp-lede">You can request deletion without uninstalling or reinstalling Oprun.</p>
+      <h2 class="sp-h3">Workspace owners</h2>
+      <ol><li>Sign in to your Oprun workspace.</li><li>Open Plans &amp; Billing and find Account &amp; Data Safety.</li><li>Select Request account deletion.</li><li>Enter the code sent to your verified email and type DELETE MY ACCOUNT.</li><li>Review the confirmation before scheduling deletion. A seven-day cancellation window applies.</li></ol>
+      <p>A trial ending does not automatically delete your workspace. Deleting an entire workspace affects its team and business records.</p>
+      <h2 class="sp-h3">Team members or accounts you cannot access</h2>
+      <p>Use the contact form to request deletion of your own account or personal information. Identify your account and business so support can verify the request. Do not send passwords or verification codes.</p>
+      <p>Retention obligations, backup handling and any exceptions must be reviewed under the Privacy Notice. Support can explain what applies before a request is completed.</p>
+      <div class="sp-actions"><a class="sp-btn sp-btn--primary" href="/saas/sign-in.html">Sign in to manage your account</a><a class="sp-btn sp-btn--ghost" href="/contact">Request deletion through support</a><a class="sp-btn sp-btn--ghost" href="/saas/privacy.html">Privacy Notice</a></div>
+    </div></section>` });
+}
+
 export const PAGES = () => [
   ['home.html', home()], ['features.html', features()], ...DOMAINS.map((d) => [`features-${d.slug}.html`, domainPage(d)]),
   ['industries.html', industriesIndex()], ...INDUSTRIES.map((i) => [`for-${i.slug}.html`, industryPage(i)]),
-  ['pricing.html', pricing()], ['receptionist.html', receptionist()], ['stories.html', stories()], ['help.html', help()], ['contact.html', contact()]
+  ['pricing.html', pricing()], ['receptionist.html', receptionist()], ['stories.html', stories()], ['help.html', help()], ['contact.html', contact()], ['install.html', install()], ['account-deletion.html', accountDeletion()]
 ];

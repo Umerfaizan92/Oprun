@@ -35,6 +35,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test responsive interface and portal navigation
         run: npm run test:ui
+      - name: Test mobile readiness and public signup regressions
+        run: npm run test:mobile-readiness
       - name: Integration runtime tests
         run: npm run integration:test
       - name: Runtime smoke test

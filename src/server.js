@@ -81,6 +81,8 @@ import { inspectUpload } from './file-safety.js';
 import { createJobQueue, installJobRoutes } from './job-queue.js';
 import { requestContext, installObservabilityRoutes } from './observability.js';
 import { installPublicSite, publicSitemapEntries } from './public-site.js';
+import { publicProductAnswer } from './product-guide-knowledge.js';
+import { installMobileAssociations } from './mobile-association.js';
 import { createObjectStorage } from './object-storage.js';
 import { operatorMfaEnforced, passwordCandidates as policyPasswordCandidates, strictPasswordMatch, sessionTooOld } from './security-policy.js';
 
@@ -1041,6 +1043,7 @@ app.use(
 // Oprun is the primary product on the SaaS host.
 // Keep the public the business pages available by their explicit file routes.
 // Phase 03: preserve Claude's redesigned public website and clean routes.
+installMobileAssociations(app, env);
 installPublicSite(app, { env, siteRoot });
 app.get('/healthz', (req, res) => res.status(200).json({ ok: true, service: 'super-pro-ai-office-manager', time: new Date().toISOString() }));
 
@@ -2693,7 +2696,7 @@ app.post('/api/product-guide/answer',productGuideLimiter,async(req,res)=>{
   try{
     const result=await generateAiText({conversation_id:parsed.data.conversation_id||null,thinking_level:'minimal',max_output_tokens:1600,ensure_complete:true,system:'You are the Oprun product and workspace guide. Detect native script and common Roman/transliterated Urdu, Hindi and Punjabi. Answer naturally in the requested language and writing style. Be concise, professional and useful. Start with the direct answer. Finish every sentence and never stop mid-thought. Explain product features, navigation, setup, plans, security, integrations, AI Operations, staff collaboration and governance. IMPORTANT: this Product Guide DOES support spoken replies through its own server/device TTS pipeline. Never tell the user that voice output, speaking, microphone, or spoken replies are unavailable merely because you are a text-generation model. If the user asks you to speak, answer the requested content normally in their requested language; the application will speak your text. Never expose secrets, invent provider status or claim an external action completed unless confirmed.',messages:[{role:'user',content:`Reply language: ${language}. Context: ${parsed.data.context||'public product guide'}\nQuestion: ${parsed.data.question}`}]});
     return res.json({ok:true,text:String(result.text).trim(),language,source:'configured-ai-provider',provider:result.provider,model:result.model});
-  }catch(err){console.warn('[PRODUCT GUIDE] AI unavailable:',err.message);return res.json({ok:true,text:localGuideText[language]||localGuideText.en,language,source:'local-multilingual-fallback',configuration_required:true});}
+  }catch(err){console.warn('[PRODUCT GUIDE] AI unavailable:',err.message);return res.json({ok:true,text:publicProductAnswer(parsed.data.question,language)||localGuideText[language]||localGuideText.en,language,source:'local-multilingual-fallback',configuration_required:true});}
 });
 
 // Staff chat with receipts. A fetch marks other people's messages delivered to me; `read=1` (panel open and visible) marks them read.

@@ -68,7 +68,8 @@
     "test:reliability-ui": "node scripts/test-reliability-ui.mjs",
     "release:audit": "node scripts/release-audit.mjs",
     "test:navigation-ui": "node scripts/test-navigation-ui.mjs",
-    "navigation:inventory": "node scripts/navigation-inventory.mjs"
+    "navigation:inventory": "node scripts/navigation-inventory.mjs",
+    "test:mobile-readiness": "node scripts/test-mobile-readiness.mjs"
   },
   "engines": {
     "node": "22.x"

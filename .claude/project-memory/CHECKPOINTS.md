@@ -997,3 +997,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/video-meetings-20261110/20261110T054110Z (be054cd)
 - Known errors: none
 - Next exact action: Write scripts/test-meetings-ui.mjs and run it
+
+## CP-072 2026-11-11T19:50:29+08:00 T-076 IN_PROGRESS
+- Phase: Connections candidate release validation
+- Task: T-076 (IN_PROGRESS)
+- Completed steps: Public fixes implemented; native Android TWA and iOS projects prepared; targeted unit tests pass
+- Incomplete steps: CI builds, responsive tests, deploy verification and signing gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .github/workflows/ci.yml; .gitignore; package.json; saas/auth.js; saas/common.js; saas/create-account.html; saas/index.html; saas/install.js; saas/product-guide.js; saas/sign-in.html; saas/site/contact.html; saas/site/features-ai.html; saas/site/features-communications.html; saas/site/features-customers.html; saas/site/features-growth.html; saas/site/features-money.html; saas/site/features-people.html; saas/site/features.html; saas/site/for-agencies.html; saas/site/for-cleaning.html; saas/site/for-clinics.html; saas/site/for-retail.html; saas/site/for-trades.html; saas/site/help.html; saas/site/home.html; saas/site/industries.html; saas/site/pricing.html; saas/site/receptionist.html; saas/site/stories.html; saas/sw.js; saas/workspace.html; scripts/site/content.mjs; scripts/site/templates.mjs; scripts/test-site-ui.mjs; scripts/test-ui.mjs; src/public-site.js; src/server.js; .github/workflows/mobile-builds.yml; mobile/README.md; mobile/android/app/build.gradle; mobile/android/app/src/main/AndroidManifest.xml; mobile/android/app/src/main/res/mipmap-hdpi/ic_launcher.png; mobile/android/app/src/main/res/mipmap-mdpi/ic_launcher.png; mobile/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png; mobile/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png; mobile/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png; mobile/android/app/src/main/res/values/strings.xml; mobile/android/build.gradle; mobile/android/gradle.properties; mobile/android/settings.gradle; mobile/ios/Oprun/Assets.xcassets/AppIcon.appiconset/AppIcon.png; mobile/ios/Oprun/Assets.xcassets/AppIcon.appiconset/Contents.json; mobile/ios/Oprun/Info.plist; mobile/ios/Oprun/Oprun.entitlements; mobile/ios/Oprun/OprunApp.swift; mobile/ios/Oprun/PrivacyInfo.xcprivacy; mobile/ios/project.yml; mobile/store-listing-draft.md; saas/offline.css; saas/offline.html; saas/registration-layout.css; saas/site/install.html; scripts/mobile-readiness.test.mjs; scripts/test-mobile-readiness.mjs; src/mobile-association.js; src/product-guide-knowledge.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/oprun-mobile-readiness-20261111
+- Commit: e772495 (Merge pull request #68: Rebrand to Oprun (T-075))
+- Recovery snapshot: refs/recovery/codex/oprun-mobile-readiness-20261111/20261111T115029Z (f8db3a0)
+- Known errors: none
+- Next exact action: Push reviewable branch and run CI including native builds
+
+## CP-073 2026-11-11T19:58:47+08:00 T-076 BLOCKED
+- Phase: Oprun web fixes and mobile release candidate
+- Task: T-076 (BLOCKED)
+- Completed steps: Implemented web fixes and native build projects; full repository verification passed
+- Incomplete steps: Publish branch after explicit approval; run browser and native CI; deploy passing web changes; signing and real-device store gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PROGRESS.md; SHA256SUMS.txt; mobile/README.md; mobile/ios/Oprun/OprunApp.swift; mobile/RELEASE_STATUS.md
+- Tests executed: npm test; focused mobile/public-site unit tests
+- Test results: 73/73 checks passed; 14/14 focused cases passed
+- Git branch: codex/oprun-mobile-readiness-20261111
+- Commit: 644b113 (Complete account deletion entry points and update release checks); 2 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/oprun-mobile-readiness-20261111/20261111T115847Z (89be659)
+- Known errors: none
+- Next exact action: Obtain explicit owner authorization for source publication, CI and deployment before any push retry
