@@ -1,0 +1,57 @@
+{
+  "assets": [
+    {
+      "path": "/saas/app.js",
+      "sha256": "6471a8b5cf03b03a5509e80382cbb4450320e446dce4341db453eb869b8ca3c0",
+      "matches": true
+    },
+    {
+      "path": "/saas/navigation-shell.js",
+      "sha256": "de98c65fbca5d76283973b8343ff749c5126ddd3c739f40410afa9426989b26c",
+      "matches": true
+    },
+    {
+      "path": "/saas/portal-shell.js",
+      "sha256": "88f416888ca0e97a796dbf64b0cdfb77e532598ee694812498dc8208b1d6d956",
+      "matches": true
+    },
+    {
+      "path": "/saas/workspace-redesign.css",
+      "sha256": "439195010af67c5b5fb779a793ae13531a35aca7b56b8f79df6a6d7b70ddcafe",
+      "matches": true
+    },
+    {
+      "path": "/saas/brand.css",
+      "sha256": "f7f77177ca5d579ae6c060b6670b7f3b13ded986ebfc04c3b4ed1a01a3f437eb",
+      "matches": true
+    },
+    {
+      "path": "/saas/brand-presence.css",
+      "sha256": "beca934bc83e6167756b9c5b653409773baf0edac1332b31e077a6c396dbd625",
+      "matches": true
+    },
+    {
+      "path": "/saas/workspace.html",
+      "sha256": "145a33918e1a413eab9e6f25153a05f5f7879c38ea572c51204b31a685f811e4",
+      "matches": true
+    },
+    {
+      "path": "/saas/site/home.html",
+      "sha256": "d5ced6f822459f7f5e371acb48a37371413ae303f5d6d304cc5695ba48cb0876",
+      "matches": true
+    }
+  ],
+  "operator_sign_in": true,
+  "signin_install_option": false,
+  "storage_persistent": true,
+  "commit": "10c79e5478167e90bf62855012c4647bf5673159",
+  "deploy_id": "dep-dbqfk3tg1s2s73e6n9tg",
+  "live_at": "2026-11-11T23:32:37.615708Z",
+  "deploy_check": "6/6 PASS",
+  "browser": "Public home and Business sign-in verified",
+  "ci": "43118785983",
+  "security": "43118785978",
+  "navigation_checks": 584,
+  "navigation_errors": 0,
+  "navigation_missing": 0
+}

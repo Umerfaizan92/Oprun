@@ -1417,3 +1417,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Publish alias query preservation fix and require all PR checks before deployment
+
+## CP-102 2026-11-12T07:34:35+08:00 T-083 COMPLETED
+- Phase: Navigation and branding live acceptance
+- Task: T-083 (COMPLETED)
+- Completed steps: Exact requested main commit 3a2efa5 preserved; All routes, aliases, permissions and approvals retained; Combined release main10c79e5 deployed and verified
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PROGRESS.md; qa/reports/navigation-coverage.json; docs/redesign/08_BRANDING_RELEASE_ACCEPTANCE.md; qa/reports/branding-live-acceptance.json
+- Tests executed: CI43118785983; Security43118785978; deploy:check; exact live assets
+- Test results: 73/73 build,34 UI,584 navigation,zero missing/errors; Security pass; six live checks pass; eight assets match
+- Git branch: codex/branding-live-evidence-20261112
+- Commit: 10c79e5 (Merge PR #78: Polish Oprun branding and simplify business navigation)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: No remaining T-083 work; preserve verified release
+
+## CP-103 2026-11-12T07:34:36+08:00 T-084 COMPLETED
+- Phase: Branding and subscriber drawer live
+- Task: T-084 (COMPLETED)
+- Completed steps: Prominent Oprun branding and larger logos; Single subscriber identity and compact click drawer; Short headers and preserved legacy section queries; PR78 merged10c79e5; Render dep-dbqfk3tg1s2s73e6n9tg live; Live acceptance and public browser checks passed; Durable source and release evidence saved
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; qa/reports/navigation-coverage.json; docs/redesign/08_BRANDING_RELEASE_ACCEPTANCE.md; qa/reports/branding-live-acceptance.json
+- Tests executed: CI43118785983; Security43118785978; live six checks; eight asset hashes; public browser; storage
+- Test results: 73/73 build; 34 UI; 584 navigation zero errors/missing; all live checks pass; storage persistent
+- Git branch: codex/branding-live-evidence-20261112
+- Commit: 10c79e5 (Merge PR #78: Polish Oprun branding and simplify business navigation)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: T-083/T-084 are complete; review docs/redesign/08_BRANDING_RELEASE_ACCEPTANCE.md before any future changes
