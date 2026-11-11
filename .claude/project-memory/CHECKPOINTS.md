@@ -1193,3 +1193,115 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Open PR and wait for CI
+
+## CP-086 2026-11-12T03:32:31+08:00 T-081 IN_PROGRESS
+- Phase: PDF redesign implementation
+- Task: T-081 (IN_PROGRESS)
+- Completed steps: Read all PDF prompts; reconciled live/main 6615f960; recorded authorization and seven-group preservation decision; implemented route-preserving seven groups and workflow metadata
+- Incomplete steps: Context workflow UI and tokens; security hardening/tests; complete four prompt documents; CI and deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; saas/workspace-nav.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 6615f96 (Merge PR #74: Faster Connections, comments section and AI growth actions)
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T193231Z (1d53ac4)
+- Known errors: none
+- Next exact action: Implement role-filtered workflow navigation and guided command centre
+
+## CP-087 2026-11-12T03:34:59+08:00 T-081 IN_PROGRESS
+- Phase: PDF redesign implementation
+- Task: T-081 (IN_PROGRESS)
+- Completed steps: Seven business groups; secondary tools under More; all 60 views retained; contextual workflows; guided command centre; shared tokens; sticky command search; Growth late authorization and uncertainty handling
+- Incomplete steps: Security regression tests; PDF prompt documentation; full verification; GitHub CI; Render final testing
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; docs/navigation/MAPPING.json; docs/navigation/MAPPING.md; saas/navigation-shell.css; saas/navigation-shell.js; saas/portal-shell.js; saas/workspace-growth.js; saas/workspace-nav.js; saas/workspace.html; scripts/navigation-inventory.mjs; scripts/test-navigation-ui.mjs; src/channel-operations.js; src/growth.js; src/server.js; saas/workspace-redesign.css
+- Tests executed: none
+- Test results: none
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 6615f96 (Merge PR #74: Faster Connections, comments section and AI growth actions)
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T193459Z (69f127f)
+- Known errors: none
+- Next exact action: Add regression tests for late revocation, scoped grants and tenant navigation
+
+## CP-088 2026-11-12T03:42:03+08:00 T-081 TESTING
+- Phase: PDF prompt implementation validation
+- Task: T-081 (TESTING)
+- Completed steps: Four complete PDF deliverables and original prompt text preserved; all 60 page mapping; seven-group UI and publisher fixes implemented; 21 focused checks pass; semantic dashboard boot has zero runtime or HTTP server errors; preservation audit keeps all 645 routes 45 pages 60 views 34 Founder sections 779 original IDs
+- Incomplete steps: Full npm test; secret/manifest checks; publish review branch; responsive CI; merge and Render final test
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; SHA256SUMS.txt; docs/navigation/MAPPING.json; docs/navigation/MAPPING.md; qa/reports/release-audit.json; saas/navigation-shell.css; saas/navigation-shell.js; saas/portal-shell.js; saas/workspace-growth.js; saas/workspace-nav.js; saas/workspace.html; scripts/channel-operations.test.mjs; scripts/navigation-inventory.mjs; scripts/test-navigation-ui.mjs; scripts/test-ui.mjs; src/channel-operations.js; src/growth.js; src/server.js; docs/redesign/01_NAVIGATION.md; docs/redesign/02_DESIGN_SYSTEM.md; docs/redesign/03_SECURITY_AUDIT.md; docs/redesign/04_ROADMAP_90_DAYS.md; docs/redesign/README.md; docs/redesign/SOURCE_PROMPTS.txt; saas/workspace-redesign.css; scripts/growth-publishing-security.test.mjs; scripts/redesign-preservation.test.mjs
+- Tests executed: Targeted Node suites; source preservation; semantic dashboard boot
+- Test results: 21 pass; no removals; zero runtime errors
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 6615f96 (Merge PR #74: Faster Connections, comments section and AI growth actions)
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194203Z (daaa89e)
+- Known errors: none
+- Next exact action: Wait for full local verification then publish exact reviewed source to GitHub PR for browser CI
+
+## CP-089 2026-11-12T03:44:22+08:00 T-081 TESTING
+- Phase: GitHub PR75 browser validation
+- Task: T-081 (TESTING)
+- Completed steps: Published identical source tree ebdf275be14954ed306a43804a830e464acdcb47 as remote commit 0be3094 PR75; full local npm test 73/73; 55 contract files pass; all 60 Business pages initialize without runtime or server errors; secret scan 559 tracked files and manifest 566 files pass
+- Incomplete steps: CI43089882031 and Security43089882150 must pass; fix browser issues if any; merge exact source; deploy existing Render service; verify live and persist final evidence
+- Files modified (uncommitted at checkpoint): qa/reports/release-audit.json
+- Tests executed: npm test; targeted security/navigation; source preservation; semantic 60-page boot; secrets; manifest; memory
+- Test results: 73/73; 21/21; no removals; zero errors; pass; pass; pass
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 474b733 (Simplify workspace navigation and harden reviewed Growth publishing); 1 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194422Z (f444601)
+- Known errors: none
+- Next exact action: Inspect PR75 checks at head 0be3094. Do not redeploy current 6615f960. Merge only after CI and Security pass.
+
+## CP-090 2026-11-12T03:46:48+08:00 T-081 TESTING
+- Phase: GitHub PR75 responsive visual validation
+- Task: T-081 (TESTING)
+- Completed steps: Local 73/73 build, integration runtime and smoke checks pass; Security CodeQL dependency-review and dependency audit jobs pass at 0be3094; all60 semantic views pass; added explicit3907681440 dark/light accessibility and screenshot evidence suite
+- Incomplete steps: Publish visual suite and latest durable handover; wait for current-head CI; inspect visual evidence; merge and existing Render deployment; verify live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; docs/redesign/VALIDATION.md; package.json; qa/reports/release-audit.json; scripts/test-redesign-ui.mjs
+- Tests executed: npm test; integration:test; smoke:test; targeted tests; source preservation
+- Test results: 73/73; pass; pass; 21/21; no removals
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 474b733 (Simplify workspace navigation and harden reviewed Growth publishing); 1 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194648Z (b476227)
+- Known errors: none
+- Next exact action: Publish current follow-up files to PR75 using expected remote head0be3094, then monitor new CI. Render remains6615f960 until current-head checks pass.
+
+## CP-091 2026-11-12T03:57:28+08:00 T-081 TESTING
+- Phase: PR75 browser corrections
+- Task: T-081 (TESTING)
+- Completed steps: Current browser evidence passed new3907681440 dark/light components and all page traversal; caught and fixed footer gap/header wrapping and save warning background-request coupling; semantic reproduction now clears successful saves while keeping failures; 24 focused tests pass
+- Incomplete steps: Current-head full browser CI including save lifecycle and footer must pass; inspect new screenshots; merge PR75; deploy existing Render and verify live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PROGRESS.md; docs/redesign/VALIDATION.md; qa/reports/release-audit.json; saas/navigation-shell.js; saas/portal-shell.js; saas/workspace-chat.js; saas/workspace-extras.js; saas/workspace-redesign.css; saas/workspace.html; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs; scripts/navigation-save-state.test.mjs
+- Tests executed: Focused Node regression suites; semantic save reproduction
+- Test results: 24 pass; failed save stays dirty and successful save clears
+- Git branch: codex/redesign-pdf-20261112
+- Commit: c4001cb (Preserve PDF handover and add responsive redesign visual checks); 2 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T195728Z (8e82825)
+- Known errors: none
+- Next exact action: Publish this correction using remote parent f7f7cf1, then inspect current PR75 CI/Security and screenshots. Never deploy a candidate with failing checks.
+
+## CP-092 2026-11-12T03:58:18+08:00 T-081 TESTING
+- Phase: PR75 corrected candidate browser validation
+- Task: T-081 (TESTING)
+- Completed steps: Published correction as c89cf3554c6e72746bd1bcef73e2ded0f8e13b35 with source tree edee092741910c77fb57c784f60ad6b77f30fd3b; 24 focused tests and semantic save regression pass; no production change
+- Incomplete steps: Current-head CI/Security and screenshots; merge PR75; existing Render deployment; live verify; portable final release checkpoint
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 9f447a6 (Keep background checks out of form saves and correct sticky layout); 3 commit(s) not on origin/main
+- Recovery snapshot: none (working tree is clean; nothing unfinished to save)
+- Known errors: none
+- Next exact action: Inspect PR75 checks for c89cf355 before any further code edits. Existing Render remains6615f960. Deploy only after corrected candidate passes.
+
+## CP-093 2026-11-12T04:03:52+08:00 T-081 TESTING
+- Phase: PR75 final source-label reconciliation
+- Task: T-081 (TESTING)
+- Completed steps: Corrected candidate c89cf355 passes full73 build, all34 generalUI, integration/smoke, security and zero-vulnerability audit; form save lifecycle now passes; complete60Business34Founder traversal failed only stale pre-rename newsletter label, reconciled to actual Oprun source; all94 pages now mapped
+- Incomplete steps: Current-head complete recovered UI matrix and screenshot review; merge PR75; deploy existing Render service; live source/auth/health checks; final portable evidence
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/SESSION_HANDOVER.md; docs/navigation/SECTIONS.md; docs/redesign/01_NAVIGATION.md; docs/redesign/README.md; docs/redesign/VALIDATION.md; office/console.html; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs
+- Tests executed: CI verify job130771444335; 24 focused regressions; responsive components and save lifecycle
+- Test results: 73/73 build and34/34 UI plus integration/smoke; 24pass; pass
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 9f447a6 (Keep background checks out of form saves and correct sticky layout); 3 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T200352Z (600445e)
+- Known errors: none
+- Next exact action: Publish label/asset-version/evidence corrections with expected remote c89cf355. Wait for current-head CI/Security, then merge and deploy only the tested tree.

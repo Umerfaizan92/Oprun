@@ -70,7 +70,8 @@
     "test:navigation-ui": "node scripts/test-navigation-ui.mjs",
     "navigation:inventory": "node scripts/navigation-inventory.mjs",
     "test:mobile-readiness": "node scripts/test-mobile-readiness.mjs",
-    "test:channels-ui": "node scripts/test-channel-operations-ui.mjs"
+    "test:channels-ui": "node scripts/test-channel-operations-ui.mjs",
+    "test:redesign-ui": "node scripts/test-redesign-ui.mjs"
   },
   "engines": {
     "node": "22.x"

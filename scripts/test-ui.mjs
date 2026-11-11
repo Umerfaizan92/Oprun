@@ -113,8 +113,8 @@ try{
     }
     await page.setViewportSize({width:1440,height:900});
   });
-  await check('nine groups contain nested submenu pages and selected state',async()=>{
-    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),9); assert.equal(await rail.locator('.navigation-page').count(),60);
+  await check('seven groups preserve nested submenu pages and selected state',async()=>{
+    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),7); assert.equal(await rail.locator('.navigation-page').count(),60);
     await rail.locator('[data-domain=b03]').click(); await rail.locator('[data-nav-page=team]').click(); await page.locator('#team-view').waitFor({state:'visible'});
     assert.equal(await rail.locator('[data-nav-page=team]').getAttribute('aria-current'),'page'); assert.equal(await page.locator('.portal-subtabs [data-jump]').count(),0);
   });

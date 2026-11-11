@@ -1,5 +1,5 @@
 {
-  "baseline": "3edc118051aac8d3aa18fd76ae1da0bdc0240680",
+  "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "business": [
     {
       "id": "b01",
@@ -16,7 +16,8 @@
             "today"
           ],
           "label": "Home & AI Command",
-          "icon": "i-grid"
+          "icon": "i-grid",
+          "secondary": false
         },
         {
           "view": "assistant",
@@ -33,7 +34,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "approvals",
@@ -44,7 +46,8 @@
           ],
           "label": "Approvals",
           "icon": "i-check",
-          "badge": "nav-approvals"
+          "badge": "nav-approvals",
+          "secondary": false
         },
         {
           "view": "automations",
@@ -57,7 +60,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         }
       ]
     },
@@ -78,7 +82,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "customers",
@@ -96,7 +101,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "quotes",
@@ -109,7 +115,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "bookings",
@@ -122,7 +129,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "jobs",
@@ -133,7 +141,8 @@
           ],
           "label": "Jobs & Dispatch",
           "icon": "i-briefcase",
-          "badge": "nav-jobs"
+          "badge": "nav-jobs",
+          "secondary": false
         },
         {
           "view": "stock",
@@ -150,7 +159,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "archive",
@@ -163,7 +173,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         }
       ]
     },
@@ -182,7 +193,8 @@
             "people"
           ],
           "label": "Workers & Compliance",
-          "icon": "i-users"
+          "icon": "i-users",
+          "secondary": false
         },
         {
           "view": "team",
@@ -195,7 +207,8 @@
           "icon": "i-users",
           "roles": [
             "owner"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "hiring",
@@ -209,7 +222,8 @@
           "roles": [
             "owner",
             "admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "offshore",
@@ -222,7 +236,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         }
       ]
     },
@@ -232,6 +247,20 @@
       "kicker": "B04 · COMMUNICATIONS",
       "icon": "i-bell",
       "items": [
+        {
+          "view": "unifiedinbox",
+          "path": "b04/unified",
+          "label": "Unified Inbox",
+          "icon": "i-bell",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "secondary": false
+        },
         {
           "view": "comms",
           "path": "b04/inbox",
@@ -247,20 +276,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
-        },
-        {
-          "view": "unifiedinbox",
-          "path": "b04/unified",
-          "label": "Unified Inbox",
-          "icon": "i-bell",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "voiceflow",
@@ -273,7 +290,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "mail",
@@ -286,7 +304,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "phone",
@@ -299,7 +318,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "calls",
@@ -312,7 +332,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "receptionist",
@@ -325,7 +346,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "meetings",
@@ -338,21 +360,23 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "teamchat",
           "path": "b04/team-chat",
           "label": "Team Chat",
           "icon": "i-users",
-          "roles": null
+          "roles": null,
+          "secondary": false
         }
       ]
     },
     {
       "id": "b05",
-      "label": "Content & Growth",
-      "kicker": "B05 · CONTENT & GROWTH",
+      "label": "Growth",
+      "kicker": "GROWTH",
       "icon": "i-video",
       "items": [
         {
@@ -371,7 +395,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "growth",
@@ -388,7 +413,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "businesscampaigns",
@@ -401,7 +427,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "campaignstudio",
@@ -414,7 +441,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "consent",
@@ -427,16 +455,9 @@
             "manager",
             "super_admin",
             "director"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b06",
-      "label": "Website & Visibility",
-      "kicker": "B06 · WEBSITE & VISIBILITY",
-      "icon": "i-link",
-      "items": [
+          ],
+          "secondary": true
+        },
         {
           "view": "seocentre",
           "path": "b06/seo",
@@ -448,7 +469,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "seoaudit",
@@ -461,7 +483,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "seoclusters",
@@ -474,7 +497,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "seogoogle",
@@ -487,7 +511,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "seostudio",
@@ -500,7 +525,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "seobuilder",
@@ -513,7 +539,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "seolocal",
@@ -526,7 +553,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "seoanalytics",
@@ -539,7 +567,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "seoreports",
@@ -552,7 +581,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "website",
@@ -565,7 +595,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "visibility",
@@ -583,7 +614,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "searchconsole",
@@ -596,7 +628,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "backlinks",
@@ -609,7 +642,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         }
       ]
     },
@@ -633,7 +667,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "businessinvoices",
@@ -644,7 +679,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "finsales",
@@ -655,7 +691,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "finpayments",
@@ -666,7 +703,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "finreconcile",
@@ -677,7 +715,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "finreports",
@@ -688,7 +727,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "fincompliance",
@@ -699,14 +739,15 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         }
       ]
     },
     {
       "id": "b08",
       "label": "Setup & Trust",
-      "kicker": "B08 · SETUP & TRUST",
+      "kicker": "SETUP & TRUST",
       "icon": "i-shield",
       "items": [
         {
@@ -725,7 +766,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "integrations",
@@ -742,7 +784,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "migration",
@@ -759,7 +802,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "exports",
@@ -772,7 +816,8 @@
           "icon": "i-doc",
           "roles": [
             "owner"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "governance",
@@ -782,7 +827,8 @@
             "governance/trust"
           ],
           "label": "Trust & Security",
-          "icon": "i-shield"
+          "icon": "i-shield",
+          "secondary": false
         },
         {
           "view": "automation",
@@ -795,7 +841,8 @@
             "manager",
             "super_admin",
             "director"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "support",
@@ -805,7 +852,8 @@
             "governance/help"
           ],
           "label": "Help & Complaints",
-          "icon": "i-bell"
+          "icon": "i-bell",
+          "secondary": false
         },
         {
           "view": "supportaccess",
@@ -814,7 +862,8 @@
           "icon": "i-shield",
           "roles": [
             "owner"
-          ]
+          ],
+          "secondary": true
         },
         {
           "view": "manual",
@@ -824,16 +873,9 @@
             "governance/manual"
           ],
           "label": "User Manual",
-          "icon": "i-doc"
-        }
-      ]
-    },
-    {
-      "id": "b09",
-      "label": "Plans & Usage",
-      "kicker": "B09 · PLANS & USAGE",
-      "icon": "i-doc",
-      "items": [
+          "icon": "i-doc",
+          "secondary": false
+        },
         {
           "view": "billing",
           "path": "b09/usage",
@@ -847,7 +889,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": false
         },
         {
           "view": "finplan",
@@ -858,7 +901,8 @@
             "owner",
             "admin",
             "super_admin"
-          ]
+          ],
+          "secondary": true
         }
       ]
     }
@@ -951,7 +995,7 @@
     [
       "f05",
       "team",
-      "Super Pro team",
+      "Oprun team",
       "users",
       [
         [
@@ -967,7 +1011,7 @@
     [
       "f06",
       "marketing",
-      "Super Pro marketing",
+      "Oprun marketing",
       "spark",
       [
         [

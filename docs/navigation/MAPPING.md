@@ -1,6 +1,6 @@
 # Navigation preservation map
 
-Baseline: current production and main verified at 3edc118 on 31 October 2026. Public website, APIs, storage and credentials unchanged.
+Baseline: PDF implementation baseline main/live 6615f960 verified on 12 November 2026. Public website, APIs, storage and credentials unchanged.
 
 Implementation: group → submenu in the left rail; existing page sections/tabs at the top. Canonical routes and legacy aliases are preserved. Default roles below are supplemented by existing custom grants; the server remains authoritative.
 
@@ -21,8 +21,8 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Business | People | Staff Accounts & Roles | /saas/workspace.html#b03/staff | owner | Existing view and API preserved; contextual sections enhanced in place |
 | Business | People | Hiring (owner & admin only) | /saas/workspace.html#b03/hiring | owner, admin | Existing view and API preserved; contextual sections enhanced in place |
 | Business | People | Offshore Staff | /saas/workspace.html#b03/offshore | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Inbox (all channels) | /saas/workspace.html#b04/inbox | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Unified Inbox | /saas/workspace.html#b04/unified | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Inbox (all channels) | /saas/workspace.html#b04/inbox | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Call Handling | /saas/workspace.html#b04/voice | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Email Centre | /saas/workspace.html#b04/email | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Phone Numbers | /saas/workspace.html#b04/numbers | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
@@ -30,24 +30,24 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Business | Communications | AI Receptionist | /saas/workspace.html#b04/receptionist | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
 | Business | Communications | Video Meetings | /saas/workspace.html#b04/meetings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Team Chat | /saas/workspace.html#b04/team-chat | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Content & Growth | Media Studio | /saas/workspace.html#b05/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Content & Growth | Growth Engine | /saas/workspace.html#b05/growth | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Content & Growth | Campaign Drafts | /saas/workspace.html#b05/campaigns | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Content & Growth | Campaign Studio | /saas/workspace.html#b05/campaign-studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Content & Growth | Consent & Unsubscribes | /saas/workspace.html#b05/consent | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | SEO Command Centre | /saas/workspace.html#b06/seo | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Technical Audit | /saas/workspace.html#b06/audit | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Keyword Clusters | /saas/workspace.html#b06/keywords | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Google | /saas/workspace.html#b06/google | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Website Content Studio | /saas/workspace.html#b06/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Website Builder | /saas/workspace.html#b06/builder | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Local SEO | /saas/workspace.html#b06/local | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | SEO Analytics | /saas/workspace.html#b06/analytics | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | SEO Reports | /saas/workspace.html#b06/reports | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Website & Domain | /saas/workspace.html#b06/website | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Website & Visibility | Search & AI Visibility | /saas/workspace.html#b06/search | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Website & Visibility | Search Connection Request | /saas/workspace.html#b06/search-console | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Website & Visibility | Backlink Suggestions | /saas/workspace.html#b06/backlinks | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Growth | Media Studio | /saas/workspace.html#b05/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Growth Engine | /saas/workspace.html#b05/growth | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Campaign Drafts | /saas/workspace.html#b05/campaigns | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Campaign Studio | /saas/workspace.html#b05/campaign-studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Consent & Unsubscribes | /saas/workspace.html#b05/consent | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO Command Centre | /saas/workspace.html#b06/seo | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Technical Audit | /saas/workspace.html#b06/audit | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Keyword Clusters | /saas/workspace.html#b06/keywords | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Google | /saas/workspace.html#b06/google | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Website Content Studio | /saas/workspace.html#b06/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Website Builder | /saas/workspace.html#b06/builder | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Local SEO | /saas/workspace.html#b06/local | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO Analytics | /saas/workspace.html#b06/analytics | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO Reports | /saas/workspace.html#b06/reports | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Website & Domain | /saas/workspace.html#b06/website | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Growth | Search & AI Visibility | /saas/workspace.html#b06/search | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Search Connection Request | /saas/workspace.html#b06/search-console | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Growth | Backlink Suggestions | /saas/workspace.html#b06/backlinks | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
 | Business | Money | Profit & Payments | /saas/workspace.html#b07/ledger | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Money | Invoices | /saas/workspace.html#b07/invoices | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Money | Quotes & Invoices | /saas/workspace.html#b07/sales | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
@@ -64,8 +64,8 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Business | Setup & Trust | Help & Complaints | /saas/workspace.html#b08/help | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Setup & Trust | Support Access | /saas/workspace.html#b08/support-access | owner | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Setup & Trust | User Manual | /saas/workspace.html#b08/manual | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Plans & Usage | Plans, Billing & Add-ons | /saas/workspace.html#b09/usage | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Plans & Usage | Change Plan | /saas/workspace.html#b09/change-plan | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup & Trust | Plans, Billing & Add-ons | /saas/workspace.html#b09/usage | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup & Trust | Change Plan | /saas/workspace.html#b09/change-plan | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
 | Founder | Platform overview | Overview | /office/#f01/overview | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | Revenue | /office/#f01/platform/revenue | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | Infrastructure | /office/#f01/system | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
@@ -79,15 +79,15 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Support & success | Email Centre | /office/#f04/mail | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Support & success | Tickets | /office/#f04/records:ticket | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Support & success | Support access | /office/#f04/support-access | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro team | Team work | /office/#f05/records:staff_task | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro team | Hiring requests | /office/#f05/records:hire | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro marketing | Prospect CRM | /office/#f06/records:prospect | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro marketing | Campaign drafts | /office/#f06/records:campaign | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro marketing | Content drafts | /office/#f06/records:content | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro marketing | Announcement drafts | /office/#f06/records:announcement_draft | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro marketing | Website visibility | /office/#f06/legacy:searchvisibility | marketing.read or founder | Retained maintenance link; no migration |
-| Founder | Super Pro marketing | SEO & website | /office/#f06/platform/seo | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Super Pro marketing | Newsletter campaigns | /office/#f06/platform/campaigns | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | Team work | /office/#f05/records:staff_task | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | Hiring requests | /office/#f05/records:hire | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Prospect CRM | /office/#f06/records:prospect | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Campaign drafts | /office/#f06/records:campaign | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Content drafts | /office/#f06/records:content | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Announcement drafts | /office/#f06/records:announcement_draft | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Website visibility | /office/#f06/legacy:searchvisibility | marketing.read or founder | Retained maintenance link; no migration |
+| Founder | Oprun marketing | SEO & website | /office/#f06/platform/seo | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Newsletter campaigns | /office/#f06/platform/campaigns | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Operations & maintenance | Tasks & releases | /office/#f07/records:task | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Operations & maintenance | Incidents | /office/#f07/records:incident | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Operations & maintenance | Operating costs | /office/#f07/records:cost | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
@@ -111,7 +111,7 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Automation (B08) | Automation Settings | Routine settings, separate from workflow builder |
 | Search Console request (B06) | Search Connection Request | Request form is separate from actual Google integrations |
 
-No database, route or permission changes accompany these labels. Inbox and financial views remain distinct; consolidating their records is outside this navigation change.
+No database, route or permission changes accompany these labels. Seven business groups share role-filtered workflow links. Retained legacy tools use More disclosure; inbox and financial record stores remain distinct to preserve their data.
 
 ## Existing section sources
 

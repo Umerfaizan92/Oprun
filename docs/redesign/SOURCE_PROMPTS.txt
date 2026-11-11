@@ -1,0 +1,229 @@
+        Oprun — Final Redesign, Audit, Remapping &
+                 Implementation Prompts
+Deep Inventory Analysis · Live Site Review · Competitive Benchmark ·
+Design & Security Recommendations · ChatGPT / Claude Continuation
+Prompts
+Prepared: 12 November 2026 · Australia/Perth · Inventory source 6615f96 + live check of oprun.ai
+
+
+
+
+1. Deep Inventory Re-Analysis (Source 6615f96)
+The inventory documents 60 business pages (B01–B09) and 34 founder pages. Core strength is the end-to-end service
+pipeline (enquiry → quote → booking → job/allocation → completion → invoice → payment) with approval gates, AI
+assistance, Australian compliance focus (GST, work rights, offshore acknowledgements) and multi-tenant isolation.
+Weakness is fragmentation: too many parallel surfaces for communications, marketing, SEO and finance that increase
+cognitive load and training cost.
+Critical overlaps requiring remapping:
+
+   • Communications: Inbox (all channels), Unified Inbox, Email Centre, Calls & SMS, Team Chat — different stores and
+   scopes but confusing labels.
+   • Growth/Campaigns: Growth Engine, Campaign Drafts, Campaign Studio, Media Studio, Content Studio.
+   • Website/SEO: 13+ pages (Command Centre, Audit, Keywords, Google, Content Studio, Builder, Local, Analytics,
+   Reports, Website & Domain, Search & AI Visibility, Search Connection Request, Backlinks).
+   • Money: Profit & Payments, Invoices, Quotes & Invoices, Payments & Refunds, Bank Reconciliation, Reports & GST,
+   Finance Settings.
+   • People: Workers & Compliance, Staff Accounts & Roles, Hiring, Offshore Staff — conceptually distinct but poorly
+   hierarchical.
+   • Automation: Today AI Automations, Setup Automation Settings, Founder AI automations.
+Strengths to preserve and elevate:
+
+   • Approval-required model for external/consequential actions (messages, publish, payments, schedule, permissions).
+   • Eligibility engine for worker allocation with skills/compliance checks.
+   • Native AI receptionist and operations tasks with human review.
+   • Australian-specific: GST/BAS draft, work rights guidance, privacy acknowledgements.
+   • Tenant isolation enforced server-side (session determines business); navigation hiding is not the auth mechanism.
+   • Founder Console cleanly separated from business workspace.
+
+
+2. Live Site Observations (12 Nov 2026)
+Public homepage (oprun.ai) positions Oprun as an AI Operating System for service businesses: approval gates,
+plain-language AI, on-site use, plans (Starter / Operations / Scale). Design is clean and practical. Workspace URL redirects to
+sign-in.html. Sign-in page shows: Email, Password, Remember email, optional Authenticator code, links for forgot
+password/email, Operator sign-in, Create account. Messaging emphasises secure workspace, MFA, audit-ready, one
+connected workspace. No public workspace data is exposed.
+From summariser capture of the authenticated workspace view (zero-state): Command Centre with readiness scores, AI
+operations brief, core workflow steps, sections for People, Jobs, Money, Content Studio, Connections, Trust, etc. Heavy use
+of forms, AI “Ask” buttons, empty states and Australian catalogue references. Impression: feature-dense, owner-controlled,
+compliance-aware, but visually busy and form-heavy for daily use.
+
+Immediate UX issues visible even in zero state:
+
+   • Too many top-level sections and “Ask AI” entry points competing for attention.
+• Empty-state messaging is functional but not guided enough toward the next high-value action.
+• Sign-in is solid but could surface progressive onboarding more clearly after first login.
+• No visible mobile-optimised preview in the captured view; field-worker experience needs priority.
+3. Recommended Remapping, Consolidation & Removals
+Target: reduce business navigation to 6–7 primary groups with progressive disclosure. Most complexity moves into tabs,
+contextual panels or role-filtered views. Founder Console remains fully separate.
+
+
+Proposed primary navigation (business, role-filtered):
+  • Today — Command Centre (attention, AI entry, approvals, automations summary)
+  • Work — Unified Pipeline (Enquiries / Quotes / Bookings / Jobs with stage filters + eligibility) + Stock
+  • Customers — Directory with full timeline (comms, jobs, photos, invoices)
+  • People — Workers & Compliance + Staff Accounts & Roles + Hiring (owner/admin) + Offshore
+  • Communications — Unified Inbox (all channels + folders) + Call Handling + AI Receptionist + Meetings + Team Chat
+  • Growth — Growth Hub (plan, calendar, campaigns, consent) + Media Studio + SEO Command (tabs) + Website Builder
+  • Money — Ledger / Documents / Payments / Reconciliation / Reports & GST / Settings
+  • Setup — Brand & Settings + Connections + Import + Export + Trust & Security + Automation + Help + Manual + Plans
+
+
+Explicit removal / deprecation recommendations:
+  • Standalone “Inbox (all channels)” page — remove; route to Unified Inbox.
+  • Separate top-level Email Centre — become a folder/filter inside Unified Inbox.
+  • Generic “Campaign Drafts” — merge into Campaign Studio / Growth Hub drafts.
+  • Older “Search & AI Visibility” assessment workspace — fold into SEO Command readiness.
+  • “Search Connection Request” and “Backlink Suggestions” as pages — become actions inside SEO/Google.
+  • “Website & Domain” as separate request page — move into Connections or Website Builder.
+  • Duplicate Quotes & Invoices surfaces — single document model with clear status.
+  • Empty “Records & Archive” shell — replace with archive filters on relevant lists.
+  • Multiple “Save service request” forms (Phone Numbers, Calls & SMS, AI Receptionist) — single Communications Setup
+  wizard.
+  • Legacy founder routes once fully migrated.
+  • Redundant approval checkboxes that duplicate automation rules — single source of truth.
+
+
+4. Design, Typography, Compactness & Multi-Device Experience
+Current impression (from inventory + live sign-in + zero-state capture): functional but dense. Recommend a cleaner visual
+system.
+
+  • Typography: Use a modern system stack or Inter / Source Sans 3. Base 16 px on desktop, 15–16 px on mobile. Clear
+  hierarchy (H1 24–28 px, H2 18–20 px, body 15–16 px). Increase line-height to 1.5. Avoid tiny labels.
+  • Spacing & density: Increase padding in cards and forms. Use progressive disclosure (accordions, tabs, “More” for
+  advanced fields). Empty states should show the single next best action with a primary button.
+  • Desktop: Left rail navigation (collapsible). Main content max-width ~1200 px. Command Centre as true dashboard with
+  3–4 key cards + attention list. Sticky AI command bar.
+  • Mobile / tablet: Bottom nav or compact drawer for primary groups. Large touch targets (min 44 px). Job execution and
+  Team Chat optimised for field use (photo capture, status updates, one-tap accept). Dark mode already present — polish
+  contrast.
+  • Visual language: Consistent status colours (green=ok, amber=attention, red=block). Clear approval badges. Subtle
+  Australian compliance cues without clutter.
+  • Accessibility: Sufficient contrast, keyboard navigation, screen-reader labels on all icon buttons, focus states.
+  • Performance: Lazy-load heavy sections (SEO, Media). Skeleton loaders instead of blank.
+
+
+5. Security, Isolation & Backend Integrity (Hardening)
+  • Enforce tenant_id on every query and mutation; automated cross-tenant tests in CI.
+   • Separate permission layers: business roles, custom feature grants, channel/resource grants, founder/operator identities.
+   Never rely on UI hiding.
+   • All consequential external actions require explicit approval with full audit (who, what, when, payload hash).
+   • Offshore staff: recorded safeguards + limited scopes before any customer data visibility.
+   • Secrets (Stripe, Google, WhatsApp tokens) never client-side; use short-lived server sessions.
+   • Encryption at rest for bank details, credentials, sensitive notes. TLS everywhere.
+   • MFA available (already present) — encourage for owners and recommend for managers.
+   • Regular backup/restore drills visible in Founder Reliability. Tamper-evident activity log.
+   • Rate limiting and anomaly detection on approvals and exports.
+
+
+6. Competitive Positioning vs Top 3 (2026)
+Top similar platforms: ServiceTitan (enterprise depth, high cost), Jobber (simplicity for small crews), Housecall Pro (balanced
+power). Australian peers (ServiceM8, Tradify, Fergus) are narrower job-to-invoice tools. Oprun’s opportunity is to own the full
+stack (operations + native AI + growth + compliance) while matching Jobber/Housecall Pro usability.
+
+After redesign Oprun should be positioned as: “The AI-native operating system for Australian service businesses — simpler
+daily flow than ServiceTitan, deeper automation and SEO than Jobber or Housecall Pro, with built-in approvals and
+work-rights checks.”
+7. Ready-to-Use Prompts for ChatGPT & Claude (with Context-Limit
+Continuation)
+These prompts are designed for iterative implementation. They explicitly instruct the model to preserve all completed work if
+context limits are reached and to resume exactly where it left off after a reset or new chat.
+
+
+Master Continuation Instruction (prepend to every prompt):
+  IMPORTANT CONTEXT LIMIT HANDLING:
+  If during this task you approach or reach your context limit, output limit, or any rate/token limit:
+  1. Immediately output a structured “CHECKPOINT” summary containing: (a) all decisions made so far, (b)
+  complete code/files/sections already produced, (c) exact next step, (d) any open questions.
+  2. Tell the user: “CHECKPOINT SAVED. Paste this entire message into a new chat and say ‘CONTINUE FROM
+  CHECKPOINT’ to resume without loss.”
+  3. Do not discard or summarise away completed work. Preserve full detail in the checkpoint.
+  When the user pastes a previous checkpoint and says “CONTINUE FROM CHECKPOINT”, resume exactly from the
+  next step with no repetition of finished work.
+
+
+Prompt 1 — Navigation & Inventory Remapping (ChatGPT / Claude)
+  You are a senior SaaS product architect and UX designer working on Oprun (Australian service-business OS).
+
+  Using the inventory principles already established (approval gates, tenant isolation, AI with human review,
+  Australian compliance), produce a complete remapped navigation and page inventory.
+
+  Output format:
+  1. New top-level groups (6–7 max) with role filters.
+  2. For each group: list of primary pages, which old pages are merged into them, and which are removed.
+  3. For every retained page: purpose, key controls, tabs/panels, empty-state guidance, and mobile behaviour.
+  4. Explicit list of pages/controls to deprecate with rationale.
+  5. Migration notes for existing routes (hash aliases).
+
+  Follow the Master Continuation Instruction above. Produce the full mapping in clear markdown tables.
+
+
+Prompt 2 — UI Component & Design System Refinement
+  You are a senior UI/UX designer specialising in dense operational SaaS.
+
+  Given Oprun’s current form-heavy, multi-section workspace, design a cleaner component system:
+  - Typography scale and spacing tokens.
+  - Card, table, empty-state, approval badge, and AI command bar patterns.
+  - Desktop rail + mobile bottom-nav / drawer patterns.
+  - Progressive disclosure rules for advanced fields.
+  - Accessibility checklist (contrast, touch targets, keyboard).
+
+  Deliver: design tokens (CSS custom properties), example component markup or Tailwind/React patterns, and
+  before/after descriptions for the Command Centre and Unified Inbox.
+
+  Follow the Master Continuation Instruction.
+
+
+Prompt 3 — Security & Isolation Hardening Checklist
+  You are a senior security engineer reviewing a multi-tenant SaaS (Oprun).
+
+  Produce a concrete hardening checklist and sample code patterns for:
+  - Tenant scoping on every query/mutation.
+  - Permission evaluation (roles + grants + channel scopes).
+  - Approval gate enforcement before any external action.
+  - Audit log requirements.
+  - Secret handling and encryption at rest.
+  - Automated tests that prove cross-tenant isolation.
+
+  Output as a prioritised list with example middleware or query patterns (language-agnostic or Node/JS
+  preferred). Include CI test ideas.
+
+  Follow the Master Continuation Instruction.
+
+
+Prompt 4 — Feature Enhancement Roadmap (AI + Growth + Compliance)
+  You are a product strategist for an AI-native service-business platform.
+
+  Prioritise and specify the next 90-day enhancements that make Oprun clearly better than ServiceTitan,
+ Jobber and Housecall Pro for Australian operators:
+ 1. Global AI Command Bar behaviours.
+ 2. Unified customer timeline.
+ 3. Clearer eligibility explanations.
+ 4. Connection health dashboard.
+ 5. Mobile job execution improvements.
+ 6. Any high-impact SEO or marketing consolidations.
+
+ For each: user story, acceptance criteria, security notes, and estimated complexity (S/M/L).
+
+ Follow the Master Continuation Instruction.
+
+
+
+8. Conclusion & Immediate Next Actions
+The inventory is comprehensive and the live sign-in experience is professional and security-conscious. The main risk is user
+overwhelm from page proliferation. Implementing the consolidations above, the design refinements, and the security checklist
+will make Oprun both more usable and more defensible than the current top three field-service platforms while preserving its
+Australian and AI-native advantages.
+
+Recommended immediate sequence:
+
+  • Validate the proposed 6–7 group navigation with 3–5 existing or prospective subscribers.
+  • Implement Unified Inbox + Work Pipeline consolidations as the first engineering epic.
+  • Apply the design system tokens and empty-state improvements to the Command Centre.
+  • Add automated cross-tenant isolation tests before any further feature work.
+  • Use the supplied prompts (with checkpoint instruction) in ChatGPT or Claude for detailed implementation artefacts.
+
+
+
+                                        — End of Final Audit & Prompt Pack —
+

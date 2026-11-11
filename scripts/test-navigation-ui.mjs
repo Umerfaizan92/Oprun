@@ -72,13 +72,27 @@ try {
     p.on('response', r => { if (r.url().includes('/api/') && r.status() >= 500) errors.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     await p.goto(s.base + '/saas/workspace.html'); await p.locator('#business-navigation .navigation-page').first().waitFor({ state: 'attached' });
     assert.equal(await p.locator('#business-navigation .navigation-page').count(), 60);
+    assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 7);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
+    await p.locator('#workspace-command button').waitFor();
+    assert.ok(await p.locator('#workspace-start a').count() > 0, 'Command Centre provides permitted next steps');
+    assert.equal(await p.locator('#dashboard-view .operational-strip .metric-card').count(),4);
+    assert.equal(await p.locator('#m-expiring').count(),1,'expiry detail preserved');
+    await p.locator('#workspace-command button').click();
+    await p.locator('#page-search').waitFor({state:'visible'});
+    await p.getByRole('button',{name:'Close search',exact:true}).click();
+    await p.screenshot({path:`qa/visual/navigation/redesign-command-${width}.png`,fullPage:true});
+    checked('Business','b01/home','Guided start, four metrics, preserved expiry and shared command search',width);
+
     for (const g of mapping.business) {
       for (const item of g.items) {
         if (width === 390) await p.getByRole('button', { name: '☰ Menu', exact: true }).click();
         const group = p.locator(`[data-nav-group="${g.id}"]`);
         if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
-        const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`); await link.click();
+        const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
+        const more = link.locator('xpath=ancestor::details');
+        if (await more.count() && !await link.isVisible()) await more.locator('summary').click();
+        await link.click();
         await p.locator('#' + item.view + '-view').waitFor({ state: 'visible' }); await settle(p);
         assert.equal(await link.getAttribute('aria-current'), 'page', item.path);
         assert.equal(await group.getAttribute('aria-expanded'), 'true');
@@ -88,6 +102,13 @@ try {
         await sections(p, p.locator('#' + item.view + '-view'), 'Business', item.path, width);
       }
     }
+    await p.goto(s.base + '/saas/workspace.html#b04/unified');
+    await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
+    await p.locator('#workspace-workflows [aria-label="Inbox"]').waitFor();
+    await p.locator('#workspace-workflows a[href="#b04/email"]').click();
+    await p.locator('#mail-view').waitFor({state:'visible'});
+    assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),'','selected secondary tool expands');
+    checked('Business','b04/unified','Inbox context opens retained Email Centre and reveals its More group',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
     await p.getByRole('tab', { name: 'Costs & overheads', exact: true }).click();
@@ -154,14 +175,17 @@ try {
   assert.ok(await worker.evaluate(() => { const host = document.querySelector('.view:not([hidden])'); if (!host) return false; const f = document.createElement('form'); f.id = 'nav-save-test'; f.innerHTML = '<input name="note" aria-label="Note"><button>Save</button>'; f.addEventListener('submit', async e => { e.preventDefault(); await fetch('/__nav-save-test', { method: 'POST', body: '{}' }).catch(() => {}); }); host.append(f); return true; }), 'a visible view hosts the synthetic form');
   const note = worker.locator('#nav-save-test input'), edits = () => worker.evaluate(() => window.SuperProNavigation.hasEdits());
   await note.click(); await note.fill('draft'); assert.equal(await edits(), true, 'typed edit is unsaved');
-  await worker.locator('#nav-save-test button').click(); await worker.waitForTimeout(1800); assert.equal(await edits(), true, 'failed save keeps the warning');
-  saveStatus = 200; await worker.locator('#nav-save-test button').click(); await worker.waitForTimeout(1800); assert.equal(await edits(), false, 'successful save clears the warning');
+  const failedResponse = worker.waitForResponse(r => r.url().endsWith('/__nav-save-test'));
+  await worker.locator('#nav-save-test button').click(); assert.equal((await failedResponse).status(),500,'synthetic failure reaches the form'); await worker.waitForTimeout(1800); assert.equal(await edits(), true, 'failed save keeps the warning');
+  saveStatus = 200; const successResponse = worker.waitForResponse(r => r.url().endsWith('/__nav-save-test'));
+  await worker.locator('#nav-save-test button').click(); assert.equal((await successResponse).status(),200,'synthetic success reaches the form');
+  await worker.waitForFunction(() => !window.SuperProNavigation.hasEdits(),{},{timeout:6000}); assert.equal(await edits(), false, 'successful save clears the warning');
   await note.fill('draft 2'); assert.equal(await edits(), true, 'edits after a save are unsaved again');
   checked('Business', 'unsaved changes', 'Save acknowledgement: failure keeps warning, success clears it, later edits warn', 1440);
   await workerContext.close();
   const missing = Object.entries(expected).flatMap(([route, names]) => [1440, 390].flatMap(width => names.filter(n => !coverage.some(c => c.route === route && c.width === width && c.section === n)).map(n => `${route} ${width}px: ${n}`)));
+  fs.mkdirSync('qa/reports', { recursive: true }); fs.writeFileSync('qa/reports/navigation-coverage.json', JSON.stringify({ generated_at: new Date().toISOString(), baseline: mapping.baseline, coverage, errors, missing, writes: 'Synthetic form input only; no external service actions' }, null, 2) + '\n');
   assert.deepEqual(missing, [], 'every reviewed section is checked at both widths');
   assert.deepEqual(errors, []);
-  fs.mkdirSync('qa/reports', { recursive: true }); fs.writeFileSync('qa/reports/navigation-coverage.json', JSON.stringify({ baseline: mapping.baseline, coverage, errors, writes: 'Synthetic form input only; no external service actions' }, null, 2) + '\n');
   console.log(`PASS navigation: ${coverage.length} route/section checks; 60 business and 34 founder pages at mobile and desktop; restricted-role and state tests`);
 } finally { await browser?.close(); await s.stop(); }
