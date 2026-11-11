@@ -184,8 +184,8 @@ try {
   checked('Business', 'unsaved changes', 'Save acknowledgement: failure keeps warning, success clears it, later edits warn', 1440);
   await workerContext.close();
   const missing = Object.entries(expected).flatMap(([route, names]) => [1440, 390].flatMap(width => names.filter(n => !coverage.some(c => c.route === route && c.width === width && c.section === n)).map(n => `${route} ${width}px: ${n}`)));
+  fs.mkdirSync('qa/reports', { recursive: true }); fs.writeFileSync('qa/reports/navigation-coverage.json', JSON.stringify({ generated_at: new Date().toISOString(), baseline: mapping.baseline, coverage, errors, missing, writes: 'Synthetic form input only; no external service actions' }, null, 2) + '\n');
   assert.deepEqual(missing, [], 'every reviewed section is checked at both widths');
   assert.deepEqual(errors, []);
-  fs.mkdirSync('qa/reports', { recursive: true }); fs.writeFileSync('qa/reports/navigation-coverage.json', JSON.stringify({ baseline: mapping.baseline, coverage, errors, writes: 'Synthetic form input only; no external service actions' }, null, 2) + '\n');
   console.log(`PASS navigation: ${coverage.length} route/section checks; 60 business and 34 founder pages at mobile and desktop; restricted-role and state tests`);
 } finally { await browser?.close(); await s.stop(); }

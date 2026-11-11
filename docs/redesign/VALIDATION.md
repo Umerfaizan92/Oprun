@@ -10,7 +10,7 @@ Baseline: `6615f960c357009a409a912b89e02b3af8fa617d`. Existing Render service: `
 | Semantic workspace boot | All 60 Business pages initialized; seven groups, guided start and shared command present; zero runtime errors, missing views or HTTP 5xx. This is not a visual/device test |
 | Local browser attempt | Blocked before page load by environment socket restriction. No local visual success claimed |
 | Full local npm test | 73/73 checks passed, including all 55 contract test files |
-| Full responsive/browser matrix | PR75 initial browser run: phone/tablet/desktop dark/light component accessibility passed. Full tests caught footer gap and save-state/background-monitor coupling; both corrected with targeted regressions. Current-head complete CI still required before promotion |
+| Full responsive/browser matrix | Corrected candidate c89cf355 passed all 34 general UI checks, footer/layout and save lifecycle; complete traversal exposed only stale Super Pro → Oprun newsletter expectation, now reconciled to actual source without dropping assertions. PR75 initial browser run: phone/tablet/desktop dark/light component accessibility passed. Full tests caught footer gap and save-state/background-monitor coupling; both corrected with targeted regressions. Current-head complete CI still required before promotion |
 | Secret scan / release manifest / memory validation | Required again on final staged source |
 | Deployment / live acceptance | Pending passing CI and exact-source promotion; do not claim deployed from source publication alone |
 

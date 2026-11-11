@@ -1277,3 +1277,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T195728Z (8e82825)
 - Known errors: none
 - Next exact action: Publish this correction using remote parent f7f7cf1, then inspect current PR75 CI/Security and screenshots. Never deploy a candidate with failing checks.
+
+## CP-092 2026-11-12T03:58:18+08:00 T-081 TESTING
+- Phase: PR75 corrected candidate browser validation
+- Task: T-081 (TESTING)
+- Completed steps: Published correction as c89cf3554c6e72746bd1bcef73e2ded0f8e13b35 with source tree edee092741910c77fb57c784f60ad6b77f30fd3b; 24 focused tests and semantic save regression pass; no production change
+- Incomplete steps: Current-head CI/Security and screenshots; merge PR75; existing Render deployment; live verify; portable final release checkpoint
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 9f447a6 (Keep background checks out of form saves and correct sticky layout); 3 commit(s) not on origin/main
+- Recovery snapshot: none (working tree is clean; nothing unfinished to save)
+- Known errors: none
+- Next exact action: Inspect PR75 checks for c89cf355 before any further code edits. Existing Render remains6615f960. Deploy only after corrected candidate passes.
+
+## CP-093 2026-11-12T04:03:52+08:00 T-081 TESTING
+- Phase: PR75 final source-label reconciliation
+- Task: T-081 (TESTING)
+- Completed steps: Corrected candidate c89cf355 passes full73 build, all34 generalUI, integration/smoke, security and zero-vulnerability audit; form save lifecycle now passes; complete60Business34Founder traversal failed only stale pre-rename newsletter label, reconciled to actual Oprun source; all94 pages now mapped
+- Incomplete steps: Current-head complete recovered UI matrix and screenshot review; merge PR75; deploy existing Render service; live source/auth/health checks; final portable evidence
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/SESSION_HANDOVER.md; docs/navigation/SECTIONS.md; docs/redesign/01_NAVIGATION.md; docs/redesign/README.md; docs/redesign/VALIDATION.md; office/console.html; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs
+- Tests executed: CI verify job130771444335; 24 focused regressions; responsive components and save lifecycle
+- Test results: 73/73 build and34/34 UI plus integration/smoke; 24pass; pass
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 9f447a6 (Keep background checks out of form saves and correct sticky layout); 3 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T200352Z (600445e)
+- Known errors: none
+- Next exact action: Publish label/asset-version/evidence corrections with expected remote c89cf355. Wait for current-head CI/Security, then merge and deploy only the tested tree.

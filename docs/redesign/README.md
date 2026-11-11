@@ -4,7 +4,7 @@ Source: `Oprun_Final_Redesign_Audit_Prompts_2026-11-12.pdf`, read in full. Exact
 
 ## PDF prompt outputs
 
-1. `01_NAVIGATION.md`: seven groups; all 60 Business pages with purposes, working, controls, panels, empty guidance, mobile behaviour and permissions; explicit legacy/deprecation and route migration decisions. All 34 Founder destinations remain separate.
+1. `01_NAVIGATION.md`: seven groups; all 60 Business pages with purposes, working, controls, panels, empty guidance, mobile behaviour and permissions; explicit legacy/deprecation and route migration decisions. All 34 Founder destinations are also mapped with purpose, controls, guidance and mobile rules; their authentication remains separate.
 2. `02_DESIGN_SYSTEM.md`: implemented CSS tokens and component examples; before/after Command Centre and Inbox; disclosure, keyboard and mobile rules.
 3. `03_SECURITY_AUDIT.md`: prioritised concrete findings, implemented publisher hardening, server/query patterns, attack matrix and honest operational follow-ups.
 4. `04_ROADMAP_90_DAYS.md`: user stories, acceptance, security and complexity for all six requested enhancement areas and dependencies.

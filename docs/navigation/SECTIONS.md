@@ -163,7 +163,7 @@ Every page below was opened through its sidebar link at 1440 px and 390 px. List
 | Announcement drafts | `f06/records:announcement_draft` | Single content view; no additional tablist observed | PASS, both widths |
 | Website visibility | `f06/legacy:searchvisibility` | Single content view; no additional tablist observed | PASS, both widths |
 | SEO & website | `f06/platform/seo` | Command Centre → Command Centre / Section: Google → Command Centre / Section: Scheduled SEO jobs → Technical Audit → Keyword Clusters → Google → Content Studio → Website Builder → Analytics → Reports | PASS, both widths |
-| Newsletter campaigns | `f06/platform/campaigns` | Section: Communications overview → Section: New campaign → Section: Super Pro newsletter campaigns | PASS, both widths |
+| Newsletter campaigns | `f06/platform/campaigns` | Section: Communications overview → Section: New campaign → Section: Oprun newsletter campaigns | PASS, both widths |
 
 ### Operations & maintenance
 

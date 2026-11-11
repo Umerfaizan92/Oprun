@@ -40,6 +40,15 @@ try {
   await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
   assert.equal(await page.locator('#workspace-workflows a[href="#b04/email"]').getAttribute('aria-current'),'page');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  for (const theme of ['dark','light']) {
+   await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+   const failures=await page.evaluate(async source=>{
+    if(!window.axe)(0,eval)(source);
+    const r=await window.axe.run({include:['#workspace-workflows']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});
+    return r.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>v.id);
+   },axe);
+   assert.deepEqual(failures,[],`${width}px ${theme} workflow navigation accessibility`);
+  }
   await page.evaluate(() => {document.activeElement?.blur();window.scrollTo(0,0);});await page.mouse.move(0,0);
   await page.screenshot({path:`qa/visual/redesign/inbox-${width}.png`,fullPage:true});
   await context.close();
