@@ -67,6 +67,7 @@ jobs:
           npm run release:audit
       - name: Verify recovered public website and phase interfaces
         run: |
+          npm run test:redesign-ui
           npm run test:navigation-ui
           npm run test:channels-ui
           npm run test:connections-ui
@@ -80,3 +81,15 @@ jobs:
           npm run test:finance-ui
           npm run test:reliability-ui
           npm run verify:modules
+
+      - name: Preserve navigation and redesign visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oprun-redesign-visual-evidence
+          path: |
+            qa/visual/redesign/
+            qa/visual/navigation/
+            qa/reports/navigation-coverage.json
+          if-no-files-found: ignore
+          retention-days: 14

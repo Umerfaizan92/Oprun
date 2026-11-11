@@ -1235,3 +1235,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194203Z (daaa89e)
 - Known errors: none
 - Next exact action: Wait for full local verification then publish exact reviewed source to GitHub PR for browser CI
+
+## CP-089 2026-11-12T03:44:22+08:00 T-081 TESTING
+- Phase: GitHub PR75 browser validation
+- Task: T-081 (TESTING)
+- Completed steps: Published identical source tree ebdf275be14954ed306a43804a830e464acdcb47 as remote commit 0be3094 PR75; full local npm test 73/73; 55 contract files pass; all 60 Business pages initialize without runtime or server errors; secret scan 559 tracked files and manifest 566 files pass
+- Incomplete steps: CI43089882031 and Security43089882150 must pass; fix browser issues if any; merge exact source; deploy existing Render service; verify live and persist final evidence
+- Files modified (uncommitted at checkpoint): qa/reports/release-audit.json
+- Tests executed: npm test; targeted security/navigation; source preservation; semantic 60-page boot; secrets; manifest; memory
+- Test results: 73/73; 21/21; no removals; zero errors; pass; pass; pass
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 474b733 (Simplify workspace navigation and harden reviewed Growth publishing); 1 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194422Z (f444601)
+- Known errors: none
+- Next exact action: Inspect PR75 checks at head 0be3094. Do not redeploy current 6615f960. Merge only after CI and Security pass.
+
+## CP-090 2026-11-12T03:46:48+08:00 T-081 TESTING
+- Phase: GitHub PR75 responsive visual validation
+- Task: T-081 (TESTING)
+- Completed steps: Local 73/73 build, integration runtime and smoke checks pass; Security CodeQL dependency-review and dependency audit jobs pass at 0be3094; all60 semantic views pass; added explicit3907681440 dark/light accessibility and screenshot evidence suite
+- Incomplete steps: Publish visual suite and latest durable handover; wait for current-head CI; inspect visual evidence; merge and existing Render deployment; verify live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; docs/redesign/VALIDATION.md; package.json; qa/reports/release-audit.json; scripts/test-redesign-ui.mjs
+- Tests executed: npm test; integration:test; smoke:test; targeted tests; source preservation
+- Test results: 73/73; pass; pass; 21/21; no removals
+- Git branch: codex/redesign-pdf-20261112
+- Commit: 474b733 (Simplify workspace navigation and harden reviewed Growth publishing); 1 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194648Z (b476227)
+- Known errors: none
+- Next exact action: Publish current follow-up files to PR75 using expected remote head0be3094, then monitor new CI. Render remains6615f960 until current-head checks pass.
