@@ -124,13 +124,13 @@ export function createGoogleClient({ fetchImpl = globalThis.fetch, env = {} } = 
     // ---------- Google Ads (reporting only) ----------
     async adsCustomers(token) {
       if (!env.GOOGLE_ADS_DEVELOPER_TOKEN) throw new GoogleError('Google Ads needs a developer token from Google (GOOGLE_ADS_DEVELOPER_TOKEN).', 412);
-      const v = env.GOOGLE_ADS_API_VERSION || 'v21';
+      const v = env.GOOGLE_ADS_API_VERSION || 'v26';
       const j = await call(fetchImpl, `https://googleads.googleapis.com/${v}/customers:listAccessibleCustomers`, { token, headers: { 'developer-token': env.GOOGLE_ADS_DEVELOPER_TOKEN } });
       return (j.resourceNames || []).map((r) => ({ customer: r, id: r.split('/')[1] }));
     },
     async adsCampaigns(token, customerId, { startDate, endDate } = {}) {
       if (!env.GOOGLE_ADS_DEVELOPER_TOKEN) throw new GoogleError('Google Ads needs a developer token from Google.', 412);
-      const v = env.GOOGLE_ADS_API_VERSION || 'v21';
+      const v = env.GOOGLE_ADS_API_VERSION || 'v26';
       const query = `SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions, metrics.cost_micros, metrics.conversions FROM campaign WHERE segments.date BETWEEN '${ymd(startDate)}' AND '${ymd(endDate)}'`;
       const j = await call(fetchImpl, `https://googleads.googleapis.com/${v}/customers/${String(customerId).replace(/\D/g, '')}/googleAds:search`, { token, method: 'POST', body: { query }, headers: { 'developer-token': env.GOOGLE_ADS_DEVELOPER_TOKEN, ...(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ? { 'login-customer-id': String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID).replace(/\D/g, '') } : {}) } });
       return (j.results || []).map((r) => ({ campaign: r.campaign?.name, status: r.campaign?.status, clicks: Number(r.metrics?.clicks || 0), impressions: Number(r.metrics?.impressions || 0), cost: Number(r.metrics?.costMicros || 0) / 1e6, conversions: Number(r.metrics?.conversions || 0) }));

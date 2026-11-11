@@ -106,7 +106,7 @@ const HOOKS = {
 const fill = (s, p) => s.replaceAll('{product}', p.product || 'our service').replaceAll('{audience}', p.audience || 'you');
 
 /* ---- install ---------------------------------------------------------------------------------------------------- */
-export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasRole, saasAudit, generateAiText, notify, connections, entitlements, fetchImpl = globalThis.fetch }) {
+export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasRole, saasAudit, generateAiText, notify, connections, entitlements, channelAuthority, fetchImpl = globalThis.fetch }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS growth_profiles (
       organisation_id TEXT PRIMARY KEY, niche TEXT, audience TEXT, product TEXT, voice TEXT, story TEXT,
@@ -316,6 +316,10 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     const set = (status, extra = {}) => db.prepare(`UPDATE growth_calendar SET status=?,external_id=?,error=?,published_at=?,updated_at=? WHERE id=?`).run(status, extra.external_id ?? null, extra.error ?? null, extra.published_at ?? null, iso(), id);
     const ownerAlert = (title, body) => notify?.notifyRoles?.(item.organisation_id, ['owner', 'admin'], { kind: 'content', title, body, link: '#growth', dedupe: `growth:${id}:${title}` }).catch(() => {});
     const audit = (action, metadata) => appendAuditLog(db, { organisation_id: item.organisation_id, user_id: actor, action, module: 'growth', entity_type: 'growth_post', entity_id: id, metadata });
+    if(channelAuthority && !channelAuthority(item.organisation_id,item.approved_by,item.platform==='facebook'?'meta':item.platform)){
+      set('draft',{error:'Channel approval authority changed. The business owner must review this post again.'});
+      audit('growth.post_held_for_access',{platform:item.platform});return {ok:false,status:'draft',error:'Channel approval authority changed. Review again.'};
+    }
     if (!(AUTO_PUBLISH[item.platform] || []).includes(item.post_type) || !entitlements.rules(item.organisation_id).growth_auto_publish) {
       set('due');
       audit('growth.post_ready_to_post', { platform: item.platform, type: item.post_type });

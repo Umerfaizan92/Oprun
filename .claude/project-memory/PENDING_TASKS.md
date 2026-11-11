@@ -198,8 +198,15 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Server test covers isolation, guest waiting room, limits and cleanup; browser test proves two staff and one guest see and hear each other with fake media; npm test passes; pages fit phone, tablet, laptop
 
 ## T-076 Oprun public-site fixes and mobile release preparation
-- Status: IN_PROGRESS
+- Status: BLOCKED
 - Added: 2026-11-11
 - Requirement: Owner 2026-11-11: fix all problems identified in the public website audit and make Oprun ready for Android and Apple stores. Owner selected Primary Render connection for deployment in My Workspace. Preserve data and credentials; verify release readiness honestly.
 - Files: saas/auth.js, saas/product-guide.js, saas/registration-layout.css, saas/sw.js, scripts/site, src/product-guide-knowledge.js, src/mobile-association.js, mobile/, .github/workflows/mobile-builds.yml
 - Acceptance: Plan selection and contextual guide answers verified; registration layout and install guidance tested; public website deployed after checks; native projects compile in CI; signing, device testing and store approvals tracked as owner release gates rather than falsely completed.
+
+## T-077 Subscriber channel operations hub, owner-controlled access and local campaigns
+- Status: IN_PROGRESS
+- Added: 2026-11-11
+- Requirement: Owner 2026-11-11 requests organize and upgrade every Connections provider across social email WhatsApp YouTube and Google; subscriber-owned sign-in, posts videos text comments replies messaging subscribers viewers ads campaign overviews progress local-area targeting and AI recommendations; enforce tenant isolation and owner-controlled team access, exclude other businesses and platform operators; preserve resumable checkpoints, update related pages consistently, test then push and live-test. Owner additionally requests relevant tools/plugins including Elementor where available.
+- Files: src/integration-*, src/channel-*, src/staff-access.js, src/server.js, saas/integration-manager.*, saas/workspace*, scripts, docs/connections
+- Acceptance: Tenant and member permission attack tests pass; one organized hub integrates existing pages and actual supported provider workflows; unsupported permissions/APIs labelled accurately; campaigns persist local targeting and approvals; AI output requires review; CI and browser tests pass; publish and verify production where access permits

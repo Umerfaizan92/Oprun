@@ -29,7 +29,8 @@ export const FIELD_ROLES=['worker','contractor'];
 export const FIELD_FEATURES=['dashboard','jobs','workforce','staff_chat','approvals','governance'];
 const fieldAllowed=(role,key)=>!FIELD_ROLES.includes(String(role||'').toLowerCase())||FIELD_FEATURES.includes(String(key).split('.')[0]);
 export function withinRoleCeiling(role,grants){return grants.filter(k=>fieldAllowed(role,k))}
-const utility=new Set(['me','logout','login','account','mfa','legal','my-organisations','business','staff-presence','notifications','notification-preferences','announcements','releases','health','access']);
+const PRIVATE_CHANNEL_FEATURES=new Set(['integrations','inbox','mail','content','growth','visibility']);
+const utility=new Set(['channels','me','logout','login','account','mfa','legal','my-organisations','business','staff-presence','notifications','notification-preferences','announcements','releases','health','access']);
 const area={'business-hub':'customers','business-archive':'customers','service-requests':'settings','receptionist-profile':'settings',mail:'mail','support-access':'governance',dashboard:'dashboard','command-centre':'dashboard',customers:'customers',stock:'stock','work-orders':'jobs','job-offers':'jobs','job-media':'jobs',workers:'workforce','staff-chat':'staff_chat','staff-availability':'staff_chat',ai:'ai',voice:'ai',content:'content',media:'content','video-renders':'content',growth:'growth',seo:'visibility',comms:'inbox',finance:'finance',payments:'finance',approvals:'approvals',integrations:'integrations','platform-capabilities':'integrations',onboarding:'settings',branding:'settings',address:'settings','industry-registry':'settings',regulatory:'settings',hiring:'hiring',governance:'governance','live-activity':'governance',activity:'governance',billing:'billing',subscription:'billing',plans:'billing',addons:'billing',entitlements:'billing','platform-invoices':'billing','message-delivery':'finance',automation:'settings',search:'dashboard'};
 export function accessRoute(req){
  const path=String(req.originalUrl||req.path||'').split('?')[0];if(!path.startsWith('/api/saas/'))return null;
@@ -48,7 +49,7 @@ function ownerOnlyPath(path){return /^\/api\/saas\/(support-access|team-accounts
 export function createStaffAccess({db,audit}){
  db.exec(`CREATE TABLE IF NOT EXISTS staff_access_policies(organisation_id TEXT NOT NULL,user_id TEXT NOT NULL,membership_created_at TEXT NOT NULL,mode TEXT NOT NULL,grants_json TEXT NOT NULL,revision INTEGER NOT NULL DEFAULT 1,updated_by TEXT NOT NULL,updated_at TEXT NOT NULL,PRIMARY KEY(organisation_id,user_id));`);
  const recent=new Map();
- function defaults(role){return ACCESS_FEATURES.flatMap(f=>f.actions.filter(a=>f.roles.includes(role)&&(a==='read'||!['jobs','workforce','approvals'].includes(f.id)||SENIOR.includes(role)||a==='create'&&f.id==='approvals')).map(a=>f.id+'.'+a))}
+ function defaults(role){return ACCESS_FEATURES.flatMap(f=>f.actions.filter(a=>f.roles.includes(role)&&(!PRIVATE_CHANNEL_FEATURES.has(f.id)||role==='owner')&&(a==='read'||!['jobs','workforce','approvals'].includes(f.id)||SENIOR.includes(role)||a==='create'&&f.id==='approvals')).map(a=>f.id+'.'+a))}
  function policy(org,user,role){
   const member=db.prepare("SELECT role,created_at FROM memberships WHERE organisation_id=? AND user_id=? AND status='active'").get(org,user);if(!member)return {mode:'custom',grants:[],revision:0};
   const row=db.prepare('SELECT * FROM staff_access_policies WHERE organisation_id=? AND user_id=?').get(org,user);
@@ -62,14 +63,14 @@ export function createStaffAccess({db,audit}){
  function log(req,kind,route){const key=[req.saas.organisation_id,req.saas.user_id,kind,route.feature,route.action].join(':');const now=Date.now();if(now-(recent.get(key)||0)<60000)return;recent.set(key,now);if(recent.size>5000)for(const [k,t] of recent)if(now-t>60000)recent.delete(k);audit(req,kind,'feature',route.feature,{action:route.action,path:route.path});}
  function enforce(req,res){
   const route=accessRoute(req);if(!route)return true;
-  const p=snapshot(req);if(p.mode!=='custom')return true;
+  const p=snapshot(req);if(p.mode!=='custom'&&!PRIVATE_CHANNEL_FEATURES.has(route.feature))return true;
   if(!can(req,route.feature,route.action)||route.action!=='read'&&!can(req,route.feature,'read')){log(req,'access.denied',route);res.status(403).json({ok:false,code:'FEATURE_ACCESS_DENIED',feature:route.feature,action:route.action,error:'Your business owner has not authorised this feature or action for your account.'});return false}
   log(req,'access.used',route);return true;
  }
  function delegated(req){const r=accessRoute(req);return Boolean(r&&r.feature!=='dashboard'&&!ownerOnlyPath(r.path)&&snapshot(req).mode==='custom'&&can(req,r.feature,r.action)&&can(req,r.feature,'read'))}
- function install(app,{requireSaasUser,requireSaasRole}){
+ function install(app,{requireSaasUser,requireSaasRole,channelAccess=()=>[]}){
   const owner=[requireSaasUser,requireSaasRole('owner')];
-  app.get('/api/saas/access/me',requireSaasUser,(req,res)=>res.json({ok:true,role:req.saas.role,access:snapshot(req)}));
+  app.get('/api/saas/access/me',requireSaasUser,(req,res)=>res.json({ok:true,role:req.saas.role,access:snapshot(req),channel_access:channelAccess(req)}));
   app.get('/api/saas/team-accounts/members/:id/permissions',...owner,(req,res)=>{
    const m=db.prepare("SELECT u.id,u.full_name,m.role FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.user_id=? AND m.status='active'").get(req.saas.organisation_id,req.params.id);if(!m)return res.status(404).json({ok:false,error:'Staff membership not found.'});
    res.json({ok:true,member:m,catalog:ACCESS_FEATURES,policy:policy(req.saas.organisation_id,m.id,m.role)});

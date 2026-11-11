@@ -8,6 +8,7 @@ export const CONNECT_CHECKLIST = {
   meta: ['A Facebook Page for the business', 'Full control (admin) of that Page', 'For Instagram: a professional account linked to the Page'],
   whatsapp: ['A WhatsApp Business account in your own Meta business portfolio', 'A phone number registered to it', 'Admin access to that Meta business'],
   tiktok: ['The TikTok account you want to connect, signed in on this device'],
+  gmail: ['A Gmail or Google Workspace mailbox you own', 'Google approval for Gmail read and send permissions'],
   youtube: ['The Google account that owns the YouTube channel (owner, not manager)'],
   google_business: ['A verified Google Business Profile', 'Owner or manager access to it'],
   google_seo: ['Access to the Search Console property and Analytics property for your website'],
@@ -22,10 +23,11 @@ export const CONNECT_CHECKLIST = {
 const W = 'working', N = 'not_yet', X = 'not_offered', P = (note) => ({ state: 'partial', note });
 export const PROVIDER_ACTIONS = {
   meta: { post: P('Facebook Page text posts only'), video: N, messages: N, comments: N, reviews: X, insights: P('Followers and likes only') },
-  whatsapp: { post: X, video: X, messages: P('Outgoing messages only; Meta charges per message'), comments: X, reviews: X, insights: N },
+  whatsapp: { post: X, video: X, messages: P('Signed incoming messages and approved replies within 24 hours; Meta charges per message'), comments: X, reviews: X, insights: N },
   tiktok: { post: N, video: N, messages: X, comments: N, reviews: X, insights: P('Profile counters and recent videos, where TikTok grants the permission') },
-  youtube: { post: X, video: N, messages: X, comments: N, reviews: X, insights: P('Subscribers, views and video count') },
-  google_business: { post: N, video: X, messages: X, comments: X, reviews: P('Reviews are read; replies go through approval'), insights: P('Search and Maps counters') },
+  gmail: {post:X,video:X,messages:P('Recent inbox sync and approved replies; Google restricted-scope verification required'),comments:X,reviews:X,insights:P('Mailbox counters')},
+  youtube: { post: X, video: N, messages: X, comments: P('Recent channel comments and approval-controlled replies in Channel Operations'), reviews: X, insights: P('Subscribers, views and video count') },
+  google_business: { post: P('Text local posts in Channel Operations, subject to location eligibility'), video: X, messages: X, comments: X, reviews: P('Reviews are read; replies go through approval'), insights: P('Search and Maps counters') },
   x: { post: P('Text posts only'), video: N, messages: N, comments: N, reviews: X, insights: P('Followers and post count') },
   snapchat: { post: N, video: N, messages: X, comments: X, reviews: X, insights: N }
 };

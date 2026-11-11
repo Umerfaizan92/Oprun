@@ -1,0 +1,125 @@
+// All network destinations are fixed provider origins. Resource and reply IDs
+// come from server-verified selections, never arbitrary client URLs.
+const id = encodeURIComponent;
+const cut = (v, n = 5000) => String(v ?? '').slice(0, n);
+export const CHANNEL_PROVIDERS = {
+  meta: 'Facebook & Instagram', whatsapp: 'WhatsApp Business', youtube: 'YouTube',
+  gmail: 'Gmail', tiktok: 'TikTok', x: 'X', google_business: 'Google Business Profile',
+  google_seo: 'Google Search & Analytics', snapchat: 'Snapchat', website: 'Website', email_sms: 'Email & SMS'
+};
+export function channelCapabilities(provider, type) {
+  const read = ['youtube', 'gmail', 'tiktok', 'x', 'google_business', 'whatsapp', 'email_sms', 'website', 'google_seo'].includes(provider);
+  return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && type === 'facebook_page' || provider === 'google_business' && type === 'google_business_location',
+    reply: ['youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: false,
+    ads_launch: false, note: provider === 'whatsapp' || provider === 'email_sms' || provider === 'website'
+      ? 'Messages and delivery receipts use the existing Unified Inbox. Provider setup and consent are required.'
+      : provider === 'meta' ? 'Facebook text publishing is available with Page permission. Instagram publishing and messaging require additional reviewed adapters.'
+      : 'Only granted provider permissions apply. Video upload and paid-ad launch are not enabled by this adapter.' };
+}
+export function createChannelProviderClient({runtime, env = {}}) {
+  const call = (url, token, options = {}) => runtime.requestJson(url, {...options, headers: {authorization: 'Bearer ' + token, ...options.headers}});
+  const json = (method, body) => ({method, headers: {'content-type': 'application/json'}, body: JSON.stringify(body)});
+  const graph = 'https://graph.facebook.com/' + String(env.META_GRAPH_VERSION || 'v23.0') + '/';
+  async function sync(provider, bundle, resource) {
+    const token = bundle.access_token, items = [], metrics = [];
+    const add = (remote_id, kind, title, text, extra = {}) => items.push({remote_id: cut(remote_id, 300), kind, title: cut(title, 300), text: cut(text, 12000), ...extra});
+    if (provider === 'youtube') {
+      const channels = await call('https://www.googleapis.com/youtube/v3/channels?part=contentDetails,statistics&mine=true', token);
+      const channel = channels.items?.find(c => c.id === resource.id);
+      if (!channel) throw Object.assign(new Error('The selected YouTube channel is not owned by this authorisation.'), {status:403});
+      for (const [key, value] of Object.entries(channel.statistics || {})) if (/^(subscriberCount|videoCount|viewCount)$/.test(key)) metrics.push({key, value:Number(value), source:'YouTube'});
+      const playlist = channel.contentDetails?.relatedPlaylists?.uploads;
+      if (playlist) {
+        const videos = await call('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=' + id(playlist), token);
+        for (const v of videos.items || []) add(v.snippet?.resourceId?.videoId, 'video', v.snippet?.title, v.snippet?.description);
+      }
+      const comments = await call('https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&maxResults=30&textFormat=plainText&allThreadsRelatedToChannelId=' + id(resource.id), token);
+      for (const thread of comments.items || []) {
+        const c = thread.snippet?.topLevelComment;
+        if (c?.id) add(c.id, 'comment', c.snippet?.authorDisplayName, c.snippet?.textDisplay, {can_reply:Boolean(thread.snippet?.canReply)});
+      }
+    } else if (provider === 'gmail') {
+      const profile = await call('https://gmail.googleapis.com/gmail/v1/users/me/profile', token);
+      if (profile.emailAddress?.toLowerCase() !== resource.id.toLowerCase()) throw Object.assign(new Error('Mailbox ownership changed. Reconnect Gmail.'), {status:403});
+      metrics.push({key:'mailbox_messages', value:Number(profile.messagesTotal), source:'Gmail'});
+      const list = await call('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&labelIds=INBOX', token);
+      for (const ref of list.messages || []) {
+        const m = await call('https://gmail.googleapis.com/gmail/v1/users/me/messages/' + id(ref.id) + '?format=full', token);
+        const headers = Object.fromEntries((m.payload?.headers || []).map(h => [h.name.toLowerCase(), h.value]));
+        const address = cut(headers['reply-to'] || headers.from, 300), recipient = address.match(/<([^>]+)>/)?.[1] || address;
+        const plain = p => p?.mimeType === 'text/plain' && p.body?.data ? Buffer.from(p.body.data, 'base64url').toString('utf8') : (p?.parts || []).map(plain).filter(Boolean).join('\n');
+        add(m.id, 'message', headers.subject, plain(m.payload) || m.snippet, {thread_id:m.threadId, recipient, message_id:cut(headers['message-id'], 300), can_reply:/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(recipient)});
+      }
+    } else if (provider === 'google_business') {
+      if (!/^accounts\/[^/]+$/.test(resource.parent_id || '') || !/^locations\/[^/]+$/.test(resource.id)) throw new Error('Invalid Business Profile selection.');
+      const parent = resource.parent_id + '/' + resource.id;
+      const reviews = await call('https://mybusiness.googleapis.com/v4/' + parent + '/reviews?pageSize=30', token);
+      if (reviews.totalReviewCount !== undefined) metrics.push({key:'reviews', value:Number(reviews.totalReviewCount), source:'Google Business Profile'});
+      for (const r of reviews.reviews || []) add(r.reviewId, 'review', r.reviewer?.displayName, r.comment, {can_reply:true, rating:r.starRating, reply:cut(r.reviewReply?.comment)});
+      const posts = await call('https://mybusiness.googleapis.com/v4/' + parent + '/localPosts?pageSize=20', token);
+      for (const p of posts.localPosts || []) add(p.name, 'post', p.topicType || 'Local post', p.summary);
+    } else if (provider === 'google_seo' && resource.type === 'google_ads_customer') {
+      if(!/^\d{6,20}$/.test(resource.id) || !env.GOOGLE_ADS_DEVELOPER_TOKEN)throw Object.assign(new Error('Connect an approved Google Ads customer account.'),{status:409});
+      const version=/^v\d{1,3}$/.test(env.GOOGLE_ADS_API_VERSION||'')?env.GOOGLE_ADS_API_VERSION:'v26';
+      const d=await call('https://googleads.googleapis.com/'+version+'/customers/'+resource.id+'/googleAds:search',token,{...json('POST',{query:'SELECT campaign.id, campaign.name, campaign.status, metrics.clicks, metrics.impressions, metrics.cost_micros, metrics.conversions FROM campaign WHERE segments.date DURING LAST_30_DAYS LIMIT 50'}),headers:{'content-type':'application/json','developer-token':env.GOOGLE_ADS_DEVELOPER_TOKEN,...(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID?{'login-customer-id':String(env.GOOGLE_ADS_LOGIN_CUSTOMER_ID).replace(/\D/g,'')}:{})}});
+      for(const r of d.results || [])add(String(r.campaign?.id),'ad_campaign',r.campaign?.name,r.campaign?.status,{metrics:r.metrics || {}});
+      for(const key of ['clicks','impressions','costMicros','conversions']){
+        const values=(d.results || []).map(r=>r.metrics?.[key]);
+        metrics.push({key:key==='costMicros'?'cost_micros_account_currency':key,value:values.length&&values.every(v=>v!==undefined)?values.reduce((sum,v)=>sum+Number(v),0):null,source:'Google Ads '+resource.id+' / last 30 days / up to 50 campaigns'});
+      }
+    } else if (provider === 'tiktok') {
+      const d = await call('https://open.tiktokapis.com/v2/video/list/?fields=id,title,view_count,like_count,comment_count,share_count', token, json('POST', {max_count:20}));
+      if (d.error?.code && d.error.code !== 'ok') throw new Error('TikTok refused video access. Check the video.list permission.');
+      for (const v of d.data?.videos || []) add(v.id, 'video', v.title, '', {metrics:{views:v.view_count, likes:v.like_count, comments:v.comment_count, shares:v.share_count}});
+    } else if (provider === 'x') {
+      const me = await call('https://api.x.com/2/users/me', token);
+      if (me.data?.id !== resource.id) throw Object.assign(new Error('The X account no longer matches this workspace selection.'), {status:403});
+      const d = await call('https://api.x.com/2/users/' + id(resource.id) + '/tweets?max_results=20&tweet.fields=public_metrics,created_at', token);
+      for (const p of d.data || []) add(p.id, 'post', 'X post', p.text, {can_reply:true, metrics:p.public_metrics || {}});
+    } else throw Object.assign(new Error('Use this service’s existing inbox or insights workflow; content sync is not enabled.'), {status:409});
+    return {items:items.slice(0,100), metrics, fetched_at:new Date().toISOString(), coverage:'Bounded recent sample, not complete provider history'};
+  }
+  async function execute(provider, bundle, resource, draft, item) {
+    const token = bundle.access_token, text = draft.body;
+    if (draft.kind === 'reply') {
+      if (!item?.can_reply) throw Object.assign(new Error('This item cannot receive a reply.'), {status:409});
+      if (provider === 'whatsapp') {
+        if (!/^\+[1-9]\d{7,14}$/.test(item.recipient || '') || Date.now()-Date.parse(item.occurred_at)>86400000 || Date.parse(item.occurred_at)>Date.now()+60000 || !Number.isFinite(Date.parse(item.occurred_at))) throw Object.assign(new Error('The WhatsApp reply window is closed.'),{status:409});
+        return call(graph + id(resource.id) + '/messages', token, json('POST',{messaging_product:'whatsapp',to:item.recipient.slice(1),type:'text',text:{body:text}})).then(d=>({id:d.messages?.[0]?.id}));
+      }
+      if (provider === 'email_sms' && resource.id === 'email') {
+        if (!/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(item.recipient || '')) throw new Error('Invalid email recipient.');
+        return call('https://api.resend.com/emails',bundle.email.api_key,json('POST',{from:bundle.email.sender,to:[item.recipient],subject:'Re: '+cut(item.title || 'Your enquiry',180).replace(/[\r\n]/g,' '),text}));
+      }
+      if (provider === 'email_sms' && resource.id === 'sms') {
+        if (!/^\+[1-9]\d{7,14}$/.test(item.recipient || '')) throw new Error('Invalid SMS recipient.');
+        return call('https://api.telnyx.com/v2/messages',bundle.sms.api_key,json('POST',{from:bundle.sms.number,to:item.recipient,text})).then(d=>({id:d.data?.id}));
+      }
+      if (provider === 'youtube') return call('https://www.googleapis.com/youtube/v3/comments?part=snippet', token, json('POST', {snippet:{parentId:item.remote_id, textOriginal:text}}));
+      if (provider === 'google_business') {
+        const path = resource.parent_id + '/' + resource.id + '/reviews/' + id(item.remote_id) + '/reply';
+        // ReviewReply acknowledges an update with updateTime, rather than an ID.
+        return call('https://mybusiness.googleapis.com/v4/' + path, token, json('PUT', {comment:text})).then(d => ({id:d.updateTime ? path : undefined}));
+      }
+      if (provider === 'gmail') {
+        if (/[\r\n]/.test(item.recipient + item.message_id) || !/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(item.recipient)) throw new Error('Unsafe reply headers.');
+        const subject = 'Re: ' + cut(item.title, 180).replace(/[\r\n]/g, ' ');
+        const raw = ['To: ' + item.recipient, 'Subject: =?UTF-8?B?' + Buffer.from(subject).toString('base64') + '?=', ...(item.message_id ? ['In-Reply-To: ' + item.message_id, 'References: ' + item.message_id] : []), 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', Buffer.from(text).toString('base64').match(/.{1,76}/g).join('\r\n')].join('\r\n');
+        return call('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', token, json('POST', {raw:Buffer.from(raw).toString('base64url'), threadId:item.thread_id}));
+      }
+      if (provider !== 'x') throw Object.assign(new Error('Replies are not enabled for this provider.'), {status:409});
+    }
+    if (provider === 'x') {
+      if ([...text].length > 280) throw Object.assign(new Error('Shorten the X post to 280 characters.'), {status:400});
+      return call('https://api.x.com/2/tweets', token, json('POST', {text, ...(draft.kind === 'reply' ? {reply:{in_reply_to_tweet_id:item.remote_id}} : {})}));
+    }
+    if (provider === 'google_business') return call('https://mybusiness.googleapis.com/v4/' + resource.parent_id + '/' + resource.id + '/localPosts', token, json('POST', {languageCode:'en', summary:text, topicType:'STANDARD'}));
+    if (provider === 'meta' && resource.type === 'facebook_page') {
+      const pages = await call(graph + 'me/accounts?fields=id,access_token', token), page = pages.data?.find(p => String(p.id) === resource.id);
+      if (!page?.access_token) throw Object.assign(new Error('Facebook Page posting permission is required.'), {status:403});
+      return call(graph + id(resource.id) + '/feed', page.access_token, json('POST', {message:text}));
+    }
+    throw Object.assign(new Error('Publishing is not enabled for this provider or content type.'), {status:409});
+  }
+  return {sync, execute};
+}
