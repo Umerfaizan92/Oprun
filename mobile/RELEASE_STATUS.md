@@ -22,12 +22,15 @@ Branch: `codex/oprun-mobile-readiness-20261111`, based on production commit
 - Focused mobile-readiness/public-site unit tests: **14/14 passed**.
 - Release validation, UI static audit, secret scan and generated manifest passed.
 - Native XML and Apple property lists parse successfully.
-- Browser regression scripts are prepared but **not executed successfully**:
-  local Chromium is blocked by the execution environment; the cloud browser
-  cannot reach the local preview. These are environment limitations, not passing
-  browser results.
-- Android and iOS compilation, signed-device installation, provider OAuth,
-  camera/microphone, notifications and store submission remain **unverified**.
+- GitHub CI passed 16 public-site browser checks and 34 portal checks in prior
+  runs. Existing pipeline/TikTok test races now wait for their own responses;
+  final browser CI remains required on the release head. Local Chromium is
+  blocked by this environment.
+- Android APK, unsigned release AAB and release lint **passed**; iOS simulator
+  compilation **passed** in mobile workflow run `43020041537`. The workflow
+  retained both artifacts. Native source has not changed since that run.
+- Signed-device installation, provider OAuth, camera/microphone, notifications
+  and store submission remain **unverified**.
 
 ## Publication boundary
 

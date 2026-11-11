@@ -1025,3 +1025,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/oprun-mobile-readiness-20261111/20261111T115847Z (89be659)
 - Known errors: none
 - Next exact action: Obtain explicit owner authorization for source publication, CI and deployment before any push retry
+
+## CP-074 2026-11-11T20:39:03+08:00 T-076 IN_PROGRESS
+- Phase: Approved Oprun publication and deployment
+- Task: T-076 (IN_PROGRESS)
+- Completed steps: Owner approved publication and deploy; PR69 published; Android APK AAB lint and iOS simulator builds passed; test timing races corrected
+- Incomplete steps: Finish final CI; merge and deploy existing Oprun service; verify live routes; signing and device store gates
+- Files modified (uncommitted at checkpoint): .github/workflows/ci.yml; SHA256SUMS.txt; mobile/RELEASE_STATUS.md; scripts/test-pipeline-ui.mjs; scripts/test-ui.mjs
+- Tests executed: GitHub mobile build validation; GitHub server verification; earlier browser runs
+- Test results: Android and iOS build success; npm test 73/73; public site 16 and portal 34 passed in prior runs
+- Git branch: codex/oprun-release-ci-round3
+- Commit: e50c580 (Wait for document readiness rather than background network idleness in mobile UI checks); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Publish test synchronization fixes and wait for PR69 CI before merge
