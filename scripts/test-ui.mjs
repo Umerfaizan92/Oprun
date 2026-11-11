@@ -115,12 +115,16 @@ try{
   });
   await check('seven groups plus Setup preserve nested submenu pages and selected state',async()=>{
     const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),60);
+    await page.getByRole('button',{name:'☰ Menu',exact:true}).click();
     await rail.locator('[data-domain=people]').click(); await rail.locator('[data-nav-page=team]').click(); await page.locator('#team-view').waitFor({state:'visible'});
     assert.equal(await rail.locator('[data-nav-page=team]').getAttribute('aria-current'),'page'); assert.equal(await page.locator('.portal-subtabs [data-jump]').count(),0);
   });
   await check('nested navigation supports keyboard and a mobile drawer',async()=>{
-    await page.getByRole('button',{name:'Collapse navigation',exact:true}).click(); assert.equal(await page.locator('#business-navigation').getAttribute('data-compact'),'true');
-    await page.getByRole('button',{name:'Expand navigation',exact:true}).focus(); await page.keyboard.press('Enter'); assert.equal(await page.locator('#business-navigation').getAttribute('data-compact'),'false');
+    await page.getByRole('button',{name:'☰ Menu',exact:true}).focus(); await page.keyboard.press('Enter');
+    assert.equal(await page.locator('#business-navigation').getAttribute('data-drawer'),'true');
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('#business-navigation').getAttribute('data-drawer'),'false');
+    assert.equal(await page.getByRole('button',{name:'☰ Menu',exact:true}).evaluate(e=>e===document.activeElement),true);
     const touch=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844},storageState:await context.storageState()});try{const p=await touch.newPage();await p.goto(base+'/saas/workspace.html');await p.locator('#workspace').waitFor({state:'visible'});await p.getByRole('button',{name:'☰ Menu',exact:true}).tap();await p.locator('#business-navigation [data-domain=setup]').tap();await p.locator('[data-nav-page=manual]').tap();await p.locator('#manual-view').waitFor({state:'visible'});assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'),'false');assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}finally{await touch.close()}
   });
   await check('live update notice stays clear of the folded rail on phones and tablets',async()=>{

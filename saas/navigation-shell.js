@@ -36,17 +36,19 @@
   window.addEventListener('beforeunload', e => { if (hasEdits()) { e.preventDefault(); e.returnValue = ''; } });
 
   class Navigation {
-    constructor({ rail, toggle, triggerHost, key, background = [], onSelect }) {
-      Object.assign(this, { rail, toggle, key, background, onSelect });
+    constructor({ rail, toggle, triggerHost, key, background = [], onSelect, autoHide = false }) {
+      Object.assign(this, { rail, toggle, key, background, onSelect, autoHide });
       this.groups = []; this.active = ''; this.open = ''; this.drawer = false;
       document.body.dataset.navigation = 'nested';
+      if (autoHide) document.body.dataset.navigationAutohide = 'true';
       rail.classList.add('nested-rail'); rail.id ||= 'business-navigation';
       this.nav = rail.querySelector('nav') || rail.appendChild(make('nav'));
       this.nav.setAttribute('aria-label', 'Pages');
       this.scrim = make('button', 'navigation-scrim'); this.scrim.type = 'button'; this.scrim.setAttribute('aria-label', 'Close navigation'); this.scrim.hidden = true; document.body.append(this.scrim);
       this.trigger = make('button', 'navigation-mobile-trigger', '☰ Menu'); this.trigger.type = 'button'; this.trigger.setAttribute('aria-controls', rail.id); this.trigger.setAttribute('aria-expanded', 'false'); triggerHost.prepend(this.trigger);
       toggle.setAttribute('aria-label', 'Collapse navigation'); toggle.setAttribute('aria-controls', this.nav.id ||= rail.id + '-pages');
-      toggle.onclick = () => media.matches ? this.setDrawer(false) : this.setCollapsed(!this.collapsed);
+      toggle.onclick = () => (autoHide || media.matches) ? this.setDrawer(false) : this.setCollapsed(!this.collapsed);
+      if (autoHide) this.trigger.setAttribute('aria-label', '☰ Menu');
       this.trigger.onclick = () => this.setDrawer(!this.drawer);
       this.scrim.onclick = () => this.setDrawer(false);
       this.nav.addEventListener('click', e => {
@@ -54,17 +56,17 @@
         if (b) { this.open = this.open === b.dataset.navGroup ? '' : b.dataset.navGroup; this.paint(); return; }
         const a = e.target.closest('a[data-nav-page]'); if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button) return;
         if (!canLeave()) { e.preventDefault(); return; }
-        this.onSelect?.(a.dataset.navPage); if (media.matches) this.setDrawer(false, false);
+        this.onSelect?.(a.dataset.navPage); if (autoHide || media.matches) this.setDrawer(false, autoHide);
       });
       this.rail.addEventListener('keydown', e => {
         if (e.key === 'Escape') { e.preventDefault(); if (this.drawer) this.setDrawer(false); else if (this.collapsed) { const id = this.open; this.open = ''; this.paint(); this.nav.querySelector(`[data-nav-group="${CSS.escape(id)}"]`)?.focus(); } }
         if (e.key === 'Tab' && this.drawer) { const list = [...rail.querySelectorAll('a[href],button,select')].filter(x => !x.hidden && !x.disabled && x.getClientRects().length); const first = list[0], last = list.at(-1); if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); } }
       });
-      document.addEventListener('click', e => { if (this.collapsed && !rail.contains(e.target)) { this.open = ''; this.paint(); } });
+      document.addEventListener('click', e => { if (autoHide && this.drawer && !rail.contains(e.target) && !this.trigger.contains(e.target)) { this.setDrawer(false); return; } if (this.collapsed && !rail.contains(e.target)) { this.open = ''; this.paint(); } });
       this.onMedia = () => { if (this.drawer) this.setDrawer(false); this.paint(); }; media.addEventListener('change', this.onMedia);
       this.setCollapsed(read(key) === 'collapsed');
     }
-    setCollapsed(value) { this.collapsed = !!value; this.rail.dataset.expanded = String(!value); this.rail.dataset.compact = String(value); delete this.rail.dataset.collapsed; this.toggle.setAttribute('aria-expanded', String(!value)); this.toggle.setAttribute('aria-label', value ? 'Expand navigation' : 'Collapse navigation'); this.toggle.querySelector('span:last-child')?.replaceChildren(document.createTextNode(value ? 'Expand navigation' : 'Collapse navigation')); write(this.key, value ? 'collapsed' : 'expanded'); if (value) this.open = ''; this.paint(); }
+    setCollapsed(value) { if (this.autoHide) value = false; this.collapsed = !!value; this.rail.dataset.expanded = String(!value); this.rail.dataset.compact = String(value); delete this.rail.dataset.collapsed; this.toggle.setAttribute('aria-expanded', String(!value)); this.toggle.setAttribute('aria-label', this.autoHide ? 'Close navigation' : value ? 'Expand navigation' : 'Collapse navigation'); this.toggle.querySelector('span:last-child')?.replaceChildren(document.createTextNode(this.autoHide ? 'Close navigation' : value ? 'Expand navigation' : 'Collapse navigation')); write(this.key, value ? 'collapsed' : 'expanded'); if (value) this.open = ''; this.paint(); }
     setDrawer(value, restore = true) {
       this.drawer = !!value; this.rail.dataset.drawer = String(value); this.trigger.setAttribute('aria-expanded', String(value)); this.scrim.hidden = !value; document.body.classList.toggle('navigation-drawer-open', value);
       this.background.forEach(e => { if (e) { if (value) { e.dataset.navWasInert = String(e.inert); e.inert = true; } else { e.inert = e.dataset.navWasInert === 'true'; delete e.dataset.navWasInert; } } });
@@ -89,7 +91,7 @@
     }
     setActive(id) { this.active = id; const g = this.groups.find(g => g.pages.some(p => p.id === id)); if (g) this.open = g.id; this.paint(); }
     paint() {
-      this.rail.inert = media.matches && !this.drawer;
+      this.rail.inert = (this.autoHide || media.matches) && !this.drawer;
       this.rail.querySelectorAll('.navigation-group').forEach(box => { const b = box.firstElementChild, id = b.dataset.navGroup, group = this.groups.find(g => g.id === id), open = id === this.open, active = group?.pages.some(p => p.id === this.active); b.setAttribute('aria-expanded', String(open)); b.classList.toggle('has-active', !!active); const children = b.nextElementSibling; children.hidden = !open;
         if (this.collapsed && !media.matches && open) { const r = b.getBoundingClientRect(); children.style.top = Math.max(8, Math.min(r.top, innerHeight - 220)) + 'px'; } else children.style.top = '';
         // Keep disclosure state under user control, even on a secondary deep link.

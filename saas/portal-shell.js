@@ -4,7 +4,9 @@
   function breadcrumb(view, section = '') {
     const g = window.SuperProNav?.DOMAINS.find(d => d.items.some(i => i.view === view)), p = g?.items.find(i => i.view === view); if (!p) return;
     let b = document.getElementById('workspace-breadcrumb'); if (!b) { b = make('nav', 'navigation-breadcrumb'); b.id = 'workspace-breadcrumb'; b.setAttribute('aria-label', 'Breadcrumb'); document.querySelector('.page-context')?.prepend(b); }
-    b.replaceChildren(make('span', '', g.label), make('span', 'navigation-divider', '/'), make('span', '', p.label));
+    b.replaceChildren(make('span', '', g.label));
+    const shortTitles = {onboarding:'Business settings',workforce:'Workforce',team:'Staff & access',integrations:'Connections',billing:'Plans & usage',fincompliance:'Finance settings',governance:'Security & trust'};
+    const title = document.getElementById('page-title'); if (title) title.textContent = shortTitles[view] || p.label;
     if (section) b.append(make('span', 'navigation-divider', '/'), make('span', '', section));
   }
   function workflowContext(view) {
@@ -57,12 +59,24 @@
     const nav = window.SuperProNav, session = window.GDS_SESSION; if (!nav || !session || !window.SuperProNavigation) return;
     if (!rail) {
       document.body.classList.add('portal-workspace'); rail = make('aside', 'portal-rail'); rail.id = 'business-navigation'; rail.setAttribute('aria-label', 'Business navigation');
-      const brand = make('a', 'portal-brand'); brand.href = '#today/home'; brand.append((() => { const m = make('span', 'portal-mark'), i = document.createElement('img'); i.src = '/saas/oprun-icon.svg?v=20261031'; i.alt = ''; i.width = i.height = 40; i.style.cssText = 'display:block;width:100%;height:100%;border-radius:inherit'; m.append(i); return m; })(), make('span', 'navigation-label', 'Oprun'));
-      const toggle = make('button', 'portal-main-button'); toggle.type = 'button'; toggle.append(make('span', 'portal-icon', '☰'), make('span', 'navigation-label', 'Collapse navigation')); rail.append(brand, toggle);
-      const context = document.getElementById('workspace-context'); if (context) rail.append(context);
+      const brand = make('a', 'portal-brand workspace-platform-brand'); brand.href = '#today/home'; brand.append((() => { const m = make('span', 'portal-mark'), i = document.createElement('img'); i.src = '/saas/oprun-icon.svg?v=20261031'; i.alt = ''; i.width = i.height = 48; i.style.cssText = 'display:block;width:100%;height:100%;border-radius:inherit'; m.append(i); return m; })(), make('span', 'platform-name', 'Oprun'));
+      const toggle = make('button', 'business-navigation-close'); toggle.type = 'button'; toggle.append(make('span', '', '×'), make('span', 'sr-only', 'Close navigation')); toggle.firstElementChild.setAttribute('aria-hidden','true');
+      const context = document.getElementById('workspace-context'); if (context) {context.append(toggle);rail.append(context);} else rail.append(toggle);
       rail.append(make('nav')); document.getElementById('workspace').append(rail);
       const security = document.querySelector('#sidebar .sidebar-footer'); if (security) rail.append(security);
-      shell = new window.SuperProNavigation.Navigation({ rail, toggle, triggerHost: document.querySelector('.topbar-left'), key: 'sp-nav:business:pending', background: [document.querySelector('.app-main')] });
+      shell = new window.SuperProNavigation.Navigation({ rail, toggle, triggerHost: document.querySelector('.topbar-left'), key: 'sp-nav:business:pending', background: [document.querySelector('.app-main')], autoHide:true });
+      document.querySelector('.topbar-left')?.prepend(brand);
+      const syncIdentity = () => {
+        const name = document.getElementById('org-name-side')?.textContent?.trim() || 'Workspace';
+        const avatar = document.getElementById('org-avatar-side');
+        const mark = avatar ? avatar.cloneNode(true) : make('span','','◎');
+        mark.removeAttribute('id'); mark.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));mark.classList.add('navigation-identity-logo');
+        shell.trigger.classList.add('navigation-business-trigger');
+        shell.trigger.replaceChildren(mark,make('span','navigation-identity-name',name),make('span','navigation-identity-chevron','⌄'));
+        shell.trigger.title = name + ' · Open business navigation';
+      };
+      if (context) new MutationObserver(syncIdentity).observe(context,{childList:true,subtree:true,characterData:true,attributes:true});
+      syncIdentity();
       const header = document.querySelector('.app-topbar');
       if (header && window.ResizeObserver) new ResizeObserver(() => document.body.style.setProperty('--navigation-header-height', Math.ceil(header.getBoundingClientRect().height) + 'px')).observe(header);
       new MutationObserver(syncBadges).observe(document.querySelector('.workspace-nav'), { childList: true, subtree: true, characterData: true });

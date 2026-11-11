@@ -1361,3 +1361,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/main/20261111T230352Z (65756dd)
 - Known errors: none
 - Next exact action: Create the exact requested T083 main commit. Do not deploy it alone: implement the owner's new branding/identity/auto-hiding-sidebar additions before Render.
+
+## CP-098 2026-11-12T07:06:38+08:00 T-084 IN_PROGRESS
+- Phase: Brand identity and business drawer implementation
+- Task: T-084 (IN_PROGRESS)
+- Completed steps: Unified existing business context and compact close into one rail header; moved Oprun wordmark to main header; enlarged website/auth/portal brand marks; concise breadcrumb/title; optional autoHide mode only Business preserving Founder behaviour
+- Incomplete steps: Adapt responsive navigation tests to click drawer at desktop; semantic identity/switcher/focus tests; full build/security/browserCI; screenshots; combined Render deployment/live acceptance
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; office/console.html; saas/answers.html; saas/brand.css; saas/complaints.html; saas/create-account.html; saas/index.html; saas/navigation-shell.js; saas/operator-sign-in.html; saas/payment-thanks.html; saas/policy-center.html; saas/portal-shell.js; saas/privacy.html; saas/recover-account.html; saas/sign-in.html; saas/site/account-deletion.html; saas/site/contact.html; saas/site/features-ai.html; saas/site/features-communications.html; saas/site/features-customers.html; saas/site/features-growth.html; saas/site/features-money.html; saas/site/features-people.html; saas/site/features.html; saas/site/for-agencies.html; saas/site/for-cleaning.html; saas/site/for-clinics.html; saas/site/for-retail.html; saas/site/for-trades.html; saas/site/help.html; saas/site/home.html; saas/site/industries.html; saas/site/install.html; saas/site/pricing.html; saas/site/receptionist.html; saas/site/stories.html; saas/subprocessors.html; saas/terms.html; saas/trust-center.html; saas/verify-account.html; saas/workspace-redesign.css; saas/workspace.html; scripts/site/templates.mjs; saas/brand-presence.css
+- Tests executed: none
+- Test results: none
+- Git branch: codex/brand-sidebar-20261112
+- Commit: 3a2efa5 (Tighten secondary navigation and reduce density for legacy and SEO sub-pages)
+- Recovery snapshot: refs/recovery/codex/brand-sidebar-20261112/20261111T230638Z (b9c6848)
+- Known errors: none
+- Next exact action: Update tests for drawer behaviour and verify actual DOM without removing any role/switcher/form IDs.
+
+## CP-099 2026-11-12T07:10:53+08:00 T-084 TESTING
+- Phase: Branding and business drawer candidate
+- Task: T-084 (TESTING)
+- Completed steps: Implemented larger Oprun branding, one subscriber sidebar identity and all-width click drawer; Preserved original business selector and authorization; Semantic drawer and Founder default checks passed; Preservation audit and public generator consistency passed; Corrected fresh-default browser assertion after manual More traversal
+- Incomplete steps: Await full npm test; Publish candidate PR and run full hosted browser CI; Review visual evidence; Merge only passing candidate; Deploy combined changes once to existing Render service; Run live acceptance and save final evidence
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; office/console.html; qa/reports/release-audit.json; saas/answers.html; saas/brand.css; saas/complaints.html; saas/create-account.html; saas/index.html; saas/navigation-shell.js; saas/operator-sign-in.html; saas/payment-thanks.html; saas/policy-center.html; saas/portal-shell.js; saas/privacy.html; saas/recover-account.html; saas/sign-in.html; saas/site/account-deletion.html; saas/site/contact.html; saas/site/features-ai.html; saas/site/features-communications.html; saas/site/features-customers.html; saas/site/features-growth.html; saas/site/features-money.html; saas/site/features-people.html; saas/site/features.html; saas/site/for-agencies.html; saas/site/for-cleaning.html; saas/site/for-clinics.html; saas/site/for-retail.html; saas/site/for-trades.html; saas/site/help.html; saas/site/home.html; saas/site/industries.html; saas/site/install.html; saas/site/pricing.html; saas/site/receptionist.html; saas/site/stories.html; saas/subprocessors.html; saas/terms.html; saas/trust-center.html; saas/verify-account.html; saas/workspace-redesign.css; saas/workspace.html; scripts/site/templates.mjs; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs; scripts/test-ui.mjs; docs/redesign/07_BRAND_AND_BUSINESS_DRAWER.md; saas/brand-presence.css
+- Tests executed: JS syntax; semantic drawer; release audit; check:site; security:secrets
+- Test results: Passed local checks; full npm test running; browser runtime unavailable locally E031, hosted CI required
+- Git branch: codex/brand-sidebar-20261112
+- Commit: 3a2efa5 (Tighten secondary navigation and reduce density for legacy and SEO sub-pages)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Complete full npm test, publish T-084 candidate and require all GitHub browser checks before Render deploy
