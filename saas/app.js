@@ -623,7 +623,7 @@ async function searchPages(){
   const navMatches=viewSequence.filter(v=>!term||pageMeta[v][1].toLowerCase().includes(lower)||pageMeta[v][0].toLowerCase().includes(lower));
   const actions=window.GDSProductGuide?.findActions(term)||[];
   const ordered=[...new Set([...actions.map(a=>a.view),...navMatches])].slice(0,6);
-  let html=ordered.map(v=>'<button class="finder-result" type="button" data-result="'+v+'"><span>'+String(viewSequence.indexOf(v)+1).padStart(2,'0')+'</span><div><b>'+esc(pageMeta[v][1])+'</b><small>'+esc(pageMeta[v][0])+' · open workspace area</small></div><i>→</i></button>').join('');
+  let html=ordered.map(v=>'<button class="finder-result" type="button" data-result="'+v+'"><span aria-hidden="true">›</span><div><b>'+esc(pageMeta[v][1])+'</b><small>'+esc(pageMeta[v][0])+' · open workspace area</small></div><i>→</i></button>').join('');
   if(term){html+='<article class="finder-answer waiting"><span>AI</span><div><b>Oprun</b><p>Thinking about your question…</p></div></article>'}
   finder.querySelector('#page-results').innerHTML=html||'<p class="muted">Start typing what you want to accomplish.</p>';
   finder.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{finder.close();showView(b.dataset.result)});
@@ -924,7 +924,7 @@ const integrationHelp={
   youtube:'Authorise the Google account and select the YouTube channel permitted for publishing and analytics.',
   snapchat:'Authorise the Snapchat business account through the provider consent flow when platform credentials are ready.',
   x:'Authorise the X account through X OAuth when the Oprun app credentials are configured.',
-  google_seo:'Authorise Google, then choose your Search Console property and GA4 property in Website & Visibility > Google.',
+  google_seo:'Authorise Google, then choose your Search Console property and GA4 property in Growth > SEO Command Centre > Google.',
   google_business:'Authorise Google and select the Business Profile locations this workspace may manage.',
   website:'Configure your website form/webhook endpoint. No social-media password is required.',
   email_sms:'Connect the platform-managed email/SMS provider and configure sender identity/consent rules.'
@@ -1010,7 +1010,7 @@ async function loadBusinessSwitcher(){
   try{
     const q=new URLSearchParams(location.search),ok=q.get('integration_connected'),err=q.get('integration_error');
     if(!ok&&!err)return;
-    history.replaceState(null,'',location.pathname+'#b08/connections');
+    history.replaceState(null,'',location.pathname+'#setup/connections');
     const tell=()=>{if(typeof note==='function')note(ok?`${ok.replace(/_/g,' ')} connected.`:`Connection did not finish: ${err}`,Boolean(err))};
     setTimeout(()=>{try{showView('integrations')}catch{}tell()},1800);
   }catch{}

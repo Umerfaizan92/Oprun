@@ -49,7 +49,7 @@
       const bodyRows = el('tbody', {}, rows.map((r) => el('tr', {}, cols.map((c, i) => cell(r, c, i)))));
       return el('div', { class: 'au-tablewrap' }, el('table', { class: 'au-table' }, head, bodyRows));
     };
-    const go = (view) => { if (founder) render(view); else location.hash = ({ seocentre: 'b06/seo', seoaudit: 'b06/audit', seoclusters: 'b06/keywords', seogoogle: 'b06/google', seostudio: 'b06/studio', seobuilder: 'b06/builder', seolocal: 'b06/local', seoanalytics: 'b06/analytics', seoreports: 'b06/reports' })[view]; };
+    const go = (view) => { if (founder) render(view); else location.hash = ({ seocentre: 'growth/seo', seoaudit: 'growth/seo-audit', seoclusters: 'growth/seo-keywords', seogoogle: 'growth/seo-google', seostudio: 'growth/seo-content', seobuilder: 'growth/website-builder', seolocal: 'growth/seo-local', seoanalytics: 'growth/seo-analytics', seoreports: 'growth/seo-reports' })[view]; };
 
     async function render(view, arg) {
       host.dataset.sxView = view;
@@ -77,7 +77,7 @@
           el('button', { type: 'button', class: 'portal-button', text: 'Build keyword clusters', onclick: (e) => busy(e.target, async () => { await post('/keywords/plan', {}); say('Clusters updated.'); go('seoclusters'); }) }),
           el('button', { type: 'button', class: 'portal-button', text: 'Create monthly report', onclick: (e) => busy(e.target, async () => { await post('/reports', { kind: 'monthly' }); say('Report created.'); go('seoreports'); }) }));
         b.append(acts);
-        if (!d.facts.website_url && !d.sites.length && !founder) b.append(el('p', { class: 'portal-note', text: 'Add your website address in Website & Visibility > Search & AI visibility (Business facts), or build pages with the Website Builder, so audits can run.' }));
+        if (!d.facts.website_url && !d.sites.length && !founder) b.append(el('p', { class: 'portal-note', text: 'Add your website address in Growth > SEO Command Centre > Search readiness (Business facts), or build pages with the Website Builder, so audits can run.' }));
         if (d.alerts.length) b.append(section('Needs attention', el('ul', { class: 'sx-list' }, d.alerts.map((x) => el('li', {}, el('b', { text: x.title }), el('span', { class: 'pl-body', text: x.body }), el('small', { class: 'pl-meta', text: when(x.created_at) }))))));
         if (a?.top?.length) b.append(section('Top problems from the last audit', el('ul', { class: 'sx-list' }, a.top.map((c) => el('li', {}, chip(c.level), ` ${c.category_name}: ${c.title}`)))));
         if (k?.top?.length) b.append(section('Opportunities (Oprun estimates)', el('ul', { class: 'sx-list' }, k.top.map((p) => el('li', {}, el('b', { text: `${p.primary} · ${p.score}` }), el('span', { class: 'pl-meta', text: p.reasons.join('; ') })))), source('Oprun estimate from the reasons shown; not Google data.')));
@@ -152,7 +152,7 @@
             g.last_check ? el('p', { class: 'pl-meta', 'data-tone': g.last_check.ok ? null : 'bad', text: `Last live check ${when(g.last_check.at)}: ${g.last_check.detail}` }) : null,
             !g.ready ? el('p', { class: 'pl-meta', text: 'Needs a Google Ads developer token on this deployment.' }) : null);
           const acts = el('div', { class: 'pl-actions' });
-          if (!founder && g.connection === 'not_connected' && g.service !== 'pagespeed') acts.append(el('a', { class: 'portal-button primary', href: '#b08/connections', text: g.service === 'business_profile' ? 'Connect Google Business Profile' : 'Connect Google' }));
+          if (!founder && g.connection === 'not_connected' && g.service !== 'pagespeed') acts.append(el('a', { class: 'portal-button primary', href: '#setup/connections', text: g.service === 'business_profile' ? 'Connect Google Business Profile' : 'Connect Google' }));
           acts.append(el('button', { type: 'button', class: 'portal-button', text: g.service === 'pagespeed' ? 'Measure now' : 'Check connection', onclick: (e) => busy(e.target, async () => { const r = await post(`/google/${g.service}/verify`, {}); say(r.detail); await render('seogoogle'); }) }));
           if (!['pagespeed'].includes(g.service)) acts.append(el('button', { type: 'button', class: 'portal-button', text: g.linked ? 'Change' : 'Choose ' + (g.service === 'search_console' ? 'property' : g.service === 'analytics' ? 'GA4 property' : g.service === 'business_profile' ? 'location' : 'account'), onclick: (e) => busy(e.target, async () => {
             const r = await get(`/google/${g.service}/resources`); c.querySelector('.pl-inline')?.remove();

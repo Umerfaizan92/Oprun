@@ -255,7 +255,7 @@
       r.error ? el('p', { class: 'pl-meta', 'data-tone': 'bad', text: r.error }) : null,
       r.suspicious ? el('p', { class: 'pl-meta', 'data-tone': 'bad', text: 'Contained text that looked like instructions; treated as plain text.' }) : null);
     const acts = el('div', { class: 'pl-actions' });
-    if (r.status === 'awaiting_approval') acts.append(el('a', { class: 'portal-button primary', href: '#b01/approvals', text: 'Open Approvals' }));
+    if (r.status === 'awaiting_approval') acts.append(el('a', { class: 'portal-button primary', href: '#today/approvals', text: 'Open Approvals' }));
     if (['failed', 'verification_failed'].includes(r.status)) acts.append(el('button', { type: 'button', class: 'portal-button', text: 'Try again', onclick: (e) => busy(e.target, async () => { await api(`/api/saas/automation/runs/${r.id}/retry`, { method: 'POST', body: '{}' }); say('Trying again. The result appears here.'); await runs(); }) }));
     if (r.status === 'awaiting_manual') acts.append(el('button', { type: 'button', class: 'portal-button primary', text: 'Mark as done', onclick: () => {
       c.querySelector('.pl-inline')?.remove();

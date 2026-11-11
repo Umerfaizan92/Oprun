@@ -1,9 +1,18 @@
 {
-  "baseline": "3edc118051aac8d3aa18fd76ae1da0bdc0240680",
+  "generated_at": "2026-11-11T21:57:03.631Z",
+  "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
       "portal": "Business",
       "route": "b01/home",
+      "section": "Guided start, four metrics, preserved expiry and shared command search",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "today/home",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -11,7 +20,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Business overview",
       "width": 1440,
       "result": "PASS",
@@ -19,7 +28,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Attention items",
       "width": 1440,
       "result": "PASS",
@@ -27,7 +36,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Readiness",
       "width": 1440,
       "result": "PASS",
@@ -35,7 +44,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Workflow guide",
       "width": 1440,
       "result": "PASS",
@@ -43,7 +52,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -51,7 +60,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "How AI works",
       "width": 1440,
       "result": "PASS",
@@ -59,7 +68,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "Ask AI",
       "width": 1440,
       "result": "PASS",
@@ -67,7 +76,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "Save an operational task",
       "width": 1440,
       "result": "PASS",
@@ -75,7 +84,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "Saved tasks",
       "width": 1440,
       "result": "PASS",
@@ -83,7 +92,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -91,7 +100,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "Decision overview",
       "width": 1440,
       "result": "PASS",
@@ -99,7 +108,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "Queue & history",
       "width": 1440,
       "result": "PASS",
@@ -107,7 +116,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "Approval policy",
       "width": 1440,
       "result": "PASS",
@@ -115,7 +124,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -123,7 +132,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Automations",
       "width": 1440,
       "result": "PASS",
@@ -131,7 +140,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Activity",
       "width": 1440,
       "result": "PASS",
@@ -139,7 +148,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Suggestions & reports",
       "width": 1440,
       "result": "PASS",
@@ -147,7 +156,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Rules & safety",
       "width": 1440,
       "result": "PASS",
@@ -155,7 +164,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Audit report",
       "width": 1440,
       "result": "PASS",
@@ -163,7 +172,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/enquiries",
+      "route": "work/enquiries",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -171,7 +180,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/customers",
+      "route": "work/quotes",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -179,7 +188,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/quotes",
+      "route": "work/bookings",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -187,7 +196,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/bookings",
+      "route": "work/jobs",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -195,15 +204,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/jobs",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b02/jobs",
+      "route": "work/jobs",
       "section": "Create work order",
       "width": 1440,
       "result": "PASS",
@@ -211,7 +212,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/jobs",
+      "route": "work/jobs",
       "section": "Open work orders",
       "width": 1440,
       "result": "PASS",
@@ -219,7 +220,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -227,7 +228,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "Reorder",
       "width": 1440,
       "result": "PASS",
@@ -235,7 +236,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "Most used",
       "width": 1440,
       "result": "PASS",
@@ -243,7 +244,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "Stock on hand",
       "width": 1440,
       "result": "PASS",
@@ -251,7 +252,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/archive",
+      "route": "work/archive",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -259,7 +260,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/workers",
+      "route": "customers/directory",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -267,7 +268,15 @@
     },
     {
       "portal": "Business",
-      "route": "b03/workers",
+      "route": "people/workers",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "people/workers",
       "section": "Add worker",
       "width": 1440,
       "result": "PASS",
@@ -275,7 +284,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/workers",
+      "route": "people/workers",
       "section": "People",
       "width": 1440,
       "result": "PASS",
@@ -283,7 +292,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/staff",
+      "route": "people/staff",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -291,7 +300,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/staff",
+      "route": "people/staff",
       "section": "Business members",
       "width": 1440,
       "result": "PASS",
@@ -299,7 +308,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/staff",
+      "route": "people/staff",
       "section": "Invitation history",
       "width": 1440,
       "result": "PASS",
@@ -307,7 +316,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/hiring",
+      "route": "people/hiring",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -315,7 +324,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/hiring",
+      "route": "people/hiring",
       "section": "Roles and adverts",
       "width": 1440,
       "result": "PASS",
@@ -323,7 +332,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/hiring",
+      "route": "people/hiring",
       "section": "Applicants",
       "width": 1440,
       "result": "PASS",
@@ -331,7 +340,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/offshore",
+      "route": "people/offshore",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -339,7 +348,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/inbox",
+      "route": "communications/inbox",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -347,15 +356,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Inbox",
       "width": 1440,
       "result": "PASS",
@@ -363,7 +364,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Sent",
       "width": 1440,
       "result": "PASS",
@@ -371,7 +372,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Drafts",
       "width": 1440,
       "result": "PASS",
@@ -379,7 +380,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Scheduled",
       "width": 1440,
       "result": "PASS",
@@ -387,7 +388,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Archived",
       "width": 1440,
       "result": "PASS",
@@ -395,7 +396,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Failed",
       "width": 1440,
       "result": "PASS",
@@ -403,7 +404,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Spam",
       "width": 1440,
       "result": "PASS",
@@ -411,7 +412,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -419,7 +420,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "Section: Your number",
       "width": 1440,
       "result": "PASS",
@@ -427,7 +428,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "Section: Call handling",
       "width": 1440,
       "result": "PASS",
@@ -435,7 +436,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "Section: Recent calls",
       "width": 1440,
       "result": "PASS",
@@ -443,7 +444,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/receptionist",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -451,7 +452,31 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/meetings",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/team-chat",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/email",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/email",
       "section": "All mail",
       "width": 1440,
       "result": "PASS",
@@ -459,7 +484,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Received",
       "width": 1440,
       "result": "PASS",
@@ -467,7 +492,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Drafts & approved",
       "width": 1440,
       "result": "PASS",
@@ -475,7 +500,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Sent",
       "width": 1440,
       "result": "PASS",
@@ -483,7 +508,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Scheduled",
       "width": 1440,
       "result": "PASS",
@@ -491,7 +516,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Marketing",
       "width": 1440,
       "result": "PASS",
@@ -499,7 +524,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Campaigns",
       "width": 1440,
       "result": "PASS",
@@ -507,7 +532,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Enquiries",
       "width": 1440,
       "result": "PASS",
@@ -515,7 +540,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Invoices",
       "width": 1440,
       "result": "PASS",
@@ -523,7 +548,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Support",
       "width": 1440,
       "result": "PASS",
@@ -531,7 +556,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/numbers",
+      "route": "communications/channels",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -539,7 +564,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/calls",
+      "route": "communications/numbers",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -547,7 +572,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/receptionist",
+      "route": "communications/calls-sms",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -555,7 +580,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/meetings",
+      "route": "growth/hub",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -563,71 +588,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/team-chat",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Start from anything you already have",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "AI Render Specification",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Platform suggestions",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Creative readiness",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Saved specifications",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/growth",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Plan",
       "width": 1440,
       "result": "PASS",
@@ -635,7 +596,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Calendar",
       "width": 1440,
       "result": "PASS",
@@ -643,7 +604,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Reuse a post",
       "width": 1440,
       "result": "PASS",
@@ -651,7 +612,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "About you",
       "width": 1440,
       "result": "PASS",
@@ -659,7 +620,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Activity",
       "width": 1440,
       "result": "PASS",
@@ -667,7 +628,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/campaigns",
+      "route": "growth/campaigns",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -675,15 +636,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/campaign-studio",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/campaign-studio",
+      "route": "growth/campaigns",
       "section": "Section: New campaign",
       "width": 1440,
       "result": "PASS",
@@ -691,7 +644,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/campaign-studio",
+      "route": "growth/campaigns",
       "section": "Section: Campaigns",
       "width": 1440,
       "result": "PASS",
@@ -699,7 +652,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/consent",
+      "route": "growth/media",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -707,7 +660,55 @@
     },
     {
       "portal": "Business",
-      "route": "b05/consent",
+      "route": "growth/media",
+      "section": "Start from anything you already have",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "AI Render Specification",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "Platform suggestions",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "Creative readiness",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "Saved specifications",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
       "section": "Section: Marketing consent",
       "width": 1440,
       "result": "PASS",
@@ -715,7 +716,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/consent",
+      "route": "growth/consent",
       "section": "Section: Unsubscribed and suppressed",
       "width": 1440,
       "result": "PASS",
@@ -723,7 +724,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -731,7 +732,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "Section: Google",
       "width": 1440,
       "result": "PASS",
@@ -739,7 +740,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "Section: Scheduled SEO jobs",
       "width": 1440,
       "result": "PASS",
@@ -747,7 +748,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "Section: Your sites",
       "width": 1440,
       "result": "PASS",
@@ -755,7 +756,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/audit",
+      "route": "growth/website-builder",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -763,7 +764,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/keywords",
+      "route": "growth/seo-audit",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -771,7 +772,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/google",
+      "route": "growth/seo-keywords",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -779,7 +780,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/studio",
+      "route": "growth/seo-google",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -787,7 +788,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/builder",
+      "route": "growth/seo-content",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -795,7 +796,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -803,7 +804,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "Section: Checks",
       "width": 1440,
       "result": "PASS",
@@ -811,7 +812,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "Section: Reviews",
       "width": 1440,
       "result": "PASS",
@@ -819,7 +820,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "Section: Service-area and location pages",
       "width": 1440,
       "result": "PASS",
@@ -827,7 +828,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/analytics",
+      "route": "growth/seo-analytics",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -835,7 +836,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/reports",
+      "route": "growth/seo-reports",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -843,7 +844,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/website",
+      "route": "growth/drafts",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -851,7 +852,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -859,7 +860,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Score",
       "width": 1440,
       "result": "PASS",
@@ -867,7 +868,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Business facts",
       "width": 1440,
       "result": "PASS",
@@ -875,7 +876,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Content library",
       "width": 1440,
       "result": "PASS",
@@ -883,7 +884,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "AI answers",
       "width": 1440,
       "result": "PASS",
@@ -891,7 +892,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Schema & files",
       "width": 1440,
       "result": "PASS",
@@ -899,7 +900,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search-console",
+      "route": "growth/search-connection",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -907,7 +908,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/backlinks",
+      "route": "growth/backlinks",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -915,7 +916,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "growth/website-domain",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -923,7 +924,15 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "money/ledger",
       "section": "Overview",
       "width": 1440,
       "result": "PASS",
@@ -931,7 +940,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Jobs & payments",
       "width": 1440,
       "result": "PASS",
@@ -939,7 +948,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Get paid",
       "width": 1440,
       "result": "PASS",
@@ -947,7 +956,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Costs & overheads",
       "width": 1440,
       "result": "PASS",
@@ -955,7 +964,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Reports",
       "width": 1440,
       "result": "PASS",
@@ -963,7 +972,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/invoices",
+      "route": "money/invoices",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -971,7 +980,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/sales",
+      "route": "money/payments",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -979,31 +988,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/sales",
-      "section": "Section: New quotation, estimate or invoice",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b07/sales",
-      "section": "Section: Documents",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b07/payments-refunds",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b07/payments-refunds",
+      "route": "money/payments",
       "section": "Section: Receipts",
       "width": 1440,
       "result": "PASS",
@@ -1011,7 +996,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/payments-refunds",
+      "route": "money/payments",
       "section": "Section: Refunds",
       "width": 1440,
       "result": "PASS",
@@ -1019,7 +1004,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reconcile",
+      "route": "money/reconcile",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1027,7 +1012,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reconcile",
+      "route": "money/reconcile",
       "section": "Section: Import",
       "width": 1440,
       "result": "PASS",
@@ -1035,7 +1020,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reconcile",
+      "route": "money/reconcile",
       "section": "Section: Bank lines",
       "width": 1440,
       "result": "PASS",
@@ -1043,7 +1028,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1051,7 +1036,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Summary",
       "width": 1440,
       "result": "PASS",
@@ -1059,7 +1044,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Profit and loss",
       "width": 1440,
       "result": "PASS",
@@ -1067,7 +1052,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: GST (BAS draft)",
       "width": 1440,
       "result": "PASS",
@@ -1075,7 +1060,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Owed to you",
       "width": 1440,
       "result": "PASS",
@@ -1083,7 +1068,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Overdue: suggested follow-ups",
       "width": 1440,
       "result": "PASS",
@@ -1091,7 +1076,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1099,7 +1084,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Finance settings",
       "width": 1440,
       "result": "PASS",
@@ -1107,7 +1092,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Compliance review",
       "width": 1440,
       "result": "PASS",
@@ -1115,7 +1100,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Flagged for checking",
       "width": 1440,
       "result": "PASS",
@@ -1123,7 +1108,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Audit trail",
       "width": 1440,
       "result": "PASS",
@@ -1131,7 +1116,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "money/sales",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1139,7 +1124,31 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "money/sales",
+      "section": "Section: New quotation, estimate or invoice",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "money/sales",
+      "section": "Section: Documents",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/settings",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/settings",
       "section": "Business profile",
       "width": 1440,
       "result": "PASS",
@@ -1147,7 +1156,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Contact details",
       "width": 1440,
       "result": "PASS",
@@ -1155,7 +1164,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Address",
       "width": 1440,
       "result": "PASS",
@@ -1163,7 +1172,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Workspace design",
       "width": 1440,
       "result": "PASS",
@@ -1171,7 +1180,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Appearance",
       "width": 1440,
       "result": "PASS",
@@ -1179,7 +1188,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Services & area",
       "width": 1440,
       "result": "PASS",
@@ -1187,7 +1196,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Approvals",
       "width": 1440,
       "result": "PASS",
@@ -1195,7 +1204,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "AI preferences",
       "width": 1440,
       "result": "PASS",
@@ -1203,7 +1212,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/connections",
+      "route": "setup/connections",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1211,7 +1220,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/connections",
+      "route": "setup/connections",
       "section": "Secure connection policy",
       "width": 1440,
       "result": "PASS",
@@ -1219,7 +1228,15 @@
     },
     {
       "portal": "Business",
-      "route": "b08/connections",
+      "route": "setup/connections",
+      "section": "Channel operations",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/connections",
       "section": "Your business connections",
       "width": 1440,
       "result": "PASS",
@@ -1227,7 +1244,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/import",
+      "route": "setup/plans",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1235,215 +1252,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/print",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Activity log",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Worker master sheet",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Financial summary",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Full workspace backup",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Owner control centre",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Governance follows the business profile",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "AI routes. Authorised people decide.",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Policies relevant to your role",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Protected case management",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Owner & senior notifications",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Audit & governance ledger",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/automation",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/help",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/help",
-      "section": "Get contextual help",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/help",
-      "section": "Policies and escalation",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/support-access",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Workspace map",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Current area",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Your role",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Next steps",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Connections guide",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Help",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b09/usage",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Current access",
       "width": 1440,
       "result": "PASS",
@@ -1451,7 +1260,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Compare plans",
       "width": 1440,
       "result": "PASS",
@@ -1459,7 +1268,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Payment connections",
       "width": 1440,
       "result": "PASS",
@@ -1467,7 +1276,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Usage & add-ons",
       "width": 1440,
       "result": "PASS",
@@ -1475,7 +1284,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Billing safeguards",
       "width": 1440,
       "result": "PASS",
@@ -1483,7 +1292,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Plan features",
       "width": 1440,
       "result": "PASS",
@@ -1491,7 +1300,15 @@
     },
     {
       "portal": "Business",
-      "route": "b09/change-plan",
+      "route": "setup/plans",
+      "section": "Your workspace stays yours",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1499,7 +1316,215 @@
     },
     {
       "portal": "Business",
-      "route": "b09/change-plan",
+      "route": "setup/trust",
+      "section": "Owner control centre",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Governance follows the business profile",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "AI routes. Authorised people decide.",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Policies relevant to your role",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Protected case management",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Owner & senior notifications",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Audit & governance ledger",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/automation",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/help",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/help",
+      "section": "Get contextual help",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/help",
+      "section": "Policies and escalation",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Workspace map",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Current area",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Your role",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Next steps",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Connections guide",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Help",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/import",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Activity log",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Worker master sheet",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Financial summary",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Full workspace backup",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/support-access",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/change-plan",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/change-plan",
       "section": "Section: Choose a plan",
       "width": 1440,
       "result": "PASS",
@@ -1507,8 +1532,16 @@
     },
     {
       "portal": "Business",
-      "route": "b09/change-plan",
+      "route": "setup/change-plan",
       "section": "Section: Plan changes",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b04/unified",
+      "section": "Inbox context opens the Email folder and reveals its More group",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -1548,6 +1581,14 @@
     {
       "portal": "Business",
       "route": "b01/home",
+      "section": "Guided start, four metrics, preserved expiry and shared command search",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "today/home",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1555,7 +1596,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Business overview",
       "width": 390,
       "result": "PASS",
@@ -1563,7 +1604,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Attention items",
       "width": 390,
       "result": "PASS",
@@ -1571,7 +1612,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Readiness",
       "width": 390,
       "result": "PASS",
@@ -1579,7 +1620,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/home",
+      "route": "today/home",
       "section": "Workflow guide",
       "width": 390,
       "result": "PASS",
@@ -1587,7 +1628,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1595,7 +1636,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "How AI works",
       "width": 390,
       "result": "PASS",
@@ -1603,7 +1644,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "Ask AI",
       "width": 390,
       "result": "PASS",
@@ -1611,7 +1652,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "Save an operational task",
       "width": 390,
       "result": "PASS",
@@ -1619,7 +1660,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/assistant",
+      "route": "today/assistant",
       "section": "Saved tasks",
       "width": 390,
       "result": "PASS",
@@ -1627,7 +1668,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1635,7 +1676,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "Decision overview",
       "width": 390,
       "result": "PASS",
@@ -1643,7 +1684,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "Queue & history",
       "width": 390,
       "result": "PASS",
@@ -1651,7 +1692,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/approvals",
+      "route": "today/approvals",
       "section": "Approval policy",
       "width": 390,
       "result": "PASS",
@@ -1659,7 +1700,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1667,7 +1708,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Automations",
       "width": 390,
       "result": "PASS",
@@ -1675,7 +1716,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Activity",
       "width": 390,
       "result": "PASS",
@@ -1683,7 +1724,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Suggestions & reports",
       "width": 390,
       "result": "PASS",
@@ -1691,7 +1732,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Rules & safety",
       "width": 390,
       "result": "PASS",
@@ -1699,7 +1740,7 @@
     },
     {
       "portal": "Business",
-      "route": "b01/automations",
+      "route": "today/automations",
       "section": "Audit report",
       "width": 390,
       "result": "PASS",
@@ -1707,7 +1748,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/enquiries",
+      "route": "work/enquiries",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1715,7 +1756,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/customers",
+      "route": "work/quotes",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1723,7 +1764,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/quotes",
+      "route": "work/bookings",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1731,7 +1772,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/bookings",
+      "route": "work/jobs",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1739,15 +1780,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/jobs",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b02/jobs",
+      "route": "work/jobs",
       "section": "Create work order",
       "width": 390,
       "result": "PASS",
@@ -1755,7 +1788,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/jobs",
+      "route": "work/jobs",
       "section": "Open work orders",
       "width": 390,
       "result": "PASS",
@@ -1763,7 +1796,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1771,7 +1804,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "Reorder",
       "width": 390,
       "result": "PASS",
@@ -1779,7 +1812,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "Most used",
       "width": 390,
       "result": "PASS",
@@ -1787,7 +1820,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/stock",
+      "route": "work/stock",
       "section": "Stock on hand",
       "width": 390,
       "result": "PASS",
@@ -1795,7 +1828,7 @@
     },
     {
       "portal": "Business",
-      "route": "b02/archive",
+      "route": "work/archive",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1803,7 +1836,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/workers",
+      "route": "customers/directory",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1811,7 +1844,15 @@
     },
     {
       "portal": "Business",
-      "route": "b03/workers",
+      "route": "people/workers",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "people/workers",
       "section": "Add worker",
       "width": 390,
       "result": "PASS",
@@ -1819,7 +1860,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/workers",
+      "route": "people/workers",
       "section": "People",
       "width": 390,
       "result": "PASS",
@@ -1827,7 +1868,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/staff",
+      "route": "people/staff",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1835,7 +1876,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/staff",
+      "route": "people/staff",
       "section": "Business members",
       "width": 390,
       "result": "PASS",
@@ -1843,7 +1884,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/staff",
+      "route": "people/staff",
       "section": "Invitation history",
       "width": 390,
       "result": "PASS",
@@ -1851,7 +1892,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/hiring",
+      "route": "people/hiring",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1859,7 +1900,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/hiring",
+      "route": "people/hiring",
       "section": "Roles and adverts",
       "width": 390,
       "result": "PASS",
@@ -1867,7 +1908,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/hiring",
+      "route": "people/hiring",
       "section": "Applicants",
       "width": 390,
       "result": "PASS",
@@ -1875,7 +1916,7 @@
     },
     {
       "portal": "Business",
-      "route": "b03/offshore",
+      "route": "people/offshore",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1883,7 +1924,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/inbox",
+      "route": "communications/inbox",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1891,15 +1932,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Inbox",
       "width": 390,
       "result": "PASS",
@@ -1907,7 +1940,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Sent",
       "width": 390,
       "result": "PASS",
@@ -1915,7 +1948,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Drafts",
       "width": 390,
       "result": "PASS",
@@ -1923,7 +1956,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Scheduled",
       "width": 390,
       "result": "PASS",
@@ -1931,7 +1964,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Archived",
       "width": 390,
       "result": "PASS",
@@ -1939,7 +1972,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Failed",
       "width": 390,
       "result": "PASS",
@@ -1947,7 +1980,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/unified",
+      "route": "communications/inbox",
       "section": "Spam",
       "width": 390,
       "result": "PASS",
@@ -1955,7 +1988,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1963,7 +1996,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "Section: Your number",
       "width": 390,
       "result": "PASS",
@@ -1971,7 +2004,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "Section: Call handling",
       "width": 390,
       "result": "PASS",
@@ -1979,7 +2012,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/voice",
+      "route": "communications/call-handling",
       "section": "Section: Recent calls",
       "width": 390,
       "result": "PASS",
@@ -1987,7 +2020,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/receptionist",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1995,7 +2028,31 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/meetings",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/team-chat",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/email",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/email",
       "section": "All mail",
       "width": 390,
       "result": "PASS",
@@ -2003,7 +2060,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Received",
       "width": 390,
       "result": "PASS",
@@ -2011,7 +2068,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Drafts & approved",
       "width": 390,
       "result": "PASS",
@@ -2019,7 +2076,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Sent",
       "width": 390,
       "result": "PASS",
@@ -2027,7 +2084,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Scheduled",
       "width": 390,
       "result": "PASS",
@@ -2035,7 +2092,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Marketing",
       "width": 390,
       "result": "PASS",
@@ -2043,7 +2100,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Campaigns",
       "width": 390,
       "result": "PASS",
@@ -2051,7 +2108,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Enquiries",
       "width": 390,
       "result": "PASS",
@@ -2059,7 +2116,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Invoices",
       "width": 390,
       "result": "PASS",
@@ -2067,7 +2124,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/email",
+      "route": "communications/email",
       "section": "Support",
       "width": 390,
       "result": "PASS",
@@ -2075,7 +2132,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/numbers",
+      "route": "communications/channels",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2083,7 +2140,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/calls",
+      "route": "communications/numbers",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2091,7 +2148,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/receptionist",
+      "route": "communications/calls-sms",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2099,7 +2156,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/meetings",
+      "route": "growth/hub",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2107,71 +2164,7 @@
     },
     {
       "portal": "Business",
-      "route": "b04/team-chat",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Start from anything you already have",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "AI Render Specification",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Platform suggestions",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Creative readiness",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/studio",
-      "section": "Saved specifications",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/growth",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Plan",
       "width": 390,
       "result": "PASS",
@@ -2179,7 +2172,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Calendar",
       "width": 390,
       "result": "PASS",
@@ -2187,7 +2180,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Reuse a post",
       "width": 390,
       "result": "PASS",
@@ -2195,7 +2188,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "About you",
       "width": 390,
       "result": "PASS",
@@ -2203,7 +2196,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/growth",
+      "route": "growth/hub",
       "section": "Activity",
       "width": 390,
       "result": "PASS",
@@ -2211,7 +2204,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/campaigns",
+      "route": "growth/campaigns",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2219,15 +2212,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/campaign-studio",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b05/campaign-studio",
+      "route": "growth/campaigns",
       "section": "Section: New campaign",
       "width": 390,
       "result": "PASS",
@@ -2235,7 +2220,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/campaign-studio",
+      "route": "growth/campaigns",
       "section": "Section: Campaigns",
       "width": 390,
       "result": "PASS",
@@ -2243,7 +2228,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/consent",
+      "route": "growth/media",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2251,7 +2236,55 @@
     },
     {
       "portal": "Business",
-      "route": "b05/consent",
+      "route": "growth/media",
+      "section": "Start from anything you already have",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "AI Render Specification",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "Platform suggestions",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "Creative readiness",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/media",
+      "section": "Saved specifications",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
       "section": "Section: Marketing consent",
       "width": 390,
       "result": "PASS",
@@ -2259,7 +2292,7 @@
     },
     {
       "portal": "Business",
-      "route": "b05/consent",
+      "route": "growth/consent",
       "section": "Section: Unsubscribed and suppressed",
       "width": 390,
       "result": "PASS",
@@ -2267,7 +2300,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2275,7 +2308,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "Section: Google",
       "width": 390,
       "result": "PASS",
@@ -2283,7 +2316,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "Section: Scheduled SEO jobs",
       "width": 390,
       "result": "PASS",
@@ -2291,7 +2324,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/seo",
+      "route": "growth/seo",
       "section": "Section: Your sites",
       "width": 390,
       "result": "PASS",
@@ -2299,7 +2332,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/audit",
+      "route": "growth/website-builder",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2307,7 +2340,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/keywords",
+      "route": "growth/seo-audit",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2315,7 +2348,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/google",
+      "route": "growth/seo-keywords",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2323,7 +2356,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/studio",
+      "route": "growth/seo-google",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2331,7 +2364,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/builder",
+      "route": "growth/seo-content",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2339,7 +2372,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2347,7 +2380,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "Section: Checks",
       "width": 390,
       "result": "PASS",
@@ -2355,7 +2388,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "Section: Reviews",
       "width": 390,
       "result": "PASS",
@@ -2363,7 +2396,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/local",
+      "route": "growth/seo-local",
       "section": "Section: Service-area and location pages",
       "width": 390,
       "result": "PASS",
@@ -2371,7 +2404,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/analytics",
+      "route": "growth/seo-analytics",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2379,7 +2412,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/reports",
+      "route": "growth/seo-reports",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2387,7 +2420,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/website",
+      "route": "growth/drafts",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2395,7 +2428,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2403,7 +2436,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Score",
       "width": 390,
       "result": "PASS",
@@ -2411,7 +2444,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Business facts",
       "width": 390,
       "result": "PASS",
@@ -2419,7 +2452,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Content library",
       "width": 390,
       "result": "PASS",
@@ -2427,7 +2460,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "AI answers",
       "width": 390,
       "result": "PASS",
@@ -2435,7 +2468,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search",
+      "route": "growth/search-readiness",
       "section": "Schema & files",
       "width": 390,
       "result": "PASS",
@@ -2443,7 +2476,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/search-console",
+      "route": "growth/search-connection",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2451,7 +2484,7 @@
     },
     {
       "portal": "Business",
-      "route": "b06/backlinks",
+      "route": "growth/backlinks",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2459,7 +2492,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "growth/website-domain",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2467,7 +2500,15 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "money/ledger",
       "section": "Overview",
       "width": 390,
       "result": "PASS",
@@ -2475,7 +2516,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Jobs & payments",
       "width": 390,
       "result": "PASS",
@@ -2483,7 +2524,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Get paid",
       "width": 390,
       "result": "PASS",
@@ -2491,7 +2532,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Costs & overheads",
       "width": 390,
       "result": "PASS",
@@ -2499,7 +2540,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/ledger",
+      "route": "money/ledger",
       "section": "Reports",
       "width": 390,
       "result": "PASS",
@@ -2507,7 +2548,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/invoices",
+      "route": "money/invoices",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2515,7 +2556,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/sales",
+      "route": "money/payments",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2523,31 +2564,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/sales",
-      "section": "Section: New quotation, estimate or invoice",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b07/sales",
-      "section": "Section: Documents",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b07/payments-refunds",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b07/payments-refunds",
+      "route": "money/payments",
       "section": "Section: Receipts",
       "width": 390,
       "result": "PASS",
@@ -2555,7 +2572,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/payments-refunds",
+      "route": "money/payments",
       "section": "Section: Refunds",
       "width": 390,
       "result": "PASS",
@@ -2563,7 +2580,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reconcile",
+      "route": "money/reconcile",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2571,7 +2588,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reconcile",
+      "route": "money/reconcile",
       "section": "Section: Import",
       "width": 390,
       "result": "PASS",
@@ -2579,7 +2596,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reconcile",
+      "route": "money/reconcile",
       "section": "Section: Bank lines",
       "width": 390,
       "result": "PASS",
@@ -2587,7 +2604,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2595,7 +2612,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Summary",
       "width": 390,
       "result": "PASS",
@@ -2603,7 +2620,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Profit and loss",
       "width": 390,
       "result": "PASS",
@@ -2611,7 +2628,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: GST (BAS draft)",
       "width": 390,
       "result": "PASS",
@@ -2619,7 +2636,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Owed to you",
       "width": 390,
       "result": "PASS",
@@ -2627,7 +2644,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/reports",
+      "route": "money/reports",
       "section": "Section: Overdue: suggested follow-ups",
       "width": 390,
       "result": "PASS",
@@ -2635,7 +2652,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2643,7 +2660,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Finance settings",
       "width": 390,
       "result": "PASS",
@@ -2651,7 +2668,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Compliance review",
       "width": 390,
       "result": "PASS",
@@ -2659,7 +2676,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Flagged for checking",
       "width": 390,
       "result": "PASS",
@@ -2667,7 +2684,7 @@
     },
     {
       "portal": "Business",
-      "route": "b07/compliance",
+      "route": "money/settings",
       "section": "Section: Audit trail",
       "width": 390,
       "result": "PASS",
@@ -2675,7 +2692,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "money/sales",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2683,7 +2700,31 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "money/sales",
+      "section": "Section: New quotation, estimate or invoice",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "money/sales",
+      "section": "Section: Documents",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/settings",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/settings",
       "section": "Business profile",
       "width": 390,
       "result": "PASS",
@@ -2691,7 +2732,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Contact details",
       "width": 390,
       "result": "PASS",
@@ -2699,7 +2740,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Address",
       "width": 390,
       "result": "PASS",
@@ -2707,7 +2748,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Workspace design",
       "width": 390,
       "result": "PASS",
@@ -2715,7 +2756,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Appearance",
       "width": 390,
       "result": "PASS",
@@ -2723,7 +2764,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Services & area",
       "width": 390,
       "result": "PASS",
@@ -2731,7 +2772,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "Approvals",
       "width": 390,
       "result": "PASS",
@@ -2739,7 +2780,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/settings",
+      "route": "setup/settings",
       "section": "AI preferences",
       "width": 390,
       "result": "PASS",
@@ -2747,7 +2788,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/connections",
+      "route": "setup/connections",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2755,7 +2796,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/connections",
+      "route": "setup/connections",
       "section": "Secure connection policy",
       "width": 390,
       "result": "PASS",
@@ -2763,7 +2804,15 @@
     },
     {
       "portal": "Business",
-      "route": "b08/connections",
+      "route": "setup/connections",
+      "section": "Channel operations",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/connections",
       "section": "Your business connections",
       "width": 390,
       "result": "PASS",
@@ -2771,7 +2820,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/import",
+      "route": "setup/plans",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2779,215 +2828,7 @@
     },
     {
       "portal": "Business",
-      "route": "b08/print",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Activity log",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Worker master sheet",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Financial summary",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/print",
-      "section": "Full workspace backup",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Owner control centre",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Governance follows the business profile",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "AI routes. Authorised people decide.",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Policies relevant to your role",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Protected case management",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Owner & senior notifications",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/trust",
-      "section": "Audit & governance ledger",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/automation",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/help",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/help",
-      "section": "Get contextual help",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/help",
-      "section": "Policies and escalation",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/support-access",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Workspace map",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Current area",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Your role",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Next steps",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Connections guide",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b08/manual",
-      "section": "Help",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b09/usage",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Current access",
       "width": 390,
       "result": "PASS",
@@ -2995,7 +2836,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Compare plans",
       "width": 390,
       "result": "PASS",
@@ -3003,7 +2844,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Payment connections",
       "width": 390,
       "result": "PASS",
@@ -3011,7 +2852,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Usage & add-ons",
       "width": 390,
       "result": "PASS",
@@ -3019,7 +2860,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Billing safeguards",
       "width": 390,
       "result": "PASS",
@@ -3027,7 +2868,7 @@
     },
     {
       "portal": "Business",
-      "route": "b09/usage",
+      "route": "setup/plans",
       "section": "Plan features",
       "width": 390,
       "result": "PASS",
@@ -3035,7 +2876,15 @@
     },
     {
       "portal": "Business",
-      "route": "b09/change-plan",
+      "route": "setup/plans",
+      "section": "Your workspace stays yours",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -3043,7 +2892,215 @@
     },
     {
       "portal": "Business",
-      "route": "b09/change-plan",
+      "route": "setup/trust",
+      "section": "Owner control centre",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Governance follows the business profile",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "AI routes. Authorised people decide.",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Policies relevant to your role",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Protected case management",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Owner & senior notifications",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/trust",
+      "section": "Audit & governance ledger",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/automation",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/help",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/help",
+      "section": "Get contextual help",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/help",
+      "section": "Policies and escalation",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Workspace map",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Current area",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Your role",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Next steps",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Connections guide",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/manual",
+      "section": "Help",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/import",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Activity log",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Worker master sheet",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Financial summary",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/export",
+      "section": "Full workspace backup",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/support-access",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/change-plan",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "setup/change-plan",
       "section": "Section: Choose a plan",
       "width": 390,
       "result": "PASS",
@@ -3051,8 +3108,16 @@
     },
     {
       "portal": "Business",
-      "route": "b09/change-plan",
+      "route": "setup/change-plan",
       "section": "Section: Plan changes",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b04/unified",
+      "section": "Inbox context opens the Email folder and reveals its More group",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -3572,7 +3637,7 @@
     {
       "portal": "Founder",
       "route": "f06/platform/campaigns",
-      "section": "Section: Super Pro newsletter campaigns",
+      "section": "Section: Oprun newsletter campaigns",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4324,7 +4389,7 @@
     {
       "portal": "Founder",
       "route": "f06/platform/campaigns",
-      "section": "Section: Super Pro newsletter campaigns",
+      "section": "Section: Oprun newsletter campaigns",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4611,5 +4676,6 @@
     }
   ],
   "errors": [],
+  "missing": [],
   "writes": "Synthetic form input only; no external service actions"
 }

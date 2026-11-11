@@ -28,7 +28,7 @@
     campaignstudio: ['Campaign Studio', 'Email, SMS and social campaigns. Only people who agreed to marketing receive them, every message has a working unsubscribe, and nothing is sent until an authorised person approves it.'],
     consent: ['Consent & Unsubscribes', 'Who agreed to marketing, on which channel and how, plus everyone who unsubscribed or replied STOP. Suppressed addresses are never sent marketing.']
   };
-  const HASH = { unifiedinbox: 'b04/unified', voiceflow: 'b04/voice', campaignstudio: 'b05/campaign-studio', consent: 'b05/consent' };
+  const HASH = { unifiedinbox: 'communications/inbox', voiceflow: 'communications/call-handling', campaignstudio: 'growth/campaigns', consent: 'growth/consent' };
   const localInput = (iso) => { if (!iso) return ''; const d = new Date(iso); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
   const toIso = (v) => (v ? new Date(v).toISOString() : null);
   let uid = 0; const id = (p) => `${p}-${++uid}`;
@@ -81,7 +81,7 @@
         const list = el('ul', { class: 'cx-list', 'aria-label': 'Conversations' });
         const detail = el('div', { class: 'cx-detail', 'aria-live': 'polite' });
         for (const it of d.items) {
-          const open = () => { state.open = it.type === 'message' ? it.thread_id : it.type === 'conversation' ? it.id : null; if (state.open) showThread(state.open, detail); else if (it.type === 'campaign') location.hash = HASH.campaignstudio; else location.hash = 'b04/email'; };
+          const open = () => { state.open = it.type === 'message' ? it.thread_id : it.type === 'conversation' ? it.id : null; if (state.open) showThread(state.open, detail); else if (it.type === 'campaign') location.hash = HASH.campaignstudio; else location.hash = 'communications/email'; };
           list.append(el('li', {}, el('button', { type: 'button', class: 'cx-item', 'aria-current': String(state.open && state.open === (it.thread_id || it.id)), onclick: open },
             el('span', { class: 'cx-row' }, el('b', { text: it.contact || 'Unknown' }), el('small', { text: when(it.at) })),
             el('span', { class: 'cx-row' }, el('small', { text: `${CH[it.channel] || it.channel}${it.source ? ' · ' + it.source : ''}${it.subject ? ' · ' + it.subject : ''}` }), chip(it.status)),
@@ -156,7 +156,7 @@
         el('span', { class: 'cx-row' }, el('small', { text: `${x.direction === 'inbound' ? 'From ' + (t.contact_name || t.contact_address) : 'You'}${x.ai_generated ? ' · AI draft' : ''}` }), el('small', { text: when(x.occurred_at) })),
         el('p', { text: x.body }),
         x.direction === 'outbound' ? el('span', { class: 'cx-row' }, chip(x.sched_state === 'failed' ? 'failed' : x.status), x.send_at ? el('small', { text: 'Scheduled for ' + when(x.send_at) }) : null,
-          x.status === 'pending_approval' ? el('a', { href: '#b01/approvals', class: 'cx-linkbtn', text: 'Open approvals' }) : null,
+          x.status === 'pending_approval' ? el('a', { href: '#today/approvals', class: 'cx-linkbtn', text: 'Open approvals' }) : null,
           x.status === 'approved' && !x.send_at ? el('button', { type: 'button', class: 'portal-button primary', text: 'Send', onclick: (e) => busy(e.target, async () => { await post(`/api/saas/comms/messages/${encodeURIComponent(x.id)}/send`); say('Sent.'); refresh(); }) }) : null) : null)));
       const esc = m.escalation;
       const ai = section('AI summary', el('dl', { class: 'cx-dl' },
@@ -174,8 +174,8 @@
         el('div', { class: 'pl-actions' },
           !d.customer ? d.matches.map((c) => el('button', { type: 'button', class: 'portal-button', text: `Link to ${c.name}`, onclick: link({ customer_id: c.id }, 'Linked to ' + c.name + '.') })) : null,
           !d.customer ? el('button', { type: 'button', class: 'portal-button', text: 'Create customer', onclick: link({ create_customer: { name: t.contact_name || undefined, ...(t.channel === 'email' ? { email: t.contact_address } : { phone: t.contact_address }) } }, 'Customer created and linked.') }) : null,
-          !m.enquiry_id ? el('button', { type: 'button', class: 'portal-button', text: 'Create enquiry', onclick: link({ create_enquiry: { title: t.subject || undefined } }, 'Enquiry created and linked.') }) : el('a', { class: 'cx-linkbtn', href: '#b02/enquiries', text: 'Linked to an enquiry' }),
-          m.invoice_id ? el('a', { class: 'cx-linkbtn', href: '#b07/invoices', text: 'Linked to an invoice' }) : null),
+          !m.enquiry_id ? el('button', { type: 'button', class: 'portal-button', text: 'Create enquiry', onclick: link({ create_enquiry: { title: t.subject || undefined } }, 'Enquiry created and linked.') }) : el('a', { class: 'cx-linkbtn', href: '#work/enquiries', text: 'Linked to an enquiry' }),
+          m.invoice_id ? el('a', { class: 'cx-linkbtn', href: '#money/invoices', text: 'Linked to an invoice' }) : null),
         ['email', 'sms'].includes(t.channel) ? el('p', { class: 'sx-source', text: d.suppressed ? 'Marketing: unsubscribed. They will not receive campaigns.' : d.consent?.status === 'granted' ? `Marketing: agreed (${d.consent.source.replace(/_/g, ' ')}).` : 'Marketing: no consent recorded, so they will not receive campaigns.' }) : null);
       const folder = m.folder || 'inbox';
       const moves = el('div', { class: 'pl-actions' }, [['inbox', 'Move to inbox'], ['archived', 'Archive'], ['spam', 'Mark as spam']].filter(([k]) => k !== folder).map(([k, l]) => el('button', { type: 'button', class: 'portal-button', text: l, onclick: (e) => busy(e.target, async () => { await post(`/api/saas/comms/unified/threads/${encodeURIComponent(tid)}/move`, { folder: k }); say(k === 'inbox' ? 'Moved to the inbox.' : k === 'archived' ? 'Archived.' : 'Marked as spam.'); state.open = null; render('unifiedinbox'); }) })));
@@ -238,7 +238,7 @@
         el('h3', { text: 'Suggestions' }), el('ul', { class: 'sx-list' }, c.recommendations.map((x) => el('li', { text: x }))),
         el('div', { class: 'pl-actions' },
           can ? el('button', { type: 'button', class: 'portal-button primary', text: 'Submit for approval', disabled: c.compliance.issues.length ? true : null, onclick: (e) => busy(e.target, async () => { const r = await post(`${campBase}/${encodeURIComponent(cid)}/submit`); say(r.message); render('campaignstudio'); }) }) : null,
-          c.status === 'pending_approval' ? (founder ? el('p', { text: 'Waiting for approval under Operations > AI automations.' }) : el('a', { class: 'cx-linkbtn', href: '#b01/approvals', text: 'Waiting for approval: open approvals' })) : null,
+          c.status === 'pending_approval' ? (founder ? el('p', { text: 'Waiting for approval under Operations > AI automations.' }) : el('a', { class: 'cx-linkbtn', href: '#today/approvals', text: 'Waiting for approval: open approvals' })) : null,
           cancellable ? el('button', { type: 'button', class: 'portal-button', text: 'Cancel campaign', onclick: (e) => busy(e.target, async () => { await post(`${campBase}/${encodeURIComponent(cid)}/cancel`); say('Campaign cancelled. Nothing more will be sent.'); render('campaignstudio'); }) }) : null),
         d.recipients.length ? [el('h3', { text: 'Recipients' }), table([['address', 'Address'], ['name', 'Name'], ['status', 'Status', (v) => chip(v)], ['sent_at', 'Sent', when], ['clicked_at', 'Clicked', when], ['error', 'Problem']], d.recipients)] : null));
       b.querySelector('.cx-opened')?.remove(); box.className = 'cx-opened'; b.prepend(box); box.scrollIntoView({ block: 'start' });

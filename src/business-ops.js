@@ -56,15 +56,15 @@ export function installBusinessOps(app, { db, env, requireSaasUser, requireSaasR
     const org = req.saas.organisation_id, like = '%' + term.replace(/[%_\\]/g, (c) => '\\' + c) + '%', out = [];
     const add = (feature, rows) => { if (staffAccess.can(req, feature, 'read')) out.push(...rows()); };
     add('customers', () => db.prepare(`SELECT id,name,phone,email FROM tenant_customers WHERE organisation_id=? AND (name LIKE ? ESCAPE '\\' OR phone LIKE ? ESCAPE '\\' OR email LIKE ? ESCAPE '\\' OR address LIKE ? ESCAPE '\\') ORDER BY name LIMIT 5`).all(org, like, like, like, like)
-      .map((c) => ({ type: 'customer', id: c.id, title: c.name, detail: [c.phone, c.email].filter(Boolean).join(' \u00b7 '), view: 'b02/customers' })));
-    const kinds = { enquiry: ['customers', 'b02/enquiries', 'Enquiry'], quote: ['customers', 'b02/quotes', 'Quote'], booking: ['jobs', 'b02/bookings', 'Booking'], invoice: ['finance', 'b07/invoices', 'Invoice'] };
+      .map((c) => ({ type: 'customer', id: c.id, title: c.name, detail: [c.phone, c.email].filter(Boolean).join(' \u00b7 '), view: 'customers/directory' })));
+    const kinds = { enquiry: ['customers', 'work/enquiries', 'Enquiry'], quote: ['customers', 'work/quotes', 'Quote'], booking: ['jobs', 'work/bookings', 'Booking'], invoice: ['finance', 'money/invoices', 'Invoice'] };
     for (const [kind, [feature, viewPath, label]] of Object.entries(kinds)) add(feature, () => db.prepare(`SELECT d.id,d.title,d.status,c.name customer FROM tenant_documents d LEFT JOIN tenant_customers c ON c.id=d.customer_id AND c.organisation_id=d.organisation_id WHERE d.organisation_id=? AND d.kind=? AND (d.title LIKE ? ESCAPE '\\' OR c.name LIKE ? ESCAPE '\\') ORDER BY d.created_at DESC LIMIT 4`).all(org, kind, like, like)
       .map((d) => ({ type: kind, id: d.id, title: d.title, detail: [label, d.customer, d.status.replace(/_/g, ' ')].filter(Boolean).join(' \u00b7 '), view: viewPath })));
     if (!['worker', 'contractor'].includes(String(req.saas.role || '').toLowerCase())) {
       add('jobs', () => db.prepare(`SELECT id,title,address,start_at FROM work_orders WHERE organisation_id=? AND (title LIKE ? ESCAPE '\\' OR address LIKE ? ESCAPE '\\') ORDER BY start_at DESC LIMIT 4`).all(org, like, like)
-        .map((j) => ({ type: 'job', id: j.id, title: j.title, detail: ['Job', j.address, j.start_at ? new Date(j.start_at).toLocaleDateString('en-AU') : null].filter(Boolean).join(' \u00b7 '), view: 'b02/jobs' })));
+        .map((j) => ({ type: 'job', id: j.id, title: j.title, detail: ['Job', j.address, j.start_at ? new Date(j.start_at).toLocaleDateString('en-AU') : null].filter(Boolean).join(' \u00b7 '), view: 'work/jobs' })));
       add('workforce', () => db.prepare(`SELECT id,full_name,role_title,work_location FROM workers WHERE organisation_id=? AND (full_name LIKE ? ESCAPE '\\' OR email LIKE ? ESCAPE '\\') ORDER BY full_name LIMIT 4`).all(org, like, like)
-        .map((w) => ({ type: 'worker', id: w.id, title: w.full_name, detail: [w.work_location === 'offshore' ? 'Offshore team' : 'Worker', w.role_title].filter(Boolean).join(' \u00b7 '), view: w.work_location === 'offshore' ? 'b03/offshore' : 'b03/workers' })));
+        .map((w) => ({ type: 'worker', id: w.id, title: w.full_name, detail: [w.work_location === 'offshore' ? 'Offshore team' : 'Worker', w.role_title].filter(Boolean).join(' \u00b7 '), view: w.work_location === 'offshore' ? 'people/offshore' : 'people/workers' })));
     }
     res.json({ ok: true, results: out.slice(0, 20) });
   });
@@ -81,12 +81,12 @@ export function installBusinessOps(app, { db, env, requireSaasUser, requireSaasR
     res.json({
       ok: true,
       automations: [
-        { key: 'approvals', title: 'Approval policy', on: true, detail: profile?.approval_mode ? `Mode: ${profile.approval_mode.replace(/_/g, ' ')}. ${Object.entries(rules).filter(([, v]) => v).map(([k]) => k.replace(/_/g, ' ')).join(', ') || 'No extra rules'} need approval.` : 'Default: anything that leaves the business waits for approval.', change: '#b01/approvals' },
-        { key: 'inbox_drafts', title: 'AI reply drafts in the inbox', on: ai && String(env.INBOX_AUTO_DRAFT || '1') !== '0', detail: ai ? 'New customer messages get an AI draft reply. Every draft waits for approval before it is sent.' : 'Needs an AI provider. Nothing is drafted until one is connected.', change: '#b04/inbox' },
+        { key: 'approvals', title: 'Approval policy', on: true, detail: profile?.approval_mode ? `Mode: ${profile.approval_mode.replace(/_/g, ' ')}. ${Object.entries(rules).filter(([, v]) => v).map(([k]) => k.replace(/_/g, ' ')).join(', ') || 'No extra rules'} need approval.` : 'Default: anything that leaves the business waits for approval.', change: '#today/approvals' },
+        { key: 'inbox_drafts', title: 'AI reply drafts in the inbox', on: ai && String(env.INBOX_AUTO_DRAFT || '1') !== '0', detail: ai ? 'New customer messages get an AI draft reply. Every draft waits for approval before it is sent.' : 'Needs an AI provider. Nothing is drafted until one is connected.', change: '#communications/channels' },
         { key: 'owner_reminders', title: 'Overdue invoice reminders to you', on: Boolean(pay.owner_reminders), detail: 'You are told when a job invoice passes its due date.', toggle: 'owner_reminders' },
         { key: 'customer_reminders', title: 'Overdue invoice reminders to customers', on: Boolean(pay.customer_reminders), detail: 'Customers receive a reminder after the due date. Needs email or SMS connected to send.', toggle: 'customer_reminders' },
-        { key: 'late_fees', title: 'Late fees', on: Boolean(pay.late_fee_enabled), detail: `${pay.late_fee_percent}% after ${pay.terms_days} days, only when you have enabled and acknowledged it in payment settings.`, change: '#b07/ledger' },
-        { key: 'payment_terms', title: 'Invoice due date', on: true, detail: `Issued invoices are due ${pay.terms_days} days later.`, change: '#b07/ledger' },
+        { key: 'late_fees', title: 'Late fees', on: Boolean(pay.late_fee_enabled), detail: `${pay.late_fee_percent}% after ${pay.terms_days} days, only when you have enabled and acknowledged it in payment settings.`, change: '#money/ledger' },
+        { key: 'payment_terms', title: 'Invoice due date', on: true, detail: `Issued invoices are due ${pay.terms_days} days later.`, change: '#money/ledger' },
         { key: 'notifications', title: 'Your notifications', on: !prefs?.muted, detail: prefs ? `${prefs.muted ? 'Muted' : 'On'} · browser alerts ${prefs.browser ? 'on' : 'off'} · SMS ${prefs.sms ? 'on' : 'off'}` : 'Default settings.', change: null }
       ]
     });

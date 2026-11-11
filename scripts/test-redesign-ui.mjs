@@ -17,7 +17,14 @@ try {
   await page.locator('#workspace-command button').waitFor();
   await page.locator('#workspace-start a').first().waitFor();
   assert.equal(await page.locator('#dashboard-view .operational-strip .metric-card').count(),4);
-  assert.equal(await page.locator('#business-navigation [data-nav-group]').count(),7);
+  assert.equal(await page.locator('#business-navigation [data-nav-group]').count(),8);
+  assert.deepEqual(await page.locator('#business-navigation [data-nav-group] .navigation-label').allTextContents(),['Today','Work','Customers','People','Communications','Growth','Money','Setup']);
+  await page.waitForFunction(()=>location.hash==='#today/home',null,{timeout:5000});
+  assert.doesNotMatch(await page.evaluate(()=>[document.querySelector('#business-navigation')?.textContent,document.querySelector('#page-eyebrow')?.textContent,document.querySelector('#page-title')?.textContent,document.querySelector('#workspace-breadcrumb')?.textContent].join(' ')),/\bB0\d/i);
+  await page.evaluate(()=>{location.hash='work/enquiries'});await page.locator('#enquiries-view').waitFor({state:'visible'});
+  const pipelineEmpty=await page.evaluate(async()=>{const d=await (await fetch('/api/saas/pipeline/overview')).json();return d.stages.every(s=>!s.count)});
+  if(pipelineEmpty){const guide=page.locator('#enquiries-view .view-empty-guide');await guide.waitFor({state:'visible'});assert.equal(await guide.locator('a').count(),1);assert.ok(await guide.locator('a').evaluate(e=>e.getBoundingClientRect().height>=44));}
+  await page.evaluate(()=>{location.hash='today/home'});await page.locator('#dashboard-view').waitFor({state:'visible'});
   assert.ok(await page.locator('.content-wrap').evaluate(e=>e.getBoundingClientRect().width<=1201));
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await page.locator('#workspace-command button').click();await page.locator('#page-search').waitFor({state:'visible'});
@@ -35,10 +42,10 @@ try {
   }
   await page.goto(server.base+'/saas/workspace.html#b04/unified');
   await page.locator('#unifiedinbox-view').waitFor({state:'visible'});
-  const link=page.locator('#workspace-workflows a[href="#b04/email"]');await link.waitFor();
+  const link=page.locator('#workspace-workflows a[href="#communications/email"]');await link.waitFor();
   assert.ok(await link.evaluate(e=>e.getBoundingClientRect().height>=44));
   await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
-  assert.equal(await page.locator('#workspace-workflows a[href="#b04/email"]').getAttribute('aria-current'),'page');
+  assert.equal(await page.locator('#workspace-workflows a[href="#communications/email"]').getAttribute('aria-current'),'page');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   for (const theme of ['dark','light']) {
    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);

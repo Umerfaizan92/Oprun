@@ -322,7 +322,7 @@
       view = el("section", "view");
       view.id = "mail-view";
       view.hidden = true;
-      view.append(el("h1", "", "Email Centre"));
+      view.append(el("h1", "", "Email folder"));
       document.querySelector(".content-wrap").append(view);
     }
     const host = el("div");

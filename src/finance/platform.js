@@ -74,7 +74,7 @@ export function createPlatformFinance({ db, engineRef = { current: null }, notif
     for (const c of db.prepare("SELECT * FROM plan_price_changes WHERE status='approved'").all()) {
       if (!c.notified_at) {
         for (const s of db.prepare("SELECT organisation_id FROM organisation_subscriptions WHERE plan_id=? AND status IN ('active','trialing')").all(c.plan_id)) {
-          try { await notify?.notifyRoles?.(s.organisation_id, ['owner'], { kind: 'plan_price_change', title: `Your plan price changes on ${c.effective_from}`, body: `Your Oprun plan moves from ${money(c.from_cents)} to ${money(c.to_cents)} a month (plus GST) for billing periods starting on or after ${c.effective_from}. You can change or cancel your plan before then in Plans & Usage.`, link: '#b09/usage', dedupe: `price:${c.id}` }); } catch { /* best effort */ }
+          try { await notify?.notifyRoles?.(s.organisation_id, ['owner'], { kind: 'plan_price_change', title: `Your plan price changes on ${c.effective_from}`, body: `Your Oprun plan moves from ${money(c.from_cents)} to ${money(c.to_cents)} a month (plus GST) for billing periods starting on or after ${c.effective_from}. You can change or cancel your plan before then in Plans & Usage.`, link: '#setup/plans', dedupe: `price:${c.id}` }); } catch { /* best effort */ }
         }
         db.prepare('UPDATE plan_price_changes SET notified_at=?,updated_at=? WHERE id=?').run(now(), now(), c.id); notified++;
       }
@@ -153,7 +153,7 @@ export function createPlatformFinance({ db, engineRef = { current: null }, notif
     scanDunning(); const t = clock(), steps = PRICE_POLICY.dunning_steps_days; let reminded = 0;
     for (const c of db.prepare("SELECT * FROM platform_dunning WHERE status='open' AND next_action_at<=?").all(iso(t))) {
       const step = c.step;
-      try { await notify?.notifyRoles?.(c.organisation_id, ['owner'], { kind: 'subscription_payment_problem', title: 'Your Oprun payment needs attention', body: `${c.reason}. Update your payment details or pay the invoice in Plans & Usage to keep full access.`, link: '#b09/usage', dedupe: `dunning:${c.id}:${step}` }); reminded++; } catch { /* best effort */ }
+      try { await notify?.notifyRoles?.(c.organisation_id, ['owner'], { kind: 'subscription_payment_problem', title: 'Your Oprun payment needs attention', body: `${c.reason}. Update your payment details or pay the invoice in Plans & Usage to keep full access.`, link: '#setup/plans', dedupe: `dunning:${c.id}:${step}` }); reminded++; } catch { /* best effort */ }
       const nextStep = step + 1;
       db.prepare('UPDATE platform_dunning SET step=?,next_action_at=? WHERE id=?').run(nextStep, nextStep < steps.length ? iso(Date.parse(c.opened_at) + steps[nextStep] * DAY) : null, c.id);
     }

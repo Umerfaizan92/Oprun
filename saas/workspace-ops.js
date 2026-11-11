@@ -103,12 +103,12 @@
         if (acts.childNodes.length) c.append(acts);
         grid.append(c);
       }
-      body.append(el('article', { class: 'portal-card pl-card au-link', 'data-key': 'ai_automations' }, el('div', { class: 'pl-card-head' }, el('h2', { text: 'AI Automations' })), el('p', { class: 'pl-body', text: 'Build your own automations, set which routine actions may run without asking, pause everything at once, and read the audit report.' }), el('div', { class: 'pl-actions' }, el('a', { class: 'portal-button primary', href: '#b01/automations', text: 'Open AI Automations' }))), grid);
+      body.append(el('article', { class: 'portal-card pl-card au-link', 'data-key': 'ai_automations' }, el('div', { class: 'pl-card-head' }, el('h2', { text: 'AI Automations' })), el('p', { class: 'pl-body', text: 'Build your own automations, set which routine actions may run without asking, pause everything at once, and read the audit report.' }), el('div', { class: 'pl-actions' }, el('a', { class: 'portal-button primary', href: '#today/automations', text: 'Open AI Automations' }))), grid);
     } catch (e) { body.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); }
   }
 
   // ---------- record results in the workspace search box ----------
-  const VIEW_ID = { 'b02/enquiries': 'enquiries', 'b02/quotes': 'quotes', 'b02/bookings': 'bookings', 'b07/invoices': 'businessinvoices' };
+  const VIEW_ID = { 'work/enquiries': 'enquiries', 'work/quotes': 'quotes', 'work/bookings': 'bookings', 'money/invoices': 'businessinvoices' };
   const TYPE_LABEL = { customer: 'Customer', enquiry: 'Enquiry', quote: 'Quote', booking: 'Booking', invoice: 'Invoice', job: 'Job', worker: 'Team member' };
   let searchSeq = 0, searchTimer = 0;
   function attachSearch() {

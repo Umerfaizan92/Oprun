@@ -128,7 +128,7 @@ export function installMeetings(app, { db, env = {}, requireSaasUser, saasAudit,
       .run(id, org, title, d.mode, d.starts_at || null, d.guests_allowed ? 1 : 0, crypto.randomBytes(12).toString('hex'), req.saas.user_id, iso());
     saasAudit(req, 'meeting.created', 'meeting', id, { mode: d.mode, scheduled: Boolean(d.starts_at), guests_allowed: d.guests_allowed });
     if (d.notify_team && notifications) {
-      void notifications.notifyRoles(org, [...HOST_ROLES, 'employee', 'contractor'], { kind: 'meeting_started', title: `${displayName(req)} started a ${d.mode === 'voice' ? 'voice' : 'video'} call`, body: `${title}. Open Video Meetings to join.`, link: '#b04/meetings', dedupe: `meeting:${id}`, excludeUserId: req.saas.user_id }).catch(() => {});
+      void notifications.notifyRoles(org, [...HOST_ROLES, 'employee', 'contractor'], { kind: 'meeting_started', title: `${displayName(req)} started a ${d.mode === 'voice' ? 'voice' : 'video'} call`, body: `${title}. Open Video Meetings to join.`, link: '#communications/meetings', dedupe: `meeting:${id}`, excludeUserId: req.saas.user_id }).catch(() => {});
     }
     res.status(201).json({ ok: true, meeting: view(req, db.prepare('SELECT * FROM meetings WHERE id=?').get(id)) });
   });

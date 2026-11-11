@@ -1305,3 +1305,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T200352Z (600445e)
 - Known errors: none
 - Next exact action: Publish label/asset-version/evidence corrections with expected remote c89cf355. Wait for current-head CI/Security, then merge and deploy only the tested tree.
+
+## CP-094 2026-11-11T21:59:51+00:00 T-082 TESTING
+- Phase: PR75 final source-label reconciliation
+- Task: T-082 (TESTING)
+- Completed steps: Clean nav, numbering removed, links/tests updated, empty guides, deliverables doc; npm test 73/73, test:ui 34, redesign, navigation 584 checks, pipeline, comms, connections, lead-sources, meetings, integration, smoke, secrets pass locally
+- Incomplete steps: Push branch, PR, CI, merge, Render deploy, live verification
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/navigation/MAPPING.json; docs/navigation/MAPPING.md; docs/navigation/SECTIONS.md; qa/reports/navigation-coverage.json; saas/app.js; saas/channel-operations.js; saas/integration-manager.js; saas/mail-centre.js; saas/portal-shell.js; saas/unified-ui.js; saas/workspace-automations.js; saas/workspace-comms-platform.js; saas/workspace-finance-platform.js; saas/workspace-finance.js; saas/workspace-gadgets.js; saas/workspace-growth.js; saas/workspace-lead-sources.js; saas/workspace-media.js; saas/workspace-migration.js; saas/workspace-nav.js; saas/workspace-ops.js; saas/workspace-pipeline.js; saas/workspace-redesign.css; saas/workspace-seo-platform.js; saas/workspace-tour.js; saas/workspace.html; scripts/connections-health.test.mjs; scripts/redesign-preservation.test.mjs; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs; scripts/test-ui.mjs; src/automation/catalogue.js; src/automation/engine.js; src/business-ops.js; src/comms/service.js; src/comms/voice.js; src/finance/platform.js; src/meetings.js; src/seo/routes.js; src/server.js; docs/redesign/05_MASTER_PROMPT_DELIVERABLES.md; saas/workspace-empty-guides.js
+- Tests executed: npm test; test:ui; test:redesign-ui; test:navigation-ui; test:pipeline-ui; test:comms-ui; integration:test; smoke:test; security:secrets
+- Test results: all pass
+- Git branch: claude/master-prompt-clean-nav
+- Commit: 1cbe8e1 (Merge PR #75: Simplify Oprun workflows and harden publishing); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Open PR from claude/master-prompt-clean-nav, wait for CI, merge and deploy service srv-dan4rdqjnfac73fceor0

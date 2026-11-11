@@ -6,66 +6,66 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 
 | Portal | Group | Page | Canonical route | Default roles | Implementation / sections |
 |---|---|---|---|---|---|
-| Business | Today | Home & AI Command | /saas/workspace.html#b01/home | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Today | AI Assistant | /saas/workspace.html#b01/assistant | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Today | Approvals | /saas/workspace.html#b01/approvals | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Today | AI Automations | /saas/workspace.html#b01/automations | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Enquiries | /saas/workspace.html#b02/enquiries | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Customers | /saas/workspace.html#b02/customers | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Quotes | /saas/workspace.html#b02/quotes | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Bookings | /saas/workspace.html#b02/bookings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Jobs & Dispatch | /saas/workspace.html#b02/jobs | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Stock & Supplies | /saas/workspace.html#b02/stock | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Customers & Work | Records & Archive | /saas/workspace.html#b02/archive | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | People | Workers & Compliance | /saas/workspace.html#b03/workers | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | People | Staff Accounts & Roles | /saas/workspace.html#b03/staff | owner | Existing view and API preserved; contextual sections enhanced in place |
-| Business | People | Hiring (owner & admin only) | /saas/workspace.html#b03/hiring | owner, admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | People | Offshore Staff | /saas/workspace.html#b03/offshore | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Unified Inbox | /saas/workspace.html#b04/unified | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Inbox (all channels) | /saas/workspace.html#b04/inbox | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Call Handling | /saas/workspace.html#b04/voice | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Email Centre | /saas/workspace.html#b04/email | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Phone Numbers | /saas/workspace.html#b04/numbers | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Communications | Calls & SMS | /saas/workspace.html#b04/calls | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Communications | AI Receptionist | /saas/workspace.html#b04/receptionist | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Communications | Video Meetings | /saas/workspace.html#b04/meetings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Communications | Team Chat | /saas/workspace.html#b04/team-chat | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Media Studio | /saas/workspace.html#b05/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Growth Engine | /saas/workspace.html#b05/growth | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Campaign Drafts | /saas/workspace.html#b05/campaigns | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Campaign Studio | /saas/workspace.html#b05/campaign-studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Consent & Unsubscribes | /saas/workspace.html#b05/consent | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | SEO Command Centre | /saas/workspace.html#b06/seo | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Technical Audit | /saas/workspace.html#b06/audit | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Keyword Clusters | /saas/workspace.html#b06/keywords | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Google | /saas/workspace.html#b06/google | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Website Content Studio | /saas/workspace.html#b06/studio | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Website Builder | /saas/workspace.html#b06/builder | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Local SEO | /saas/workspace.html#b06/local | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | SEO Analytics | /saas/workspace.html#b06/analytics | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | SEO Reports | /saas/workspace.html#b06/reports | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Website & Domain | /saas/workspace.html#b06/website | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Growth | Search & AI Visibility | /saas/workspace.html#b06/search | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Growth | Search Connection Request | /saas/workspace.html#b06/search-console | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Growth | Backlink Suggestions | /saas/workspace.html#b06/backlinks | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
-| Business | Money | Profit & Payments | /saas/workspace.html#b07/ledger | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Money | Invoices | /saas/workspace.html#b07/invoices | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Money | Quotes & Invoices | /saas/workspace.html#b07/sales | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Money | Payments & Refunds | /saas/workspace.html#b07/payments-refunds | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Money | Bank Reconciliation | /saas/workspace.html#b07/reconcile | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Money | Reports & GST | /saas/workspace.html#b07/reports | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Money | Finance Settings & Compliance | /saas/workspace.html#b07/compliance | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Brand & Settings | /saas/workspace.html#b08/settings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Connections (social, WhatsApp, website) | /saas/workspace.html#b08/connections | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Import Your Data | /saas/workspace.html#b08/import | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Print & Export Hub | /saas/workspace.html#b08/print | owner | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Trust & Security | /saas/workspace.html#b08/trust | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Automation Settings | /saas/workspace.html#b08/automation | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Help & Complaints | /saas/workspace.html#b08/help | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Support Access | /saas/workspace.html#b08/support-access | owner | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | User Manual | /saas/workspace.html#b08/manual | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Plans, Billing & Add-ons | /saas/workspace.html#b09/usage | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
-| Business | Setup & Trust | Change Plan | /saas/workspace.html#b09/change-plan | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Today | Command Centre | /saas/workspace.html#today/home | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Today | AI Assistant | /saas/workspace.html#today/assistant | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Today | Approvals | /saas/workspace.html#today/approvals | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Today | AI Automations | /saas/workspace.html#today/automations | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Work | Enquiries | /saas/workspace.html#work/enquiries | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Work | Quotes | /saas/workspace.html#work/quotes | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Work | Bookings | /saas/workspace.html#work/bookings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Work | Jobs & Dispatch | /saas/workspace.html#work/jobs | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Work | Stock & Supplies | /saas/workspace.html#work/stock | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Work | Archived records | /saas/workspace.html#work/archive | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Customers | Customer Directory | /saas/workspace.html#customers/directory | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | People | Workers & Compliance | /saas/workspace.html#people/workers | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | People | Staff Accounts & Roles | /saas/workspace.html#people/staff | owner | Existing view and API preserved; contextual sections enhanced in place |
+| Business | People | Hiring | /saas/workspace.html#people/hiring | owner, admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | People | Offshore Staff | /saas/workspace.html#people/offshore | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Unified Inbox | /saas/workspace.html#communications/inbox | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Call Handling | /saas/workspace.html#communications/call-handling | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | AI Receptionist | /saas/workspace.html#communications/receptionist | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Communications | Video Meetings | /saas/workspace.html#communications/meetings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Team Chat | /saas/workspace.html#communications/team-chat | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Email folder | /saas/workspace.html#communications/email | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Channel inbox (classic view) | /saas/workspace.html#communications/channels | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Phone numbers setup | /saas/workspace.html#communications/numbers | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Communications | Calls & SMS setup | /saas/workspace.html#communications/calls-sms | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Growth | Growth Hub | /saas/workspace.html#growth/hub | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Campaign Studio | /saas/workspace.html#growth/campaigns | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Media Studio | /saas/workspace.html#growth/media | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Consent & Unsubscribes | /saas/workspace.html#growth/consent | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO Command Centre | /saas/workspace.html#growth/seo | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Website Builder | /saas/workspace.html#growth/website-builder | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Audit | /saas/workspace.html#growth/seo-audit | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Keywords | /saas/workspace.html#growth/seo-keywords | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Google | /saas/workspace.html#growth/seo-google | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Content | /saas/workspace.html#growth/seo-content | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Local | /saas/workspace.html#growth/seo-local | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Analytics | /saas/workspace.html#growth/seo-analytics | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | SEO · Reports | /saas/workspace.html#growth/seo-reports | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Older campaign drafts | /saas/workspace.html#growth/drafts | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Search readiness (older) | /saas/workspace.html#growth/search-readiness | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Growth | Search connection request | /saas/workspace.html#growth/search-connection | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Growth | Backlink suggestions | /saas/workspace.html#growth/backlinks | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Growth | Website & domain request | /saas/workspace.html#growth/website-domain | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
+| Business | Money | Profit & Payments | /saas/workspace.html#money/ledger | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Money | Invoices & Quotes | /saas/workspace.html#money/invoices | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Money | Payments & Refunds | /saas/workspace.html#money/payments | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Money | Bank Reconciliation | /saas/workspace.html#money/reconcile | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Money | Reports & GST | /saas/workspace.html#money/reports | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Money | Finance Settings & Compliance | /saas/workspace.html#money/settings | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Money | Sales documents (older view) | /saas/workspace.html#money/sales | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Brand & Settings | /saas/workspace.html#setup/settings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Connections (social, WhatsApp, website) | /saas/workspace.html#setup/connections | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Plans, Billing & Add-ons | /saas/workspace.html#setup/plans | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Trust & Security | /saas/workspace.html#setup/trust | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Automation Settings | /saas/workspace.html#setup/automation | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Help & Complaints | /saas/workspace.html#setup/help | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | User Manual | /saas/workspace.html#setup/manual | Existing default access | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Import Your Data | /saas/workspace.html#setup/import | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Print & Export Hub | /saas/workspace.html#setup/export | owner | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Support Access | /saas/workspace.html#setup/support-access | owner | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Setup | Change Plan | /saas/workspace.html#setup/change-plan | owner, admin, super_admin | Existing view and API preserved; contextual sections enhanced in place |
 | Founder | Platform overview | Overview | /office/#f01/overview | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | Revenue | /office/#f01/platform/revenue | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | Infrastructure | /office/#f01/system | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |

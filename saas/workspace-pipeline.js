@@ -7,7 +7,7 @@
     bookings: { kind: 'booking', title: 'Bookings', lede: 'Booked work and its job: offer it to workers, follow allocation, and mark it complete.' },
     businessinvoices: { kind: 'invoice', title: 'Invoices', lede: 'Invoices from completed jobs. Approve, issue, and see payments land against each one.' }
   };
-  const STAGE_VIEW = { enquiries: 'b02/enquiries', quotes: 'b02/quotes', bookings: 'b02/bookings', allocated: 'b02/bookings', to_invoice: 'b02/bookings', unpaid: 'b07/invoices', paid: 'b07/invoices' };
+  const STAGE_VIEW = { enquiries: 'work/enquiries', quotes: 'work/quotes', bookings: 'work/bookings', allocated: 'work/bookings', to_invoice: 'work/bookings', unpaid: 'money/invoices', paid: 'money/invoices' };
   const STATUS = {
     open: 'New', draft: 'Draft', quoted: 'Quoted', lost: 'Closed', approved: 'Approved', accepted: 'Accepted by customer', booked: 'Booked',
     completed: 'Job complete', invoiced: 'Invoiced', issued: 'Issued, unpaid', part_paid: 'Part paid', paid: 'Paid', cancelled: 'Cancelled'
@@ -149,7 +149,7 @@
   function actionsFor(section, c, r, a) {
     const S = section;
     if (r.kind === 'enquiry') {
-      if (r.status === 'quoted') a.append(el('a', { class: 'portal-button primary', href: '#b02/quotes', text: 'See the quote' }));
+      if (r.status === 'quoted') a.append(el('a', { class: 'portal-button primary', href: '#work/quotes', text: 'See the quote' }));
       if (['open', 'draft'].includes(r.status) && can('customers', 'create')) a.append(act(S, 'Create quote', async () => {
         inlineForm(S, c, 'Quote for ' + (r.customer?.name || 'this customer'), [
           { name: 'amount', label: 'Price excluding GST (AUD)', type: 'number', min: '0.01', step: '0.01', required: true },
@@ -194,7 +194,7 @@
       }, { primary: true, done: (d) => `Offered to ${d.offered} eligible worker${d.offered > 1 ? 's' : ''}.` }));
       if (!j.completed_at && can('jobs', 'edit')) a.append(act(S, 'Mark job complete', () => post(`/api/saas/pipeline/jobs/${j.id}/complete`), { done: 'Job marked complete. You can invoice it now.' }));
       if (j.completed_at && r.status === 'completed' && can('finance', 'create')) a.append(act(S, 'Create invoice', () => post(`/api/saas/pipeline/jobs/${j.id}/invoice`), { primary: true, done: 'Invoice draft created. Approve and issue it in Invoices.' }));
-      a.append(el('a', { class: 'portal-button', href: '#b02/jobs', text: 'Open in Jobs' }));
+      a.append(el('a', { class: 'portal-button', href: '#work/jobs', text: 'Open in Jobs' }));
     }
     if (r.kind === 'invoice') {
       if (r.status === 'draft' && can('approvals', 'approve')) a.append(act(S, 'Approve invoice', () => post(`/api/saas/business-hub/invoice/${r.id}/approve`, { revision: r.revision }), { primary: true, done: 'Invoice approved. Issue it to start the payment terms.' }));
@@ -207,7 +207,7 @@
           ], 'Record payment', (v) => post('/api/saas/payments/record', { work_order_id: r.work_order_id, amount: Number(v.amount), method: v.method }), 'Payment recorded against the job.');
           return false;
         }, { primary: true }));
-        a.append(el('a', { class: 'portal-button', href: '#b07/ledger', text: 'Send a payment link' }));
+        a.append(el('a', { class: 'portal-button', href: '#money/ledger', text: 'Send a payment link' }));
       }
     }
   }
