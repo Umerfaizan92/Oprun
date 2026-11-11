@@ -100,3 +100,4 @@ body.portal-workspace[data-navigation-autohide="true"] #page-title{font-size:16p
 @media print{body.portal-workspace .workspace-platform-brand,.navigation-business-trigger{display:none!important}}
 
 body.portal-workspace.navigation-drawer-open{overflow:hidden}
+body.portal-workspace[data-navigation-autohide="true"] .content-wrap{max-width:var(--work-content)}

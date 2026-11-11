@@ -1389,3 +1389,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Complete full npm test, publish T-084 candidate and require all GitHub browser checks before Render deploy
+
+## CP-100 2026-11-12T07:13:40+08:00 T-084 TESTING
+- Phase: Hosted browser feedback
+- Task: T-084 (TESTING)
+- Completed steps: Full local npm test passed 73/73; Hosted 390px and 768px redesign checks passed; Fixed legacy desktop content-width override exposed after removing reserved sidebar width
+- Incomplete steps: Rerun hosted browser CI on final CSS; Review screenshots; Merge and deploy only after all checks pass; Live acceptance
+- Files modified (uncommitted at checkpoint): saas/workspace-redesign.css
+- Tests executed: npm test; hosted redesign at 390 and 768px
+- Test results: 73/73 local; phone/tablet passed; desktop max-width failure fixed, rerun pending
+- Git branch: codex/brand-sidebar-20261112
+- Commit: 7c2f3f0 (Polish Oprun branding and simplify business navigation drawer); 1 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Publish desktop width correction and rerun complete PR CI before merge
