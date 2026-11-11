@@ -1,0 +1,56 @@
+{
+  "task": "T-081",
+  "scope": "Four uploaded PDF prompt outputs plus implemented additive redesign/security foundation; 90-day enhancements remain specified follow-up work",
+  "status": "completed_and_live",
+  "repository": "Umerfaizan92/Oprun",
+  "pull_request": 75,
+  "tested_candidate": "699f6a62af02d5b2533140bcb5b086bfb7e78179",
+  "production_commit": "1cbe8e1fb20b4bcb349eca384883f60ce5324c99",
+  "tested_and_merged_tree": "a63860f23d4d6a1e17378e5081732fb4c8decbf8",
+  "ci_run": 43093033069,
+  "security_run": 43093033333,
+  "ci_conclusion": "success",
+  "security_conclusion": "success",
+  "build_checks": 73,
+  "general_browser_checks": 34,
+  "navigation_checks": 584,
+  "business_destinations": 60,
+  "founder_destinations": 34,
+  "source_preservation": {
+    "routes": 645,
+    "html_surfaces": 45,
+    "business_views": 60,
+    "founder_sections": 34,
+    "removed_original_element_ids": 0
+  },
+  "render": {
+    "service_id": "srv-dan4rdqjnfac73fceor0",
+    "deploy_id": "dep-dbqcp1c9v7es73c7bu4g",
+    "status": "live",
+    "finished_at": "2026-11-11T20:18:09.949028Z",
+    "production_commit": "1cbe8e1fb20b4bcb349eca384883f60ce5324c99",
+    "auto_deploy": "off",
+    "existing_disk_and_configuration_preserved": true
+  },
+  "live_acceptance": {
+    "post_deploy_check": "passed",
+    "matching_source_hashes": 9,
+    "browser_workspace_redirect": "https://www.oprun.ai/saas/sign-in.html",
+    "operator_link_visible": true,
+    "business_signin_install_option": false,
+    "persistent_storage_detected": true,
+    "private_business_and_channel_APIs_status": 401
+  },
+  "browser_evidence_artifact": 13890122007,
+  "continuation_branch": "codex/redesign-release-evidence-20261112",
+  "continuation_file": "docs/redesign/RELEASE_HANDOVER.md",
+  "external_actions_tested": "No real customer sends, social posts or ad spend. Authenticated workflows and provider acknowledgements use isolated CI fixtures.",
+  "open_work": [
+    "Actual inbox and document-store reconciliation/migrations",
+    "90-day roadmap enhancements beyond the deployed foundation",
+    "Sensitive-field encryption classification and production restore evidence",
+    "Provider consent, review, billing and unsupported capability rollout",
+    "Signed-device acceptance and app-store signing/review",
+    "Owner-arranged subscriber usability validation"
+  ]
+}

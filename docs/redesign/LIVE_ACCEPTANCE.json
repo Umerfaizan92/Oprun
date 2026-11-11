@@ -1,0 +1,70 @@
+{
+  "checked_at": "2026-11-11T20:21:36.210086+00:00",
+  "base": "https://www.oprun.ai",
+  "deployed_commit": "1cbe8e1fb20b4bcb349eca384883f60ce5324c99",
+  "assets": [
+    {
+      "path": "saas/workspace-nav.js",
+      "status": 200,
+      "sha256": "8451e0e5916fd0a68349227e1e38eb40a41e0667d249b6f97111dd1400322a56",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/navigation-shell.js",
+      "status": 200,
+      "sha256": "859f5755aede8cd9eca30fadf3202a5943380b5b3881d426fd90df871aeeefcb",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/portal-shell.js",
+      "status": 200,
+      "sha256": "2d059a9e04db6b394820dc3bbae7e33311f5a10d257b6261d0e476a9f8b87fe7",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/workspace-redesign.css",
+      "status": 200,
+      "sha256": "4e7980856712273ea5baedeb1db38cd0fbf046c0a2b0ea6a0a0c37011cf3014d",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/workspace-extras.js",
+      "status": 200,
+      "sha256": "9f9a4145c8ac4eed3073a20ac90758769494dd68af023c416a3b3bc53c28e297",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/workspace-chat.js",
+      "status": 200,
+      "sha256": "aa88eb5810f7fd0f0c542896ede222080379abc75e9db6cd07b2e08e0c3d61e9",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/workspace-growth.js",
+      "status": 200,
+      "sha256": "dab760b94809ef9321227a80e95a8c44575a474be732d6310bf3ec1c66d3b17f",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/app.js",
+      "status": 200,
+      "sha256": "6c31afcfba2627a5dd27609a555ff4ce38e70ffe6b9a1d6f507da840ca0e9611",
+      "matches_tested_source": true
+    },
+    {
+      "path": "saas/workspace.html",
+      "status": 200,
+      "sha256": "318e4a63e5315712b6fa3d7e80a10b4d9e69c960ad044b0c13918174494f0602",
+      "matches_tested_source": true
+    }
+  ],
+  "operator_link_present": true,
+  "business_signin_install_option": false,
+  "persistent_storage_detected": true,
+  "workspace_public_shell_matches_source": true,
+  "private_business_and_channel_APIs_status": 401,
+  "scope": "Read-only signed-out production checks. The workspace HTML is a public static shell; browser authentication redirects and private data APIs remain protected. Authenticated workflows and provider actions tested with isolated fixtures in CI.",
+  "live_browser_workspace_redirect": "https://www.oprun.ai/saas/sign-in.html",
+  "live_browser_operator_link_visible": true,
+  "live_browser_install_option_visible": false
+}

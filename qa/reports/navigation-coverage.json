@@ -1,6 +1,15 @@
 {
-  "baseline": "3edc118051aac8d3aa18fd76ae1da0bdc0240680",
+  "generated_at": "2026-11-11T20:07:03.913Z",
+  "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
+    {
+      "portal": "Business",
+      "route": "b01/home",
+      "section": "Guided start, four metrics, preserved expiry and shared command search",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
     {
       "portal": "Business",
       "route": "b01/home",
@@ -339,14 +348,6 @@
     },
     {
       "portal": "Business",
-      "route": "b04/inbox",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
       "route": "b04/unified",
       "section": "",
       "width": 1440,
@@ -405,6 +406,14 @@
       "portal": "Business",
       "route": "b04/unified",
       "section": "Spam",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b04/inbox",
+      "section": "",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -1220,6 +1229,14 @@
     {
       "portal": "Business",
       "route": "b08/connections",
+      "section": "Channel operations",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b08/connections",
       "section": "Your business connections",
       "width": 1440,
       "result": "PASS",
@@ -1491,6 +1508,14 @@
     },
     {
       "portal": "Business",
+      "route": "b09/usage",
+      "section": "Your workspace stays yours",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
       "route": "b09/change-plan",
       "section": "",
       "width": 1440,
@@ -1509,6 +1534,14 @@
       "portal": "Business",
       "route": "b09/change-plan",
       "section": "Section: Plan changes",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b04/unified",
+      "section": "Inbox context opens retained Email Centre and reveals its More group",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -1548,6 +1581,14 @@
     {
       "portal": "Business",
       "route": "b01/home",
+      "section": "Guided start, four metrics, preserved expiry and shared command search",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b01/home",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -1883,14 +1924,6 @@
     },
     {
       "portal": "Business",
-      "route": "b04/inbox",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
       "route": "b04/unified",
       "section": "",
       "width": 390,
@@ -1949,6 +1982,14 @@
       "portal": "Business",
       "route": "b04/unified",
       "section": "Spam",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b04/inbox",
+      "section": "",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -2764,6 +2805,14 @@
     {
       "portal": "Business",
       "route": "b08/connections",
+      "section": "Channel operations",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b08/connections",
       "section": "Your business connections",
       "width": 390,
       "result": "PASS",
@@ -3035,6 +3084,14 @@
     },
     {
       "portal": "Business",
+      "route": "b09/usage",
+      "section": "Your workspace stays yours",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
       "route": "b09/change-plan",
       "section": "",
       "width": 390,
@@ -3053,6 +3110,14 @@
       "portal": "Business",
       "route": "b09/change-plan",
       "section": "Section: Plan changes",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "b04/unified",
+      "section": "Inbox context opens retained Email Centre and reveals its More group",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -3572,7 +3637,7 @@
     {
       "portal": "Founder",
       "route": "f06/platform/campaigns",
-      "section": "Section: Super Pro newsletter campaigns",
+      "section": "Section: Oprun newsletter campaigns",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4324,7 +4389,7 @@
     {
       "portal": "Founder",
       "route": "f06/platform/campaigns",
-      "section": "Section: Super Pro newsletter campaigns",
+      "section": "Section: Oprun newsletter campaigns",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4611,5 +4676,6 @@
     }
   ],
   "errors": [],
+  "missing": [],
   "writes": "Synthetic form input only; no external service actions"
 }

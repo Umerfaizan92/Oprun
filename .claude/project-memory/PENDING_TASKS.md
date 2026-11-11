@@ -232,9 +232,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: saas/channel-operations.js; saas/channel-operations.css; src/channel-providers.js; src/server.js; scripts
 - Acceptance: Fewer and parallel requests, panels drawn on demand, versioned assets cached; Comments opens a comments section with text and reply where the provider gives it and an honest link-out where it does not; icon close; hover matches site; tests pass
 
-## T-081 Implement uploaded final redesign and security audit prompts
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner authorizes reading Oprun_Final_Redesign_Audit_Prompts_2026-11-12.pdf, implementing its four prompts step by step, auditing and fixing, preserving all routes features data and resumable ChatGPT/Claude checkpoints, publishing and deploying existing Render service after passing checks. PDF requires complete 6-7 group navigation mapping; design tokens accessible responsive command centre unified communications; concrete security audit and cross-tenant tests; prioritised 90-day feature roadmap with stories acceptance security complexity. Keep visible Operator sign-in and no Install on business sign-in. External provider/store/user-research gates must remain truthful.
-- Files: saas/workspace-nav.js,saas/portal-shell.js,saas/workspace.html,saas/workspace-redesign.css,src/growth.js,src/channel-operations.js,scripts,docs/redesign
-- Acceptance: All 60 business views retain routes roles controls; seven main groups and contextual navigation work; responsive design and security regressions pass; all PDF prompt outputs and exact resumption steps committed; CI passes before deployment; deployed revision verified and external-only limitations recorded

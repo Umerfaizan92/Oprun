@@ -1,19 +1,26 @@
-# Validation and release record — T-081
+# Final validation and release record — T-081
 
-Baseline: `6615f960c357009a409a912b89e02b3af8fa617d`. Existing Render service: `srv-dan4rdqjnfac73fceor0`, branch main, automatic deploys off; persistent disk/config retained.
+PR75 is merged and deployed on the existing Oprun Render service. Tested candidate `699f6a62`; production commit `1cbe8e1`; source trees match exactly (`a63860f2`). See RELEASE_RECORD.json for full identifiers and LIVE_ACCEPTANCE.json for live source hashes.
 
-| Check | Result at initial publication |
+| Check | Verified result |
 |---|---|
-| Targeted channel / Growth security / navigation contracts | 21 tests passed; synthetic provider responses only |
-| Independent route fixture | Pre-change 60-page mapping retained in BASELINE_ROUTES.json; old canonical paths, aliases and bare group links tested |
-| Source preservation | 645 HTTP routes, 45 pages, 60 Business views, 34 Founder sections retained; every original element ID retained |
-| Semantic workspace boot | All 60 Business pages initialized; seven groups, guided start and shared command present; zero runtime errors, missing views or HTTP 5xx. This is not a visual/device test |
-| Local browser attempt | Blocked before page load by environment socket restriction. No local visual success claimed |
-| Full local npm test | 73/73 checks passed, including all 55 contract test files |
-| Full responsive/browser matrix | Corrected candidate c89cf355 passed all 34 general UI checks, footer/layout and save lifecycle; complete traversal exposed only stale Super Pro → Oprun newsletter expectation, now reconciled to actual source without dropping assertions. PR75 initial browser run: phone/tablet/desktop dark/light component accessibility passed. Full tests caught footer gap and save-state/background-monitor coupling; both corrected with targeted regressions. Current-head complete CI still required before promotion |
-| Secret scan / release manifest / memory validation | Required again on final staged source |
-| Deployment / live acceptance | Pending passing CI and exact-source promotion; do not claim deployed from source publication alone |
+| Build and contracts | 73/73 build checks; all 56 contract-test files passed in current-head CI |
+| Focused security/navigation/save-state tests | 24 passed with synthetic fixtures |
+| General browser tests | 34 passed |
+| Full navigation | 584 route/section checks; 60 Business and 34 Founder destinations; phone and desktop; no missing expected section or browser errors |
+| New component accessibility | 390/768/1440 widths; dark/light guidance, command and workflow checks passed |
+| Existing module UI suites | Channels, connections, mobile readiness, public site, pipeline, console, automations, SEO, communications, finance and reliability passed |
+| Security and dependencies | CodeQL, dependency review, secret scanning and production dependency gate passed; zero reported vulnerabilities |
+| Preservation | 645 routes, 45 HTML surfaces, 60 Business views, 34 Founder sections and every original element ID retained |
+| Visual review | Corrected phone, tablet and desktop screenshots inspected; header overlap and footer gap resolved |
+| Render | Existing service, deploy dep-dbqcp1c9v7es73c7bu4g, live at 2026-11-11 20:18:09 UTC; existing disk and configuration retained |
+| Live health and guards | Health/readiness 200; security headers present; signed-out Business and Founder API requests rejected; sign-in loads |
+| Live source proof | Nine hashes match tested source, including workspace HTML and authentication script |
+| Live browser | Signed-out workspace visit redirects to Business sign-in; Operator entry visible; no Install control |
+| Persistent storage | Live endpoint confirms persistent storage detected |
 
-No production customer messages, social posts or advertising spend are used for validation. Provider account reviews, real credentials/billing, production backup restore, signed-device tests and app-store review remain explicit external gates. The 90-day roadmap is a specification, not a claim that every future item shipped.
+Browser regression exposed and corrected the command/footer placement, wrapped header height and background-monitor requests affecting save acknowledgement. A stale pre-rename newsletter expectation was reconciled to the actual Oprun heading without deleting the coverage assertion. Local Chromium execution was restricted by environment sockets; successful real-browser evidence comes from GitHub CI, with live browser sign-in acceptance separately observed.
 
-Resume: run memory:resume and inspect remote PR/main/deploy before retrying any external action. Latest exact next step is in SESSION_HANDOVER.md.
+The public workspace HTML is a static shell; private data comes from authenticated APIs. Live tests are read-only and signed out. Actual business/provider send flows were exercised in isolated CI fixtures, not through real customer accounts. No production reset, credential rotation, financial migration or external ad spend occurred.
+
+The four PDF prompt outputs are complete. The 90-day roadmap is a specification; real record-store unification, further feature orchestration, provider approvals/billing, production restore evidence and store signing/device review remain the explicit follow-ups listed in the handover. This evidence branch changes documentation, memory and QA records only and needs no extra application deployment.

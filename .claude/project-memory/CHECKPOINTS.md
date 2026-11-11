@@ -1305,3 +1305,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T200352Z (600445e)
 - Known errors: none
 - Next exact action: Publish label/asset-version/evidence corrections with expected remote c89cf355. Wait for current-head CI/Security, then merge and deploy only the tested tree.
+
+## CP-094 2026-11-12T04:15:02+08:00 T-081 TESTING
+- Phase: Render final testing deployment
+- Task: T-081 (TESTING)
+- Completed steps: PR75 merged after completeCIandSecurity; 73build34UI584navigationchecks; all module suites pass; final screenshots reviewed; exact merged tree verified; existing Render deployment started once
+- Incomplete steps: Wait for dep-dbqcp1c9v7es73c7bu4g live; run post-deploy checks and asset hash/guard checks; complete T081; publish portable release-evidence branch
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md
+- Tests executed: CI43093033069; Security43093033333; source-tree comparison
+- Test results: all pass; all pass; identical tested/merged tree
+- Git branch: codex/redesign-release-evidence-20261112
+- Commit: 1cbe8e1 (Merge PR #75: Simplify Oprun workflows and harden publishing)
+- Recovery snapshot: refs/recovery/codex/redesign-release-evidence-20261112/20261111T201502Z (d36f0c8)
+- Known errors: none
+- Next exact action: Poll existing Render deployment dep-dbqcp1c9v7es73c7bu4g. Never trigger a duplicate deployment. When live verify public readiness/auth guards and exact assets, then save final acceptance evidence.
+
+## CP-095 2026-11-12T04:22:43+08:00 T-081 COMPLETED
+- Phase: PDF redesign foundation deployed and verified
+- Task: T-081 (COMPLETED)
+- Completed steps: Four PDF outputs completed; all94 destinations mapped and preserved; seven-group navigation and security/save-state corrections shipped; full CI/Security passed; PR75 merged; exact tested tree deployed; production health/auth/storage/9hashchecks and browser redirect verified
+- Incomplete steps: Only separately specified roadmap/provider/store follow-ups remain; this evidence branch requires no deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; docs/redesign/02_DESIGN_SYSTEM.md; docs/redesign/README.md; docs/redesign/VALIDATION.md; qa/reports/navigation-coverage.json; docs/redesign/LIVE_ACCEPTANCE.json; docs/redesign/RELEASE_HANDOVER.md; docs/redesign/RELEASE_RECORD.json
+- Tests executed: CI43093033069 andSecurity43093033333; livepost-deploy; 9sourcehashes; browser sign-in; source-tree comparison
+- Test results: 73build34UI584navigation andallmodulechecks pass; pass; pass; pass; identical tested/deployed tree
+- Git branch: codex/redesign-release-evidence-20261112
+- Commit: 1cbe8e1 (Merge PR #75: Simplify Oprun workflows and harden publishing)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: T081 is complete. Read docs/redesign/RELEASE_HANDOVER.md and RELEASE_RECORD.json; verify current main/Render before any new action. Start the next agreed90dayroadmap epic on a fresh branch. Do not repeat completed work or redeploy documentation-only evidence.

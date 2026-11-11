@@ -55,7 +55,7 @@ The command bar opens the existing Ask/search dialog. It does not silently issue
 
 | Surface | Before | This release | Next validation |
 |---|---|---|---|
-| Command Centre | Five equal metric cards, generic readiness 7/10, multiple competing entry points | Four metric cards with expiry detail retained, accurate Setup checklist label, permission-filtered next steps, shared sticky Ask/find entry | Compare task completion with 3–5 consenting subscribers; avoid promising a numerical readiness score without measured inputs |
+| Command Centre | Five equal metric cards, generic readiness 7/10, multiple competing entry points | Permission-filtered next steps, preserved live overview, expiry detail retained in the four-card workforce panel, accurate Setup checklist label and shared sticky Ask/find entry | Compare task completion with 3–5 consenting subscribers; avoid promising a numerical readiness score without measured inputs |
 | Unified Inbox | Original Inbox, Unified Inbox and Email Centre equally prominent | Unified Inbox first; related Inbox workflow links; original Inbox and Email Centre retained under More; folders and send controls remain attached to their original pages | Reconcile separate stores before replacing them with one real folder/filter model |
 | Work | Seven independent Work links with weak sense of stage | Contextual enquiry → customer → quote → booking → job → invoice → archive sequence filtered to permitted pages | Consolidated customer timeline and per-stage history remain roadmap work |
 | Growth / SEO | Two primary groups and many independent tools | One Growth group; SEO & website and Campaigns context; advanced tools under More | Measure discoverability before deleting any legacy tool |
