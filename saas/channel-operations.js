@@ -14,7 +14,7 @@
     root.querySelectorAll('[data-co-tab]').forEach(b => {b.setAttribute('aria-selected',String(b.dataset.coTab===name));b.tabIndex=b.dataset.coTab===name?0:-1;});
   }
   function shell() {
-    root.innerHTML = `<div class="panel-head"><div><span class="panel-kicker">CHANNEL OPERATIONS</span><h2>One business. Every assigned channel.</h2><p>Review content, replies and local plans with clear account ownership.</p></div>${button('Refresh overview','refresh')}</div>
+    root.innerHTML = `<div class="panel-head"><div><span class="panel-kicker">CHANNEL OPERATIONS</span><h2>Channel operations</h2><p>Review content, replies and local plans with clear account ownership.</p></div>${button('Refresh overview','refresh')}</div>
       <div class="co-toolbar"><label>Channel<select data-co-provider aria-label="Channel"></select></label><label>Selected account<select data-co-resource aria-label="Selected account"></select></label>${button('Sync recent content','sync')}</div>
       <div class="co-tabs" role="tablist" aria-label="Channel operations">${[['overview','Overview'],['inbox','Content & replies'],['publish','Publish & approvals'],['campaigns','Local campaigns'],['ai','AI assistant'],...(model.owner?[['team','Team access']]:[])].map(([key,label])=>`<button type="button" role="tab" id="co-tab-${key}" aria-controls="co-panel-${key}" data-co-tab="${key}" aria-selected="false">${label}</button>`).join('')}</div>
       <p data-co-status role="status" aria-live="polite"></p>${['overview','inbox','publish','campaigns','ai','team'].map(key=>`<section id="co-panel-${key}" role="tabpanel" aria-labelledby="co-tab-${key}" data-co-panel="${key}" hidden></section>`).join('')}`;

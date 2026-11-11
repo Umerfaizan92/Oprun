@@ -68,6 +68,7 @@ jobs:
       - name: Verify recovered public website and phase interfaces
         run: |
           npm run test:channels-ui
+          npm run test:connections-ui
           npm run test:mobile-readiness
           npm run test:site-ui
           npm run test:pipeline-ui
