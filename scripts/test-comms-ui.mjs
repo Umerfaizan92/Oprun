@@ -52,8 +52,7 @@ try {
 
   await check('Unified Inbox lists SMS and website messages, flags the escalation and summarises the conversation', async () => {
     const v = await go('b04/unified', 'unifiedinbox');
-    await v.locator('.cx-item').first().waitFor();
-    assert.equal(await v.locator('.cx-item').count(), 2);
+    await page.waitForFunction(() => document.querySelectorAll('#unifiedinbox-view .cx-item').length === 2 && document.querySelector('#unifiedinbox-view')?.getAttribute('aria-busy') !== 'true');
     assert.match(await v.locator('.cx-suggest').textContent(), /Escalation/);
     assert.match(await v.textContent(), /Urgent/);
     assert.deepEqual(await axe(page, '#unifiedinbox-view'), [], 'inbox list is accessible');
