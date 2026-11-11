@@ -28,8 +28,8 @@
     if(x.last_test_status==='fail')return ['Needs attention','attention'];
     if(x.status==='connected'&&x.connection_mode==='oauth'&&!x.resources?.length)return ['Authorised · no resources found','attention'];
     if(x.status==='connected')return [x.last_test_status==='partial'?'Authorised · some services need attention':x.resources?.length&&!x.selected_resources?.length?'Authorised · choose resources':x.last_test_status==='pass'?'Connected · checked':'Authorised · test next',x.last_test_status==='partial'?'attention':'connected'];
-    if(x.status==='authorisation_pending')return ['Waiting for provider authorisation','attention'];
-    return [x.provider_ready?'Ready to set up':'Platform app setup required','setup'];
+    if(x.status==='authorisation_pending')return ['Sign-in not finished','attention'];
+    return [x.provider_ready?'Ready to set up':'Not available yet','setup'];
   }
   // T-070: one health light with the single action that fixes it. The meaning is always written out, never colour alone.
   const healthWord={green:'Working',amber:'Needs action',red:'Reconnect',off:''};

@@ -122,3 +122,25 @@ entry during future redesigns without an explicit owner instruction.
 The owner also requested removing the Install option from Business sign-in. Only
 that entry is removed; the dedicated Install page and its device instructions stay
 available. Browser checks assert this distinction.
+
+
+## Viewable content and plain-language redesign — T-079
+
+The owner reported (12 Nov 2026) that a connected TikTok account showed synced
+videos that could not be opened, with no media and no figures on Overview. Cause:
+the sync requested only id, title and counters, stored no link or preview, and
+recorded no totals. Sync now stores, per item, a provider-hosted `url`, `thumbnail`,
+`embed` (TikTok and YouTube players only), `occurred_at` and duration, and records
+sample totals (plus TikTok profile totals when `user.info.stats` is granted).
+`providerLink` accepts https on the provider's own hosts only; the browser re-checks
+before rendering a link or player. The CSP allows TikTok cover images and the TikTok
+player frame. Existing rows gain these fields on the next Sync.
+
+Every hub section was rewritten in plain language: stat tiles, top content, media
+cards with View details / Open on provider, a detail dialog with an on-demand
+player, filters and sorting, status pills, step guides and clear empty states.
+All element IDs, `data-co-*` hooks, tab names and button labels are unchanged.
+
+TikTok's Display API returns comment counts, not comment text, so the dialog says
+so and links to TikTok. TikTok cover images are signed and expire; an expired
+preview falls back to a placeholder until the next Sync.

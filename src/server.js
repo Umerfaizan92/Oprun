@@ -915,7 +915,8 @@ app.use(
           'https://www.youtube.com',
           'https://youtube.com',
           'https://www.google.com',
-          'https://maps.google.com'
+          'https://maps.google.com',
+          'https://www.tiktok.com'
         ],
 
         ...(objectStorageOrigin?{mediaSrc:["'self'",'blob:',objectStorageOrigin]}:{}),
@@ -926,6 +927,10 @@ app.use(
           'blob:',
           'https://i.ytimg.com',
           'https://img.youtube.com',
+          // Signed TikTok cover images for the owner's own synced videos.
+          'https://*.tiktokcdn.com',
+          'https://*.tiktokcdn-us.com',
+          'https://*.tiktokcdn-eu.com',
           ...(objectStorageOrigin?[objectStorageOrigin]:[])
         ],
 

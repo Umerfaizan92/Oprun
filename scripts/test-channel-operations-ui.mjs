@@ -6,11 +6,17 @@ import {startServer} from './test-server.mjs';
 import {seedOwner,ownerContext} from './visual/session.mjs';
 
 const s=await startServer();let browser;
+const shot=async(page,name)=>{if(process.env.UI_SCREENSHOT_DIR)await page.screenshot({path:process.env.UI_SCREENSHOT_DIR+'/channels-'+name+'.png',fullPage:true});};
 try {
   browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined});
   const owner=await seedOwner(s);await s.call('GET','/api/saas/integrations/self-service',{cookie:owner.cookie});
   const db=new Database(s.dbPath), now=new Date().toISOString(), uid=randomUUID(), token=randomBytes(24).toString('hex');
   db.prepare("UPDATE organisation_integrations SET status='connected',account_label='Example Page',settings_json=? WHERE organisation_id=? AND provider='meta'").run(JSON.stringify({account_confirmed:true,resources:[{id:'123456',type:'facebook_page',label:'Example Page'}],selected_resources:[{id:'123456',type:'facebook_page',label:'Example Page'}],last_test_status:'pass'}),owner.org);
+  db.prepare("UPDATE organisation_integrations SET status='connected',account_label='Example TikTok',settings_json=? WHERE organisation_id=? AND provider='tiktok'").run(JSON.stringify({account_confirmed:true,resources:[{id:'tt-open',type:'tiktok_account',label:'Example TikTok'}],selected_resources:[{id:'tt-open',type:'tiktok_account',label:'Example TikTok'}],last_test_status:'pass'}),owner.org);
+  const put=db.prepare('INSERT INTO channel_items VALUES(?,?,?,?,?,?,?,?)');
+  put.run(randomUUID(),owner.org,'tiktok','tt-open','7080213458555737986','video',JSON.stringify({remote_id:'7080213458555737986',kind:'video',title:'Mirror finish before and after',text:'',url:'https://www.tiktok.com/@example/video/7080213458555737986',embed:'https://www.tiktok.com/player/v1/7080213458555737986',occurred_at:'2026-11-01T02:00:00.000Z',duration_seconds:31,metrics:{views:803,likes:8,comments:0,shares:0}}),now);
+  put.run(randomUUID(),owner.org,'tiktok','tt-open','2','video',JSON.stringify({remote_id:'2',kind:'video',title:'Unsafe link is never rendered',text:'',url:'javascript:alert(1)',embed:'https://evil.test/player',metrics:{views:412,likes:8}}),now);
+  db.prepare("INSERT INTO channel_sync_state VALUES(?,?,?,'synced',?,?,NULL)").run(owner.org,'tiktok','tt-open',JSON.stringify([{key:'views',value:1215,source:'TikTok / latest 2 videos'},{key:'likes',value:16,source:'TikTok / latest 2 videos'}]),now);
   db.prepare('INSERT INTO users(id,email,full_name,password_hash,password_salt,email_verified,phone_verified,created_at,updated_at) VALUES(?,?,?,?,?,1,1,?,?)').run(uid,'assigned-worker@example.test','Assigned worker','x','x',now,now);
   db.prepare("INSERT INTO memberships(organisation_id,user_id,role,created_at) VALUES(?,?,'worker',?)").run(owner.org,uid,now);
   db.prepare('INSERT INTO user_sessions(id,user_id,token_hash,expires_at,created_at,last_seen_at) VALUES(?,?,?,?,?,?)').run(randomUUID(),uid,createHash('sha256').update(token).digest('hex'),new Date(Date.now()+3600000).toISOString(),now,now);db.close();
@@ -34,6 +40,25 @@ try {
     await hub.getByRole('tab',{name:'Team access',exact:true}).click();
     const access=hub.locator('[data-co-access]');await access.locator('[name=user]').selectOption(uid);await access.locator('input[value=read]').check();await access.locator('[name=resource]').selectOption('123456');
     const granted=page.waitForResponse(r=>r.url().includes('/channels/team/')&&r.request().method()==='PUT');await access.getByRole('button',{name:'Save channel access'}).click();assert.equal((await granted).status(),200);await hub.locator('[data-co-status]').filter({hasText:'access updated'}).waitFor();
+    await hub.locator('[data-co-provider]').selectOption('tiktok');await hub.getByRole('tab',{name:'Overview',exact:true}).click();
+    const overview=hub.locator('#co-panel-overview');await overview.locator('.co-metric').first().waitFor();
+    await shot(page,'overview-'+width);
+    assert.match(await overview.locator('.co-metrics').innerText(),/Views[\s\S]*1\.2K/);assert.ok(await overview.getByText('Top recent content',{exact:true}).isVisible());
+    await hub.getByRole('tab',{name:'Content & replies',exact:true}).click();const inbox=hub.locator('#co-panel-inbox');
+    assert.equal(await inbox.locator('.co-item').count(),2);
+    const links=await inbox.locator('.co-item a').evaluateAll(a=>a.map(x=>[x.getAttribute('href'),x.target,x.rel]));
+    assert.deepEqual(links,[['https://www.tiktok.com/@example/video/7080213458555737986','_blank','noopener noreferrer']],'only the provider-hosted https link is offered');
+    await inbox.getByRole('button',{name:'Most viewed',exact:true}).click();await shot(page,'content-'+width);assert.match(await inbox.locator('.co-item h4').first().innerText(),/Mirror finish/);
+    await inbox.locator('.co-item').first().getByRole('button',{name:'View details',exact:true}).click();
+    const dialog=hub.locator('dialog.co-dialog');await dialog.getByRole('heading',{name:'Mirror finish before and after'}).waitFor();
+    await shot(page,'detail-'+width);
+    assert.match(await dialog.innerText(),/803[\s\S]*Open on TikTok/);assert.match(await dialog.innerText(),/not the comment text/);
+    const box=await dialog.boundingBox();assert.ok(box.x>=0&&box.x+box.width<=width+1,JSON.stringify(box));
+    await page.route('https://www.tiktok.com/player/**',r=>r.fulfill({status:200,contentType:'text/html',body:'<p>player</p>'}));
+    await dialog.getByRole('button',{name:'▶ Play here',exact:true}).click();assert.equal(await dialog.locator('iframe').getAttribute('src'),'https://www.tiktok.com/player/v1/7080213458555737986');
+    await dialog.getByRole('button',{name:'Close details',exact:true}).click();assert.equal(await dialog.locator('iframe').count(),0);
+    await inbox.locator('.co-item').nth(1).getByRole('button',{name:'View details',exact:true}).click();assert.equal(await dialog.getByRole('button',{name:'▶ Play here'}).count(),0);assert.equal(await dialog.locator('a').count(),0);await dialog.getByRole('button',{name:'Close details',exact:true}).click();
+    for(const t of ['Publish & approvals','Local campaigns','AI assistant','Team access']){await hub.getByRole('tab',{name:t,exact:true}).click();await shot(page,t.split(' ')[0].toLowerCase()+'-'+width);}
     const layout=await page.evaluate(()=>({viewport:innerWidth,page:document.documentElement.scrollWidth}));assert.ok(layout.page<=layout.viewport+1,JSON.stringify(layout));assert.deepEqual(errors,[]);
     await context.close();console.log('PASS channel drafts, local campaign plans, owner assignments and no overflow at '+width);
   }

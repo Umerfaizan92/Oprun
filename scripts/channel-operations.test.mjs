@@ -122,3 +122,23 @@ test('transport replies enforce WhatsApp windows and accept Business Profile upd
   const ack=await client.execute('google_business',{access_token:'fixture'},{parent_id:'accounts/1',id:'locations/2'},draft,{can_reply:true,remote_id:'review-3'});
   assert.equal(ack.id,'accounts/1/locations/2/reviews/review-3/reply');
 });
+
+test('synced content carries only provider-hosted links, previews and measured totals (T-079)',async()=>{
+  const {providerLink}=await import('../src/channel-providers.js');
+  assert.equal(providerLink('https://www.tiktok.com/@a/video/1',['tiktok.com']),'https://www.tiktok.com/@a/video/1');
+  for(const bad of ['http://www.tiktok.com/x','javascript:alert(1)','https://tiktok.com.evil.test/x','https://eviltiktok.com/x','https://user:pw@www.tiktok.com/x','https://www.tiktok.com:8443/x',''])assert.equal(providerLink(bad,['tiktok.com']),undefined,bad);
+  const calls=[],videos=[
+    {id:'7080213458555737986',title:'Before & after',video_description:'Before & after #rims',create_time:1767225600,duration:31,cover_image_url:'https://p16-sign-sg.tiktokcdn.com/c.image?x-expires=1',share_url:'https://www.tiktok.com/@fp/video/7080213458555737986',view_count:803,like_count:8,comment_count:0,share_count:0},
+    {id:'not-numeric',title:'Second',cover_image_url:'https://evil.test/c.png',share_url:'javascript:alert(1)',view_count:412,like_count:8,comment_count:0,share_count:0}];
+  const client=createChannelProviderClient({runtime:{requestJson:async(url)=>{calls.push(url);return url.includes('/video/list/')?{data:{videos}}:{data:{user:{follower_count:120,likes_count:55,video_count:14}}};}}});
+  const basic=await client.sync('tiktok',{access_token:'t',scope:'user.info.basic,video.list'},{id:'open',type:'tiktok_account'});
+  assert.match(calls[0],/cover_image_url/);assert.match(calls[0],/share_url/);assert.equal(calls.length,1,'profile totals are not requested without the granted permission');
+  const [a,b]=basic.items;
+  assert.equal(a.url,'https://www.tiktok.com/@fp/video/7080213458555737986');assert.match(a.thumbnail,/^https:\/\/p16-sign-sg\.tiktokcdn\.com\//);assert.equal(a.embed,'https://www.tiktok.com/player/v1/7080213458555737986');assert.equal(a.occurred_at,'2026-01-01T00:00:00.000Z');assert.equal(a.duration_seconds,31);assert.equal(a.metrics.views,803);
+  assert.equal(b.url,undefined);assert.equal(b.thumbnail,undefined);assert.equal(b.embed,undefined);
+  const by=Object.fromEntries(basic.metrics.map(m=>[m.key,m.value]));assert.deepEqual(by,{videos_in_sample:2,views:1215,likes:16,comments:0,shares:0});
+  const withStats=await client.sync('tiktok',{access_token:'t',scope:'user.info.basic,user.info.stats,video.list'},{id:'open',type:'tiktok_account'});
+  assert.equal(withStats.metrics.find(m=>m.key==='followers').value,120);
+  videos[1].view_count=undefined;const partial=await client.sync('tiktok',{access_token:'t',scope:'video.list'},{id:'open',type:'tiktok_account'});
+  assert.equal(partial.metrics.find(m=>m.key==='views').value,null,'a missing figure is never summed as zero');
+});
