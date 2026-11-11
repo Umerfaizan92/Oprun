@@ -1165,3 +1165,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Push fixes to PR70 and wait for CI
+
+## CP-084 2026-11-11T16:36:00+00:00 T-077 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-077 (TESTING)
+- Completed steps: PR70 CI green and merged to main as 51fcc82; Render deploy dep-dbq9gdc9v7es73bf1em0 live 2026-11-11T16:35Z, startup diagnostics 16/16, database replication running
+- Incomplete steps: Owner live walk-through of Connections on a signed-in account; provider app reviews (Meta, Google, TikTok) for gated adapters; fix S3 PutObject denial for super-pro-v2/uploads backup copies
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: npm test; all UI suites; CI on PR70
+- Test results: 73/73 and every browser suite passed
+- Git branch: claude/release-record-20261112
+- Commit: 51fcc82 (Merge PR #70: Channel operations hub and restored Operator sign-in)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Owner confirms live sign-in page and Channel operations hub; then clear provider blockers B1 to B3
