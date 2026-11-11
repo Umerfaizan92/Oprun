@@ -56,3 +56,18 @@ body.portal-workspace{--status-ok:var(--green,#24875b);--status-attention:var(--
 .view-empty-guide a{display:inline-flex;align-items:center;min-height:var(--touch-min,44px);padding:8px 16px;border-radius:8px;background:var(--brand);color:var(--brand-ink,#111);font-weight:700;text-decoration:none}
 .view-empty-guide a:focus-visible{outline:3px solid var(--work-focus);outline-offset:3px}
 @media(max-width:760px){.view-empty-guide a{width:100%;justify-content:center}}
+
+/* T-083: quieter secondary tools; native details stays keyboard/touch accessible. */
+.portal-workspace .navigation-more>summary{min-height:44px;padding:8px 10px;font-size:13px;line-height:1.4}
+.portal-workspace .navigation-more .navigation-page{min-height:44px;padding:6px 10px;font-size:13px;line-height:1.4;background:transparent;color:var(--muted)}
+.portal-workspace .navigation-more .navigation-page:is(:hover,[aria-current="page"]){color:var(--text);background:var(--brand-soft)}
+
+/* Today: retain every live metric and action with less decorative weight. */
+.portal-workspace #dashboard-view .gx-board{margin-bottom:16px}
+.portal-workspace #dashboard-view .gx-grid{gap:12px}
+.portal-workspace #dashboard-view .gx-tile{min-height:132px;padding:14px 16px;border-radius:12px;box-shadow:inset 0 1px #ffffff0a,0 3px 10px #0001}
+.portal-workspace #dashboard-view .gx-tile::after{opacity:.35}
+.portal-workspace #dashboard-view .gx-tile:is(:hover,:focus-visible){box-shadow:inset 0 1px #ffffff0a,0 0 0 1px var(--brand-line)}
+.portal-workspace #dashboard-view .gx-workspace-links{margin-top:12px;padding:12px;border-radius:12px}
+.portal-workspace #dashboard-view .workspace-start{gap:10px;margin-block:16px}
+.portal-workspace #dashboard-view .workspace-start-link{min-height:76px;padding:12px}

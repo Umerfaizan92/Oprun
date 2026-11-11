@@ -79,7 +79,7 @@
         const icon = make('span', 'portal-icon'); icon.setAttribute('aria-hidden', 'true'); if (g.icon) icon.append(g.icon());
         b.append(icon, make('span', 'navigation-label', g.label), make('span', 'navigation-chevron', '⌄')); b.setAttribute('aria-label', g.label);
         const children = make('div', 'navigation-children'); children.id = this.rail.id + '-' + g.id; b.setAttribute('aria-controls', children.id);
-        const more = make('details', 'navigation-more');
+        const more = make('details', 'navigation-more'); more.open = false;
         more.append(make('summary', '', 'More ' + g.label.toLowerCase() + ' tools'));
         for (const p of g.pages) { const a = make('a', 'navigation-page', p.label); a.href = '#' + p.path; a.dataset.navPage = p.id; a.setAttribute('aria-label', p.label); if (p.badge) { const badge = make('span', 'navigation-badge'); badge.dataset.badgeSource = p.badge; a.append(badge); } (p.secondary ? more : children).append(a); }
         if (more.children.length > 1) children.append(more);
@@ -92,8 +92,7 @@
       this.rail.inert = media.matches && !this.drawer;
       this.rail.querySelectorAll('.navigation-group').forEach(box => { const b = box.firstElementChild, id = b.dataset.navGroup, group = this.groups.find(g => g.id === id), open = id === this.open, active = group?.pages.some(p => p.id === this.active); b.setAttribute('aria-expanded', String(open)); b.classList.toggle('has-active', !!active); const children = b.nextElementSibling; children.hidden = !open;
         if (this.collapsed && !media.matches && open) { const r = b.getBoundingClientRect(); children.style.top = Math.max(8, Math.min(r.top, innerHeight - 220)) + 'px'; } else children.style.top = '';
-        const more = children.querySelector('.navigation-more');
-        if (more?.querySelector(`[data-nav-page="${CSS.escape(this.active)}"]`)) more.open = true;
+        // Keep disclosure state under user control, even on a secondary deep link.
         children.querySelectorAll('a').forEach(a => { if (a.dataset.navPage === this.active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
       });
       document.body.dataset.navigationCompact = String(this.collapsed && !media.matches);

@@ -133,6 +133,9 @@ test('resume check reports a branch mismatch and an interrupted merge', { skip: 
   const gitc = (...a) => sh('git', ['-c', 'user.name=T', '-c', 'user.email=t@example.test', '-c', 'init.defaultBranch=main', ...a]);
   fs.cpSync(path.join(ROOT, 'scripts', 'memory'), path.join(dir, 'scripts', 'memory'), { recursive: true });
   fs.cpSync(path.join(ROOT, '.claude', 'project-memory'), path.join(dir, '.claude', 'project-memory'), { recursive: true });
+  // This fixture must simulate a mismatch even when the real checkout is main.
+  const handoverFile = path.join(dir, '.claude', 'project-memory', 'SESSION_HANDOVER.md');
+  fs.writeFileSync(handoverFile, fs.readFileSync(handoverFile, 'utf8').replace(/^CURRENT BRANCH:.*$/m, 'CURRENT BRANCH: fixture-feature').replace(/^LATEST VERIFIED COMMIT:.*$/m, 'LATEST VERIFIED COMMIT: 0000000000000000000000000000000000000001'));
   fs.writeFileSync(path.join(dir, 'f.txt'), 'a\n');
   gitc('init', '-q'); gitc('add', '-A'); gitc('commit', '-qm', 'base');
   gitc('checkout', '-qb', 'other'); fs.writeFileSync(path.join(dir, 'f.txt'), 'b\n'); gitc('commit', '-qam', 'b');

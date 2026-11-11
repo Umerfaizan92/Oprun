@@ -18,6 +18,7 @@ try {
   await page.locator('#workspace-start a').first().waitFor();
   assert.equal(await page.locator('#dashboard-view .operational-strip .metric-card').count(),4);
   assert.equal(await page.locator('#business-navigation [data-nav-group]').count(),8);
+  assert.equal(await page.locator('#business-navigation .navigation-more[open]').count(),0,'More defaults closed');
   assert.deepEqual(await page.locator('#business-navigation [data-nav-group] .navigation-label').allTextContents(),['Today','Work','Customers','People','Communications','Growth','Money','Setup']);
   await page.waitForFunction(()=>location.hash==='#today/home',null,{timeout:5000});
   assert.doesNotMatch(await page.evaluate(()=>[document.querySelector('#business-navigation')?.textContent,document.querySelector('#page-eyebrow')?.textContent,document.querySelector('#page-title')?.textContent,document.querySelector('#workspace-breadcrumb')?.textContent].join(' ')),/\bB0\d/i);
@@ -46,6 +47,17 @@ try {
   assert.ok(await link.evaluate(e=>e.getBoundingClientRect().height>=44));
   await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
   assert.equal(await page.locator('#workspace-workflows a[href="#communications/email"]').getAttribute('aria-current'),'page');
+  await page.reload();await page.locator('#mail-view').waitFor({state:'visible'});
+  const more=page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page="mail"]')});
+  assert.equal(await more.getAttribute('open'),null,'secondary navigation does not force More open');
+  if(width<=1024) await page.getByRole('button',{name:'☰ Menu',exact:true}).click();
+  await more.locator('summary').click();assert.equal(await more.getAttribute('open'),'','More opens manually');
+  await more.locator('summary').press('Enter');assert.equal(await more.getAttribute('open'),null,'More can close while its page is active');
+  await page.locator('#business-navigation [data-nav-group="today"]').click();
+  await page.locator('#business-navigation [data-nav-group="communications"]').click();
+  assert.equal(await more.getAttribute('open'),null,'repainting does not reopen a manually closed More');
+  if(width<=1024) await page.keyboard.press('Escape');
+
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   for (const theme of ['dark','light']) {
    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);

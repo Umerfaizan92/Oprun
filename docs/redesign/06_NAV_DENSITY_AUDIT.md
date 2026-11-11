@@ -1,0 +1,15 @@
+# Secondary navigation and Today density — T-083
+
+Baseline: main d63a7be (PR76). This is the owner's ordered five-step follow-up, not a rewrite of the earlier PDF work.
+
+1. **Audit:** all 22 contextual-only flags already exist, including Email folder, classic channel inbox, older campaign drafts, older search readiness, search/backlink/website requests, seven individual SEO tools, archived records and older sales documents. No requested flag is missing. The shared renderer was forcing More open for an active secondary destination.
+2. **Secondary behaviour:** keep the existing flags and canonical/legacy route definitions. Native More starts explicitly closed and painting the active page no longer opens it. Manual expansion and explicit search remain available. Scoped CSS uses muted text and tighter padding while retaining 44px targets and active/focus feedback.
+3. **Today polish:** CSS-only softer shadows/decorations, 12px card radii and less excess spacing. Every live count, approval, shortcut, guidance card and data source remains. No cards or data are deleted.
+4. **Safety:** compare current baseline metadata and canonical/alias resolution across owner/admin/manager/employee/contractor and custom grants. Existing security and save-state regression tests remain mandatory. No backend, authorization, tenant, approval, store or API code changes. Browser tests explicitly cover collapsed deep links, manual keyboard expansion/closure and repaint behaviour at phone/tablet/desktop widths. This environment restricts local Chromium sockets; GitHub CI provides browser evidence before Render promotion.
+5. **Publication:** owner explicitly requests a direct main commit named `Tighten secondary navigation and reduce density for legacy and SEO sub-pages`. Main updates use an expected-head lease, never a force push. Existing Render deployment is authorised after successful current-head CI; deployment and live results belong in the final checkpoint.
+
+Shared navigation asset versions are updated for both portals; workspace CSS/version references are refreshed. Forms, original IDs, routes, stores, grants and approval gates are preserved. Existing contextual workflow tabs are retained; secondary sidebar destinations remain inside More. No unrelated backlog is marked complete.
+
+Step4 exposed an existing memory-test fixture that copied the real branch and therefore could not simulate a branch mismatch when working on main. The fixture now sets its own feature-branch and absent-commit inputs; every assertion remains. This test-only correction makes the owner's explicit main-branch workflow verifiable.
+
+Step4 verified: full build73/73;25focused security/route/save cases;3300current route/alias/role comparisons; semantic native disclosure lifecycle; manifest/memory/secret checks; preservation645routes45HTML60Business34Founder and780IDs. Local browser launch is restricted; current-head CI remains required before deployment. Owner subsequently added branding, shorter headings and a unified auto-hiding business identity/sidebar requirement, which must be finished before any Render deployment.

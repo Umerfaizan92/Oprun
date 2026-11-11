@@ -107,8 +107,8 @@ try {
     await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
     await p.locator('#workspace-workflows a[href="#communications/email"]').click();
     await p.locator('#mail-view').waitFor({state:'visible'});
-    assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),'','selected secondary tool expands');
-    checked('Business','b04/unified','Inbox context opens the Email folder and reveals its More group',width);
+    assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
+    checked('Business','b04/unified','Inbox context opens the Email folder without forcing More open',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
     await p.getByRole('tab', { name: 'Costs & overheads', exact: true }).click();

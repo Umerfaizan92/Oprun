@@ -71,6 +71,7 @@
     {id:'money',label:'Money',kicker:'MONEY',icon:'i-briefcase',items:[at('finance','money/ledger'),at('businessinvoices','money/invoices','Invoices & Quotes'),at('finpayments','money/payments'),at('finreconcile','money/reconcile'),at('finreports','money/reports'),at('fincompliance','money/settings'),at('finsales','money/sales','Sales documents (older view)')]},
     {id:'setup',label:'Setup',kicker:'SETUP',icon:'i-shield',utility:true,items:[at('onboarding','setup/settings'),at('integrations','setup/connections'),at('billing','setup/plans','Plans, Billing & Add-ons'),at('governance','setup/trust'),at('automation','setup/automation'),at('support','setup/help'),at('manual','setup/manual'),at('migration','setup/import'),at('exports','setup/export'),at('supportaccess','setup/support-access'),at('finplan','setup/change-plan')]}
   ];
+  // Legacy/request screens and individual SEO tools belong under More; keep their routes and grants intact.
   const contextualOnly = new Set(['archive','comms','mail','phone','calls','businesscampaigns','seoaudit','seoclusters','seogoogle','seostudio','seolocal','seoanalytics','seoreports','website','visibility','searchconsole','backlinks','finsales','migration','exports','supportaccess','finplan']);
   DOMAINS.forEach(d => d.items.forEach(i => { i.secondary = contextualOnly.has(i.view); }));
   // Consolidation happens through related workflows, never by deleting stores/forms.

@@ -1319,3 +1319,45 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Open PR from claude/master-prompt-clean-nav, wait for CI, merge and deploy service srv-dan4rdqjnfac73fceor0
+
+## CP-095 2026-11-12T06:49:43+08:00 T-083 IN_PROGRESS
+- Phase: Step2 secondary navigation
+- Task: T-083 (IN_PROGRESS)
+- Completed steps: Step1audit complete: all22 contextualOnly flags already present; Step2explicit closed nativeMore default and removed active-page auto-opening; secondary links quieter with44px targets
+- Incomplete steps: Step3Today CSS polish; Step4preservation/security/responsive checks; Step5exact direct-main commit; current-headCIand Render final testing
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; saas/navigation-shell.js; saas/workspace-nav.js; saas/workspace-redesign.css
+- Tests executed: none
+- Test results: none
+- Git branch: main
+- Commit: d63a7be (Merge PR #76: Clean navigation, seven groups plus Setup, no B01-B09 numbering)
+- Recovery snapshot: refs/recovery/main/20261111T224943Z (9a01508)
+- Known errors: none
+- Next exact action: Begin Step3: polish Today spacing and card decoration using scoped CSS only.
+
+## CP-096 2026-11-12T06:50:12+08:00 T-083 IN_PROGRESS
+- Phase: Step3Today polish complete
+- Task: T-083 (IN_PROGRESS)
+- Completed steps: Step3Today-only CSS softens shadows/decorations, aligns12px radii and tightens card/guidance spacing; all counts content buttons and data paths unchanged
+- Incomplete steps: Step4route/permission/backend-preservation and responsive checks; Step5exact main commit; CI and authorized Render final testing
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; saas/navigation-shell.js; saas/workspace-nav.js; saas/workspace-redesign.css
+- Tests executed: none
+- Test results: none
+- Git branch: main
+- Commit: d63a7be (Merge PR #76: Clean navigation, seven groups plus Setup, no B01-B09 numbering)
+- Recovery snapshot: refs/recovery/main/20261111T225012Z (2698e40)
+- Known errors: none
+- Next exact action: Begin Step4verification: update existing disclosure regression expectations and run safety/build/browser checks.
+
+## CP-097 2026-11-12T07:03:52+08:00 T-083 TESTING
+- Phase: Step5 exact main commit
+- Task: T-083 (TESTING)
+- Completed steps: Steps1-4complete: all22secondaryflags; closed default/manualMore; lighterTodayCSS; 73/73build25focused3300route/rolechecks and semanticMore lifecycle; 645routes andall780IDs preserved; deterministic memory-test fixture fixed
+- Incomplete steps: Create/publish exact main commit; then T084branding/sidebar additions requested before Render; current-head CI; combined live acceptance
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; office/console.html; qa/reports/release-audit.json; saas/navigation-shell.js; saas/workspace-nav.js; saas/workspace-redesign.css; saas/workspace.html; scripts/project-memory.test.mjs; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs; docs/redesign/06_NAV_DENSITY_AUDIT.md
+- Tests executed: npm test; focusedcontracts; route/rolebaseline; semanticMore; preservation
+- Test results: 73/73; 25pass; 3300unchanged; pass; no removals
+- Git branch: main
+- Commit: d63a7be (Merge PR #76: Clean navigation, seven groups plus Setup, no B01-B09 numbering)
+- Recovery snapshot: refs/recovery/main/20261111T230352Z (65756dd)
+- Known errors: none
+- Next exact action: Create the exact requested T083 main commit. Do not deploy it alone: implement the owner's new branding/identity/auto-hiding-sidebar additions before Render.
