@@ -76,3 +76,7 @@ body[data-navigation="nested"] [role="tabpanel"]{scroll-margin-top:calc(var(--na
 @media print{.nested-rail,.navigation-mobile-trigger,.context-section-tabs,.navigation-scrim{display:none!important}body[data-navigation="nested"] #workspace{padding-left:0!important}body[data-navigation="nested"] .portal-main,body[data-navigation="nested"] .console-header{margin-left:0!important}.focus-inactive{display:block!important}}
 /* Founder theme toggle: icon-only, keep the same 40px touch target as the other header buttons. */
 .portal-topbar #console-theme{min-width:40px;min-height:40px;justify-content:center}
+
+.navigation-more>summary{min-height:44px;display:list-item;padding:10px;color:var(--muted);font-size:14px;cursor:pointer;border-radius:8px}
+.navigation-more>summary:focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
+.navigation-more[open]{border-top:1px solid var(--line);margin-top:6px}

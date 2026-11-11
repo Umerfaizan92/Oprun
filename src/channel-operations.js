@@ -43,6 +43,9 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
     return row && row.membership_created_at === m.created_at ? {actions:parse(row.actions_json,[]),resources:parse(row.resources_json,[])} : {actions:[],resources:[]};
   }
   const can = (req,p,a = 'read',r = null) => {const g = grant(req,p);return g.actions.includes('read') && g.actions.includes(a) && (!r || !g.resources.length || g.resources.includes(r));};
+  // The legacy publisher has no resource-bound draft. Scoped grants must use
+  // Channel Operations, where the exact target is included in approval.
+  const canEveryResource = (req,p,a = 'read') => can(req,p,a) && grant(req,p).resources.length === 0;
   function need(req,p,a = 'read',r = null) {if (!can(req,p,a,r)) throw fail(403,'Your business owner has not assigned this channel and action to your account.');}
   function seed(workspace) {
     const insert = db.prepare("INSERT OR IGNORE INTO organisation_integrations(organisation_id,provider,display_name,status,capabilities_json,settings_json,updated_at) VALUES(?,?,?,'not_connected','[]','{}',?)");
@@ -281,5 +284,5 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
   // Legacy account setup exposes every discovered resource. Keep it owner-only;
   // assigned staff use the filtered operations API, not the credential console.
   const legacyGuard = (req,res,next) => owner(req) ? next() : res.status(403).json({ok:false,error:'Only your business owner can manage provider accounts. Use your assigned channels in Channel Operations.'});
-  return {install,can,memberAccess,legacyGuard,overview};
+  return {install,can,canEveryResource,memberAccess,legacyGuard,overview};
 }

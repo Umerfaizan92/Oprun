@@ -3,7 +3,7 @@
   const {el,api,onView,note}=window.SuperProUI;
   const $=s=>document.querySelector(s);
   const APPROVERS=['owner','admin','super_admin'];
-  const STATUS={draft:['Draft','warn'],approved:['Approved','ok'],publishing:['Sending','neutral'],published:['Posted','ok'],due:['Ready to post','warn'],failed:['Failed','bad'],skipped:['Skipped','neutral']};
+  const STATUS={draft:['Draft','warn'],approved:['Approved','ok'],publishing:['Sending','neutral'],published:['Posted','ok'],due:['Ready to post','warn'],failed:['Failed','bad'],uncertain:['Check delivery','warn'],skipped:['Skipped','neutral']};
   const PLATFORMS=[['facebook','Facebook'],['instagram','Instagram'],['x','X'],['youtube','YouTube'],['tiktok','TikTok'],['snapchat','Snapchat'],['whatsapp','WhatsApp']];
   const TYPE={text:'Text',image:'Image',carousel:'Carousel',reel:'Reel',color_bg:'Colour background'};
   let O=null,items=[];
@@ -72,7 +72,7 @@
   function itemCard(i){
     const [st,tone]=STATUS[i.status]||[i.status,'neutral'],time=new Date(i.scheduled_at).toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit'});
     const acts=[];
-    if(!['published','publishing'].includes(i.status)){
+    if(!['published','publishing','uncertain'].includes(i.status)){
       acts.push(el('button',{class:'secondary-button compact',type:'button',text:'Edit',onclick:()=>edit(i)}));
       if(i.status!=='skipped')acts.push(el('button',{class:'secondary-button compact',type:'button',text:'Skip',onclick:()=>patch(i,{action:'skip'})}));else acts.push(el('button',{class:'secondary-button compact',type:'button',text:'Restore',onclick:()=>patch(i,{action:'restore'})}));
     }

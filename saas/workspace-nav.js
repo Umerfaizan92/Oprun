@@ -1,5 +1,5 @@
-// Single source of truth for workspace navigation: six groups, each a dropdown
-// menu in the top bar (and in the mobile header).
+// Single source of truth: seven business groups, stable legacy routes.
+// The rail, page finder and contextual workflow links share these definitions.
 // app.js, the page finder and the manual read from this list; nothing else
 // should hard-code view names, labels or role gates.
 (()=>{
@@ -56,6 +56,28 @@
    {id:'b08',label:'Setup & Trust',kicker:'B08 · SETUP & TRUST',icon:'i-shield',items:[take('onboarding','b08/settings'),take('integrations','b08/connections'),take('migration','b08/import'),take('exports','b08/print'),take('governance','b08/trust'),extra('automation','b08/automation','Automation Settings','i-shield'),take('support','b08/help'),extra('supportaccess','b08/support-access','Support Access','i-shield',['owner']),take('manual','b08/manual')]},
    {id:'b09',label:'Plans & Usage',kicker:'B09 · PLANS & USAGE',icon:'i-doc',items:[take('billing','b09/usage','Plans, Billing & Add-ons'),extra('finplan','b09/change-plan','Change Plan','i-doc',['owner','admin','super_admin'])]}
   ];
+  // Presentation-only regrouping. Keep route IDs, aliases and item permissions intact.
+  const originalDomains = DOMAINS;
+  const communications = DOMAINS.find(d => d.id === 'b04');
+  communications.items.unshift(communications.items.splice(communications.items.findIndex(i => i.view === 'unifiedinbox'), 1)[0]);
+  const domain = id => originalDomains.find(d => d.id === id);
+  const combined = (id, label, ids) => ({...domain(id), label, kicker:label.toUpperCase(), items:ids.flatMap(key => domain(key).items)});
+  DOMAINS = [domain('b01'), domain('b02'), domain('b03'), domain('b04'),
+    combined('b05','Growth',['b05','b06']), domain('b07'), combined('b08','Setup & Trust',['b08','b09'])];
+  const contextualOnly = new Set(['archive','comms','mail','phone','calls','receptionist','businesscampaigns','consent','seoaudit','seoclusters','seogoogle','seostudio','seolocal','seoanalytics','seoreports','website','visibility','searchconsole','backlinks','finsales','migration','exports','automation','supportaccess','finplan']);
+  DOMAINS.forEach(d => d.items.forEach(i => { i.secondary = contextualOnly.has(i.view); }));
+  // Consolidation happens through related workflows, never by deleting stores/forms.
+  const WORKFLOWS = [
+    {label:'Work pipeline', views:['enquiries','customers','quotes','bookings','jobs','businessinvoices','archive']},
+    {label:'Inbox', views:['unifiedinbox','mail','comms','consent']},
+    {label:'Communications setup', views:['voiceflow','phone','calls','receptionist']},
+    {label:'Campaigns', views:['growth','campaignstudio','businesscampaigns','video','consent']},
+    {label:'SEO & website', views:['seocentre','seoaudit','seoclusters','seogoogle','seostudio','seobuilder','seolocal','seoanalytics','seoreports','visibility','searchconsole','backlinks','website']},
+    {label:'Documents & payments', views:['finance','businessinvoices','finsales','finpayments','finreconcile','finreports','fincompliance']},
+    {label:'Connections & setup', views:['integrations','website','phone','receptionist','voiceflow','onboarding']},
+    {label:'Plans', views:['billing','finplan']}
+  ];
+  const contexts = (view, role) => WORKFLOWS.filter(w => w.views.includes(view)).map(w => ({label:w.label,items:visibleItems(role).filter(i => w.views.includes(i.view)).sort((a,b) => w.views.indexOf(a.view)-w.views.indexOf(b.view))}));
   // Bare legacy group links remain valid after re-grouping.
   for(const [old,view] of Object.entries({today:'dashboard',customers:'customers',people:'workforce',marketing:'video',money:'finance',setup:'onboarding'})){oldItems.find(i=>i.view===view);const item=DOMAINS.flatMap(d=>d.items).find(i=>i.view===view);item.alias.push(old)}
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -72,7 +94,7 @@
   function resolve(hash,role){
     const h=String(hash||'').replace(/^#/,'').split('?')[0].replace(/\/+$/,'').toLowerCase();if(!h)return null;
     const items=visibleItems(role);
-    const hit=items.find(i=>i.path===h||i.view===h||(i.alias||[]).includes(h))||(DOMAINS.find(d=>d.id===h)&&items.find(i=>DOMAINS.find(d=>d.id===h).items.includes(i)));
+    const hit=items.find(i=>i.path===h||i.view===h||(i.alias||[]).includes(h))||(originalDomains.find(d=>d.id===h)&&items.find(i=>originalDomains.find(d=>d.id===h).items.includes(i)));
     return hit?hit.view:null;
   }
   function pageMeta(){
@@ -153,5 +175,5 @@
     el.dataset.role=role||'';
     el.textContent=ROLE_LABELS[role]||(role?role.replace(/_/g,' '):'Member');
   }
-  window.SuperProNav={DOMAINS,FINANCE_ROLES,SENIOR_ROLES,sequence,pathFor,resolve,pageMeta,render,reveal,setRoleBadge};
+  window.SuperProNav={DOMAINS,WORKFLOWS,contexts,FINANCE_ROLES,SENIOR_ROLES,sequence,pathFor,resolve,pageMeta,render,reveal,setRoleBadge};
 })();

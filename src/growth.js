@@ -255,7 +255,7 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     if (!p.success) return res.status(400).json({ ok: false, error: 'Check the post details.' });
     const row = db.prepare(`SELECT * FROM growth_calendar WHERE id=? AND organisation_id=?`).get(req.params.id, org(req));
     if (!row) return res.status(404).json({ ok: false, error: 'Post not found.' });
-    if (['published', 'publishing'].includes(row.status)) return res.status(409).json({ ok: false, error: 'This post has already gone out.' });
+    if (['published', 'publishing', 'uncertain'].includes(row.status)) return res.status(409).json({ ok: false, error: 'This post has been sent or delivery needs checking. It cannot be edited or retried.' });
     const d = p.data, edited = d.hook !== undefined || d.body !== undefined || d.scheduled_at || d.platform || d.post_type;
     let status = row.status;
     if (d.action === 'skip') status = 'skipped'; else if (d.action === 'restore' || (edited && row.status !== 'draft')) status = 'draft';
@@ -280,7 +280,13 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
   });
 
   // ---------- publishing ----------
-  async function sendFacebook(o, item) {
+  const accessChanged = () => Object.assign(new Error('Channel access changed. Ask the business owner to review this post again.'), {accessChanged:true});
+  // A lost response is not proof of failure: never automatically retry a possible send.
+  async function sendRequest(url, options) {
+    try { return await fetchImpl(url, options); }
+    catch { throw Object.assign(new Error('Delivery could not be confirmed. Check the provider before creating another post.'), {deliveryUncertain:true}); }
+  }
+  async function sendFacebook(o, item, authorize) {
     const c = connections.load(o, 'meta');
     if (!c || c.row.status !== 'connected') throw new Error('Connect Facebook first.');
     const page = (c.settings.selected_resources || []).find((r) => r.type === 'facebook_page');
@@ -291,20 +297,23 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     const tokenJson = await tokenRes.json().catch(() => ({}));
     if (!tokenRes.ok || !tokenJson.access_token) throw new Error(tokenJson?.error?.message || 'Facebook did not give page access. Reconnect and allow posting.');
     const body = new URLSearchParams({ message: `${item.hook}\n\n${item.body}`.trim(), access_token: tokenJson.access_token });
-    const r = await fetchImpl(`https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/feed`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
+    authorize();
+    if (!connections.load(o,'meta')?.settings.selected_resources?.some(r => r.id === page.id && r.type === 'facebook_page')) throw accessChanged();
+    const r = await sendRequest(`https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/feed`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.id) throw new Error(j?.error?.message || 'Facebook refused the post.');
+    if (!r.ok || !j.id) throw Object.assign(new Error(j?.error?.message || 'Facebook did not confirm delivery. Check the provider before retrying.'), {deliveryUncertain:r.ok || r.status >= 500});
     return String(j.id);
   }
-  async function sendX(o, item) {
+  async function sendX(o, item, authorize) {
     const c = connections.load(o, 'x');
     if (!c || c.row.status !== 'connected') throw new Error('Connect X first.');
     const bundle = await connections.fresh(c, 'x');
     const text = `${item.hook}\n\n${item.body}`.trim();
     if (text.length > 280) throw new Error('This post is longer than 280 characters. Shorten it for X.');
-    const r = await fetchImpl('https://api.x.com/2/tweets', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + bundle.access_token }, body: JSON.stringify({ text }) });
+    authorize();
+    const r = await sendRequest('https://api.x.com/2/tweets', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + bundle.access_token }, body: JSON.stringify({ text }) });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j?.data?.id) throw new Error(j?.detail || j?.title || 'X refused the post.');
+    if (!r.ok || !j?.data?.id) throw Object.assign(new Error(j?.detail || j?.title || 'X did not confirm delivery. Check the provider before retrying.'), {deliveryUncertain:r.ok || r.status >= 500});
     return String(j.data.id);
   }
 
@@ -313,10 +322,18 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     const claim = db.prepare(`UPDATE growth_calendar SET status='publishing',updated_at=? WHERE id=? AND status IN ('approved','failed','due')`).run(iso(), id);
     if (!claim.changes) return { ok: false, error: 'This post is not ready to send.' };
     const item = db.prepare(`SELECT * FROM growth_calendar WHERE id=?`).get(id);
+    const provider = item.platform === 'facebook' ? 'meta' : item.platform;
+    const signature = c => JSON.stringify((c?.settings.selected_resources || []).map(r => [r.type,String(r.id)]).sort((a,b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
+    const selectedAtStart = signature(connections.load(item.organisation_id,provider));
+    const authorized = () => Boolean(channelAuthority?.(item.organisation_id,item.approved_by,provider,'approve')) && (!actor || Boolean(channelAuthority?.(item.organisation_id,actor,provider,'publish')));
+    const authorize = () => {
+      const current = connections.load(item.organisation_id,provider);
+      if (!authorized() || current?.row.status !== 'connected' || current.settings.account_confirmed !== true || selectedAtStart === '[]' || signature(current) !== selectedAtStart) throw accessChanged();
+    };
     const set = (status, extra = {}) => db.prepare(`UPDATE growth_calendar SET status=?,external_id=?,error=?,published_at=?,updated_at=? WHERE id=?`).run(status, extra.external_id ?? null, extra.error ?? null, extra.published_at ?? null, iso(), id);
     const ownerAlert = (title, body) => notify?.notifyRoles?.(item.organisation_id, ['owner', 'admin'], { kind: 'content', title, body, link: '#growth', dedupe: `growth:${id}:${title}` }).catch(() => {});
     const audit = (action, metadata) => appendAuditLog(db, { organisation_id: item.organisation_id, user_id: actor, action, module: 'growth', entity_type: 'growth_post', entity_id: id, metadata });
-    if(channelAuthority && !channelAuthority(item.organisation_id,item.approved_by,item.platform==='facebook'?'meta':item.platform)){
+    if(!authorized()){
       set('draft',{error:'Channel approval authority changed. The business owner must review this post again.'});
       audit('growth.post_held_for_access',{platform:item.platform});return {ok:false,status:'draft',error:'Channel approval authority changed. Review again.'};
     }
@@ -327,16 +344,17 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
       return { ok: true, status: 'due' };
     }
     try {
-      const ext = item.platform === 'facebook' ? await sendFacebook(item.organisation_id, item) : await sendX(item.organisation_id, item);
+      const ext = item.platform === 'facebook' ? await sendFacebook(item.organisation_id, item, authorize) : await sendX(item.organisation_id, item, authorize);
       set('published', { external_id: ext, published_at: iso() });
       audit('growth.post_published', { platform: item.platform, external_id: ext });
       return { ok: true, status: 'published', external_id: ext };
     } catch (err) {
       const msg = clip(err?.message || err, 300);
-      set('failed', { error: msg });
-      audit('growth.post_failed', { platform: item.platform, error: msg });
-      ownerAlert('A scheduled post did not go out', `${clip(item.hook, 60)}: ${msg}`);
-      return { ok: false, status: 'failed', error: msg };
+      const status = err?.accessChanged ? 'draft' : err?.deliveryUncertain ? 'uncertain' : 'failed';
+      set(status, { error: msg });
+      audit(status === 'draft' ? 'growth.post_held_for_access' : status === 'uncertain' ? 'growth.post_delivery_uncertain' : 'growth.post_failed', { platform: item.platform, error: msg });
+      ownerAlert(status === 'uncertain' ? 'Check scheduled post delivery' : 'A scheduled post did not go out', `${clip(item.hook, 60)}: ${msg}`);
+      return { ok: false, status, error: msg };
     }
   }
 

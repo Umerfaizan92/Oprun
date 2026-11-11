@@ -41,6 +41,9 @@ test('channel access is owner-controlled, tenant-bound, resource-scoped and revo
   assert.equal((await f.call('/team',{user:'other'})).json.members.length,1,'another owner sees only their own membership');
   assert.equal((await f.call('/team/worker/youtube',{user:'other',method:'PUT',body:{actions:['read'],resources:[],revision:0}})).status,404);
   assert.equal((await f.grant('worker',['read','sync'],['mine'])).status,200);
+  assert.equal(f.ops.canEveryResource({saas:{organisation_id:'A',user_id:'worker'}},'youtube','sync'),false,'a scoped grant cannot authorize a legacy broad publisher');
+  assert.equal(f.ops.canEveryResource({saas:{organisation_id:'A',user_id:'owner'}},'youtube','approve'),true);
+  assert.equal(f.ops.canEveryResource({saas:{organisation_id:'B',user_id:'worker'}},'youtube','sync'),false);
   const visible=(await f.call('/overview',{user:'worker'})).json.providers[0];
   assert.equal(visible.resources.length,1);assert.equal(visible.insights.results.length,1);assert.equal(visible.insights.results[0].metrics[0].value,12);
   assert.equal((await f.call('/youtube/sync',{user:'worker',body:{resource_id:'restricted'}})).status,403);

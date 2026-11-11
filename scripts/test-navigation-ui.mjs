@@ -72,13 +72,27 @@ try {
     p.on('response', r => { if (r.url().includes('/api/') && r.status() >= 500) errors.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     await p.goto(s.base + '/saas/workspace.html'); await p.locator('#business-navigation .navigation-page').first().waitFor({ state: 'attached' });
     assert.equal(await p.locator('#business-navigation .navigation-page').count(), 60);
+    assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 7);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
+    await p.locator('#workspace-command button').waitFor();
+    assert.ok(await p.locator('#workspace-start a').count() > 0, 'Command Centre provides permitted next steps');
+    assert.equal(await p.locator('#dashboard-view .operational-strip .metric-card').count(),4);
+    assert.equal(await p.locator('#m-expiring').count(),1,'expiry detail preserved');
+    await p.locator('#workspace-command button').click();
+    await p.locator('#page-search').waitFor({state:'visible'});
+    await p.getByRole('button',{name:'Close search',exact:true}).click();
+    await p.screenshot({path:`qa/visual/navigation/redesign-command-${width}.png`,fullPage:true});
+    checked('Business','b01/home','Guided start, four metrics, preserved expiry and shared command search',width);
+
     for (const g of mapping.business) {
       for (const item of g.items) {
         if (width === 390) await p.getByRole('button', { name: '☰ Menu', exact: true }).click();
         const group = p.locator(`[data-nav-group="${g.id}"]`);
         if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
-        const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`); await link.click();
+        const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
+        const more = link.locator('xpath=ancestor::details');
+        if (await more.count() && !await link.isVisible()) await more.locator('summary').click();
+        await link.click();
         await p.locator('#' + item.view + '-view').waitFor({ state: 'visible' }); await settle(p);
         assert.equal(await link.getAttribute('aria-current'), 'page', item.path);
         assert.equal(await group.getAttribute('aria-expanded'), 'true');
@@ -88,6 +102,13 @@ try {
         await sections(p, p.locator('#' + item.view + '-view'), 'Business', item.path, width);
       }
     }
+    await p.goto(s.base + '/saas/workspace.html#b04/unified');
+    await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
+    await p.locator('#workspace-workflows [aria-label="Inbox"]').waitFor();
+    await p.locator('#workspace-workflows a[href="#b04/email"]').click();
+    await p.locator('#mail-view').waitFor({state:'visible'});
+    assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),'','selected secondary tool expands');
+    checked('Business','b04/unified','Inbox context opens retained Email Centre and reveals its More group',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
     await p.getByRole('tab', { name: 'Costs & overheads', exact: true }).click();

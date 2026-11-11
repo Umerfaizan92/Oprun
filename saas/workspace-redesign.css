@@ -1,0 +1,40 @@
+/* Task T-081: additive workspace tokens and components; original forms and IDs remain. */
+body.portal-workspace{
+ --work-space-1:4px;--work-space-2:8px;--work-space-3:12px;--work-space-4:16px;--work-space-6:24px;
+ --work-radius:12px;--work-content:1200px;--work-focus:var(--brand-2);
+ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ font-size:16px;line-height:1.5;
+}
+.portal-workspace .content-wrap{max-width:var(--work-content);width:100%;margin-inline:auto;padding-bottom:100px;min-width:0}
+.portal-workspace h1{font-size:clamp(24px,2vw,28px);line-height:1.25}
+.portal-workspace h2{font-size:clamp(18px,1.5vw,20px);line-height:1.35}
+.portal-workspace :is(input,select,textarea){font-size:16px;line-height:1.5}
+.portal-workspace .panel{padding:var(--work-space-6);border-radius:var(--work-radius)}
+.portal-workspace .operational-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+.workspace-start{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-block:16px 24px}
+.workspace-start[hidden]{display:none}
+.workspace-start>div{grid-column:1/-1}
+.workspace-start h2,.workspace-start p{margin:0}
+.workspace-start-link{display:flex;flex-direction:column;gap:4px;padding:16px;min-height:88px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);text-decoration:none}
+.workspace-start-link span{font-size:14px;color:var(--muted)}
+.workspace-start-link:hover{border-color:var(--brand);background:var(--brand-soft)}
+.workspace-workflows{min-width:0;width:100%;margin-top:8px}
+.workflow-links{display:flex;align-items:center;gap:6px;overflow-x:auto;max-width:100%;padding:4px 2px;scrollbar-width:thin}
+.workflow-label{flex:0 0 auto;color:var(--muted);font-size:12px;margin-right:6px}
+.workflow-links a{flex:0 0 auto;display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);color:var(--text);background:var(--panel);font-size:14px;text-decoration:none;white-space:nowrap}
+.workflow-links a[aria-current=page]{border-color:var(--brand);background:var(--brand-soft);font-weight:700}
+.workspace-command{position:sticky;bottom:12px;z-index:79;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin:0 20px 12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 24px #0003}
+.workspace-command button{min-height:44px;text-align:left;padding:8px 14px;border:1px solid var(--brand);border-radius:8px;background:var(--brand-soft);color:var(--text);font:inherit;cursor:pointer}
+.workspace-command>span{font-size:12px;color:var(--muted);max-width:320px}
+.portal-workspace :is(.workflow-links a,.workspace-start-link,.workspace-command button):focus-visible{outline:3px solid var(--work-focus);outline-offset:3px}
+@media(max-width:760px){
+ body.portal-workspace{font-size:16px}
+ .portal-workspace .panel{padding:16px}
+ .workspace-start{grid-template-columns:1fr}
+ .portal-workspace .operational-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .workspace-command{margin-inline:12px;flex-wrap:wrap;gap:4px;bottom:8px}
+ .workspace-command button{width:100%}
+ .workspace-command>span{max-width:none}
+ .workflow-label{display:none}
+}
+@media print{.workspace-command,.workspace-workflows,.workspace-start{display:none!important}.portal-workspace .content-wrap{padding-bottom:0}}
