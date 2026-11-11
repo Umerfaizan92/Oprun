@@ -106,7 +106,7 @@
       try{await api('/api/saas/staff-availability/me',{method:'PUT',body:JSON.stringify({status:f.get('status'),reason:f.get('reason'),returns_at:raw?new Date(raw).toISOString():null})});await loadTeam()}catch(err){live(err.message,'error')}finally{b.disabled=false}});
 
     const presenceView=crypto.randomUUID();
-    const heartbeat=()=>{if(window.GDS_SESSION&&!document.hidden)api('/api/saas/staff-presence/heartbeat',{method:'POST',body:JSON.stringify({view_id:presenceView})}).catch(()=>{})};
+    const heartbeat=()=>{if(window.GDS_SESSION&&!document.hidden)api('/api/saas/staff-presence/heartbeat',{method:'POST',superproBackground:true,body:JSON.stringify({view_id:presenceView})}).catch(()=>{})};
     const leave=()=>{if(!window.GDS_SESSION)return;try{navigator.sendBeacon('/api/saas/staff-presence/leave',new Blob([JSON.stringify({view_id:presenceView})],{type:'application/json'}))}catch{}};
     window.addEventListener('superpro:workspace-ready',heartbeat);window.addEventListener('pagehide',leave);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)leave();else{heartbeat();if(team.open)loadTeam()}});

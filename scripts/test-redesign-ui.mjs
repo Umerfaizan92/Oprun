@@ -30,6 +30,7 @@ try {
     return result.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}));
    },axe);
    assert.deepEqual(violations,[],`${width}px ${theme} guided start and command accessibility`);
+   await page.evaluate(() => {document.activeElement?.blur();window.scrollTo(0,0);});await page.mouse.move(0,0);
    await page.screenshot({path:`qa/visual/redesign/command-${width}-${theme}.png`,fullPage:true});
   }
   await page.goto(server.base+'/saas/workspace.html#b04/unified');
@@ -39,6 +40,7 @@ try {
   await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
   assert.equal(await page.locator('#workspace-workflows a[href="#b04/email"]').getAttribute('aria-current'),'page');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await page.evaluate(() => {document.activeElement?.blur();window.scrollTo(0,0);});await page.mouse.move(0,0);
   await page.screenshot({path:`qa/visual/redesign/inbox-${width}.png`,fullPage:true});
   await context.close();
   console.log(`PASS redesign ${width}px: navigation, guidance, command search, context links, overflow and dark/light accessibility`);

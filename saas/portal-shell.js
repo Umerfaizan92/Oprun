@@ -49,7 +49,8 @@
       const search = make('button','','Ask or find a workspace feature'); search.type = 'button';
       search.addEventListener('click', () => document.querySelector('.search-button')?.click());
       command.append(search,make('span','','Suggestions need review. External actions require approval.'));
-      document.querySelector('.app-main')?.append(command);
+      const footer = document.querySelector('.app-footer');
+      if (footer) footer.before(command); else document.querySelector('.app-main')?.append(command);
     }
   }
   function rebuild() {
@@ -62,6 +63,8 @@
       rail.append(make('nav')); document.getElementById('workspace').append(rail);
       const security = document.querySelector('#sidebar .sidebar-footer'); if (security) rail.append(security);
       shell = new window.SuperProNavigation.Navigation({ rail, toggle, triggerHost: document.querySelector('.topbar-left'), key: 'sp-nav:business:pending', background: [document.querySelector('.app-main')] });
+      const header = document.querySelector('.app-topbar');
+      if (header && window.ResizeObserver) new ResizeObserver(() => document.body.style.setProperty('--navigation-header-height', Math.ceil(header.getBoundingClientRect().height) + 'px')).observe(header);
       new MutationObserver(syncBadges).observe(document.querySelector('.workspace-nav'), { childList: true, subtree: true, characterData: true });
     }
     const key = `sp-nav:business:${session.user.id || session.user.email}:${session.organisation.id}`;

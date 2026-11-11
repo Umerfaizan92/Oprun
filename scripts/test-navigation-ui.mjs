@@ -175,8 +175,11 @@ try {
   assert.ok(await worker.evaluate(() => { const host = document.querySelector('.view:not([hidden])'); if (!host) return false; const f = document.createElement('form'); f.id = 'nav-save-test'; f.innerHTML = '<input name="note" aria-label="Note"><button>Save</button>'; f.addEventListener('submit', async e => { e.preventDefault(); await fetch('/__nav-save-test', { method: 'POST', body: '{}' }).catch(() => {}); }); host.append(f); return true; }), 'a visible view hosts the synthetic form');
   const note = worker.locator('#nav-save-test input'), edits = () => worker.evaluate(() => window.SuperProNavigation.hasEdits());
   await note.click(); await note.fill('draft'); assert.equal(await edits(), true, 'typed edit is unsaved');
-  await worker.locator('#nav-save-test button').click(); await worker.waitForTimeout(1800); assert.equal(await edits(), true, 'failed save keeps the warning');
-  saveStatus = 200; await worker.locator('#nav-save-test button').click(); await worker.waitForTimeout(1800); assert.equal(await edits(), false, 'successful save clears the warning');
+  const failedResponse = worker.waitForResponse(r => r.url().endsWith('/__nav-save-test'));
+  await worker.locator('#nav-save-test button').click(); assert.equal((await failedResponse).status(),500,'synthetic failure reaches the form'); await worker.waitForTimeout(1800); assert.equal(await edits(), true, 'failed save keeps the warning');
+  saveStatus = 200; const successResponse = worker.waitForResponse(r => r.url().endsWith('/__nav-save-test'));
+  await worker.locator('#nav-save-test button').click(); assert.equal((await successResponse).status(),200,'synthetic success reaches the form');
+  await worker.waitForFunction(() => !window.SuperProNavigation.hasEdits(),{},{timeout:6000}); assert.equal(await edits(), false, 'successful save clears the warning');
   await note.fill('draft 2'); assert.equal(await edits(), true, 'edits after a save are unsaved again');
   checked('Business', 'unsaved changes', 'Save acknowledgement: failure keeps warning, success clears it, later edits warn', 1440);
   await workerContext.close();

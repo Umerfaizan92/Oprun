@@ -22,8 +22,11 @@
   const nativeFetch = window.fetch?.bind(window);
   if (nativeFetch) window.fetch = function (input, init) {
     const job = pending, method = String(init?.method || input?.method || 'GET').toUpperCase();
-    const p = nativeFetch(input, init);
-    if (!job || method === 'GET' || method === 'HEAD') return p;
+    // Background presence/regulatory work is explicitly separate from form saves.
+    // It may finish later or fail without changing a submitted form's state.
+    const {superproBackground = false, ...requestInit} = init || {};
+    const p = nativeFetch(input, requestInit);
+    if (!job || superproBackground || method === 'GET' || method === 'HEAD') return p;
     job.open += 1; job.used = true;
     p.then(r => { if (!r.ok) job.failed = true; }, () => { job.failed = true; }).finally(() => { job.open -= 1; settle(job); });
     return p;

@@ -76,7 +76,7 @@
       const last=Number(localStorage.getItem(key)||0);if(Date.now()-last<interval)return;
       localStorage.setItem(key,String(Date.now()));
       try{
-        const d=await api('/api/saas/regulatory/check',{method:'POST',body:'{}'});
+        const d=await api('/api/saas/regulatory/check',{method:'POST',body:'{}',superproBackground:true});
         const changed=(d.results||[]).filter(x=>x.changed);
         if(changed.length){
           push(`${changed.length} official regulatory source page${changed.length===1?' has':'s have'} changed. Review the source before treating it as a new obligation.`,'success');

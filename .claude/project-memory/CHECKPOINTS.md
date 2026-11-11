@@ -1263,3 +1263,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T194648Z (b476227)
 - Known errors: none
 - Next exact action: Publish current follow-up files to PR75 using expected remote head0be3094, then monitor new CI. Render remains6615f960 until current-head checks pass.
+
+## CP-091 2026-11-12T03:57:28+08:00 T-081 TESTING
+- Phase: PR75 browser corrections
+- Task: T-081 (TESTING)
+- Completed steps: Current browser evidence passed new3907681440 dark/light components and all page traversal; caught and fixed footer gap/header wrapping and save warning background-request coupling; semantic reproduction now clears successful saves while keeping failures; 24 focused tests pass
+- Incomplete steps: Current-head full browser CI including save lifecycle and footer must pass; inspect new screenshots; merge PR75; deploy existing Render and verify live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PROGRESS.md; docs/redesign/VALIDATION.md; qa/reports/release-audit.json; saas/navigation-shell.js; saas/portal-shell.js; saas/workspace-chat.js; saas/workspace-extras.js; saas/workspace-redesign.css; saas/workspace.html; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs; scripts/navigation-save-state.test.mjs
+- Tests executed: Focused Node regression suites; semantic save reproduction
+- Test results: 24 pass; failed save stays dirty and successful save clears
+- Git branch: codex/redesign-pdf-20261112
+- Commit: c4001cb (Preserve PDF handover and add responsive redesign visual checks); 2 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/codex/redesign-pdf-20261112/20261111T195728Z (8e82825)
+- Known errors: none
+- Next exact action: Publish this correction using remote parent f7f7cf1, then inspect current PR75 CI/Security and screenshots. Never deploy a candidate with failing checks.
