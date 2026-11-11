@@ -32,3 +32,12 @@ test('no B01-B09 inventory numbering is visible in labels, page titles or canoni
  for(const [kicker,label] of Object.values(meta)) assert.doesNotMatch(kicker+' '+label,/\bB0\d/i);
  for(const w of n.WORKFLOWS) assert.doesNotMatch(w.label,/\bB0\d/i);
 });
+
+test('canonicalising an authorised legacy deep link preserves its section without leaking it to another view',()=>{
+ const n=nav(),fn=fs.readFileSync(new URL('../saas/app.js',import.meta.url),'utf8').match(/^function showView.*$/m)[0];
+ for(const [hash,target,expected] of [['#b07/ledger?section=reports','finance','#'+n.pathFor('finance')+'?section=reports'],['#b07/ledger?section=reports','jobs','#'+n.pathFor('jobs')]]){
+  let pushed;
+  const c={NAV:{...n,reveal(){}},currentRole:'owner',viewSequence:n.sequence('owner'),pageMeta:{},location:{hash},history:{pushState(_a,_b,url){pushed=url}},$:()=>null,$$:()=>[],note(){},updateFlowNav(){},closeSidebar(){},window:{dispatchEvent(){}},CustomEvent:class{},requestAnimationFrame(){},loadFinance:async()=>{}};
+  vm.runInNewContext(fn+`;showView('${target}')`,c);assert.equal(pushed,expected);
+ }
+});

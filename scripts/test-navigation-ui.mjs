@@ -86,7 +86,7 @@ try {
 
     for (const g of mapping.business) {
       for (const item of g.items) {
-        if (width === 390) await p.getByRole('button', { name: '☰ Menu', exact: true }).click();
+        await p.getByRole('button', { name: '☰ Menu', exact: true }).click();
         const group = p.locator(`[data-nav-group="${g.id}"]`);
         if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
         const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
@@ -96,13 +96,14 @@ try {
         await p.locator('#' + item.view + '-view').waitFor({ state: 'visible' }); await settle(p);
         assert.equal(await link.getAttribute('aria-current'), 'page', item.path);
         assert.equal(await group.getAttribute('aria-expanded'), 'true');
-        if (width === 390) assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
+        assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
         assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${item.path} overflows at ${width}`);
         checked('Business', item.path, '', width);
         await sections(p, p.locator('#' + item.view + '-view'), 'Business', item.path, width);
       }
     }
     await p.goto(s.base + '/saas/workspace.html#b04/unified');
+    await p.reload(); // Fresh disclosure defaults, independent of manual openings in the route traversal.
     await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
     await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
     await p.locator('#workspace-workflows a[href="#communications/email"]').click();
@@ -118,27 +119,23 @@ try {
     await p.goBack(); await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor(); await p.goForward(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
     await p.locator('#fin-overhead-form').evaluate(f => f.reset());
     await p.reload(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
+    await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
     await navigationAccessibility(p, 'Business', width);
-    if (width === 390) {
-      await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
-      assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), true);
-      await p.keyboard.press('Escape');
-      assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), false);
-      assert.equal(await p.getByRole('button', {name:'☰ Menu',exact:true}).evaluate(e=>e===document.activeElement), true);
-    } else {
-      await p.getByRole('button', {name:'Collapse navigation',exact:true}).click();
-      await p.reload(); await p.locator('#business-navigation[data-compact=true]').waitFor();
-      await p.setViewportSize({width:390,height:900});
-      await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
-      assert.equal(await p.locator('#business-navigation .navigation-label').first().isVisible(), true, 'mobile restores labels with a saved compact preference');
-      await p.keyboard.press('Escape'); await p.setViewportSize({width,height:900});
-      await p.getByRole('button', {name:'Expand navigation',exact:true}).click();
-    }
+    assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), true);
+    await p.keyboard.press('Escape');
+    assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), false);
+    assert.equal(await p.getByRole('button', {name:'☰ Menu',exact:true}).evaluate(e=>e===document.activeElement), true);
+    await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
+    await p.locator('#business-navigation .business-navigation-close').click();
+    assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
+    await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
+    await p.locator('.navigation-scrim').click({position:{x:width-8,y:100}});
+    assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
     const costs = p.locator('[data-fin-tab=costs]'); await costs.focus(); await p.keyboard.press('Home');
     await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor();
     await p.keyboard.press('End'); await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
     await costs.click();
-    checked('Business', 'navigation', 'Keyboard sections, drawer focus and saved rail preference', width);
+    checked('Business', 'navigation', 'Keyboard sections, drawer focus, close control and outside dismissal', width);
     await p.screenshot({ path: `qa/visual/navigation/business-${width}.png`, fullPage: true });
     checked('Business', 'b07/ledger', 'Deep link, history, reload and unsaved field preservation', width);
     await ctx.close();
@@ -166,7 +163,7 @@ try {
   }
   await ctx.close();
   const restricted = await seedOwner(s, { name: 'Restricted Worker', email: 'restricted@example.test' }); const db = new Database(s.dbPath); db.prepare("UPDATE memberships SET role='employee' WHERE user_id=?").run(restricted.uid); db.close();
-  const workerContext = await ownerContext(browser, s, restricted); const worker = await workerContext.newPage(); await worker.goto(s.base + '/saas/workspace.html'); await worker.locator('#business-navigation').waitFor();
+  const workerContext = await ownerContext(browser, s, restricted); const worker = await workerContext.newPage(); await worker.goto(s.base + '/saas/workspace.html'); await worker.locator('#business-navigation').waitFor({state:'attached'});
   assert.equal(await worker.locator('[data-nav-page=finance]').count(), 0); assert.equal(await worker.locator('[data-nav-page=team]').count(), 0); assert.equal(await worker.locator('#workspace-operator-link').isVisible(), false);
   const denied = await s.call('GET', '/api/saas/finance/hub', { cookie: restricted.cookie }); assert.equal(denied.status, 403);
   checked('Business', 'restricted employee', 'Finance/staff/founder isolation', 1440);

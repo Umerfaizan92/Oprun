@@ -1,0 +1,4 @@
+/* Public Oprun wordmark: shared across generated header and footer. */
+.sp-site .sp-brand{font-size:1.5rem;font-weight:800;letter-spacing:-.025em;gap:12px}
+.sp-site .sp-brand img{width:44px;height:44px;border-radius:12px;flex:none}
+@media(max-width:520px){.sp-site .sp-brand{font-size:1.3rem;gap:9px}.sp-site .sp-brand img{width:40px;height:40px}}

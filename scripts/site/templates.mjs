@@ -4,7 +4,7 @@ import { SITE, NAV, PLANS, DOMAINS, INDUSTRIES, SCENARIOS, FAQ, HELP, RECEPTIONI
 const BASE = '__PUBLIC_BASE_URL__';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const icon = (id, cls = 'sp-icon') => `<svg class="${cls}" aria-hidden="true"><use href="/saas/ds/icons.svg#${id}"/></svg>`;
-const V = '20261111';
+const V = '20261112.3';
 const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`;
 const ORG = { '@type': 'Organization', '@id': `${BASE}/#organization`, name: SITE.name, url: `${BASE}/`, logo: `${BASE}/saas/oprun-icon-512.png` };
 const faqLd = (items) => ({ '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
@@ -38,6 +38,7 @@ export function page({ path, title, description, body, graph = [], scripts = [],
 <link rel="stylesheet" href="/saas/ds/tokens.css?v=${V}">
 <link rel="stylesheet" href="/saas/ds/components.css?v=${V}">
 <link rel="stylesheet" href="/saas/ds/site.css?v=${V}">
+<link rel="stylesheet" href="/saas/brand-presence.css?v=${V}">
 <script src="/saas/ds/motion.js?v=${V}" defer></script>
 ${scripts.map((s) => `<script src="${s}" defer></script>`).join('\n')}
 <script src="/saas/ds/site.js?v=${V}" defer></script>

@@ -15,6 +15,13 @@ try {
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(server.base+'/saas/workspace.html#b01/home');
   await page.locator('#workspace-command button').waitFor();
+  assert.equal(await page.locator('#business-navigation > .portal-brand').count(),0);
+  assert.equal(await page.locator('.topbar-left .workspace-platform-brand').textContent(),'Oprun');
+  assert.equal(await page.locator('#business-navigation #workspace-context').count(),1);
+  assert.equal(await page.locator('#business-switcher').count(),1);
+  assert.equal(await page.locator('#business-navigation').evaluate(e=>e.inert),true);
+  await page.waitForFunction(()=>document.querySelector('.navigation-identity-name')?.textContent===document.querySelector('#org-name-side')?.textContent);
+
   await page.locator('#workspace-start a').first().waitFor();
   assert.equal(await page.locator('#dashboard-view .operational-strip .metric-card').count(),4);
   assert.equal(await page.locator('#business-navigation [data-nav-group]').count(),8);
@@ -50,13 +57,14 @@ try {
   await page.reload();await page.locator('#mail-view').waitFor({state:'visible'});
   const more=page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page="mail"]')});
   assert.equal(await more.getAttribute('open'),null,'secondary navigation does not force More open');
-  if(width<=1024) await page.getByRole('button',{name:'☰ Menu',exact:true}).click();
+  await page.getByRole('button',{name:'☰ Menu',exact:true}).click();
   await more.locator('summary').click();assert.equal(await more.getAttribute('open'),'','More opens manually');
   await more.locator('summary').press('Enter');assert.equal(await more.getAttribute('open'),null,'More can close while its page is active');
   await page.locator('#business-navigation [data-nav-group="today"]').click();
   await page.locator('#business-navigation [data-nav-group="communications"]').click();
   assert.equal(await more.getAttribute('open'),null,'repainting does not reopen a manually closed More');
-  if(width<=1024) await page.keyboard.press('Escape');
+  await page.screenshot({path:`qa/visual/redesign/business-drawer-${width}.png`,fullPage:true});
+  await page.keyboard.press('Escape');
 
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   for (const theme of ['dark','light']) {

@@ -224,3 +224,10 @@ html[data-theme="light"] footer a{color:#6f5522;font-weight:600}
 html[data-theme="light"] .sp-global-trust-footer{background:#fff;border-top:1px solid #d8dde6}
 html[data-theme="light"] .sp-global-trust-footer :is(b,span,p,div){color:#2f3542!important}
 html[data-theme="light"] .sp-global-trust-footer a{color:#6f5522!important;font-weight:600}
+
+/* Oprun brand presence: readable wordmark and moderately larger primary marks. */
+body .brand{font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+body .brand.brand-large{font-size:1.5rem}
+body .brand .brand-mark{width:48px;height:48px;min-width:48px;flex-shrink:0}
+body .portal-brand{font-size:1.3rem;font-weight:800;padding-inline:0}
+body .portal-brand .portal-mark{width:48px;height:48px;flex-shrink:0}
