@@ -16,10 +16,12 @@ try {
   const put=db.prepare('INSERT INTO channel_items VALUES(?,?,?,?,?,?,?,?)');
   put.run(randomUUID(),owner.org,'tiktok','tt-open','7080213458555737986','video',JSON.stringify({remote_id:'7080213458555737986',kind:'video',title:'Mirror finish before and after',text:'',url:'https://www.tiktok.com/@example/video/7080213458555737986',embed:'https://www.tiktok.com/player/v1/7080213458555737986',occurred_at:'2026-11-01T02:00:00.000Z',duration_seconds:31,metrics:{views:803,likes:8,comments:0,shares:0}}),now);
   put.run(randomUUID(),owner.org,'tiktok','tt-open','2','video',JSON.stringify({remote_id:'2',kind:'video',title:'Unsafe link is never rendered',text:'',url:'javascript:alert(1)',embed:'https://evil.test/player',metrics:{views:412,likes:8}}),now);
+  put.run(randomUUID(),owner.org,'tiktok','tt-open','c-1','comment',JSON.stringify({remote_id:'c-1',kind:'comment',title:'Sam Viewer',text:'Do you service Fremantle?',parent_id:'2',can_reply:true,occurred_at:'2026-11-02T02:00:00.000Z'}),now);
   db.prepare("INSERT INTO channel_sync_state VALUES(?,?,?,'synced',?,?,NULL)").run(owner.org,'tiktok','tt-open',JSON.stringify([{key:'views',value:1215,source:'TikTok / latest 2 videos'},{key:'likes',value:16,source:'TikTok / latest 2 videos'}]),now);
   db.prepare('INSERT INTO users(id,email,full_name,password_hash,password_salt,email_verified,phone_verified,created_at,updated_at) VALUES(?,?,?,?,?,1,1,?,?)').run(uid,'assigned-worker@example.test','Assigned worker','x','x',now,now);
   db.prepare("INSERT INTO memberships(organisation_id,user_id,role,created_at) VALUES(?,?,'worker',?)").run(owner.org,uid,now);
   db.prepare('INSERT INTO user_sessions(id,user_id,token_hash,expires_at,created_at,last_seen_at) VALUES(?,?,?,?,?,?)').run(randomUUID(),uid,createHash('sha256').update(token).digest('hex'),new Date(Date.now()+3600000).toISOString(),now,now);db.close();
+  {const cached=await fetch(s.base+'/saas/channel-operations.js?v=1'),plain=await fetch(s.base+'/saas/channel-operations.js'),html=await fetch(s.base+'/saas/sign-in.html?v=1');assert.match(cached.headers.get('cache-control'),/max-age=300, stale-while-revalidate=3600/);assert.doesNotMatch(plain.headers.get('cache-control')||'',/stale-while-revalidate/);assert.doesNotMatch(html.headers.get('cache-control')||'',/stale-while-revalidate/);}
   for(const width of [390,768,1440]) {
     const context=await ownerContext(browser,s,owner,{viewport:{width,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
     page.on('pageerror',e=>errors.push(e.message));
@@ -45,7 +47,7 @@ try {
     await shot(page,'overview-'+width);
     assert.match(await overview.locator('.co-metrics').innerText(),/Views[\s\S]*1\.2K/);assert.ok(await overview.getByText('Top recent content',{exact:true}).isVisible());
     await hub.getByRole('tab',{name:'Content & replies',exact:true}).click();const inbox=hub.locator('#co-panel-inbox');
-    assert.equal(await inbox.locator('.co-item').count(),2);
+    assert.equal(await inbox.locator('.co-item').count(),3);
     const links=await inbox.locator('.co-item a').evaluateAll(a=>a.map(x=>[x.getAttribute('href'),x.target,x.rel]));
     assert.deepEqual(links,[['https://www.tiktok.com/@example/video/7080213458555737986','_blank','noopener noreferrer']],'only the provider-hosted https link is offered');
     await inbox.getByRole('button',{name:'Most viewed',exact:true}).click();await shot(page,'content-'+width);assert.match(await inbox.locator('.co-item h4').first().innerText(),/Mirror finish/);
@@ -57,7 +59,24 @@ try {
     await page.route('https://www.tiktok.com/player/**',r=>r.fulfill({status:200,contentType:'text/html',body:'<p>player</p>'}));
     await dialog.getByRole('button',{name:'▶ Play here',exact:true}).click();assert.equal(await dialog.locator('iframe').getAttribute('src'),'https://www.tiktok.com/player/v1/7080213458555737986');
     await dialog.getByRole('button',{name:'Close details',exact:true}).click();assert.equal(await dialog.locator('iframe').count(),0);
-    await inbox.locator('.co-item').nth(1).getByRole('button',{name:'View details',exact:true}).click();assert.equal(await dialog.getByRole('button',{name:'▶ Play here'}).count(),0);assert.equal(await dialog.locator('a').count(),0);await dialog.getByRole('button',{name:'Close details',exact:true}).click();
+    await inbox.locator('.co-item').nth(1).getByRole('button',{name:'View details',exact:true}).click();assert.equal(await dialog.getByRole('button',{name:'▶ Play here'}).count(),0);assert.equal(await dialog.locator('a').count(),0);
+    assert.match(await dialog.locator('[data-co-comments]').innerText(),/Sam Viewer[\s\S]*Do you service Fremantle\?/);assert.equal(await dialog.getByRole('button',{name:'Close details',exact:true}).innerText(),'×');await dialog.getByRole('button',{name:'Close details',exact:true}).click();
+    await inbox.locator('.co-item').first().getByRole('button',{name:/^Open comments/}).click();await dialog.locator('[data-co-comments]').waitFor();
+    assert.equal(await page.evaluate(()=>document.activeElement?.hasAttribute('data-co-comments')),true,'Comments opens the comments section');assert.ok(await dialog.getByRole('link',{name:/Read and reply on TikTok/}).isVisible());await dialog.getByRole('button',{name:'Close details',exact:true}).click();
+    await hub.getByRole('tab',{name:'AI assistant',exact:true}).click();const ai=hub.locator('#co-panel-ai');
+    await ai.getByText('More views',{exact:true}).click();await ai.getByRole('button',{name:'Get recommendations',exact:true}).click();
+    await ai.locator('[data-co-growth="tiktok:views"]').waitFor();assert.match(await ai.locator('[data-co-growth="tiktok:views"]').innerText(),/Mirror finish before and after[\s\S]*803 views/);
+    await ai.locator('.co-unconnected summary').click();
+    assert.ok(await ai.locator('[data-co-growth="youtube:connect"]').getByRole('button',{name:'Connect now',exact:true}).isVisible(),'unconnected channels get a connect action');
+    const metaCard=ai.locator('[data-co-growth="meta:views"]');const drafted=page.waitForResponse(r=>r.url().endsWith('/api/saas/channels/drafts')&&r.request().method()==='POST');await metaCard.getByRole('button',{name:'Apply — create draft post',exact:true}).click();assert.equal((await drafted).status(),201);
+    await metaCard.getByText('Draft created · waiting for approval',{exact:true}).waitFor();
+    const tk=ai.locator('[data-co-growth="tiktok:views"]');await ai.locator('[data-co-area]').fill('');await tk.getByRole('button',{name:'Apply — save as plan',exact:true}).click();await hub.locator('[data-co-status][data-error=true]').filter({hasText:'Add a local area'}).waitFor();
+    await ai.locator('[data-co-area]').fill('Fremantle, 6160');const plannedAi=page.waitForResponse(r=>r.url().endsWith('/api/saas/channels/campaigns')&&r.request().method()==='POST');await tk.getByRole('button',{name:'Apply — save as plan',exact:true}).click();const planRes=await plannedAi;assert.equal(planRes.status(),201);assert.deepEqual(planRes.request().postDataJSON().targeting.postcodes,['6160']);
+    await tk.getByText('Plan saved · waiting for approval',{exact:true}).waitFor();await shot(page,'growth-'+width);
+    await tk.getByRole('button',{name:'Review in Local campaigns',exact:true}).click();assert.ok(await hub.locator('#co-panel-campaigns').getByText('More views · TikTok',{exact:true}).first().isVisible());
+    await hub.getByRole('tab',{name:'Content & replies',exact:true}).click();
+    await inbox.locator('.co-item').nth(1).getByRole('button',{name:'Comments',exact:true}).click();await dialog.locator('.co-comment').getByRole('button',{name:'Draft reply',exact:true}).click();
+    assert.equal(await dialog.isVisible(),false);await page.waitForTimeout(150);assert.ok(await hub.locator('[data-co-compose]').isVisible(),'Draft reply stays on Publish & approvals');assert.equal(await hub.locator('[data-co-compose] [name=kind]').inputValue(),'reply');assert.notEqual(await hub.locator('[data-co-compose] [name=item_id]').inputValue(),'');
     for(const t of ['Publish & approvals','Local campaigns','AI assistant','Team access']){await hub.getByRole('tab',{name:t,exact:true}).click();await shot(page,t.split(' ')[0].toLowerCase()+'-'+width);}
     const layout=await page.evaluate(()=>({viewport:innerWidth,page:document.documentElement.scrollWidth}));assert.ok(layout.page<=layout.viewport+1,JSON.stringify(layout));assert.deepEqual(errors,[]);
     await context.close();console.log('PASS channel drafts, local campaign plans, owner assignments and no overflow at '+width);

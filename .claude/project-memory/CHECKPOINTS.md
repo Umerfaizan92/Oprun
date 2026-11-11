@@ -1179,3 +1179,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Open PR and wait for CI
+
+## CP-085 2026-11-11T17:55:15+00:00 T-080 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-080 (TESTING)
+- Completed steps: Parallel loading, on-demand tabs, stamped asset caching; comments section with reply drafting and honest TikTok link-out; AI growth actions with one-click apply through existing draft and plan routes; icon close; site hover
+- Incomplete steps: PR, CI, merge, deploy; owner live confirmation; TikTok in-app comments need TikTok API for Business app
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/connections/CHANNEL_OPERATIONS.md; saas/channel-operations.css; saas/channel-operations.js; saas/workspace.html; scripts/channel-operations.test.mjs; scripts/test-channel-operations-ui.mjs; src/channel-operations.js; src/channel-providers.js; src/server.js
+- Tests executed: npm test; test:ui; channels, connections, comms, mobile, site, console, pipeline UI; integration; smoke
+- Test results: 73/73; 34/34; all suites passed
+- Git branch: claude/connections-speed-comments-20261112
+- Commit: 5a6dfd8 (Merge PR #72: Viewable channel content and redesigned Channel operations)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Open PR and wait for CI

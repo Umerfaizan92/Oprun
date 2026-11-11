@@ -142,3 +142,15 @@ test('synced content carries only provider-hosted links, previews and measured t
   videos[1].view_count=undefined;const partial=await client.sync('tiktok',{access_token:'t',scope:'video.list'},{id:'open',type:'tiktok_account'});
   assert.equal(partial.metrics.find(m=>m.key==='views').value,null,'a missing figure is never summed as zero');
 });
+
+test('growth actions are permission-scoped, evidence-based and never write by themselves (T-080)',async t=>{
+  const f=await fixture(t);await f.call('/youtube/sync',{body:{resource_id:'mine'}});
+  const before=f.db.prepare('SELECT (SELECT COUNT(*) FROM channel_drafts)+(SELECT COUNT(*) FROM channel_campaigns) n').get().n;
+  const r=await f.call('/growth-actions',{body:{goal:'leads'}});assert.equal(r.status,200);assert.equal(r.json.sent,false);assert.equal(r.json.method,'guided_rules');
+  const yt=r.json.actions.find(a=>a.key==='youtube:leads');assert.equal(yt.apply.type,'campaign','YouTube cannot post text, so the action is a plan');assert.deepEqual(yt.apply.providers,['youtube']);
+  assert.equal(f.db.prepare('SELECT (SELECT COUNT(*) FROM channel_drafts)+(SELECT COUNT(*) FROM channel_campaigns) n').get().n,before,'recommending writes nothing');
+  assert.equal((await f.call('/growth-actions',{body:{goal:'spend-money'}})).status,400);
+  assert.equal((await f.call('/growth-actions',{user:'worker',body:{goal:'leads'}})).json.actions.length,0,'staff without channel access get no actions');
+  await f.grant('worker',['read','draft']);assert.equal((await f.call('/growth-actions',{user:'worker',body:{goal:'promotion'}})).json.actions.length,0,'a plan needs campaign permission');
+  assert.equal((await f.call('/growth-actions',{user:'other',body:{goal:'leads'}})).json.actions.some(a=>a.provider==='youtube'&&a.apply.type!=='connect'),false,'another business never sees this account');
+});

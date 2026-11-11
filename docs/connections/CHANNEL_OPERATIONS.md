@@ -144,3 +144,25 @@ All element IDs, `data-co-*` hooks, tab names and button labels are unchanged.
 TikTok's Display API returns comment counts, not comment text, so the dialog says
 so and links to TikTok. TikTok cover images are signed and expire; an expired
 preview falls back to a placeholder until the next Sync.
+
+
+## Speed, comments, AI growth actions — T-080
+
+- **Speed.** The hub loads with one parallel round of requests instead of five in a
+  row, builds only the open tab, skips a reload when reopened within 30 seconds, and
+  stamped (`?v=`) assets may be reused for five minutes and refreshed in the
+  background. Pages and unstamped files are still revalidated every time.
+- **Comments.** The Comments figure and a Comments button open the item's comments
+  section. Where the provider returns comment text (YouTube) each comment has
+  Draft reply. TikTok's Display API returns counts only; the section says so and
+  links to the video. Reading and replying to TikTok comments in-app needs the
+  separate TikTok API for Business (Accounts API) app and approval — not built.
+- **AI recommendations.** `POST /api/saas/channels/growth-actions` returns actions
+  for a goal (leads, views, promotion) across every channel the member may use,
+  citing synced figures. It writes nothing. "Apply" sends the action through the
+  existing `/drafts` or `/campaigns` routes, so the same permissions, approval and
+  no-spend rules hold. Channels that cannot post text get a saved plan instead;
+  unconnected channels get a Connect action (owner only).
+- Programmatic tab moves click the real tab so the page's section memory follows
+  (Draft reply previously could bounce back to the earlier tab).
+- Close is the site's round icon button; cards use the site's hover treatment.
