@@ -31,8 +31,11 @@ jobs:
       # scripts/verify-all.mjs: syntax, migrations, storage fallback, permission matrix, end-to-end pipeline, contract tests, final validation, quality gate
       - name: Verify everything
         run: npm test
+      # Hosted Ubuntu already provides Chromium native libraries. Avoid the
+      # unavailable apt mirror used only to fetch extra fonts; browser launch
+      # and every interface assertion remain mandatory.
       - name: Install browser for interface regression tests
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Test responsive interface and portal navigation
         run: npm run test:ui
       - name: Integration runtime tests
@@ -54,7 +57,8 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # Use the hosted runner libraries; do not wait on optional apt fonts.
+      - run: npx playwright install chromium
       - name: Source and handover consistency
         run: |
           npm run verify:manifest
