@@ -1193,3 +1193,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Open PR and wait for CI
+
+## CP-086 2026-11-11T18:30:15+00:00 T-081 IN_PROGRESS
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-081 (IN_PROGRESS)
+- Completed steps: Requirement recorded in full; code survey done: meetings in src/meetings.js + saas/workspace-meetings.js + saas/meet-call.js; Calls and SMS and AI Receptionist are service-request forms in saas/portal-workspace.js; contacts from /api/saas/customers; receptionist calls from /api/saas/comms/voice
+- Incomplete steps: Stage A meetings; Stage B phone; Stage C receptionist; tests; PR; CI; merge; deploy
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/communications-redesign-20261112
+- Commit: 6615f96 (Merge PR #74: Faster Connections, comments section and AI growth actions)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Build Stage A: extend src/meetings.js (duration, notes, contact, history detail, suggestions) and rewrite saas/workspace-meetings.js layout
