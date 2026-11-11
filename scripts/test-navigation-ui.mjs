@@ -163,7 +163,7 @@ try {
   }
   await ctx.close();
   const restricted = await seedOwner(s, { name: 'Restricted Worker', email: 'restricted@example.test' }); const db = new Database(s.dbPath); db.prepare("UPDATE memberships SET role='employee' WHERE user_id=?").run(restricted.uid); db.close();
-  const workerContext = await ownerContext(browser, s, restricted); const worker = await workerContext.newPage(); await worker.goto(s.base + '/saas/workspace.html'); await worker.locator('#business-navigation').waitFor();
+  const workerContext = await ownerContext(browser, s, restricted); const worker = await workerContext.newPage(); await worker.goto(s.base + '/saas/workspace.html'); await worker.locator('#business-navigation').waitFor({state:'attached'});
   assert.equal(await worker.locator('[data-nav-page=finance]').count(), 0); assert.equal(await worker.locator('[data-nav-page=team]').count(), 0); assert.equal(await worker.locator('#workspace-operator-link').isVisible(), false);
   const denied = await s.call('GET', '/api/saas/finance/hub', { cookie: restricted.cookie }); assert.equal(denied.status, 403);
   checked('Business', 'restricted employee', 'Finance/staff/founder isolation', 1440);

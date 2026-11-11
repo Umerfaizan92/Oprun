@@ -307,7 +307,7 @@ try{
   await check('founder API requests succeed across all sections',async()=>assert.deepEqual(failedFounderRequests,[]));
   await check('only the independently verified founder sees the workspace operator shortcut',async()=>{
     const me=await (await context.request.get(base+'/api/saas/me')).json();assert.equal(me.user.platform_owner,true);
-    const account=await context.newPage();try{await account.goto(base+'/saas/workspace.html');await account.locator('#workspace').waitFor({state:'visible'});await account.locator('.portal-rail').hover();await account.waitForTimeout(220);assert.ok(await account.locator('#workspace-operator-link').isVisible());assert.equal(await account.locator('#workspace-operator-link').getAttribute('href'),'operator-sign-in.html')}finally{await account.close()}
+    const account=await context.newPage();try{await account.goto(base+'/saas/workspace.html');await account.locator('#workspace').waitFor({state:'visible'});await account.getByRole('button',{name:'☰ Menu',exact:true}).click();assert.ok(await account.locator('#workspace-operator-link').isVisible());assert.equal(await account.locator('#workspace-operator-link').getAttribute('href'),'operator-sign-in.html')}finally{await account.close()}
   });
   await check('no browser JavaScript exceptions',async()=>assert.deepEqual(errors,[]));
   console.log(`UI CHECKS PASSED: ${results.length}`);
