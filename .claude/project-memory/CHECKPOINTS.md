@@ -1137,3 +1137,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T140731Z (445dde5)
 - Known errors: none
 - Next exact action: Publish exact tested source through GitHub and inspect UI CI
+
+## CP-082 2026-11-11T22:15:17+08:00 T-078 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-078 (TESTING)
+- Completed steps: Audited original operator entry and restored it; recorded standing preservation requirement; removed Install entry from sign-in only at owner request; added keyboard and responsive navigation checks
+- Incomplete steps: Run updated CI before merge and Render deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; CLAUDE.md; SHA256SUMS.txt; docs/connections/CHANNEL_OPERATIONS.md; saas/sign-in.html; scripts/test-mobile-readiness.mjs
+- Tests executed: mobile readiness and runtime security unit tests
+- Test results: Local focused tests running; browser CI pending
+- Git branch: codex/channel-operations-20261111
+- Commit: 401746a (Add owner-controlled channel operations and reviewed publishing); 4 commit(s) not on origin/codex/channel-operations-20261111
+- Recovery snapshot: refs/recovery/codex/channel-operations-20261111/20261111T141517Z (dc31b80)
+- Known errors: none
+- Next exact action: Publish restoration to PR70 and require latest CI pass before deploy

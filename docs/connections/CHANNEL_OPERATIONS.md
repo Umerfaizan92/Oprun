@@ -105,3 +105,20 @@ No real provider write or ad spend was executed.
 T-077 checkpoints are in `.claude/project-memory/SESSION_HANDOVER.md`. Resume
 from its exact next action; do not reset customer data or repeat a provider write
 after a timeout without checking whether it already succeeded.
+
+
+## Preserved operator navigation — T-078
+
+The owner reported that Business sign-in had lost its Operator sign-in entry.
+History confirms the original entry existed in `74f0e35` and was removed during
+the prior web/mobile changes. Restore the existing operator route with the stable
+`signin-operator-link` ID. Its visibility does not grant console access: separate
+operator credentials and authentication remain mandatory. The standing owner
+rule is now recorded in `CLAUDE.md` and D-026. `test:mobile-readiness` verifies
+visibility, keyboard navigation, operator authentication controls, return navigation
+and page width at phone, tablet and desktop sizes. Do not remove or hide this
+entry during future redesigns without an explicit owner instruction.
+
+The owner also requested removing the Install option from Business sign-in. Only
+that entry is removed; the dedicated Install page and its device instructions stay
+available. Browser checks assert this distinction.
