@@ -1179,3 +1179,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Open PR and wait for CI
+
+## CP-085 2026-11-11T17:30:31+00:00 T-079 TESTING
+- Phase: Restore preserved sign-in navigation before deployment
+- Task: T-079 (TESTING)
+- Completed steps: PR72 CI green, merged as 5a6dfd8, Render deploy dep-dbqaa3egekts73et32o0 live, startup diagnostics 16/16
+- Incomplete steps: Owner taps Sync on TikTok and confirms previews, details and player on the live site; TikTok player and cover images could not be exercised against real TikTok from the build session
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: claude/release-record-20261112b
+- Commit: 5a6dfd8 (Merge PR #72: Viewable channel content and redesigned Channel operations)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Owner live confirmation, then complete T-079
