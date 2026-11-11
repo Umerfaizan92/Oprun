@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 node_modules/
+node_modules
 *.db
 *.sqlite
 *.sqlite3
@@ -25,3 +26,14 @@ bin/
 # Runtime cache, and visual-test screenshots (baselines are made locally: npm run test:visual:update)
 data/social-stats-cache.json
 qa/visual/
+
+# Native build outputs and credentials
+mobile/**/.gradle/
+mobile/**/build/
+mobile/**/local.properties
+mobile/ios/*.xcodeproj/
+*.keystore
+*.jks
+*.mobileprovision
+*.p12
+*.xcarchive/

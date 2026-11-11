@@ -63,6 +63,7 @@ jobs:
           npm run release:audit
       - name: Verify recovered public website and phase interfaces
         run: |
+          npm run test:mobile-readiness
           npm run test:site-ui
           npm run test:pipeline-ui
           npm run test:console-ui

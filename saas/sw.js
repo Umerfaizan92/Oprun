@@ -1,4 +1,4 @@
-const CACHE='superpro-public-20261031-1';
+const CACHE='superpro-public-20261111-1';
 const PUBLIC=[
   '/saas/index.html',
   '/saas/intro.css?v=20261024',
@@ -14,6 +14,8 @@ const PUBLIC=[
   '/saas/common.js?v=20260919.6',
   '/saas/install.js?v=20260919.6',
   '/saas/answers.html',
+  '/saas/offline.html',
+  '/saas/offline.css',
   '/saas/oprun-icon-192.png',
   '/saas/oprun-icon-512.png'
 ];
@@ -28,7 +30,16 @@ self.addEventListener('activate',e=>e.waitUntil(Promise.all([
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
   const privatePath=u.pathname.startsWith('/api/')||u.pathname.includes('workspace')||u.pathname.includes('sign-in')||u.pathname.includes('create-account')||u.pathname.includes('verify-account')||u.pathname.includes('recover-account')||u.pathname.startsWith('/office/');
-  if(e.request.method!=='GET'||u.origin!==location.origin||privatePath)return;
+  if(e.request.method!=='GET'||u.origin!==location.origin)return;
+  // Never cache authenticated HTML or API responses. Navigation gets a public,
+  // data-free connection-help screen instead of a blank browser error offline.
+  if(privatePath){
+    if(e.request.mode==='navigate')e.respondWith(fetch(e.request).catch(()=>caches.match('/saas/offline.html')));
+    return;
+  }
+  const approvedPublic=PUBLIC.some(p=>new URL(p,location.origin).pathname===u.pathname);
+  const staticAsset=/^\/saas\/.*\.(?:css|js|png|svg|webp|woff2?)$/.test(u.pathname);
+  if(!approvedPublic&&!staticAsset)return;
   e.respondWith(fetch(e.request).then(r=>{
     if(!r||r.status!==200||r.type==='opaque')return r;
     const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));return r;

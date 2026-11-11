@@ -5,7 +5,7 @@ import { chromium } from 'playwright';
 import { startServer } from './test-server.mjs';
 
 const s = await startServer();
-const browser = await chromium.launch();
+const browser = await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined});
 const errors = [];
 let passed = 0;
 const check = async (name, fn) => { await fn(); passed += 1; console.log('PASS', name); };
@@ -26,7 +26,7 @@ try {
     await page.click('[data-ai-form] button[type="submit"]');
     await page.waitForFunction(() => document.querySelector('[data-ai-state]')?.textContent === 'Ready' && document.querySelectorAll('[data-ai-log] > *').length >= 2, null, { timeout: 15000 });
     const last = await page.locator('[data-ai-log] > *').last().innerText();
-    assert.ok(last.trim().length > 20, 'answer is empty');
+    assert.match(last, /approv|authoris|review/i, 'answer must explain approval, not a generic introduction');
     await ctx.close();
   });
 
@@ -142,6 +142,10 @@ try {
     for (const plan of ['starter', 'operations', 'scale']) assert.equal(await page.locator(`a[href="/saas/create-account.html?plan=${plan}"]`).count(), 1, plan);
     await Promise.all([page.waitForURL('**/saas/create-account.html?plan=operations'), page.locator('a[href$="plan=operations"]').click()]);
     assert.ok(await page.locator('form').first().isVisible(), 'sign-up form not shown');
+    assert.equal(await page.locator('input[name="plan_id"]:checked').inputValue(),'operations');
+    for(const plan of ['starter','scale']){await page.goto(s.base+'/saas/create-account.html?plan='+plan);assert.equal(await page.locator('input[name="plan_id"]:checked').inputValue(),plan);}
+    await page.goto(s.base+'/saas/create-account.html?plan=invalid');
+    assert.equal(await page.locator('input[name="plan_id"]:checked').inputValue(),'starter');
     await page.goto(s.base + '/pricing');
     await Promise.all([page.waitForURL('**/saas/create-account.html'), page.locator('main a[href="/start"]').first().click()]);
     await ctx.close();

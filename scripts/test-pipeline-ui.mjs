@@ -95,8 +95,13 @@ try {
 
   await check('a server failure never shows success', async () => {
     await page.route('**/api/saas/pipeline/jobs/*/complete', (r) => r.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ ok: false, error: 'Simulated server failure.' }) }));
+    const response = page.waitForResponse((r) => /\/api\/saas\/pipeline\/jobs\/[^/]+\/complete$/.test(new URL(r.url()).pathname) && r.request().method() === 'POST');
     await card('bookings', 'Blocked kitchen drain').getByRole('button', { name: 'Mark job complete' }).click();
-    await page.waitForFunction(() => document.querySelector('#bookings-view [data-pl-status]').dataset.tone === 'bad');
+    assert.equal((await response).status(), 500);
+    // The previous worker-eligibility message is already bad. Wait for this
+    // request's error, rather than accidentally inspecting that stale message.
+    await page.waitForFunction(() => /Simulated server failure/.test(document.querySelector('#bookings-view [data-pl-status]').textContent));
+    assert.equal(await status('bookings').getAttribute('data-tone'), 'bad');
     assert.match(await status('bookings').textContent(), /Simulated server failure/);
     assert.ok(!/complete\. You can invoice/.test(await status('bookings').textContent()));
     await page.unroute('**/api/saas/pipeline/jobs/*/complete');

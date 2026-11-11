@@ -2,6 +2,7 @@
 // every data-view has a view section, and every dialog has a working close path. Run: node scripts/audit-ui.mjs
 import fs from 'node:fs';
 import path from 'node:path';
+import { PUBLIC_ROUTES } from '../src/public-site.js';
 const root = path.resolve(import.meta.dirname, '..');
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8');
 const problems = [];
@@ -10,6 +11,7 @@ const pages = [...fs.readdirSync(path.join(root, 'saas')).filter((f) => f.endsWi
 const jsAll = [...fs.readdirSync(path.join(root, 'saas')).filter((f) => f.endsWith('.js')).map((f) => 'saas/' + f), ...fs.readdirSync(path.join(root, 'office')).filter((f) => f.endsWith('.js')).map((f) => 'office/' + f)].map(read).join('\n');
 const serverJs = read('src/server.js');
 const routeOk = new Set(['/', '/saas/', '/office/', '/robots.txt', '/sitemap.xml', '/llms.txt', '/healthz']);
+for (const [route] of PUBLIC_ROUTES) routeOk.add(route);
 for (const f of pages) {
   const html = read(f), dir = path.dirname(f);
   const ids = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((m) => m[1]));

@@ -45,7 +45,7 @@ try{
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
       const fit=await page.evaluate(()=>({height:innerHeight,scroll:document.documentElement.scrollHeight,main:document.querySelector('main').getBoundingClientRect().height}));assert.ok(fit.scroll<=fit.height+1,JSON.stringify({width,...fit}));
       assert.match(await page.locator('body').evaluate(e=>getComputedStyle(e).fontFamily),/Manrope/);
-      assert.equal(await page.locator('#operator-form').count(),0);assert.ok(await page.locator('#login-form').isVisible());assert.equal(await page.getByRole('link',{name:'Operator sign-in',exact:true}).getAttribute('href'),'operator-sign-in.html');
+      assert.equal(await page.locator('#operator-form').count(),0);assert.ok(await page.locator('#login-form').isVisible());assert.equal(await page.getByRole('link',{name:'Operator sign-in',exact:true}).count(),0);
       await page.locator('#login-form .pw-eye').click();assert.equal(await page.locator('#login-form input[name=password]').getAttribute('type'),'text');
       await page.locator('#login-form .pw-eye').click();assert.equal(await page.locator('#login-form input[name=password]').getAttribute('type'),'password');
     });
@@ -175,7 +175,12 @@ try{
     for(const width of [390,980,1440]){
       await page.setViewportSize({width,height:1200});await page.waitForTimeout(200);const {actions,picker,box,input}=await card.evaluate(card=>{const rect=selector=>{const e=selector?card.querySelector(selector):card;return e?JSON.parse(JSON.stringify(e.getBoundingClientRect())):null};return {actions:rect('.integration-manager-actions'),picker:rect('.integration-resource-picker'),box:rect(),input:rect('[data-im-resource]')}});assert.ok(actions&&picker&&box&&input,JSON.stringify({width,actions,picker,box,input}));assert.ok(picker.y>=actions.y+actions.height-1,JSON.stringify({width,actions,picker}));assert.ok(input.width>0&&input.width<=20&&input.height<=20,JSON.stringify(input));assert.ok(picker.x>=box.x&&picker.x+picker.width<=box.x+box.width+1);await screenshot(page,'connected-tiktok-'+width);
     }
-    await card.locator('[data-im-resource]').uncheck();await card.getByRole('button',{name:'Save selection'}).click();await page.waitForFunction(()=>!document.querySelector('[data-provider-card="tiktok"] [data-im-save]')?.disabled);assert.deepEqual(saved,[]);
+    await card.locator('[data-im-resource]').uncheck();
+    const savedResponse=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/saas/integrations/self-service/tiktok/resources'&&r.request().method()==='POST');
+    await card.getByRole('button',{name:'Save selection'}).click();
+    assert.ok((await savedResponse).ok(),'resource selection request must succeed');
+    await page.waitForFunction(()=>!document.querySelector('[data-provider-card="tiktok"] [data-im-save]')?.disabled);
+    assert.deepEqual(saved,[]);
     await page.unrouteAll({behavior:'wait'});
   });
   await check('Import help opens on mobile and supported files reach the dry-run review',async()=>{

@@ -15,7 +15,8 @@ export const NAV = [
   { href: '/for', label: 'Industries' },
   { href: '/receptionist', label: 'Receptionist' },
   { href: '/pricing', label: 'Pricing' },
-  { href: '/help', label: 'Help' }
+  { href: '/help', label: 'Help' },
+  { href: '/install', label: 'Install' }
 ];
 
 export const PLANS = [
