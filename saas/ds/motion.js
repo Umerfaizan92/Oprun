@@ -1,4 +1,4 @@
-/* Super Pro motion engine (Phase 03). No dependencies, ~4 KB.
+/* Oprun motion engine (Phase 03). No dependencies, ~4 KB.
    Rules: motion answers a person's action or tells a story once; nothing loops forever; everything is skipped when the
    device asks for reduced motion; work stops when the page is hidden. */
 (() => {

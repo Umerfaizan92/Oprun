@@ -1,5 +1,5 @@
 
-/* Super Pro AI Office Manager v13 — final UX correction layer */
+/* Oprun v13 — final UX correction layer */
 :root{--sp13-gold:#e8be69;--sp13-line:rgba(232,190,105,.28)}
 /* Product Guide: keep proof away from composer/send control. */
 .guide-shell .proof-b{top:150px!important;right:-20px!important;bottom:auto!important}

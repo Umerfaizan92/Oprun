@@ -207,7 +207,7 @@ test('Google Integration Centre and local SEO: honest status, no false success, 
   assert.equal((await s.call('GET', '/api/saas/seo/local', { cookie: (await seedOwner(s, { business: 'Z', email: 'z@z.example.test' })).cookie })).json.reviews.length, 0, 'reviews are private to the business');
 });
 
-test('Founder Console: Super Pro public site audit, clusters and reports, separated from every business', async (t) => {
+test('Founder Console: Oprun public site audit, clusters and reports, separated from every business', async (t) => {
   const { s, O } = await setup(); t.after(() => s.stop());
   const F = (m, u, b) => s.call(m, u, { headers: { 'x-admin-key': s.adminKey }, body: b });
   let r = await F('POST', '/api/operator/seo/audit', { max_pages: 20 });
@@ -215,7 +215,7 @@ test('Founder Console: Super Pro public site audit, clusters and reports, separa
   r = await F('POST', '/api/operator/seo/keywords/plan', {});
   assert.equal(r.status, 201, r.text); assert.ok(r.json.plan.clusters.length >= 1);
   r = await F('GET', '/api/operator/seo/command');
-  assert.equal(r.status, 200); assert.equal(r.json.facts.business_name, 'Super Pro AI Office Manager');
+  assert.equal(r.status, 200); assert.equal(r.json.facts.business_name, 'Oprun');
   r = await F('POST', '/api/operator/seo/schedules', { enabled: true });
   assert.ok(r.json.schedules.every((x) => x.status === 'active'));
   assert.equal((await O('GET', '/api/saas/seo/audit')).json.audit, null, "a business never sees the platform's audit");

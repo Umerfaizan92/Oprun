@@ -89,12 +89,12 @@ export function createIntegrationInsights({runtime,env,db,fetchImpl=globalThis.f
   function local(org,provider) {
     if(provider==='email_sms') return ['email','sms'].map(channel=>{
       const c=db.prepare("SELECT COUNT(*) total,SUM(status IN ('delivered','opened')) delivered,SUM(status='opened') opened,SUM(status='failed') failed FROM communication_deliveries WHERE organisation_id=? AND channel=? AND created_at>=?").get(org,channel,new Date(Date.now()-28*86400000).toISOString());
-      return {label:channel==='email'?'Email delivery activity':'SMS delivery activity',source:'Super Pro workspace delivery records',period:'Last 28 days',status:'available',fetched_at:new Date().toISOString(),metrics:[metric('recorded','Recorded messages',c.total),metric('delivered','Delivery receipts',c.delivered??0),metric('failed','Failed',c.failed??0),...(channel==='email'?[metric('opens','Open signals',c.opened??0,'Tracking signals are not proof a person read the email.')]:[])]};
+      return {label:channel==='email'?'Email delivery activity':'SMS delivery activity',source:'Oprun workspace delivery records',period:'Last 28 days',status:'available',fetched_at:new Date().toISOString(),metrics:[metric('recorded','Recorded messages',c.total),metric('delivered','Delivery receipts',c.delivered??0),metric('failed','Failed',c.failed??0),...(channel==='email'?[metric('opens','Open signals',c.opened??0,'Tracking signals are not proof a person read the email.')]:[])]};
     });
     const channel=provider==='whatsapp'?'whatsapp':provider==='website'?'website':null;
     if(!channel)return [];
     const c=db.prepare("SELECT COUNT(*) total,SUM(m.direction='inbound') inbound,SUM(m.direction='outbound') outbound FROM comms_messages m JOIN comms_threads t ON t.id=m.thread_id AND t.organisation_id=m.organisation_id WHERE m.organisation_id=? AND t.channel=? AND m.occurred_at>=?").get(org,channel,new Date(Date.now()-28*86400000).toISOString());
-    return [{label:provider==='website'?'Website enquiries':'WhatsApp activity',source:'Super Pro workspace records',period:'Last 28 days',status:'available',fetched_at:new Date().toISOString(),metrics:[metric('inbound','Recorded incoming messages',c.inbound??0),metric('outbound','Recorded outgoing messages',c.outbound??0)]}];
+    return [{label:provider==='website'?'Website enquiries':'WhatsApp activity',source:'Oprun workspace records',period:'Last 28 days',status:'available',fetched_at:new Date().toISOString(),metrics:[metric('inbound','Recorded incoming messages',c.inbound??0),metric('outbound','Recorded outgoing messages',c.outbound??0)]}];
   }
   return {fetch,local};
 }

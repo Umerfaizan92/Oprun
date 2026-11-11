@@ -1,5 +1,5 @@
 
-/* Super Pro AI Office Manager v13 — Office Manager layout corrections */
+/* Oprun v13 — Office Manager layout corrections */
 main>header{height:auto!important;min-height:74px!important;align-items:center!important;gap:14px!important;flex-wrap:wrap!important;padding-top:12px!important;padding-bottom:12px!important}
 .header-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;flex-wrap:wrap!important;max-width:720px!important}.header-actions>*{white-space:nowrap!important}.header-actions #refresh{min-width:88px}
 .staff-chat-page-actions{display:flex;gap:7px;flex-wrap:wrap}.staff-chat-full .panel-head{align-items:center!important}.staff-chat-full form{grid-template-columns:170px minmax(0,1fr) 150px!important;align-items:stretch!important}.staff-chat-full form textarea{min-width:0!important}.staff-chat-full form button{min-width:140px!important}

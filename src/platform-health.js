@@ -15,7 +15,7 @@ export function installPlatformHealth(app, { db, env, platform, policy, legalVer
   const since = (days) => new Date(Date.now() - days * DAY).toISOString();
   const waived = () => new Set((q('SELECT organisation_id FROM complimentary_grants') || []).map((g) => g.organisation_id).filter((id) => policy?.active?.(id)));
 
-  // Revenue recorded in Super Pro (subscriptions, add-ons and platform invoices). Not reconciled with Stripe here.
+  // Revenue recorded in Oprun (subscriptions, add-ons and platform invoices). Not reconciled with Stripe here.
   app.get('/api/operator/platform/revenue', ...guard('billing'), (req, res) => {
     const free = waived();
     const subs = q(`SELECT s.organisation_id,s.plan_id,s.status,s.payment_status,p.name plan_name,p.monthly_fee_cents FROM organisation_subscriptions s LEFT JOIN subscription_plans p ON p.id=s.plan_id`) || [];
@@ -29,7 +29,7 @@ export function installPlatformHealth(app, { db, env, platform, policy, legalVer
     const paid90 = one(`SELECT COALESCE(SUM(total_cents),0) c FROM platform_invoices WHERE status='paid' AND paid_at>=?`, since(90))?.c ?? null;
     res.json({
       ok: true,
-      note: 'Recorded in Super Pro from subscriptions, add-ons and platform invoices. Card payments are confirmed by the payment provider; compare with Stripe before reporting.',
+      note: 'Recorded in Oprun from subscriptions, add-ons and platform invoices. Card payments are confirmed by the payment provider; compare with Stripe before reporting.',
       mrr_cents: paying.reduce((s, p) => s + (p.monthly_fee_cents || 0), 0) + addonMrr,
       addon_mrr_cents: addonMrr,
       subscriptions: { total: subs.length, active_paying: paying.length, trialing: subs.filter((s) => s.status === 'trialing').length, waived: free.size, other: subs.filter((s) => !['active', 'trialing'].includes(s.status)).length },
@@ -56,7 +56,7 @@ export function installPlatformHealth(app, { db, env, platform, policy, legalVer
     });
   });
 
-  // AI activity recorded by the platform. Provider charges are not recorded in Super Pro.
+  // AI activity recorded by the platform. Provider charges are not recorded in Oprun.
   app.get('/api/operator/platform/ai-usage', ...guard('operations'), (req, res) => {
     const total30 = one(`SELECT COUNT(*) n FROM usage_events WHERE kind='ai' AND created_at>=?`, since(30))?.n ?? null;
     const byOrg = q(`SELECT u.organisation_id,COALESCE(o.display_name,o.name) business,COUNT(*) n FROM usage_events u LEFT JOIN organisations o ON o.id=u.organisation_id WHERE u.kind='ai' AND u.created_at>=? GROUP BY u.organisation_id ORDER BY n DESC LIMIT 20`, since(30)) || [];
@@ -64,7 +64,7 @@ export function installPlatformHealth(app, { db, env, platform, policy, legalVer
     const checks = one(`SELECT COUNT(*) n,SUM(CASE WHEN status='passed' THEN 1 ELSE 0 END) passed,AVG(score) avg FROM ai_verification_runs WHERE created_at>=?`, since(30));
     res.json({
       ok: true,
-      note: 'Counts of AI requests recorded by Super Pro in the last 30 days. Provider costs are billed by the AI provider and are not recorded here.',
+      note: 'Counts of AI requests recorded by Oprun in the last 30 days. Provider costs are billed by the AI provider and are not recorded here.',
       ai_requests_30_days: total30, by_business: byOrg.map((r) => ({ business: r.business || 'Unknown business', requests: r.n })),
       usage_by_kind_30_days: kinds.map((k) => ({ kind: k.kind, count: k.n })),
       quality_checks_30_days: checks ? { runs: checks.n || 0, passed: checks.passed || 0, average_score: checks.avg === null ? null : Math.round(checks.avg * 100) / 100 } : null,

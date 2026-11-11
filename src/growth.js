@@ -68,7 +68,7 @@ function aiPrompt(kind, p, extra) {
 function template(kind, p) {
   const n = p.niche || 'your business', a = p.audience || 'your customers', pr = p.product || 'your service';
   const T = (summary, sections) => ({ summary, sections });
-  if (kind === 'competitor_study') return T('Paste the text of 3 to 5 top posts from similar pages and run this again for a specific breakdown. Super Pro cannot browse other pages for you.', [
+  if (kind === 'competitor_study') return T('Paste the text of 3 to 5 top posts from similar pages and run this again for a specific breakdown. Oprun cannot browse other pages for you.', [
     { title: 'How to review a similar page', items: ['Open the page and sort by what has the most comments and shares.', 'Write down the first line of each top post. That is the hook.', 'Note the format: text, photo, carousel, reel or colour background.', 'Note the topic and whether it asks a question.', 'Look for what repeats across three or more posts. That repeat is the pattern.'] }]);
   if (kind === 'patterns') return T('General best practice for ' + n + '. These are starting tests, not measured results. Check your own insights after two weeks.', [
     { title: 'Five patterns to test', items: ['Question posts that people can answer in one word.', 'Before and after photos of real work.', 'Short story posts of 3 to 6 lines.', 'Quick tips as a list of three.', 'A clear offer post once or twice a week, never every post.'] },
@@ -152,7 +152,7 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
 
   async function aiPlan(kind, profile, extra) {
     try {
-      const r = await generateAiText({ remember_conversation: false, thinking_level: 'minimal', max_output_tokens: 2500, system: 'You are the Super Pro Growth Engine for small businesses. Reply with JSON only.', messages: [{ role: 'user', content: aiPrompt(kind, profile, extra) }] });
+      const r = await generateAiText({ remember_conversation: false, thinking_level: 'minimal', max_output_tokens: 2500, system: 'You are the Oprun Growth Engine for small businesses. Reply with JSON only.', messages: [{ role: 'user', content: aiPrompt(kind, profile, extra) }] });
       const parsed = planShape.safeParse(parseJson(r.text));
       if (parsed.success && parsed.data.sections.length) return parsed.data;
     } catch { /* provider missing or invalid reply: use the template */ }

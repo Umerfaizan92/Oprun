@@ -96,7 +96,7 @@ try {
     await v.getByRole('button', { name: 'Add keywords' }).click();
     await page.waitForFunction(() => /1 with a volume/.test(document.querySelector('#seoclusters-view [data-sx-status]')?.textContent || ''));
     await v.getByRole('button', { name: /Build clusters|Rebuild clusters/ }).click();
-    await v.getByRole('heading', {name:'Priorities (Super Pro estimates)',exact:true}).waitFor();
+    await v.getByRole('heading', {name:'Priorities (Oprun estimates)',exact:true}).waitFor();
     assert.match(await v.textContent(), /Search volumes appear only/);
     if (shots) await page.screenshot({ path: shots + '/clusters.png', fullPage: true });
     await v.locator('section', { hasText: 'Content gaps' }).getByRole('button', { name: 'Draft it' }).first().click();
@@ -133,7 +133,7 @@ try {
     await v.getByRole('heading', { name: 'Measured', exact: true }).waitFor();
     await v.getByRole('heading', { name: 'Estimates', exact: true }).waitFor();
     assert.match(await v.textContent(), /Not measured: connect and link Search Console/);
-    assert.match(await v.textContent(), /Super Pro records/);
+    assert.match(await v.textContent(), /Oprun records/);
     const r = await go('b06/reports', 'seoreports');
     await r.getByRole('button', { name: 'Create monthly report' }).click();
     await r.locator('.sx-report').waitFor();
@@ -161,7 +161,7 @@ try {
     });
   }
 
-  await check('Founder Console: SEO & website for the Super Pro public site', async () => {
+  await check('Founder Console: SEO & website for the Oprun public site', async () => {
     const fctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
     const p = await fctx.newPage(); p.on('pageerror', (e) => errors.push('console: ' + e.message));
     await p.goto(s.base + '/saas/operator-sign-in.html');

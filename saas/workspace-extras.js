@@ -43,7 +43,7 @@
   }
 
   function setupContextHelp(){
-    $$('[data-context-help]').forEach(btn=>btn.addEventListener('click',()=>openCopilot(`Explain the ${btn.dataset.contextHelp} section. Tell me what I should enter here, what Super Pro AI Office Manager will do with it, what can update automatically, what still requires approval, and where the information is used.`)));
+    $$('[data-context-help]').forEach(btn=>btn.addEventListener('click',()=>openCopilot(`Explain the ${btn.dataset.contextHelp} section. Tell me what I should enter here, what Oprun will do with it, what can update automatically, what still requires approval, and where the information is used.`)));
     $$('[data-support-open],#support-open-case').forEach(btn=>btn.addEventListener('click',()=>window.GDSSupport?.open?.()));
   }
 
@@ -60,7 +60,7 @@
         const key='superpro_release_seen:'+release.version;if(localStorage.getItem(key)==='1')return;
         // Never stack a second modal on top of one the person must answer first (terms, tour, sign-out prompts): try again shortly.
         if(document.querySelector('dialog[open]:not(#superpro-release-dialog), .gds-tour-active, [data-tour-open="true"]')){releaseTries+=1;if(releaseTries<40)setTimeout(checkProductRelease,4000);return}
-        push(`Super Pro ${release.version}: ${release.title}`);
+        push(`Oprun ${release.version}: ${release.title}`);
         let dialog=$('#superpro-release-dialog');
         if(!dialog){dialog=document.createElement('dialog');dialog.id='superpro-release-dialog';dialog.className='modal release-dialog';document.body.append(dialog)}
         const details=(release.details||[]).map(x=>`<article class="release-change"><b>${esc(x.area)}</b><small><strong>Before:</strong> ${esc(x.before)}</small><small><strong>Now:</strong> ${esc(x.now)}</small></article>`).join('');

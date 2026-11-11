@@ -27,10 +27,10 @@
   const VIEWS = {
     finsales: ['Quotes & Invoices', 'Quotations, estimates, deposit invoices, tax invoices and adjustment notes. Every invoice is checked against the ATO tax invoice rules before it is issued, and issued invoices cannot be changed.'],
     finpayments: ['Payments & Refunds', 'Receipts for money received, and refunds. Customer payments go straight to your own Stripe, PayPal or bank account. Every refund needs approval by an authorised person.'],
-    finreconcile: ['Bank Reconciliation', 'Import your bank statement (CSV) and match each line to a recorded payment or an expense category. Super Pro suggests matches; nothing is reconciled until you confirm it.'],
+    finreconcile: ['Bank Reconciliation', 'Import your bank statement (CSV) and match each line to a recorded payment or an expense category. Oprun suggests matches; nothing is reconciled until you confirm it.'],
     finreports: ['Reports & GST', 'Profit and loss, GST (BAS draft), money owed to you, overdue follow-ups and a summary of your records. Reports are drafts for checking, not tax advice.'],
     fincompliance: ['Finance Settings & Compliance', 'GST registration and invoice settings, a compliance review against published Australian rules, flagged activity and the finance audit trail.'],
-    finplan: ['Change Plan', 'Move to another Super Pro plan. Upgrades start now and are prorated on your next invoice; downgrades start at your next billing month.']
+    finplan: ['Change Plan', 'Move to another Oprun plan. Upgrades start now and are prorated on your next invoice; downgrades start at your next billing month.']
   };
   const HASH = { finsales: 'b07/sales', finpayments: 'b07/payments-refunds', finreconcile: 'b07/reconcile', finreports: 'b07/reports', fincompliance: 'b07/compliance', finplan: 'b09/change-plan' };
 
@@ -118,7 +118,7 @@
             el('button', { type: 'button', class: 'portal-button', text: 'Ignore', onclick: (e) => busy(e.target, async () => { await post(`/api/saas/finance/bank/${l.id}/match`, { ignore: true, note: 'Ignored by staff' }); say('Ignored.'); render('finreconcile'); }) }));
         };
         const sug = (l) => { const s = l.suggestion || {}; const p = (s.payments || [])[0]; return el('div', { class: 'fx-sug' }, p ? el('span', { text: `Payment ${p.receipt_no || ''} ${p.job || ''}: ${p.why.join(', ')}` }) : null, s.category ? el('small', { text: `${s.category.category}: ${s.category.reason}` }) : null); };
-        b.append(section('Bank lines', note(d.note), table([['posted_on', 'Date', day], ['description', 'Description'], ['amount_cents', 'Amount', (v) => $(v)], ['status', 'Status', (v, l) => [chip(v), l.category ? ' ' + l.category : '']], ['suggestion', 'Super Pro suggests', (v, l) => (l.status === 'unmatched' ? sug(l) : '')], ['id', '', (id, l) => act(l)]], d.lines, 'Import a statement to start.')));
+        b.append(section('Bank lines', note(d.note), table([['posted_on', 'Date', day], ['description', 'Description'], ['amount_cents', 'Amount', (v) => $(v)], ['status', 'Status', (v, l) => [chip(v), l.category ? ' ' + l.category : '']], ['suggestion', 'Oprun suggests', (v, l) => (l.status === 'unmatched' ? sug(l) : '')], ['id', '', (id, l) => act(l)]], d.lines, 'Import a statement to start.')));
         if (d.recorded_not_in_bank.length) b.append(section('Recorded but not seen in the bank', note('These bank or manual payments were recorded more than 5 days ago and no bank line is matched to them yet.'), table([['paid_at', 'Recorded', day], ['job', 'Job'], ['receipt_no', 'Receipt'], ['amount_cents', 'Amount', (v) => $(v)], ['method', 'How']], d.recorded_not_in_bank)));
       },
       // ---------------- reports ----------------
@@ -134,7 +134,7 @@
         const g = gst.report;
         b.append(section('GST (BAS draft)', g.registered ? table([['k', 'Label'], ['v', 'Amount', (v) => $(v)]], [{ k: 'G1 Total sales (inc GST)', v: g.G1_total_sales_cents }, { k: 'G3 GST-free sales', v: g.G3_gst_free_sales_cents }, { k: '1A GST on sales', v: g['1A_gst_on_sales_cents'] }, { k: '1B GST on purchases', v: g['1B_gst_on_purchases_cents'] }, { k: 'Net GST (1A less 1B)', v: g.net_gst_cents }]) : el('p', { text: g.note }), g.registered ? note(`${g.basis === 'cash' ? 'Cash' : 'Accrual'} basis, ${g.counts.sales} sale(s), ${g.counts.purchases} purchase(s). ${g.note}`) : null));
         b.append(section('Owed to you', table([['k', 'Age'], ['v', 'Owing', (v) => $(v)]], [{ k: 'Not yet due', v: aged.report.buckets.current }, { k: '1 to 30 days overdue', v: aged.report.buckets.d1_30 }, { k: '31 to 60 days', v: aged.report.buckets.d31_60 }, { k: '61 to 90 days', v: aged.report.buckets.d61_90 }, { k: 'Over 90 days', v: aged.report.buckets.d90_plus }]), el('p', { class: 'pl-actions' }, el('a', { class: 'portal-button', href: '/api/saas/finance/reports/aged.csv', text: 'Download CSV' }))));
-        b.append(section('Overdue: suggested follow-ups', table([['number', 'Invoice'], ['customer', 'Customer'], ['days_overdue', 'Days overdue'], ['owing_cents', 'Owing', (v) => $(v)], ['reminders_sent', 'Reminders sent'], ['recommendation', 'Suggestion'], ['document_id', '', (id) => el('a', { class: 'portal-button', href: '#' + HASH.finsales, onclick: () => { pendingOpen = id; }, text: 'Open' })]], ins.follow_ups, 'Nothing is overdue.'), note('Super Pro suggestions from your records. Automatic customer reminders are set in Money > Payment settings.')));
+        b.append(section('Overdue: suggested follow-ups', table([['number', 'Invoice'], ['customer', 'Customer'], ['days_overdue', 'Days overdue'], ['owing_cents', 'Owing', (v) => $(v)], ['reminders_sent', 'Reminders sent'], ['recommendation', 'Suggestion'], ['document_id', '', (id) => el('a', { class: 'portal-button', href: '#' + HASH.finsales, onclick: () => { pendingOpen = id; }, text: 'Open' })]], ins.follow_ups, 'Nothing is overdue.'), note('Oprun suggestions from your records. Automatic customer reminders are set in Money > Payment settings.')));
         if (ins.discrepancies.length) b.append(section('Discrepancies found', el('ul', { class: 'sx-list' }, ins.discrepancies.map((x) => el('li', {}, chip(x.severity), ' ', x.message)))));
       },
       // ---------------- settings and compliance ----------------
@@ -155,7 +155,7 @@
           el('details', {}, el('summary', { text: `Rules used (ruleset ${cr.ruleset.id}, reviewed ${cr.ruleset.reviewed_at})` }), el('ul', { class: 'sx-list' }, cr.ruleset.sources.map((x) => el('li', {}, el('a', { href: x.url, target: '_blank', rel: 'noopener', text: x.topic })))), note(cr.ruleset.reviewed_by))));
         const flags = ins.flags.filter((f) => f.status === 'open');
         const resolve = (f) => { const n = el('input', { maxlength: '300', 'aria-label': 'What you found', placeholder: 'What you found' }); return el('form', { class: 'fx-inline', onsubmit: (e) => { e.preventDefault(); busy(e.submitter, async () => { await post(`/api/saas/finance/flags/${f.id}`, { status: e.submitter?.value || 'resolved', note: n.value.trim() }); say('Flag closed.'); render('fincompliance'); }); } }, n, el('button', { type: 'submit', class: 'portal-button', value: 'resolved', text: 'Resolved' }), el('button', { type: 'submit', class: 'portal-button', value: 'dismissed', text: 'Not a problem' })); };
-        b.append(section('Flagged for checking', table([['severity', 'Level', (v) => chip(v)], ['message', 'What Super Pro noticed'], ['created_at', 'Since', day], ['id', '', (id, f) => resolve(f)]], flags, 'Nothing flagged.'), note('Flags are Super Pro checks on your records (unusual refunds, many manual payments, mismatched totals, changes made overnight). They are prompts to look, not findings.')));
+        b.append(section('Flagged for checking', table([['severity', 'Level', (v) => chip(v)], ['message', 'What Oprun noticed'], ['created_at', 'Since', day], ['id', '', (id, f) => resolve(f)]], flags, 'Nothing flagged.'), note('Flags are Oprun checks on your records (unusual refunds, many manual payments, mismatched totals, changes made overnight). They are prompts to look, not findings.')));
         b.append(section('Audit trail', au.events ? table([['created_at', 'When', when], ['user_name', 'Who', (v, r) => v || (r.user_id ? 'Staff member' : 'System')], ['action', 'What', (v) => v.replace(/^(finance|payment|invoice)\./, '').replace(/_/g, ' ')], ['entity_type', 'Record']], au.events.slice(0, 100), 'No finance activity yet.') : note('Only owners and admins can see the finance audit trail.')));
       },
       // ---------------- plan change ----------------
@@ -192,7 +192,7 @@
       const done = o.jobs.filter((j) => j.completed_at && !j.has_invoice);
       if (!done.length) return null;
       const sel = el('select', { id: nid() }, done.map((j) => el('option', { value: j.id, text: j.title })));
-      return section('Completed jobs without an invoice', el('form', { class: 'fx-inline', onsubmit: (e) => { e.preventDefault(); busy(e.submitter, async () => { const r = await post(`/api/saas/finance/jobs/${sel.value}/draft-invoice`); say('Draft invoice prepared by Super Pro. Check every line before approving.'); render('finsales', r.document.id); }); } }, field('Job', sel), el('button', { type: 'submit', class: 'portal-button', text: 'Prepare invoice draft' })), note('Super Pro copies the quotation lines, or the hours, rate and materials on the job. You check and approve it.'));
+      return section('Completed jobs without an invoice', el('form', { class: 'fx-inline', onsubmit: (e) => { e.preventDefault(); busy(e.submitter, async () => { const r = await post(`/api/saas/finance/jobs/${sel.value}/draft-invoice`); say('Draft invoice prepared by Oprun. Check every line before approving.'); render('finsales', r.document.id); }); } }, field('Job', sel), el('button', { type: 'submit', class: 'portal-button', text: 'Prepare invoice draft' })), note('Oprun copies the quotation lines, or the hours, rate and materials on the job. You check and approve it.'));
     }
 
     async function showDoc(id, box, o) {
@@ -222,7 +222,7 @@
       }
       const m = d.money;
       box.replaceChildren(section(`${d.heading}${d.number ? ' ' + d.number : ''}`,
-        el('p', { class: 'pl-meta' }, chip(d.status), ` ${d.title}${d.customer ? ' · ' + d.customer : ''}${d.issued_at ? ' · issued ' + day(d.issued_at) : ''}${d.due_at ? ' · due ' + day(d.due_at) : ''}${d.ai_prepared ? ' · prepared by Super Pro' : ''}`),
+        el('p', { class: 'pl-meta' }, chip(d.status), ` ${d.title}${d.customer ? ' · ' + d.customer : ''}${d.issued_at ? ' · issued ' + day(d.issued_at) : ''}${d.due_at ? ' · due ' + day(d.due_at) : ''}${d.ai_prepared ? ' · prepared by Oprun' : ''}`),
         d.parent ? el('p', { text: `From ${KIND[d.parent.kind] || d.parent.kind} ${d.parent.number || d.parent.title}${d.reason ? '. Reason: ' + d.reason : ''}` }) : null,
         lines, el('p', { class: 'fx-total' }, `Ex GST ${$(d.ex_cents)} · GST ${$(d.gst_cents)} · Total ${$(d.total_cents)}`),
         m ? el('p', { text: `Paid ${$(Math.min(m.paid_cents, m.job_price_cents ?? m.total_cents))} · Owing ${$(m.owing_cents)}${m.credited_cents ? ' · Credited ' + $(m.credited_cents) : ''}` }) : null,

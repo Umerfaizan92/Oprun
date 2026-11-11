@@ -1,4 +1,4 @@
-// Phase 08: platform finance for Super Pro's own subscriptions. Plan prices are versioned and every price change is a
+// Phase 08: platform finance for Oprun's own subscriptions. Plan prices are versioned and every price change is a
 // Level 3 platform approval. Subscribers can change plan (upgrades prorated, downgrades at renewal). Renewals, trials,
 // payment failures (dunning) and revenue reporting are read from the existing subscription and platform invoice tables.
 // None of this touches any business's own customers, invoices or payments.
@@ -8,7 +8,7 @@ import { appendAuditLog } from '../db.js';
 const DAY = 86400000;
 const iso = (t = Date.now()) => new Date(t).toISOString();
 const money = (c) => (Number(c) / 100).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
-// Super Pro policy (not a legal rule): existing subscribers get this much notice of a price increase.
+// Oprun policy (not a legal rule): existing subscribers get this much notice of a price increase.
 export const PRICE_POLICY = Object.freeze({ increase_notice_days: 30, dunning_steps_days: [0, 3, 7, 14], restrict_after_days: 21 });
 const monthStart = (t) => { const d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1); };
 const nextMonthStart = (t) => { const d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1); };
@@ -74,7 +74,7 @@ export function createPlatformFinance({ db, engineRef = { current: null }, notif
     for (const c of db.prepare("SELECT * FROM plan_price_changes WHERE status='approved'").all()) {
       if (!c.notified_at) {
         for (const s of db.prepare("SELECT organisation_id FROM organisation_subscriptions WHERE plan_id=? AND status IN ('active','trialing')").all(c.plan_id)) {
-          try { await notify?.notifyRoles?.(s.organisation_id, ['owner'], { kind: 'plan_price_change', title: `Your plan price changes on ${c.effective_from}`, body: `Your Super Pro plan moves from ${money(c.from_cents)} to ${money(c.to_cents)} a month (plus GST) for billing periods starting on or after ${c.effective_from}. You can change or cancel your plan before then in Plans & Usage.`, link: '#b09/usage', dedupe: `price:${c.id}` }); } catch { /* best effort */ }
+          try { await notify?.notifyRoles?.(s.organisation_id, ['owner'], { kind: 'plan_price_change', title: `Your plan price changes on ${c.effective_from}`, body: `Your Oprun plan moves from ${money(c.from_cents)} to ${money(c.to_cents)} a month (plus GST) for billing periods starting on or after ${c.effective_from}. You can change or cancel your plan before then in Plans & Usage.`, link: '#b09/usage', dedupe: `price:${c.id}` }); } catch { /* best effort */ }
         }
         db.prepare('UPDATE plan_price_changes SET notified_at=?,updated_at=? WHERE id=?').run(now(), now(), c.id); notified++;
       }
@@ -153,7 +153,7 @@ export function createPlatformFinance({ db, engineRef = { current: null }, notif
     scanDunning(); const t = clock(), steps = PRICE_POLICY.dunning_steps_days; let reminded = 0;
     for (const c of db.prepare("SELECT * FROM platform_dunning WHERE status='open' AND next_action_at<=?").all(iso(t))) {
       const step = c.step;
-      try { await notify?.notifyRoles?.(c.organisation_id, ['owner'], { kind: 'subscription_payment_problem', title: 'Your Super Pro payment needs attention', body: `${c.reason}. Update your payment details or pay the invoice in Plans & Usage to keep full access.`, link: '#b09/usage', dedupe: `dunning:${c.id}:${step}` }); reminded++; } catch { /* best effort */ }
+      try { await notify?.notifyRoles?.(c.organisation_id, ['owner'], { kind: 'subscription_payment_problem', title: 'Your Oprun payment needs attention', body: `${c.reason}. Update your payment details or pay the invoice in Plans & Usage to keep full access.`, link: '#b09/usage', dedupe: `dunning:${c.id}:${step}` }); reminded++; } catch { /* best effort */ }
       const nextStep = step + 1;
       db.prepare('UPDATE platform_dunning SET step=?,next_action_at=? WHERE id=?').run(nextStep, nextStep < steps.length ? iso(Date.parse(c.opened_at) + steps[nextStep] * DAY) : null, c.id);
     }
@@ -186,7 +186,7 @@ export function createPlatformFinance({ db, engineRef = { current: null }, notif
     const outstanding = db.prepare("SELECT COALESCE(SUM(total_cents),0) c, COUNT(*) n FROM platform_invoices WHERE status='sent'").get();
     const failed = db.prepare("SELECT COUNT(*) n FROM organisation_subscriptions WHERE payment_status='failed'").get().n;
     const cancelled = db.prepare("SELECT COUNT(*) n FROM organisation_subscriptions WHERE status IN ('cancelled','canceled')").get().n;
-    return { mrr_cents: mrr, arr_cents: mrr * 12, outstanding_cents: outstanding.c, outstanding_invoices: outstanding.n, failed_payments: failed, cancelled_subscriptions: cancelled, months: out, note: 'From Super Pro platform invoices and subscriptions (before add-ons and complimentary access). Money received by card is confirmed by Stripe; compare with your Stripe reports before relying on it.' };
+    return { mrr_cents: mrr, arr_cents: mrr * 12, outstanding_cents: outstanding.c, outstanding_invoices: outstanding.n, failed_payments: failed, cancelled_subscriptions: cancelled, months: out, note: 'From Oprun platform invoices and subscriptions (before add-ons and complimentary access). Money received by card is confirmed by Stripe; compare with your Stripe reports before relying on it.' };
   }
 
   async function daily() { const p = await applyDuePrices(); const c = await applyDueChanges(); const d = await runDunning(); return { ...p, changes: c, ...d }; }

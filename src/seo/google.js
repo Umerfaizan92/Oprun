@@ -23,7 +23,7 @@ export const GOOGLE_SERVICES = {
   search_console: { name: 'Google Search Console', provider: 'google_seo', quota: 'Search Analytics: about 1,200 queries a minute per site; URL Inspection: 2,000 a day and 600 a minute per site. Data is usually 2 to 3 days behind.', actions: ['Read search performance (clicks, impressions, CTR, position)', 'Inspect how Google sees a page', 'List and submit sitemaps (submitting needs approval)'] },
   analytics: { name: 'Google Analytics 4', provider: 'google_seo', quota: 'Data API: token-based quotas per property (about 200,000 tokens a day for standard properties).', actions: ['Read sessions, key events and revenue by landing page and channel'] },
   business_profile: { name: 'Google Business Profile', provider: 'google_business', quota: 'Business Profile APIs need access approval from Google; default 300 requests a minute.', actions: ['Read locations, hours, categories', 'Read reviews', 'Reply to reviews (needs approval)', 'Read profile performance'] },
-  ads: { name: 'Google Ads', provider: 'google_seo', quota: 'Needs a Google Ads developer token approved by Google. Reporting only here; Super Pro never changes campaigns or spend.', actions: ['Read campaign clicks, cost and conversions'] },
+  ads: { name: 'Google Ads', provider: 'google_seo', quota: 'Needs a Google Ads developer token approved by Google. Reporting only here; Oprun never changes campaigns or spend.', actions: ['Read campaign clicks, cost and conversions'] },
   tag_manager: { name: 'Google Tag Manager', provider: 'google_seo', quota: 'Tag Manager API: 0.25 queries a second per project by default.', actions: ['List containers and check the container snippet is on your site'] },
   pagespeed: { name: 'PageSpeed Insights', provider: 'api_key', quota: 'Free with an API key (25,000 requests a day). Field data appears only for pages with enough Chrome traffic.', actions: ['Measure Core Web Vitals (real-user field data where available, otherwise a lab test)'] }
 };
@@ -150,7 +150,7 @@ export function createGoogleClient({ fetchImpl = globalThis.fetch, env = {} } = 
 }
 const hm = (t) => (t ? `${String(t.hours ?? 0).padStart(2, '0')}:${String(t.minutes ?? 0).padStart(2, '0')}` : null);
 
-// Platform (Super Pro's own site) access with a Google service account added as a user of the Search Console property
+// Platform (Oprun's own site) access with a Google service account added as a user of the Search Console property
 // or GA4 property. The key comes from GOOGLE_SERVICE_ACCOUNT_JSON and never leaves the server.
 export async function serviceAccountToken(env, scopes, { fetchImpl = globalThis.fetch, now = Date.now() } = {}) {
   let sa; try { sa = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_JSON || ''); } catch { return null; }

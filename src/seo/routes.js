@@ -1,5 +1,5 @@
 // Phase 06: HTTP routes for the SEO platform. The same routes serve a business workspace (/api/saas/seo/...) and the
-// Founder Console for Super Pro's own website (/api/operator/seo/...). The owner always comes from the signed-in
+// Founder Console for Oprun's own website (/api/operator/seo/...). The owner always comes from the signed-in
 // session: a business only ever reaches its own rows, and only the Founder Console reaches the platform's.
 import crypto from 'node:crypto';
 import { z } from 'zod';

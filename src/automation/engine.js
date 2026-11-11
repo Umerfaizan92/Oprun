@@ -160,7 +160,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
   // ---------------- facts (loaded from the business's own records, never from the event payload) ----------------
   function business(org) { return org ? db.prepare('SELECT COALESCE(display_name,name) n,timezone FROM organisations WHERE id=?').get(org) : null; }
   function loadFacts(org, trigger, payload) {
-    const b = business(org), facts = { business: b?.n || 'Super Pro', timezone: b?.timezone || 'Australia/Perth' };
+    const b = business(org), facts = { business: b?.n || 'Oprun', timezone: b?.timezone || 'Australia/Perth' };
     let untrusted = '';
     const doc = (id, kind) => (id ? db.prepare('SELECT * FROM tenant_documents WHERE id=? AND organisation_id=? AND kind=?').get(id, org, kind) : null);
     const cust = (id) => (id ? db.prepare('SELECT id,name,email,phone,address FROM tenant_customers WHERE id=? AND organisation_id=?').get(id, org) : null);
@@ -203,7 +203,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
 
   function context(run, extra = {}) {
     const def = safe(run.definition_json, {});
-    const loaded = run.scope === 'platform' ? { facts: { business: 'Super Pro' }, untrusted: '' } : (loadFacts(run.organisation_id, run.trigger_type, safe(run.event_json, {})) || (['manual', ...SCHEDULES].includes(run.trigger_type) ? { facts: { business: business(run.organisation_id)?.n || 'Super Pro', timezone: business(run.organisation_id)?.timezone }, untrusted: '' } : null));
+    const loaded = run.scope === 'platform' ? { facts: { business: 'Oprun' }, untrusted: '' } : (loadFacts(run.organisation_id, run.trigger_type, safe(run.event_json, {})) || (['manual', ...SCHEDULES].includes(run.trigger_type) ? { facts: { business: business(run.organisation_id)?.n || 'Oprun', timezone: business(run.organisation_id)?.timezone }, untrusted: '' } : null));
     if (!loaded) return null;
     const action = ACTIONS[run.action];
     return { db, org: run.organisation_id, scope: run.scope, run, action, params: def.params || {}, facts: loaded.facts, untrusted: loaded.untrusted, rule: action.rule ? rule(run.organisation_id, action.rule) : null, deps: engineDeps, ...extra };

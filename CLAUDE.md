@@ -1,4 +1,4 @@
-# CLAUDE.md: Super Pro AI Office Manager
+# CLAUDE.md: Oprun
 
 Instructions for every Claude Code session in this repository. The repository, not the chat history, holds the
 project's durable state. Read this file fully before doing anything else.

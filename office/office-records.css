@@ -1,4 +1,4 @@
-/* Super Pro AI Office Manager v12 — visual brand + records/analytics UX. Backend identifiers intentionally unchanged. */
+/* Oprun v12 — visual brand + records/analytics UX. Backend identifiers intentionally unchanged. */
 :root{--sp-gold:#e6b95f;--sp-gold-hi:#ffe09a;--sp-gold-deep:#9e6b21;--sp-glow:rgba(230,185,95,.22)}
 .sp-monogram{position:relative;overflow:hidden;isolation:isolate;font-size:12px!important;letter-spacing:-.08em!important;border-radius:12px!important;background:linear-gradient(145deg,#f7d98d,#c58c32 55%,#8e5d1b)!important;color:#0b0d10!important;text-shadow:0 1px rgba(255,255,255,.32);box-shadow:0 10px 30px rgba(230,185,95,.2),inset 0 1px rgba(255,255,255,.55)!important}
 .sp-monogram:before{content:"";position:absolute;inset:5px;border:1px solid rgba(14,16,19,.42);clip-path:polygon(50% 0,94% 22%,84% 78%,50% 100%,16% 78%,6% 22%);z-index:-1}.sp-monogram:after{content:"";position:absolute;width:4px;height:4px;border-radius:50%;right:6px;top:6px;background:#14171b;box-shadow:-15px 22px #14171b,2px 27px #14171b;opacity:.65}

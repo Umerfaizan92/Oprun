@@ -1,4 +1,4 @@
-/* Super Pro AI Office Manager — v15 public experience refinements */
+/* Oprun — v15 public experience refinements */
 .guide-shell{padding-bottom:74px}
 .voice-capability{position:relative;z-index:5;width:min(100%,620px);margin:12px auto 0;padding:11px 13px;display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(12,17,24,.96);color:#e9edf3;text-align:left;box-shadow:0 14px 36px rgba(0,0,0,.22);cursor:pointer;transition:.18s}
 .voice-capability:hover{transform:translateY(-1px);border-color:rgba(228,186,104,.28);background:#101721}

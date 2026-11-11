@@ -799,7 +799,7 @@ await stage('live', 'RBAC matrix and the end-to-end pipeline on a real server', 
     await check('5o subscriber payments: private pay link, bank fallback, signed Stripe message settles once, wrong amount or signature never does, keys never echoed', async () => {
       const op = { 'x-admin-key': ADMIN_KEY };
       assert.equal((await call('GET', '/api/admin/platform-pay')).status, 401);
-      const bank = await call('PUT', '/api/admin/platform-pay/bank', { headers: op, body: { enabled: true, values: { account_name: 'Super Pro Pty Ltd', bsb: '066-123', account_number: '12345678', payid: 'pay@example.com' } } }); assert.equal(bank.status, 200, bank.text); assert.equal(bank.json.enabled, true);
+      const bank = await call('PUT', '/api/admin/platform-pay/bank', { headers: op, body: { enabled: true, values: { account_name: 'Oprun Pty Ltd', bsb: '066-123', account_number: '12345678', payid: 'pay@example.com' } } }); assert.equal(bank.status, 200, bank.text); assert.equal(bank.json.enabled, true);
       assert.equal((await call('PUT', '/api/admin/platform-pay/bank', { headers: op, body: { values: { bsb: '12' } } })).status, 400, 'a bad BSB is refused');
       const whsec = 'whsec_' + randomBytes(16).toString('hex'), sk = 'sk_test_' + randomBytes(16).toString('hex');
       const st = await call('PUT', '/api/admin/platform-pay/stripe', { headers: op, body: { enabled: true, values: { secret_key: sk, webhook_secret: whsec } } }); assert.equal(st.json.enabled, true, st.text);

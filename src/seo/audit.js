@@ -313,7 +313,7 @@ export function auditCrawl(crawl, { psi = null, now = Date.now() } = {}) {
   }
 
   // Core Web Vitals: only from PageSpeed Insights (Google's field data from real Chrome users, or lab data).
-  if (!psi?.length) add('cwv', 'not_measured', 'not_measured', 'Core Web Vitals not measured', 'Connect PageSpeed Insights in the Google Integration Centre and run it. Super Pro does not estimate these.');
+  if (!psi?.length) add('cwv', 'not_measured', 'not_measured', 'Core Web Vitals not measured', 'Connect PageSpeed Insights in the Google Integration Centre and run it. Oprun does not estimate these.');
   else for (const r of psi) {
     const field = r.field || {}, lab = r.lab || {};
     const src = field.lcp_ms !== undefined ? 'field' : 'lab';
@@ -380,5 +380,5 @@ function finish(checks, crawl, psi, now = Date.now()) {
   const penalty = checks.reduce((s, c) => s + (W[c.level] || 0) * Math.min(3, Math.max(1, Math.ceil((c.count || 1) / 5))), 0);
   const score = crawl?.ok ? Math.max(0, Math.min(100, 100 - penalty)) : 0;
   const pages = (crawl?.pages || []).map((p) => ({ url: p.url, status: p.status, depth: p.depth, in_sitemap: p.in_sitemap, redirects: p.redirects.length, title: p.parsed?.title || '', words: p.parsed?.words || 0, ms: p.ms, error: p.error }));
-  return { score, score_note: 'A Super Pro score from the issues found in this audit, not a Google measure.', counts: { fix: checks.filter((c) => c.level === 'fix').length, improve: checks.filter((c) => c.level === 'improve').length, good: checks.filter((c) => c.level === 'good').length, not_measured: checks.filter((c) => c.level === 'not_measured').length, pages: pages.length }, categories, checks, pages, psi_used: Boolean(psi?.length), audited_at: new Date(now).toISOString() };
+  return { score, score_note: 'An Oprun score from the issues found in this audit, not a Google measure.', counts: { fix: checks.filter((c) => c.level === 'fix').length, improve: checks.filter((c) => c.level === 'improve').length, good: checks.filter((c) => c.level === 'good').length, not_measured: checks.filter((c) => c.level === 'not_measured').length, pages: pages.length }, categories, checks, pages, psi_used: Boolean(psi?.length), audited_at: new Date(now).toISOString() };
 }

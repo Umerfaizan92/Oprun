@@ -9,10 +9,10 @@
     {id:'assistant',step:'05',title:'AI Operations',group:'Intelligence',copy:'Prepare and organise AI-assisted operational work while keeping consequential actions under human approval.',actions:['Create AI task','Review approval controls']},
     {id:'approvals',title:'Approvals',group:'Operations',copy:'Review pending requests and decision history. Approval alone does not confirm external delivery.',actions:['Review pending requests']},
     {id:'video',step:'06',title:'Content studio',group:'Growth',copy:'Build platform-aware content specifications from your business media and connected channel strategy.',actions:['Choose media','Create render specification']},
-    {id:'integrations',step:'07',title:'Connections',group:'System',copy:'Connect the business channels you use. Customers never paste Super Pro platform developer secrets.',actions:['Choose a platform','Review connector readiness']},
+    {id:'integrations',step:'07',title:'Connections',group:'System',copy:'Connect the business channels you use. Customers never paste Oprun platform developer secrets.',actions:['Choose a platform','Review connector readiness']},
     {id:'governance',step:'08',title:'Trust & governance',group:'Trust',copy:'Review role-matched policies, support cases, escalations and privileged audit evidence.',actions:['Review policies','Open Help Desk']},
     {id:'support',step:'09',title:'Help & complaints',group:'Help',copy:'Open support, complaint and protected reporting pathways without blocking the workspace. The AI Co-pilot remains available everywhere.',actions:['Open Help Desk','Review complaint rights']},
-    {id:'manual',step:'10',title:'Digital user manual',group:'Guide',copy:'Use this live map, role-specific instructions and direct navigation to understand the workspace at any time.',actions:['Choose a map destination','Ask Super Pro for guidance']},
+    {id:'manual',step:'10',title:'Digital user manual',group:'Guide',copy:'Use this live map, role-specific instructions and direct navigation to understand the workspace at any time.',actions:['Choose a map destination','Ask Oprun for guidance']},
     {id:'billing',step:'11',title:'Plans & billing',group:'Account',copy:'Review trial access and plan boundaries. Paid billing stays off until checkout is deliberately activated.',actions:['Review current plan','Review plan access']}
   ];
 

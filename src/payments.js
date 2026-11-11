@@ -544,7 +544,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
       } else if (ev.type === 'charge.refunded' && obj.payment_intent) {
         const p = db.prepare(`SELECT * FROM job_payments WHERE organisation_id=? AND provider='stripe' AND reference=?`).get(org, obj.payment_intent);
         // Stripe reports the running total refunded on the charge. Only the increase since the last message is applied, so
-        // several partial refunds, repeats and refunds Super Pro already applied are each counted once (Phase 08 fix).
+        // several partial refunds, repeats and refunds Oprun already applied are each counted once (Phase 08 fix).
         if (p && ['paid', 'refunded'].includes(p.status)) {
           const total = Math.min(p.amount_cents, Number(obj.amount_refunded) || 0), delta = total - (p.refunded_cents || 0), full = total >= p.amount_cents, at = iso();
           if (delta > 0) {

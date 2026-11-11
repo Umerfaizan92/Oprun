@@ -308,7 +308,7 @@
     },
     {
       "name": "legacy-landing-390",
-      "page": "/saas/",
+      "page": "/saas/index.html",
       "width": 390,
       "status": "new",
       "ratio": 0,
@@ -318,7 +318,7 @@
     },
     {
       "name": "legacy-landing-768",
-      "page": "/saas/",
+      "page": "/saas/index.html",
       "width": 768,
       "status": "new",
       "ratio": 0,
@@ -328,7 +328,7 @@
     },
     {
       "name": "legacy-landing-1440",
-      "page": "/saas/",
+      "page": "/saas/index.html",
       "width": 1440,
       "status": "new",
       "ratio": 0,

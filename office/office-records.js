@@ -18,9 +18,9 @@
   const debounce=(fn,ms=260)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
 
   function applyPublicBrand(){
-    document.title=document.title.replaceAll('Super Pro AI Office Manager','Super Pro AI Office Manager');
+    document.title=document.title.replaceAll('Oprun','Oprun');
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    for(const n of nodes){if(!n.parentElement||['SCRIPT','STYLE','CODE','TEXTAREA','INPUT'].includes(n.parentElement.tagName))continue;let t=n.nodeValue;if(!t)continue;t=t.replaceAll('Super Pro AI Office Manager','Super Pro AI Office Manager').replaceAll('GDS Office Co-pilot','Super Pro Office Co-pilot').replaceAll('GDS workspace','Super Pro workspace');n.nodeValue=t}
+    for(const n of nodes){if(!n.parentElement||['SCRIPT','STYLE','CODE','TEXTAREA','INPUT'].includes(n.parentElement.tagName))continue;let t=n.nodeValue;if(!t)continue;t=t.replaceAll('Oprun','Oprun').replaceAll('GDS Office Co-pilot','Oprun Office Co-pilot').replaceAll('GDS workspace','Oprun workspace');n.nodeValue=t}
     $$('.fp-monogram,.brand-monogram').forEach(x=>{if(!x.querySelector('.sp-logo'))x.textContent='SP';x.classList.add('sp-monogram')});
   }
 

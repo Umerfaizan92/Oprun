@@ -17,7 +17,7 @@ const mock = http.createServer((req, res) => { let b = ''; req.on('data', (c) =>
 await new Promise((r) => mock.listen(0, '127.0.0.1', r));
 const mbase = `http://127.0.0.1:${mock.address().port}`;
 const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-const s = await startServer({ TELNYX_API_BASE_URL: mbase + '/telnyx', RESEND_API_BASE_URL: mbase + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64'), TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', SAAS_VERIFY_FROM: 'Super Pro <noreply@example.test>', PLATFORM_MAIL_FROM: 'Super Pro <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
+const s = await startServer({ TELNYX_API_BASE_URL: mbase + '/telnyx', RESEND_API_BASE_URL: mbase + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64'), TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', SAAS_VERIFY_FROM: 'Oprun <noreply@example.test>', PLATFORM_MAIL_FROM: 'Oprun <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
 const browser = await chromium.launch();
 const errors = [];
 let passed = 0;
@@ -175,9 +175,9 @@ try {
     await v.getByRole('heading', {name:'Communications overview',exact:true}).waitFor();
     assert.match(await v.textContent(), /not shown here/);
     assert.doesNotMatch(await v.textContent(), /Riley|sam@lee/, 'no business customer data in the founder view');
-    await v.getByLabel('Campaign name').fill('Super Pro product update');
-    await v.getByLabel('Subject').fill('What is new in Super Pro this month');
-    await v.getByLabel('Message').fill('Hi {first_name}, here is what changed in Super Pro this month.');
+    await v.getByLabel('Campaign name').fill('Oprun product update');
+    await v.getByLabel('Subject').fill('What is new in Oprun this month');
+    await v.getByLabel('Message').fill('Hi {first_name}, here is what changed in Oprun this month.');
     await v.getByRole('button', { name: 'Save draft' }).click();
     await v.getByText('Draft saved.').waitFor();
     assert.equal(await v.getByLabel('Channel').count(), 0, 'no channel choice for the platform');

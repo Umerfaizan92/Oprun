@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Phase 10 SEO release check on a throwaway local server: every sitemap URL answers 200 with a title, meta
 // description, canonical, one h1 and valid JSON-LD; robots.txt points to the sitemap; private pages are noindex;
-// and Super Pro's own technical audit (Founder SEO) runs end to end.
+// and Oprun's own technical audit (Founder SEO) runs end to end.
 //   node scripts/release-seo-check.mjs [--json qa/reports/release-seo.json]
 import fs from 'node:fs';
 import { startServer } from './test-server.mjs';

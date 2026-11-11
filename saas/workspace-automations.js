@@ -47,7 +47,7 @@
     if (!s.dataset.ready) {
       s.dataset.ready = '1';
       s.replaceChildren(
-        el('div', { class: 'page-heading' }, el('div', {}, el('h1', { text: 'AI Automations' }), el('p', { text: 'Let Super Pro handle routine work. Internal work runs on its own; anything that reaches customers, money or the public waits for your approval unless you have set a rule for it.' }))),
+        el('div', { class: 'page-heading' }, el('div', {}, el('h1', { text: 'AI Automations' }), el('p', { text: 'Let Oprun handle routine work. Internal work runs on its own; anything that reaches customers, money or the public waits for your approval unless you have set a rule for it.' }))),
         el('div', { class: 'au-pause', 'data-au-pause': '' }),
         el('div', { class: 'au-tabs', role: 'tablist', 'aria-label': 'Automation sections' }, [['flows', 'Automations'], ['runs', 'Activity'], ['outputs', 'Suggestions & reports'], ['rules', 'Rules & safety'], ['audit', 'Audit report']].map(([k, t]) => el('button', { type: 'button', role: 'tab', class: 'portal-button', 'data-au-tab': k, 'aria-selected': String(k === tab), onclick: () => { tab = k; render(); } }, t))),
         el('p', { class: 'portal-note pl-status', role: 'status', 'aria-live': 'polite', 'data-au-status': '' }),
@@ -74,7 +74,7 @@
     host.replaceChildren();
     if (p.paused) {
       host.append(el('div', { class: 'au-paused', role: 'alert' },
-        el('strong', { text: p.scope === 'platform' ? 'Automations are paused for every business by Super Pro support.' : 'All automations are paused.' }),
+        el('strong', { text: p.scope === 'platform' ? 'Automations are paused for every business by Oprun support.' : 'All automations are paused.' }),
         el('span', { text: (p.reason ? ` Reason: ${p.reason}.` : '') + ' Nothing runs until they are resumed; waiting work is kept.' }),
         p.scope === 'business' && ownerish() ? el('button', { type: 'button', class: 'portal-button primary', text: 'Resume automations', onclick: (e) => busy(e.target, async () => { const r = await api('/api/saas/automation/pause', { method: 'POST', body: JSON.stringify({ paused: false }) }); say(`Automations resumed.${r.resumed ? ` ${r.resumed} held task(s) are running now.` : ''}`); await render(); }) }) : null));
     }
@@ -178,7 +178,7 @@
       if (always.checked && lv < 3) lv = 3;
       levelBox.append(levelChip(lv), el('p', { class: 'pl-meta', text: LEVEL_HELP[lv] }));
       if (a.level === 2) levelBox.append(el('p', { class: 'pl-meta', text: `Rule "${rule?.label}": ${rule?.enabled ? 'on, so it can run on its own.' : 'off, so each one waits for approval. Switch it on in Rules & safety.'}` }));
-      if (a.manual) levelBox.append(el('p', { class: 'pl-meta', text: 'After approval a person carries it out and marks it done. Super Pro does not do it for you.' }));
+      if (a.manual) levelBox.append(el('p', { class: 'pl-meta', text: 'After approval a person carries it out and marks it done. Oprun does not do it for you.' }));
       if (a.effect !== 'output') levelBox.append(el('p', { class: 'pl-meta', text: 'If customer text looks like instructions to the system, this always waits for approval.' }));
     }
     function collect() {
@@ -202,13 +202,13 @@
       el('div', { class: 'pl-card-head' }, el('h2', { text: existing ? `Edit "${existing.name}"` : 'New automation' }), el('button', { type: 'button', class: 'portal-button', text: 'Close', onclick: () => holder.replaceChildren() })),
       el('label', {}, 'Name', name),
       el('ol', { class: 'au-steps' },
-        step(1, 'Proposed action', 'What Super Pro prepares or does. The action is fixed here: AI can never pick a different one.', action, paramBox),
+        step(1, 'Proposed action', 'What Oprun prepares or does. The action is fixed here: AI can never pick a different one.', action, paramBox),
         step(2, 'Trigger', 'When it starts.', trigger),
         step(3, 'Conditions', 'Only continue when these are true. Leave empty to always continue.', condBox),
         step(4, 'Analysis', 'How the details are worked out. Customer text is treated as data, never as instructions.', analysis),
         step(5, 'Approval', null, levelBox, el('label', { class: 'pl-check' }, always, 'Always ask me first'), el('label', {}, 'Approval requests expire after (hours)', expires)),
         step(6, 'Execution', 'Runs once per event (no duplicates), is retried at most 3 times if a service fails, and stops at once when you pause automations.'),
-        step(7, 'Verification', 'After running, Super Pro checks the result really happened and shows it in Activity. Anything that does not check out is flagged.')),
+        step(7, 'Verification', 'After running, Oprun checks the result really happened and shows it in Activity. Anything that does not check out is flagged.')),
       el('label', {}, 'Version note', note),
       el('div', { class: 'pl-actions' }, save, test), result);
     f.addEventListener('submit', async (e) => {

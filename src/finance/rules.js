@@ -1,5 +1,5 @@
 // Phase 08: Australian tax and record-keeping rules as versioned configuration, plus the pure calculations that use them.
-// Every rule names the authoritative source it was taken from and the date it was last reviewed by a person. Super Pro
+// Every rule names the authoritative source it was taken from and the date it was last reviewed by a person. Oprun
 // applies these rules mechanically; it does not give tax or legal advice, and nothing an AI writes overrides them.
 // To change a rule, add a new ruleset with a later effective date. Never edit a published one: issued documents record
 // the ruleset id they were checked against.
@@ -9,7 +9,7 @@ export const RULESETS = Object.freeze([
     id: 'AU-2026.10',
     effective_from: '2000-07-01',
     reviewed_at: '2026-10-30',
-    reviewed_by: 'Super Pro engineering (not a tax agent). Owner review required before relying on it.',
+    reviewed_by: 'Oprun engineering (not a tax agent). Owner review required before relying on it.',
     gst: { rate: 0.1, registration_turnover_cents: 7500000, registration_turnover_non_profit_cents: 15000000 },
     tax_invoice: {
       no_invoice_needed_up_to_cents: 8250, // GST-inclusive; a tax invoice need not be provided on request at or below this
@@ -121,5 +121,5 @@ export function basDraft({ sales = [], purchases = [], adjustments = [] }) {
   const sum = (a, k) => a.reduce((s, x) => s + (Number(x[k]) || 0), 0);
   const g1 = sum(sales, 'inc_cents') - sum(adjustments, 'inc_cents');
   const gstFree = sales.filter((s) => !s.gst_cents).reduce((s, x) => s + x.inc_cents, 0);
-  return { G1_total_sales_cents: g1, G3_gst_free_sales_cents: gstFree, '1A_gst_on_sales_cents': sum(sales, 'gst_cents') - sum(adjustments, 'gst_cents'), '1B_gst_on_purchases_cents': sum(purchases, 'gst_cents'), net_gst_cents: sum(sales, 'gst_cents') - sum(adjustments, 'gst_cents') - sum(purchases, 'gst_cents'), note: 'Draft figures from your Super Pro records. Check them and lodge through the ATO or your registered tax or BAS agent. Super Pro does not give tax advice.' };
+  return { G1_total_sales_cents: g1, G3_gst_free_sales_cents: gstFree, '1A_gst_on_sales_cents': sum(sales, 'gst_cents') - sum(adjustments, 'gst_cents'), '1B_gst_on_purchases_cents': sum(purchases, 'gst_cents'), net_gst_cents: sum(sales, 'gst_cents') - sum(adjustments, 'gst_cents') - sum(purchases, 'gst_cents'), note: 'Draft figures from your Oprun records. Check them and lodge through the ATO or your registered tax or BAS agent. Oprun does not give tax advice.' };
 }

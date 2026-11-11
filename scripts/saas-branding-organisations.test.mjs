@@ -70,11 +70,11 @@ try{
   }
   let response=await api('/api/saas/branding');
   assert.equal(response.status,200);
-  assert.equal(response.body?.branding?.display_name,'Super Pro AI Office Manager');
+  assert.equal(response.body?.branding?.display_name,'Oprun');
   assert.equal(response.body?.branding?.theme,'system');
   response=await api('/api/saas/branding?organisation_id='+orgC);
   assert.equal(response.status,200);
-  assert.equal(response.body?.branding?.brand_name,'Super Pro AI Office Manager','public query cannot reveal tenant brand');
+  assert.equal(response.body?.branding?.brand_name,'Oprun','public query cannot reveal tenant brand');
   response=await api('/api/saas/my-organisations');
   assert.equal(response.status,401);
   response=await api('/api/saas/my-organisations',{cookie:memberCookie});

@@ -1,5 +1,5 @@
 // Phase 06 Module A: the technical audit engine against real HTTP servers (a fixture site with known problems, and the
-// Super Pro public site served by the real application).
+// Oprun public site served by the real application).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -86,7 +86,7 @@ test('parsers: sitemap index and page facts', () => {
   assert.equal(p.robots, 'noindex'); assert.equal(p.canonical, 'https://x.test/c'); assert.equal(p.mixed_content, 1); assert.deepEqual(p.links.map((l) => l.abs), ['https://x.test/x']);
 });
 
-test('the real Super Pro public site, served by the application, audits without crawl errors', async (t) => {
+test('the real Oprun public site, served by the application, audits without crawl errors', async (t) => {
   const s = await startServer(); t.after(() => s.stop());
   const crawl = await crawlSite(s.base + '/', { ownSite: true, maxPages: 25, checkExternal: 0 });
   assert.equal(crawl.ok, true);

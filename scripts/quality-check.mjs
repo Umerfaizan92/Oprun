@@ -10,7 +10,7 @@ const required=[
   'saas/index.html','saas/workspace.html','saas/product-guide.js','saas/intro.js','saas/workspace-ai-runtime.js','saas/app.js',
   'saas/ai-operations.js','saas/approvals.js','saas/integration-manager.js','saas/platform-notices.js','saas/common.js','saas/install.js','saas/workspace-extras.js','saas/worker-onboarding.html','saas/worker-onboarding.js',
   'saas/brand.css','saas/experience.css','saas/public-sections.css','saas/public-voice-install.css','saas/workspace-theme.css',
-  'saas/manifest.webmanifest','saas/sw.js','saas/superpro-icon-192.png','saas/superpro-icon-512.png',
+  'saas/manifest.webmanifest','saas/sw.js','saas/oprun-icon-192.png','saas/oprun-icon-512.png',
   'office/index.html','office/office.js','office/office-extras.js','office/office-records.js','office/office-insights.js',
   'office/office-theme.css','office/office-records.css','office/office-layout.css','office/office-insights.css'
 ];
@@ -24,7 +24,7 @@ const obsolete=[
 add('cleanup:no-obsolete-runtime-files',obsolete.every(f=>!exists(f)));
 
 const index=read('saas/index.html'),workspace=read('saas/workspace.html'),guide=read('saas/product-guide.js'),intro=read('saas/intro.js'),workspaceAi=read('saas/workspace-ai-runtime.js'),approvalsUi=read('saas/approvals.js'),integrationManager=read('saas/integration-manager.js'),platformNotices=read('saas/platform-notices.js'),workerOnboarding=read('saas/worker-onboarding.js'),workforceCompliance=read('src/workforce-compliance.js'),app=read('saas/app.js'),ops=read('saas/ai-operations.js'),server=read('src/server.js'),shim=read('src/ai-provider-shim.js'),integrationRuntime=read('src/integration-runtime.js'),sw=read('saas/sw.js'),office=read('office/index.html'),db=read('src/db.js'),render=read('render.yaml');
-add('brand:super-pro',index.includes('Super Pro AI Office Manager')&&office.includes('Super Pro AI Office Manager'));
+add('brand:super-pro',index.includes('Oprun')&&office.includes('Oprun'));
 add('runtime:single-guide',index.includes('product-guide.js')&&!index.includes('guide-v16')&&!index.includes('guide-v17'));
 add('runtime:current-workspace-ai',workspace.includes('ai-operations.js')&&workspace.includes('workspace-extras.js'));
 add('runtime:current-common',index.includes('common.js')&&workspace.includes('common.js'));

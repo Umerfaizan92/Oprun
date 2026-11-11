@@ -2,7 +2,7 @@
 // payment links and status, refund requests, bank reconciliation, reports, follow-ups and unusual-activity flags.
 //
 // Money model (unchanged from earlier phases): every payment is a job_payments row on a job (work_orders), taken through
-// the business's OWN Stripe or PayPal account, its bank account, or recorded by staff. Super Pro never holds a business's
+// the business's OWN Stripe or PayPal account, its bank account, or recorded by staff. Oprun never holds a business's
 // money and keeps no stored balance for anyone. Invoices are tenant_documents linked to the job they bill.
 //
 // Rules: issued documents never change. Corrections are made with an adjustment note. Refunds, credit notes and other
@@ -492,7 +492,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     return { counts: { unmatched: counts.unmatched || 0, matched: counts.matched || 0, categorised: counts.categorised || 0, ignored: counts.ignored || 0 }, lines, recorded_not_in_bank: lastImport ? recordedNoBank : [], last_import: lastImport, categories: CATEGORIES, note: 'Matches are suggestions until you confirm them. Stripe and PayPal pay out in batches, so match those payouts as "Customer payment" and check the payout report in your provider.' };
   }
 
-  // ---------------- discrepancies, follow-ups, flags (Super Pro suggestions) ----------------
+  // ---------------- discrepancies, follow-ups, flags (Oprun suggestions) ----------------
   function discrepancies(org) {
     const out = [];
     for (const j of db.prepare("SELECT w.id,w.title,w.paid_cents,w.price_cents,(SELECT COALESCE(SUM(amount_cents-refunded_cents),0) FROM job_payments p WHERE p.work_order_id=w.id AND p.organisation_id=w.organisation_id AND p.status IN ('paid','refunded')) received FROM work_orders w WHERE w.organisation_id=?").all(org)) {
@@ -518,7 +518,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       const reminders = db.prepare("SELECT COUNT(*) n FROM payment_notices WHERE organisation_id=? AND work_order_id=? AND kind LIKE '%reminder%' AND channel<>'in_app'").get(org, d.work_order_id).n;
       const history = db.prepare("SELECT AVG(julianday(p.paid_at)-julianday(w.invoice_issued_at)) d FROM job_payments p JOIN work_orders w ON w.id=p.work_order_id WHERE p.organisation_id=? AND p.customer_id=? AND p.status='paid' AND w.invoice_issued_at IS NOT NULL").get(org, d.customer_id || '')?.d;
       const action = days >= 45 ? 'Call the customer, then send a final notice that names a date. Consider a payment plan or your debt recovery options.' : days >= 21 ? 'Call the customer and agree a date to pay.' : reminders ? 'Send a second, firmer reminder with the payment link.' : 'Send a friendly reminder with the payment link.';
-      out.push({ document_id: d.id, number: d.number, customer: c.name || '', owing_cents: m.owing_cents, days_overdue: days, reminders_sent: reminders, usual_days_to_pay: history ? Math.round(history) : null, recommendation: action, basis: 'Super Pro suggestion from your records. You decide what to send.' });
+      out.push({ document_id: d.id, number: d.number, customer: c.name || '', owing_cents: m.owing_cents, days_overdue: days, reminders_sent: reminders, usual_days_to_pay: history ? Math.round(history) : null, recommendation: action, basis: 'Oprun suggestion from your records. You decide what to send.' });
     }
     return out.sort((a, b) => b.days_overdue - a.days_overdue);
   }
@@ -579,7 +579,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     if (rc.counts.unmatched) points.push(`${rc.counts.unmatched} bank line(s) still need reconciling.`);
     if (fl) points.push(`${fl} item(s) are flagged for checking.`);
     const top = [...pl.expenses].sort((a, b) => b.amount_cents - a.amount_cents)[0]; if (top) points.push(`Your largest expense category was ${top.category} (${money(top.amount_cents)}).`);
-    return { points, generated_at: now(), basis: 'Summary of your Super Pro records, written by Super Pro. It is not financial, tax or legal advice.' };
+    return { points, generated_at: now(), basis: 'Summary of your Oprun records, written by Oprun. It is not financial, tax or legal advice.' };
   }
   function csv(rows, cols) { const esc = (v) => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; return [cols.map(([, h]) => h).join(','), ...rows.map((r) => cols.map(([k, , f]) => esc(f ? f(r[k], r) : r[k])).join(','))].join('\n'); }
 
@@ -602,7 +602,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       if (!lines.length && j.price_cents > 0) { lines.push({ description: j.title, quantity: 1, unit_cents: toUnit(j.price_cents), tax_code: code }); why.push('One line for the agreed job price.'); }
     }
     if (!lines.length) return E(409, 'The job has no price, hours or materials to invoice. Add them first.');
-    const r = create(org, actor, { kind: 'invoice', customer_id: j.customer_id, title: j.title, lines, work_order_id: j.id, ai_prepared: true, body: 'Prepared by Super Pro from the job record. Check every line before approving.' });
+    const r = create(org, actor, { kind: 'invoice', customer_id: j.customer_id, title: j.title, lines, work_order_id: j.id, ai_prepared: true, body: 'Prepared by Oprun from the job record. Check every line before approving.' });
     return r.ok ? { ...r, explanation: why } : r;
   }
 
@@ -624,12 +624,12 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     else if (rc.counts.unmatched) add('review', 'Reconciliation', `${rc.counts.unmatched} bank line(s) are not reconciled.`);
     else add('ok', 'Reconciliation', 'Every imported bank line is reconciled.');
     const pay = (() => { try { return db.prepare('SELECT stripe_secret_enc IS NOT NULL stripe, paypal_client_id IS NOT NULL paypal, bank_bsb IS NOT NULL bank FROM payment_settings WHERE organisation_id=?').get(org) || {}; } catch { return {}; } })();
-    add('ok', 'Payments', `Card payments go straight to your own ${pay.stripe ? 'Stripe' : ''}${pay.stripe && pay.paypal ? ' and ' : ''}${pay.paypal ? 'PayPal' : ''}${!pay.stripe && !pay.paypal ? 'payment provider (none connected yet)' : ''} account. Super Pro never holds your customers' money and keeps no stored balance.`);
+    add('ok', 'Payments', `Card payments go straight to your own ${pay.stripe ? 'Stripe' : ''}${pay.stripe && pay.paypal ? ' and ' : ''}${pay.paypal ? 'PayPal' : ''}${!pay.stripe && !pay.paypal ? 'payment provider (none connected yet)' : ''} account. Oprun never holds your customers' money and keeps no stored balance.`);
     add('ok', 'Records', `Issued invoices, adjustment notes and payment records cannot be deleted here. Keep business records for at least ${rulesFor().records.retain_years} years.`);
-    add('review', 'Privacy', "Customer contact details and payment records are personal information. Your privacy policy should say how you collect, use and store them. Card numbers are never stored by Super Pro (Stripe holds them).");
+    add('review', 'Privacy', "Customer contact details and payment records are personal information. Your privacy policy should say how you collect, use and store them. Card numbers are never stored by Oprun (Stripe holds them).");
     const open = db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n;
     if (open) add('review', 'Unusual activity', `${open} flagged item(s) are open.`, 'Review them in Money > Compliance & Audit.');
-    return { items, ruleset: rulesFor(), disclaimer: 'Super Pro checks your records against the published rules listed here. It is not tax or legal advice. Confirm anything you are unsure about with the ATO or a registered tax agent.' };
+    return { items, ruleset: rulesFor(), disclaimer: 'Oprun checks your records against the published rules listed here. It is not tax or legal advice. Confirm anything you are unsure about with the ATO or a registered tax agent.' };
   }
   function auditTrail(org, { limit = 200 } = {}) {
     return db.prepare("SELECT created_at,user_id,user_name,action,entity_type,entity_id,metadata_json metadata FROM audit_logs WHERE organisation_id=? AND (module IN ('finance','payments') OR action LIKE 'payment.%' OR action LIKE 'invoice.%' OR action LIKE 'finance.%') ORDER BY created_at DESC, rowid DESC LIMIT ?").all(org, Math.min(1000, limit)).map((r) => ({ ...r, metadata: J(r.metadata, {}) }));

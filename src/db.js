@@ -1225,7 +1225,7 @@ export function createDb(databasePath = resolveDatabasePath()) {
 
   const policyNow = new Date().toISOString();
   const policySeed = [
-    ['privacy','Privacy & Personal Information','all','all','1.0','Privacy handling, access, security, retention and complaint pathways.','Super Pro AI Office Manager is designed to support organisation-scoped privacy controls, access restrictions, retention decisions, correction/export workflows and incident response. Australian Privacy Act and APP obligations depend on the entity and circumstances; this template requires legal review before commercial reliance.',1,'Australian Privacy Principles / OAIC guidance'],
+    ['privacy','Privacy & Personal Information','all','all','1.0','Privacy handling, access, security, retention and complaint pathways.','Oprun is designed to support organisation-scoped privacy controls, access restrictions, retention decisions, correction/export workflows and incident response. Australian Privacy Act and APP obligations depend on the entity and circumstances; this template requires legal review before commercial reliance.',1,'Australian Privacy Principles / OAIC guidance'],
     ['complaints','Complaints & Fair Resolution','all','all','1.0','A clear pathway to raise concerns, receive a reference, track progress and escalate serious matters.','Complaints should be acknowledged, triaged, handled fairly, protected from inappropriate access and escalated when serious. Automated triage may assist routing, but consequential outcomes require authorised human review.',1,'Governance template; sector-specific review required'],
     ['acceptable-use','Acceptable Use & Security','all','staff','1.0','Rules for accounts, credentials, customer data, integrations, devices and prohibited misuse.','Users must protect credentials, use only authorised access, avoid exporting or disclosing information without authority, and report suspected compromise promptly. Privileged access should use MFA and least-privilege controls.',1,'Security governance template'],
     ['ai-governance','AI & Automated Decision Governance','all','all','1.0','Human oversight, transparency and restrictions for consequential AI-assisted actions.','AI may draft, classify, summarise and recommend. Employment, legal, financial, safety, privacy, complaint outcomes and other consequential decisions require authorised human review. Significant automated decisions involving personal information require additional transparency where applicable.',1,'Privacy/AI governance template'],
@@ -1399,7 +1399,7 @@ export function createDb(databasePath = resolveDatabasePath()) {
 
 
 
-  // Tenant-scoped approval control plane for Super Pro workspaces.
+  // Tenant-scoped approval control plane for Oprun workspaces.
   db.exec(`
     CREATE TABLE IF NOT EXISTS workspace_approvals (
       id TEXT PRIMARY KEY,

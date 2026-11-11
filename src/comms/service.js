@@ -30,7 +30,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   migrateComms(db);
   const isPlatform = (k) => k === 'platform';
   const secret = () => String(env.SESSION_SECRET || env.SAAS_SESSION_SECRET || 'dev-unsubscribe-secret');
-  const business = (org) => (isPlatform(org) ? { name: 'Super Pro AI Office Manager', abn: env.SUPERPRO_ABN || '', address: env.SUPERPRO_POSTAL_ADDRESS || '' } : (() => { const o = db.prepare('SELECT COALESCE(display_name,name) name, abn, address_formatted FROM organisations WHERE id=?').get(org) || {}; return { name: o.name || 'Our business', abn: o.abn || '', address: o.address_formatted || '' }; })());
+  const business = (org) => (isPlatform(org) ? { name: 'Oprun', abn: env.SUPERPRO_ABN || '', address: env.SUPERPRO_POSTAL_ADDRESS || '' } : (() => { const o = db.prepare('SELECT COALESCE(display_name,name) name, abn, address_formatted FROM organisations WHERE id=?').get(org) || {}; return { name: o.name || 'Our business', abn: o.abn || '', address: o.address_formatted || '' }; })());
 
   // ---------------- conversation analysis (runs on every inbound message) ----------------
   function customerFor(org, channel, address) {
@@ -266,7 +266,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const c = db.prepare('SELECT owner_key,sent_at FROM comms_campaigns WHERE id=?').get(id);
     const replies = c?.sent_at && !isPlatform(c.owner_key) ? db.prepare("SELECT COUNT(DISTINCT m.thread_id) n FROM comms_thread_meta m WHERE m.campaign_id=?").get(id).n : 0;
     const enquiries = c?.sent_at && !isPlatform(c.owner_key) ? db.prepare("SELECT COUNT(*) n FROM tenant_documents d WHERE d.organisation_id=? AND d.kind='enquiry' AND d.created_at>=? AND d.created_at<=? AND d.customer_id IN (SELECT customer_id FROM comms_campaign_recipients WHERE campaign_id=? AND status='sent')").get(c.owner_key, c.sent_at, iso(Date.parse(c.sent_at) + 30 * 86400000), id).n : 0;
-    return { recipients: r.recipients || 0, sent: r.sent || 0, failed: r.failed || 0, delivered, opened, clicked: r.clicked || 0, unsubscribed: r.unsubscribed || 0, replies, enquiries_30d: enquiries, note: 'From provider receipts and Super Pro records. Opens are a tracking signal and undercount (many apps block it).' };
+    return { recipients: r.recipients || 0, sent: r.sent || 0, failed: r.failed || 0, delivered, opened, clicked: r.clicked || 0, unsubscribed: r.unsubscribed || 0, replies, enquiries_30d: enquiries, note: 'From provider receipts and Oprun records. Opens are a tracking signal and undercount (many apps block it).' };
   }
   function compliance(c) {
     const issues = [];

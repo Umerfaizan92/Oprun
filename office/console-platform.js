@@ -91,7 +91,7 @@
           table([['profile', 'Complimentary profile', label], ['count', 'Businesses']], d.feature_access.complimentary_grants_by_profile, 'No complimentary grants.'))
       );
     },
-    // Phase 06: SEO Command Centre, audit, clusters, Google, content, analytics and reports for Super Pro's own website.
+    // Phase 06: SEO Command Centre, audit, clusters, Google, content, analytics and reports for Oprun's own website.
     async 'platform/seo'(host, api) {
       if (!window.SuperProSeo) { host.append(note('The SEO module did not load. Reload the page.')); return; }
       await window.SuperProSeo.mount(host, '/api/operator/seo', api).render('seocentre');
@@ -106,7 +106,7 @@
       if (!window.SuperProFinance) { host.append(note('The billing module did not load. Reload the page.')); return; }
       await window.SuperProFinance.mountFounder(host, api).render('founder');
     },
-    // Phase 07: Super Pro newsletter campaigns (platform subscribers only) and a counts-only communications overview.
+    // Phase 07: Oprun newsletter campaigns (platform subscribers only) and a counts-only communications overview.
     async 'platform/campaigns'(host, api) {
       if (!window.SuperProComms) { host.append(note('The campaigns module did not load. Reload the page.')); return; }
       await window.SuperProComms.mountFounder(host, api).render('campaignstudio');

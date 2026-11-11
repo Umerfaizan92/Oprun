@@ -27,7 +27,7 @@ export function createAutomation({ db, runtime, notify, decrypt, persist, audit 
         const msg = String(err?.message || err).slice(0, 300);
         stamp({ last_test_status: 'fail', last_test_error: msg });
         audit({ organisation_id: row.organisation_id, action: 'integration.daily_check', module: 'integration', entity_type: 'integration', entity_id: row.provider, metadata: { ok: false, error: msg } });
-        await notify.notifyRoles(row.organisation_id, ['owner', 'admin'], { kind: 'connection', title: `Reconnect ${row.display_name || row.provider}`, body: 'Super Pro could not reach this platform, so scheduled posts and messages may stop. Open Connections and sign in again.', link: '#marketing/connections', urgent: true, dedupe: `conn:${row.provider}:${day()}` });
+        await notify.notifyRoles(row.organisation_id, ['owner', 'admin'], { kind: 'connection', title: `Reconnect ${row.display_name || row.provider}`, body: 'Oprun could not reach this platform, so scheduled posts and messages may stop. Open Connections and sign in again.', link: '#marketing/connections', urgent: true, dedupe: `conn:${row.provider}:${day()}` });
       }
     }
     return failed;
