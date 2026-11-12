@@ -6,6 +6,10 @@ const read = file => fs.readFileSync(new URL('../saas/'+file,import.meta.url),'u
 async function fixture(mobile=true) {
   const dom=new JSDOM(read('workspace.html'),{url:'https://preview.example.test/saas/workspace.html#today/home',runScripts:'outside-only',pretendToBeVisual:true});
   const w=dom.window;w.CSS={escape:s=>String(s)};
+  const observers=[],Observer=w.MutationObserver;let disposed=false;
+  w.MutationObserver=class extends Observer {constructor(callback){super(callback);observers.push(this)}};
+  const frame=w.requestAnimationFrame.bind(w);
+  w.requestAnimationFrame=callback=>frame(time=>{if(!disposed)callback(time)});
   const media={matches:mobile,listeners:[],addEventListener(type,fn){this.listeners.push(fn)}};
   w.matchMedia=()=>media;w.ResizeObserver=class {observe(){} disconnect(){}};
   w.HTMLElement.prototype.scrollIntoView=function(){};
@@ -23,7 +27,7 @@ async function fixture(mobile=true) {
     w.document.querySelectorAll('.view').forEach(v=>v.hidden=v!==root);
     w.dispatchEvent(new w.CustomEvent('gds:viewchange',{detail:{view}}));await flush();return root;
   };
-  return {dom,w,media,flush,activate,close:()=>w.close()};
+  return {dom,w,media,flush,activate,close:()=>{disposed=true;observers.forEach(observer=>observer.disconnect());w.close()}};
 }
 test('all 60 canonical pages and aliases keep the correct permission-filtered mobile area navigation',async()=>{
   const f=await fixture();try{
