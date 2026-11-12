@@ -267,9 +267,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: saas/workspace-voicebar.js;saas/workspace-redesign.css;saas/workspace.html;scripts/test-redesign-ui.mjs;docs/redesign
 - Acceptance: Greeting before AI; mobile AI less than40percent viewport at normal text; all type/voice/send/chip controls remain; metrics/readiness/nextstep and role rules retained; route/security checks and responsive CI pass; exact requested main commit
 
-## T-086 Fix failed Render build of a5b3e93 (flaky Level 3 approval test)
-- Status: NOT_STARTED
-- Added: 2026-11-12
-- Requirement: Owner: last manual deploy failed on Render; audit, fix, run live test
-- Files: scripts/automation-governance.test.mjs,scripts/verify-all.mjs
-- Acceptance: npm test passes; Render deploy of the fix is live; startup diagnostics pass
