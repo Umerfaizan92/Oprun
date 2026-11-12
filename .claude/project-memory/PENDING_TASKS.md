@@ -301,3 +301,18 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner: keep existing ChatGPT bottom menu bar, only make it smaller and auto-fit sub-sections with no sideways scroll; minimise notification settings behind a small Notification settings option and reorganise the panel professionally; send phone notifications (even when app closed) for every activity update such as job enquiries, not logs; prompt for notification permission right after sign-in/install; voice alerts
 - Files: saas/workspace-mobile.css,saas/platform-notices.js,saas/workspace-push.js,saas/sw.js,saas/common.js,src/web-push.js,src/notifications.js,src/server.js,package.json
 - Acceptance: No horizontal scroll in dock at 320/390; settings collapsed by default and auto-save; push subscribe/send tested; npm test and UI suites pass; deployed
+
+## T-091 Prompt 01: Final Command Centre refinement
+- Status: TESTING
+- Added: 2026-11-12
+- Requirement: Owner prompt 'OPRUN FINAL COMMAND CENTRE REFINEMENT' (12 Nov 2026): 1 greeting keep, remove name/role/email under it; 2 Open Job Pool + Ask AI side by side compact; 3 remove '<name> right now' line, keep/enhance live status; 4 five live sections compact; 5 move Your Workspace menu to dedicated features destination; 6 remove Your Next Step section; 7 enhance AI command bar; 8 premium minimal footer reusable; 9 fix bottom nav movement (scroll/resize/keyboard, safe area, no overlap); 10 rename bottom Menu to All Features. Preserve colours, routes, RBAC, tenant isolation. PR only, no merge/deploy without approval. Await Prompt 02.
+- Files: saas/workspace.html,saas/workspace-gadgets.js,saas/workspace-mobile.*,saas/app.js,saas/*.css
+- Acceptance: All 10 changes verified at 320-1920px; npm test + UI suites; PR opened, not merged
+
+## T-092 Prompt 02: Your Workspace section and Priorities (renamed Attention items)
+- Status: TESTING
+- Added: 2026-11-12
+- Requirement: Owner Prompt 02 (12 Nov): Your Workspace after Business overview with all features compact and connected; rename Attention items, keep only Your Next Step (3 cards) and AI Operations Brief, enhanced; hide header/chatbot/AI bar there; preserve routes; PR only
+- Files: saas/command-centre-sections.js,saas/command-centre.css,saas/workspace.html,saas/focused-workspace.js,saas/page-sections.js,saas/workspace-mobile.js
+- Acceptance: Both sections verified 320-1440 incl. axe; npm test; PR opened, not merged
+

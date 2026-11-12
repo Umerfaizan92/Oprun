@@ -47,6 +47,18 @@
     }
 
   }
+  // All Features: the workspace shortcut collection (moved off the Command Centre) sits at the top of the navigation
+  // drawer, above every group. It is rebuilt each time the drawer opens, so it always follows the person's permissions.
+  let featureBox;
+  function installFeatures() {
+    if (!shell?.nav || featureBox) return;
+    featureBox = make('div', 'drawer-features'); featureBox.id = 'all-features';
+    shell.nav.before(featureBox);
+    featureBox.addEventListener('click', e => { if (e.target.closest('[data-jump]')) setTimeout(() => shell.setDrawer(false, false), 0); });
+    const paintFeatures = () => { const links = window.OprunFeatureShortcuts?.('All features', 'Jump straight to a workspace area'); featureBox.replaceChildren(...(links ? [links] : [])); featureBox.hidden = !links; };
+    new MutationObserver(() => { if (rail.dataset.drawer === 'true') paintFeatures(); }).observe(rail, { attributes: true, attributeFilter: ['data-drawer'] });
+    paintFeatures();
+  }
   function rebuild() {
     const nav = window.SuperProNav, session = window.GDS_SESSION; if (!nav || !session || !window.SuperProNavigation) return;
     if (!rail) {
@@ -83,7 +95,7 @@
     if (contextKey !== key) { contextKey = key; shell.key = key; let compact = false; try { compact = localStorage.getItem(key) === 'collapsed'; } catch {} shell.setCollapsed(compact); }
     const allowed = new Set(nav.sequence(session.user.role));
     shell.setGroups(nav.DOMAINS.map(d => ({ id: d.id, label: d.label, attribute: 'data-domain', icon: () => { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', '#' + d.icon); svg.append(use); return svg; }, pages: d.items.filter(i => allowed.has(i.view)).map(i => ({ id: i.view, path: i.path, label: i.label, badge: i.badge, secondary: i.secondary })) })).filter(d => d.pages.length));
-    shell.setActive(active); syncBadges(); breadcrumb(active); workflowContext(active);
+    shell.setActive(active); syncBadges(); breadcrumb(active); workflowContext(active); installFeatures();
   }
   function syncBadges() { rail?.querySelectorAll('[data-badge-source]').forEach(e => { const text = document.getElementById(e.dataset.badgeSource)?.textContent || ''; if (e.textContent !== text) e.textContent = text; }); }
   window.addEventListener('superpro:nav-ready', rebuild); window.addEventListener('superpro:access-changed', rebuild);

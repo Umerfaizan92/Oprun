@@ -8,19 +8,29 @@
   const bar=document.createElement('section');bar.id='sp-askbar';bar.className='sp-askbar';bar.setAttribute('aria-label','Ask Oprun');
   bar.innerHTML=`<div class="sp-ask-head"><h2>What would you like done today?</h2><p class="sp-ask-status" role="status" aria-live="polite"><span class="pulse-dot"></span><span data-ask-state>Ready</span></p></div>
   <form class="sp-ask-form" autocomplete="off"><label class="sr-only" for="sp-ask-input">Ask Oprun</label>
-  <input id="sp-ask-input" type="text" placeholder="Type a request, or press the microphone and speak" maxlength="2000"/>
+  <input id="sp-ask-input" type="text" placeholder="Type a request, or press the microphone and speak" maxlength="2000" enterkeyhint="send" autocapitalize="sentences" spellcheck="true" aria-describedby="sp-ask-hint"/>
   <button type="button" class="sp-ask-mic" aria-pressed="false" aria-label="Speak your request" title="Speak your request"${voiceAvailable?'':' disabled'}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>${voiceAvailable?'Speak':'Voice unavailable'}</span></button>
-  <button type="submit" class="primary-button sp-ask-send">Send</button></form>
+  <button type="submit" class="primary-button sp-ask-send" aria-disabled="true">Send</button></form><p class="sp-ask-hint" id="sp-ask-hint">Enter sends · Esc clears · anything that sends, publishes or pays still waits for your approval.</p>
   <div class="sp-ask-chips" role="group" aria-label="Quick requests"><button type="button" data-q="What needs my attention today?">What needs attention today</button><button type="button" data-q="Draft replies to new enquiries for my approval.">Draft replies for approval</button><button type="button" data-q="Which workers have compliance documents expiring soon?">Expiring compliance</button><button type="button" data-q="Summarise this week's jobs and income.">This week's jobs and income</button></div>`;
   // Keep the original greeting, operational sections and next steps ahead of AI.
   view.append(bar);
   const state=bar.querySelector('[data-ask-state]'),dot=bar.querySelector('.pulse-dot'),input=bar.querySelector('#sp-ask-input'),mic=bar.querySelector('.sp-ask-mic'),form=bar.querySelector('form');
   const set=(text,kind)=>{state.textContent=text;dot.className='pulse-dot'+(kind?' '+kind:'')};
+  // Prompt 01 #7: clear working / answered / problem states while Ask Oprun prepares the answer.
+  const sendButton=bar.querySelector('.sp-ask-send');let pending=null;
+  const syncSend=()=>sendButton.setAttribute('aria-disabled',String(!input.value.trim()));
+  const settle=(text,kind)=>{clearTimeout(pending);pending=null;bar.removeAttribute('aria-busy');set(text,kind);syncSend()};
   function send(text){
-    text=String(text||'').trim();if(!text)return;
+    text=String(text||'').trim();if(!text){input.focus();set('Type or say what you need first.','warn');return}
+    clearTimeout(pending); // a newer request replaces the one still being prepared
+    bar.setAttribute('aria-busy','true');set('Working on it…','info');
+    pending=setTimeout(()=>settle('Still working. The answer will appear in Ask Oprun.','warn'),20000);
     window.dispatchEvent(new CustomEvent('superpro:ask',{detail:{question:text}}));
-    input.value='';set('Opened AI conversation');
+    input.value='';syncSend();
   }
+  window.addEventListener('superpro:ask-status',e=>{if(!pending)return;const st=e.detail?.state;if(st==='answered'){bar.dataset.answered='1';setTimeout(()=>{delete bar.dataset.answered},12000);settle('Answer ready in Ask Oprun')}else if(st==='failed')settle('Could not reach AI right now. Please try again.','warn')});
+  input.addEventListener('input',syncSend);
+  input.addEventListener('keydown',e=>{if(e.key==='Escape'&&input.value){e.preventDefault();input.value='';syncSend();set('Ready')}});
   form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});
   bar.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.q)));
   if(serverCapture){
@@ -62,5 +72,6 @@
     });
   }
   try{const synth=window.speechSynthesis;if(synth&&!synth.__spWrapped){const orig=synth.speak.bind(synth);synth.speak=u=>{const emit=on=>window.dispatchEvent(new CustomEvent('superpro:speaking',{detail:{on}}));u.addEventListener('start',()=>emit(true));u.addEventListener('end',()=>emit(false));u.addEventListener('error',()=>emit(false));return orig(u)};synth.__spWrapped=true}}catch{}
-  window.addEventListener('superpro:speaking',e=>set(e.detail&&e.detail.on?'Speaking':'Ready',e.detail&&e.detail.on?'info':''));
+  // After an answer, keep 'Answer ready' visible instead of falling back to 'Ready' when speech ends.
+  window.addEventListener('superpro:speaking',e=>{const on=Boolean(e.detail&&e.detail.on);if(on)set('Speaking','info');else if(state.textContent==='Speaking')set(bar.dataset.answered?'Answer ready in Ask Oprun':'Ready')});
 })();

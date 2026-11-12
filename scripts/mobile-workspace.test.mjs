@@ -107,11 +107,22 @@ test('chat permission changes and unread notifications stay in sync with the rea
     shell.hidden=true;await f.flush();assert.equal(d.querySelector('[data-dock-key=chat]'),null);
   }finally{f.close()}
 });
-test('mobile keyboard viewport measurements provide offsets for the dock and chat panels',async()=>{
+// Prompt 01 #9 (12 Nov 2026): the bar no longer follows the visual viewport (that caused movement while scrolling);
+// it stays pinned and is hidden only while someone is typing with the on-screen keyboard open.
+test('mobile keyboard: the bar never moves with the viewport and hides only while typing',async()=>{
   const f=await fixture();try{
-    f.w.innerHeight=600;f.w.visualViewport={height:320,offsetTop:0};f.w.dispatchEvent(new f.w.Event('resize'));
-    assert.equal(f.w.document.body.style.getPropertyValue('--mobile-workspace-keyboard-offset'),'280px');
-    assert.equal(f.w.document.body.style.getPropertyValue('--mobile-workspace-viewport-height'),'320px');
+    const d=f.w.document,body=d.body;
+    f.w.innerHeight=600;f.w.visualViewport={height:540,offsetTop:0};f.w.dispatchEvent(new f.w.Event('resize'));
+    assert.equal(body.style.getPropertyValue('--mobile-workspace-keyboard-offset'),'0px','address-bar changes never shift the bar');
+    assert.equal(body.classList.contains('mobile-keyboard-open'),false);
+    const input=d.createElement('input');d.querySelector('.app-main').append(input);input.focus();
+    f.w.visualViewport={height:320,offsetTop:0};f.w.dispatchEvent(new f.w.Event('resize'));
+    assert.equal(body.style.getPropertyValue('--mobile-workspace-keyboard-offset'),'0px');
+    assert.equal(body.style.getPropertyValue('--mobile-workspace-viewport-height'),'320px');
+    assert.equal(body.classList.contains('mobile-keyboard-open'),true,'hidden while the keyboard is open');
+    input.blur();f.w.visualViewport={height:600,offsetTop:0};f.w.dispatchEvent(new f.w.Event('resize'));
+    assert.equal(body.classList.contains('mobile-keyboard-open'),false,'back when typing ends');
+    assert.equal(d.getElementById('mobile-workspace-dock')?.parentElement,body,'pinned to the viewport, outside transformed ancestors');
   }finally{f.close()}
 });
 

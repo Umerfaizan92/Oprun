@@ -141,3 +141,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/oprun-*.svg|png, saas/favicon.ico, saas/premium-ui.js, scripts/site/*.mjs, saas/**, office/**, src/**, README.md, package.json
 - Acceptance: No user-facing 'Super Pro' text remains outside docs; new logo shows on site, sign-in, workspace and icons; npm test, test:ui, test:site-ui, check:site, security:secrets pass; infra identifiers unchanged
 - Evidence: npm test 73/73, test:ui 34 (two clean runs), test:site-ui 16, check:site 19 pages, security:secrets clean, connections/lead-sources/meetings UI pass, visual 51 screens, a11y 0 serious; screenshots of home and sign-in checked (recorded 2026-11-11 on claude/oprun-rebrand-20261111 at 80274ce)
+
+## T-093 Command Centre four sections + Setup Checklist fix (master prompt)
+- Added: 2026-11-12
+- Requirement: Business overview, Your Workspace, Action Centre (next step + AI brief), Workflow Guidance (8-stage live workflow + working setup checklist); fix Setup Checklist; keep aliases/RBAC; test and deploy to Render
+- Files: saas/workspace-setup.js saas/command-centre-sections.js saas/workspace.html saas/command-centre.css saas/focused-workspace.js saas/page-sections.js saas/workspace-mobile.js scripts/test-redesign-ui.mjs
+- Acceptance: npm test, test:redesign-ui, test:mobile-workspace-ui pass; live deploy healthy
+- Evidence: npm test 73/73; test:redesign-ui PASS 320/390/768/1440 (4 tabs, 8 stages, checklist navigates+focuses, aliases, axe dark/light); test:mobile-workspace-ui 354 checks; verify:manifest; security:secrets (recorded 2026-11-12 on claude/workspace-and-priorities at 66b79aa)

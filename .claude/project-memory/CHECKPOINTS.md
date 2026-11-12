@@ -1557,3 +1557,45 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Continue from live44f2800 and docs/navigation/SINGLE_MOBILE_SECTION_BAR.md; do not reintroduce bottom main-page row or mobile business dropdown; retain sidebar main pages and single bottom Menu/sub-sections
+
+## CP-112 2026-11-12T07:38:39+00:00 T-091 IN_PROGRESS
+- Phase: Single mobile sub-section bar LIVE and verified
+- Task: T-091 (IN_PROGRESS)
+- Completed steps: All 10 Command Centre changes implemented: command-centre.css, gadgets head/live, All Features drawer block, bottom bar to body + keyboard hide + rename, AI bar states, footer
+- Incomplete steps: Run suites, add regression checks, commit, PR (no merge)
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; saas/app.js; saas/portal-shell.js; saas/workspace-gadgets.js; saas/workspace-mobile.js; saas/workspace-voicebar.js; saas/workspace.html; saas/command-centre.css
+- Tests executed: none
+- Test results: none
+- Git branch: claude/command-centre-refinement
+- Commit: 97e3bcb (Merge PR #87: Compact mobile bar, minimised notification settings, phone push alerts)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Review test results in /tmp/f-*.log; fix regressions; open PR
+
+## CP-113 2026-11-12T07:56:59+00:00 T-091 TESTING
+- Phase: Single mobile sub-section bar LIVE and verified
+- Task: T-091 (TESTING)
+- Completed steps: Prompt 01 implemented; npm test 73/73; redesign-ui, mobile-workspace-ui, comms, pipeline, secrets pass
+- Incomplete steps: Owner review of PR; real-device keyboard check
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; saas/app.js; saas/portal-shell.js; saas/workspace-gadgets.js; saas/workspace-mobile.js; saas/workspace-voicebar.js; saas/workspace.html; scripts/mobile-workspace.test.mjs; scripts/test-redesign-ui.mjs; docs/redesign/06_COMMAND_CENTRE_PROMPT_01.md; saas/command-centre.css
+- Tests executed: npm test; test:redesign-ui; test:mobile-workspace-ui; test:comms-ui; test:pipeline-ui; security:secrets
+- Test results: pass
+- Git branch: claude/command-centre-refinement
+- Commit: 97e3bcb (Merge PR #87: Compact mobile bar, minimised notification settings, phone push alerts)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Await owner approval to merge/deploy and Prompt 02
+
+## CP-114 2026-11-12T08:34:48+00:00 T-092 TESTING
+- Phase: Single mobile sub-section bar LIVE and verified
+- Task: T-092 (TESTING)
+- Completed steps: Prompt 02 implemented and tested
+- Incomplete steps: Owner review
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/navigation/SECTIONS.md; qa/reports/mobile-workspace.json; saas/command-centre.css; saas/focused-workspace.js; saas/page-sections.js; saas/workspace-mobile.js; saas/workspace.html; scripts/test-redesign-ui.mjs; docs/redesign/07_PROMPT_02_WORKSPACE_PRIORITIES.md; saas/command-centre-sections.js
+- Tests executed: npm test; test:redesign-ui; test:mobile-workspace-ui; comms; pipeline; secrets
+- Test results: pass
+- Git branch: claude/workspace-and-priorities
+- Commit: 923caae (Keep the Command Centre AI bar compact on narrow phones with wider fallback fonts); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Await approval for PR #89 and this PR; await Prompt 03

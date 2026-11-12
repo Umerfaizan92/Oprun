@@ -10,7 +10,7 @@ Every page below was opened through its sidebar link at 1440 px and 390 px. List
 
 | Page / sidebar submenu | Route | Top sections in displayed order | Navigation |
 |---|---|---|---|
-| Home & AI Command | `today/home` | Business overview → Attention items → Readiness → Workflow guide | PASS, both widths |
+| Home & AI Command | `today/home` | Business overview → Your Workspace → Action Centre → Workflow Guidance | PASS, both widths |
 | AI Assistant | `today/assistant` | How AI works → Ask AI → Save an operational task → Saved tasks | PASS, both widths |
 | Approvals | `today/approvals` | Decision overview → Queue & history → Approval policy | PASS, both widths |
 | AI Automations | `today/automations` | Automations → Activity → Suggestions & reports → Rules & safety → Audit report | PASS, both widths |

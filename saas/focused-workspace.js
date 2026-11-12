@@ -1,6 +1,6 @@
 (() => {
   const configurations = {
-    dashboard: {selector:'.operational-strip, .dashboard-grid > article, .dashboard-workflow', labels:['Business overview','Attention items','Readiness','Workflow guide'], companions:{0:'.gx-board'}},
+    dashboard: {selector:'.operational-strip, #workspace-features, #priorities, #workflow-guidance', labels:['Business overview','Your Workspace','Action Centre','Workflow Guidance'], companions:{0:'.gx-board'}}, // Prompt 02: Your Workspace after Business overview; 'Attention items' renamed Priorities
     billing: {selector:':scope > .trial-hero, :scope > .pricing-grid, :scope > article', labels:['Current access','Compare plans','Payment connections','Usage & add-ons','Billing safeguards','Plan features']},
     approvals: {selector:'.approval-metrics, .two-column-layout > article, #approval-policy-host', labels:['Decision overview','Queue & history','Approval policy'],preferred:'Queue & history'},
     workforce: {selector:'.two-column-layout > article', preferred:'People'},

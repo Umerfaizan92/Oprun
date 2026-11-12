@@ -10,19 +10,19 @@
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Attention items",
+      "detail": "Section: Your Workspace",
       "result": "PASS"
     },
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Readiness",
+      "detail": "Section: Action Centre",
       "result": "PASS"
     },
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Workflow guide",
+      "detail": "Section: Workflow Guidance",
       "result": "PASS"
     },
     {
@@ -1162,19 +1162,19 @@
     {
       "route": "today/home",
       "width": 1440,
-      "detail": "Desktop section: Attention items",
+      "detail": "Desktop section: Your Workspace",
       "result": "PASS"
     },
     {
       "route": "today/home",
       "width": 1440,
-      "detail": "Desktop section: Readiness",
+      "detail": "Desktop section: Action Centre",
       "result": "PASS"
     },
     {
       "route": "today/home",
       "width": 1440,
-      "detail": "Desktop section: Workflow guide",
+      "detail": "Desktop section: Workflow Guidance",
       "result": "PASS"
     },
     {
