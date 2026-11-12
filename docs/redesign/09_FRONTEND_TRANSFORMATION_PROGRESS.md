@@ -71,12 +71,33 @@ starts 256 → 215px on phones (cumulative since baseline: 306 → 215); desktop
 scroll. Suites ui, navigation-ui, redesign-ui, mobile-workspace-ui, mobile-readiness, channels-ui, comms-ui,
 pipeline-ui and console-ui pass (console-ui once timed out on "Feature access" and passed twice on rerun).
 
+## 4d. Batch 5: performance (done, first pass)
+
+Measured with `node scripts/report-workspace-perf.mjs` (signed-in Command Centre; phone = 4G + 4x CPU throttle):
+
+| | Before | After |
+|---|---|---|
+| Bytes transferred | 1,910 KB | 709 KB |
+| Phone: main content shown (LCP) | 9.8 s | 5.1 s |
+| Phone: layout shift (CLS) | 0.002 → 0.16 once loading got faster | 0.044 |
+| Desktop LCP / CLS | 1.3 s / 0.033 | 1.1–1.5 s / 0.033 |
+
+1. Only `saas/ds/*` was compressed; HTML, CSS, JS and API JSON were sent raw. `src/server.js` now uses Express's
+   standard `compression` middleware (threshold 1 KB; already-encoded files and binary media untouched). If Render's
+   edge already compresses in production, nothing changes there; locally and on any uncompressed path it is ~63% less.
+2. Faster loading exposed a 186px jump: the live figures board grew from empty to five tiles under the AI bar.
+   It now shows the same number of greyed placeholder tiles (no figures, no animation) until live data arrives.
+
+Still to do: 41 render-blocking stylesheets and 62 scripts (merge/defer), and `/api/saas/industry-registry`
+(205 KB raw, ~25 KB compressed) is loaded on every start; only the selected industry is needed at start.
+All suites pass (seo-ui once showed "Loading…" under load and passed twice on rerun).
+
 ## 5. Pending batches (next actions, in order)
 
 - B3 follow-up: Founder Console tables (sticky headers, dense rows, phone card layout) and filters on shared components.
 - B4 Workspace pages group by group (Work → Customers → People → Communications → Growth → Money → Setup): compact
   headers, consistent loading/empty/error/retry states, AI help per page, axe per page.
-- B5 Performance: defer non-critical scripts in `workspace.html`, remove unused CSS, measure LCP/CLS signed-in.
+- B5 follow-up: merge/defer the 41 stylesheets and 62 scripts; load the industry catalogue only on Brand & Settings.
 - Owner actions outside code: S3 uploads IAM `s3:PutObject` on `super-pro-v2/uploads/*`.
 
 ## Continuation prompt
