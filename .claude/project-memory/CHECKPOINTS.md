@@ -1417,3 +1417,59 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Publish alias query preservation fix and require all PR checks before deployment
+
+## CP-102 2026-11-12T07:57:21+08:00 T-085 IN_PROGRESS
+- Phase: Step1 complete: baseline Today audit
+- Task: T-085 (IN_PROGRESS)
+- Completed steps: Reviewed main10c79e5 source and authenticated baseline screenshots; Confirmed AI prepended before greeting and approximately450px mobile height; All22 More flags and default closed already correct; Chose in-flow secondary AI after operational content
+- Incomplete steps: Step2 greeting-first and compact AI; Step3 reinforce secondary checks; Step4 spacing/type polish; Step5 regression CI and preservation; Step6 exact main commit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; docs/redesign/09_TODAY_HIERARCHY_AUDIT.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/today-hierarchy-20261112
+- Commit: 10c79e5 (Merge PR #78: Polish Oprun branding and simplify business navigation)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Implement minimal Today placement and compact mobile AI styles
+
+## CP-103 2026-11-12T07:58:24+08:00 T-085 IN_PROGRESS
+- Phase: Step2 complete: greeting-first AI layout
+- Task: T-085 (IN_PROGRESS)
+- Completed steps: AI section appended after original operational content and next steps; Compact in-flow mobile form,44px controls and horizontally scrollable suggestions; Greeting long-name wrap, reduced card and next-step spacing
+- Incomplete steps: Step3 explicit More grouping checks; Step4 consistent major-view type and spacing; Step5 hosted responsive and safety checks; Step6 exact main commit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; saas/workspace-redesign.css; saas/workspace-voicebar.js; saas/workspace.html; docs/redesign/09_TODAY_HIERARCHY_AUDIT.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/today-hierarchy-20261112
+- Commit: 10c79e5 (Merge PR #78: Polish Oprun branding and simplify business navigation)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Verify all22 legacy items remain in closed More disclosures
+
+## CP-104 2026-11-12T07:58:49+08:00 T-085 IN_PROGRESS
+- Phase: Step3 complete: secondary navigation
+- Task: T-085 (IN_PROGRESS)
+- Completed steps: All22 secondary destinations verified; Existing native More closed default/manual state and44px compact styling retained; Added explicit regression coverage without rewriting navigation
+- Incomplete steps: Step4 major-view typography and spacing; Step5 responsive and safety verification; Step6 exact main commit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; saas/workspace-redesign.css; saas/workspace-voicebar.js; saas/workspace.html; scripts/redesign-preservation.test.mjs; docs/redesign/09_TODAY_HIERARCHY_AUDIT.md
+- Tests executed: redesign-preservation.test.mjs
+- Test results: 5/5 pass
+- Git branch: codex/today-hierarchy-20261112
+- Commit: 10c79e5 (Merge PR #78: Polish Oprun branding and simplify business navigation)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Apply small shared business-view typography and spacing improvements
+
+## CP-105 2026-11-12T07:58:49+08:00 T-085 TESTING
+- Phase: Step4 complete: business-view polish
+- Task: T-085 (TESTING)
+- Completed steps: Consistent sans-serif heading hierarchy and1.3 line-height; Compact major-view heading/section spacing; Readable wrapping identity/empty-state text; Preserved44px touch targets and all module structures
+- Incomplete steps: Step5 full CI,geometry,safety and visual review; Step6 exact main commit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; saas/workspace-redesign.css; saas/workspace-voicebar.js; saas/workspace.html; scripts/redesign-preservation.test.mjs; docs/redesign/09_TODAY_HIERARCHY_AUDIT.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/today-hierarchy-20261112
+- Commit: 10c79e5 (Merge PR #78: Polish Oprun branding and simplify business navigation)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Add geometry/AI interaction checks and run complete regression verification

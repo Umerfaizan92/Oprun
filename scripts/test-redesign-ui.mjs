@@ -10,7 +10,7 @@ fs.mkdirSync('qa/visual/redesign',{recursive:true});
 try {
  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||undefined});
  const owner=await seedOwner(server);
- for(const width of [390,768,1440]) {
+ for(const width of [320,390,768,1440]) {
   const context=await ownerContext(browser,server,owner,{viewport:{width,height:1000},reducedMotion:'reduce'});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(server.base+'/saas/workspace.html#b01/home');
@@ -23,6 +23,27 @@ try {
   await page.waitForFunction(()=>document.querySelector('.navigation-identity-name')?.textContent===document.querySelector('#org-name-side')?.textContent);
 
   await page.locator('#workspace-start a').first().waitFor();
+  await page.locator('#dashboard-view .gx-board .gx-tile').first().waitFor();
+  const geometry=await page.evaluate(()=>{
+   const rect=s=>document.querySelector(s).getBoundingClientRect();
+   const h=rect('.dashboard-heading'),bar=rect('#sp-askbar'),start=rect('#workspace-start');
+   return {first:document.querySelector('#dashboard-view').firstElementChild.classList.contains('dashboard-heading'),heading:h.top,ai:bar.top,aiHeight:bar.height,nextEnd:start.bottom,position:getComputedStyle(document.querySelector('#sp-askbar')).position};
+  });
+  assert.equal(geometry.first,true,'greeting is first dashboard content');
+  assert.ok(geometry.heading<geometry.ai&&geometry.nextEnd<=geometry.ai,'greeting and next steps precede AI');
+  assert.equal(geometry.position,'static','AI never overlays the viewport');
+  if(width<=760)assert.ok(geometry.aiHeight<320,`compact mobile AI: ${JSON.stringify(geometry)}`);
+  for(const control of await page.locator('#sp-askbar input,#sp-askbar .sp-ask-form button').all())assert.ok(await control.evaluate(e=>e.getBoundingClientRect().height>=44),'44px AI touch target');
+  const originalName=await page.locator('#first-name').textContent();
+  await page.locator('#first-name').evaluate(e=>e.textContent='Faizan-Ul-Hasnain Long Business Owner Name');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'long identity wraps');
+  await page.locator('#first-name').evaluate((e,name)=>e.textContent=name,originalName);
+  await page.evaluate(()=>{window.todayAskChecks=[];window.addEventListener('superpro:ask',e=>{window.todayAskChecks.push(e.detail.question);e.stopImmediatePropagation();},true);});
+  await page.locator('#sp-ask-input').fill('Review my business today');await page.locator('.sp-ask-send').click();
+  assert.deepEqual(await page.evaluate(()=>window.todayAskChecks),['Review my business today']);
+  assert.equal(await page.locator('#sp-ask-input').inputValue(),'');
+  for(const chip of await page.locator('#sp-askbar [data-q]').all()){const q=await chip.getAttribute('data-q');await chip.click();assert.equal(await page.evaluate(()=>window.todayAskChecks.at(-1)),q);}
+  await page.evaluate(()=>{document.activeElement?.blur();window.scrollTo(0,0)});
   assert.equal(await page.locator('#dashboard-view .operational-strip .metric-card').count(),4);
   assert.equal(await page.locator('#business-navigation [data-nav-group]').count(),8);
   assert.equal(await page.locator('#business-navigation .navigation-more[open]').count(),0,'More defaults closed');
@@ -41,7 +62,7 @@ try {
    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
    const violations=await page.evaluate(async source=>{
     if(!window.axe)(0,eval)(source);
-    const result=await window.axe.run({include:['#workspace-start','#workspace-command']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});
+    const result=await window.axe.run({include:['#workspace-start','#workspace-command','#sp-askbar','.dashboard-heading']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});
     return result.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}));
    },axe);
    assert.deepEqual(violations,[],`${width}px ${theme} guided start and command accessibility`);
