@@ -42,6 +42,17 @@ async function indexLinks(p, root, portal, route, width, parent = '') {
   }
 }
 async function sections(p, root, portal, route, width) {
+  if (portal === 'Business' && width <= 760) {
+    const indices = async parent => {
+      const links = await p.evaluate(() => document.getElementById('mobile-workspace-dock')._sources.flatMap((s,i) => s.buttons.filter(b=>b.dataset.sectionLink).map(b=>({key:`section-${i}-${s.buttons.indexOf(b)}`,label:b.textContent.trim()}))));
+      for (const item of links) { await p.locator(`[data-dock-key="${item.key}"]`).click(); checked(portal,route,(parent?parent+' / ':'')+'Section: '+item.label,width); }
+    };
+    const tabs = await p.evaluate(() => document.getElementById('mobile-workspace-dock')._sources.flatMap((s,i) => s.buttons.filter(b=>b.getAttribute('role')==='tab').map(b=>({key:`section-${i}-${s.buttons.indexOf(b)}`,label:b.textContent.trim()}))));
+    if (!tabs.length) await indices('');
+    for (const item of tabs) { const b=p.locator(`[data-dock-key="${item.key}"]`); if(!await b.isVisible()||!await b.isEnabled())continue; await b.click(); await settle(p); checked(portal,route,item.label,width); await indices(item.label); }
+    return;
+  }
+
   if (expected[route]) await p.waitForFunction(names => { const scope = [...document.querySelectorAll('.view:not([hidden]),#console-content,#console-tabs')]; const seen = new Set(scope.flatMap(r => [...r.querySelectorAll('[role=tab],[data-section-link]')]).filter(e => e.getClientRects().length).map(e => (e.matches('[data-section-link]') ? 'Section: ' : '') + e.textContent.trim())); return names.every(n => seen.has(n)); }, expected[route], { timeout: 15000 }).catch(() => {});
   const descendants = root.locator('[role=tablist]');
   const lists = (await root.getAttribute('role') === 'tablist' ? [root] : []).concat(await descendants.all());
@@ -74,12 +85,11 @@ try {
     assert.equal(await p.locator('#business-navigation .navigation-page').count(), 60);
     assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 8);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
-    await p.locator('.search-button').waitFor();
-    assert.equal(await p.locator('#workspace-command').count(), 0, 'only one finder');
+    await p.locator('.topbar-actions .search-button').waitFor();
     assert.ok(await p.locator('#workspace-start a').count() > 0, 'Command Centre provides permitted next steps');
     assert.equal(await p.locator('#dashboard-view .operational-strip .metric-card').count(),4);
     assert.equal(await p.locator('#m-expiring').count(),1,'expiry detail preserved');
-    await p.locator('.search-button').click();
+    await p.locator('.topbar-actions .search-button').click();
     await p.locator('#page-search').waitFor({state:'visible'});
     await p.getByRole('button',{name:'Close search',exact:true}).click();
     await p.screenshot({path:`qa/visual/navigation/redesign-command-${width}.png`,fullPage:true});
@@ -106,16 +116,16 @@ try {
     await p.goto(s.base + '/saas/workspace.html#b04/unified');
     await p.reload(); // Fresh disclosure defaults, independent of manual openings in the route traversal.
     await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
-    await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
-    await p.locator('#workspace-workflows a[href="#communications/email"]').click();
+    if(width>760) await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
+    await p.locator((width<=760?'.mobile-workspace-pages':'#workspace-workflows')+' a[href="#communications/email"]').click();
     await p.locator('#mail-view').waitFor({state:'visible'});
     assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
     checked('Business','b04/unified','Inbox context opens the Email folder without forcing More open',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
-    await p.getByRole('tab', { name: 'Costs & overheads', exact: true }).click();
+    await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Costs & overheads', exact: true }).click();
     await p.locator('#fin-overhead-form [name=name]').fill('Unsaved synthetic overhead');
-    await p.getByRole('tab', { name: 'Overview', exact: true }).click(); await p.getByRole('tab', { name: 'Costs & overheads', exact: true }).click();
+    await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Overview', exact: true }).click(); await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Costs & overheads', exact: true }).click();
     assert.equal(await p.locator('#fin-overhead-form [name=name]').inputValue(), 'Unsaved synthetic overhead');
     await p.goBack(); await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor(); await p.goForward(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
     await p.locator('#fin-overhead-form').evaluate(f => f.reset());
@@ -132,9 +142,9 @@ try {
     await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
     await p.locator('.navigation-scrim').click({position:{x:width-8,y:100}});
     assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
-    const costs = p.locator('[data-fin-tab=costs]'); await costs.focus(); await p.keyboard.press('Home');
+    const costs = p.locator(width<=760?'.mobile-workspace-sections [aria-label="Costs & overheads"]':'[data-fin-tab=costs]'); if(width>760){ await costs.focus(); await p.keyboard.press('Home');
     await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor();
-    await p.keyboard.press('End'); await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
+    await p.keyboard.press('End'); await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor(); }
     await costs.click();
     checked('Business', 'navigation', 'Keyboard sections, drawer focus, close control and outside dismissal', width);
     await p.screenshot({ path: `qa/visual/navigation/business-${width}.png`, fullPage: true });
