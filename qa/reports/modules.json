@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T09:10:55.101Z",
+  "generated_at": "2026-11-12T10:46:38.712Z",
   "subscriber": [
     {
       "module": "Dashboard",
@@ -7,16 +7,16 @@
         {
           "390": {
             "view": "dashboard-view",
-            "heading": "What would you like done today?",
-            "controls": 27,
+            "heading": "Good day, Alex.",
+            "controls": 108,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
             "view": "dashboard-view",
-            "heading": "What would you like done today?",
-            "controls": 27,
+            "heading": "Good day, Alex.",
+            "controls": 108,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -133,7 +133,7 @@
           "390": {
             "view": "enquiries-view",
             "heading": "Enquiries",
-            "controls": 18,
+            "controls": 19,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -141,7 +141,7 @@
           "1440": {
             "view": "enquiries-view",
             "heading": "Enquiries",
-            "controls": 18,
+            "controls": 19,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -171,7 +171,7 @@
           "390": {
             "view": "quotes-view",
             "heading": "Quotes",
-            "controls": 9,
+            "controls": 10,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -179,7 +179,7 @@
           "1440": {
             "view": "quotes-view",
             "heading": "Quotes",
-            "controls": 9,
+            "controls": 10,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -209,7 +209,7 @@
           "390": {
             "view": "bookings-view",
             "heading": "Bookings",
-            "controls": 9,
+            "controls": 10,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -217,7 +217,7 @@
           "1440": {
             "view": "bookings-view",
             "heading": "Bookings",
-            "controls": 9,
+            "controls": 10,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -247,7 +247,7 @@
           "390": {
             "view": "jobs-view",
             "heading": "Create work, then allocate the right people",
-            "controls": 19,
+            "controls": 20,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -255,7 +255,7 @@
           "1440": {
             "view": "jobs-view",
             "heading": "Create work, then allocate the right people",
-            "controls": 19,
+            "controls": 20,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -286,7 +286,7 @@
           "390": {
             "view": "jobs-view",
             "heading": "Create work, then allocate the right people",
-            "controls": 19,
+            "controls": 20,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -294,7 +294,7 @@
           "1440": {
             "view": "jobs-view",
             "heading": "Create work, then allocate the right people",
-            "controls": 19,
+            "controls": 20,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -329,7 +329,7 @@
           "390": {
             "view": "jobs-view",
             "heading": "Create work, then allocate the right people",
-            "controls": 19,
+            "controls": 20,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -337,7 +337,7 @@
           "1440": {
             "view": "jobs-view",
             "heading": "Create work, then allocate the right people",
-            "controls": 19,
+            "controls": 20,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -348,7 +348,7 @@
           "390": {
             "view": "bookings-view",
             "heading": "Bookings",
-            "controls": 9,
+            "controls": 10,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -356,7 +356,7 @@
           "1440": {
             "view": "bookings-view",
             "heading": "Bookings",
-            "controls": 9,
+            "controls": 10,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -546,7 +546,7 @@
         {
           "390": {
             "view": "mail-view",
-            "heading": "Email Centre",
+            "heading": "Email folder",
             "controls": 14,
             "overflow": 0,
             "failing_calls": [],
@@ -554,7 +554,7 @@
           },
           "1440": {
             "view": "mail-view",
-            "heading": "Email Centre",
+            "heading": "Email folder",
             "controls": 14,
             "overflow": 0,
             "failing_calls": [],
@@ -737,7 +737,7 @@
           "390": {
             "view": "growth-view",
             "heading": "Grow your audience and turn it into sales",
-            "controls": 32,
+            "controls": 33,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -745,7 +745,7 @@
           "1440": {
             "view": "growth-view",
             "heading": "Grow your audience and turn it into sales",
-            "controls": 32,
+            "controls": 33,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -816,7 +816,7 @@
           "390": {
             "view": "growth-view",
             "heading": "Grow your audience and turn it into sales",
-            "controls": 32,
+            "controls": 33,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -824,7 +824,7 @@
           "1440": {
             "view": "growth-view",
             "heading": "Grow your audience and turn it into sales",
-            "controls": 32,
+            "controls": 33,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -835,7 +835,7 @@
           "390": {
             "view": "integrations-view",
             "heading": "Connect your operating channels",
-            "controls": 13,
+            "controls": 52,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -843,7 +843,7 @@
           "1440": {
             "view": "integrations-view",
             "heading": "Connect your operating channels",
-            "controls": 13,
+            "controls": 52,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -1199,16 +1199,16 @@
         {
           "390": {
             "view": "dashboard-view",
-            "heading": "What would you like done today?",
-            "controls": 27,
+            "heading": "Good day, Alex.",
+            "controls": 108,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
             "view": "dashboard-view",
-            "heading": "What would you like done today?",
-            "controls": 27,
+            "heading": "Good day, Alex.",
+            "controls": 108,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -1316,16 +1316,16 @@
         {
           "390": {
             "view": "dashboard-view",
-            "heading": "What would you like done today?",
-            "controls": 27,
+            "heading": "Good day, Alex.",
+            "controls": 108,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
             "view": "dashboard-view",
-            "heading": "What would you like done today?",
-            "controls": 27,
+            "heading": "Good day, Alex.",
+            "controls": 108,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -1417,7 +1417,7 @@
           "390": {
             "view": "integrations-view",
             "heading": "Connect your operating channels",
-            "controls": 13,
+            "controls": 52,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -1425,7 +1425,7 @@
           "1440": {
             "view": "integrations-view",
             "heading": "Connect your operating channels",
-            "controls": 13,
+            "controls": 52,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -1855,7 +1855,7 @@
           "390": {
             "view": "unifiedinbox-view",
             "heading": "Unified Inbox",
-            "controls": 11,
+            "controls": 12,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -1863,7 +1863,7 @@
           "1440": {
             "view": "unifiedinbox-view",
             "heading": "Unified Inbox",
-            "controls": 11,
+            "controls": 12,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
@@ -2266,14 +2266,14 @@
       "routes": [
         {
           "390": {
-            "text": "Verification Plumbing Pty Ltd operations · trialing d0ba9efd-6577-4223-b198-c6df8e63b20dAccount details",
+            "text": "Verification Plumbing Pty Ltd operations · trialing 4ca5a791-9688-415f-b9d2-a9178f6983f3Account details",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Verification Plumbing Pty Ltd operations · trialing d0ba9efd-6577-4223-b198-c6df8e63b20dAccount details",
+            "text": "Verification Plumbing Pty Ltd operations · trialing 4ca5a791-9688-415f-b9d2-a9178f6983f3Account details",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2301,14 +2301,14 @@
       "routes": [
         {
           "390": {
-            "text": "Verification Plumbing Pty Ltd operations · trialing d0ba9efd-6577-4223-b198-c6df8e63b20dAccount details",
+            "text": "Verification Plumbing Pty Ltd operations · trialing 4ca5a791-9688-415f-b9d2-a9178f6983f3Account details",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Verification Plumbing Pty Ltd operations · trialing d0ba9efd-6577-4223-b198-c6df8e63b20dAccount details",
+            "text": "Verification Plumbing Pty Ltd operations · trialing 4ca5a791-9688-415f-b9d2-a9178f6983f3Account details",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2353,14 +2353,14 @@
         },
         {
           "390": {
-            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:42929 Operator MFA required No Founder key se",
+            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:43171 Operator MFA required No Founder key se",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:42929 Operator MFA required No Founder key se",
+            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:43171 Operator MFA required No Founder key se",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2445,14 +2445,14 @@
       "routes": [
         {
           "390": {
-            "text": "Recorded in Super Pro from subscriptions, add-ons and platform invoices. Card payments are confirmed by the payment prov",
+            "text": "Recorded in Oprun from subscriptions, add-ons and platform invoices. Card payments are confirmed by the payment provider",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Recorded in Super Pro from subscriptions, add-ons and platform invoices. Card payments are confirmed by the payment prov",
+            "text": "Recorded in Oprun from subscriptions, add-ons and platform invoices. Card payments are confirmed by the payment provider",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2472,7 +2472,7 @@
         "platform-health.test",
         "test:console-ui"
       ],
-      "provider": "Figures are Super Pro records; reconcile with Stripe",
+      "provider": "Figures are Oprun records; reconcile with Stripe",
       "problems": [],
       "result": "WORKS, PROVIDER NEEDED FOR LIVE USE"
     },
@@ -2481,14 +2481,14 @@
       "routes": [
         {
           "390": {
-            "text": "Server running for 2 min Node v22.23.4 Memory in use 122 MB Heap 32 MB Database size 2.6 MB Background jobs waiting 0 No",
+            "text": "Server running for 2 min Node v22.23.4 Memory in use 115 MB Heap 30 MB Database size 2.8 MB Background jobs waiting 0 No",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Server running for 1 min Node v22.23.4 Memory in use 121 MB Heap 31 MB Database size 2.6 MB Background jobs waiting 0 No",
+            "text": "Server running for 1 min Node v22.23.4 Memory in use 114 MB Heap 29 MB Database size 2.8 MB Background jobs waiting 0 No",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2642,14 +2642,14 @@
       "routes": [
         {
           "390": {
-            "text": "Counts of AI requests recorded by Super Pro in the last 30 days. Provider costs are billed by the AI provider and are no",
+            "text": "Counts of AI requests recorded by Oprun in the last 30 days. Provider costs are billed by the AI provider and are not re",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Counts of AI requests recorded by Super Pro in the last 30 days. Provider costs are billed by the AI provider and are no",
+            "text": "Counts of AI requests recorded by Oprun in the last 30 days. Provider costs are billed by the AI provider and are not re",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2668,7 +2668,7 @@
       "tests": [
         "platform-health.test"
       ],
-      "provider": "Provider cost is not recorded by Super Pro",
+      "provider": "Provider cost is not recorded by Oprun",
       "problems": [],
       "result": "WORKS, PROVIDER NEEDED FOR LIVE USE"
     },
@@ -2677,14 +2677,14 @@
       "routes": [
         {
           "390": {
-            "text": "New prospect crm Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New prospect crm Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "New prospect crm Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New prospect crm Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2694,14 +2694,14 @@
         },
         {
           "390": {
-            "text": "New campaign drafts Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New campaign drafts Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "New campaign drafts Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New campaign drafts Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2711,14 +2711,14 @@
         },
         {
           "390": {
-            "text": "New content drafts Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New content drafts Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "New content drafts Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New content drafts Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2787,14 +2787,14 @@
       "routes": [
         {
           "390": {
-            "text": "New tickets Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New tickets Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "New tickets Title Details Save record No records yet Saved here only for Super Pro operations.",
+            "text": "New tickets Title Details Save record No records yet Saved here only for Oprun operations.",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2844,14 +2844,14 @@
       "routes": [
         {
           "390": {
-            "text": "access.read founder · security · 2026-10-31T09:13:12.853Z access.read founder · support · 2026-10-31T09:13:11.829Z acces",
+            "text": "access.read founder · security · 2026-11-12T10:48:55.003Z access.read founder · support · 2026-11-12T10:48:53.995Z acces",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "access.read founder · security · 2026-10-31T09:12:47.806Z access.read founder · support · 2026-10-31T09:12:46.795Z acces",
+            "text": "access.read founder · security · 2026-11-12T10:48:30.262Z access.read founder · support · 2026-11-12T10:48:29.254Z acces",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2880,14 +2880,14 @@
       "routes": [
         {
           "390": {
-            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:42929 Operator MFA required No Founder key se",
+            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:43171 Operator MFA required No Founder key se",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:42929 Operator MFA required No Founder key se",
+            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:43171 Operator MFA required No Founder key se",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -2973,14 +2973,14 @@
       "routes": [
         {
           "390": {
-            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:42929 Operator MFA required No Founder key se",
+            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:43171 Operator MFA required No Founder key se",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:42929 Operator MFA required No Founder key se",
+            "text": "Environment Setting Value Environment test Public address http://127.0.0.1:43171 Operator MFA required No Founder key se",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
@@ -3025,14 +3025,14 @@
       "routes": [
         {
           "390": {
-            "text": "Communications overview New campaign Super Pro newsletter campaigns Communications overview Business customer conversati",
+            "text": "Communications overview New campaign Oprun newsletter campaigns Communications overview Business customer conversations ",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],
             "browser_errors": []
           },
           "1440": {
-            "text": "Communications overview New campaign Super Pro newsletter campaigns Communications overview Business customer conversati",
+            "text": "Communications overview New campaign Oprun newsletter campaigns Communications overview Business customer conversations ",
             "unavailable": false,
             "overflow": 0,
             "failing_calls": [],

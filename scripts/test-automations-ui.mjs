@@ -166,7 +166,7 @@ try {
         assert.ok(over <= 1, `${hash} overflows by ${over}px on ${label}`);
       }
       await page.evaluate(() => { location.hash = 'b01/automations'; });
-      await view.getByRole('tab', { name: 'Automations' }).click();
+      await (w <= 760 ? page.locator('#mobile-workspace-dock button', { hasText: 'Automations' }).first() : view.getByRole('tab', { name: 'Automations' })).click(); // phones use the single section bar
       await view.getByRole('button', { name: 'New automation' }).click();
       const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       assert.ok(over <= 1, `builder overflows by ${over}px on ${label}`);

@@ -26,27 +26,28 @@ try {
     const context=await ownerContext(browser,s,owner,{viewport:{width,height:1000},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
     page.on('pageerror',e=>errors.push(e.message));
     await page.goto(s.base+'/saas/workspace.html#b08/connections');
-    const hub=page.locator('#channel-operations');await hub.locator('[data-co-provider]').waitFor();
+    const hub=page.locator('#channel-operations');const tab=name=>width<=760?page.locator('#mobile-workspace-dock button',{hasText:name}).first():hub.getByRole('tab',{name,exact:true}); // phones use the single section bar
+await hub.locator('[data-co-provider]').waitFor();
     await hub.locator('[data-co-provider]').selectOption('meta');
     await hub.locator('[data-co-resource] option[value="123456"]').waitFor({state:'attached'});
-    await hub.getByRole('tab',{name:'Publish & approvals',exact:true}).click();
+    await tab('Publish & approvals').click();
     await hub.locator('[data-co-compose] textarea').fill('A helpful local post for review '+width);
     const saved=page.waitForResponse(r=>r.url().endsWith('/api/saas/channels/drafts')&&r.request().method()==='POST');
     await hub.getByRole('button',{name:'Save for approval',exact:true}).click();assert.equal((await saved).status(),201);
     await hub.locator('[data-co-status]').filter({hasText:'Draft saved'}).waitFor();
     assert.ok(await hub.getByText('A helpful local post for review '+width,{exact:true}).isVisible());
-    await hub.getByRole('tab',{name:'Local campaigns',exact:true}).click();
+    await tab('Local campaigns').click();
     const f=hub.locator('[data-co-campaign]');await f.locator('[name=name]').fill('Local plan '+width);await f.locator('[name=goal]').fill('More local enquiries');await f.locator('[name=postcodes]').fill('6160, 6164');await f.locator('[name=mode]').selectOption('paid_plan');await f.locator('[name=budget]').fill('20');await f.locator('[name=body]').fill('A useful offer for nearby customers.');
     const planned=page.waitForResponse(r=>r.url().endsWith('/api/saas/channels/campaigns')&&r.request().method()==='POST');await f.getByRole('button',{name:'Save local plan for Facebook & Instagram',exact:true}).click();assert.equal((await planned).status(),201);
     await hub.locator('[data-co-status]').filter({hasText:'No content was sent'}).waitFor();
-    await hub.getByRole('tab',{name:'Team access',exact:true}).click();
+    await tab('Team access').click();
     const access=hub.locator('[data-co-access]');await access.locator('[name=user]').selectOption(uid);await access.locator('input[value=read]').check();await access.locator('[name=resource]').selectOption('123456');
     const granted=page.waitForResponse(r=>r.url().includes('/channels/team/')&&r.request().method()==='PUT');await access.getByRole('button',{name:'Save channel access'}).click();assert.equal((await granted).status(),200);await hub.locator('[data-co-status]').filter({hasText:'access updated'}).waitFor();
-    await hub.locator('[data-co-provider]').selectOption('tiktok');await hub.getByRole('tab',{name:'Overview',exact:true}).click();
+    await hub.locator('[data-co-provider]').selectOption('tiktok');await tab('Overview').click();
     const overview=hub.locator('#co-panel-overview');await overview.locator('.co-metric').first().waitFor();
     await shot(page,'overview-'+width);
     assert.match(await overview.locator('.co-metrics').innerText(),/Views[\s\S]*1\.2K/);assert.ok(await overview.getByText('Top recent content',{exact:true}).isVisible());
-    await hub.getByRole('tab',{name:'Content & replies',exact:true}).click();const inbox=hub.locator('#co-panel-inbox');
+    await tab('Content & replies').click();const inbox=hub.locator('#co-panel-inbox');
     assert.equal(await inbox.locator('.co-item').count(),3);
     const links=await inbox.locator('.co-item a').evaluateAll(a=>a.map(x=>[x.getAttribute('href'),x.target,x.rel]));
     assert.deepEqual(links,[['https://www.tiktok.com/@example/video/7080213458555737986','_blank','noopener noreferrer']],'only the provider-hosted https link is offered');
@@ -63,7 +64,7 @@ try {
     assert.match(await dialog.locator('[data-co-comments]').innerText(),/Sam Viewer[\s\S]*Do you service Fremantle\?/);assert.equal(await dialog.getByRole('button',{name:'Close details',exact:true}).innerText(),'×');await dialog.getByRole('button',{name:'Close details',exact:true}).click();
     await inbox.locator('.co-item').first().getByRole('button',{name:/^Open comments/}).click();await dialog.locator('[data-co-comments]').waitFor();
     assert.equal(await page.evaluate(()=>document.activeElement?.hasAttribute('data-co-comments')),true,'Comments opens the comments section');assert.ok(await dialog.getByRole('link',{name:/Read and reply on TikTok/}).isVisible());await dialog.getByRole('button',{name:'Close details',exact:true}).click();
-    await hub.getByRole('tab',{name:'AI assistant',exact:true}).click();const ai=hub.locator('#co-panel-ai');
+    await tab('AI assistant').click();const ai=hub.locator('#co-panel-ai');
     await ai.getByText('More views',{exact:true}).click();await ai.getByRole('button',{name:'Get recommendations',exact:true}).click();
     await ai.locator('[data-co-growth="tiktok:views"]').waitFor();assert.match(await ai.locator('[data-co-growth="tiktok:views"]').innerText(),/Mirror finish before and after[\s\S]*803 views/);
     await ai.locator('.co-unconnected summary').click();
@@ -74,10 +75,10 @@ try {
     await ai.locator('[data-co-area]').fill('Fremantle, 6160');const plannedAi=page.waitForResponse(r=>r.url().endsWith('/api/saas/channels/campaigns')&&r.request().method()==='POST');await tk.getByRole('button',{name:'Apply — save as plan',exact:true}).click();const planRes=await plannedAi;assert.equal(planRes.status(),201);assert.deepEqual(planRes.request().postDataJSON().targeting.postcodes,['6160']);
     await tk.getByText('Plan saved · waiting for approval',{exact:true}).waitFor();await shot(page,'growth-'+width);
     await tk.getByRole('button',{name:'Review in Local campaigns',exact:true}).click();assert.ok(await hub.locator('#co-panel-campaigns').getByText('More views · TikTok',{exact:true}).first().isVisible());
-    await hub.getByRole('tab',{name:'Content & replies',exact:true}).click();
+    await tab('Content & replies').click();
     await inbox.locator('.co-item').nth(1).getByRole('button',{name:'Comments',exact:true}).click();await dialog.locator('.co-comment').getByRole('button',{name:'Draft reply',exact:true}).click();
     assert.equal(await dialog.isVisible(),false);await page.waitForTimeout(150);assert.ok(await hub.locator('[data-co-compose]').isVisible(),'Draft reply stays on Publish & approvals');assert.equal(await hub.locator('[data-co-compose] [name=kind]').inputValue(),'reply');assert.notEqual(await hub.locator('[data-co-compose] [name=item_id]').inputValue(),'');
-    for(const t of ['Publish & approvals','Local campaigns','AI assistant','Team access']){await hub.getByRole('tab',{name:t,exact:true}).click();await shot(page,t.split(' ')[0].toLowerCase()+'-'+width);}
+    for(const t of ['Publish & approvals','Local campaigns','AI assistant','Team access']){await tab(t).click();await shot(page,t.split(' ')[0].toLowerCase()+'-'+width);}
     const layout=await page.evaluate(()=>({viewport:innerWidth,page:document.documentElement.scrollWidth}));assert.ok(layout.page<=layout.viewport+1,JSON.stringify(layout));assert.deepEqual(errors,[]);
     await context.close();console.log('PASS channel drafts, local campaign plans, owner assignments and no overflow at '+width);
   }
