@@ -64,6 +64,8 @@
       });
       document.addEventListener('click', e => { if (autoHide && this.drawer && !rail.contains(e.target) && !this.trigger.contains(e.target)) { this.setDrawer(false); return; } if (this.collapsed && !rail.contains(e.target)) { this.open = ''; this.paint(); } });
       this.onMedia = () => { if (this.drawer) this.setDrawer(false); this.paint(); }; media.addEventListener('change', this.onMedia);
+      // Moving to another page by link, notification, Back or Forward closes an open drawer, so its scrim never stays over the new page.
+      this.onHash = () => { if (this.drawer) this.setDrawer(false, false); }; window.addEventListener('hashchange', this.onHash);
       this.setCollapsed(read(key) === 'collapsed');
     }
     setCollapsed(value) { if (this.autoHide) value = false; this.collapsed = !!value; this.rail.dataset.expanded = String(!value); this.rail.dataset.compact = String(value); delete this.rail.dataset.collapsed; this.toggle.setAttribute('aria-expanded', String(!value)); this.toggle.setAttribute('aria-label', this.autoHide ? 'Close navigation' : value ? 'Expand navigation' : 'Collapse navigation'); this.toggle.querySelector('span:last-child')?.replaceChildren(document.createTextNode(this.autoHide ? 'Close navigation' : value ? 'Expand navigation' : 'Collapse navigation')); write(this.key, value ? 'collapsed' : 'expanded'); if (value) this.open = ''; this.paint(); }

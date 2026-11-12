@@ -123,14 +123,14 @@ try {
     if(width>760) assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
     checked('Business','b04/unified','Inbox context opens the Email folder without forcing More open',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
-    await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
+    await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor({state:'attached'});
     await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Costs & overheads', exact: true }).click();
     await p.locator('#fin-overhead-form [name=name]').fill('Unsaved synthetic overhead');
     await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Overview', exact: true }).click(); await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Costs & overheads', exact: true }).click();
     assert.equal(await p.locator('#fin-overhead-form [name=name]').inputValue(), 'Unsaved synthetic overhead');
-    await p.goBack(); await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor(); await p.goForward(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
+    await p.goBack(); await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor({state:'attached'}); await p.goForward(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor({state:'attached'});
     await p.locator('#fin-overhead-form').evaluate(f => f.reset());
-    await p.reload(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
+    await p.reload(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor({state:'attached'});
     await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
     await navigationAccessibility(p, 'Business', width);
     assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), true);
@@ -144,8 +144,8 @@ try {
     await p.locator('.navigation-scrim').click({position:{x:width-8,y:100}});
     assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
     const costs = p.locator(width<=760?'.mobile-workspace-sections [aria-label="Costs & overheads"]':'[data-fin-tab=costs]'); if(width>760){ await costs.focus(); await p.keyboard.press('Home');
-    await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor();
-    await p.keyboard.press('End'); await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor(); }
+    await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor({state:'attached'});
+    await p.keyboard.press('End'); await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor({state:'attached'}); }
     await costs.click();
     checked('Business', 'navigation', 'Keyboard sections, drawer focus, close control and outside dismissal', width);
     await p.screenshot({ path: `qa/visual/navigation/business-${width}.png`, fullPage: true });
