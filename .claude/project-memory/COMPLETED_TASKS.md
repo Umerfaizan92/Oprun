@@ -141,3 +141,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/oprun-*.svg|png, saas/favicon.ico, saas/premium-ui.js, scripts/site/*.mjs, saas/**, office/**, src/**, README.md, package.json
 - Acceptance: No user-facing 'Super Pro' text remains outside docs; new logo shows on site, sign-in, workspace and icons; npm test, test:ui, test:site-ui, check:site, security:secrets pass; infra identifiers unchanged
 - Evidence: npm test 73/73, test:ui 34 (two clean runs), test:site-ui 16, check:site 19 pages, security:secrets clean, connections/lead-sources/meetings UI pass, visual 51 screens, a11y 0 serious; screenshots of home and sign-in checked (recorded 2026-11-11 on claude/oprun-rebrand-20261111 at 80274ce)
+
+## T-086 Fix failed Render build of a5b3e93 (flaky Level 3 approval test)
+- Added: 2026-11-12
+- Requirement: Owner: last manual deploy failed on Render; audit, fix, run live test
+- Files: scripts/automation-governance.test.mjs,scripts/verify-all.mjs
+- Acceptance: npm test passes; Render deploy of the fix is live; startup diagnostics pass
+- Evidence: PR #80 merged as 41600c6 after CI passed; Render deploy dep-dbqh4vs9v7es73cj4t00 live 2026-11-12T01:16Z: build 73/73 incl. 56 contract files and live RBAC/pipeline checks, startup diagnostics 16/16; includes a5b3e93 Command Centre changes (recorded 2026-11-12 on claude/t086-evidence at 41600c6)
