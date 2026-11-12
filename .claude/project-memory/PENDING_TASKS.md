@@ -274,9 +274,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: scripts/automation-governance.test.mjs,scripts/verify-all.mjs
 - Acceptance: npm test passes; Render deploy of the fix is live; startup diagnostics pass
 
-## T-087 Rebuild ChatGPT f039490 changes: footer brand, mobile bottom nav, sidebar sign-out, finder/chat fixes
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: Owner's ChatGPT commit f039490 never reached GitHub (push blocked). Rebuild: Oprun logo/name in compact footer with organised policy links; fixed bottom navigation with icons on mobile; Sign out at bottom of sidebar; remove duplicate finder; fix chat badges, permissions and panel overlap. Deploy for live test.
-- Files: saas/workspace.html,saas/portal-shell.js,saas/workspace-redesign.css,saas/app.js
-- Acceptance: Visible at 390/768/1440; all routes/IDs kept; operator link kept; npm test + UI suites pass; deployed live
