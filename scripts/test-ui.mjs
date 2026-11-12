@@ -258,9 +258,9 @@ try{
   await check('notification preferences and delivery activity are visible on mobile',async()=>{
     const releaseNotice=page.locator('#superpro-release-dialog');if(await releaseNotice.isVisible())await releaseNotice.getByRole('button',{name:'Got it',exact:true}).click();
     await page.locator('[aria-label="Notifications"]').click();const dialog=page.locator('#superpro-platform-notices');await dialog.waitFor({state:'visible'});
-    await dialog.locator('input[name=muted]').check();await dialog.getByRole('button',{name:'Save preferences',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[data-preferences-status]')?.textContent==='Preferences saved.');
+    assert.equal(await dialog.locator('.pn-settings').isVisible(),false,'settings start minimised');await dialog.locator('[data-notice-settings]').click();await dialog.locator('input[name=muted]').check();await page.waitForFunction(()=>document.querySelector('[data-preferences-status]')?.textContent==='Preferences saved.');
     assert.equal((await (await context.request.get(base+'/api/saas/notification-preferences')).json()).preferences.muted,true);
-    await dialog.locator('input[name=muted]').uncheck();await dialog.getByRole('button',{name:'Save preferences',exact:true}).click();
+    await dialog.locator('input[name=muted]').uncheck();await page.waitForFunction(async()=>(await (await fetch('/api/saas/notification-preferences')).json()).preferences.muted===false);
     await dialog.locator('[data-delivery-tab]').click();await dialog.getByRole('heading',{name:'Delivery & follow-ups'}).waitFor();
     await dialog.locator('[data-notice-close]').click();
   });

@@ -47,8 +47,9 @@ try {
         assert.equal(await p.locator('#mobile-workspace-dock > *').count(),2);
         assert.equal(await p.locator('#mobile-workspace-dock a,.mobile-workspace-pages').count(),0);
         assert.equal(await p.locator('#business-navigation [data-nav-page="'+item.view+'"]').getAttribute('aria-current'),'page');
-        const rowY=await p.locator('#mobile-workspace-dock').evaluate(e=>[...e.querySelectorAll('button')].map(b=>Math.round(b.getBoundingClientRect().top)));
-        assert.ok(Math.max(...rowY)-Math.min(...rowY)<3,item.path+' must have one bottom row');
+        // Owner 2026-11-12: one compact bar, sub-sections fit the width (wrap instead of sideways scrolling).
+        const fit=await p.locator('#mobile-workspace-dock').evaluate(e=>{const s=e.querySelector('.mobile-workspace-sections'),b=[...e.querySelectorAll('button')].map(x=>x.getBoundingClientRect());return {noSideways:!s||s.hidden||s.scrollWidth<=s.clientWidth+1,inside:b.every(r=>r.left>=-1&&r.right<=innerWidth+1),tall:b.every(r=>r.height>=44),dock:e.getBoundingClientRect().height}});
+        assert.ok(fit.noSideways&&fit.inside,item.path+' sub-sections must fit without sideways scrolling');assert.ok(fit.tall,item.path+' touch targets');assert.ok(fit.dock<=130,item.path+' compact dock height '+fit.dock);
         assert.equal(await p.locator('.view:not([hidden]) .mobile-workspace-source:visible').count(),0);
         const sets=await p.locator('.mobile-workspace-section-group').count();
         for(let i=0;i<sets;i++){

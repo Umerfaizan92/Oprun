@@ -1,28 +1,2130 @@
 {
-  "task": "T-089",
-  "status": "DEPLOYED_SINGLE_SUBSECTION_BAR_FOR_TESTING",
-  "base": "a868759026fb10b38b4161ed9f9b0074e9eb66e9",
-  "domTests": "18/18 passed on Node22.22.0 and Node24",
-  "fastChecks": "69/69 passed",
-  "businessRoutes": 60,
-  "browserResults": [],
-  "deployed": true,
-  "releaseChecks": "73/73 passed locally and on Render",
-  "publication": "PR86 merged; single mobile sub-section bar deployed",
-  "browserVisualVerification": "Authenticated device visual verification pending; local synthetic preview transport disconnected",
-  "design": "One bottom row: Menu plus current page sub-sections; main pages remain sidebar; static mobile business identity",
-  "releaseCommit": "44f28007a5c19acd63e5215477905cf9cccd5e96",
-  "renderDeployId": "dep-dbqkbvqfngtc73fs8cag",
-  "renderStatus": "live",
-  "finishedAt": "2026-11-12T04:56:53Z",
-  "liveVerification": {
-    "customDomainHealth": 200,
-    "renderHealth": 200,
-    "workspaceHTML": "matches release",
-    "mobileJS": "matches release",
-    "mobileCSS": "matches release",
-    "portalShellJS": "matches release",
-    "navigationShellJS": "matches release",
-    "newRuntimeErrors": "none returned immediately after deploy"
-  }
+  "base": "41600c6",
+  "results": [
+    {
+      "route": "today/home",
+      "width": 390,
+      "detail": "Section: Business overview",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 390,
+      "detail": "Section: Attention items",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 390,
+      "detail": "Section: Readiness",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 390,
+      "detail": "Section: Workflow guide",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 390,
+      "detail": "Section: How AI works",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 390,
+      "detail": "Section: Ask AI",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 390,
+      "detail": "Section: Save an operational task",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 390,
+      "detail": "Section: Saved tasks",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 390,
+      "detail": "Section: Decision overview",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 390,
+      "detail": "Section: Queue & history",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 390,
+      "detail": "Section: Approval policy",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 390,
+      "detail": "Section: Automations",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 390,
+      "detail": "Section: Activity",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 390,
+      "detail": "Section: Suggestions & reports",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 390,
+      "detail": "Section: Rules & safety",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 390,
+      "detail": "Section: Audit report",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/enquiries",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/quotes",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/bookings",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 390,
+      "detail": "Section: Create work order",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 390,
+      "detail": "Section: Open work orders",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 390,
+      "detail": "Section: Reorder",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 390,
+      "detail": "Section: Most used",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 390,
+      "detail": "Section: Stock on hand",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/archive",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "customers/directory",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/workers",
+      "width": 390,
+      "detail": "Section: Add worker",
+      "result": "PASS"
+    },
+    {
+      "route": "people/workers",
+      "width": 390,
+      "detail": "Section: People",
+      "result": "PASS"
+    },
+    {
+      "route": "people/workers",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/staff",
+      "width": 390,
+      "detail": "Section: Business members",
+      "result": "PASS"
+    },
+    {
+      "route": "people/staff",
+      "width": 390,
+      "detail": "Section: Invitation history",
+      "result": "PASS"
+    },
+    {
+      "route": "people/staff",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/hiring",
+      "width": 390,
+      "detail": "Section: Roles and adverts",
+      "result": "PASS"
+    },
+    {
+      "route": "people/hiring",
+      "width": 390,
+      "detail": "Section: Applicants",
+      "result": "PASS"
+    },
+    {
+      "route": "people/hiring",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/offshore",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Inbox",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Sent",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Drafts",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Scheduled",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Archived",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Failed",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Section: Spam",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/call-handling",
+      "width": 390,
+      "detail": "Section: Your number",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/call-handling",
+      "width": 390,
+      "detail": "Section: Call handling",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/call-handling",
+      "width": 390,
+      "detail": "Section: Recent calls",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/call-handling",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/receptionist",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/meetings",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/team-chat",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: All mail",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Received",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Drafts & approved",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Sent",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Scheduled",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Marketing",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Campaigns",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Enquiries",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Invoices",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Section: Support",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/channels",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/numbers",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/calls-sms",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 390,
+      "detail": "Section: Plan",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 390,
+      "detail": "Section: Calendar",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 390,
+      "detail": "Section: Reuse a post",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 390,
+      "detail": "Section: About you",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 390,
+      "detail": "Section: Activity",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/campaigns",
+      "width": 390,
+      "detail": "Section: New campaign",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/campaigns",
+      "width": 390,
+      "detail": "Section: Campaigns",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/campaigns",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 390,
+      "detail": "Section: Start from anything you already have",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 390,
+      "detail": "Section: AI Render Specification",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 390,
+      "detail": "Section: Platform suggestions",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 390,
+      "detail": "Section: Creative readiness",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 390,
+      "detail": "Section: Saved specifications",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/consent",
+      "width": 390,
+      "detail": "Section: Marketing consent",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/consent",
+      "width": 390,
+      "detail": "Section: Unsubscribed and suppressed",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/consent",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo",
+      "width": 390,
+      "detail": "Section: Google",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo",
+      "width": 390,
+      "detail": "Section: Scheduled SEO jobs",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo",
+      "width": 390,
+      "detail": "Section: Your sites",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/website-builder",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-audit",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-keywords",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-google",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-content",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-local",
+      "width": 390,
+      "detail": "Section: Checks",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-local",
+      "width": 390,
+      "detail": "Section: Reviews",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-local",
+      "width": 390,
+      "detail": "Section: Service-area and location pages",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-local",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-analytics",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-reports",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/drafts",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 390,
+      "detail": "Section: Score",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 390,
+      "detail": "Section: Business facts",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 390,
+      "detail": "Section: Content library",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 390,
+      "detail": "Section: AI answers",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 390,
+      "detail": "Section: Schema & files",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-connection",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/backlinks",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/website-domain",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Section: Overview",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Section: Jobs & payments",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Section: Get paid",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Section: Costs & overheads",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Section: Reports",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/invoices",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/payments",
+      "width": 390,
+      "detail": "Section: Receipts",
+      "result": "PASS"
+    },
+    {
+      "route": "money/payments",
+      "width": 390,
+      "detail": "Section: Refunds",
+      "result": "PASS"
+    },
+    {
+      "route": "money/payments",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reconcile",
+      "width": 390,
+      "detail": "Section: Import",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reconcile",
+      "width": 390,
+      "detail": "Section: Bank lines",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reconcile",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 390,
+      "detail": "Section: Summary",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 390,
+      "detail": "Section: Profit and loss",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 390,
+      "detail": "Section: GST (BAS draft)",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 390,
+      "detail": "Section: Owed to you",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 390,
+      "detail": "Section: Overdue: suggested follow-ups",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/settings",
+      "width": 390,
+      "detail": "Section: Finance settings",
+      "result": "PASS"
+    },
+    {
+      "route": "money/settings",
+      "width": 390,
+      "detail": "Section: Compliance review",
+      "result": "PASS"
+    },
+    {
+      "route": "money/settings",
+      "width": 390,
+      "detail": "Section: Flagged for checking",
+      "result": "PASS"
+    },
+    {
+      "route": "money/settings",
+      "width": 390,
+      "detail": "Section: Audit trail",
+      "result": "PASS"
+    },
+    {
+      "route": "money/settings",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/sales",
+      "width": 390,
+      "detail": "Section: New quotation, estimate or invoice",
+      "result": "PASS"
+    },
+    {
+      "route": "money/sales",
+      "width": 390,
+      "detail": "Section: Documents",
+      "result": "PASS"
+    },
+    {
+      "route": "money/sales",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Business profile",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Contact details",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Address",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Workspace design",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Appearance",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Services & area",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: Approvals",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Section: AI preferences",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 390,
+      "detail": "Section: Secure connection policy",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 390,
+      "detail": "Section: Channel operations",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 390,
+      "detail": "Section: Your business connections",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Current access",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Compare plans",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Payment connections",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Usage & add-ons",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Billing safeguards",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Plan features",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Section: Your workspace stays yours",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: Owner control centre",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: Governance follows the business profile",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: AI routes. Authorised people decide.",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: Policies relevant to your role",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: Protected case management",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: Owner & senior notifications",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Section: Audit & governance ledger",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/automation",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 390,
+      "detail": "Section: Get contextual help",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 390,
+      "detail": "Section: Policies and escalation",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Section: Workspace map",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Section: Current area",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Section: Your role",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Section: Next steps",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Section: Connections guide",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Section: Help",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/import",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 390,
+      "detail": "Section: Activity log",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 390,
+      "detail": "Section: Worker master sheet",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 390,
+      "detail": "Section: Financial summary",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 390,
+      "detail": "Section: Full workspace backup",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/support-access",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/change-plan",
+      "width": 390,
+      "detail": "Section: Choose a plan",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/change-plan",
+      "width": 390,
+      "detail": "Section: Plan changes",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/change-plan",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 390,
+      "detail": "Unsaved form retained; section deep link reload",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 1440,
+      "detail": "Desktop section: Business overview",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 1440,
+      "detail": "Desktop section: Attention items",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 1440,
+      "detail": "Desktop section: Readiness",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 1440,
+      "detail": "Desktop section: Workflow guide",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 1440,
+      "detail": "Desktop section: How AI works",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 1440,
+      "detail": "Desktop section: Ask AI",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 1440,
+      "detail": "Desktop section: Save an operational task",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 1440,
+      "detail": "Desktop section: Saved tasks",
+      "result": "PASS"
+    },
+    {
+      "route": "today/assistant",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 1440,
+      "detail": "Desktop section: Decision overview",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 1440,
+      "detail": "Desktop section: Queue & history",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 1440,
+      "detail": "Desktop section: Approval policy",
+      "result": "PASS"
+    },
+    {
+      "route": "today/approvals",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 1440,
+      "detail": "Desktop section: Automations",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 1440,
+      "detail": "Desktop section: Activity",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 1440,
+      "detail": "Desktop section: Suggestions & reports",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 1440,
+      "detail": "Desktop section: Rules & safety",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 1440,
+      "detail": "Desktop section: Audit report",
+      "result": "PASS"
+    },
+    {
+      "route": "today/automations",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/enquiries",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/quotes",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/bookings",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 1440,
+      "detail": "Desktop section: Create work order",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 1440,
+      "detail": "Desktop section: Open work orders",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 1440,
+      "detail": "Desktop section: Reorder",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 1440,
+      "detail": "Desktop section: Most used",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 1440,
+      "detail": "Desktop section: Stock on hand",
+      "result": "PASS"
+    },
+    {
+      "route": "work/stock",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/archive",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "customers/directory",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/workers",
+      "width": 1440,
+      "detail": "Desktop section: Add worker",
+      "result": "PASS"
+    },
+    {
+      "route": "people/workers",
+      "width": 1440,
+      "detail": "Desktop section: People",
+      "result": "PASS"
+    },
+    {
+      "route": "people/workers",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/staff",
+      "width": 1440,
+      "detail": "Desktop section: Business members",
+      "result": "PASS"
+    },
+    {
+      "route": "people/staff",
+      "width": 1440,
+      "detail": "Desktop section: Invitation history",
+      "result": "PASS"
+    },
+    {
+      "route": "people/staff",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/hiring",
+      "width": 1440,
+      "detail": "Desktop section: Roles and adverts",
+      "result": "PASS"
+    },
+    {
+      "route": "people/hiring",
+      "width": 1440,
+      "detail": "Desktop section: Applicants",
+      "result": "PASS"
+    },
+    {
+      "route": "people/hiring",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "people/offshore",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Inbox",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Sent",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Drafts",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Scheduled",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Archived",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Failed",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Desktop section: Spam",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/call-handling",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/receptionist",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/meetings",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/team-chat",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: All mail",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Received",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Drafts & approved",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Sent",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Scheduled",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Marketing",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Campaigns",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Enquiries",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Invoices",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Desktop section: Support",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/email",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/channels",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/numbers",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/calls-sms",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 1440,
+      "detail": "Desktop section: Plan",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 1440,
+      "detail": "Desktop section: Calendar",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 1440,
+      "detail": "Desktop section: Reuse a post",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 1440,
+      "detail": "Desktop section: About you",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 1440,
+      "detail": "Desktop section: Activity",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/hub",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/campaigns",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 1440,
+      "detail": "Desktop section: Start from anything you already have",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 1440,
+      "detail": "Desktop section: AI Render Specification",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 1440,
+      "detail": "Desktop section: Platform suggestions",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 1440,
+      "detail": "Desktop section: Creative readiness",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 1440,
+      "detail": "Desktop section: Saved specifications",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/media",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/consent",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/website-builder",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-audit",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-keywords",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-google",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-content",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-local",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-analytics",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/seo-reports",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/drafts",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Score",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Business facts",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Content library",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: AI answers",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Schema & files",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-readiness",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/search-connection",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/backlinks",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/website-domain",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Desktop section: Overview",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Desktop section: Jobs & payments",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Desktop section: Get paid",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Desktop section: Costs & overheads",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Desktop section: Reports",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/invoices",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/payments",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reconcile",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/reports",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/settings",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/sales",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Business profile",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Contact details",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Address",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Workspace design",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Appearance",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Services & area",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: Approvals",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Desktop section: AI preferences",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/settings",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 1440,
+      "detail": "Desktop section: Secure connection policy",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 1440,
+      "detail": "Desktop section: Channel operations",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 1440,
+      "detail": "Desktop section: Your business connections",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/connections",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Current access",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Compare plans",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Payment connections",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Usage & add-ons",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Billing safeguards",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Plan features",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Desktop section: Your workspace stays yours",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/plans",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: Owner control centre",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: Governance follows the business profile",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: AI routes. Authorised people decide.",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: Policies relevant to your role",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: Protected case management",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: Owner & senior notifications",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Desktop section: Audit & governance ledger",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/trust",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/automation",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 1440,
+      "detail": "Desktop section: Get contextual help",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 1440,
+      "detail": "Desktop section: Policies and escalation",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Desktop section: Workspace map",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Desktop section: Current area",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Desktop section: Your role",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Desktop section: Next steps",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Desktop section: Connections guide",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Desktop section: Help",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/manual",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/import",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 1440,
+      "detail": "Desktop section: Activity log",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 1440,
+      "detail": "Desktop section: Worker master sheet",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 1440,
+      "detail": "Desktop section: Financial summary",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 1440,
+      "detail": "Desktop section: Full workspace backup",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/export",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/support-access",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/change-plan",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/ledger",
+      "width": 1440,
+      "detail": "Unsaved form retained; section deep link reload",
+      "result": "PASS"
+    }
+  ],
+  "errors": []
 }

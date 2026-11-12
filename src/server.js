@@ -36,6 +36,7 @@ import { prepareStorage, runStartupDiagnostics, installDiagnosticsRoute } from '
 import { startUploadSync } from './s3-files.js';
 import { installPayments } from './payments.js';
 import { installNotifications } from './notifications.js';
+import { installWebPush } from './web-push.js';
 import { createLifecycle } from './lifecycle.js';
 import { installSubscribers } from './subscribers.js';
 import { installSaasPlatform, responseEnvelope, recordInbound, recordTelnyxComms, applyApprovalToComms, inboundHooks } from './saas-platform.js';
@@ -5914,7 +5915,8 @@ app.get('/api/saas/referrals',requireSaasUser,requireSaasRole('owner','admin','s
 
 
 installDiagnosticsRoute(app,{db,env,storage:storagePlan,requireAdmin,startedAt:startedAtMs});
-const notifications=installNotifications(app,{db,env,requireSaasUser});
+const webPush=installWebPush(app,{db,env,requireSaasUser});
+const notifications=installNotifications(app,{db,env,requireSaasUser,push:webPush});
 // T-074: built-in video and voice meetings. Rooms and signalling here; media goes browser to browser.
 installMeetings(app,{db,env,requireSaasUser,saasAudit,notifications});
 // T-070: background connection health. Once a day each connected provider is checked with the workspace's own
