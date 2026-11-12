@@ -46,7 +46,7 @@ async function check(name, fn) {
     results.push({ stage: currentStage, name, ok: true });
     console.log(`  ${paint(32, 'PASS')} ${name}${Date.now() - started > 1500 ? paint(90, ` (${((Date.now() - started) / 1000).toFixed(1)}s)`) : ''}`);
   } catch (error) {
-    const message = String(error?.message || error).split('\n').slice(0, 6).join('\n        ');
+    const message = String(error?.message || error).split('\n').slice(0, 60).join('\n        '); // full assertion detail, so a failed Render build is diagnosable from its log
     results.push({ stage: currentStage, name, ok: false, message });
     console.log(`  ${paint(31, 'FAIL')} ${name}\n        ${message}`);
   }
