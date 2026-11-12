@@ -1543,3 +1543,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Publish codex/single-mobile-section-bar-20261112 after full checks, merge and manually deploy existing Oprun service; verify new single-row assets and save receipt
+
+## CP-111 2026-11-12T12:58:02+08:00 T-089 TESTING
+- Phase: Single mobile sub-section bar LIVE and verified
+- Task: T-089 (TESTING)
+- Completed steps: PR86 merged; Render dep-dbqkbvqfngtc73fs8cag LIVE at44f28007a5c19acd63e5215477905cf9cccd5e96; single bottom Menu plus sub-sections; main pages only sidebar; static mobile identity; enhanced icons; Render73/73 and targeted18/18 passed; both health endpoints200; five live frontend files match release; no immediate runtime errors
+- Incomplete steps: User mobile live testing; authenticated device layout/keyboard checks remain pending; continue next requested task from this single-row design
+- Files modified (uncommitted at checkpoint): qa/reports/mobile-workspace.json
+- Tests executed: npm test locally and Render; targeted Node22 navigation; manifest; secret scan; HTTP health; live file comparison
+- Test results: 73/73 release checks passed; 18/18 targeted checks passed; 580 manifest files verified; health200; five served frontend files match; no immediate runtime errors
+- Git branch: codex/single-bar-deployment-receipt-20261112
+- Commit: 44f2800 (Merge PR #86: Single mobile sub-section bar with pinned Menu)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Continue from live44f2800 and docs/navigation/SINGLE_MOBILE_SECTION_BAR.md; do not reintroduce bottom main-page row or mobile business dropdown; retain sidebar main pages and single bottom Menu/sub-sections

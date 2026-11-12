@@ -1,14 +1,28 @@
 {
   "task": "T-089",
-  "status": "IMPLEMENTED_RELEASE_CHECKS_RUNNING",
+  "status": "DEPLOYED_SINGLE_SUBSECTION_BAR_FOR_TESTING",
   "base": "a868759026fb10b38b4161ed9f9b0074e9eb66e9",
-  "domTests": "18/18 passed",
+  "domTests": "18/18 passed on Node22.22.0 and Node24",
   "fastChecks": "69/69 passed",
   "businessRoutes": 60,
   "browserResults": [],
-  "deployed": false,
-  "releaseChecks": "Running",
-  "publication": "Authorised by user; PR84 restoration and PR85 Node22 test compatibility merged",
-  "browserVisualVerification": "Pending signed-in mobile/desktop and device testing",
-  "design": "One bottom row: Menu plus current page sub-sections; main pages remain sidebar; static mobile business identity"
+  "deployed": true,
+  "releaseChecks": "73/73 passed locally and on Render",
+  "publication": "PR86 merged; single mobile sub-section bar deployed",
+  "browserVisualVerification": "Authenticated device visual verification pending; local synthetic preview transport disconnected",
+  "design": "One bottom row: Menu plus current page sub-sections; main pages remain sidebar; static mobile business identity",
+  "releaseCommit": "44f28007a5c19acd63e5215477905cf9cccd5e96",
+  "renderDeployId": "dep-dbqkbvqfngtc73fs8cag",
+  "renderStatus": "live",
+  "finishedAt": "2026-11-12T04:56:53Z",
+  "liveVerification": {
+    "customDomainHealth": 200,
+    "renderHealth": 200,
+    "workspaceHTML": "matches release",
+    "mobileJS": "matches release",
+    "mobileCSS": "matches release",
+    "portalShellJS": "matches release",
+    "navigationShellJS": "matches release",
+    "newRuntimeErrors": "none returned immediately after deploy"
+  }
 }
