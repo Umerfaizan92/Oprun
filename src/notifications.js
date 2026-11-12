@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import {z} from 'zod';
 import { sendTextMessage } from './notify.js';
 
-export function installNotifications(app, { db, env, requireSaasUser }) {
+export function installNotifications(app, { db, env, requireSaasUser, push = null }) {
   db.exec(`CREATE TABLE IF NOT EXISTS notification_preferences(organisation_id TEXT NOT NULL,user_id TEXT NOT NULL,muted INTEGER NOT NULL DEFAULT 0,sound INTEGER NOT NULL DEFAULT 0,browser INTEGER NOT NULL DEFAULT 0,sms INTEGER NOT NULL DEFAULT 1,PRIMARY KEY(organisation_id,user_id));`);
   const preferences=(org,user)=>{const row=db.prepare('SELECT muted,sound,browser,sms FROM notification_preferences WHERE organisation_id=? AND user_id=?').get(org,user)||{muted:0,sound:0,browser:0,sms:1};return Object.fromEntries(Object.entries(row).map(([k,v])=>[k,Boolean(v)]))};
   app.get('/api/saas/notification-preferences',requireSaasUser,(req,res)=>res.json({ok:true,preferences:preferences(req.saas.organisation_id,req.saas.user_id)}));
@@ -21,6 +21,8 @@ export function installNotifications(app, { db, env, requireSaasUser }) {
     const id = crypto.randomUUID(), at = new Date().toISOString();
     const ins = db.prepare(`INSERT OR IGNORE INTO user_notifications (id,organisation_id,user_id,kind,title,body,link,urgent,dedupe_key,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`)
       .run(id, org, userId, kind, String(title).slice(0, 180), String(body).slice(0, 600), link, urgent ? 1 : 0, dedupe, at);
+    // Every new alert also goes to the person's phones/desktops (closed app included) unless they muted alerts.
+    if (ins.changes && push && !preferences(org,userId).muted) void push.pushToUser(org, userId, { id, kind, title, body, link, urgent }).catch(() => {});
     if (!ins.changes || !urgent || !preferences(org,userId).sms) return ins.changes ? { id } : null;
     const phone = db.prepare(`SELECT phone FROM users WHERE id=?`).get(userId)?.phone;
     const r = await sendTextMessage(env, { to: phone,delivery:{organisationId:org,userId,category:kind,subject:title}, text: `${orgName(org)}: ${title}${body ? '. ' + body : ''}`.slice(0, 300) });
@@ -52,12 +54,27 @@ export function installNotifications(app, { db, env, requireSaasUser }) {
       'worker.document_uploaded':['Worker document uploaded','#workforce'],
       'worker.onboarding_invited':['Workforce onboarding invitation created','#workforce'],
       'customer.created':['Customer added','#customers'],
-      'staff_chat.message':['New staff message','#staff-chat']
+      'staff_chat.message':['New staff message','#staff-chat'],
+      // Business activity (not logs): each reaches the bell and, through push, the person's phone.
+      'enquiry.created':['New job enquiry','#work/enquiries',1],
+      'customer.created_from_inbox':['New customer from the inbox','#customers/directory',1],
+      'quote.created_from_enquiry':['Quote drafted','#work/quotes',1],
+      'quote.booking_created':['Quote accepted and booked','#work/bookings',1],
+      'work_order.created':['New job created','#work/jobs',1],
+      'work_order.completed':['Job completed','#work/jobs',1],
+      'job_offer.responded':['A worker responded to a job offer','#work/jobs',1],
+      'invoice.issued':['Invoice issued','#money/invoices',2],
+      'payment.recorded_manually':['Payment recorded','#money/payments',2],
+      'approval.requested':['Approval needed','#today/approvals',1],
+      'meeting.created':['Video meeting scheduled','#communications/meetings',1],
+      'growth.posts_approved':['Posts approved for publishing','#growth/hub',1]
     };
     const match=map[event];if(!match)return;
-    const roles=event==='staff_chat.message'?['owner','admin','manager','super_admin','director','employee','contractor']:['owner','admin'];
+    // 1 = work activity for senior staff; 2 = money activity, owner/admin only (managers cannot see finance).
+    const activity=Boolean(match[2]);
+    const roles=event==='staff_chat.message'?['owner','admin','manager','super_admin','director','employee','contractor']:match[2]===1?['owner','admin','manager','super_admin','director']:['owner','admin'];
     const actor=req.saas.full_name||db.prepare('SELECT full_name FROM users WHERE id=?').get(req.saas.user_id)?.full_name||'A team member';
-    void notifyRoles(req.saas.organisation_id,roles,{kind:event.replaceAll('.','_'),title:event==='staff_chat.message'?`New message from ${actor}`:match[0],body:event==='staff_chat.message'?'Open Office chat to read and reply.':`${actor} updated the business. Open the relevant section to review.`,link:match[1],excludeUserId:event==='staff_chat.message'?req.saas.user_id:null,dedupe:`audit:${auditId}`}).catch(()=>{});
+    void notifyRoles(req.saas.organisation_id,roles,{kind:event.replaceAll('.','_'),title:event==='staff_chat.message'?`New message from ${actor}`:match[0],body:event==='staff_chat.message'?'Open Office chat to read and reply.':activity?`By ${actor}. Tap to open.`:`${actor} updated the business. Open the relevant section to review.`,link:match[1],excludeUserId:(event==='staff_chat.message'||activity)?req.saas.user_id:null,dedupe:`audit:${auditId}`}).catch(()=>{});
   }
   return { notifyUser, notifyRoles, auditEvent };
 }

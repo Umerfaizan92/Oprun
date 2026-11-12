@@ -1,4 +1,4 @@
-const CACHE='superpro-public-20261111-1';
+const CACHE='superpro-public-20261112-2';
 const PUBLIC=[
   '/saas/index.html',
   '/saas/intro.css?v=20261024',
@@ -44,4 +44,27 @@ self.addEventListener('fetch',e=>{
     if(!r||r.status!==200||r.type==='opaque')return r;
     const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));return r;
   }).catch(()=>caches.match(e.request)));
+});
+
+// Phone/desktop alerts. The server sends only what the person would see in their bell; tapping opens that page.
+self.addEventListener('push',e=>{
+  let d={};try{d=e.data?e.data.json():{}}catch{d={title:'Oprun',body:e.data?.text?.()||''}}
+  const title=String(d.title||'Oprun update').slice(0,120);
+  e.waitUntil((async()=>{
+    // If Oprun is open and visible, the page itself announces the alert (sound and voice); still show the system alert.
+    await self.registration.showNotification(title,{body:String(d.body||'').slice(0,240),tag:d.tag||undefined,renotify:true,silent:false,requireInteraction:Boolean(d.urgent),icon:'/saas/oprun-icon-192.png',badge:'/saas/oprun-icon-192.png',vibrate:d.urgent?[200,100,200,100,300]:[180,80,180],timestamp:Date.now(),data:{url:d.url||'/saas/workspace.html',kind:d.kind||'alert'}});
+    const open=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    open.forEach(c=>c.postMessage({type:'oprun-push',title,body:d.body||'',kind:d.kind||'alert',url:d.url||''}));
+  })());
+});
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  const target=new URL(e.notification.data?.url||'/saas/workspace.html',self.location.origin);
+  if(target.origin!==self.location.origin)return;
+  e.waitUntil((async()=>{
+    const wins=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    const ws=wins.find(c=>new URL(c.url).pathname===target.pathname);
+    if(ws){await ws.focus();if(target.hash)ws.postMessage({type:'oprun-open',hash:target.hash});return}
+    await self.clients.openWindow(target.href);
+  })());
 });

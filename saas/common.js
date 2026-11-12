@@ -4,7 +4,7 @@
   // Register only the public /saas shell. Private API/workspace routes stay
   // network-only according to sw.js.
   if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>navigator.serviceWorker.register('/saas/sw.js?v=20261111.1',{scope:'/saas/',updateViaCache:'none'}).catch(()=>{}));
+    window.addEventListener('load',()=>navigator.serviceWorker.register('/saas/sw.js?v=20261112.1',{scope:'/saas/',updateViaCache:'none'}).catch(()=>{}));
   }
 
   // Preserve referral attribution during the verified-account journey.
