@@ -266,3 +266,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner ordered six steps: full visual/structural Today and nav audit; greeting/business identity first; fully functional AI bar becomes compact secondary after operational content, never mobile fullscreen; attention/readiness/next steps accessible early; reinforce22 secondary More items default closed; calm consistent spacing fonts empty states touch/overflow across major views; preserve all routes aliases backend stores tenant isolation approvals roles; exact main commit Reorganise Command Centre hierarchy, constrain AI command bar on mobile, and tighten navigation density. Checkpoint block if near limits.
 - Files: saas/workspace-voicebar.js;saas/workspace-redesign.css;saas/workspace.html;scripts/test-redesign-ui.mjs;docs/redesign
 - Acceptance: Greeting before AI; mobile AI less than40percent viewport at normal text; all type/voice/send/chip controls remain; metrics/readiness/nextstep and role rules retained; route/security checks and responsive CI pass; exact requested main commit
+
+## T-086 Fix failed Render build of a5b3e93 (flaky Level 3 approval test)
+- Status: NOT_STARTED
+- Added: 2026-11-12
+- Requirement: Owner: last manual deploy failed on Render; audit, fix, run live test
+- Files: scripts/automation-governance.test.mjs,scripts/verify-all.mjs
+- Acceptance: npm test passes; Render deploy of the fix is live; startup diagnostics pass

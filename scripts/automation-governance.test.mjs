@@ -31,11 +31,13 @@ async function setup() {
   // Runs start after the request returns; wait until a workflow's newest run settles.
   const settled = async (workflowId, n = 1, done = (r) => !['received', 'queued', 'executing'].includes(r.status)) => {
     for (let i = 0; i < 100; i++) {
-      const runs = (await O('GET', `/api/saas/automation/runs?workflow_id=${workflowId}`)).json.runs;
+      const r = await O('GET', `/api/saas/automation/runs?workflow_id=${workflowId}`);
+      // A slow build machine can answer a poll late or with a transient error; keep polling instead of failing.
+      const runs = Array.isArray(r.json?.runs) ? [...r.json.runs].sort((a, b) => b.created_at.localeCompare(a.created_at)) : [];
       if (runs.length >= n && done(runs[0])) return runs;
       await sleep(60);
     }
-    throw new Error('automation run did not settle');
+    throw new Error(`automation run did not settle (workflow ${workflowId}, wanted ${n})`);
   };
   const enquiry = async (title, details, customer = { name: 'Riley Quinn' }) => { const r = await O('POST', '/api/saas/pipeline/enquiries', { title, details, customer }); assert.equal(r.status, 201, r.text); return r.json.id; };
   return { s, owner, O, flow, settled, enquiry };
@@ -163,7 +165,9 @@ test('Level 3 approval queue: edit, clarify, schedule, approve, pause and resume
   let [run] = await settled(w.id);
   assert.equal(run.status, 'awaiting_approval'); assert.equal(run.level, 3);
   const list = async () => (await O('GET', '/api/saas/approvals?status=all')).json.approvals;
-  let ap = (await list()).find((a) => a.automation_run_id === run.id);
+  // The approval row is written alongside the run's status change; poll briefly rather than assume it is already visible.
+  const approvalFor = async (runId) => { for (let i = 0; i < 50; i++) { const a = (await list() || []).find((x) => x.automation_run_id === runId); if (a) return a; await sleep(60); } assert.fail(`no approval was created for run ${runId}`); };
+  let ap = await approvalFor(run.id);
   assert.match(ap.expected_outcome, /kim@park/);
 
   // Clarify, then answer.
@@ -196,7 +200,7 @@ test('Level 3 approval queue: edit, clarify, schedule, approve, pause and resume
   assert.equal((await s.call('POST', '/api/saas/automation/pause', { cookie: mgr, body: { paused: true, reason: 'Checking quotes' } })).status, 200);
   await quoteFor('Lee Chan', 'lee@chan.example.test');
   [run] = await settled(w.id, 2);
-  ap = (await list()).find((a) => a.automation_run_id === run.id);
+  ap = await approvalFor(run.id);
   d = await O('POST', `/api/saas/approvals/${ap.id}/decision`, { decision: 'approve' });
   assert.equal(d.status, 200);
   [run] = await settled(w.id, 2, (r) => r.status === 'held');
@@ -210,7 +214,7 @@ test('Level 3 approval queue: edit, clarify, schedule, approve, pause and resume
   // Expiry: an approval past its deadline cannot be approved and the run is closed.
   await quoteFor('Max Ng', 'max@ng.example.test');
   [run] = await settled(w.id, 3);
-  ap = (await list()).find((a) => a.automation_run_id === run.id);
+  ap = await approvalFor(run.id);
   const db = new Database(s.dbPath); db.prepare('UPDATE workspace_approvals SET expires_at=? WHERE id=?').run('2020-01-01T00:00:00.000Z', ap.id); db.close();
   assert.equal((await O('POST', `/api/saas/approvals/${ap.id}/decision`, { decision: 'approve' })).status, 409);
   assert.equal((await O('GET', `/api/saas/automation/runs/${run.id}`)).json.run.status, 'expired');
