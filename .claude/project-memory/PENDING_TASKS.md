@@ -282,7 +282,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Visible at 390/768/1440; all routes/IDs kept; operator link kept; npm test + UI suites pass; deployed live
 
 ## T-088 Restore saved ChatGPT workspace design over Claude PR82 and deploy
-- Status: BLOCKED
+- Status: TESTING
 - Added: 2026-11-12
 - Requirement: User dislikes Claude replacement; restore ChatGPT f039490 mobile page and section dock, integrated chat actions, compact four-link footer, final sidebar signout; deploy for live testing
 - Files: not known yet

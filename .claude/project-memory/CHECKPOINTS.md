@@ -1501,3 +1501,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Ask permission to push and merge the prepared restoration code and progress notes into public Umerfaizan92/Oprun; then deploy existing Render Oprun service and verify served assets
+
+## CP-108 2026-11-12T12:33:02+08:00 T-088 TESTING
+- Phase: ChatGPT restoration live; compatible test dependency follow-up deploying
+- Task: T-088 (TESTING)
+- Completed steps: User explicitly authorised public push/merge/deploy; PR84 merged exact tested restoration; Render deploy dep-dbqjvoqfngtc73fr5rl0 is live at 51a814f; health HTTP200 and four restored frontend files match remote release; PR85 pins Node22-compatible jsdom and fixture cleanup; targeted checks16/16 pass on actual Node22.22.0
+- Incomplete steps: Monitor follow-up dep-dbqk183suf0c7386qr5g for commit9b41477 to live; confirm health and assets; persist final deployment receipt; signed-in mobile visual testing remains pending
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: full release checks on original restoration; targeted tests on Node22.22.0; production HTTP and file comparison
+- Test results: 73/73 release checks passed; 16/16 targeted checks passed on Node22; health200; restored mobileJS/mobileCSS/portalShell/workspaceHTML match live
+- Git branch: codex/restoration-final-receipt-20261112
+- Commit: 9b41477 (Merge PR #85: Node 22 compatible workspace tests)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Poll Render dep-dbqk183suf0c7386qr5g until terminal; verify9b41477 live and save final receipt; no new deployment is needed for notes-only changes
+
+## CP-109 2026-11-12T12:36:24+08:00 T-088 TESTING
+- Phase: ChatGPT restoration deployed and verified; ready for live user testing
+- Task: T-088 (TESTING)
+- Completed steps: PR84 restored preferred ChatGPT design and PR85 corrected Node22 test compatibility; Render deploy dep-dbqk183suf0c7386qr5g is LIVE at9b414774036ec1189d2cf4d0ee8d53381fc99f1f; Render73/73 checks passed; targeted16/16 pass on exact Node22.22.0; custom-domain and Render health200; workspaceHTML/mobileJS/mobileCSS/portalShellJS match release; no immediate postdeploy error logs
+- Incomplete steps: User live visual testing; authenticated mobile/desktop layout and device keyboard/safe-area checks remain pending; handle next user task without reverting restored design
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; qa/reports/mobile-workspace.json
+- Tests executed: Render npm test; targeted Node22 tests; HTTP health; live asset byte comparison; postdeploy error logs
+- Test results: 73/73 release checks passed; 16/16 targeted checks passed; health200; four frontend assets match; no immediate runtime errors
+- Git branch: codex/restoration-final-receipt-20261112
+- Commit: 9b41477 (Merge PR #85: Node 22 compatible workspace tests)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Continue from deployed9b41477 and qa/reports/mobile-workspace.json; inspect any live-testing feedback; preserve ChatGPT contextual bottom page-and-section dock, compact footer and final sidebar signout

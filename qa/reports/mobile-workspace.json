@@ -1,13 +1,26 @@
 {
   "task": "T-088",
-  "status": "BROWSER_VERIFICATION_BLOCKED",
+  "status": "DEPLOYED_FOR_LIVE_TESTING",
   "base": "791da1532502cb29752f3de8569fd85fd4800205",
-  "domTests": "16/16 passed",
+  "domTests": "16/16 passed on Node22.22.0 and Node24",
   "fastChecks": "69/69 passed",
   "businessRoutes": 60,
   "browserResults": [],
-  "blocker": "Chromium cannot launch: process socket creation not permitted in this execution environment",
-  "deployed": false,
-  "releaseChecks": "73/73 passed",
-  "publication": "Blocked by automatic approval review; public GitHub publication permission required"
+  "deployed": true,
+  "releaseChecks": "73/73 passed on Render",
+  "publication": "Authorised by user; PR84 restoration and PR85 Node22 test compatibility merged",
+  "releaseCommit": "9b414774036ec1189d2cf4d0ee8d53381fc99f1f",
+  "renderDeployId": "dep-dbqk183suf0c7386qr5g",
+  "renderStatus": "live",
+  "finishedAt": "2026-11-12T04:35:43Z",
+  "liveVerification": {
+    "customDomainHealth": 200,
+    "renderHealth": 200,
+    "workspaceHTML": "matches release",
+    "mobileJS": "matches release",
+    "mobileCSS": "matches release",
+    "portalShellJS": "matches release",
+    "newRuntimeErrors": "none returned immediately after deploy"
+  },
+  "browserVisualVerification": "Pending signed-in mobile/desktop and device testing"
 }
