@@ -47,18 +47,9 @@
     }
 
   }
-  // All Features: the workspace shortcut collection (moved off the Command Centre) sits at the top of the navigation
-  // drawer, above every group. It is rebuilt each time the drawer opens, so it always follows the person's permissions.
-  let featureBox;
-  function installFeatures() {
-    if (!shell?.nav || featureBox) return;
-    featureBox = make('div', 'drawer-features'); featureBox.id = 'all-features';
-    shell.nav.before(featureBox);
-    featureBox.addEventListener('click', e => { if (e.target.closest('[data-jump]')) setTimeout(() => shell.setDrawer(false, false), 0); });
-    const paintFeatures = () => { const links = window.OprunFeatureShortcuts?.('All features', 'Jump straight to a workspace area'); featureBox.replaceChildren(...(links ? [links] : [])); featureBox.hidden = !links; };
-    new MutationObserver(() => { if (rail.dataset.drawer === 'true') paintFeatures(); }).observe(rail, { attributes: true, attributeFilter: ['data-drawer'] });
-    paintFeatures();
-  }
+  // The drawer's "All features" shortcut tiles were removed at the owner's request (12 Nov 2026); the drawer shows the
+  // navigation groups only, and every page stays reachable there and from Command Centre → Your Workspace.
+  function installFeatures() {}
   function rebuild() {
     const nav = window.SuperProNav, session = window.GDS_SESSION; if (!nav || !session || !window.SuperProNavigation) return;
     if (!rail) {
