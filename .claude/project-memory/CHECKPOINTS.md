@@ -1473,3 +1473,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Add geometry/AI interaction checks and run complete regression verification
+
+## CP-106 2026-11-12T08:20:23+08:00 T-085 COMPLETED
+- Phase: Today hierarchy complete on main
+- Task: T-085 (COMPLETED)
+- Completed steps: All six ordered steps complete; Exact main commit a5b3e937 created; Passing candidate tree verified identical; Final responsive screenshots reviewed; Acceptance saved
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; docs/redesign/09_TODAY_HIERARCHY_AUDIT.md
+- Tests executed: CI43125351042; Security43125351008; preservation; responsive geometry and AI
+- Test results: 73/73 build; 34 UI; 584 navigation zero errors/missing; four responsive sizes and dark/light pass
+- Git branch: codex/today-acceptance-20261112
+- Commit: a5b3e93 (Reorganise Command Centre hierarchy, constrain AI command bar on mobile, and tighten navigation density)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: T085 complete; read docs/redesign/09_TODAY_HIERARCHY_AUDIT.md before future changes. Runtime maina5b3e937 awaits separate deployment.

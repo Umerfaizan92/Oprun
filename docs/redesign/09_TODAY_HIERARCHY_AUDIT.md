@@ -26,3 +26,13 @@ Step3 confirmed all22 secondary flags/default closed behaviour; added explicit r
 Local semantic check preserves every original dashboard node and confirms typed request, all four suggestion payloads, input clearing and idempotent installation. Preservation audit retains645 routes,45 HTML pages,60 business views,34 Founder sections and780 static IDs. No backend/security/data files or navigation metadata modified. Focused contracts5/5, secret/manifest/memory checks passed. Full npm test and hosted browser checks pending. Browser tests cover320/390/768/1440px, greeting/next-step ordering, in-flow AI, mobile geometry,44px controls, long identity wrapping, all suggestion dispatches, dark/light accessibility and overflow. Existing voice tests remain in main UI suite. Local Chromium is blocked by environment as previously recorded (E031); hosted CI provides actual layout verification.
 
 Step6 publishes the exact requested main commit only after verification. This task requests a main commit; no new Render deployment is part of this change.
+
+
+## Final Steps 5–6 acceptance
+
+- CI43125351042 and Security43125351008 passed on candidate a14646a361a91aad69d43a35328f37dd80841eaf. Full build73/73 including56 contract files; responsive UI34; navigation584 with zero errors and zero missing sections. All integration, smoke, module, finance/approval, communications and isolated tenant/role checks passed. No backend, security, data stores, route metadata or alias implementation changed.
+- Responsive geometry/AI dispatch, long identity, touch and dark/light accessibility passed at320/390/768/1440px. Mobile AI remains static/in-flow and under320px at the tested1000px viewport; no imposed height clipping. Existing voice capture/cancellation and Send tests passed. Screenshots reviewed for greeting-first hierarchy and compact AI; initial interaction-test overlay was corrected by registering its synthetic event interceptor before application listeners.
+- Final visual artifact13903576155, digest sha256:c4b5e5fb997e250f42797d1892af4654f5ca0f00c3c43ac4639670d5e7f30f12, attached to CI43125351042 (14-day artifact retention; tests reproduce it).
+- PR79 squash commit on main: a5b3e93719383468a52919bd8e1974241df74b73. Title exactly: Reorganise Command Centre hierarchy, constrain AI command bar on mobile, and tighten navigation density.
+- Main source tree2dced75248f7b00fd8e71d38742695dfb732faa3 verified identical to passing candidate. Render auto-deploy remains off. This task ends with the requested main commit; production deployment was not triggered.
+- This acceptance branch only preserves results and continuation memory. Source changes are already committed on main.
