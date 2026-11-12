@@ -144,3 +144,12 @@ body.portal-workspace .app-footer.oprun-footer .workspace-platform-brand{width:a
 
 /* Shortcut hint drawn by CSS so the search button's visible text matches its accessible name (axe label-content-name-mismatch). */
 .search-button kbd[data-keys]::before{content:attr(data-keys)}
+
+/* Narrow phones: keep the AI bar compact even with wider fallback fonts (CI measured 332px at 320px wide). */
+@media(max-width:760px){
+  #dashboard-view .sp-askbar{padding:10px}
+  #dashboard-view .sp-ask-head{margin-bottom:6px;gap:4px 8px}
+  #dashboard-view .sp-ask-status{padding:2px 8px;font-size:.72rem}
+  #dashboard-view .sp-ask-chips{margin-top:6px;gap:5px}
+  #dashboard-view .sp-ask-chips button{min-height:38px!important;height:auto!important;padding:3px 6px!important;font-size:12px!important;line-height:1.2!important}
+}
