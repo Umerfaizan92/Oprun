@@ -74,11 +74,12 @@ try {
     assert.equal(await p.locator('#business-navigation .navigation-page').count(), 60);
     assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 8);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
-    await p.locator('#workspace-command button').waitFor();
+    await p.locator('.search-button').waitFor();
+    assert.equal(await p.locator('#workspace-command').count(), 0, 'only one finder');
     assert.ok(await p.locator('#workspace-start a').count() > 0, 'Command Centre provides permitted next steps');
     assert.equal(await p.locator('#dashboard-view .operational-strip .metric-card').count(),4);
     assert.equal(await p.locator('#m-expiring').count(),1,'expiry detail preserved');
-    await p.locator('#workspace-command button').click();
+    await p.locator('.search-button').click();
     await p.locator('#page-search').waitFor({state:'visible'});
     await p.getByRole('button',{name:'Close search',exact:true}).click();
     await p.screenshot({path:`qa/visual/navigation/redesign-command-${width}.png`,fullPage:true});

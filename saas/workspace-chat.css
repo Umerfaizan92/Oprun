@@ -7,7 +7,8 @@ html[data-theme="light"] .sc-shell{--sc-ink:#fff;--sc-panel:#fff;--sc-card:#eef1
 .sc-launch-icon,.sc-orb{display:grid;place-items:center;width:32px;height:32px;border-radius:11px;background:var(--sc-gold);color:#16120a;font-size:16px}
 .sc-launch-text{display:grid;text-align:left}.sc-launch-text b{font-size:13px}.sc-launch-text small{color:var(--sc-muted);font-size:12px}
 .sc-launch[hidden],.sc-panel[hidden]{display:none!important}
-.sc-launch.has-unread .sc-launch-icon{animation:sc-ring 1.6s ease-in-out infinite}
+.sc-launch.has-unread .sc-launch-icon{animation:sc-ring 1.6s ease-in-out 2} /* rings twice, never loops */
+@media(prefers-reduced-motion:reduce){.sc-launch.has-unread .sc-launch-icon{animation:none}}
 .sc-badge{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#e5484d;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--sc-panel);animation:sc-pop .3s ease-out}
 .sc-badge[hidden]{display:none}
 .sc-panel{display:flex;flex-direction:column;width:min(400px,calc(100vw - 24px));height:min(580px,calc(100dvh - 110px));border:1px solid var(--sc-gold-line);border-radius:20px;background:var(--sc-panel);color:var(--sc-text);box-shadow:0 28px 90px rgba(0,0,0,.5);overflow:hidden;transform-origin:bottom left;animation:sc-open .28s cubic-bezier(.2,.9,.3,1.1);transition:width .25s ease,height .25s ease}

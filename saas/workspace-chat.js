@@ -30,13 +30,16 @@
     document.body.append(shell);
 
     let state='closed',lastKey='',unread=0,watching=new Map(); // message id -> {delivered,read}
-    const permitted=action=>window.GDS_SESSION?.access?.mode!=='custom'||window.SuperProCan('staff_chat',action);
+    // No signed-in workspace session means no chat (sign-in screen, signed out); custom-access members need a staff_chat grant.
+    const permitted=action=>Boolean(window.GDS_SESSION)&&(window.GDS_SESSION.access?.mode!=='custom'||Boolean(window.SuperProCan?.('staff_chat',action)));
     const syncAccess=()=>{shell.hidden=!permitted('read');if(shell.hidden){state='closed';panel.hidden=true;log.replaceChildren();dir.replaceChildren()}send.disabled=!permitted('create');avail.querySelector('button').disabled=!permitted('edit')};
     window.addEventListener('superpro:workspace-ready',syncAccess);window.addEventListener('superpro:access-changed',syncAccess);syncAccess();
     const open=()=>{if(!permitted('read'))return;state=state==='closed'?'normal':state;apply();window.dispatchEvent(new CustomEvent('superpro:floating-chat',{detail:{active:'staff'}}));document.querySelector('#gds-copilot .copilot-panel')?.setAttribute('hidden','');const cp=document.querySelector('#gds-copilot .copilot-launch');if(cp)cp.hidden=true;load(true);loadTeam();ta.focus()};
     const close=()=>{state='closed';apply();window.dispatchEvent(new CustomEvent('superpro:floating-chat',{detail:{active:''}}))};
+    // The unread badge follows every open/close immediately instead of waiting for the next poll.
+    function paintBadge(){const show=!!unread&&state==='closed';badge.hidden=!show;badge.textContent=unread>9?'9+':String(unread);badge.setAttribute('aria-label',unread===1?'1 unread message':unread+' unread messages');launch.classList.toggle('has-unread',show);launch.setAttribute('aria-label',show?`Office chat, ${unread>9?'9+':unread} unread`:'Office chat')}
     function apply(){
-      const closed=state==='closed';panel.hidden=closed;launch.hidden=!closed;launch.setAttribute('aria-expanded',String(!closed));
+      const closed=state==='closed';panel.hidden=closed;launch.hidden=!closed;launch.setAttribute('aria-expanded',String(!closed));paintBadge();
       shell.dataset.state=state;bMax.textContent=state==='max'?'⤡':'⤢';bMax.setAttribute('aria-label',state==='max'?'Restore staff chat size':'Maximise staff chat');bMax.title=bMax.getAttribute('aria-label');
       bMin.textContent=state==='min'?'▢':'—';bMin.setAttribute('aria-label',state==='min'?'Expand staff chat':'Minimise staff chat');bMin.title=bMin.getAttribute('aria-label');
     }
@@ -72,7 +75,7 @@
       if(!permitted('read'))return;
       try{
         const d=await api('/api/saas/staff-chat'+(!document.hidden&&visible&&(state==='normal'||state==='max')?'?read=1':'')),rows=d.messages||[];
-        unread=d.unread||0;badge.hidden=!unread||state!=='closed';badge.textContent=unread>9?'9+':String(unread);launch.classList.toggle('has-unread',!!unread&&state==='closed');
+        unread=d.unread||0;paintBadge();
         const key=rows.map(m=>m.id+':'+m.sender_name+':'+(m.delivered_count||0)+':'+((m.read_by||[]).length)).join('|');
         // receipts: tell the sender when a message was delivered and when it was read
         for(const m of rows){if(!m.mine||!watching.has(m.id))continue;const w=watching.get(m.id);
@@ -90,6 +93,7 @@
     ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px'});
 
     async function loadTeam(){
+      if(!permitted('read'))return;
       try{
         const r=await api('/api/saas/staff-availability'+(inactiveToggle.open?'?include_inactive=1':''));
         const me=r.staff?.find(p=>p.id===r.me);if(me&&!avail.contains(document.activeElement)){statusSel.value=me.availability;avail.elements.reason.value=me.reason||'';if(me.returns_at){const d=new Date(me.returns_at);avail.elements.returns_at.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}else avail.elements.returns_at.value=''}
@@ -106,7 +110,7 @@
       try{await api('/api/saas/staff-availability/me',{method:'PUT',body:JSON.stringify({status:f.get('status'),reason:f.get('reason'),returns_at:raw?new Date(raw).toISOString():null})});await loadTeam()}catch(err){live(err.message,'error')}finally{b.disabled=false}});
 
     const presenceView=crypto.randomUUID();
-    const heartbeat=()=>{if(window.GDS_SESSION&&!document.hidden)api('/api/saas/staff-presence/heartbeat',{method:'POST',superproBackground:true,body:JSON.stringify({view_id:presenceView})}).catch(()=>{})};
+    const heartbeat=()=>{if(permitted('read')&&!document.hidden)api('/api/saas/staff-presence/heartbeat',{method:'POST',superproBackground:true,body:JSON.stringify({view_id:presenceView})}).catch(()=>{})};
     const leave=()=>{if(!window.GDS_SESSION)return;try{navigator.sendBeacon('/api/saas/staff-presence/leave',new Blob([JSON.stringify({view_id:presenceView})],{type:'application/json'}))}catch{}};
     window.addEventListener('superpro:workspace-ready',heartbeat);window.addEventListener('pagehide',leave);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)leave();else{heartbeat();if(team.open)loadTeam()}});
