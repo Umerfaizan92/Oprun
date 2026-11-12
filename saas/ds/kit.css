@@ -1,0 +1,29 @@
+/* Oprun UI kit: the final, shared density layer (frontend transformation batch 2, 12 Nov 2026).
+   Loaded last. Earlier sheets set page headings, panels and empty-state guides up to seven different ways; this file
+   gives one compact answer built from tokens.css, so content starts higher on every page in both themes.
+   Sizes and spacing only: no colours, no element hidden, no control smaller than the 44px touch target. */
+:root{
+  --kit-h1:clamp(1.3rem,1.02rem + .85vw,1.65rem);
+  --kit-kicker:.7rem;
+  --kit-lede:.9rem;
+  --kit-gap:var(--sp-3,.75rem);
+  --kit-pad:clamp(12px,.6rem + .55vw,18px);
+  --kit-radius:14px;
+}
+/* Page heading: kicker, title, one-line description, status pill on the right */
+html body #workspace .view>.page-heading{margin:0 0 var(--kit-gap);gap:6px 14px;align-items:center}
+html body #workspace .view>.page-heading .kicker{margin:0 0 2px;font-size:var(--kit-kicker);line-height:1.3;letter-spacing:.12em}
+html body #workspace .view>.page-heading h1{margin:0;font-size:var(--kit-h1);line-height:1.18;letter-spacing:-.01em}
+html body #workspace .view>.page-heading h1+p,html body #workspace .view>.page-heading>div>p:not(.kicker){margin:4px 0 0;font-size:var(--kit-lede);line-height:1.45;max-width:78ch}
+/* Panels and section cards share one padding and radius */
+html body #workspace .view :is(.panel,.form-section){padding:var(--kit-pad);border-radius:var(--kit-radius)}
+html body #workspace .view :is(.panel,.form-section) .panel-head{margin-bottom:10px}
+/* "Nothing here yet" guide: a slim strip instead of a tall dashed box */
+html body #workspace .view-empty-guide{margin:0 0 var(--kit-gap);padding:10px 12px;gap:8px 12px}
+html body #workspace .view-empty-guide p{font-size:.88rem;line-height:1.4}
+@media (max-width:760px){
+  html body #workspace .view>.page-heading{gap:4px 10px}
+  html body #workspace .view>.page-heading h1+p,html body #workspace .view>.page-heading>div>p:not(.kicker){font-size:.84rem}
+  html body #workspace .view>.page-heading>.status-pill{margin-top:2px}
+  html body #workspace .view-empty-guide a{min-height:44px;padding:8px 14px}
+}

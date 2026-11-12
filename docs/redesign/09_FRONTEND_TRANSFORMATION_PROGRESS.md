@@ -39,10 +39,24 @@ Also stale on phones (fixed the same way): test:channels-ui and test:automations
 "recovered-release-ui" job now passes locally (connections-ui and site-ui are timing-sensitive when run in parallel;
 both pass when run one at a time).
 
-## 4. Pending batches (next actions, in order)
+## 4. Batch 2: shared density layer (done)
 
-- B2 design tokens: one token sheet shared by `saas/` and `office/` (type scale, spacing, radius, elevation, motion,
-  status colours); replace duplicated values in `unified-ui.css`, `office/office-theme.css`, `command-centre.css`.
+`saas/ds/tokens.css` and `retheme.css` were already shared by both portals. What was missing was one final answer for
+page headings, panels and empty-state guides (seven competing `.page-heading h1` rules across six sheets).
+New `saas/ds/kit.css` (loaded last on the Business Workspace) sets them from tokens: sizes and spacing only, no
+colours, nothing hidden, touch targets kept at 44px. Measured with `node scripts/report-density.mjs` on all 60 pages:
+
+| Width | Page heading (avg) | Content starts (avg, px from top) | Pages worse | Sideways scroll |
+|---|---|---|---|---|
+| 1440 | 110 → 76 px | 297 → 259 | 0 | 0 |
+| 390 | 148 → 106 px | 306 → 256 | 0 | 0 |
+
+All 14 browser suites and npm test 73/73 pass (navigation-ui consent sections once timed out at 390px and passed on
+rerun; it is timing-sensitive, not layout-related).
+
+## 5. Pending batches (next actions, in order)
+
+- B2 follow-up: phone top bar is two rows (111px); fold the action icons into one row with the identity.
 - B3 Founder Console compaction: tables, filters, status pills and page headers on the shared components; keep
   operator-only routes and `/api/operator/*` RBAC unchanged; extend `test:console-ui` to all 34 tabs.
 - B4 Workspace pages group by group (Work → Customers → People → Communications → Growth → Money → Setup): compact
@@ -52,7 +66,7 @@ both pass when run one at a time).
 
 ## Continuation prompt
 
-"Continue docs/redesign/09_FRONTEND_TRANSFORMATION_PROGRESS.md from the first pending batch. Read CLAUDE.md first.
+"Continue docs/redesign/09_FRONTEND_TRANSFORMATION_PROGRESS.md from the first pending batch (B3 next). Read CLAUDE.md first.
 Work in a new branch, keep every route, permission and element ID, run npm test plus the browser suites listed in
 section 3, update this file, open a PR, merge when green, deploy Render service srv-dan4rdqjnfac73fceor0 and verify
 the build log shows ALL CHECKS PASSED and startup diagnostics 16/16."
