@@ -60,9 +60,11 @@
     });
   }
   function restore() {
-    const root = currentRoot(); if (!root) return; const ALIAS = { 'attention-items': 'priorities' }; // renamed sections keep their old ?section= links
-    const raw = new URLSearchParams(location.hash.split('?')[1] || '').get('section'); if (!raw) return; const value = ALIAS[raw] || raw;
-    const b = [...root.querySelectorAll('[role=tab]'), ...document.querySelectorAll('#console-tabs [role=tab]')].find(b => key(b) === value && !b.disabled && !b.hidden);
+    const root = currentRoot(); if (!root) return; const ALIAS = { 'attention-items': 'action-centre', priorities: 'action-centre', readiness: 'workflow-guidance', 'workflow-guide': 'workflow-guidance' }; // renamed sections keep their old ?section= links
+    const raw = new URLSearchParams(location.hash.split('?')[1] || '').get('section'); if (!raw) return;
+    const tabs = [...root.querySelectorAll('[role=tab]'), ...document.querySelectorAll('#console-tabs [role=tab]')], usable = v => tabs.find(b => key(b) === v && !b.disabled && !b.hidden);
+    // An alias is only used when this page has no section with the old key, so other pages are never redirected.
+    const value = usable(raw) ? raw : (ALIAS[raw] || raw); const b = usable(value);
     if (b && b.getAttribute('aria-selected') !== 'true') { restoring = true; b.click(); restoring = false; }
     if (b) window.dispatchEvent(new CustomEvent('superpro:sectionchange', { detail: { label: b.textContent, key: value } }));
   }

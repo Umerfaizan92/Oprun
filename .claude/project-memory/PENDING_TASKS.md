@@ -315,3 +315,4 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner Prompt 02 (12 Nov): Your Workspace after Business overview with all features compact and connected; rename Attention items, keep only Your Next Step (3 cards) and AI Operations Brief, enhanced; hide header/chatbot/AI bar there; preserve routes; PR only
 - Files: saas/command-centre-sections.js,saas/command-centre.css,saas/workspace.html,saas/focused-workspace.js,saas/page-sections.js,saas/workspace-mobile.js
 - Acceptance: Both sections verified 320-1440 incl. axe; npm test; PR opened, not merged
+

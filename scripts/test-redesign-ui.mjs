@@ -125,7 +125,7 @@ try {
   await page.screenshot({path:`qa/visual/redesign/inbox-${width}.png`,fullPage:true});
   // Prompt 02: Your Workspace (after Business overview) and Priorities (renamed from Attention items).
   await page.goto(server.base+'/saas/workspace.html#today/home');await page.locator('#dashboard-view .gx-tile').first().waitFor();
-  assert.deepEqual(await page.locator('#dashboard-view .context-section-tabs [role=tab]').evaluateAll(t=>t.map(x=>x.textContent)),['Business overview','Your Workspace','Priorities','Readiness','Workflow guide']);
+  assert.deepEqual(await page.locator('#dashboard-view .context-section-tabs [role=tab]').evaluateAll(t=>t.map(x=>x.textContent)),['Business overview','Your Workspace','Action Centre','Workflow Guidance']);
   const openSection=async name=>{if(width<=760)await page.locator('#mobile-workspace-dock button',{hasText:name}).click();else await page.locator('#dashboard-view .context-section-tabs [role=tab]',{hasText:name}).click();await page.waitForFunction(n=>document.querySelector('#dashboard-view [role=tab][aria-selected=true]')?.textContent===n,name)};
   await openSection('Your Workspace');await page.locator('[data-cc-features] .cc-tile').first().waitFor();
   assert.ok(await page.locator('[data-cc-features] .cc-tile:visible').count()>=20,'all permitted features listed');
@@ -133,20 +133,42 @@ try {
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no sideways scroll');
   await page.locator('#cc-feature-filter').fill('invoice');assert.ok(await page.locator('[data-cc-features] .cc-tile').count()>=1);
   await page.locator('#cc-feature-filter').fill('zzzz-nothing');await page.locator('[data-cc-ask]').waitFor();await page.locator('#cc-feature-filter').fill('');
-  await openSection('Priorities');await page.locator('#priorities .cc-brief').waitFor();
+  await openSection('Action Centre');await page.locator('#priorities .cc-brief').waitFor();
   assert.equal(await page.locator('#workspace-start .workspace-start-link:visible').count(),3,'three next-step cards');
   assert.ok(await page.locator('#priorities .ai-brief-panel').isVisible());
   await page.waitForFunction(()=>/^Live/.test(document.querySelector('#priorities .status-pill')?.textContent||''));
-  for(const hidden of ['.dashboard-heading','#sp-askbar','#workspace-features'])assert.equal(await page.locator(hidden).isVisible(),false,hidden+' hidden on Priorities');
+  for(const hidden of ['.dashboard-heading','#sp-askbar','#workspace-features'])assert.equal(await page.locator(hidden).isVisible(),false,hidden+' hidden on Action Centre');
   for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
    const v=await page.evaluate(async source=>{if(!window.axe)(0,eval)(source);const r=await window.axe.run({include:['#priorities']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.filter(x=>['serious','critical'].includes(x.impact)).map(x=>({id:x.id,t:x.nodes.map(n=>n.target)}))},axe);
-   assert.deepEqual(v,[],`${width}px ${theme} Priorities accessibility`);}
+   assert.deepEqual(v,[],`${width}px ${theme} Action Centre accessibility`);}
   await openSection('Your Workspace');
   for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
    const v=await page.evaluate(async source=>{if(!window.axe)(0,eval)(source);const r=await window.axe.run({include:['#workspace-features']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.filter(x=>['serious','critical'].includes(x.impact)).map(x=>({id:x.id,t:x.nodes.map(n=>n.target)}))},axe);
    assert.deepEqual(v,[],`${width}px ${theme} Your Workspace accessibility`);}
-  await page.goto(server.base+'/saas/workspace.html#today/home?section=attention-items');
-  await page.waitForFunction(()=>document.querySelector('#dashboard-view [role=tab][aria-selected=true]')?.textContent==='Priorities');
+  // Master prompt: Workflow Guidance = 8-stage core workflow + the working Setup Checklist.
+  await openSection('Workflow Guidance');await page.locator('#workflow-guidance .wg-stage').first().waitFor();
+  assert.deepEqual(await page.locator('#workflow-guidance .wg-name b').allTextContents(),['Enquiry','Quotation','Booking','Allocation','Execution','Completion','Invoice','Payment']);
+  for(const hidden of ['.dashboard-heading','#workspace-features','#priorities','.gx-board'])assert.equal(await page.locator(hidden).first().isVisible(),false,hidden+' hidden on Workflow Guidance');
+  await page.waitForFunction(()=>!/Loading/.test(document.querySelector('#workflow-guidance .wg-summary')?.textContent||'Loading'));
+  await page.locator('[data-wg-toggle=quotation]').click();await page.locator('#wg-quotation').waitFor();
+  assert.equal(await page.locator('[data-wg-toggle=quotation]').getAttribute('aria-expanded'),'true');
+  assert.match(await page.locator('#wg-quotation a').getAttribute('href'),/#work\/quotes/);
+  await page.locator('[data-setup-checklist] .setup-list li').first().waitFor();
+  assert.ok(await page.locator('[data-setup-checklist] .setup-list li').count()>=5,'checklist shows every step for the owner');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no sideways scroll on Workflow Guidance');
+  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+   const v=await page.evaluate(async source=>{if(!window.axe)(0,eval)(source);const r=await window.axe.run({include:['#workflow-guidance']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.filter(x=>['serious','critical'].includes(x.impact)).map(x=>({id:x.id,t:x.nodes.map(n=>n.target)}))},axe);
+   assert.deepEqual(v,[],`${width}px ${theme} Workflow Guidance accessibility`);}
+  // The fixed bug: a checklist button opens its page and focuses the field, including the step on the current page.
+  const step=page.locator('[data-setup-checklist] [data-setup-step]').first();
+  if(await step.count()){const key=await step.evaluate(b=>b.closest('li').dataset.setupKey);await step.click();
+   await page.waitForFunction(()=>!document.getElementById('dashboard-view')||document.getElementById('dashboard-view').hidden);
+   const want={business:'onboarding',services:'onboarding',contact:'onboarding',channel:'integrations',job:'jobs',overheads:'finance'}[key];
+   await page.waitForFunction(v=>!document.getElementById(v+'-view').hidden,want);
+   if(want==='onboarding'){await page.locator('#setup-checklist [data-setup-step]').first().click();await page.waitForFunction(()=>document.activeElement&&document.activeElement.closest('#onboarding-form'));}}
+  for(const [old,label] of [['attention-items','Action Centre'],['priorities','Action Centre'],['readiness','Workflow Guidance'],['workflow-guide','Workflow Guidance']]){
+   await page.goto(server.base+'/saas/workspace.html#today/home?section='+old);
+   await page.waitForFunction(n=>document.querySelector('#dashboard-view [role=tab][aria-selected=true]')?.textContent===n,label);}
   await context.close();
   console.log(`PASS redesign ${width}px: navigation, guidance, command search, context links, overflow and dark/light accessibility`);
  }

@@ -1,8 +1,11 @@
-// Prompt 02 (12 Nov 2026): Command Centre sub-sections "Your Workspace" and "Priorities" (renamed from Attention items).
+// Prompt 02 (12 Nov 2026): Command Centre sub-sections "Your Workspace" and "Action Centre" (was Priorities / Attention items).
 // - Your Workspace: every page this person may open, grouped like the main navigation, with live counts, a quick
 //   filter and an "Ask AI" fallback. Tiles open the real pages, so each one uses its own authorised API.
 // - Priorities: "Your next step" (three permitted cards, now with live status) and the AI Operations Brief (live
 //   priorities with actions, refresh time, and an on-demand AI plan through the existing AI Operations endpoint).
+// Master prompt (12 Nov 2026): "Priorities" is now "Action Centre" (old ?section=priorities and attention-items links
+//   still work), and Readiness + Workflow guide are one "Workflow Guidance" section: the eight-stage core workflow with
+//   live counts from the pipeline and job endpoints, then the real Setup Checklist (saas/workspace-setup.js).
 // Data comes only from endpoints the signed-in role can already call; nothing is sent, published or charged here.
 (() => {
   const view = document.getElementById('dashboard-view');
@@ -78,7 +81,7 @@
   const askWhere = () => window.dispatchEvent(new CustomEvent('superpro:ask', { detail: { question: `Where in Oprun can I ${query.trim()}?` } }));
   view.addEventListener('click', e => { if (e.target.closest('[data-cc-ask]')) askWhere(); });
 
-  // ---------- Priorities: Your next step ----------
+  // ---------- Action Centre: Your next step ----------
   function paintNextSteps() {
     const start = $('#workspace-start'); if (!start) return;
     const c = live(), j = data?.jobs;
@@ -96,7 +99,7 @@
     });
   }
 
-  // ---------- Priorities: AI Operations Brief ----------
+  // ---------- Action Centre: AI Operations Brief ----------
   function priorities() {
     if (!data) return [];
     const allowed = allowedViews(), out = [];
@@ -145,15 +148,78 @@
   }
   view.addEventListener('click', e => { const r = e.target.closest('[data-cc-refresh]'), p = e.target.closest('[data-cc-plan]'); if (r) refresh(true); if (p) plan(p); });
 
+
+  // ---------- Workflow Guidance: core workflow ----------
+  // Each stage reads one real figure; null means this role cannot see it or it did not load, and is shown as such.
+  const STAGES = [
+    { key: 'enquiry', name: 'Enquiry', icon: 'i-bell', view: 'enquiries', count: () => stage('enquiries'), unit: ['new enquiry', 'new enquiries'],
+      what: 'A request for work arrives from a call, email, form, social message or the AI receptionist.', needs: 'A customer and what they want.', next: 'Qualify it and turn it into a quote.' },
+    { key: 'quotation', name: 'Quotation', icon: 'i-doc', view: 'quotes', count: () => stage('quotes'), unit: ['quote waiting', 'quotes waiting'],
+      what: 'Price the work. Quotes are approved by you before the customer sees them.', needs: 'An enquiry and your services and prices.', next: 'When the customer accepts, it becomes a booking.' },
+    { key: 'booking', name: 'Booking', icon: 'i-clock', view: 'bookings', count: () => stage('bookings'), unit: ['booking awaiting workers', 'bookings awaiting workers'],
+      what: 'The accepted quote is booked with a date and creates a job.', needs: 'An accepted quote.', next: 'Allocate workers to the job.' },
+    { key: 'allocation', name: 'Allocation', icon: 'i-users', view: 'jobs', count: () => data?.jobs ? data.jobs.awaiting ?? null : null, unit: ['job to allocate', 'jobs to allocate'],
+      what: 'Offer the job to workers who have the right skills and current compliance.', needs: 'A booked job and ready workers.', next: 'Workers accept and the job goes ahead.' },
+    { key: 'execution', name: 'Execution', icon: 'i-briefcase', view: 'jobs', count: () => stage('allocated'), unit: ['job in progress', 'jobs in progress'],
+      what: 'The team does the work and records notes, photos and time against the job.', needs: 'Allocated workers.', next: 'Mark the job complete.' },
+    { key: 'completion', name: 'Completion', icon: 'i-check', view: 'bookings', count: () => stage('to_invoice'), unit: ['completed job to invoice', 'completed jobs to invoice'],
+      what: 'The job is finished with its evidence, ready to bill.', needs: 'A job in progress.', next: 'Create the invoice.' },
+    { key: 'invoice', name: 'Invoice', icon: 'i-doc', view: 'businessinvoices', count: () => stage('unpaid'), unit: ['invoice unpaid', 'invoices unpaid'],
+      what: 'Approve and issue the invoice from the completed job.', needs: 'A completed job.', next: 'Collect payment.' },
+    { key: 'payment', name: 'Payment', icon: 'i-shield', view: 'businessinvoices', count: () => stage('paid'), unit: ['invoice paid', 'invoices paid'], done: true,
+      what: 'Payments land against each invoice and close the job.', needs: 'An issued invoice.', next: 'The job is closed and profit is recorded.' }
+  ];
+  let openStage = null;
+  function paintWorkflow() {
+    const host = $('[data-cc-workflow]'); if (!host) return;
+    const allowed = allowedViews(), canAi = allowed.has('assistant');
+    // Skip identical repaints: other modules react to DOM changes, so an unchanged repaint could loop.
+    const sig = JSON.stringify([failed, loadedAt, openStage, [...allowed].length, data || pipeline ? STAGES.map(s => s.count()) : null]);
+    if (sig === host.dataset.wgSig) return; host.dataset.wgSig = sig;
+    const pill = $('[data-wg-status]');
+    if (pill) { pill.className = 'status-pill ' + (failed ? 'warn' : data ? 'good' : 'neutral'); pill.textContent = failed ? 'Live data unavailable' : data ? `Live · ${time(loadedAt)}` : 'Loading live data…'; }
+    const rows = STAGES.map((s, i) => {
+      const n = data || pipeline ? s.count() : undefined, can = allowed.has(s.view);
+      const st = n === undefined ? ['Loading…', 'wait'] : n === null ? ['Not available for your role', 'none'] : n === 0 ? [s.done ? 'None yet' : 'Clear', 'ok'] : [plural(n, s.unit[0], s.unit[1]), s.done ? 'ok' : 'warn'];
+      const id = 'wg-' + s.key, isOpen = openStage === s.key;
+      return el('li', { class: 'wg-stage wg-' + st[1] + (isOpen ? ' is-open' : ''), 'data-wg-stage': s.key },
+        el('button', { type: 'button', class: 'wg-step', 'aria-expanded': String(isOpen), 'aria-controls': id, 'data-wg-toggle': s.key },
+          el('span', { class: 'wg-num', 'aria-hidden': 'true', text: String(i + 1).padStart(2, '0') }),
+          el('span', { class: 'wg-icon' }, icon(s.icon)),
+          el('span', { class: 'wg-name' }, el('b', { text: s.name }), el('small', { class: 'wg-chip', text: st[0] }))),
+        el('div', { class: 'wg-detail', id, hidden: !isOpen },
+          el('p', { text: s.what }),
+          el('dl', {}, el('dt', { text: 'Needs' }), el('dd', { text: s.needs }), el('dt', { text: 'Then' }), el('dd', { text: s.next })),
+          el('div', { class: 'wg-actions' },
+            can ? el('a', { class: 'primary-button compact', href: '#' + nav().pathFor(s.view), text: `Open ${nav().pageMeta?.[s.view]?.[1] || s.name}` }) : el('small', { class: 'setup-locked', text: 'Your role cannot open this stage. Ask your business owner.' }),
+            canAi ? el('button', { type: 'button', class: 'secondary-button compact', 'data-wg-ask': s.key, text: 'Ask AI about this step' }) : null)));
+    });
+    const known = STAGES.map(s => (data || pipeline ? s.count() : null)).filter(n => n != null);
+    const active = STAGES.filter(s => { const n = data || pipeline ? s.count() : null; return n && !s.done; }).length;
+    host.replaceChildren(
+      el('p', { class: 'wg-summary', text: !data && !pipeline ? (failed ? 'Live figures could not be loaded. Use Refresh in the Action Centre or reload.' : 'Loading live workflow figures…') : known.length ? (active ? `${plural(active, 'stage')} need attention. Select a stage to see what it needs and open it.` : 'Nothing is waiting at any stage you can see.') : 'Your role cannot see pipeline figures. Select a stage to learn how it works.' }),
+      el('ol', { class: 'wg-list' }, rows));
+  }
+  view.addEventListener('click', e => {
+    const t = e.target.closest('[data-wg-toggle]'), a = e.target.closest('[data-wg-ask]');
+    if (t) { openStage = openStage === t.dataset.wgToggle ? null : t.dataset.wgToggle; paintWorkflow(); view.querySelector(`[data-wg-toggle="${openStage || t.dataset.wgToggle}"]`)?.focus(); }
+    if (a) { const s = STAGES.find(x => x.key === a.dataset.wgAsk), n = s?.count(); window.dispatchEvent(new CustomEvent('superpro:ask', { detail: { question: `Help me with the ${s.name} step of my workflow${n != null ? ` (live figure: ${plural(n, s.unit[0], s.unit[1])})` : ''}. What should I do next?` } })); }
+  });
+  function paintChecklist() { const h = $('[data-setup-checklist]'); if (h && window.OprunSetupChecklist && section === 'workflow-guidance' && !view.hidden) window.OprunSetupChecklist.render(h); }
+
   // ---------- section focus: show only the chosen section's content ----------
   let section = 'business-overview', timer;
   function currentSection() { const t = view.querySelector('.context-section-tabs [role=tab][aria-selected=true]'); return t?.dataset.sectionKey || 'business-overview'; }
+  // Runs only when the chosen section or the page visibility really changes; other modules re-set aria-selected to the
+  // same value whenever content changes, and reacting to those would re-render in a loop.
+  let lastKey = '';
   function sync() {
+    const k = currentSection() + '|' + view.hidden; if (k === lastKey) return; lastKey = k;
     section = currentSection(); view.dataset.ccSection = section; document.body.dataset.ccSection = view.hidden ? '' : section;
     clearInterval(timer);
-    if (!view.hidden && (section === 'your-workspace' || section === 'priorities')) { refresh(); timer = setInterval(() => { if (!document.hidden) refresh(true); }, 60000); }
+    if (!view.hidden && ['your-workspace', 'action-centre', 'workflow-guidance'].includes(section)) { paintChecklist(); refresh(); timer = setInterval(() => { if (!document.hidden) refresh(true); }, 60000); }
   }
-  function paint() { paintFeatures(); paintNextSteps(); paintBrief(); }
+  function paint() { paintFeatures(); paintNextSteps(); paintBrief(); paintWorkflow(); }
   new MutationObserver(sync).observe(view, { subtree: true, attributes: true, attributeFilter: ['aria-selected', 'hidden'] });
   new MutationObserver(paintNextSteps).observe(document.getElementById('workspace-start') || view, { childList: true });
   for (const ev of ['gds:viewchange', 'superpro:sectionchange', 'superpro:workspace-ready', 'superpro:access-changed', 'superpro:nav-ready']) window.addEventListener(ev, () => { sync(); paint(); });

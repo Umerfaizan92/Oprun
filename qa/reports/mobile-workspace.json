@@ -16,19 +16,13 @@
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Priorities",
+      "detail": "Section: Action Centre",
       "result": "PASS"
     },
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Readiness",
-      "result": "PASS"
-    },
-    {
-      "route": "today/home",
-      "width": 390,
-      "detail": "Section: Workflow guide",
+      "detail": "Section: Workflow Guidance",
       "result": "PASS"
     },
     {
@@ -1174,19 +1168,13 @@
     {
       "route": "today/home",
       "width": 1440,
-      "detail": "Desktop section: Priorities",
+      "detail": "Desktop section: Action Centre",
       "result": "PASS"
     },
     {
       "route": "today/home",
       "width": 1440,
-      "detail": "Desktop section: Readiness",
-      "result": "PASS"
-    },
-    {
-      "route": "today/home",
-      "width": 1440,
-      "detail": "Desktop section: Workflow guide",
+      "detail": "Desktop section: Workflow Guidance",
       "result": "PASS"
     },
     {

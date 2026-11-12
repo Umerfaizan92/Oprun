@@ -155,8 +155,8 @@ body.portal-workspace .app-footer.oprun-footer .workspace-platform-brand{width:a
 
 /* ===== Prompt 02: Your Workspace and Priorities sections ===== */
 /* These two sections show only their own content: no greeting/header, AI command bar or chatbot launcher. */
-#dashboard-view:is([data-cc-section="your-workspace"],[data-cc-section="priorities"]) :is(.dashboard-heading,#sp-askbar){display:none!important}
-body:is([data-cc-section="your-workspace"],[data-cc-section="priorities"]) #gds-copilot .copilot-launch{display:none!important}
+#dashboard-view:is([data-cc-section="your-workspace"],[data-cc-section="action-centre"],[data-cc-section="workflow-guidance"]) :is(.dashboard-heading,#sp-askbar){display:none!important}
+body:is([data-cc-section="your-workspace"],[data-cc-section="action-centre"],[data-cc-section="workflow-guidance"]) #gds-copilot .copilot-launch{display:none!important}
 #dashboard-view .cc-section{margin:0 0 12px}
 #dashboard-view .cc-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:0 0 10px}
 #dashboard-view .cc-section-head h2{margin:2px 0 0;font-size:clamp(1.05rem,1.8vw,1.25rem)}
@@ -239,3 +239,38 @@ body:is([data-cc-section="your-workspace"],[data-cc-section="priorities"]) #gds-
 @media(max-width:340px){.cc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 /* Up to five sub-sections share one row on common phones; narrower screens still wrap instead of scrolling. */
 @media(max-width:760px){body.portal-workspace .mobile-workspace-section-group .mobile-workspace-item{flex:1 1 0!important;min-width:56px}}
+/* Master prompt: Workflow Guidance (core workflow + setup checklist). One-shot transitions only; none loop. */
+#workflow-guidance{display:grid;gap:14px}
+#workflow-guidance .wg-summary{margin:0 0 8px;color:var(--muted);font-size:.86rem}
+#workflow-guidance .wg-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;counter-reset:wg}
+#workflow-guidance .wg-stage{position:relative;min-width:0;border:1px solid var(--line);border-radius:14px;background:var(--sp-surface,transparent);transition:border-color .2s,box-shadow .2s}
+#workflow-guidance .wg-stage.is-open{grid-column:1/-1;border-color:var(--gold,#d9ad59);box-shadow:0 6px 18px #0002}
+#workflow-guidance .wg-step{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-radius:14px}
+#workflow-guidance .wg-step:focus-visible{outline:2px solid var(--gold,#d9ad59);outline-offset:2px}
+#workflow-guidance .wg-num{font-size:.7rem;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+#workflow-guidance .wg-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#e2bd7214;color:var(--gold,#d9ad59)}
+#workflow-guidance .wg-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
+#workflow-guidance .wg-name{display:grid;min-width:0}#workflow-guidance .wg-name b{font-size:.9rem}
+#workflow-guidance .wg-chip{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#workflow-guidance .wg-warn .wg-chip{color:var(--amber,#c98a00);font-weight:600}#workflow-guidance .wg-ok .wg-chip{color:#3fbf86}
+#workflow-guidance .wg-warn .wg-num::after{content:"";display:inline-block;width:6px;height:6px;margin-left:4px;border-radius:50%;background:var(--amber,#c98a00);vertical-align:middle}
+#workflow-guidance .wg-detail{padding:0 14px 14px 14px;animation:wg-in .22s ease-out 1}
+#workflow-guidance .wg-detail p{margin:0 0 8px;font-size:.88rem}
+#workflow-guidance .wg-detail dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0 0 10px;font-size:.82rem}
+#workflow-guidance .wg-detail dt{font-weight:700;color:var(--muted)}#workflow-guidance .wg-detail dd{margin:0}
+#workflow-guidance .wg-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@keyframes wg-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+#workflow-guidance .cc-readiness-head h3{margin:2px 0 8px;font-size:1rem}#workflow-guidance .cc-readiness-head .kicker{margin:0}
+#workflow-guidance .setup-check{margin:0}
+.setup-list li.unknown .setup-tick{border-style:dashed}.setup-locked{color:var(--muted);font-size:.78rem}
+.setup-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;color:var(--muted)}
+.setup-foot .text-button{background:none;border:0;color:var(--gold,#d9ad59);font-weight:600;cursor:pointer;padding:4px 6px}
+.setup-error{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.setup-error p{margin:0}
+@media(max-width:900px){#workflow-guidance .wg-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){#workflow-guidance .wg-list{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#workflow-guidance .wg-detail{animation:none}#workflow-guidance .wg-stage{transition:none}}
+html[data-theme="light"] #workflow-guidance .wg-chip,html[data-theme="light"] #workflow-guidance .wg-num,html[data-theme="light"] #workflow-guidance .wg-summary{color:#4b5563}
+html[data-theme="light"] #workflow-guidance .wg-ok .wg-chip,html[data-theme="light"] .setup-list em{color:#17704a}
+html[data-theme="light"] #workflow-guidance .wg-warn .wg-chip{color:#8a5200}
+html[data-theme="light"] #workflow-guidance .wg-icon{color:#8a5f12}
+html[data-theme="light"] .setup-foot .text-button{color:#7a5410}
