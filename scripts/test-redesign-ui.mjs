@@ -23,15 +23,38 @@ try {
   assert.equal(await page.locator('#business-navigation').evaluate(e=>e.inert),true);
   await page.waitForFunction(()=>document.querySelector('.navigation-identity-name')?.textContent===document.querySelector('#org-name-side')?.textContent);
 
-  await page.locator('#workspace-start a').first().waitFor();
   await page.locator('#dashboard-view .gx-board .gx-tile').first().waitFor();
+  // Prompt 01: greeting only (no account line), no "Your next step", no "<name> right now", no workspace shortcuts,
+  // five live sections, Open job pool and Ask AI side by side.
+  assert.equal(await page.locator('#user-line').isVisible(),false);
+  assert.equal(await page.locator('#workspace-start').isVisible(),false);
+  assert.equal(await page.locator('#dashboard-view .gx-head h2').count(),0);
+  assert.equal(await page.locator('#dashboard-view .gx-workspace-links').count(),0);
+  assert.match(await page.locator('#dashboard-view .gx-live').innerText(),/^Live/);
+  assert.equal(await page.locator('#dashboard-view .gx-tile').count(),5);
+  const [jobPool,askAi]=await page.locator('#dashboard-view .heading-actions > button').evaluateAll(b=>b.map(x=>x.getBoundingClientRect().toJSON()));
+  assert.ok(Math.abs(jobPool.top-askAi.top)<2&&jobPool.right<=askAi.left+1&&jobPool.height>=44,'job pool and Ask AI side by side');
   const geometry=await page.evaluate(()=>{
    const rect=s=>document.querySelector(s).getBoundingClientRect();
-   const h=rect('.dashboard-heading'),bar=rect('#sp-askbar'),start=rect('#workspace-start');
-   return {first:document.querySelector('#dashboard-view').firstElementChild.classList.contains('dashboard-heading'),heading:h.top,ai:bar.top,aiHeight:bar.height,nextEnd:start.bottom,position:getComputedStyle(document.querySelector('#sp-askbar')).position};
+   const h=rect('.dashboard-heading'),bar=rect('#sp-askbar'),board=rect('#dashboard-view .gx-board');
+   return {first:document.querySelector('#dashboard-view').firstElementChild.classList.contains('dashboard-heading'),heading:h.top,ai:bar.top,aiHeight:bar.height,boardEnd:board.bottom,position:getComputedStyle(document.querySelector('#sp-askbar')).position};
   });
   assert.equal(geometry.first,true,'greeting is first dashboard content');
-  assert.ok(geometry.heading<geometry.ai&&geometry.nextEnd<=geometry.ai,'greeting and next steps precede AI');
+  assert.ok(geometry.heading<geometry.ai&&geometry.boardEnd<=geometry.ai,'greeting and live sections precede AI');
+  if(width>=1280)assert.ok(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+40),'desktop Command Centre fits one viewport');
+  if(width<=760){
+    const dock=page.locator('#mobile-workspace-dock');await dock.waitFor({state:'visible'});
+    assert.equal(await dock.evaluate(e=>e.parentElement===document.body),true,'bar pinned outside transformed ancestors');
+    assert.equal((await dock.locator('.mobile-workspace-menu').innerText()).replace(/\s+/g,' ').trim(),'All Features');
+    const bottoms=[];for(const y of [0,300,5000,0]){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(80);bottoms.push(await dock.evaluate(e=>Math.round(innerHeight-e.getBoundingClientRect().bottom)))}
+    assert.deepEqual(bottoms,[0,0,0,0],'bar never moves while scrolling');
+    await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await page.waitForTimeout(80);
+    const gap=await page.evaluate(()=>document.querySelector('#mobile-workspace-dock').getBoundingClientRect().top-document.querySelector('.app-footer').getBoundingClientRect().bottom);
+    assert.ok(gap>=0,'footer is never covered by the bar');
+    await dock.locator('.mobile-workspace-menu').click();await page.locator('#all-features .gx-shortcut').first().waitFor();
+    assert.ok(await page.locator('#all-features .gx-shortcut').count()>=6,'All Features lists the workspace shortcuts');
+    await page.locator('.business-navigation-close').click();await page.evaluate(()=>scrollTo(0,0));
+  }
   assert.equal(geometry.position,'static','AI never overlays the viewport');
   if(width<=760)assert.ok(geometry.aiHeight<320,`compact mobile AI: ${JSON.stringify(geometry)}`);
   for(const control of await page.locator('#sp-askbar input,#sp-askbar .sp-ask-form button').all())assert.ok(await control.evaluate(e=>e.getBoundingClientRect().height>=44),'44px AI touch target');

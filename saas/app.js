@@ -793,13 +793,14 @@ function maybeStartTour(me){
     const actions=window.GDSProductGuide?.findActions(q)||[],best=actions[0];
     log.insertAdjacentHTML('beforeend',`<div class="copilot-message user"><p>${esc(q)}</p></div><div class="copilot-message ai waiting"><b>Oprun</b><p>Thinking about your actual question…</p></div>`);log.scrollTop=log.scrollHeight;
     const waiting=log.querySelector('.waiting:last-of-type');let guide;
-    try{guide=await (window.GDSProductGuide?.answerAsync?.(q,`workspace:${currentView}`,lastCopilotTopic,'auto',{signal:controller.signal})||Promise.resolve(window.GDSProductGuide?.answer(q,'workspace',lastCopilotTopic)))}catch{guide=window.GDSProductGuide?.answer(q,'workspace',lastCopilotTopic)}
+    let askFailed=false;try{guide=await (window.GDSProductGuide?.answerAsync?.(q,`workspace:${currentView}`,lastCopilotTopic,'auto',{signal:controller.signal})||Promise.resolve(window.GDSProductGuide?.answer(q,'workspace',lastCopilotTopic)))}catch{askFailed=true;guide=window.GDSProductGuide?.answer(q,'workspace',lastCopilotTopic)}
     if(myToken!==replyToken){waiting?.remove();return}
     if(guide?.topic)lastCopilotTopic=guide.topic;waiting?.remove();
     const shouldNavigate=best&&/(open|show|go|take me|where|add|find|connect|खोल|दिखा|جاؤ|کھول)/i.test(q);
     if(shouldNavigate){showView(best.view);log.insertAdjacentHTML('beforeend',`<div class="copilot-message ai"><b>Opened ${esc(best.label)}</b><p>${esc(guide?.text||'I took you to the closest workspace area.')}</p></div>`)}
     else{log.insertAdjacentHTML('beforeend',`<div class="copilot-message ai"><b>Oprun</b><p>${esc(guide?.text||'Tell me the outcome you want and I will give you the next practical step.')}</p></div>`)}
     log.scrollTop=log.scrollHeight;text.value='';
+    window.dispatchEvent(new CustomEvent('superpro:ask-status',{detail:{state:askFailed&&!guide?.text?'failed':'answered'}}));
     if(guide?.text&&myToken===replyToken)speakReply(guide.text,guide.language||languageOf(q));
   }
   shell.querySelector('form').onsubmit=e=>{e.preventDefault();const q=text.value.trim();if(q){stopVoice();reply(q)}};shell.querySelectorAll('.copilot-suggestions button').forEach(b=>b.onclick=()=>reply(b.textContent));

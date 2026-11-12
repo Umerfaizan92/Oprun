@@ -54,11 +54,14 @@
     const view = root.id.replace(/-view$/, '');
     if (!nav.sequence(session.user.role).includes(view)) { if (dock) dock.hidden = true; return; }
     if (!dock) {
-      dock = make('nav', 'mobile-workspace-dock'); dock.id = 'mobile-workspace-dock'; dock.setAttribute('aria-label', 'Menu and current page sub-sections');
-      menu = control('Menu', 'i-menu', event => { event.stopPropagation(); document.querySelector('.navigation-business-trigger')?.click(); }, null, 'menu');
+      dock = make('nav', 'mobile-workspace-dock'); dock.id = 'mobile-workspace-dock'; dock.setAttribute('aria-label', 'All Features and current page sub-sections');
+      // Prompt 01 #10: the drawer button is called All Features; it still opens the same navigation drawer.
+      menu = control('All Features', 'i-menu', event => { event.stopPropagation(); document.querySelector('.navigation-business-trigger')?.click(); }, null, 'menu');
       menu.classList.add('mobile-workspace-menu'); menu.setAttribute('aria-controls','business-navigation'); menu.setAttribute('aria-haspopup','dialog');
       sections = make('div', 'mobile-workspace-sections'); sections.setAttribute('aria-label', 'Page sub-sections');
-      dock.append(menu, sections); workspace.querySelector('.app-main').append(dock);
+      // Prompt 01 #9: the bar is a direct child of <body>. Inside .app-main it inherited transformed/animated ancestors,
+      // which turn position:fixed into 'fixed to that ancestor' and made the bar drift while scrolling.
+      dock.append(menu, sections); document.body.append(dock);
       resize = new ResizeObserver(() => document.body.style.setProperty('--mobile-workspace-dock-height', Math.ceil(dock.getBoundingClientRect().height) + 'px'));
       resize.observe(dock);
     }
@@ -115,7 +118,12 @@
     // Permission changes and late-loaded chat controls are separate from page rendering.
     new MutationObserver(queue).observe(document.body, {childList:true});
     media.addEventListener('change', queue);
-    const viewport = () => { const v = window.visualViewport; document.body.style.setProperty('--mobile-workspace-viewport-height', (v?.height || innerHeight) + 'px'); document.body.style.setProperty('--mobile-workspace-keyboard-offset', Math.max(0, innerHeight - (v?.height || innerHeight) - (v?.offsetTop || 0)) + 'px'); };
+    // Prompt 01 #9: never move the bar with the visual viewport. Browsers update visualViewport and innerHeight at
+    // different moments while the address bar shows/hides, which made the old keyboard offset jump during scrolling.
+    // When the on-screen keyboard is open the bar is hidden instead, and returns when typing ends.
+    const typing = () => { const a = document.activeElement; return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type || ''); };
+    const viewport = () => { const v = window.visualViewport, h = v?.height || innerHeight; document.body.style.setProperty('--mobile-workspace-viewport-height', h + 'px'); document.body.style.setProperty('--mobile-workspace-keyboard-offset', '0px'); document.body.classList.toggle('mobile-keyboard-open', typing() && (screen.height - h > 220 || innerHeight - h > 150)); };
+    document.addEventListener('focusin', () => setTimeout(viewport, 250)); document.addEventListener('focusout', () => setTimeout(viewport, 120));
     window.visualViewport?.addEventListener('resize', viewport); window.visualViewport?.addEventListener('scroll', viewport); window.addEventListener('resize', viewport); viewport();
     for (const event of ['gds:viewchange','superpro:nav-ready','superpro:access-changed','superpro:sectionchange','hashchange','popstate']) window.addEventListener(event, queue);
     queue();

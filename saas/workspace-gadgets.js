@@ -14,11 +14,11 @@
     integrations:'M10 14l4-4m-7 5-2 2a3 3 0 0 0 4 4l4-4m-2-6 4-4a3 3 0 0 1 4 4l-2 2',growth:'M4 19l5-6 4 3 7-11M14 5h6v6',onboarding:'M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0'
   };
   function featureIcon(key){const root=svg('svg',{viewBox:'0 0 24 24','aria-hidden':'true'});root.append(svg('path',{d:ICON_PATHS[key]||ICON_PATHS.jobs}));return el('span',{class:'gx-icon'},root)}
-  function shortcuts(){
+  function shortcuts(title='Your workspace',sub='Choose your next step'){
     const allowed=new Set(window.SuperProNav?.sequence(role())||[]);
     const items=[['unifiedinbox','inbox','Unified Inbox','All channels & folders'],['jobs','jobs','Job pool','Schedules & allocations'],['workforce','workforce','People','Workers & compliance'],['team','team','Staff access','Individual permissions'],['integrations','integrations','Connections','Channels & readiness'],['growth','growth','Growth Hub','Plans, campaigns & consent'],['finance','finance','Finance','Costs & payments'],['onboarding','onboarding','Smart setup','Business preferences']].filter(([view])=>allowed.has(view));
     if(!items.length)return null;
-    return el('section',{class:'gx-workspace-links','aria-label':'Workspace shortcuts'},el('div',{class:'gx-links-head'},el('h3',{text:'Your workspace'}),el('span',{text:'Choose your next step'})),el('div',{class:'gx-shortcuts'},items.map(([view,key,title,sub])=>el('button',{type:'button',class:'gx-shortcut','data-jump':view},featureIcon(key),el('span',{},el('b',{text:title}),el('small',{text:sub})),el('span',{class:'gx-shortcut-arrow','aria-hidden':'true',text:'↗'})))));
+    return el('section',{class:'gx-workspace-links','aria-label':'Workspace shortcuts'},el('div',{class:'gx-links-head'},el('h3',{text:title}),el('span',{text:sub})),el('div',{class:'gx-shortcuts'},items.map(([view,key,title,sub])=>el('button',{type:'button',class:'gx-shortcut','data-jump':view},featureIcon(key),el('span',{},el('b',{text:title}),el('small',{text:sub})),el('span',{class:'gx-shortcut-arrow','aria-hidden':'true',text:'↗'})))));
   }
   function spark(values){
     const w=120,h=36,max=Math.max(1,...values),step=w/Math.max(1,values.length-1);
@@ -72,13 +72,23 @@
       const f=d.finance;
       cards.push(tile({key:'profit',label:'Profit this month',value:f.profit_cents/100,fmt:v=>money(Math.round(v*100)),sub:`${T.revenue} ${money(f.revenue_cents)}, ${T.costs.toLowerCase()} ${money(f.expense_cents)}`,graphic:spark(f.daily_revenue_cents),jump:'finance',tone:f.profit_cents<0?'alert':'good'}));
     }
-    const head=el('div',{class:'gx-head'},el('div',{},el('h2',{text:d.business.name?`${d.business.name} right now`:'Your business right now'}),el('p',{text:d.business.industry&&d.business.code!=='custom'?`Tuned for ${d.business.industry.toLowerCase()}. Figures refresh by themselves.`:'Figures refresh by themselves.'})),el('span',{class:'gx-live'},el('i'),'Live'));
-    const features={comms:'inbox',approvals:'approvals',jobs:'jobs',workforce:'workforce',finance:'finance'};const shown=cards.filter(c=>window.GDS_SESSION?.access?.mode!=='custom'||window.SuperProCan(features[c.dataset.jump]));const focus=board.contains(document.activeElement)?document.activeElement.closest('[data-jump]')?.dataset.jump:null;board.dataset.cards=String(shown.length);const links=shortcuts();board.replaceChildren(head,el('div',{class:'gx-grid'},shown),...(links?[links]:[]));if(focus)board.querySelector('[data-jump="'+focus+'"]')?.focus({preventScroll:true});
+    // Command Centre (Prompt 01): no repeated business name; one quiet status line with an honest live indicator.
+    const head=el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:d.business.industry&&d.business.code!=='custom'?`Figures refresh by themselves · tuned for ${d.business.industry.toLowerCase()}`:'Figures refresh by themselves'}),liveBadge());
+    const features={comms:'inbox',approvals:'approvals',jobs:'jobs',workforce:'workforce',finance:'finance'};const shown=cards.filter(c=>window.GDS_SESSION?.access?.mode!=='custom'||window.SuperProCan(features[c.dataset.jump]));const focus=board.contains(document.activeElement)?document.activeElement.closest('[data-jump]')?.dataset.jump:null;board.dataset.cards=String(shown.length);board.replaceChildren(head,el('div',{class:'gx-grid'},shown));if(focus)board.querySelector('[data-jump="'+focus+'"]')?.focus({preventScroll:true});
+  }
+  // Live indicator reflects the last refresh: Live (with time) after success, Reconnecting after a failed refresh.
+  let lastOk=0,lastFailed=false;
+  function liveBadge(){
+    const t=lastOk?new Date(lastOk).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):'';
+    return el('span',{class:'gx-live'+(lastFailed?' is-stale':''),role:'status','aria-live':'polite',title:lastOk?`Last updated ${t}`:''},el('i',{'aria-hidden':'true'}),lastFailed?'Reconnecting…':(t?`Live · ${t}`:'Live'));
   }
   async function load(){
     if(!board)return;
-    try{render(await api('/api/saas/command-centre'));document.querySelector('.operational-strip')?.classList.add('gx-replaced')}catch{/* workers and unconnected data keep the simple strip */}
+    try{const data=await api('/api/saas/command-centre');lastOk=Date.now();lastFailed=false;render(data);document.querySelector('.operational-strip')?.classList.add('gx-replaced')}
+    catch{/* workers and unconnected data keep the simple strip */if(lastOk){lastFailed=true;board.querySelector('.gx-live')?.replaceWith(liveBadge())}}
   }
+  // The workspace shortcut collection now lives in All Features (the navigation drawer), not on the Command Centre.
+  window.OprunFeatureShortcuts=shortcuts;
   function mount(){
     if(board)return;
     const heading=document.querySelector('#dashboard-view .dashboard-heading');if(!heading)return;
