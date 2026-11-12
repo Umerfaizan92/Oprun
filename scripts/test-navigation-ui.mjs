@@ -97,7 +97,7 @@ try {
 
     for (const g of mapping.business) {
       for (const item of g.items) {
-        await p.getByRole('button', { name: '☰ Menu', exact: true }).click();
+        await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
         const group = p.locator(`[data-nav-group="${g.id}"]`);
         if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
         const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
@@ -117,9 +117,10 @@ try {
     await p.reload(); // Fresh disclosure defaults, independent of manual openings in the route traversal.
     await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
     if(width>760) await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
-    await p.locator((width<=760?'.mobile-workspace-pages':'#workspace-workflows')+' a[href="#communications/email"]').click();
+    if(width<=760){await p.locator('[data-dock-key=menu]').click();await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page=mail]')}).locator('summary').click();}
+    await p.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]').click();
     await p.locator('#mail-view').waitFor({state:'visible'});
-    assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
+    if(width>760) assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
     checked('Business','b04/unified','Inbox context opens the Email folder without forcing More open',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor();
@@ -130,16 +131,16 @@ try {
     await p.goBack(); await p.locator('[data-fin-tab=overview][aria-selected=true]').waitFor(); await p.goForward(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
     await p.locator('#fin-overhead-form').evaluate(f => f.reset());
     await p.reload(); await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor();
-    await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
+    await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
     await navigationAccessibility(p, 'Business', width);
     assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), true);
     await p.keyboard.press('Escape');
     assert.equal(await p.locator('.app-main').evaluate(e=>e.inert), false);
-    assert.equal(await p.getByRole('button', {name:'☰ Menu',exact:true}).evaluate(e=>e===document.activeElement), true);
-    await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
+    assert.equal(await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').evaluate(e=>e===document.activeElement), true);
+    await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
     await p.locator('#business-navigation .business-navigation-close').click();
     assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
-    await p.getByRole('button', {name:'☰ Menu',exact:true}).click();
+    await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
     await p.locator('.navigation-scrim').click({position:{x:width-8,y:100}});
     assert.equal(await p.locator('#business-navigation').getAttribute('data-drawer'), 'false');
     const costs = p.locator(width<=760?'.mobile-workspace-sections [aria-label="Costs & overheads"]':'[data-fin-tab=costs]'); if(width>760){ await costs.focus(); await p.keyboard.press('Home');

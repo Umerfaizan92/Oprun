@@ -29,20 +29,25 @@ async function fixture(mobile=true) {
   };
   return {dom,w,media,flush,activate,close:()=>{disposed=true;observers.forEach(observer=>observer.disconnect());w.close()}};
 }
-test('all 60 canonical pages and aliases keep the correct permission-filtered mobile area navigation',async()=>{
+test('all 60 pages keep main navigation in the sidebar and only one sub-section bar below',async()=>{
   const f=await fixture();try{
     const nav=f.w.SuperProNav,groups=nav.DOMAINS;let count=0;
     for(const group of groups)for(const item of group.items){
       await f.activate(item.view);
       const dock=f.w.document.getElementById('mobile-workspace-dock');assert.equal(dock.hidden,false);
-      const active=dock.querySelector('.mobile-workspace-pages [aria-current=page]');assert.equal(active.dataset.dockKey,item.view);assert.equal(active.getAttribute('href'),'#'+item.path);
-      assert.deepEqual([...dock.querySelectorAll('.mobile-workspace-pages a')].map(a=>a.dataset.dockKey),Array.from(group.items,i=>i.view));
+      assert.equal(dock.tagName,'NAV');assert.equal(dock.children.length,2);
+      assert.equal(dock.firstElementChild.dataset.dockKey,'menu');
+      assert.equal(dock.querySelectorAll('a,.mobile-workspace-pages').length,0);
+      assert.equal(dock.querySelectorAll('[data-dock-key=ask],[data-dock-key=chat]').length,0);
+      assert.ok(f.w.document.querySelector(`#business-navigation [data-nav-page="${item.view}"]`),'main page remains in sidebar');
       assert.equal(nav.resolve(item.path,'owner'),item.view);for(const alias of item.alias||[])assert.equal(nav.resolve(alias,'owner'),item.view);count++;
     }
     assert.equal(count,60);
     f.w.GDS_SESSION={user:{role:'employee',id:'test-worker'},organisation:{id:'test-org'},access:{mode:'custom',grants:['dashboard.read']}};
     await f.activate('dashboard');
-    assert.deepEqual([...f.w.document.querySelectorAll('.mobile-workspace-pages a')].map(a=>a.dataset.dockKey),['dashboard']);
+    f.w.SuperProNav.render(f.w.document.querySelector('.workspace-nav'),'employee');await f.flush();
+    assert.equal(f.w.document.querySelector('#business-navigation [data-nav-page=finance]'),null);
+    assert.equal(f.w.document.querySelector('#mobile-workspace-dock a'),null);
     assert.equal(nav.resolve('money/ledger','employee'),null);
   }finally{f.close()}
 });
@@ -85,7 +90,7 @@ test('brand moves into footer; one original sign-out button remains last in the 
     assert.equal(d.querySelectorAll('.topbar-actions .search-button').length,1);
     let prompted=0;f.w.confirm=()=>{prompted++;return false};
     const root=await f.activate('jobs'),input=root.querySelector('input');input.dispatchEvent(new f.w.FocusEvent('focusin',{bubbles:true}));input.value='Pending change';
-    const link=d.querySelector('.mobile-workspace-pages a');const event=new f.w.MouseEvent('click',{bubbles:true,cancelable:true});link.dispatchEvent(event);
+    const link=d.querySelector('#business-navigation [data-nav-page=dashboard]');const event=new f.w.MouseEvent('click',{bubbles:true,cancelable:true});link.dispatchEvent(event);
     assert.equal(prompted,1);assert.equal(event.defaultPrevented,true);
   }finally{f.close()}
 });
@@ -118,5 +123,34 @@ test('bottom Menu opens the drawer without the outside-click handler closing it'
     d.querySelector('.business-navigation-close').click();
     assert.equal(d.getElementById('business-navigation').dataset.drawer,'false');
     assert.equal(d.querySelector('.app-main').inert,false);
+    assert.equal(d.activeElement,d.querySelector('[data-dock-key=menu]'),'closing drawer returns focus to the visible bottom Menu');
+  }finally{f.close()}
+});
+
+test('business identity is static on mobile and nested sub-section groups share one scroller',async()=>{
+  const f=await fixture();try{
+    const d=f.w.document,identity=d.querySelector('.workspace-mobile-identity');
+    assert.ok(identity);assert.equal(identity.tagName,'DIV');
+    assert.equal(identity.querySelectorAll('button,a,[tabindex],.navigation-identity-chevron').length,0);
+    const root=await f.activate('automations');root.innerHTML='<div role="tablist" aria-label="Primary"><button role="tab" aria-selected="true">Overview</button></div><div role="tablist" aria-label="Secondary"><button role="tab" aria-selected="true">Activity</button></div>';
+    await f.flush();
+    const dock=d.getElementById('mobile-workspace-dock');
+    assert.equal(dock.children.length,2);assert.equal(dock.querySelectorAll('.mobile-workspace-sections').length,1);
+    assert.equal(dock.querySelectorAll('.mobile-workspace-section-group').length,2);
+    assert.deepEqual([...dock.querySelectorAll('.mobile-workspace-section-group')].map(g=>g.parentElement),[dock.lastElementChild,dock.lastElementChild]);
+    root.replaceChildren();await f.flush();assert.equal(dock.lastElementChild.hidden,true);assert.equal(dock.querySelectorAll('button').length,1);
+  }finally{f.close()}
+});
+
+test('sidebar chat badge updates keep focus inside the open Menu',async()=>{
+  const f=await fixture();try{
+    const d=f.w.document,shell=d.createElement('div');shell.id='gds-staff-chat';
+    shell.innerHTML='<button class="sc-launch"><span class="sc-badge">1</span></button>';d.body.append(shell);await f.flush();
+    d.querySelector('#mobile-workspace-dock [data-dock-key=menu]').click();
+    d.querySelector('.mobile-workspace-actions [data-dock-key=chat]').focus();
+    shell.querySelector('.sc-badge').textContent='2';await f.flush();
+    assert.equal(d.activeElement,d.querySelector('.mobile-workspace-actions [data-dock-key=chat]'));
+    shell.hidden=true;await f.flush();
+    assert.equal(d.activeElement,d.querySelector('.business-navigation-close'));
   }finally{f.close()}
 });

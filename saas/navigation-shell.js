@@ -36,8 +36,8 @@
   window.addEventListener('beforeunload', e => { if (hasEdits()) { e.preventDefault(); e.returnValue = ''; } });
 
   class Navigation {
-    constructor({ rail, toggle, triggerHost, key, background = [], onSelect, autoHide = false }) {
-      Object.assign(this, { rail, toggle, key, background, onSelect, autoHide });
+    constructor({ rail, toggle, triggerHost, key, background = [], onSelect, autoHide = false, returnFocus }) {
+      Object.assign(this, { rail, toggle, key, background, onSelect, autoHide, returnFocus });
       this.groups = []; this.active = ''; this.open = ''; this.drawer = false;
       document.body.dataset.navigation = 'nested';
       if (autoHide) document.body.dataset.navigationAutohide = 'true';
@@ -71,7 +71,7 @@
       this.drawer = !!value; this.rail.dataset.drawer = String(value); this.trigger.setAttribute('aria-expanded', String(value)); this.scrim.hidden = !value; document.body.classList.toggle('navigation-drawer-open', value);
       this.background.forEach(e => { if (e) { if (value) { e.dataset.navWasInert = String(e.inert); e.inert = true; } else { e.inert = e.dataset.navWasInert === 'true'; delete e.dataset.navWasInert; } } });
       if (value) { this.rail.setAttribute('role', 'dialog'); this.rail.setAttribute('aria-modal', 'true'); } else { this.rail.removeAttribute('role'); this.rail.removeAttribute('aria-modal'); }
-      this.paint(); if (value) this.toggle.focus(); else if (restore) this.trigger.focus();
+      this.paint(); if (value) this.toggle.focus(); else if (restore) (this.returnFocus?.() || this.trigger).focus();
     }
     setGroups(groups) {
       this.groups = groups; this.nav.replaceChildren();

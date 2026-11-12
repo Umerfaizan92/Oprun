@@ -287,3 +287,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: User dislikes Claude replacement; restore ChatGPT f039490 mobile page and section dock, integrated chat actions, compact four-link footer, final sidebar signout; deploy for live testing
 - Files: not known yet
 - Acceptance: Original visual files restored; security guards retained; targeted tests and full release checks pass; saved remote changes; Render release live; served assets match
+
+## T-089 One mobile bottom row: Menu and sub-sections only
+- Status: TESTING
+- Added: 2026-11-12
+- Requirement: User screenshot: remove bottom main-page row; main pages remain sidebar; one bottom row with Menu plus only current page sub-sections; make header business identity static on mobile; improve icons and Menu usability across every page
+- Files: not known yet
+- Acceptance: All60 routes preserved in sidebar; one bottom row; Menu opens/closes with correct focus; static business logo/name; original section functions and permissions; full release checks pass; deployed live and source files verified

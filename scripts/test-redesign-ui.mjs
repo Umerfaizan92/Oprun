@@ -71,14 +71,15 @@ try {
   }
   await page.goto(server.base+'/saas/workspace.html#b04/unified');
   await page.locator('#unifiedinbox-view').waitFor({state:'visible'});
-  const link=page.locator((width<=760?'.mobile-workspace-pages':'#workspace-workflows')+' a[href="#communications/email"]');await link.waitFor();
+  if(width<=760){await page.locator('[data-dock-key=menu]').click();await page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page=mail]')}).locator('summary').click();}
+  const link=page.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]');await link.waitFor();
   assert.ok(await link.evaluate(e=>e.getBoundingClientRect().height>=44));
   await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
-  assert.equal(await page.locator((width<=760?'.mobile-workspace-pages':'#workspace-workflows')+' a[href="#communications/email"]').getAttribute('aria-current'),'page');
+  assert.equal(await page.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]').getAttribute('aria-current'),'page');
   await page.reload();await page.locator('#mail-view').waitFor({state:'visible'});
   const more=page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page="mail"]')});
   assert.equal(await more.getAttribute('open'),null,'secondary navigation does not force More open');
-  await page.getByRole('button',{name:'☰ Menu',exact:true}).click();
+  await page.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
   await more.locator('summary').click();assert.equal(await more.getAttribute('open'),'','More opens manually');
   await more.locator('summary').press('Enter');assert.equal(await more.getAttribute('open'),null,'More can close while its page is active');
   await page.locator('#business-navigation [data-nav-group="today"]').click();
