@@ -12,15 +12,20 @@
     const use = document.createElementNS(svg.namespaceURI, 'use');
     use.setAttribute('href', '#' + name); svg.append(use); return svg;
   };
-  const sectionIcon = label => /security|trust|approval|compliance|rule/i.test(label) ? 'i-shield'
+  const sectionIcon = label => /overview|dashboard|summary/i.test(label) ? 'i-grid'
+    : /attention|alert|notification/i.test(label) ? 'i-bell'
+    : /readiness|ready|check/i.test(label) ? 'i-check'
+    : /workflow|guide|next|step/i.test(label) ? 'i-arrow'
+    : /calendar|schedule|history|activity|queue/i.test(label) ? 'i-clock'
+    : /security|trust|approval|compliance|rule/i.test(label) ? 'i-shield'
     : /people|staff|team|customer|contact|applicant/i.test(label) ? 'i-users'
     : /inbox|message|call|email|reply/i.test(label) ? 'i-bell'
     : /setting|appearance|profile|brand|business/i.test(label) ? 'i-building'
     : /ai|suggest|readiness/i.test(label) ? 'i-spark' : 'i-doc';
-  let dock, pages, sections, frame, signature = '', resize;
+  let dock, menu, sections, actions, frame, signature = '', resize;
   const watched = new WeakSet();
   const badges = new MutationObserver(() => queue());
-  const watch = node => { if (node && !watched.has(node)) { watched.add(node); badges.observe(node, {childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','class','aria-label']}); } };
+  const watch = node => { if (node && !watched.has(node)) { watched.add(node); badges.observe(node, {childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','class','aria-label','data-drawer']}); } };
   const badgeValue = node => node && !node.hidden ? node.textContent.trim() : '';
   const addBadge = (control, count) => { if (!count || count === '0') return; control.append(make('small','mobile-workspace-badge',count)); control.setAttribute('aria-label', control.getAttribute('aria-label') + ', ' + count + ' unread'); };
   // Ignore our own mobile-only hiding of the source list; honour all its parent panels and native states.
@@ -33,7 +38,9 @@
   };
   function control(label, symbol, action, current, key) {
     const b = make('button', 'mobile-workspace-item'); b.type = 'button'; b.dataset.dockKey = key;
-    b.title = label; b.setAttribute('aria-label', label); b.append(icon(symbol), make('span', '', label));
+    b.title = label; b.setAttribute('aria-label', label);
+    const plate = make('span', 'mobile-workspace-icon'); plate.append(icon(symbol));
+    b.append(plate, make('span', 'mobile-workspace-label', label));
     if (current) b.setAttribute('aria-current', current);
     b.addEventListener('click', action); return b;
   }
@@ -44,48 +51,49 @@
       if (dock) dock.hidden = true; return;
     }
     const root = workspace.querySelector('.view:not([hidden])'); if (!root) return;
-    const view = root.id.replace(/-view$/, ''), allowed = new Set(nav.sequence(session.user.role));
-    const group = nav.DOMAINS.find(d => d.items.some(p => p.view === view));
+    const view = root.id.replace(/-view$/, '');
+    if (!nav.sequence(session.user.role).includes(view)) { if (dock) dock.hidden = true; return; }
     if (!dock) {
-      dock = make('div', 'mobile-workspace-dock'); dock.id = 'mobile-workspace-dock';
-      pages = make('nav', 'mobile-workspace-pages'); pages.setAttribute('aria-label', 'Current area pages');
-      sections = make('div', 'mobile-workspace-sections');
-      dock.append(sections, pages); workspace.querySelector('.app-main').append(dock);
+      dock = make('nav', 'mobile-workspace-dock'); dock.id = 'mobile-workspace-dock'; dock.setAttribute('aria-label', 'Menu and current page sub-sections');
+      menu = control('Menu', 'i-menu', event => { event.stopPropagation(); document.querySelector('.navigation-business-trigger')?.click(); }, null, 'menu');
+      menu.classList.add('mobile-workspace-menu'); menu.setAttribute('aria-controls','business-navigation'); menu.setAttribute('aria-haspopup','dialog');
+      sections = make('div', 'mobile-workspace-sections'); sections.setAttribute('aria-label', 'Page sub-sections');
+      dock.append(menu, sections); workspace.querySelector('.app-main').append(dock);
       resize = new ResizeObserver(() => document.body.style.setProperty('--mobile-workspace-dock-height', Math.ceil(dock.getBoundingClientRect().height) + 'px'));
       resize.observe(dock);
     }
     dock.hidden = !media.matches;
     const lists = [...root.querySelectorAll('[role="tablist"],[data-section-index]')].filter(availableList);
     const sources = lists.map(list => ({list, buttons:[...list.querySelectorAll('[role="tab"],[data-section-link]')].filter(b => !b.hidden)})).filter(s => s.buttons.length);
-    const peers = (group?.items || []).filter(p => allowed.has(p.view));
+    const rail = document.getElementById('business-navigation'); watch(rail);
+    menu.setAttribute('aria-expanded', String(rail?.dataset.drawer === 'true'));
     const chatShell = document.getElementById('gds-staff-chat'); watch(chatShell);
     const chat = chatShell && !chatShell.hidden ? chatShell.querySelector('.sc-launch') : null;
     const chatUnread = badgeValue(chat?.querySelector('.sc-badge'));
     const ask = document.querySelector('#gds-copilot .copilot-launch');
-    const peerBadges = peers.map(p => { const node = p.badge ? document.getElementById(p.badge) : null; watch(node); return badgeValue(node); });
-    const next = JSON.stringify([media.matches, view, peers.map((p,i) => [p.view, p.label, peerBadges[i]]), !!chat, chatUnread, !!ask, sources.map(s => [s.list.getAttribute('aria-label'),s.buttons.map(b => [b.textContent.trim(),b.disabled,b.getAttribute('aria-selected'),b.getAttribute('aria-current')])])]);
+    const next = JSON.stringify([media.matches, view, !!rail, !!chat, chatUnread, !!ask, sources.map(s => [s.list.getAttribute('aria-label'),s.buttons.map(b => [b.textContent.trim(),b.disabled,b.getAttribute('aria-selected'),b.getAttribute('aria-current')])])]);
     // Retain live references even if a module replaces its tabs with identical text.
     const sameSources = dock._sources?.length === sources.length && sources.every((s, i) => s.buttons.length === dock._sources[i].buttons.length && s.buttons.every((b, j) => b === dock._sources[i].buttons[j]));
     if (next === signature && sameSources) return;
     signature = next; dock._sources = sources;
-    const focused = dock.contains(document.activeElement) ? document.activeElement.dataset.dockKey : null;
-    const pageScroll = pages.scrollLeft, sectionScroll = sections.scrollLeft;
-    pages.replaceChildren(control('Menu', 'i-menu', event => { event.stopPropagation(); document.querySelector('.navigation-business-trigger')?.click(); }, null, 'menu'));
-    for (const [index, p] of peers.entries()) {
-      const a = make('a', 'mobile-workspace-item'); a.href = '#' + p.path; a.dataset.dockKey = p.view;
-      a.title = p.label; a.setAttribute('aria-label', p.label); a.append(icon(p.icon || group.icon), make('span', '', p.label));
-      addBadge(a, peerBadges[index]);
-      if (p.view === view) a.setAttribute('aria-current', 'page');
-      a.addEventListener('click', e => { if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && !window.SuperProNavigation.canLeave()) e.preventDefault(); });
-      pages.append(a);
+    const focused = dock.contains(document.activeElement) || actions?.contains(document.activeElement) ? document.activeElement.dataset.dockKey : null;
+    const sectionScroll = sections.scrollLeft;
+    // AI/chat remain available inside Menu; the bottom bar contains only Menu and sub-sections.
+    if (rail && !actions) {
+      actions = make('div','mobile-workspace-actions'); actions.setAttribute('role','group'); actions.setAttribute('aria-label','Workspace help and chat');
+      const security = rail.querySelector('.sidebar-footer');
+      if (security) security.before(actions); else rail.querySelector('nav')?.after(actions);
     }
-    if (ask) pages.append(control('Ask Oprun', 'i-spark', () => ask.click(), null, 'ask'));
-    if (chat) { const button = control('Office chat', 'i-users', () => chat.click(), null, 'chat'); addBadge(button, chatUnread); pages.append(button); }
+    if (actions) {
+      actions.replaceChildren();
+      if (ask) actions.append(control('Ask Oprun', 'i-spark', () => { document.querySelector('.business-navigation-close')?.click(); ask.click(); }, null, 'ask'));
+      if (chat) { const button = control('Office chat','i-users', () => { document.querySelector('.business-navigation-close')?.click(); chat.click(); }, null, 'chat'); addBadge(button,chatUnread); actions.append(button); }
+      actions.hidden = !actions.children.length;
+    }
     sections.replaceChildren();
     sources.forEach(({list, buttons}, i) => {
       list.classList.add('mobile-workspace-source');
-      const row = make('nav', 'mobile-workspace-section-group'); row.setAttribute('aria-label', list.getAttribute('aria-label') || 'Page sections');
-      if (sources.length > 1) row.append(make('span', 'mobile-workspace-group-label', row.getAttribute('aria-label')));
+      const row = make('div', 'mobile-workspace-section-group'); row.setAttribute('role','group'); row.setAttribute('aria-label', list.getAttribute('aria-label') || 'Page sections');
       buttons.forEach((b, j) => {
         const label = b.textContent.trim(), selected = b.getAttribute('aria-selected') === 'true' || !!b.getAttribute('aria-current');
         const proxy = control(label, sectionIcon(label), () => { b.click(); queue(); }, selected ? 'location' : null, `section-${i}-${j}`);
@@ -96,9 +104,9 @@
       sections.append(row);
     });
     sections.hidden = !sources.length;
-    pages.scrollLeft = pageScroll; sections.scrollLeft = sectionScroll;
-    if (focused) dock.querySelector(`[data-dock-key="${CSS.escape(focused)}"]`)?.focus({preventScroll:true});
-    else pages.querySelector('[aria-current="page"]')?.scrollIntoView({block:'nearest',inline:'nearest'});
+    sections.scrollLeft = sectionScroll;
+    if (focused) { const selector = `[data-dock-key="${CSS.escape(focused)}"]`; (dock.querySelector(selector) || actions?.querySelector(selector) || (rail?.dataset.drawer === 'true' ? rail.querySelector('.business-navigation-close') : menu))?.focus({preventScroll:true}); }
+    else sections.querySelector('[aria-current]')?.scrollIntoView({block:'nearest',inline:'nearest'});
   }
   function queue() { if (!frame) frame = requestAnimationFrame(refresh); }
   function boot() {

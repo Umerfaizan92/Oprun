@@ -56,11 +56,13 @@
       const context = document.getElementById('workspace-context'); if (context) {context.append(toggle);rail.append(context);} else rail.append(toggle);
       rail.append(make('nav')); document.getElementById('workspace').append(rail);
       const security = document.querySelector('#sidebar .sidebar-footer'); if (security) rail.append(security);
-      shell = new window.SuperProNavigation.Navigation({ rail, toggle, triggerHost: document.querySelector('.topbar-left'), key: 'sp-nav:business:pending', background: [document.querySelector('.app-main')], autoHide:true });
+      shell = new window.SuperProNavigation.Navigation({ rail, toggle, triggerHost: document.querySelector('.topbar-left'), key: 'sp-nav:business:pending', background: [document.querySelector('.app-main')], autoHide:true, returnFocus:() => matchMedia('(max-width: 760px)').matches ? document.querySelector('#mobile-workspace-dock [data-dock-key=menu]') : null });
       const footer = document.querySelector('.app-footer');
       footer?.firstElementChild?.replaceWith(brand);
       const logout = document.getElementById('logout');
       if (logout) { logout.classList.add('navigation-signout'); rail.append(logout); }
+      const identity = make('div','workspace-mobile-identity'); identity.setAttribute('aria-label','Current business');
+      document.querySelector('.topbar-left')?.prepend(identity);
       const syncIdentity = () => {
         const name = document.getElementById('org-name-side')?.textContent?.trim() || 'Workspace';
         const avatar = document.getElementById('org-avatar-side');
@@ -69,6 +71,7 @@
         shell.trigger.classList.add('navigation-business-trigger');
         shell.trigger.replaceChildren(mark,make('span','navigation-identity-name',name),make('span','navigation-identity-chevron','⌄'));
         shell.trigger.title = name + ' · Open business navigation';
+        identity.replaceChildren(mark.cloneNode(true),make('span','navigation-identity-name',name));
       };
       if (context) new MutationObserver(syncIdentity).observe(context,{childList:true,subtree:true,characterData:true,attributes:true});
       syncIdentity();

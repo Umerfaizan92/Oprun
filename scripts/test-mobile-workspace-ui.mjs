@@ -34,7 +34,7 @@ try {
     assert.equal(await p.locator('.app-footer .sp-global-trust-footer').count(),1);
     assert.equal(await p.locator('.app-footer .workspace-trust-links a').count(),4);
     for(const group of groups) for(const item of group.items) {
-      await p.locator('.navigation-business-trigger').click();
+      await p.locator(width<761?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
       const toggle=p.locator(`[data-nav-group="${group.id}"]`);
       if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click();
       const link=p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
@@ -44,8 +44,11 @@ try {
       assert.equal(await dock.isVisible(),width<761,item.path+' dock breakpoint');
       assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),item.path+' page overflow '+width);
       if(width<761){
-        await p.locator(`.mobile-workspace-pages [data-dock-key="${item.view}"][aria-current="page"]`).waitFor();
-        const peers=await p.locator('.mobile-workspace-pages a').getAttribute('href');assert.ok(peers);
+        assert.equal(await p.locator('#mobile-workspace-dock > *').count(),2);
+        assert.equal(await p.locator('#mobile-workspace-dock a,.mobile-workspace-pages').count(),0);
+        assert.equal(await p.locator('#business-navigation [data-nav-page="'+item.view+'"]').getAttribute('aria-current'),'page');
+        const rowY=await p.locator('#mobile-workspace-dock').evaluate(e=>[...e.querySelectorAll('button')].map(b=>Math.round(b.getBoundingClientRect().top)));
+        assert.ok(Math.max(...rowY)-Math.min(...rowY)<3,item.path+' must have one bottom row');
         assert.equal(await p.locator('.view:not([hidden]) .mobile-workspace-source:visible').count(),0);
         const sets=await p.locator('.mobile-workspace-section-group').count();
         for(let i=0;i<sets;i++){
@@ -83,10 +86,10 @@ try {
     assert.equal(await p.locator('#fin-overhead-form [name=name]').inputValue(),'Synthetic unsaved cost');
     await p.locator('#fin-overhead-form').evaluate(f=>f.reset());await p.reload();await settle(p);await p.locator('[data-fin-tab=costs][aria-selected=true]').waitFor({state:'attached'});
     if(width<761){
-      await p.locator('.mobile-workspace-pages [data-dock-key=ask]').click();await p.locator('#gds-copilot .copilot-panel').waitFor();
+      await p.locator('#mobile-workspace-dock [data-dock-key=menu]').click();await p.locator('.mobile-workspace-actions [data-dock-key=ask]').click();await p.locator('#gds-copilot .copilot-panel').waitFor();
       const panel=await p.locator('#gds-copilot .copilot-panel').boundingBox(),dock=await p.locator('#mobile-workspace-dock').boundingBox();assert.ok(panel.y+panel.height<=dock.y,'AI panel clears dock');
       await p.locator('[data-copilot-close]').click();
-      await p.locator('.mobile-workspace-pages [data-dock-key=chat]').click();await p.locator('#gds-staff-chat .sc-panel').waitFor();
+      await p.locator('#mobile-workspace-dock [data-dock-key=menu]').click();await p.locator('.mobile-workspace-actions [data-dock-key=chat]').click();await p.locator('#gds-staff-chat .sc-panel').waitFor();
       await p.screenshot({path:'qa/visual/mobile-workspace/chat-390.png',fullPage:true});
     }
     report('money/ledger',width,'Unsaved form retained; section deep link reload');

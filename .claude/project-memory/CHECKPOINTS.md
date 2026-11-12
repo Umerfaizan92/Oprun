@@ -1529,3 +1529,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Continue from deployed9b41477 and qa/reports/mobile-workspace.json; inspect any live-testing feedback; preserve ChatGPT contextual bottom page-and-section dock, compact footer and final sidebar signout
+
+## CP-110 2026-11-12T12:50:35+08:00 T-089 TESTING
+- Phase: Single mobile sub-section bar implemented and reviewed
+- Task: T-089 (TESTING)
+- Completed steps: One bottom row with pinned Menu plus only current-page sub-sections; main pages stay sidebar; mobile business identity static; enhanced icon tiles and selected states; AI/chat available inside Menu; drawer return-focus and unread-update focus preserved; 18 targeted tests pass including60routes
+- Incomplete steps: Finish full release checks; publish and deploy authorised changes; verify live assets; authenticated device visual check remains pending after local preview transport disconnected
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; qa/reports/mobile-workspace.json; saas/navigation-shell.js; saas/portal-shell.js; saas/workspace-mobile.css; saas/workspace-mobile.js; saas/workspace.html; scripts/mobile-workspace.test.mjs; scripts/test-mobile-workspace-ui.mjs; scripts/test-navigation-ui.mjs; scripts/test-redesign-ui.mjs; scripts/test-ui.mjs; docs/navigation/SINGLE_MOBILE_SECTION_BAR.md
+- Tests executed: targeted DOM/navigation suite; manifest; secret scan
+- Test results: 18/18 targeted checks passed; 580 manifest files verified; secret scan passed
+- Git branch: codex/single-mobile-section-bar-20261112
+- Commit: a868759 ([skip render] Record verified ChatGPT restoration live deployment)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Publish codex/single-mobile-section-bar-20261112 after full checks, merge and manually deploy existing Oprun service; verify new single-row assets and save receipt
