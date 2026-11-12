@@ -141,3 +141,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/oprun-*.svg|png, saas/favicon.ico, saas/premium-ui.js, scripts/site/*.mjs, saas/**, office/**, src/**, README.md, package.json
 - Acceptance: No user-facing 'Super Pro' text remains outside docs; new logo shows on site, sign-in, workspace and icons; npm test, test:ui, test:site-ui, check:site, security:secrets pass; infra identifiers unchanged
 - Evidence: npm test 73/73, test:ui 34 (two clean runs), test:site-ui 16, check:site 19 pages, security:secrets clean, connections/lead-sources/meetings UI pass, visual 51 screens, a11y 0 serious; screenshots of home and sign-in checked (recorded 2026-11-11 on claude/oprun-rebrand-20261111 at 80274ce)
+
+## T-090 Compact mobile bottom bar (size only), minimised notification settings, phone push alerts
+- Added: 2026-11-12
+- Requirement: Owner: keep existing ChatGPT bottom menu bar, only make it smaller and auto-fit sub-sections with no sideways scroll; minimise notification settings behind a small Notification settings option and reorganise the panel professionally; send phone notifications (even when app closed) for every activity update such as job enquiries, not logs; prompt for notification permission right after sign-in/install; voice alerts
+- Files: saas/workspace-mobile.css,saas/platform-notices.js,saas/workspace-push.js,saas/sw.js,saas/common.js,src/web-push.js,src/notifications.js,src/server.js,package.json
+- Acceptance: No horizontal scroll in dock at 320/390; settings collapsed by default and auto-save; push subscribe/send tested; npm test and UI suites pass; deployed
+- Evidence: PR #87 merged as 97e3bcb; Render deploy dep-dbqlb1qfngtc73fv7cv0 live 2026-11-12T06:03Z, build 73/73, startup diagnostics 16/16; web-push tests 4/4; test:mobile-workspace-ui, comms, pipeline, secrets passed locally (recorded 2026-11-12 on claude/t090-evidence at 97e3bcb)
