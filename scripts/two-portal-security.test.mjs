@@ -523,3 +523,15 @@ test("business drafts and receptionist settings remain tenant-isolated and no se
       false,
     );
   }));
+
+// Language oversight is a platform permission, never a subscriber-owner privilege.
+test('language coverage is operator-only and exposes no user identifiers', t => run(t, async ({call}) => {
+  assert.equal((await call('GET', '/api/operator/localization')).status, 401);
+  const r = await call('GET', '/api/operator/localization', null, 'a', {'x-admin-key':'founder-test-only'});
+  assert.equal(r.status, 200);
+  assert.ok(r.data.locales.length > 180);
+  assert.equal(r.data.dictionaries.length, 4);
+  assert.equal(r.data.locales.some(x => x.workspace_translation_certified), false);
+  assert.deepEqual(r.data.preference_counts, []);
+  assert.equal(JSON.stringify(r.data).includes('example.test'), false);
+}));

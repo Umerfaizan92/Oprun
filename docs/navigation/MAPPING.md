@@ -94,6 +94,7 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Operations & maintenance | Provider readiness | /office/#f07/legacy:connections | operations.read or founder | Retained maintenance link; no migration |
 | Founder | Operations & maintenance | AI automations | /office/#f07/platform/automation | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Operations & maintenance | Reliability & backups | /office/#f07/platform/reliability | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Operations & maintenance | Languages & translation coverage | /office/#f07/platform/localization | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Security & audit | Activity log | /office/#f08/audit | security.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Security & audit | Compliance | /office/#f08/platform/compliance | security.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Founder controls | Complimentary grants | /office/#f09/complimentary | founder.read or founder | Existing renderer; native section tabs or heading-based section panels |

@@ -87,6 +87,7 @@
         ["legacy:connections", "Provider readiness"],
         ["platform/automation", "AI automations"],
         ["platform/reliability", "Reliability & backups"],
+        ["platform/localization", "Languages & translation coverage"],
       ],
     ],
     [

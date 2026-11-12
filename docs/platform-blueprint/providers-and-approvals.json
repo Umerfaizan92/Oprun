@@ -1,0 +1,194 @@
+[
+  {
+    "provider": "Meta / Facebook / Instagram",
+    "official_start": "https://developers.facebook.com/",
+    "account_and_authority": "Platform app + business verification + applicable permissions; subscriber Page/IG consent",
+    "current_scope": "Facebook text posting partial in reviewed adapter; other actions require implementation and approval",
+    "secret_type_not_value": "Platform app ID/secret; tenant tokens in encrypted vault",
+    "activation_gate": "App review, data deletion callback, account type and approved assets"
+  },
+  {
+    "provider": "WhatsApp Business",
+    "official_start": "https://developers.facebook.com/docs/whatsapp/",
+    "account_and_authority": "Meta business app; business phone onboarding and approved messaging templates",
+    "current_scope": "Existing inbound/reply paths; full embedded signup and provisioning need evidence",
+    "secret_type_not_value": "App secret/webhook verification; tenant WABA/phone mapping",
+    "activation_gate": "Business verification, opt-in, template approval and conversation policy"
+  },
+  {
+    "provider": "Google Gmail / Calendar / Drive",
+    "official_start": "https://developers.google.com/identity/protocols/oauth2/web-server",
+    "account_and_authority": "Google Cloud app and consent configuration; scope-specific verification",
+    "current_scope": "Gmail adapter exists; each Calendar/Drive action requires explicit contract",
+    "secret_type_not_value": "Client ID/secret; refresh token scoped to user and business",
+    "activation_gate": "Sensitive/restricted scopes may require verification/security assessment"
+  },
+  {
+    "provider": "YouTube",
+    "official_start": "https://developers.google.com/youtube/v3",
+    "account_and_authority": "Google project, quota and subscriber channel authorization",
+    "current_scope": "Comment/read paths exist; upload/publishing separate capability",
+    "secret_type_not_value": "Google OAuth credentials; tenant channel tokens",
+    "activation_gate": "Quota and applicable audit requirements must be checked before production expansion"
+  },
+  {
+    "provider": "Google Business Profile",
+    "official_start": "https://developers.google.com/my-business/",
+    "account_and_authority": "Approved API project and eligible business/location access",
+    "current_scope": "Existing posts/reviews adapter; test each granted location",
+    "secret_type_not_value": "Google OAuth client; location binding",
+    "activation_gate": "API access approval and verified/eligible business profile"
+  },
+  {
+    "provider": "Google Ads / GA4 / Search Console",
+    "official_start": "https://developers.google.com/google-ads/api/docs/start",
+    "account_and_authority": "Ads developer access + OAuth; GA4/GSC property permissions",
+    "current_scope": "Bounded Ads sync and SEO integrations exist; not proof of ad execution",
+    "secret_type_not_value": "Ads developer token and manager configuration; OAuth grants",
+    "activation_gate": "Developer token access level; property roles; approved budgets"
+  },
+  {
+    "provider": "TikTok",
+    "official_start": "https://developers.tiktok.com/docs/en/content-posting-api-get-started",
+    "account_and_authority": "Developer app + Login Kit + Content Posting API + user grant",
+    "current_scope": "Reviewed adapter is read/metrics; public direct publishing needs implementation/audit",
+    "secret_type_not_value": "Client key/secret; scoped tenant token",
+    "activation_gate": "video.publish approval and audit; unaudited clients restricted to private viewing"
+  },
+  {
+    "provider": "LinkedIn",
+    "official_start": "https://learn.microsoft.com/en-us/linkedin/",
+    "account_and_authority": "Developer app and applicable product access; member/organization authorization",
+    "current_scope": "Planned adapter; access not verified",
+    "secret_type_not_value": "Client ID/secret; tenant grant",
+    "activation_gate": "Community Management/Marketing products have separate eligibility and review"
+  },
+  {
+    "provider": "X",
+    "official_start": "https://docs.x.com/",
+    "account_and_authority": "Developer project, appropriate commercial API access and user grant",
+    "current_scope": "Existing text post adapter; scope/tier/rate limits need live tests",
+    "secret_type_not_value": "App credentials; encrypted tenant grants",
+    "activation_gate": "Current API plan, permissions and automation rules"
+  },
+  {
+    "provider": "Pinterest",
+    "official_start": "https://developers.pinterest.com/",
+    "account_and_authority": "Business developer app and permitted account grants",
+    "current_scope": "Planned; no verified production access",
+    "secret_type_not_value": "Client ID/secret; tenant grants",
+    "activation_gate": "App approval and current API terms"
+  },
+  {
+    "provider": "Snapchat",
+    "official_start": "https://developers.snap.com/",
+    "account_and_authority": "Snap product-specific approval and advertiser authorization",
+    "current_scope": "Not yet supported in reviewed integration health",
+    "secret_type_not_value": "Product-specific credentials",
+    "activation_gate": "Marketing API does not imply general social posting/inbox access"
+  },
+  {
+    "provider": "Threads",
+    "official_start": "https://developers.facebook.com/docs/threads",
+    "account_and_authority": "Threads app configuration and required permissions",
+    "current_scope": "Planned; separate capability and app review",
+    "secret_type_not_value": "Platform credentials; tenant grant",
+    "activation_gate": "Current publishing/insight permissions and limits"
+  },
+  {
+    "provider": "Microsoft 365",
+    "official_start": "https://learn.microsoft.com/en-us/graph/overview",
+    "account_and_authority": "Entra app registration; delegated permissions and tenant consent",
+    "current_scope": "Planned Outlook/Calendar/Teams adapter",
+    "secret_type_not_value": "Client ID/certificate or secret; tenant tokens",
+    "activation_gate": "Publisher verification and admin consent where required"
+  },
+  {
+    "provider": "Telnyx voice / SMS",
+    "official_start": "https://developers.telnyx.com/",
+    "account_and_authority": "Verified funded platform account; number and messaging requirements by country",
+    "current_scope": "Existing voice adapter uses platform environment; per-business purchase/usage isolation incomplete",
+    "secret_type_not_value": "TELNYX_API_KEY, connection and assistant IDs, webhook validation configuration",
+    "activation_gate": "Country/regulatory documents, phone ownership, consent, fraud limits"
+  },
+  {
+    "provider": "Registrar reseller / OpenSRS candidate",
+    "official_start": "https://domains.opensrs.guide/docs/overview",
+    "account_and_authority": "Reseller agreement, test/live account, funded balance and network allowlisting",
+    "current_scope": "Existing domain request is not registrar purchase; adapter planned",
+    "secret_type_not_value": "Reseller username/key; dedicated egress configuration",
+    "activation_gate": "Confirm eligible TLDs, reseller terms, registrant data, renewal/transfer policy"
+  },
+  {
+    "provider": "DNS / CDN / certificates",
+    "official_start": "https://developers.cloudflare.com/",
+    "account_and_authority": "DNS account/API token scoped to approved zones; tenant domain verification",
+    "current_scope": "Per-domain activation required; no registrar reseller rights implied",
+    "secret_type_not_value": "Scoped DNS token; infrastructure credentials managed server-side",
+    "activation_gate": "Custom-hostname plan, ownership, TLS issuance, apex and deletion tests"
+  },
+  {
+    "provider": "Payments / acquiring partner",
+    "official_start": "https://www.asic.gov.au/regulatory-resources/find-a-document/regulatory-guides/rg-185-non-cash-payment-facilities",
+    "account_and_authority": "Merchant/partner underwriting, legal model and settlement agreement",
+    "current_scope": "Ledger exists; own acquiring/wallet is a separate regulated programme",
+    "secret_type_not_value": "Provider test/live credentials and webhook verification; merchant onboarding",
+    "activation_gate": "User prefers own acquiring: no processor substitution without product decision; custody/AFSL/AML analysis required"
+  },
+  {
+    "provider": "Email delivery",
+    "official_start": "https://resend.com/docs",
+    "account_and_authority": "Business sending domain, SPF/DKIM and DMARC; funded provider account as needed",
+    "current_scope": "Resend/SMTP adapters exist; per-tenant sender verification required",
+    "secret_type_not_value": "Server sending credential; tenant sender/domain records",
+    "activation_gate": "Sender reputation, bounce/complaint hooks and suppression"
+  },
+  {
+    "provider": "AI / speech providers",
+    "official_start": "https://platform.openai.com/docs",
+    "account_and_authority": "Business project/account, billing and approved data processing terms",
+    "current_scope": "Existing AI adapters; no live AI calls made for this candidate",
+    "secret_type_not_value": "Provider-specific key in server vault; no client secret",
+    "activation_gate": "Model availability, retention, region and language/voice verification; keys deferred by owner"
+  },
+  {
+    "provider": "AWS primary / backup storage",
+    "official_start": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html",
+    "account_and_authority": "Separate bucket permissions and retention policy; recovery access",
+    "current_scope": "Existing S3/Litestream paths; live restore not proven here",
+    "secret_type_not_value": "Role/least-privilege access; independent backup policy",
+    "activation_gate": "Primary and backup credentials/buckets must remain distinct; restore drill required"
+  },
+  {
+    "provider": "Apple app distribution",
+    "official_start": "https://developer.apple.com/programs/enroll/",
+    "account_and_authority": "Organization developer enrollment, signing and App Store review",
+    "current_scope": "Build assets do not establish published/reviewed app status",
+    "secret_type_not_value": "Signing certificates/profiles, App Store Connect access",
+    "activation_gate": "Entity verification, privacy labels, deletion flow and device tests"
+  },
+  {
+    "provider": "Google Play / FCM",
+    "official_start": "https://support.google.com/googleplay/android-developer/",
+    "account_and_authority": "Verified developer organization; app signing/review and push project",
+    "current_scope": "PWA/Web Push exists; native store rollout not verified",
+    "secret_type_not_value": "Play signing/access; FCM service identity where native push is used",
+    "activation_gate": "Current testing, data safety, notification permissions and store review"
+  },
+  {
+    "provider": "Accounting / Xero / QuickBooks",
+    "official_start": "https://developer.xero.com/",
+    "account_and_authority": "Developer app, customer accounting organization grant",
+    "current_scope": "Separate adapters/field mappings and reconciliation required",
+    "secret_type_not_value": "Provider OAuth credentials; tenant accounting grants",
+    "activation_gate": "Partner terms, rate limits, tax mapping and write approvals"
+  },
+  {
+    "provider": "Maps / routing / video / e-sign",
+    "official_start": "https://developers.google.com/maps/documentation",
+    "account_and_authority": "Choose licensed suppliers per service and geography; not blanket install",
+    "current_scope": "Evaluate against current built-in meeting and signing functions",
+    "secret_type_not_value": "Supplier-specific scoped credentials",
+    "activation_gate": "Geocoding caching rules, media licences, TURN costs, evidence retention and signature requirements"
+  }
+]

@@ -1,0 +1,1472 @@
+[
+  {
+    "id": "R01-01",
+    "area": "Identity & tenancy",
+    "feature": "Email verification, password recovery and secure session lifecycle",
+    "baseline": "Existing controls; expand tests",
+    "evidence_paths": [
+      "src/platform-identity.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove email verification, password recovery and secure session lifecycle with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R01-02",
+    "area": "Identity & tenancy",
+    "feature": "Owner/admin/manager/worker/contractor permissions and custom grants",
+    "baseline": "Existing controls; expand tests",
+    "evidence_paths": [
+      "src/platform-identity.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove owner/admin/manager/worker/contractor permissions and custom grants with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R01-03",
+    "area": "Identity & tenancy",
+    "feature": "Server-bound workspace switching and object-level authorisation",
+    "baseline": "Existing controls; expand tests",
+    "evidence_paths": [
+      "src/platform-identity.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove server-bound workspace switching and object-level authorisation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R01-04",
+    "area": "Identity & tenancy",
+    "feature": "Operator identity, MFA, support grants and emergency access",
+    "baseline": "Existing controls; expand tests",
+    "evidence_paths": [
+      "src/platform-identity.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove operator identity, mfa, support grants and emergency access with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R01-05",
+    "area": "Identity & tenancy",
+    "feature": "SAML/OIDC SSO, SCIM provisioning and enforced MFA policies",
+    "baseline": "Existing controls; expand tests",
+    "evidence_paths": [
+      "src/platform-identity.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove saml/oidc sso, scim provisioning and enforced mfa policies with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R01-06",
+    "area": "Identity & tenancy",
+    "feature": "Account closure, privacy requests, legal holds and deletion propagation",
+    "baseline": "Existing controls; expand tests",
+    "evidence_paths": [
+      "src/platform-identity.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove account closure, privacy requests, legal holds and deletion propagation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R02-01",
+    "area": "CRM & pipeline",
+    "feature": "Contacts, companies, sites, custom fields, tags and deduplication",
+    "baseline": "Existing; parity not fully tested",
+    "evidence_paths": [
+      "src/business-hub.js",
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove contacts, companies, sites, custom fields, tags and deduplication with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R02-02",
+    "area": "CRM & pipeline",
+    "feature": "Enquiry capture, source attribution, consent and lead assignment",
+    "baseline": "Existing; parity not fully tested",
+    "evidence_paths": [
+      "src/business-hub.js",
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove enquiry capture, source attribution, consent and lead assignment with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R02-03",
+    "area": "CRM & pipeline",
+    "feature": "Configurable opportunities, pipeline stages, tasks and forecasts",
+    "baseline": "Existing; parity not fully tested",
+    "evidence_paths": [
+      "src/business-hub.js",
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove configurable opportunities, pipeline stages, tasks and forecasts with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R02-04",
+    "area": "CRM & pipeline",
+    "feature": "Versioned quotes, approvals, signatures, deposits and expiry",
+    "baseline": "Existing; parity not fully tested",
+    "evidence_paths": [
+      "src/business-hub.js",
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove versioned quotes, approvals, signatures, deposits and expiry with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R02-05",
+    "area": "CRM & pipeline",
+    "feature": "Bookings, services, availability, cancellations and no-shows",
+    "baseline": "Existing; parity not fully tested",
+    "evidence_paths": [
+      "src/business-hub.js",
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove bookings, services, availability, cancellations and no-shows with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R02-06",
+    "area": "CRM & pipeline",
+    "feature": "Client portal with request, quote, appointment, payment and document history",
+    "baseline": "Existing; parity not fully tested",
+    "evidence_paths": [
+      "src/business-hub.js",
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove client portal with request, quote, appointment, payment and document history with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R03-01",
+    "area": "Field operations",
+    "feature": "Dispatch board, availability, skills, service zones and routing",
+    "baseline": "Existing; expand field workflows",
+    "evidence_paths": [
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove dispatch board, availability, skills, service zones and routing with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R03-02",
+    "area": "Field operations",
+    "feature": "Job acceptance, allocation eligibility, checklists and safe handover",
+    "baseline": "Existing; expand field workflows",
+    "evidence_paths": [
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove job acceptance, allocation eligibility, checklists and safe handover with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R03-03",
+    "area": "Field operations",
+    "feature": "Job photos, documents, signatures and completion evidence",
+    "baseline": "Existing; expand field workflows",
+    "evidence_paths": [
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove job photos, documents, signatures and completion evidence with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R03-04",
+    "area": "Field operations",
+    "feature": "Time tracking, expenses, materials, stock and job profitability",
+    "baseline": "Existing; expand field workflows",
+    "evidence_paths": [
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove time tracking, expenses, materials, stock and job profitability with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R03-05",
+    "area": "Field operations",
+    "feature": "Recurring jobs, maintenance plans, warranties and equipment history",
+    "baseline": "Existing; expand field workflows",
+    "evidence_paths": [
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove recurring jobs, maintenance plans, warranties and equipment history with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R03-06",
+    "area": "Field operations",
+    "feature": "Offline mobile jobs with conflict resolution and tenant-safe sync",
+    "baseline": "Existing; expand field workflows",
+    "evidence_paths": [
+      "src/server.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove offline mobile jobs with conflict resolution and tenant-safe sync with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R04-01",
+    "area": "Inbox & communications",
+    "feature": "Unified conversations, contacts, channel identities and assignment",
+    "baseline": "Existing; provider coverage varies",
+    "evidence_paths": [
+      "src/comms/routes.js",
+      "src/mail-centre.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove unified conversations, contacts, channel identities and assignment with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R04-02",
+    "area": "Inbox & communications",
+    "feature": "Email threads, attachments, approved replies and bounce handling",
+    "baseline": "Existing; provider coverage varies",
+    "evidence_paths": [
+      "src/comms/routes.js",
+      "src/mail-centre.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove email threads, attachments, approved replies and bounce handling with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R04-03",
+    "area": "Inbox & communications",
+    "feature": "SMS, opt-outs, templates, segmentation and delivery evidence",
+    "baseline": "Existing; provider coverage varies",
+    "evidence_paths": [
+      "src/comms/routes.js",
+      "src/mail-centre.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove sms, opt-outs, templates, segmentation and delivery evidence with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R04-04",
+    "area": "Inbox & communications",
+    "feature": "WhatsApp templates, messaging windows and tenant phone binding",
+    "baseline": "Existing; provider coverage varies",
+    "evidence_paths": [
+      "src/comms/routes.js",
+      "src/mail-centre.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove whatsapp templates, messaging windows and tenant phone binding with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R04-05",
+    "area": "Inbox & communications",
+    "feature": "Social comments and direct messages by approved channel capability",
+    "baseline": "Existing; provider coverage varies",
+    "evidence_paths": [
+      "src/comms/routes.js",
+      "src/mail-centre.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove social comments and direct messages by approved channel capability with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R04-06",
+    "area": "Inbox & communications",
+    "feature": "Message queued/sent/delivered/read/failed states with retries and reconciliation",
+    "baseline": "Existing; provider coverage varies",
+    "evidence_paths": [
+      "src/comms/routes.js",
+      "src/mail-centre.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove message queued/sent/delivered/read/failed states with retries and reconciliation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R05-01",
+    "area": "Voice & receptionist",
+    "feature": "Number search, price quote, purchase, porting and ownership verification",
+    "baseline": "Existing voice adapter; managed provisioning planned",
+    "evidence_paths": [
+      "src/comms/voice.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove number search, price quote, purchase, porting and ownership verification with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R05-02",
+    "area": "Voice & receptionist",
+    "feature": "Per-business call routing, opening hours, voicemail and forwarding",
+    "baseline": "Existing voice adapter; managed provisioning planned",
+    "evidence_paths": [
+      "src/comms/voice.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove per-business call routing, opening hours, voicemail and forwarding with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R05-03",
+    "area": "Voice & receptionist",
+    "feature": "AI receptionist knowledge, booking rules, qualification and summaries",
+    "baseline": "Existing voice adapter; managed provisioning planned",
+    "evidence_paths": [
+      "src/comms/voice.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove ai receptionist knowledge, booking rules, qualification and summaries with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R05-04",
+    "area": "Voice & receptionist",
+    "feature": "Barge-in, interruption handling, language choice and human transfer",
+    "baseline": "Existing voice adapter; managed provisioning planned",
+    "evidence_paths": [
+      "src/comms/voice.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove barge-in, interruption handling, language choice and human transfer with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R05-05",
+    "area": "Voice & receptionist",
+    "feature": "Recording disclosure, retention, redaction and call access permissions",
+    "baseline": "Existing voice adapter; managed provisioning planned",
+    "evidence_paths": [
+      "src/comms/voice.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove recording disclosure, retention, redaction and call access permissions with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R05-06",
+    "area": "Voice & receptionist",
+    "feature": "Per-tenant call cost caps, fraud prevention, call quality and failover",
+    "baseline": "Existing voice adapter; managed provisioning planned",
+    "evidence_paths": [
+      "src/comms/voice.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove per-tenant call cost caps, fraud prevention, call quality and failover with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R06-01",
+    "area": "Automation & AI",
+    "feature": "Versioned visual trigger/condition/action graph with validation",
+    "baseline": "Existing bounded engine; visual graph planned",
+    "evidence_paths": [
+      "src/automation/engine.js",
+      "src/job-queue.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove versioned visual trigger/condition/action graph with validation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R06-02",
+    "area": "Automation & AI",
+    "feature": "Waits, schedules, timezones, branching and cancellation semantics",
+    "baseline": "Existing bounded engine; visual graph planned",
+    "evidence_paths": [
+      "src/automation/engine.js",
+      "src/job-queue.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove waits, schedules, timezones, branching and cancellation semantics with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R06-03",
+    "area": "Automation & AI",
+    "feature": "Sandbox simulation with no live sends, charges or publishing",
+    "baseline": "Existing bounded engine; visual graph planned",
+    "evidence_paths": [
+      "src/automation/engine.js",
+      "src/job-queue.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove sandbox simulation with no live sends, charges or publishing with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R06-04",
+    "area": "Automation & AI",
+    "feature": "Approvals tied to payload hash, actor, expiry and reapproval on edit",
+    "baseline": "Existing bounded engine; visual graph planned",
+    "evidence_paths": [
+      "src/automation/engine.js",
+      "src/job-queue.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove approvals tied to payload hash, actor, expiry and reapproval on edit with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R06-05",
+    "area": "Automation & AI",
+    "feature": "Durable queue, leases, idempotency, retries, dead letters and replay",
+    "baseline": "Existing bounded engine; visual graph planned",
+    "evidence_paths": [
+      "src/automation/engine.js",
+      "src/job-queue.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove durable queue, leases, idempotency, retries, dead letters and replay with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R06-06",
+    "area": "Automation & AI",
+    "feature": "AI evaluation sets, retrieval isolation, prompt injection controls and spend limits",
+    "baseline": "Existing bounded engine; visual graph planned",
+    "evidence_paths": [
+      "src/automation/engine.js",
+      "src/job-queue.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove ai evaluation sets, retrieval isolation, prompt injection controls and spend limits with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R07-01",
+    "area": "Websites & domains",
+    "feature": "Accessible page builder, responsive templates and reusable blocks",
+    "baseline": "Builder exists; registrar ordering planned",
+    "evidence_paths": [
+      "src/seo/builder.js",
+      "src/seo/routes.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove accessible page builder, responsive templates and reusable blocks with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R07-02",
+    "area": "Websites & domains",
+    "feature": "Forms, surveys, funnels, booking embeds and consent capture",
+    "baseline": "Builder exists; registrar ordering planned",
+    "evidence_paths": [
+      "src/seo/builder.js",
+      "src/seo/routes.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove forms, surveys, funnels, booking embeds and consent capture with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R07-03",
+    "area": "Websites & domains",
+    "feature": "Blog/CMS, assets, redirects, SEO metadata and structured data",
+    "baseline": "Builder exists; registrar ordering planned",
+    "evidence_paths": [
+      "src/seo/builder.js",
+      "src/seo/routes.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove blog/cms, assets, redirects, seo metadata and structured data with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R07-04",
+    "area": "Websites & domains",
+    "feature": "Domain connect, DNS challenge, tenant binding and TLS lifecycle",
+    "baseline": "Builder exists; registrar ordering planned",
+    "evidence_paths": [
+      "src/seo/builder.js",
+      "src/seo/routes.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove domain connect, dns challenge, tenant binding and tls lifecycle with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R07-05",
+    "area": "Websites & domains",
+    "feature": "Registrar search/register/renew/transfer with registrant rights and recovery",
+    "baseline": "Builder exists; registrar ordering planned",
+    "evidence_paths": [
+      "src/seo/builder.js",
+      "src/seo/routes.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove registrar search/register/renew/transfer with registrant rights and recovery with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R07-06",
+    "area": "Websites & domains",
+    "feature": "Approval-controlled publishing, preview isolation, revision history and rollback",
+    "baseline": "Builder exists; registrar ordering planned",
+    "evidence_paths": [
+      "src/seo/builder.js",
+      "src/seo/routes.js",
+      "src/business-hub.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove approval-controlled publishing, preview isolation, revision history and rollback with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R08-01",
+    "area": "Social & marketing",
+    "feature": "Social calendar, drafts, media library and channel-specific previews",
+    "baseline": "Existing adapters; multiple channels partial",
+    "evidence_paths": [
+      "src/channel-providers.js",
+      "src/integration-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove social calendar, drafts, media library and channel-specific previews with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R08-02",
+    "area": "Social & marketing",
+    "feature": "Meta Facebook/Instagram publishing and supported comment/message actions",
+    "baseline": "Existing adapters; multiple channels partial",
+    "evidence_paths": [
+      "src/channel-providers.js",
+      "src/integration-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove meta facebook/instagram publishing and supported comment/message actions with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R08-03",
+    "area": "Social & marketing",
+    "feature": "YouTube videos/comments, TikTok posting, LinkedIn, X and Pinterest adapters",
+    "baseline": "Existing adapters; multiple channels partial",
+    "evidence_paths": [
+      "src/channel-providers.js",
+      "src/integration-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove youtube videos/comments, tiktok posting, linkedin, x and pinterest adapters with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R08-04",
+    "area": "Social & marketing",
+    "feature": "Snapchat, Threads and other channels only with actual approved capability",
+    "baseline": "Existing adapters; multiple channels partial",
+    "evidence_paths": [
+      "src/channel-providers.js",
+      "src/integration-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove snapchat, threads and other channels only with actual approved capability with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R08-05",
+    "area": "Social & marketing",
+    "feature": "Email/SMS journeys, consent segments, suppression and unsubscribe",
+    "baseline": "Existing adapters; multiple channels partial",
+    "evidence_paths": [
+      "src/channel-providers.js",
+      "src/integration-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove email/sms journeys, consent segments, suppression and unsubscribe with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R08-06",
+    "area": "Social & marketing",
+    "feature": "Ad account connection, approved budgets, lead forms and attribution reconciliation",
+    "baseline": "Existing adapters; multiple channels partial",
+    "evidence_paths": [
+      "src/channel-providers.js",
+      "src/integration-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove ad account connection, approved budgets, lead forms and attribution reconciliation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R09-01",
+    "area": "Search & reputation",
+    "feature": "Google Business Profile locations, posts, review inbox and reply approvals",
+    "baseline": "Existing; verify live grants",
+    "evidence_paths": [
+      "src/seo/google.js",
+      "src/seo/local.js",
+      "src/seo/audit.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove google business profile locations, posts, review inbox and reply approvals with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R09-02",
+    "area": "Search & reputation",
+    "feature": "Review requests, response templates and reputation monitoring",
+    "baseline": "Existing; verify live grants",
+    "evidence_paths": [
+      "src/seo/google.js",
+      "src/seo/local.js",
+      "src/seo/audit.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove review requests, response templates and reputation monitoring with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R09-03",
+    "area": "Search & reputation",
+    "feature": "Search Console, GA4 and Google Ads scoped data integrations",
+    "baseline": "Existing; verify live grants",
+    "evidence_paths": [
+      "src/seo/google.js",
+      "src/seo/local.js",
+      "src/seo/audit.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove search console, ga4 and google ads scoped data integrations with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R09-04",
+    "area": "Search & reputation",
+    "feature": "Technical SEO, crawl/index checks, content briefs and local pages",
+    "baseline": "Existing; verify live grants",
+    "evidence_paths": [
+      "src/seo/google.js",
+      "src/seo/local.js",
+      "src/seo/audit.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove technical seo, crawl/index checks, content briefs and local pages with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R09-05",
+    "area": "Search & reputation",
+    "feature": "Source-labelled reports, attribution caveats and data freshness",
+    "baseline": "Existing; verify live grants",
+    "evidence_paths": [
+      "src/seo/google.js",
+      "src/seo/local.js",
+      "src/seo/audit.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove source-labelled reports, attribution caveats and data freshness with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R09-06",
+    "area": "Search & reputation",
+    "feature": "Listings consistency and directory integrations with partner permission",
+    "baseline": "Existing; verify live grants",
+    "evidence_paths": [
+      "src/seo/google.js",
+      "src/seo/local.js",
+      "src/seo/audit.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove listings consistency and directory integrations with partner permission with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R10-01",
+    "area": "Money & commerce",
+    "feature": "Invoices, credit notes, discounts, recurring billing and PDF receipts",
+    "baseline": "Existing ledger; provider and legal gates apply",
+    "evidence_paths": [
+      "src/finance/routes.js",
+      "src/billing-ops.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove invoices, credit notes, discounts, recurring billing and pdf receipts with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R10-02",
+    "area": "Money & commerce",
+    "feature": "Merchant onboarding, secure hosted card and direct-debit collection",
+    "baseline": "Existing ledger; provider and legal gates apply",
+    "evidence_paths": [
+      "src/finance/routes.js",
+      "src/billing-ops.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove merchant onboarding, secure hosted card and direct-debit collection with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R10-03",
+    "area": "Money & commerce",
+    "feature": "Signed settlement webhooks, refunds, disputes and reconciliation",
+    "baseline": "Existing ledger; provider and legal gates apply",
+    "evidence_paths": [
+      "src/finance/routes.js",
+      "src/billing-ops.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove signed settlement webhooks, refunds, disputes and reconciliation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R10-04",
+    "area": "Money & commerce",
+    "feature": "Multi-currency ledger, FX disclosure and country-specific tax configuration",
+    "baseline": "Existing ledger; provider and legal gates apply",
+    "evidence_paths": [
+      "src/finance/routes.js",
+      "src/billing-ops.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove multi-currency ledger, fx disclosure and country-specific tax configuration with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R10-05",
+    "area": "Money & commerce",
+    "feature": "Products, subscriptions, checkout, order fulfilment and inventory",
+    "baseline": "Existing ledger; provider and legal gates apply",
+    "evidence_paths": [
+      "src/finance/routes.js",
+      "src/billing-ops.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove products, subscriptions, checkout, order fulfilment and inventory with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R10-06",
+    "area": "Money & commerce",
+    "feature": "Own acquiring/wallet/custody feasibility, licences and partner settlement design",
+    "baseline": "Existing ledger; provider and legal gates apply",
+    "evidence_paths": [
+      "src/finance/routes.js",
+      "src/billing-ops.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove own acquiring/wallet/custody feasibility, licences and partner settlement design with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R11-01",
+    "area": "People & compliance",
+    "feature": "Staff invitations, designations, attendance and availability",
+    "baseline": "Existing workforce functions; jurisdiction review needed",
+    "evidence_paths": [
+      "src/server.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove staff invitations, designations, attendance and availability with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R11-02",
+    "area": "People & compliance",
+    "feature": "Skills, work-right evidence, expiry reminders and allocation rules",
+    "baseline": "Existing workforce functions; jurisdiction review needed",
+    "evidence_paths": [
+      "src/server.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove skills, work-right evidence, expiry reminders and allocation rules with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R11-03",
+    "area": "People & compliance",
+    "feature": "Contractor onboarding, agreements, insurance and role privacy",
+    "baseline": "Existing workforce functions; jurisdiction review needed",
+    "evidence_paths": [
+      "src/server.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove contractor onboarding, agreements, insurance and role privacy with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R11-04",
+    "area": "People & compliance",
+    "feature": "Recruitment, applications, consent and document retention",
+    "baseline": "Existing workforce functions; jurisdiction review needed",
+    "evidence_paths": [
+      "src/server.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove recruitment, applications, consent and document retention with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R11-05",
+    "area": "People & compliance",
+    "feature": "Training, knowledge base, courses, community and membership access",
+    "baseline": "Existing workforce functions; jurisdiction review needed",
+    "evidence_paths": [
+      "src/server.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove training, knowledge base, courses, community and membership access with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R11-06",
+    "area": "People & compliance",
+    "feature": "Country-specific employment/tax rules reviewed before automated decisions",
+    "baseline": "Existing workforce functions; jurisdiction review needed",
+    "evidence_paths": [
+      "src/server.js",
+      "src/staff-access.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove country-specific employment/tax rules reviewed before automated decisions with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R12-01",
+    "area": "Platform & ecosystem",
+    "feature": "Plans, trials, entitlements, add-ons and metered usage reconciliation",
+    "baseline": "Existing platform; marketplace expansion planned",
+    "evidence_paths": [
+      "src/saas-platform.js",
+      "src/operator-console.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove plans, trials, entitlements, add-ons and metered usage reconciliation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R12-02",
+    "area": "Platform & ecosystem",
+    "feature": "Agency/business hierarchy, branding and controlled white-label options",
+    "baseline": "Existing platform; marketplace expansion planned",
+    "evidence_paths": [
+      "src/saas-platform.js",
+      "src/operator-console.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove agency/business hierarchy, branding and controlled white-label options with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R12-03",
+    "area": "Platform & ecosystem",
+    "feature": "Public API, scoped API tokens, pagination and versioned contracts",
+    "baseline": "Existing platform; marketplace expansion planned",
+    "evidence_paths": [
+      "src/saas-platform.js",
+      "src/operator-console.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove public api, scoped api tokens, pagination and versioned contracts with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R12-04",
+    "area": "Platform & ecosystem",
+    "feature": "Signed webhooks, delivery history, replay and schema versioning",
+    "baseline": "Existing platform; marketplace expansion planned",
+    "evidence_paths": [
+      "src/saas-platform.js",
+      "src/operator-console.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove signed webhooks, delivery history, replay and schema versioning with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R12-05",
+    "area": "Platform & ecosystem",
+    "feature": "Integration marketplace, templates/snapshots and safe install permissions",
+    "baseline": "Existing platform; marketplace expansion planned",
+    "evidence_paths": [
+      "src/saas-platform.js",
+      "src/operator-console.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove integration marketplace, templates/snapshots and safe install permissions with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R12-06",
+    "area": "Platform & ecosystem",
+    "feature": "Import/export, migration preview, duplicates, rollback and portability",
+    "baseline": "Existing platform; marketplace expansion planned",
+    "evidence_paths": [
+      "src/saas-platform.js",
+      "src/operator-console.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove import/export, migration preview, duplicates, rollback and portability with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R13-01",
+    "area": "Mobile & accessibility",
+    "feature": "Phone/tablet/desktop navigation, compact density and reachable actions",
+    "baseline": "PWA/push exists; store/device certification pending",
+    "evidence_paths": [
+      "saas/workspace.html",
+      "saas/workspace-push.js",
+      "src/web-push.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove phone/tablet/desktop navigation, compact density and reachable actions with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R13-02",
+    "area": "Mobile & accessibility",
+    "feature": "iOS/Android distribution, signing, deep links and verified app links",
+    "baseline": "PWA/push exists; store/device certification pending",
+    "evidence_paths": [
+      "saas/workspace.html",
+      "saas/workspace-push.js",
+      "src/web-push.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove ios/android distribution, signing, deep links and verified app links with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R13-03",
+    "area": "Mobile & accessibility",
+    "feature": "Foreground/background push with device permissions and preference controls",
+    "baseline": "PWA/push exists; store/device certification pending",
+    "evidence_paths": [
+      "saas/workspace.html",
+      "saas/workspace-push.js",
+      "src/web-push.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove foreground/background push with device permissions and preference controls with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R13-04",
+    "area": "Mobile & accessibility",
+    "feature": "Accessibility keyboard flow, screen readers, contrast and reduced motion",
+    "baseline": "PWA/push exists; store/device certification pending",
+    "evidence_paths": [
+      "saas/workspace.html",
+      "saas/workspace-push.js",
+      "src/web-push.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove accessibility keyboard flow, screen readers, contrast and reduced motion with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R13-05",
+    "area": "Mobile & accessibility",
+    "feature": "Camera/files/audio permissions, upload recovery and secure local storage",
+    "baseline": "PWA/push exists; store/device certification pending",
+    "evidence_paths": [
+      "saas/workspace.html",
+      "saas/workspace-push.js",
+      "src/web-push.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove camera/files/audio permissions, upload recovery and secure local storage with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R13-06",
+    "area": "Mobile & accessibility",
+    "feature": "Device test matrix, crash diagnostics, staged releases and account deletion",
+    "baseline": "PWA/push exists; store/device certification pending",
+    "evidence_paths": [
+      "saas/workspace.html",
+      "saas/workspace-push.js",
+      "src/web-push.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P1",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove device test matrix, crash diagnostics, staged releases and account deletion with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R14-01",
+    "area": "Languages & localization",
+    "feature": "Subscriber language selector with native names and server-saved preferences",
+    "baseline": "Candidate partial; full translation not released",
+    "evidence_paths": [
+      "src/localization.js",
+      "saas/locale-catalog.js",
+      "saas/workspace-locale.js"
+    ],
+    "status": "CANDIDATE_PARTIAL",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove subscriber language selector with native names and server-saved preferences with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R14-02",
+    "area": "Languages & localization",
+    "feature": "Complete string extraction, pluralisation, interpolation and fallback reports",
+    "baseline": "Candidate partial; full translation not released",
+    "evidence_paths": [
+      "src/localization.js",
+      "saas/locale-catalog.js",
+      "saas/workspace-locale.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove complete string extraction, pluralisation, interpolation and fallback reports with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R14-03",
+    "area": "Languages & localization",
+    "feature": "Script-aware RTL/LTR layouts and mixed-language content isolation",
+    "baseline": "Candidate partial; full translation not released",
+    "evidence_paths": [
+      "src/localization.js",
+      "saas/locale-catalog.js",
+      "saas/workspace-locale.js"
+    ],
+    "status": "CANDIDATE_PARTIAL",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove script-aware rtl/ltr layouts and mixed-language content isolation with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R14-04",
+    "area": "Languages & localization",
+    "feature": "Locale dates, numbers, timezone, money and independent currency choice",
+    "baseline": "Candidate partial; full translation not released",
+    "evidence_paths": [
+      "src/localization.js",
+      "saas/locale-catalog.js",
+      "saas/workspace-locale.js"
+    ],
+    "status": "CANDIDATE_PARTIAL",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove locale dates, numbers, timezone, money and independent currency choice with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R14-05",
+    "area": "Languages & localization",
+    "feature": "Localized emails, notifications, client portal, legal copy and support content",
+    "baseline": "Candidate partial; full translation not released",
+    "evidence_paths": [
+      "src/localization.js",
+      "saas/locale-catalog.js",
+      "saas/workspace-locale.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove localized emails, notifications, client portal, legal copy and support content with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R14-06",
+    "area": "Languages & localization",
+    "feature": "Voice/STT/TTS capability matrix, native-speaker review and locale release gates",
+    "baseline": "Candidate partial; full translation not released",
+    "evidence_paths": [
+      "src/localization.js",
+      "saas/locale-catalog.js",
+      "saas/workspace-locale.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove voice/stt/tts capability matrix, native-speaker review and locale release gates with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R15-01",
+    "area": "Security & privacy",
+    "feature": "Threat model and OWASP ASVS 5.0 Level 2 control evidence register",
+    "baseline": "Existing controls; independent assessment required",
+    "evidence_paths": [
+      "src/staff-access.js",
+      "src/platform-identity.js",
+      "src/object-storage.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove threat model and owasp asvs 5.0 level 2 control evidence register with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R15-02",
+    "area": "Security & privacy",
+    "feature": "Token encryption, least privilege, key rotation and redacted diagnostics",
+    "baseline": "Existing controls; independent assessment required",
+    "evidence_paths": [
+      "src/staff-access.js",
+      "src/platform-identity.js",
+      "src/object-storage.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove token encryption, least privilege, key rotation and redacted diagnostics with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R15-03",
+    "area": "Security & privacy",
+    "feature": "CSRF, XSS, SQL injection, SSRF, file scanning and egress controls",
+    "baseline": "Existing controls; independent assessment required",
+    "evidence_paths": [
+      "src/staff-access.js",
+      "src/platform-identity.js",
+      "src/object-storage.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove csrf, xss, sql injection, ssrf, file scanning and egress controls with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R15-04",
+    "area": "Security & privacy",
+    "feature": "Rate limits, abuse detection, session revocation and suspicious-action alerts",
+    "baseline": "Existing controls; independent assessment required",
+    "evidence_paths": [
+      "src/staff-access.js",
+      "src/platform-identity.js",
+      "src/object-storage.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove rate limits, abuse detection, session revocation and suspicious-action alerts with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R15-05",
+    "area": "Security & privacy",
+    "feature": "Data residency, data processor register, retention, DSAR and breach response",
+    "baseline": "Existing controls; independent assessment required",
+    "evidence_paths": [
+      "src/staff-access.js",
+      "src/platform-identity.js",
+      "src/object-storage.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove data residency, data processor register, retention, dsar and breach response with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R15-06",
+    "area": "Security & privacy",
+    "feature": "Dependency/SBOM review, SAST/DAST and independent penetration test",
+    "baseline": "Existing controls; independent assessment required",
+    "evidence_paths": [
+      "src/staff-access.js",
+      "src/platform-identity.js",
+      "src/object-storage.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove dependency/sbom review, sast/dast and independent penetration test with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R16-01",
+    "area": "Reliability & operations",
+    "feature": "Application readiness probes, uptime, saturation and business journey monitoring",
+    "baseline": "Existing controls; live restore proof pending",
+    "evidence_paths": [
+      "src/reliability/index.js",
+      "src/job-queue.js",
+      "src/platform-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove application readiness probes, uptime, saturation and business journey monitoring with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R16-02",
+    "area": "Reliability & operations",
+    "feature": "Primary storage, independent backup, verified restore and disaster recovery",
+    "baseline": "Existing controls; live restore proof pending",
+    "evidence_paths": [
+      "src/reliability/index.js",
+      "src/job-queue.js",
+      "src/platform-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove primary storage, independent backup, verified restore and disaster recovery with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R16-03",
+    "area": "Reliability & operations",
+    "feature": "Queue lag, poisoned jobs, scheduler locks and controlled manual recovery",
+    "baseline": "Existing controls; live restore proof pending",
+    "evidence_paths": [
+      "src/reliability/index.js",
+      "src/job-queue.js",
+      "src/platform-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove queue lag, poisoned jobs, scheduler locks and controlled manual recovery with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R16-04",
+    "area": "Reliability & operations",
+    "feature": "Releases, migrations, feature flags, canaries, rollback and change evidence",
+    "baseline": "Existing controls; live restore proof pending",
+    "evidence_paths": [
+      "src/reliability/index.js",
+      "src/job-queue.js",
+      "src/platform-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove releases, migrations, feature flags, canaries, rollback and change evidence with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R16-05",
+    "area": "Reliability & operations",
+    "feature": "Cost/unit economics, provider invoices, usage anomalies and hard budgets",
+    "baseline": "Existing controls; live restore proof pending",
+    "evidence_paths": [
+      "src/reliability/index.js",
+      "src/job-queue.js",
+      "src/platform-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove cost/unit economics, provider invoices, usage anomalies and hard budgets with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  },
+  {
+    "id": "R16-06",
+    "area": "Reliability & operations",
+    "feature": "Incident ownership, status updates, runbooks, support SLAs and postmortems",
+    "baseline": "Existing controls; live restore proof pending",
+    "evidence_paths": [
+      "src/reliability/index.js",
+      "src/job-queue.js",
+      "src/platform-health.js"
+    ],
+    "status": "REQUIRES_ACCEPTANCE_TEST",
+    "priority": "P0",
+    "owner": "Engineering + QA; provider/legal owner where applicable",
+    "acceptance": "Prove incident ownership, status updates, runbooks, support slas and postmortems with a successful journey, permission denial, two-tenant isolation, failure/recovery evidence and operator diagnostics. No production-ready status from menu presence alone.",
+    "credential_gate": "At activation where an external service is used; no keys in source."
+  }
+]

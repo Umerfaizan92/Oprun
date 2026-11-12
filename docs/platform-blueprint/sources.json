@@ -1,0 +1,128 @@
+[
+  {
+    "id": "S01",
+    "title": "HighLevel official pricing and suite",
+    "url": "https://www.gohighlevel.com/pricing",
+    "use": "Primary benchmark; earlier trial audit report records observed state."
+  },
+  {
+    "id": "S02",
+    "title": "HubSpot governed AI agents",
+    "url": "https://www.hubspot.com/products/artificial-intelligence/breeze-ai-agents",
+    "use": "Guardrails/approvals exist in competitor; not a unique Oprun claim."
+  },
+  {
+    "id": "S03",
+    "title": "Salesforce AU small-business editions",
+    "url": "https://www.salesforce.com/au/small-business/pricing/",
+    "use": "Capabilities and editions, not universal entitlements."
+  },
+  {
+    "id": "S04",
+    "title": "Zoho One",
+    "url": "https://www.zoho.com/one/",
+    "use": "Cross-department business suite; do not rely on changing app-count marketing."
+  },
+  {
+    "id": "S05",
+    "title": "Jobber client hub",
+    "url": "https://www.getjobber.com/features/client-hub/",
+    "use": "Client self-service benchmark."
+  },
+  {
+    "id": "S06",
+    "title": "ServiceTitan mobile",
+    "url": "https://www.servicetitan.com/features/field-mobile-app",
+    "use": "Technician workflows benchmark."
+  },
+  {
+    "id": "S07",
+    "title": "Housecall Pro features",
+    "url": "https://www.housecallpro.com/features/",
+    "use": "Field service and CSR AI benchmark."
+  },
+  {
+    "id": "S08",
+    "title": "Google server OAuth",
+    "url": "https://developers.google.com/identity/protocols/oauth2/web-server",
+    "use": "Platform app credentials and tenant refresh/authorization lifecycle."
+  },
+  {
+    "id": "S09",
+    "title": "TikTok direct publishing",
+    "url": "https://developers.tiktok.com/docs/en/content-posting-api-get-started",
+    "use": "Scope approval, user grant, unaudited private-only restriction."
+  },
+  {
+    "id": "S10",
+    "title": "OpenSRS overview",
+    "url": "https://domains.opensrs.guide/docs/overview",
+    "use": "Reseller API and test/live prerequisites."
+  },
+  {
+    "id": "S11",
+    "title": "W3C HTML direction",
+    "url": "https://www.w3.org/International/questions/qa-html-dir",
+    "use": "Explicit direction and language metadata."
+  },
+  {
+    "id": "S12",
+    "title": "W3C language tags",
+    "url": "https://www.w3.org/International/articles/language-tags/",
+    "use": "BCP 47 language/script/region model."
+  },
+  {
+    "id": "S13",
+    "title": "Render health probes",
+    "url": "https://render.com/docs/health-checks.md",
+    "use": "Default TCP is different from HTTP application readiness."
+  },
+  {
+    "id": "S14",
+    "title": "OWASP ASVS stable releases",
+    "url": "https://asvs.owasp.org/downloads/",
+    "use": "5.0.0 verification baseline, not certification."
+  },
+  {
+    "id": "S15",
+    "title": "ACMA CSP classification",
+    "url": "https://www.acma.gov.au/about-carriers-and-carriage-service-providers",
+    "use": "No ACMA licence for CSPs does not remove applicable obligations."
+  },
+  {
+    "id": "S16",
+    "title": "ASIC non-cash payment guidance",
+    "url": "https://www.asic.gov.au/regulatory-resources/find-a-document/regulatory-guides/rg-185-non-cash-payment-facilities",
+    "use": "Financial service model requires case-specific assessment."
+  },
+  {
+    "id": "S17",
+    "title": "ASIC 2026 instrument update",
+    "url": "https://www.asic.gov.au/about-asic/news-centre/news-items/asic-remakes-non-cash-payment-facilities-instrument",
+    "use": "Current conditional relief and reforms must be assessed."
+  },
+  {
+    "id": "S18",
+    "title": "auDA licensing rules",
+    "url": "https://www.auda.org.au/au-domain-names/au-rules-and-policies/au-domain-administration-rules-licensing-2/",
+    "use": "Registrant eligibility and licence rules."
+  },
+  {
+    "id": "S19",
+    "title": "OAIC Australian Privacy Principles",
+    "url": "https://www.oaic.gov.au/privacy/australian-privacy-principles/read-the-australian-privacy-principles",
+    "use": "Privacy obligations including overseas disclosure, where applicable."
+  },
+  {
+    "id": "S20",
+    "title": "PCI DSS",
+    "url": "https://www.pcisecuritystandards.org/standards/pci-dss/",
+    "use": "Scope and validation with acquirer/QSA."
+  },
+  {
+    "id": "S21",
+    "title": "ACMA consent expectations",
+    "url": "https://www.acma.gov.au/articles/2024-06/consent-expectations-businesses-using-direct-marketing",
+    "use": "Consent, opt-out and channel governance."
+  }
+]

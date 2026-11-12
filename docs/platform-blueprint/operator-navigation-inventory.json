@@ -1,0 +1,205 @@
+[
+  {
+    "id": "f01",
+    "permission": "overview",
+    "title": "Platform overview",
+    "pages": [
+      {
+        "route": "overview",
+        "title": "Overview"
+      },
+      {
+        "route": "platform/revenue",
+        "title": "Revenue"
+      },
+      {
+        "route": "system",
+        "title": "Infrastructure"
+      },
+      {
+        "route": "platform/backups",
+        "title": "Storage & backups"
+      },
+      {
+        "route": "platform/ai-usage",
+        "title": "AI usage"
+      }
+    ]
+  },
+  {
+    "id": "f02",
+    "permission": "subscribers",
+    "title": "Subscribers",
+    "pages": [
+      {
+        "route": "subscribers",
+        "title": "Businesses"
+      }
+    ]
+  },
+  {
+    "id": "f03",
+    "permission": "billing",
+    "title": "Billing & usage",
+    "pages": [
+      {
+        "route": "invoices",
+        "title": "Subscription invoices"
+      },
+      {
+        "route": "legacy:subpay",
+        "title": "Payment providers"
+      },
+      {
+        "route": "legacy:subscribers",
+        "title": "Plans & add-ons"
+      },
+      {
+        "route": "platform/finance",
+        "title": "Plan prices, renewals & revenue"
+      }
+    ]
+  },
+  {
+    "id": "f04",
+    "permission": "support",
+    "title": "Support & success",
+    "pages": [
+      {
+        "route": "mail",
+        "title": "Email Centre"
+      },
+      {
+        "route": "records:ticket",
+        "title": "Tickets"
+      },
+      {
+        "route": "support-access",
+        "title": "Support access"
+      }
+    ]
+  },
+  {
+    "id": "f05",
+    "permission": "team",
+    "title": "Oprun team",
+    "pages": [
+      {
+        "route": "records:staff_task",
+        "title": "Team work"
+      },
+      {
+        "route": "records:hire",
+        "title": "Hiring requests"
+      }
+    ]
+  },
+  {
+    "id": "f06",
+    "permission": "marketing",
+    "title": "Oprun marketing",
+    "pages": [
+      {
+        "route": "records:prospect",
+        "title": "Prospect CRM"
+      },
+      {
+        "route": "records:campaign",
+        "title": "Campaign drafts"
+      },
+      {
+        "route": "records:content",
+        "title": "Content drafts"
+      },
+      {
+        "route": "records:announcement_draft",
+        "title": "Announcement drafts"
+      },
+      {
+        "route": "legacy:searchvisibility",
+        "title": "Website visibility"
+      },
+      {
+        "route": "platform/seo",
+        "title": "SEO & website"
+      },
+      {
+        "route": "platform/campaigns",
+        "title": "Newsletter campaigns"
+      }
+    ]
+  },
+  {
+    "id": "f07",
+    "permission": "operations",
+    "title": "Operations & maintenance",
+    "pages": [
+      {
+        "route": "records:task",
+        "title": "Tasks & releases"
+      },
+      {
+        "route": "records:incident",
+        "title": "Incidents"
+      },
+      {
+        "route": "records:cost",
+        "title": "Operating costs"
+      },
+      {
+        "route": "legacy:connections",
+        "title": "Provider readiness"
+      },
+      {
+        "route": "platform/automation",
+        "title": "AI automations"
+      },
+      {
+        "route": "platform/reliability",
+        "title": "Reliability & backups"
+      },
+      {
+        "route": "platform/localization",
+        "title": "Languages & translation coverage"
+      }
+    ]
+  },
+  {
+    "id": "f08",
+    "permission": "security",
+    "title": "Security & audit",
+    "pages": [
+      {
+        "route": "audit",
+        "title": "Activity log"
+      },
+      {
+        "route": "platform/compliance",
+        "title": "Compliance"
+      }
+    ]
+  },
+  {
+    "id": "f09",
+    "permission": "founder",
+    "title": "Founder controls",
+    "pages": [
+      {
+        "route": "complimentary",
+        "title": "Complimentary grants"
+      },
+      {
+        "route": "staff",
+        "title": "Operator staff & roles"
+      },
+      {
+        "route": "legacy-inventory",
+        "title": "Legacy inventory"
+      },
+      {
+        "route": "platform/configuration",
+        "title": "Feature access & configuration"
+      }
+    ]
+  }
+]
