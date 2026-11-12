@@ -12,7 +12,8 @@
   <button type="button" class="sp-ask-mic" aria-pressed="false" aria-label="Speak your request" title="Speak your request"${voiceAvailable?'':' disabled'}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>${voiceAvailable?'Speak':'Voice unavailable'}</span></button>
   <button type="submit" class="primary-button sp-ask-send">Send</button></form>
   <div class="sp-ask-chips" role="group" aria-label="Quick requests"><button type="button" data-q="What needs my attention today?">What needs attention today</button><button type="button" data-q="Draft replies to new enquiries for my approval.">Draft replies for approval</button><button type="button" data-q="Which workers have compliance documents expiring soon?">Expiring compliance</button><button type="button" data-q="Summarise this week's jobs and income.">This week's jobs and income</button></div>`;
-  const first=view.firstElementChild;view.insertBefore(bar,first);
+  // Keep the original greeting, operational sections and next steps ahead of AI.
+  view.append(bar);
   const state=bar.querySelector('[data-ask-state]'),dot=bar.querySelector('.pulse-dot'),input=bar.querySelector('#sp-ask-input'),mic=bar.querySelector('.sp-ask-mic'),form=bar.querySelector('form');
   const set=(text,kind)=>{state.textContent=text;dot.className='pulse-dot'+(kind?' '+kind:'')};
   function send(text){

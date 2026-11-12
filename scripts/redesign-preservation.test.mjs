@@ -41,3 +41,8 @@ test('canonicalising an authorised legacy deep link preserves its section withou
   vm.runInNewContext(fn+`;showView('${target}')`,c);assert.equal(pushed,expected);
  }
 });
+test('all legacy and individual SEO entries stay secondary under More',()=>{
+ const items=nav().DOMAINS.flatMap(g=>g.items);
+ const expected=['archive','comms','mail','phone','calls','businesscampaigns','seoaudit','seoclusters','seogoogle','seostudio','seolocal','seoanalytics','seoreports','website','visibility','searchconsole','backlinks','finsales','migration','exports','supportaccess','finplan'];
+ for(const id of expected) assert.equal(items.find(i=>i.view===id)?.secondary,true,id);
+});
