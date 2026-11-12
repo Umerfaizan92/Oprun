@@ -43,6 +43,8 @@ async function indexLinks(p, root, portal, route, width, parent = '') {
 }
 async function sections(p, root, portal, route, width) {
   if (portal === 'Business' && width <= 760) {
+    // Like the desktop path below: wait until the phone section bar lists every reviewed section (data loads async).
+    if (expected[route]) await p.waitForFunction(names => { const d = document.getElementById('mobile-workspace-dock'); const seen = new Set((d?._sources || []).flatMap(s => s.buttons.map(b => (b.dataset.sectionLink ? 'Section: ' : '') + b.textContent.trim()))); return names.filter(n => !n.includes(' / ')).every(n => seen.has(n)); }, expected[route], { timeout: 15000 }).catch(() => {});
     const indices = async parent => {
       const links = await p.evaluate(() => document.getElementById('mobile-workspace-dock')._sources.flatMap((s,i) => s.buttons.filter(b=>b.dataset.sectionLink).map(b=>({key:`section-${i}-${s.buttons.indexOf(b)}`,label:b.textContent.trim()}))));
       for (const item of links) { await p.locator(`[data-dock-key="${item.key}"]`).click(); checked(portal,route,(parent?parent+' / ':'')+'Section: '+item.label,width); }
