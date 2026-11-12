@@ -17,6 +17,7 @@ Branch per batch `claude/frontend-transformation-bN`; this file records state so
 |---|---|
 | npm test (release, 73 checks) | PASS |
 | test:console-ui (founder tabs 1440/390) | PASS 16 |
+| test:console-all (new: all 29 non-legacy founder pages, 1440/390) | PASS, no errors, failed calls, raw values or sideways scroll |
 | report:a11y-perf (public site) | 0 serious/critical, 0 over Web Vitals budget |
 | test:redesign-ui, test:mobile-workspace-ui | PASS |
 | test:ui | FAIL: Jobs card hover blocked |
