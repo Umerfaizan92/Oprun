@@ -19,6 +19,8 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
 
 ### 2026-11-12 Batch R1: T-094 package reconciled onto current main (CP-117 → CP-118)
 
+- PR #98 (open, not merged). Commits `65d9992` (reconcile) and `7021df8` (merge of main `ad2713f`).
+
 - Source: `Oprun_Master_Implementation_Package_2026-11-12.zip` (package hashes verified OK). Candidate base
   `7310f6c` (density batch 2); current main `da37f05` (density batches 3 and 4, PRs #95, #96).
 - Branch: `claude/t094-package-on-main` from `origin/main` at `da37f05`. Candidate patch applied with 3-way merge.
