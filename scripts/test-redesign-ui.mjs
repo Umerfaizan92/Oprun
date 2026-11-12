@@ -51,8 +51,8 @@ try {
     await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await page.waitForTimeout(80);
     const gap=await page.evaluate(()=>document.querySelector('#mobile-workspace-dock').getBoundingClientRect().top-document.querySelector('.app-footer').getBoundingClientRect().bottom);
     assert.ok(gap>=0,'footer is never covered by the bar');
-    await dock.locator('.mobile-workspace-menu').click();await page.locator('#all-features .gx-shortcut').first().waitFor();
-    assert.ok(await page.locator('#all-features .gx-shortcut').count()>=6,'All Features lists the workspace shortcuts');
+    await dock.locator('.mobile-workspace-menu').click();await page.locator('.business-navigation-close').waitFor();
+    assert.equal(await page.locator('#all-features').count(),0,'the drawer has no shortcut tiles block');
     await page.locator('.business-navigation-close').click();await page.evaluate(()=>scrollTo(0,0));
   }
   assert.equal(geometry.position,'static','AI never overlays the viewport');
