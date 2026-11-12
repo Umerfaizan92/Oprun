@@ -1,0 +1,9 @@
+{
+  "package": "Oprun_Master_Implementation_Package_2026-11-12.zip",
+  "sha256": "8dc033d114e7ccfc838952a7ef69eda16cd0998a276b88de86fc714680978e10",
+  "library_file_id": "libfile_8edf00192fbc8191a0d3e3b3ada50115",
+  "checkpoint": "CP-117",
+  "base": "7310f6c6033dcda0caaa8d0dd174091f340e8d93",
+  "manifest_entries_passed": 647,
+  "manifest_failed": false
+}

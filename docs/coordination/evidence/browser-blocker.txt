@@ -1,0 +1,5 @@
+browserType.launch: Target page, context or browser has been closed
+[pid=25][err] [25:25:1112/212346.276120:FATAL:chrome/browser/process_singleton_posix.cc:297] Check failed: . socket() failed: Operation not permitted (1)
+[2m  - [pid=25][err] [25:25:1112/212346.276120:FATAL:chrome/browser/process_singleton_posix.cc:297] Check failed: . socket() failed: Operation not permitted (1)[22m
+    '  - [pid=25][err] [25:25:1112/212346.276120:FATAL:chrome/browser/process_singleton_posix.cc:297] Check failed: . socket() failed: Operation not permitted (1)',
+Node.js v22.23.0

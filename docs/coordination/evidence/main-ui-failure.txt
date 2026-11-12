@@ -1,0 +1,5 @@
+Source: GitHub Actions job 131193132928 at main da37f0587e5866dbccc2cc1f2a7dd59eee538727
+Conclusion: failure
+Passed before failure: redesign 320/390/768/1440; navigation 584 route/section checks; channels 390/768/1440 and assigned worker.
+Failure: locator.fill timeout 10000ms at scripts/test-connections-ui.mjs:54:56. Provider email_sms card was visible; Resend API key input resolved but was not visible.
+Following shell commands were not executed after this failing command. No test rerun initiated by this review.

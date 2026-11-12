@@ -1,0 +1,6 @@
+error: patch failed: SHA256SUMS.txt:146
+error: SHA256SUMS.txt: patch does not apply
+error: patch failed: office/console.html:12
+error: office/console.html: patch does not apply
+error: patch failed: saas/workspace.html:12
+error: saas/workspace.html: patch does not apply

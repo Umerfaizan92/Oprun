@@ -1,0 +1,84 @@
+(node:5) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# (node:12) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: real application language routes enforce session, workspace membership and origin
+ok 1 - real application language routes enforce session, workspace membership and origin
+  ---
+  duration_ms: 2542.097851
+  type: 'test'
+  ...
+# (node:28) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: every listed locale round-trips; script variants have the right default direction
+ok 2 - every listed locale round-trips; script variants have the right default direction
+  ---
+  duration_ms: 7.552048
+  type: 'test'
+  ...
+# Subtest: translation coverage is explicit and missing text falls back to English
+ok 3 - translation coverage is explicit and missing text falls back to English
+  ---
+  duration_ms: 25.760829
+  type: 'test'
+  ...
+# Subtest: language preferences enforce session identity, active membership, schema and tenant isolation
+ok 4 - language preferences enforce session identity, active membership, schema and tenant isolation
+  ---
+  duration_ms: 319.816959
+  type: 'test'
+  ...
+# (node:36) [UNDICI-EHPA] Warning: EnvHttpProxyAgent is experimental, expect them to change at any time.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: mail isolation, hash-bound approval, concurrent edits and verified receipt ordering
+ok 5 - mail isolation, hash-bound approval, concurrent edits and verified receipt ordering
+  ---
+  duration_ms: 347.172905
+  type: 'test'
+  ...
+# Subtest: scheduled sender/approver revocation cancels execution before delivery
+ok 6 - scheduled sender/approver revocation cancels execution before delivery
+  ---
+  duration_ms: 199.666101
+  type: 'test'
+  ...
+# Subtest: ordinary business identity cannot access platform, waivers are per ID and prevent subscription drafts
+ok 7 - ordinary business identity cannot access platform, waivers are per ID and prevent subscription drafts
+  ---
+  duration_ms: 277.118419
+  type: 'test'
+  ...
+# Subtest: platform staff permissions are separate, MFA encrypted, revocation ends sessions
+ok 8 - platform staff permissions are separate, MFA encrypted, revocation ends sessions
+  ---
+  duration_ms: 333.896049
+  type: 'test'
+  ...
+# Subtest: support requires subscriber approval, has limited scope, expires and revokes
+ok 9 - support requires subscriber approval, has limited scope, expires and revokes
+  ---
+  duration_ms: 232.808968
+  type: 'test'
+  ...
+# Subtest: business drafts and receptionist settings remain tenant-isolated and no service is activated
+ok 10 - business drafts and receptionist settings remain tenant-isolated and no service is activated
+  ---
+  duration_ms: 300.976841
+  type: 'test'
+  ...
+# Subtest: language coverage is operator-only and exposes no user identifiers
+ok 11 - language coverage is operator-only and exposes no user identifiers
+  ---
+  duration_ms: 190.507585
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8887.789106

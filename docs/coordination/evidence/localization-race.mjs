@@ -1,0 +1,31 @@
+// Independent review reproduction. Run: node this-file.mjs /absolute/path/to/CP117/source
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+const root = path.resolve(process.argv[2]);
+const require = createRequire(path.join(root, 'package.json'));
+const { JSDOM } = require('jsdom');
+const { message, localeCatalogue, localeDirection } = await import(pathToFileURL(path.join(root,'saas/locale-catalog.js')));
+const source = fs.readFileSync(path.join(root,'saas/workspace-locale.js'),'utf8').replace(/^import .*;\n/,'');
+const tick = () => new Promise(resolve => setImmediate(resolve));
+const dom = new JSDOM('<html><body><button id="workspace-language">Language</button><button id="logout" data-i18n="signOut">Sign out</button><dialog id="workspace-language-dialog"><form><select name="locale"></select><p role="status"></p><button data-language-close type="button"></button><button type="submit"></button></form></dialog></body></html>',{url:'https://oprun.example.test',runScripts:'outside-only'});
+const w=dom.window; w.message=message; w.GDS_SESSION={};
+const data = locale => ({locale,direction:localeDirection(locale),locales:localeCatalogue(locale)});
+let workspace='A', finishSave;
+w.fetch = async (_url,options={}) => {
+ if(options.method==='PUT') return await new Promise(resolve => {finishSave=()=>resolve({ok:true,json:async()=>data('ur')});});
+ return {ok:true,json:async()=>data(workspace==='A'?'en-AU':'ja')};
+};
+const dialog=w.document.querySelector('dialog');dialog.showModal=()=>{dialog.open=true};dialog.close=()=>{dialog.open=false};
+w.eval(source);await tick();
+const form=w.document.querySelector('form');form.elements.locale.value='ur';
+form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
+workspace='B';w.dispatchEvent(new w.Event('superpro:workspace-ready'));await tick();
+assert.equal(w.document.documentElement.dataset.preferredLocale,'ja');
+finishSave();await tick();
+const actual=w.document.documentElement.dataset.preferredLocale;
+console.log(JSON.stringify({finding:'CG-001',workspace:'B',expected:'ja',actual,staleSaveOverwritesNewWorkspace:actual==='ur'}));
+assert.equal(actual,'ur','This confirms the existing bug; it is not a product acceptance pass.');
+dom.window.close();
