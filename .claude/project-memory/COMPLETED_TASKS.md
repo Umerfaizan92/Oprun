@@ -141,3 +141,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/oprun-*.svg|png, saas/favicon.ico, saas/premium-ui.js, scripts/site/*.mjs, saas/**, office/**, src/**, README.md, package.json
 - Acceptance: No user-facing 'Super Pro' text remains outside docs; new logo shows on site, sign-in, workspace and icons; npm test, test:ui, test:site-ui, check:site, security:secrets pass; infra identifiers unchanged
 - Evidence: npm test 73/73, test:ui 34 (two clean runs), test:site-ui 16, check:site 19 pages, security:secrets clean, connections/lead-sources/meetings UI pass, visual 51 screens, a11y 0 serious; screenshots of home and sign-in checked (recorded 2026-11-11 on claude/oprun-rebrand-20261111 at 80274ce)
+
+## T-087 Rebuild ChatGPT f039490 changes: footer brand, mobile bottom nav, sidebar sign-out, finder/chat fixes
+- Added: 2026-11-12
+- Requirement: Owner's ChatGPT commit f039490 never reached GitHub (push blocked). Rebuild: Oprun logo/name in compact footer with organised policy links; fixed bottom navigation with icons on mobile; Sign out at bottom of sidebar; remove duplicate finder; fix chat badges, permissions and panel overlap. Deploy for live test.
+- Files: saas/workspace.html,saas/portal-shell.js,saas/workspace-redesign.css,saas/app.js
+- Acceptance: Visible at 390/768/1440; all routes/IDs kept; operator link kept; npm test + UI suites pass; deployed live
+- Evidence: PR #82 merged as 791da15 after CI (verify, recovered-release-ui, CodeQL) passed; Render deploy dep-dbqj683rjlhs738f76o0 live 2026-11-12T03:36Z, build 73/73, startup diagnostics 16/16; local test:ui, redesign-ui 320-1440 with axe, navigation-ui, pipeline, comms, connections, meetings, lead-sources, secrets passed (recorded 2026-11-12 on claude/t087-evidence at 791da15)
