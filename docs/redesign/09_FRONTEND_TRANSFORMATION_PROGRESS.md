@@ -35,6 +35,9 @@ Branch per batch `claude/frontend-transformation-bN`; this file records state so
    button; Billing tabs on phones via the section bar.
 
 Result: test:ui 34/34, test:navigation-ui, test:console-ui, test:redesign-ui, test:mobile-workspace-ui all PASS.
+Also stale on phones (fixed the same way): test:channels-ui and test:automations-ui. Every step of the CI
+"recovered-release-ui" job now passes locally (connections-ui and site-ui are timing-sensitive when run in parallel;
+both pass when run one at a time).
 
 ## 4. Pending batches (next actions, in order)
 
