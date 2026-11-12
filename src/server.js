@@ -26,6 +26,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import express from 'express';
+import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -862,6 +863,9 @@ async function ensureTikTokAccessToken() {
 */
 
 const app = express();
+// Batch 5 (performance): gzip/brotli text responses (HTML, CSS, JS, JSON). Files already encoded, such as the
+// pre-compressed design-system assets, keep their encoding; media and other binary types are left untouched.
+app.use(compression({ threshold: 1024, filter: (req, res) => !res.getHeader('content-encoding') && compression.filter(req, res) }));
 app.use((req,res,next)=>{
   if(env.SUPERPRO_ISOLATED_PREVIEW==='1'&&!['GET','HEAD','OPTIONS'].includes(req.method)){
     const publicCapture=!req.path.startsWith('/api/saas/')&&!req.path.startsWith('/api/operator/');
