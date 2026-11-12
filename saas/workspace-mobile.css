@@ -1,0 +1,54 @@
+/* Business workspace only. Desktop keeps contextual controls in the page. */
+body.portal-workspace .app-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px;margin-top:16px;padding:12px clamp(16px,3vw,32px);border-top:1px solid var(--line);background:var(--bg);color:var(--muted);font-family:inherit;font-size:12px;line-height:1.5}
+body.portal-workspace .app-footer .workspace-platform-brand{display:inline-flex;align-items:center;gap:8px;color:var(--text);font-size:16px;text-decoration:none}
+body.portal-workspace .app-footer .portal-mark{width:28px;height:28px}
+body.portal-workspace .app-footer>small{font-size:12px}
+body.portal-workspace #subscription-footer{flex-basis:100%;order:4;font-size:12px;line-height:1.5}
+body.portal-workspace .app-footer .workspace-trust-links{display:block!important;width:auto!important;margin:0!important;padding:0!important;background:transparent;border:0;color:var(--muted)}
+body.portal-workspace .workspace-trust-links nav{display:flex;flex-wrap:wrap;gap:0 14px;justify-content:flex-start}
+body.portal-workspace .workspace-trust-links a{display:inline-flex;align-items:center;min-height:44px;color:var(--muted);font-size:12px}
+body.portal-workspace .workspace-trust-links a:is(:hover,:focus-visible){color:var(--text)}
+body.portal-workspace .nested-rail>.sidebar-footer{margin-top:12px}
+body.portal-workspace .navigation-signout{display:flex;align-items:center;justify-content:center;flex:none;min-height:44px;width:100%;margin-top:auto;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
+.mobile-workspace-dock{display:none}
+@media(max-width:760px){
+ body.portal-workspace{--mobile-workspace-dock-height:144px}
+ body.portal-workspace #workspace:not([hidden]){padding-bottom:calc(var(--mobile-workspace-dock-height) + 12px)}
+ body.portal-workspace .content-wrap{padding-bottom:20px!important}
+ body.portal-workspace .app-footer{gap:2px 12px;padding:10px 16px;margin-top:8px}
+ body.portal-workspace .app-footer .workspace-trust-links{flex-basis:100%}
+ body.portal-workspace .workspace-trust-links nav{justify-content:space-between;gap:0 8px}
+ body.portal-workspace .view .mobile-workspace-source,
+ body.portal-workspace #workspace-workflows,
+ body.portal-workspace #flow-nav,
+ body.portal-workspace #gds-staff-chat .sc-launch,
+ body.portal-workspace #gds-copilot .copilot-launch{display:none!important}
+ body.portal-workspace .mobile-workspace-dock{position:fixed;inset:auto 0 var(--mobile-workspace-keyboard-offset,0px);z-index:85;display:flex;flex-direction:column;max-height:calc(var(--mobile-workspace-viewport-height,100dvh) * .4);overflow-y:auto;padding:4px 6px max(4px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--panel);box-shadow:0 -4px 16px #0002;color:var(--text)}
+ body.portal-workspace .mobile-workspace-dock[hidden],body.portal-workspace .mobile-workspace-sections[hidden]{display:none}
+ .mobile-workspace-pages,.mobile-workspace-sections{display:flex;gap:4px;max-width:100%;overflow:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scroll-padding-inline:4px}
+ .mobile-workspace-sections{padding-bottom:4px;border-bottom:1px solid var(--line)}
+ .mobile-workspace-section-group{display:flex;align-items:center;gap:4px;flex:none}
+ .mobile-workspace-group-label{font-size:11px;color:var(--muted);width:68px;padding:4px;overflow-wrap:anywhere}
+ .mobile-workspace-item{position:relative;display:flex;flex:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:68px;max-width:132px;min-height:56px;padding:6px 10px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);text-align:center;text-decoration:none;font-family:inherit;font-size:11px;font-weight:600;line-height:1.25;cursor:pointer}
+ .mobile-workspace-item span{max-width:112px;overflow-wrap:anywhere;font-size:11px;line-height:1.25;font-weight:600}
+ .mobile-workspace-item svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;flex:none}
+ .mobile-workspace-item[aria-current]{background:var(--brand-soft);border-color:var(--brand-line);color:var(--text)}
+ .mobile-workspace-badge{position:absolute;top:2px;right:2px;min-width:17px;padding:2px 4px;border-radius:8px;background:var(--brand);color:var(--brand-ink,#111);font-size:10px;line-height:1.2}
+ .mobile-workspace-item:disabled{opacity:.45;cursor:default}
+ .mobile-workspace-item:focus-visible,.navigation-signout:focus-visible{outline:2px solid var(--brand-2);outline-offset:-2px}
+ body.portal-workspace.navigation-drawer-open .mobile-workspace-dock{visibility:hidden}
+ body.portal-workspace :is(input,select,textarea){scroll-margin-block:90px calc(var(--mobile-workspace-dock-height) + 24px)}
+ body.portal-workspace .focus-section{scroll-margin-block:90px calc(var(--mobile-workspace-dock-height) + 24px)}
+ body.portal-workspace #gds-copilot{bottom:calc(var(--mobile-workspace-dock-height) + var(--mobile-workspace-keyboard-offset,0px) + 8px)!important}
+ body.portal-workspace #gds-copilot .copilot-panel{bottom:calc(var(--mobile-workspace-dock-height) + var(--mobile-workspace-keyboard-offset,0px) + 8px)!important;display:flex;flex-direction:column;max-height:calc(var(--mobile-workspace-viewport-height,100dvh) - var(--mobile-workspace-dock-height) - 24px)!important;overflow-y:auto}
+ body.portal-workspace #gds-copilot .copilot-log{flex:1;min-height:0;height:auto;overflow:auto}
+ body.portal-workspace #gds-copilot .copilot-panel>:is(header,form,.copilot-suggestions,.copilot-voice-status){flex-shrink:0}
+ body.portal-workspace #gds-copilot .copilot-panel>header{flex-wrap:wrap;gap:8px}
+ body.portal-workspace .sc-shell[data-state="normal"] .sc-panel,body.portal-workspace .sc-shell[data-state="min"] .sc-panel{bottom:calc(var(--mobile-workspace-dock-height) + var(--mobile-workspace-keyboard-offset,0px) + 8px);max-height:calc(var(--mobile-workspace-viewport-height,100dvh) - var(--mobile-workspace-dock-height) - 24px)}
+ body.portal-workspace .floating-message{bottom:calc(var(--mobile-workspace-dock-height) + 12px)!important}
+ body.portal-workspace .view :is(.panel,.portal-panel){border-radius:12px}
+ body.portal-workspace .view :is(h2,h3){line-height:1.35}
+ body.portal-workspace .view :is(p,label,small){line-height:1.5}
+ body.portal-workspace .view input,body.portal-workspace .view select,body.portal-workspace .view textarea{font-size:16px}
+}
+@media print{.mobile-workspace-dock{display:none!important}body.portal-workspace #workspace{padding-bottom:0!important}}

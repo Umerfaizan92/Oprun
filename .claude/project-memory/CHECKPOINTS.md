@@ -1473,3 +1473,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Add geometry/AI interaction checks and run complete regression verification
+
+## CP-106 2026-11-12T12:07:55+08:00 T-088 BLOCKED
+- Phase: Restored ChatGPT layout; publication blocked by automatic approval review
+- Task: T-088 (BLOCKED)
+- Completed steps: Restored original footer/mobile page-and-section dock/sidebar signout; retained chat session guards and badge fixes; repaired bottom Menu outside-click propagation; 16 targeted tests pass; manifest and secret checks pass
+- Incomplete steps: Full npm test is running; get explicit public GitHub push/merge permission; publish and deploy; verify live assets
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; docs/navigation/MOBILE_WORKSPACE_2026-11-12.md; qa/reports/mobile-workspace.json; saas/workspace-mobile.js; scripts/mobile-workspace.test.mjs
+- Tests executed: targeted DOM/navigation tests; manifest; secret scan
+- Test results: 16/16 targeted tests passed; 579 manifest files verified; secret scan passed
+- Git branch: codex/restore-chatgpt-workspace-20261112
+- Commit: b84315e (Restore ChatGPT mobile workspace layout over PR 82 replacement); 1 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Ask user for permission to publish the prepared code and progress notes to the public GitHub repository; after approval finish full tests then push/merge and deploy existing Oprun Render service
+
+## CP-107 2026-11-12T12:10:12+08:00 T-088 BLOCKED
+- Phase: Restoration fully checked; public GitHub publication requires explicit permission
+- Task: T-088 (BLOCKED)
+- Completed steps: Original ChatGPT visual version restored with bottom Menu regression fix; full npm test 73/73 passed including 57 contract test files; targeted tests 16/16 passed; manifest and secret scan passed; no backend changes
+- Incomplete steps: Explicit permission to publish code and progress notes to public GitHub; push/merge restoration; deploy and verify live assets; real mobile visual checks
+- Files modified (uncommitted at checkpoint): docs/navigation/MOBILE_WORKSPACE_2026-11-12.md; qa/reports/mobile-workspace.json
+- Tests executed: npm test; targeted DOM/navigation suite; manifest; secret scan
+- Test results: 73/73 full release checks passed; 16/16 targeted checks passed; manifest and secret scan passed
+- Git branch: codex/restore-chatgpt-workspace-20261112
+- Commit: 65c3c53 (Keep restored bottom Menu open and save restoration checkpoint); 2 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Ask permission to push and merge the prepared restoration code and progress notes into public Umerfaizan92/Oprun; then deploy existing Render Oprun service and verify served assets

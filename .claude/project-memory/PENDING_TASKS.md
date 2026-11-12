@@ -280,3 +280,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner's ChatGPT commit f039490 never reached GitHub (push blocked). Rebuild: Oprun logo/name in compact footer with organised policy links; fixed bottom navigation with icons on mobile; Sign out at bottom of sidebar; remove duplicate finder; fix chat badges, permissions and panel overlap. Deploy for live test.
 - Files: saas/workspace.html,saas/portal-shell.js,saas/workspace-redesign.css,saas/app.js
 - Acceptance: Visible at 390/768/1440; all routes/IDs kept; operator link kept; npm test + UI suites pass; deployed live
+
+## T-088 Restore saved ChatGPT workspace design over Claude PR82 and deploy
+- Status: BLOCKED
+- Added: 2026-11-12
+- Requirement: User dislikes Claude replacement; restore ChatGPT f039490 mobile page and section dock, integrated chat actions, compact four-link footer, final sidebar signout; deploy for live testing
+- Files: not known yet
+- Acceptance: Original visual files restored; security guards retained; targeted tests and full release checks pass; saved remote changes; Render release live; served assets match

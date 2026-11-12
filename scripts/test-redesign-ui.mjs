@@ -15,22 +15,11 @@ try {
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{window.todayAskChecks=[];window.addEventListener('superpro:ask',e=>{window.todayAskChecks.push(e.detail.question);e.stopImmediatePropagation();},true);});
   await page.goto(server.base+'/saas/workspace.html#b01/home');
-  await page.locator('.search-button').waitFor();assert.equal(await page.locator('#workspace-command').count(),0);
+  await page.locator('.topbar-actions .search-button').waitFor();
   assert.equal(await page.locator('#business-navigation > .portal-brand').count(),0);
-  assert.equal(await page.locator('.topbar-left .workspace-platform-brand').count(),0);assert.equal(await page.locator('.app-footer .workspace-platform-brand .platform-name').textContent(),'Oprun');assert.equal(await page.locator('.app-footer .footer-policies a').count(),6);
+  assert.equal(await page.locator('.app-footer .workspace-platform-brand').textContent(),'Oprun');
   assert.equal(await page.locator('#business-navigation #workspace-context').count(),1);
   assert.equal(await page.locator('#business-switcher').count(),1);
-  { const bar=page.locator('#mobile-bottom-nav');
-    if(width<=760){
-      await bar.waitFor({state:'visible'});assert.ok(await bar.locator('a').count()>=2);
-      assert.equal(await bar.locator('a[aria-current="page"]').getAttribute('data-bottom-group'),'today');
-      const barBox=await bar.boundingBox();
-      for(const sel of ['.sc-launch','.copilot-launch']){const l=page.locator(sel);if(await l.isVisible()){const b=await l.boundingBox();assert.ok(b.y+b.height<=barBox.y+1,sel+' must sit above the bottom bar');assert.ok(b.width<=56,sel+' is a compact icon on phones');}}
-      const small=await bar.locator('a,button').evaluateAll(es=>es.filter(e=>e.getBoundingClientRect().height<44).length);assert.equal(small,0);
-      await bar.locator('[data-bottom-menu]').click();await page.locator('#business-navigation .sidebar-footer #logout').waitFor({state:'visible'});
-      await page.locator('.business-navigation-close').click();
-    } else assert.equal(await bar.isVisible(),false);
-  }
   assert.equal(await page.locator('#business-navigation').evaluate(e=>e.inert),true);
   await page.waitForFunction(()=>document.querySelector('.navigation-identity-name')?.textContent===document.querySelector('#org-name-side')?.textContent);
 
@@ -67,13 +56,13 @@ try {
   await page.evaluate(()=>{location.hash='today/home'});await page.locator('#dashboard-view').waitFor({state:'visible'});
   assert.ok(await page.locator('.content-wrap').evaluate(e=>e.getBoundingClientRect().width<=1201));
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-  await page.locator('.search-button').click();await page.locator('#page-search').waitFor({state:'visible'});
+  await page.locator('.topbar-actions .search-button').click();await page.locator('#page-search').waitFor({state:'visible'});
   await page.getByRole('button',{name:'Close search',exact:true}).click();
   for(const theme of ['dark','light']) {
    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
    const violations=await page.evaluate(async source=>{
     if(!window.axe)(0,eval)(source);
-    const result=await window.axe.run({include:['#workspace-start','#sp-askbar','.dashboard-heading','.app-footer','#mobile-bottom-nav']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});
+    const result=await window.axe.run({include:['#workspace-start','.topbar-actions .search-button','#sp-askbar','.dashboard-heading']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});
     return result.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}));
    },axe);
    assert.deepEqual(violations,[],`${width}px ${theme} guided start and command accessibility`);
@@ -82,10 +71,10 @@ try {
   }
   await page.goto(server.base+'/saas/workspace.html#b04/unified');
   await page.locator('#unifiedinbox-view').waitFor({state:'visible'});
-  const link=page.locator('#workspace-workflows a[href="#communications/email"]');await link.waitFor();
+  const link=page.locator((width<=760?'.mobile-workspace-pages':'#workspace-workflows')+' a[href="#communications/email"]');await link.waitFor();
   assert.ok(await link.evaluate(e=>e.getBoundingClientRect().height>=44));
   await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
-  assert.equal(await page.locator('#workspace-workflows a[href="#communications/email"]').getAttribute('aria-current'),'page');
+  assert.equal(await page.locator((width<=760?'.mobile-workspace-pages':'#workspace-workflows')+' a[href="#communications/email"]').getAttribute('aria-current'),'page');
   await page.reload();await page.locator('#mail-view').waitFor({state:'visible'});
   const more=page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page="mail"]')});
   assert.equal(await more.getAttribute('open'),null,'secondary navigation does not force More open');

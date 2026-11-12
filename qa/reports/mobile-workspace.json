@@ -1,0 +1,13 @@
+{
+  "task": "T-088",
+  "status": "BROWSER_VERIFICATION_BLOCKED",
+  "base": "791da1532502cb29752f3de8569fd85fd4800205",
+  "domTests": "16/16 passed",
+  "fastChecks": "69/69 passed",
+  "businessRoutes": 60,
+  "browserResults": [],
+  "blocker": "Chromium cannot launch: process socket creation not permitted in this execution environment",
+  "deployed": false,
+  "releaseChecks": "73/73 passed",
+  "publication": "Blocked by automatic approval review; public GitHub publication permission required"
+}

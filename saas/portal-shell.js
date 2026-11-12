@@ -45,8 +45,7 @@
       }
       start.hidden = !primary.length;
     }
-    // The top-bar "Ask or search workspace" button is the single finder; the older sticky duplicate is removed.
-    document.getElementById('workspace-command')?.remove();
+
   }
   function rebuild() {
     const nav = window.SuperProNav, session = window.GDS_SESSION; if (!nav || !session || !window.SuperProNavigation) return;
@@ -58,9 +57,10 @@
       rail.append(make('nav')); document.getElementById('workspace').append(rail);
       const security = document.querySelector('#sidebar .sidebar-footer'); if (security) rail.append(security);
       shell = new window.SuperProNavigation.Navigation({ rail, toggle, triggerHost: document.querySelector('.topbar-left'), key: 'sp-nav:business:pending', background: [document.querySelector('.app-main')], autoHide:true });
-      installFooter(brand);
-      const out = document.getElementById('logout'), foot = rail.querySelector('.sidebar-footer') || rail.appendChild(make('div', 'sidebar-footer'));
-      if (out) { out.classList.remove('text-button'); out.classList.add('rail-signout'); out.setAttribute('aria-label', 'Sign out of Oprun'); foot.append(out); }
+      const footer = document.querySelector('.app-footer');
+      footer?.firstElementChild?.replaceWith(brand);
+      const logout = document.getElementById('logout');
+      if (logout) { logout.classList.add('navigation-signout'); rail.append(logout); }
       const syncIdentity = () => {
         const name = document.getElementById('org-name-side')?.textContent?.trim() || 'Workspace';
         const avatar = document.getElementById('org-avatar-side');
@@ -80,44 +80,11 @@
     if (contextKey !== key) { contextKey = key; shell.key = key; let compact = false; try { compact = localStorage.getItem(key) === 'collapsed'; } catch {} shell.setCollapsed(compact); }
     const allowed = new Set(nav.sequence(session.user.role));
     shell.setGroups(nav.DOMAINS.map(d => ({ id: d.id, label: d.label, attribute: 'data-domain', icon: () => { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', '#' + d.icon); svg.append(use); return svg; }, pages: d.items.filter(i => allowed.has(i.view)).map(i => ({ id: i.view, path: i.path, label: i.label, badge: i.badge, secondary: i.secondary })) })).filter(d => d.pages.length));
-    shell.setActive(active); syncBadges(); breadcrumb(active); workflowContext(active); bottomNav(allowed);
-  }
-  // Compact footer: Oprun mark and name with organised policy links (replaces the top-bar logo and the long trust block).
-  function installFooter(brand) {
-    const footer = document.querySelector('.app-footer'); if (!footer || footer.dataset.compact) return;
-    footer.dataset.compact = 'true'; footer.setAttribute('aria-label', 'Oprun and policies');
-    brand.classList.add('footer-brand'); brand.querySelector('.platform-name')?.after(make('small', 'footer-tagline', 'Run your world.'));
-    const status = document.getElementById('subscription-footer') || make('span'); status.classList.add('footer-status');
-    const links = make('nav', 'footer-policies'); links.setAttribute('aria-label', 'Policies');
-    for (const [href, label] of [['/saas/terms.html','Terms'],['/saas/privacy.html','Privacy'],['/saas/policy-center.html','Policy centre'],['/saas/trust-center.html','Trust centre'],['/saas/subprocessors.html','Connected services'],['/saas/complaints.html','Complaints']]) {
-      const a = make('a', '', label); a.href = href; a.target = '_blank'; a.rel = 'noopener'; links.append(a);
-    }
-    const legal = make('small', 'footer-legal', '© 2026 Oprun · AI-assisted software · human review is required for consequential decisions.');
-    footer.replaceChildren(brand, links, legal, status);
-  }
-  // Phone bottom bar: icon shortcuts to the main areas this person may open, plus Menu for everything else.
-  const BOTTOM = [['today','Today','i-grid'],['work','Work','i-briefcase'],['communications','Inbox','i-bell'],['money','Money','i-doc'],['people','People','i-users']];
-  let bottom;
-  function bottomNav(allowed) {
-    const nav = window.SuperProNav; if (!nav) return;
-    if (!bottom) {
-      bottom = make('nav', 'mobile-bottom-nav'); bottom.id = 'mobile-bottom-nav'; bottom.setAttribute('aria-label', 'Main sections');
-      document.getElementById('workspace')?.append(bottom);
-      bottom.addEventListener('click', e => { if (!e.target.closest('[data-bottom-menu]')) return; e.stopPropagation(); shell?.setDrawer(true); }); // stop the outside-click handler from closing it again
-    }
-    const icon = id => { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', '#' + id); svg.setAttribute('aria-hidden', 'true'); svg.append(use); return svg; };
-    const items = BOTTOM.map(([group, label, ic]) => { const g = nav.DOMAINS.find(d => d.id === group), page = g?.items.find(i => !i.secondary && allowed.has(i.view)); return page && { group, label, ic, page }; }).filter(Boolean).slice(0, 4);
-    const links = items.map(({ group, label, ic, page }) => { const a = make('a'); a.href = '#' + page.path; a.dataset.bottomGroup = group; a.append(icon(ic), make('span', '', label)); return a; });
-    const menu = make('button'); menu.type = 'button'; menu.dataset.bottomMenu = ''; menu.setAttribute('aria-controls', 'business-navigation'); menu.append(icon('i-menu'), make('span', '', 'Menu'));
-    bottom.replaceChildren(...links, menu); markBottom();
-  }
-  function markBottom() {
-    const g = window.SuperProNav?.DOMAINS.find(d => d.items.some(i => i.view === active))?.id;
-    bottom?.querySelectorAll('a').forEach(a => { if (a.dataset.bottomGroup === g) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    shell.setActive(active); syncBadges(); breadcrumb(active); workflowContext(active);
   }
   function syncBadges() { rail?.querySelectorAll('[data-badge-source]').forEach(e => { const text = document.getElementById(e.dataset.badgeSource)?.textContent || ''; if (e.textContent !== text) e.textContent = text; }); }
   window.addEventListener('superpro:nav-ready', rebuild); window.addEventListener('superpro:access-changed', rebuild);
-  window.addEventListener('gds:viewchange', e => { active = e.detail.view; shell?.setActive(active); breadcrumb(active); workflowContext(active); markBottom(); });
+  window.addEventListener('gds:viewchange', e => { active = e.detail.view; shell?.setActive(active); breadcrumb(active); workflowContext(active); });
   window.addEventListener('superpro:sectionchange', e => breadcrumb(active, e.detail.label));
   fetch('/api/public/preview-status').then(r => r.json()).then(d => { if (d.isolated_preview) { document.body.dataset.isolatedPreview = 'true'; document.body.prepend(make('div', 'portal-preview-banner', 'Isolated preview · Synthetic test data only · Data may reset on restart.')); } }).catch(() => {});
 })();
