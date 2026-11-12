@@ -56,8 +56,7 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
 
 ### Parked: T-095 Founder Console tables (not in this PR)
 
-Saved, not committed: recovery ref `refs/recovery/claude-t094-console-tables-20261112` (`19f238a`) and local stash
-`t094-console-tables-wip`. Contents: `office/console-tables.js` (labels cells, explicit table roles),
+Pushed (parked, no PR): branch `claude/t095-console-tables-wip` at `c419986`, based on `da37f05`. Contents: `office/console-tables.js` (labels cells, explicit table roles),
 `saas/ds/kit.css` dense rows, sticky headings on laptops, labelled cards on phones for 3+ column tables (scoped to
 `#console-content`), rebuilt `kit.css.br/.gz`, and regression checks in `scripts/test-console-all-tabs.mjs`.
 Verified so far: `test:console-all` passes; a negative check confirmed the new assertions fail without the script.
