@@ -60,7 +60,8 @@
     });
   }
   function restore() {
-    const root = currentRoot(); if (!root) return; const value = new URLSearchParams(location.hash.split('?')[1] || '').get('section'); if (!value) return;
+    const root = currentRoot(); if (!root) return; const ALIAS = { 'attention-items': 'priorities' }; // renamed sections keep their old ?section= links
+    const raw = new URLSearchParams(location.hash.split('?')[1] || '').get('section'); if (!raw) return; const value = ALIAS[raw] || raw;
     const b = [...root.querySelectorAll('[role=tab]'), ...document.querySelectorAll('#console-tabs [role=tab]')].find(b => key(b) === value && !b.disabled && !b.hidden);
     if (b && b.getAttribute('aria-selected') !== 'true') { restoring = true; b.click(); restoring = false; }
     if (b) window.dispatchEvent(new CustomEvent('superpro:sectionchange', { detail: { label: b.textContent, key: value } }));

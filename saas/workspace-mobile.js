@@ -12,7 +12,8 @@
     const use = document.createElementNS(svg.namespaceURI, 'use');
     use.setAttribute('href', '#' + name); svg.append(use); return svg;
   };
-  const sectionIcon = label => /overview|dashboard|summary/i.test(label) ? 'i-grid'
+  const sectionIcon = label => /^priorities$/i.test(label) ? 'i-target' : /your workspace|all features/i.test(label) ? 'i-briefcase'
+    : /overview|dashboard|summary/i.test(label) ? 'i-grid'
     : /attention|alert|notification/i.test(label) ? 'i-bell'
     : /readiness|ready|check/i.test(label) ? 'i-check'
     : /workflow|guide|next|step/i.test(label) ? 'i-arrow'

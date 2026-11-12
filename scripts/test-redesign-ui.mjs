@@ -123,6 +123,30 @@ try {
   }
   await page.evaluate(() => {document.activeElement?.blur();window.scrollTo(0,0);});await page.mouse.move(0,0);
   await page.screenshot({path:`qa/visual/redesign/inbox-${width}.png`,fullPage:true});
+  // Prompt 02: Your Workspace (after Business overview) and Priorities (renamed from Attention items).
+  await page.goto(server.base+'/saas/workspace.html#today/home');await page.locator('#dashboard-view .gx-tile').first().waitFor();
+  assert.deepEqual(await page.locator('#dashboard-view .context-section-tabs [role=tab]').evaluateAll(t=>t.map(x=>x.textContent)),['Business overview','Your Workspace','Priorities','Readiness','Workflow guide']);
+  const openSection=async name=>{if(width<=760)await page.locator('#mobile-workspace-dock button',{hasText:name}).click();else await page.locator('#dashboard-view .context-section-tabs [role=tab]',{hasText:name}).click();await page.waitForFunction(n=>document.querySelector('#dashboard-view [role=tab][aria-selected=true]')?.textContent===n,name)};
+  await openSection('Your Workspace');await page.locator('[data-cc-features] .cc-tile').first().waitFor();
+  assert.ok(await page.locator('[data-cc-features] .cc-tile:visible').count()>=20,'all permitted features listed');
+  for(const hidden of ['.dashboard-heading','#sp-askbar','.gx-board','#priorities','#gds-copilot .copilot-launch'])assert.equal(await page.locator(hidden).first().isVisible(),false,hidden+' hidden on Your Workspace');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no sideways scroll');
+  await page.locator('#cc-feature-filter').fill('invoice');assert.ok(await page.locator('[data-cc-features] .cc-tile').count()>=1);
+  await page.locator('#cc-feature-filter').fill('zzzz-nothing');await page.locator('[data-cc-ask]').waitFor();await page.locator('#cc-feature-filter').fill('');
+  await openSection('Priorities');await page.locator('#priorities .cc-brief').waitFor();
+  assert.equal(await page.locator('#workspace-start .workspace-start-link:visible').count(),3,'three next-step cards');
+  assert.ok(await page.locator('#priorities .ai-brief-panel').isVisible());
+  await page.waitForFunction(()=>/^Live/.test(document.querySelector('#priorities .status-pill')?.textContent||''));
+  for(const hidden of ['.dashboard-heading','#sp-askbar','#workspace-features'])assert.equal(await page.locator(hidden).isVisible(),false,hidden+' hidden on Priorities');
+  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+   const v=await page.evaluate(async source=>{if(!window.axe)(0,eval)(source);const r=await window.axe.run({include:['#priorities']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.filter(x=>['serious','critical'].includes(x.impact)).map(x=>({id:x.id,t:x.nodes.map(n=>n.target)}))},axe);
+   assert.deepEqual(v,[],`${width}px ${theme} Priorities accessibility`);}
+  await openSection('Your Workspace');
+  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+   const v=await page.evaluate(async source=>{if(!window.axe)(0,eval)(source);const r=await window.axe.run({include:['#workspace-features']},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return r.violations.filter(x=>['serious','critical'].includes(x.impact)).map(x=>({id:x.id,t:x.nodes.map(n=>n.target)}))},axe);
+   assert.deepEqual(v,[],`${width}px ${theme} Your Workspace accessibility`);}
+  await page.goto(server.base+'/saas/workspace.html#today/home?section=attention-items');
+  await page.waitForFunction(()=>document.querySelector('#dashboard-view [role=tab][aria-selected=true]')?.textContent==='Priorities');
   await context.close();
   console.log(`PASS redesign ${width}px: navigation, guidance, command search, context links, overflow and dark/light accessibility`);
  }

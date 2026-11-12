@@ -10,7 +10,13 @@
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Attention items",
+      "detail": "Section: Your Workspace",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 390,
+      "detail": "Section: Priorities",
       "result": "PASS"
     },
     {
@@ -1162,7 +1168,13 @@
     {
       "route": "today/home",
       "width": 1440,
-      "detail": "Desktop section: Attention items",
+      "detail": "Desktop section: Your Workspace",
+      "result": "PASS"
+    },
+    {
+      "route": "today/home",
+      "width": 1440,
+      "detail": "Desktop section: Priorities",
       "result": "PASS"
     },
     {
