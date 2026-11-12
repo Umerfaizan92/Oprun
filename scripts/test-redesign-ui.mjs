@@ -13,6 +13,7 @@ try {
  for(const width of [320,390,768,1440]) {
   const context=await ownerContext(browser,server,owner,{viewport:{width,height:1000},reducedMotion:'reduce'});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+  await page.addInitScript(()=>{window.todayAskChecks=[];window.addEventListener('superpro:ask',e=>{window.todayAskChecks.push(e.detail.question);e.stopImmediatePropagation();},true);});
   await page.goto(server.base+'/saas/workspace.html#b01/home');
   await page.locator('#workspace-command button').waitFor();
   assert.equal(await page.locator('#business-navigation > .portal-brand').count(),0);
@@ -38,7 +39,6 @@ try {
   await page.locator('#first-name').evaluate(e=>e.textContent='Faizan-Ul-Hasnain Long Business Owner Name');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'long identity wraps');
   await page.locator('#first-name').evaluate((e,name)=>e.textContent=name,originalName);
-  await page.evaluate(()=>{window.todayAskChecks=[];window.addEventListener('superpro:ask',e=>{window.todayAskChecks.push(e.detail.question);e.stopImmediatePropagation();},true);});
   await page.locator('#sp-ask-input').fill('Review my business today');await page.locator('.sp-ask-send').click();
   assert.deepEqual(await page.evaluate(()=>window.todayAskChecks),['Review my business today']);
   assert.equal(await page.locator('#sp-ask-input').inputValue(),'');
