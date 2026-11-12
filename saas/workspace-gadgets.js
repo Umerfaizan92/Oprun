@@ -84,15 +84,23 @@
   }
   async function load(){
     if(!board)return;
-    try{const data=await api('/api/saas/command-centre');lastOk=Date.now();lastFailed=false;render(data);document.querySelector('.operational-strip')?.classList.add('gx-replaced')}
-    catch{/* workers and unconnected data keep the simple strip */if(lastOk){lastFailed=true;board.querySelector('.gx-live')?.replaceWith(liveBadge())}}
+    try{const data=await api('/api/saas/command-centre');lastOk=Date.now();lastFailed=false;render(data);board.removeAttribute('aria-busy');document.querySelector('.operational-strip')?.classList.add('gx-replaced')}
+    catch{/* workers and unconnected data keep the simple strip */if(lastOk){lastFailed=true;board.querySelector('.gx-live')?.replaceWith(liveBadge())}else{board.replaceChildren();board.removeAttribute('aria-busy');document.querySelector('.operational-strip')?.classList.remove('gx-replaced')}}
   }
   // The workspace shortcut collection now lives in All Features (the navigation drawer), not on the Command Centre.
   window.OprunFeatureShortcuts=shortcuts;
+  // Batch 5: until live figures arrive, the board shows the same number of tiles as greyed placeholders, so the page
+  // does not jump down when the real tiles appear (measured layout shift 0.16 on a 4G phone). No figures are shown.
+  function placeholder(){
+    const n=['owner','admin','super_admin'].includes(String(window.GDS_SESSION?.user?.role||'').toLowerCase())?5:4;
+    const ghost=()=>el('div',{class:'gx-tile gx-skeleton','aria-hidden':'true'},el('div',{class:'gx-tile-head'},el('span',{class:'gx-label',text:'\u00a0'})),el('div',{class:'gx-main'},el('div',{class:'gx-figure'},el('strong',{class:'gx-num',text:'\u2013'}))),el('span',{class:'gx-sub',text:'\u00a0'}));
+    board.replaceChildren(el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:'Loading live figures\u2026'})),el('div',{class:'gx-grid'},Array.from({length:n},ghost)));
+    board.setAttribute('aria-busy','true');document.querySelector('.operational-strip')?.classList.add('gx-replaced');
+  }
   function mount(){
     if(board)return;
     const heading=document.querySelector('#dashboard-view .dashboard-heading');if(!heading)return;
-    board=el('section',{class:'gx-board','aria-label':'Live business gadgets'});heading.after(board);const observer=new IntersectionObserver(([entry])=>board.classList.toggle('gx-in-view',entry.isIntersecting),{threshold:.05});observer.observe(board);
+    board=el('section',{class:'gx-board','aria-label':'Live business gadgets'});heading.after(board);placeholder();const observer=new IntersectionObserver(([entry])=>board.classList.toggle('gx-in-view',entry.isIntersecting),{threshold:.05});observer.observe(board);
   }
   onView('dashboard',{enter(){mount();load();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)load()},30000)},leave(){clearInterval(timer)}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&board&&!board.closest('[hidden]'))load()});

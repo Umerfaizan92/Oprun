@@ -274,3 +274,6 @@ html[data-theme="light"] #workflow-guidance .wg-ok .wg-chip,html[data-theme="lig
 html[data-theme="light"] #workflow-guidance .wg-warn .wg-chip{color:#8a5200}
 html[data-theme="light"] #workflow-guidance .wg-icon{color:#8a5f12}
 html[data-theme="light"] .setup-foot .text-button{color:#7a5410}
+/* Batch 5: live-figure placeholders keep the board's final height while loading (no animation). */
+.gx-tile.gx-skeleton{pointer-events:none;opacity:.5}
+.gx-tile.gx-skeleton .gx-sub{min-height:2.6em}

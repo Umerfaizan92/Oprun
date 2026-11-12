@@ -43,6 +43,15 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
   header controls; other screens use English fallback.
 - Blockers: none for this batch. Credentials and approvals remain deferred to Prompt 14.
 
+- Main moved during the batch to `ad2713f` (PR #97, density batch 5: response compression, Command Centre load).
+  Merged into this branch (no rebase, no force-push). Conflicts: `saas/workspace.html` (kept main's
+  `command-centre.css?v=20261112.13` and `workspace-gadgets.js?v=20261112.2` plus the locale assets), generated
+  `qa/reports/navigation-coverage.json` and `SHA256SUMS.txt` (regenerated). After the merge: `npm test` 73/73, localization
+  browser test PASS, focused 12/12, console-all 30 pages, console-ui 16, navigation-ui 594, ui 34, redesign-ui,
+  mobile-workspace-ui 354.
+- Coordination note: another session is continuing the density batches on `claude/frontend-transformation-bN`
+  (batch 5 merged). T-095 overlaps that plan's "B3 follow-up", so it stays parked until the owner confirms who owns it.
+
 ### Parked: T-095 Founder Console tables (not in this PR)
 
 Saved, not committed: recovery ref `refs/recovery/claude-t094-console-tables-20261112` (`19f238a`) and local stash
@@ -55,6 +64,7 @@ Pending: rebase onto this branch, rerun console/navigation/ui suites, own PR.
 ## Exact next action
 
 1. Owner reviews and merges the R1 PR (Claude does not merge or deploy).
-2. Claude: rebase T-095 onto the merged result, run suites, open its PR.
+2. Owner confirms whether T-095 (console tables) belongs to Claude or to the density-batch session; if Claude, rebase it
+   onto the merged result, run suites and open its PR.
 3. Claude: start Prompt 03 localization migration group by group (Today first), adding dictionary keys and per-screen
    coverage tests, with browser RTL checks per group.
