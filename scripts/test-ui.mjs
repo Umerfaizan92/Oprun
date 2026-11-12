@@ -79,7 +79,7 @@ try{
       await screenshot(page,'compact-terms-'+width);await dialog.locator('#legal-agree').check();await dialog.getByRole('button',{name:'I agree and continue'}).click();await dialog.waitFor({state:'hidden'});
       if(width===390){const d=createDb(path.join(temp,'test.sqlite'));try{d.prepare('DELETE FROM legal_acceptances').run()}finally{d.close()}}
     }
-    await page.setViewportSize({width:1440,height:900});assert.ok(await page.locator('#logout').isVisible());
+    await page.setViewportSize({width:1440,height:900});await page.locator('.navigation-mobile-trigger').click();assert.ok(await page.locator('#business-navigation .sidebar-footer #logout').isVisible(),'Sign out sits at the bottom of the sidebar');await page.locator('.business-navigation-close').click();
   });
   // Dismiss first-run notices in this throwaway workspace; no production records are touched.
   await page.evaluate(()=>{document.querySelectorAll('dialog[open]').forEach(d=>d.close());document.querySelector('[data-tour-skip]')?.click()});
@@ -251,7 +251,7 @@ try{
       await p.locator('[data-copilot-speaker]').click();
       await p.waitForFunction(()=>document.querySelectorAll('.copilot-message.ai:not(.waiting)').length>1);assert.ok((await p.locator('.copilot-message.ai').last().innerText()).length>30);
       assert.equal(await p.locator('.nav-item[data-view="team"]').count(),0);assert.equal(await p.locator('#workspace-operator-link').isVisible(),false);assert.match(await p.locator('#workspace-member-name').innerText(),/UI Test Employee/);
-      await p.setViewportSize({width:390,height:844});assert.ok(await p.locator('#logout').isVisible());await p.locator('#logout').click();await p.waitForURL(base+'/');assert.equal((await employee.request.get(base+'/api/saas/me')).status(),401);
+      await p.setViewportSize({width:390,height:844});await p.locator('#mobile-bottom-nav [data-bottom-menu]').click();assert.ok(await p.locator('#logout').isVisible());await p.locator('#logout').click();await p.waitForURL(base+'/');assert.equal((await employee.request.get(base+'/api/saas/me')).status(),401);
 
     }finally{await employee.request.post(base+'/api/saas/logout',{data:{}});await employee.close()}
   });

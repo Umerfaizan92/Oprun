@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-11T21:57:03.631Z",
+  "generated_at": "2026-11-12T03:22:45.649Z",
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
@@ -1541,7 +1541,7 @@
     {
       "portal": "Business",
       "route": "b04/unified",
-      "section": "Inbox context opens the Email folder and reveals its More group",
+      "section": "Inbox context opens the Email folder without forcing More open",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -1565,7 +1565,7 @@
     {
       "portal": "Business",
       "route": "navigation",
-      "section": "Keyboard sections, drawer focus and saved rail preference",
+      "section": "Keyboard sections, drawer focus, close control and outside dismissal",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -3117,7 +3117,7 @@
     {
       "portal": "Business",
       "route": "b04/unified",
-      "section": "Inbox context opens the Email folder and reveals its More group",
+      "section": "Inbox context opens the Email folder without forcing More open",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -3141,7 +3141,7 @@
     {
       "portal": "Business",
       "route": "navigation",
-      "section": "Keyboard sections, drawer focus and saved rail preference",
+      "section": "Keyboard sections, drawer focus, close control and outside dismissal",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"

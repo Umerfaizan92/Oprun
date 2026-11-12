@@ -147,3 +147,48 @@ body.portal-workspace .view .context-section-tabs{gap:4px;margin-bottom:12px}
 body.portal-workspace .view .context-section-tabs [role="tab"]{min-height:44px;padding:8px 12px;font:inherit;font-size:14px}
 body.portal-workspace .view>.page-heading .heading-actions :is(button,a){min-height:44px}
 @media(max-width:760px){body.portal-workspace .view>.page-heading{margin-bottom:12px}body.portal-workspace .view>.page-heading h1{font-size:22px}body.portal-workspace .view>.page-heading>div{min-width:0;max-width:100%}}
+
+/* 2026-11-12 owner changes (rebuilt from ChatGPT f039490): compact footer, rail sign-out, phone bottom bar, chat dock. */
+.portal-workspace .app-footer[data-compact]{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;padding:14px 20px;margin-top:8px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.portal-workspace .app-footer .footer-brand{display:inline-flex;align-items:center;gap:8px;color:var(--text);text-decoration:none;font-weight:700;min-height:44px}
+.portal-workspace .app-footer .footer-brand .portal-mark{width:28px;height:28px;border-radius:8px;overflow:hidden;flex:none}
+.portal-workspace .app-footer .footer-brand .platform-name{font-size:15px}
+.portal-workspace .app-footer .footer-tagline{font-weight:500;color:var(--muted);font-size:12px}
+.portal-workspace .app-footer .footer-policies{display:flex;flex-wrap:wrap;gap:4px 14px}
+.portal-workspace .app-footer .footer-policies a{color:var(--text);text-decoration:underline;text-underline-offset:3px;min-height:32px;display:inline-flex;align-items:center}
+.portal-workspace .app-footer .footer-legal,.portal-workspace .app-footer .footer-status{flex-basis:100%;font-size:12px;line-height:1.5}
+.portal-workspace .app-footer :is(a):focus-visible{outline:3px solid var(--work-focus);outline-offset:2px}
+body.portal-workspace .sp-global-trust-footer{display:none}
+.portal-rail .sidebar-footer{display:flex;flex-direction:column;gap:8px;align-items:stretch;padding-inline:8px;box-sizing:border-box;max-width:100%}
+.portal-rail .sidebar-footer>*{max-width:100%}
+.portal-rail .sidebar-footer{width:100%!important;margin-left:0!important;align-self:stretch}
+.portal-rail .rail-signout{width:100%;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);font-weight:600;cursor:pointer}
+.portal-rail .rail-signout:hover{border-color:var(--red,#d84e47);color:var(--red,#d84e47)}
+.portal-rail .rail-signout:focus-visible{outline:3px solid var(--work-focus);outline-offset:2px}
+.mobile-bottom-nav{display:none}
+@media(max-width:760px){
+  .mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:90;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:6px 6px max(6px,env(safe-area-inset-bottom));background:var(--panel,#0e1117);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+  .mobile-bottom-nav :is(a,button){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:4px 2px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;line-height:1.2;text-decoration:none;cursor:pointer}
+  .mobile-bottom-nav svg{width:22px;height:22px;stroke:currentColor;fill:none}
+  .mobile-bottom-nav [aria-current="page"]{color:var(--text);background:var(--brand-soft)}
+  .mobile-bottom-nav [aria-current="page"] svg{color:var(--brand)}
+  .mobile-bottom-nav :is(a,button):focus-visible{outline:3px solid var(--work-focus);outline-offset:-3px}
+  body.portal-workspace{--sp-chat-dock-bottom:calc(76px + env(safe-area-inset-bottom))}
+  body.portal-workspace #gds-copilot{bottom:var(--sp-chat-dock-bottom)!important}
+  body.portal-workspace .sc-shell:not([data-state="max"]){bottom:var(--sp-chat-dock-bottom)!important}
+  body.portal-workspace .sc-shell:is([data-state="normal"],[data-state="min"]) .sc-panel{bottom:var(--sp-chat-dock-bottom)!important;max-height:calc(100dvh - 170px)!important}
+  body.portal-workspace :is(.sc-launch,.copilot-launch){width:52px!important;height:52px!important;min-height:52px!important;padding:0!important;justify-content:center;border-radius:50%!important}
+  body.portal-workspace :is(.sc-launch-text,.copilot-launch>:not(:first-child)){position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  body.portal-workspace .copilot-panel{bottom:calc(var(--sp-chat-dock-bottom) + 60px)!important;max-height:calc(100dvh - 190px)!important}
+  body.portal-workspace .content-wrap{padding-bottom:24px!important}
+  body.portal-workspace .app-footer[data-compact]{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+  body.portal-workspace{padding-bottom:0}
+  .navigation-scrim:not([hidden])~.mobile-bottom-nav,body:has(.navigation-scrim:not([hidden])) .mobile-bottom-nav{visibility:hidden}
+}
+@media print{.mobile-bottom-nav{display:none!important}}
+/* Tablets: chat launchers become compact icons so they cover less of the page; desktop keeps labels with room below. */
+@media(min-width:761px) and (max-width:1100px){
+  body.portal-workspace :is(.sc-launch,.copilot-launch){width:52px!important;height:52px!important;min-height:52px!important;padding:0!important;justify-content:center;border-radius:50%!important}
+  body.portal-workspace :is(.sc-launch-text,.copilot-launch>:not(:first-child)){position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+}
+@media(min-width:761px){body.portal-workspace .content-wrap{padding-bottom:96px}}
