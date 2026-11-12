@@ -63,9 +63,16 @@ full-width search, and all five actions on one row: 232 → 174px; content start
 worse; no sideways scroll. Same controls, order and IDs; operator RBAC untouched. Suites: console-ui, console-all,
 navigation-ui, automations-ui, reliability-ui, ui, redesign-ui, mobile-workspace-ui all pass.
 
+## 4c. Batch 4: Business Workspace phone top bar (done)
+
+Two rows (111px: business name, then six action icons) → one row (70px): logo and name with an ellipsis, then the
+same six actions, tighter. Below 375px only the logo shows (name stays at the top of the menu). All 60 pages: content
+starts 256 → 215px on phones (cumulative since baseline: 306 → 215); desktop unchanged; no page worse; no sideways
+scroll. Suites ui, navigation-ui, redesign-ui, mobile-workspace-ui, mobile-readiness, channels-ui, comms-ui,
+pipeline-ui and console-ui pass (console-ui once timed out on "Feature access" and passed twice on rerun).
+
 ## 5. Pending batches (next actions, in order)
 
-- B2 follow-up: phone top bar is two rows (111px); fold the action icons into one row with the identity.
 - B3 follow-up: Founder Console tables (sticky headers, dense rows, phone card layout) and filters on shared components.
 - B4 Workspace pages group by group (Work → Customers → People → Communications → Growth → Money → Setup): compact
   headers, consistent loading/empty/error/retry states, AI help per page, axe per page.

@@ -24,6 +24,8 @@ try {
     for (const [hash, text] of TABS) {
       await p.evaluate((h) => { location.hash = h; }, hash);
       await p.locator('.cp-view').waitFor({ timeout: 8000 });
+      // The previous page's .cp-view can still be on screen for a moment after the hash changes: wait for this page.
+      await p.waitForFunction((t) => [...document.querySelectorAll('[role=tab]')].some((e) => e.textContent.trim() === t) || (document.querySelector('#console-content')?.innerText || '').includes(t), text, { timeout: 8000 }).catch(() => {});
       const section = p.getByRole('tab', { name: text, exact: true });
       if (await section.count()) await section.click();
       assert.ok((await p.locator('#console-content').innerText()).includes(text), `${hash} shows ${text}`);
