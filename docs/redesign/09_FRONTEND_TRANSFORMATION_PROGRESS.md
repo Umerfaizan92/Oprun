@@ -54,11 +54,19 @@ colours, nothing hidden, touch targets kept at 44px. Measured with `node scripts
 All 14 browser suites and npm test 73/73 pass (navigation-ui consent sections once timed out at 390px and passed on
 rerun; it is timing-sensitive, not layout-related).
 
+## 4b. Batch 3: Founder Console compaction (done, first pass)
+
+Measured with `node scripts/report-console-density.mjs` on all 29 non-legacy founder pages. Desktop was already compact
+(content starts at 157px on average). On phones the top bar wrapped into four rows (232px): title, search, four
+buttons, then Sign out alone. `saas/ds/kit.css` (now also loaded by `office/console.html`) lays it out as title row,
+full-width search, and all five actions on one row: 232 → 174px; content starts 299 → 245px on average; no page
+worse; no sideways scroll. Same controls, order and IDs; operator RBAC untouched. Suites: console-ui, console-all,
+navigation-ui, automations-ui, reliability-ui, ui, redesign-ui, mobile-workspace-ui all pass.
+
 ## 5. Pending batches (next actions, in order)
 
 - B2 follow-up: phone top bar is two rows (111px); fold the action icons into one row with the identity.
-- B3 Founder Console compaction: tables, filters, status pills and page headers on the shared components; keep
-  operator-only routes and `/api/operator/*` RBAC unchanged; extend `test:console-ui` to all 34 tabs.
+- B3 follow-up: Founder Console tables (sticky headers, dense rows, phone card layout) and filters on shared components.
 - B4 Workspace pages group by group (Work → Customers → People → Communications → Growth → Money → Setup): compact
   headers, consistent loading/empty/error/retry states, AI help per page, axe per page.
 - B5 Performance: defer non-critical scripts in `workspace.html`, remove unused CSS, measure LCP/CLS signed-in.

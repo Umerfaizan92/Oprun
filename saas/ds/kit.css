@@ -27,3 +27,14 @@ html body #workspace .view-empty-guide p{font-size:.88rem;line-height:1.4}
   html body #workspace .view>.page-heading>.status-pill{margin-top:2px}
   html body #workspace .view-empty-guide a{min-height:44px;padding:8px 14px}
 }
+
+/* Founder Console (batch 3). On phones the top bar wrapped into four rows (232px). Now: title row, full-width
+   search, then every action button on one row (the row scrolls inside itself if a very narrow phone needs it, so the
+   page never scrolls sideways). Same controls, same order, same IDs. */
+@media (max-width:760px){
+  html body .portal-topbar{padding:8px 12px;row-gap:6px}
+  html body .portal-topbar .portal-toolbar{display:grid;grid-template-columns:repeat(5,max-content);grid-auto-flow:row;gap:6px 4px;width:100%;justify-content:space-between;overflow-x:auto;scrollbar-width:none;margin:0}
+  html body .portal-topbar .portal-toolbar::-webkit-scrollbar{display:none}
+  html body .portal-topbar .portal-toolbar>.portal-search{grid-column:1/-1;width:100%;max-width:none;flex:none;min-height:40px;padding:8px 10px}
+  html body .portal-topbar .portal-toolbar>.portal-button{min-height:40px;min-width:36px;padding:6px;font-size:11.5px;white-space:nowrap;justify-content:center}
+}
