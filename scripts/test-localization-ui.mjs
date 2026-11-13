@@ -52,6 +52,21 @@ try {
   await page.locator('#workspace-language-dialog button[type=submit]').click();
   await page.waitForFunction(text=>document.querySelector('.gx-board')?.innerText.includes(text),MESSAGES.ur['gx.inboxLabel']);
   await page.keyboard.press('Escape');
+  // T-099: Action Centre and Workflow Guidance sections in Urdu, in reading order, and the AI plan asks for Urdu.
+  for (const [tab, check] of [['action-centre',['cc.refresh','cc.plan']],['workflow-guidance',['wg.s.enquiry.name','wg.s.payment.name']]]) {
+    await page.locator(`#dashboard-view [role=tab][data-section-key="${tab}"]`).click();
+    for (const key of check) await page.waitForFunction(t=>document.querySelector('#dashboard-view')?.innerText.includes(t),MESSAGES.ur[key]);
+  }
+  await page.locator('[data-wg-toggle="enquiry"]').click();
+  assert.equal(await page.locator('#wg-enquiry p').textContent(),MESSAGES.ur['wg.s.enquiry.what']);
+  assert.equal(await page.locator('[data-cc-workflow] .wg-chip').first().evaluate(e=>getComputedStyle(e).unicodeBidi),'isolate','stage status keeps right-to-left order');
+  let planBody=null;await page.route('**/api/saas/ai/threads',async route=>{planBody=route.request().postDataJSON();await route.fulfill({json:{ok:true,ai_response:'تجرباتی منصوبہ'}})});
+  await page.locator('#dashboard-view [role=tab][data-section-key="action-centre"]').click();
+  await page.locator('[data-cc-plan]').click();await page.locator('.cc-plan[data-state="done"]').waitFor();
+  assert.match(planBody.message,/Answer in Urdu\./,'AI plan is requested in the reader\'s language');
+  assert.equal(await page.locator('.cc-plan b').textContent(),MESSAGES.ur['cc.planTitle']);
+  await page.unroute('**/api/saas/ai/threads');
+  await page.locator('#dashboard-view [role=tab][data-section-key="business-overview"]').click();
   // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
   const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
   assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');

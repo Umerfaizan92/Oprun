@@ -71,5 +71,15 @@ try {
     }
     await ctx.close();
   }
+  // E-037: Today sections must not rebuild themselves continuously (was about 20/s on Action Centre, 50/s on Your Workspace).
+  { const ctx = await ownerContext(browser, server, owner, { viewport: { width: 1440, height: 900 } }); const page = await ctx.newPage();
+    await page.goto(server.base + '/saas/workspace.html#dashboard'); await page.locator('#dashboard-view [role=tab][data-section-key="action-centre"]').waitFor();
+    for (const [tab, target] of [['action-centre', '#priorities .cc-brief'], ['your-workspace', '#cc-feature-results']]) {
+      await page.locator(`#dashboard-view [role=tab][data-section-key="${tab}"]`).click(); await page.waitForTimeout(1500);
+      const rebuilds = await page.evaluate((sel) => new Promise((r) => { let c = 0; new MutationObserver((m) => { c += m.length; }).observe(document.querySelector(sel), { childList: true }); setTimeout(() => r(c), 2000); }), target);
+      assert.ok(rebuilds <= 1, `${tab}: ${rebuilds} rebuilds in 2 seconds while idle`);
+      results.push(`${tab}: ${rebuilds} rebuilds in 2s idle`);
+    }
+    await ctx.close(); }
   console.log('PASS Command Centre loading states: ' + results.length + ' cases\n  ' + results.join('\n  '));
 } finally { await browser.close(); await server.stop(); }

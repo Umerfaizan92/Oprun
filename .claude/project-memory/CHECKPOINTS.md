@@ -1739,3 +1739,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read saas/command-centre-sections.js, add tr() helper and keys under screen todaySections, follow docs/coordination/claude.md R7
+
+## CP-125 2026-11-13T07:23:19+00:00 T-099 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-099 (COMPLETED)
+- Completed steps: Today sections translated; E-037 render loop fixed
+- Incomplete steps: Merge and deploy; Prompt 03 L4 navigation labels
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/command-centre-sections.js; saas/locale-catalog.js; saas/workspace-locale.js; saas/workspace.html; scripts/test-command-centre-loading-ui.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; dictionary; localization browser; command-centre loading; test:ui; redesign; navigation; mobile-workspace
+- Test results: 73/73; 302 pass 0 fail; 12/12; PASS; 14; all PASS
+- Git branch: claude/t099-today-sections
+- Commit: 51fcd07 (Merge PR #104: Prompt 03 L3a industry vocabulary)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Prompt 03 L4: saas/workspace-nav.js DOMAINS and pageMeta labels via dictionary
