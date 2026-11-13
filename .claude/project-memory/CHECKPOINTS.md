@@ -1879,3 +1879,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: First trigger a Render deploy of main (srv-dan4rdqjnfac73fceor0) and verify startup 16/16; then S4 TikTok video publishing (Content Posting API direct post from public video URL, privacy level from creator_info, approval required, status polling)
+
+## CP-135 2026-11-13T13:49:38+00:00 T-108 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-108 (COMPLETED)
+- Completed steps: S4 TikTok posting merged (PR #114, ca1015b). S2, S3, S4 merged; CI green
+- Incomplete steps: Render deploy of main ca1015b PENDING (Render connector down since 13:10 UTC). Then S5 website, S6 Google
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: npm test
+- Test results: 73/73 passed
+- Git branch: claude/s5-website
+- Commit: ca1015b (Merge PR #114: S4 TikTok video posting)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Deploy main to Render srv-dan4rdqjnfac73fceor0 and verify startup 16/16; then S5 website connection (lead forms into the inbox, site analytics), then S6 Google (Business Profile, Search Console, Analytics)
