@@ -103,7 +103,7 @@
   }
   function updateInstructions(card,x){
     const proof=card.querySelector('[data-im-website-proof]');
-    if(proof&&x.website){proof.innerHTML=`<p>Add this TXT record in your domain dashboard, then choose Verify website:</p><dl><dt>Name</dt><dd><code>${esc(x.website.verification_name)}</code></dd><dt>Value</dt><dd><code>${esc(x.website.verification_value)}</code></dd><dt>Status</dt><dd>${x.website.verified?'Ownership verified':'Waiting for verification'}</dd></dl>${x.website.verified?`<p>Use this workspace’s form endpoint with name, email or phone, and message fields:</p><code>${esc(location.origin+x.form_action)}</code><p>Recorded enquiries appear in the Unified Inbox. This is not a page-view tracking script.</p><button type="button" class="secondary-button" data-im-form-code>Get ready-made form</button><div data-im-form-box></div>`:''}`;}
+    if(proof&&x.website){proof.innerHTML=`<p>Add this TXT record in your domain dashboard, then choose Verify website:</p><dl><dt>Name</dt><dd><code>${esc(x.website.verification_name)}</code></dd><dt>Value</dt><dd><code>${esc(x.website.verification_value)}</code></dd><dt>Status</dt><dd>${x.website.verified?'Ownership verified':'Waiting for verification'}</dd></dl>${x.website.verified?`<p>Use this workspace’s form endpoint with name, email or phone, and message fields:</p><code>${esc(location.origin+x.form_action)}</code><p>Recorded enquiries appear in the Unified Inbox. This is not a page-view tracking script.</p><button type="button" class="secondary-button" data-im-form-code>Get ready-made form</button><div data-im-form-box></div><button type="button" class="secondary-button" data-im-visit-script>Get visit counter</button><button type="button" class="secondary-button" data-im-visits>Show visit counts</button><div data-im-visit-box></div>`:''}`;}
     const hooks=card.querySelector('[data-im-webhook]');
     if(hooks&&x.transport){const org=window.GDS_SESSION?.organisation?.id;hooks.innerHTML=`<p>Signed provider webhook endpoints:</p><p>Email: <code>${esc(location.origin+'/api/webhooks/communications/resend/'+org)}</code></p><p>SMS: <code>${esc(location.origin+'/api/webhooks/communications/telnyx/'+org)}</code></p><p>Configure these in the provider dashboard. Inbound mail requires Resend Receiving for the connected domain; it does not sync an existing Gmail/Outlook inbox.</p>`;}
   }
@@ -112,6 +112,16 @@
     const box=b.parentElement.querySelector('[data-im-form-box]');b.disabled=true;
     try{const d=await api('/api/saas/website/contact-form');box.innerHTML=`<p>${esc(d.note)}</p><label>Form code<textarea readonly rows="10" data-im-form-html></textarea></label><button type="button" class="secondary-button" data-im-form-copy>Copy form code</button>`;box.querySelector('[data-im-form-html]').value=d.html;}
     catch(err){box.textContent=err.message||'The form code is not available yet.';}
+    finally{b.disabled=false;}
+  });
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest?.('[data-im-visit-script],[data-im-visits]');if(!b)return;
+    const box=b.parentElement.querySelector('[data-im-visit-box]');b.disabled=true;
+    try{
+      if(b.hasAttribute('data-im-visit-script')){const d=await api('/api/saas/website/visit-script');box.innerHTML=`<p>${esc(d.note)}</p><label>Visit counter code<textarea readonly rows="4" data-im-form-html></textarea></label><button type="button" class="secondary-button" data-im-form-copy>Copy code</button>`;box.querySelector('[data-im-form-html]').value=d.html;}
+      else{const d=await api('/api/saas/website/visits?days=30');const list=(rows,empty)=>rows.length?`<ol>${rows.map(r=>`<li>${esc(r.key)} <strong>${Number(r.visits).toLocaleString()}</strong></li>`).join('')}</ol>`:`<p>${empty}</p>`;
+        box.innerHTML=`<p><strong>${Number(d.total).toLocaleString()}</strong> page visits in the last ${d.days} days.</p><h4>Top pages</h4>${list(d.pages,'No visits counted yet.')}<h4>Where visitors came from</h4>${list(d.sources,'No visits counted yet.')}<p><small>${esc(d.note)}</small></p>`;}
+    }catch(err){box.textContent=err.message||'Visit counts are not available yet.';}
     finally{b.disabled=false;}
   });
   document.addEventListener('click',async e=>{

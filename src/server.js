@@ -999,7 +999,7 @@ const globalCors =
 // list skip the global check only for this path; the route itself admits only the verified site.
 app.use((req, res, next) => {
   const origin = req.get('origin');
-  if (origin && req.path.startsWith('/api/public/contact/') && !allowedOrigins.includes(origin) && !allowUnlistedOrigins) { req.foreignOrigin = true; return next(); }
+  if (origin && (req.path.startsWith('/api/public/contact/') || req.path.startsWith('/api/public/visit/')) && !allowedOrigins.includes(origin) && !allowUnlistedOrigins) { req.foreignOrigin = true; return next(); }
   return globalCors(req, res, next);
 });
 
