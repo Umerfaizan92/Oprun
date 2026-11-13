@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import Database from 'better-sqlite3';
 import express from 'express';
 import {createChannelOperations} from '../src/channel-operations.js';
-import {createChannelProviderClient, channelCapabilities} from '../src/channel-providers.js';
+import {createChannelProviderClient, channelCapabilities, publicImageUrl} from '../src/channel-providers.js';
 import {startServer} from './test-server.mjs';
 import {seedOwner} from './visual/session.mjs';
 import {randomUUID} from 'node:crypto';
@@ -184,4 +184,47 @@ test('Meta sync reads only managed Pages and linked Instagram, and replies only 
   assert.equal(calls.at(-1).url,'https://graph.facebook.com/v23.0/17890001/replies');
   await assert.rejects(client.execute('meta',{access_token:'t'},{id:'111',type:'facebook_page'},{kind:'reply',body:'x'},{kind:'post',remote_id:'111_9',can_reply:true}),/Only synced comments/);
   assert.equal(channelCapabilities('meta','facebook_page').sync,true);assert.equal(channelCapabilities('meta','instagram_account').reply,true);
+});
+
+test('Instagram and Facebook image posts use public https images and publish once (S2)',async()=>{
+  for(const bad of ['http://a.com/x.jpg','https://user:pw@a.com/x.jpg','https://a.com:8443/x.jpg','https://127.0.0.1/x.jpg','https://localhost/x.jpg','https://[::1]/x.jpg','https://box.internal/x.jpg','javascript:alert(1)'])assert.equal(publicImageUrl(bad),null,bad);
+  assert.equal(publicImageUrl(' https://cdn.example.com/a.jpg '),'https://cdn.example.com/a.jpg');
+  const calls=[];let status=['IN_PROGRESS','FINISHED'];
+  const pages={data:[{id:'111',access_token:'page-token',instagram_business_account:{id:'222'}}]};
+  const client=createChannelProviderClient({env:{META_MEDIA_POLL_MS:0},runtime:{requestJson:async(url,opt={})=>{calls.push({url,auth:opt.headers?.authorization,body:opt.body&&JSON.parse(opt.body)});
+    if(url.includes('me/accounts'))return pages;
+    if(url.endsWith('/222/media'))return {id:'18000001'};
+    if(url.includes('/18000001?fields=status_code'))return {status_code:status.shift()||'FINISHED'};
+    if(url.endsWith('/222/media_publish'))return {id:'18000099'};
+    if(url.endsWith('/111/photos'))return {id:'p1',post_id:'111_77'};
+    return {id:'ack'};}}});
+  const ig={id:'222',type:'instagram_account',parent_id:'111'};
+  const r=await client.execute('meta',{access_token:'user-token'},ig,{kind:'post',body:'New job done',media_url:'https://cdn.example.com/a.jpg'},null);
+  assert.equal(r.id,'18000099');
+  assert.deepEqual(calls.find(c=>c.url.endsWith('/222/media')).body,{image_url:'https://cdn.example.com/a.jpg',caption:'New job done'});
+  assert.equal(calls.filter(c=>c.url.endsWith('/media_publish')).length,1);
+  await assert.rejects(client.execute('meta',{access_token:'t'},ig,{kind:'post',body:'x'},null),/need an image/);
+  calls.length=0;status=['ERROR'];
+  await assert.rejects(client.execute('meta',{access_token:'t'},ig,{kind:'post',body:'x',media_url:'https://cdn.example.com/a.jpg'},null),/could not process/);
+  assert.equal(calls.filter(c=>c.url.endsWith('/media_publish')).length,0);
+  status=Array(10).fill('IN_PROGRESS');
+  await assert.rejects(client.execute('meta',{access_token:'t'},ig,{kind:'post',body:'x',media_url:'https://cdn.example.com/a.jpg'},null),e=>e.status===409&&/Nothing was published/.test(e.message));
+  await assert.rejects(client.execute('meta',{access_token:'t'},{id:'333',type:'instagram_account',parent_id:'111'},{kind:'post',body:'x',media_url:'https://cdn.example.com/a.jpg'},null),/no longer linked/);
+  const fb=await client.execute('meta',{access_token:'t'},{id:'111',type:'facebook_page'},{kind:'post',body:'Hi',media_url:'https://cdn.example.com/a.jpg'},null);
+  assert.equal(fb.id,'111_77');assert.equal(calls.at(-1).auth,'Bearer page-token');assert.deepEqual(calls.at(-1).body,{url:'https://cdn.example.com/a.jpg',caption:'Hi'});
+  await assert.rejects(client.execute('meta',{access_token:'t'},{id:'111',type:'facebook_page'},{kind:'post',body:'Hi',media_url:'http://x.com/a.jpg'},null),/public https/);
+  const c=channelCapabilities('meta','instagram_account');assert.equal(c.post,true);assert.equal(c.media_required,true);
+  assert.equal(channelCapabilities('x','x_account').media,false);
+});
+
+test('draft images are additive, validated and refused where the channel cannot post them (S2)',async t=>{
+  const f=await fixture(t);
+  assert.ok(f.db.prepare('PRAGMA table_info(channel_drafts)').all().some(c=>c.name==='media_url'));
+  await f.call('/youtube/sync',{body:{resource_id:'mine'}});
+  const item=f.db.prepare('SELECT id FROM channel_items LIMIT 1').get().id;
+  const send=media_url=>f.call('/drafts',{body:{provider:'youtube',resource_id:'mine',kind:'reply',body:'Thanks',item_id:item,media_url}});
+  assert.equal((await send('https://localhost/a.jpg')).status,400);
+  assert.equal((await send('https://cdn.example.com/a.jpg')).status,409);
+  const ok=await f.draft();assert.equal(ok.status,201);
+  assert.equal(f.db.prepare('SELECT media_url FROM channel_drafts WHERE id=?').get(ok.json.id).media_url,null);
 });

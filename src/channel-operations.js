@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import {z} from 'zod';
 import rateLimit from 'express-rate-limit';
-import {CHANNEL_PROVIDERS, channelCapabilities, createChannelProviderClient} from './channel-providers.js';
+import {CHANNEL_PROVIDERS, channelCapabilities, createChannelProviderClient, publicImageUrl} from './channel-providers.js';
 
 const parse = (s, fallback = {}) => {try {return JSON.parse(s || '{}');} catch {return fallback;}};
 const stamp = () => new Date().toISOString();
@@ -32,6 +32,8 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
     CREATE TABLE IF NOT EXISTS channel_sync_state (
     organisation_id TEXT NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,provider TEXT NOT NULL,resource_id TEXT NOT NULL,status TEXT NOT NULL,
     metrics_json TEXT NOT NULL DEFAULT '[]',checked_at TEXT NOT NULL,error TEXT,PRIMARY KEY(organisation_id,provider,resource_id));`);
+  // Additive migration: an optional public image for posts. Existing drafts are unchanged.
+  if (!db.prepare('PRAGMA table_info(channel_drafts)').all().some(c => c.name === 'media_url')) db.exec('ALTER TABLE channel_drafts ADD COLUMN media_url TEXT');
   const currentMember = (org,user) => db.prepare("SELECT m.role,m.created_at FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.user_id=? AND m.status='active' AND u.status='active'").get(org,user);
   const org = req => req.saas.organisation_id;
   const owner = req => currentMember(org(req),req.saas.user_id)?.role === 'owner';
@@ -149,18 +151,23 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
     }));
     app.get('/api/saas/channels/drafts',...read,wrap((req,res) => res.json({ok:true,drafts:db.prepare('SELECT * FROM channel_drafts WHERE organisation_id=? ORDER BY updated_at DESC LIMIT 200').all(org(req)).filter(r => can(req,r.provider,'read',r.resource_id) && selected(req,r.provider).some(v => v.id === r.resource_id)).map(outDraft)})));
     app.post('/api/saas/channels/drafts',...read,limit,wrap((req,res) => {
-      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null)}).strict(),req);
+      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional()}).strict(),req);
       need(req,b.provider,'draft',b.resource_id);
       const r = selected(req,b.provider).find(r => r.id === b.resource_id);if (!r) throw fail(404,'Selected resource not found.');
       const cap = channelCapabilities(b.provider,r.type);let target=null;
       if (!cap[b.kind]) throw fail(409,'This action is not enabled for this provider.');
       if (b.provider === 'x' && [...b.body].length > 280) throw fail(400,'X posts must be at most 280 characters.');
+      const media = b.media_url ? publicImageUrl(b.media_url) : null;
+      if (b.media_url && !media) throw fail(400,'Use a public https image link (JPEG or PNG), without a username, password or port.');
+      if (media && (b.kind !== 'post' || !cap.media)) throw fail(409,'Images are not enabled for this action.');
+      if (b.kind === 'post' && cap.media_required && !media) throw fail(400,'Instagram posts need an image link.');
+      if (r.type === 'instagram_account' && [...b.body].length > 2200) throw fail(400,'Instagram captions must be at most 2,200 characters.');
       if (b.kind === 'reply') {
         const item = db.prepare('SELECT * FROM channel_items WHERE id=? AND organisation_id=? AND provider=? AND resource_id=?').get(b.item_id,org(req),b.provider,b.resource_id);
         if (!item || !parse(item.content_json).can_reply) throw fail(404,'A replyable item from this selected account is required.');target=parse(item.content_json);
       } else if (b.item_id) throw fail(400,'Posts cannot contain a reply item.');
       const id = crypto.randomUUID(), at = stamp();
-      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,at,at);
+      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,at,at);
       audit(req,'channels.draft_created','channel_draft',id,{provider:b.provider,kind:b.kind});res.status(201).json({ok:true,id,status:'pending'});
     }));
     const draftFor = req => {const r = db.prepare('SELECT * FROM channel_drafts WHERE id=? AND organisation_id=?').get(req.params.id,org(req));if (!r) throw fail(404,'Draft not found.');return r;};

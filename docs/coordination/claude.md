@@ -299,3 +299,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Replies only to synced comments, through the existing approval flow. Meta scopes now add pages_read_user_content, pages_manage_engagement and instagram_manage_comments (existing Meta connections must reconnect once).
 - Tests: channel-operations.test.mjs 11/11, npm test 73/73, secrets scan passed. Live activation needs Meta app review and credentials (Prompt 14).
 - Exact next action: S2 Instagram and Facebook image posting (add optional media_url to channel drafts with migration, https-only, Instagram container publish), then WhatsApp templates, TikTok publishing, website, Google.
+
+### S2 (T-106): Instagram and Facebook image posting, 2026-11-13
+- Post drafts take an optional public https image link (new nullable column media_url, additive migration; existing drafts unchanged). Links with credentials, ports, IP addresses or local hostnames are refused.
+- Instagram: image required; container created, status checked up to 5 times, published once; errors and timeouts publish nothing. Facebook Page: photo post with caption, or text as before.
+- Composer shows the image field only for accounts that support it (required for Instagram).
+- Tests: channel-operations 13/13, channel UI 4/4 (390/768/1440), npm test 73/73, secrets scan passed. Live use needs Meta app review and credentials (Prompt 14).
+- Exact next action: S3 WhatsApp Business: approved message templates (list from Meta, send a template outside the 24-hour window with approval), then TikTok publishing, website, Google.
