@@ -292,3 +292,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
    translator for HTML-string screens (register a map, mark the view), `data-i18n` for static markup.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.
+
+### S1 (T-105): Meta sync and comment replies, 2026-11-13
+- Owner reprioritised (D-037): connections first, social media first; Prompt 03 L8 paused.
+- Facebook Page: posts, comments, followers and Page likes sync with the Page's own token; Instagram (linked to the Page): posts, comments, followers, likes. Ownership is re-checked on every sync and reply.
+- Replies only to synced comments, through the existing approval flow. Meta scopes now add pages_read_user_content, pages_manage_engagement and instagram_manage_comments (existing Meta connections must reconnect once).
+- Tests: channel-operations.test.mjs 11/11, npm test 73/73, secrets scan passed. Live activation needs Meta app review and credentials (Prompt 14).
+- Exact next action: S2 Instagram and Facebook image posting (add optional media_url to channel drafts with migration, https-only, Instagram container publish), then WhatsApp templates, TikTok publishing, website, Google.
