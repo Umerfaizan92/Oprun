@@ -176,3 +176,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/locale-catalog.js,saas/workspace-gadgets.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
 - Acceptance: English dictionary equals src/industry-registry.js TERMS (test); Urdu board shows no English vocabulary; suites pass
 - Evidence: 72 term keys hi/ur/ar (machine draft); dictionary 2026-11-13.3; sync test with industry registry 8 groups; browser: Urdu board has no Jobs/Team/Income/costs; npm test 73/73; test:unit 302 pass 0 fail; test:ui, command-centre-loading, mobile-workspace 354 PASS (recorded 2026-11-13 on claude/l3-terms-today at 8254b6e)
+
+## T-099 Prompt 03 L3b: Today workflow guidance, Action Centre and feature finder
+- Added: 2026-11-13
+- Requirement: Migrate about 60 strings in saas/command-centre-sections.js (feature finder, Action Centre next steps, workflow guidance 8 stages with what/how/needs text, checklist states) to dictionaries via OprunLocale.t with English fallback; AI prompt texts stay English for the model but add the reader's language to the request; redraw on oprun:locale-changed
+- Files: saas/command-centre-sections.js,saas/locale-catalog.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: English output identical; hi/ur/ar coverage for new screen keys; browser check of Workflow Guidance and Action Centre tabs in Urdu at 390/1440; suites pass
+- Evidence: 98 todaySections keys hi/ur/ar (machine draft), dictionary 2026-11-13.4; Action Centre, Workflow Guidance 8 stages, feature finder text via OprunLocale.t with English fallback; AI plan requested with Answer in <language>; redraw on language change; E-037 render loop fixed (40 and 99 rebuilds per 2s on main, now 0). Tests: dictionary+locale 12/12; localization browser PASS (Urdu tabs, stage detail, plan request); command-centre loading 14 cases incl loop check; npm test 73/73; test:unit 302 pass 0 fail; test:ui, redesign, navigation, mobile-workspace PASS (recorded 2026-11-13 on claude/t099-today-sections at 51fcd07)

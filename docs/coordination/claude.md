@@ -127,6 +127,26 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R8: T-099 Today sections translated; E-037 render loop fixed
+
+- Live (R7) deploy: `dep-dbrb8j5bedkc73d3lln0`, commit `51fcd07`, startup diagnostics 16/16.
+- **E-037 (bug on live main):** opening the Today "Action Centre" tab rebuilt its panel about 20 times a second, and
+  "Your Workspace" (feature finder) about 50 times a second, forever: render changes the DOM, the section script
+  re-announces the section, and that re-renders again. Constant CPU use, and buttons kept being replaced (clicks
+  could miss). Fixed with the same identical-repaint guard Workflow Guidance already had. Measured with the fix: 0
+  rebuilds in 2 seconds on both tabs (main: 40 and 99). Regression check in `test-command-centre-loading-ui.mjs`.
+- **T-099:** `command-centre-sections.js` text via `OprunLocale.t` with English fallback: Action Centre (next-step
+  statuses, priorities, plan buttons and messages), Workflow Guidance (8 stages with name, what, needs, next and
+  counted units; summary and chips), feature finder fixed text. Dictionary `2026-11-13.4`, screen `todaySections` 98
+  keys in hi, ur, ar (machine draft). Sections redraw on language change and keep right-to-left order. "Generate AI
+  plan" adds "Answer in <language>." for non-English readers.
+- Still English: navigation-derived names (feature tiles, group names, "Open <page>" page titles come from the
+  navigation menu), the industry name, and AI replies when the model ignores the language request.
+- Note: counts of 1,000 or more now show a thousands separator ("1,234 jobs"); English is otherwise unchanged.
+- Tests: dictionary and locale 12/12; localization browser PASS (Urdu Action Centre and Workflow tabs, stage detail,
+  plan asks for Urdu); Command Centre loading 14 cases; `npm test` 73/73; `test:unit` 302 pass, 0 fail; test:ui,
+  redesign, navigation, mobile-workspace PASS.
+
 ### 2026-11-13 Batch R7: Prompt 03 L3a, industry vocabulary per locale (T-098)
 
 - Live (R6) deploy: `dep-dbrahl49v7es73c16a0g`, commit `8254b6e`, startup diagnostics 16/16.
@@ -192,10 +212,7 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: T-099 Prompt 03 L3b, `saas/command-centre-sections.js` (about 60 strings: feature finder, Action
-   Centre next steps, Workflow Guidance 8 stages, checklist states). Same pattern as `workspace-gadgets.js`: a local
-   `tr(key, values, english)` calling `OprunLocale.t`; redraw on `oprun:locale-changed`; keep AI prompt text English
-   but say which language to answer in. Then industry labels, then the next screen group in navigation order. Native-speaker review is needed
-   before any language is called translated.
+2. Claude next: Prompt 03 L4: navigation menu labels and page titles (`saas/workspace-nav.js` DOMAINS and
+   pageMeta), which also translates feature-finder tiles and "Open <page>" buttons; then the next screen group.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.
