@@ -127,6 +127,21 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R13: Prompt 03 L7, notifications panel and phrase translator (T-104)
+
+- Live (R12) deploy: `dep-dbreuemi0phs73flknbg`, commit `3ade869`, startup diagnostics 16/16.
+- **Phrase translator** in `workspace-locale.js` for older screens built from HTML strings: mark a container with
+  `data-i18n-phrases="name"` and register `window.OprunPhraseMaps[name] = { 'Exact English': 'key', 'Prefix ': 'key' }`.
+  Exact text nodes and aria-label/placeholder/title are swapped; the English is remembered, so switching back works;
+  anything not in the map (customer data, notice titles) is never touched. A MutationObserver per container handles
+  re-renders; full re-scans happen only on a language change.
+- Notifications panel (header, settings switches, push statuses, tabs, empty states, notice timing and kinds) and
+  the footer subscription line (now separate text nodes, same English) use map `notices`: 62 phrases including
+  subscription status words. Dictionary `2026-11-13.8`.
+- Tests: phrase map English equals the dictionary; browser checks Urdu panel title, settings, close label and
+  footer, then en-AU (exact English restored) and back to Urdu; `npm test` 73/73; `test:unit` 307 pass, 0 fail; ui,
+  navigation, mobile-workspace, redesign PASS.
+
 ### 2026-11-13 Batch R12: Prompt 03 L6, page tabs and Today voice bar (T-103)
 
 - Live (R11) deploy: `dep-dbreg9rbc2fs73crni40`, commit `2ac4f71`, live 10:41 UTC.
@@ -273,7 +288,7 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: Prompt 03 L7: notifications panel and subscription footer line; then screen bodies in menu order
-   (Work: Enquiries first), including tab names that come from panel headings.
+2. Claude next: Prompt 03 L8: screen bodies in menu order, starting with Work: Enquiries. Prefer the phrase
+   translator for HTML-string screens (register a map, mark the view), `data-i18n` for static markup.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.

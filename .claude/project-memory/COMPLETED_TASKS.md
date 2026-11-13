@@ -211,3 +211,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/page-sections.js,saas/workspace-voicebar.js,saas/workspace-locale.js,saas/locale-catalog.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
 - Acceptance: Urdu tabs and voice bar in browser; section keys and links unchanged; unknown keys never shown; all suites pass
 - Evidence: 55 keys (28 tab names, 27 voice bar) hi/ur/ar machine draft, dictionary 2026-11-13.7; tab keys stay English (browser asserts keys and ?section link); translateOne skips unknown keys; dictionary 10/10 incl tab-name sync and voice bar script English; localization browser PASS; npm test 73/73; test:unit 306 pass 0 fail; navigation-ui, ui, mobile-workspace, console-all, redesign PASS (recorded 2026-11-13 on claude/l6-today-tabs-voicebar at 2ac4f71)
+
+## T-104 Prompt 03 L7: notifications panel, subscription line, phrase translator
+- Added: 2026-11-13
+- Requirement: Translate the notifications panel and footer subscription line; add a reusable phrase translator for older HTML-string screens (exact English phrase to key, remembers English for switching back)
+- Files: saas/workspace-locale.js,saas/platform-notices.js,saas/app.js,saas/locale-catalog.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: Urdu panel text and labels, footer line; switching to English restores exact English; data untouched; suites pass
+- Evidence: Phrase translator (data-i18n-phrases + window.OprunPhraseMaps) with English memory for text and aria-label/placeholder/title; notices map 62 phrases hi/ur/ar machine draft, dictionary 2026-11-13.8; subscription line split into text nodes (same English); tests: dictionary 11/11 incl phrase map sync; browser Urdu panel, close label, footer, en-AU round trip restores English; npm test 73/73; test:unit 307 pass 0 fail; ui, navigation, mobile-workspace, redesign PASS (recorded 2026-11-13 on claude/l7-notifications at 3ade869)
