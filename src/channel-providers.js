@@ -30,6 +30,9 @@ export function channelCapabilities(provider, type) {
   return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location' || provider === 'tiktok' && type === 'tiktok_account',
     media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'tiktok' || provider === 'google_business' && type === 'google_business_location', media_required: provider === 'meta' && type === 'instagram_account' || provider === 'tiktok',
     reply: ['meta', 'youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: provider === 'tiktok',
+    // Which kinds of media a post may carry. TikTok is video only; Facebook Pages and Instagram take either.
+    image: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location',
+    video: provider === 'tiktok' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account'),
     ads_launch: false, note: provider === 'whatsapp' || provider === 'email_sms' || provider === 'website'
       ? 'Messages and delivery receipts use the existing Unified Inbox. Provider setup and consent are required.'
       : provider === 'meta' ? 'Facebook Page and Instagram posts, comments and follower totals sync; comment replies need approval. Facebook posts (text or one image) need Page permission; Instagram posts need one public image. Instagram direct messages require an additional reviewed adapter.'
@@ -213,6 +216,7 @@ export function createChannelProviderClient({runtime, env = {}}) {
       return call('https://api.x.com/2/tweets', token, json('POST', {text, ...(draft.kind === 'reply' ? {reply:{in_reply_to_tweet_id:item.remote_id}} : {})}));
     }
     const media = draft.media_url ? publicImageUrl(draft.media_url) : null;
+    const isVideo = provider === 'tiktok' || JSON.parse(draft.options_json || '{}').media_kind === 'video';
     if (draft.media_url && !media) throw Object.assign(new Error(provider === 'tiktok' ? 'The video link is not a public https link.' : 'The image link is not a public https link.'), {status:400});
     if (provider === 'google_business') {
       if ([...text].length > 1500) throw Object.assign(new Error('Shorten the Business Profile post to 1,500 characters.'), {status:400});
@@ -240,22 +244,23 @@ export function createChannelProviderClient({runtime, env = {}}) {
     if (provider === 'meta' && resource.type === 'facebook_page') {
       const pages = await call(graph + 'me/accounts?fields=id,access_token', token), page = pages.data?.find(p => String(p.id) === resource.id);
       if (!page?.access_token) throw Object.assign(new Error('Facebook Page posting permission is required.'), {status:403});
+      if (media && isVideo) return call(graph.replace('://graph.', '://graph-video.') + id(resource.id) + '/videos', page.access_token, json('POST', {file_url:media, description:text})).then(d => ({id:d.id}));
       if (media) return call(graph + id(resource.id) + '/photos', page.access_token, json('POST', {url:media, caption:text})).then(d => ({id:d.post_id || d.id}));
       return call(graph + id(resource.id) + '/feed', page.access_token, json('POST', {message:text}));
     }
     if (provider === 'meta' && resource.type === 'instagram_account') {
-      if (!media) throw Object.assign(new Error('Instagram posts need an image link.'), {status:400});
+      if (!media) throw Object.assign(new Error('Instagram posts need an image or video link.'), {status:400});
       if ([...text].length > 2200) throw Object.assign(new Error('Shorten the Instagram caption to 2,200 characters.'), {status:400});
       const page = await pageToken(token, resource.parent_id);
       if (String(page.instagram_business_account?.id || '') !== resource.id) throw Object.assign(new Error('The Instagram account is no longer linked to the selected Facebook Page. Reconnect Meta.'), {status:403});
-      const container = await call(graph + id(resource.id) + '/media', token, json('POST', {image_url:media, caption:text}));
-      if (!/^\d{3,32}$/.test(String(container.id || ''))) throw Object.assign(new Error('Instagram did not accept the image.'), {status:400});
+      const container = await call(graph + id(resource.id) + '/media', token, json('POST', isVideo ? {media_type:'REELS', video_url:media, caption:text, share_to_feed:true} : {image_url:media, caption:text}));
+      if (!/^\d{3,32}$/.test(String(container.id || ''))) throw Object.assign(new Error(isVideo ? 'Instagram did not accept the video.' : 'Instagram did not accept the image.'), {status:400});
       // Instagram prepares the image before it can be published. Wait briefly; never publish twice.
       for (let i = 0; ; i++) {
         const state = await call(graph + id(container.id) + '?fields=status_code', token);
         if (state.status_code === 'FINISHED') break;
-        if (state.status_code === 'ERROR' || state.status_code === 'EXPIRED') throw Object.assign(new Error('Instagram could not process the image. Check the link and the image size.'), {status:400});
-        if (i >= 5) throw Object.assign(new Error('Instagram is still processing the image. Nothing was published; try again later.'), {status:409});
+        if (state.status_code === 'ERROR' || state.status_code === 'EXPIRED') throw Object.assign(new Error(isVideo ? 'Instagram could not process the video. Reels need MP4 or MOV, 3 seconds to 15 minutes.' : 'Instagram could not process the image. Check the link and the image size.'), {status:400});
+        if (i >= (isVideo ? 20 : 5)) throw Object.assign(new Error('Instagram is still processing the ' + (isVideo ? 'video' : 'image') + '. Nothing was published; try again later.'), {status:409});
         await new Promise(done => setTimeout(done, Number(env.META_MEDIA_POLL_MS ?? 2000)));
       }
       return call(graph + id(resource.id) + '/media_publish', token, json('POST', {creation_id:container.id}));

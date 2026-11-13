@@ -168,7 +168,7 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
       res.json({ok:true,templates:await client.templates(bundle,resource)});
     }));
     app.post('/api/saas/channels/drafts',...read,limit,wrap(async(req,res) => {
-      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional(),privacy_level:z.enum(['PUBLIC_TO_EVERYONE','MUTUAL_FOLLOW_FRIENDS','FOLLOWER_OF_CREATOR','SELF_ONLY']).optional(),template:z.object({name:z.string().regex(/^[a-z0-9_]{1,512}$/),language:z.string().regex(/^[a-z]{2,3}(_[A-Z]{2})?$/),params:z.array(z.string().trim().min(1).max(1000)).max(10).default([])}).strict().optional()}).strict(),req);
+      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional(),media_kind:z.enum(['image','video']).optional(),privacy_level:z.enum(['PUBLIC_TO_EVERYONE','MUTUAL_FOLLOW_FRIENDS','FOLLOWER_OF_CREATOR','SELF_ONLY']).optional(),template:z.object({name:z.string().regex(/^[a-z0-9_]{1,512}$/),language:z.string().regex(/^[a-z]{2,3}(_[A-Z]{2})?$/),params:z.array(z.string().trim().min(1).max(1000)).max(10).default([])}).strict().optional()}).strict(),req);
       need(req,b.provider,'draft',b.resource_id);
       const r = selected(req,b.provider).find(r => r.id === b.resource_id);if (!r) throw fail(404,'Selected resource not found.');
       const cap = channelCapabilities(b.provider,r.type);let target=null;
@@ -177,6 +177,9 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
       const media = b.media_url ? publicImageUrl(b.media_url) : null;
       if (b.media_url && !media) throw fail(400,'Use a public https image link (JPEG or PNG), without a username, password or port.');
       if (media && (b.kind !== 'post' || !cap.media)) throw fail(409,'Images are not enabled for this action.');
+      const mediaKind = b.media_kind || (b.provider === 'tiktok' ? 'video' : 'image');
+      if (b.media_kind && !media) throw fail(400,'Add the image or video link.');
+      if (media && !cap[mediaKind]) throw fail(409,mediaKind === 'video' ? 'Video posts are not enabled for this account.' : 'Image posts are not enabled for this account.');
       if (b.kind === 'post' && cap.media_required && !media) throw fail(400,b.provider === 'tiktok' ? 'TikTok posts need a public video link.' : 'Instagram posts need an image link.');
       if (b.privacy_level && (b.provider !== 'tiktok' || b.kind !== 'post')) throw fail(409,'Visibility is only for TikTok posts.');
       if (b.provider === 'tiktok' && b.kind === 'post' && !b.privacy_level) throw fail(400,'Choose who can see this TikTok video.');
@@ -198,7 +201,7 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
         } else if (!target.window_open || Date.now()-Date.parse(target.occurred_at) > 86400000) throw fail(409,'More than 24 hours have passed. Choose an approved template.');
       } else if (b.template) throw fail(409,'Templates are only for WhatsApp replies.');
       const id = crypto.randomUUID(), at = stamp();
-      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,template_json,options_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,templateJson,b.privacy_level?JSON.stringify({privacy_level:b.privacy_level}):null,at,at);
+      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,template_json,options_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,templateJson,(b.privacy_level || (media && mediaKind === 'video')) ? JSON.stringify({...(b.privacy_level ? {privacy_level:b.privacy_level} : {}), ...(media ? {media_kind:mediaKind} : {})}) : null,at,at);
       audit(req,'channels.draft_created','channel_draft',id,{provider:b.provider,kind:b.kind});res.status(201).json({ok:true,id,status:'pending'});
     }));
     const draftFor = req => {const r = db.prepare('SELECT * FROM channel_drafts WHERE id=? AND organisation_id=?').get(req.params.id,org(req));if (!r) throw fail(404,'Draft not found.');return r;};

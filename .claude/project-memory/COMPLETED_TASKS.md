@@ -267,3 +267,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/seo/google.js,src/integration-insights.js,src/channel-providers.js,saas/integration-manager.js,saas/workspace.html,scripts/seo-units.test.mjs,scripts/channel-operations.test.mjs
 - Acceptance: seo-units and channel tests pass; Connections UI passes; npm test passes
 - Evidence: seo-units + channel-operations 0 failures incl. 2 new S6 tests; test-connections-ui PASS; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s6-google at 53fa914)
+
+## T-112 V1 Facebook video and Instagram Reels posting
+- Added: 2026-11-13
+- Requirement: Owner: proper video posting on all social platforms. V1: Facebook Page video from public link, Instagram Reels, photo/video choice in composer
+- Files: src/channel-providers.js,src/channel-operations.js,saas/channel-operations.js,saas/workspace.html,scripts/channel-operations.test.mjs
+- Acceptance: channel unit + UI tests and npm test pass
+- Evidence: channel-operations 18/18 incl. V1 test; channel UI 4/4 (390/768/1440); npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/v1-meta-video at d406973)

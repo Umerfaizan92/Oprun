@@ -1921,3 +1921,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Deploy main to Render srv-dan4rdqjnfac73fceor0 and verify startup 16/16; then S6 Google: review google_business and google_seo adapters and Phase 06 routes, close gaps (Business Profile reviews/posts/insights, Search Console queries, Analytics GA4 reports)
+
+## CP-138 2026-11-13T15:34:08+00:00 T-112 IN_PROGRESS
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-112 (IN_PROGRESS)
+- Completed steps: V1 coded, channel unit tests 18/18
+- Incomplete steps: UI test, npm test; then owner's Connections rework (own credentials, switch account, audit)
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; saas/channel-operations.js; saas/workspace.html; scripts/channel-operations.test.mjs; src/channel-operations.js; src/channel-providers.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/v1-meta-video
+- Commit: d406973 (Merge PR #117: S6 Google Business Profile directions, search terms, photo posts)
+- Recovery snapshot: refs/recovery/claude/v1-meta-video/20261113T153408Z (37ee2e9)
+- Known errors: none
+- Next exact action: Run channel UI test and npm test for V1, then start the Connections rework
