@@ -27,9 +27,9 @@ export const CHANNEL_PROVIDERS = {
 };
 export function channelCapabilities(provider, type) {
   const read = ['meta', 'youtube', 'gmail', 'tiktok', 'x', 'google_business', 'whatsapp', 'email_sms', 'website', 'google_seo'].includes(provider);
-  return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location',
-    media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account'), media_required: provider === 'meta' && type === 'instagram_account',
-    reply: ['meta', 'youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: false,
+  return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location' || provider === 'tiktok' && type === 'tiktok_account',
+    media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'tiktok', media_required: provider === 'meta' && type === 'instagram_account' || provider === 'tiktok',
+    reply: ['meta', 'youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: provider === 'tiktok',
     ads_launch: false, note: provider === 'whatsapp' || provider === 'email_sms' || provider === 'website'
       ? 'Messages and delivery receipts use the existing Unified Inbox. Provider setup and consent are required.'
       : provider === 'meta' ? 'Facebook Page and Instagram posts, comments and follower totals sync; comment replies need approval. Facebook posts (text or one image) need Page permission; Instagram posts need one public image. Instagram direct messages require an additional reviewed adapter.'
@@ -214,7 +214,26 @@ export function createChannelProviderClient({runtime, env = {}}) {
     }
     if (provider === 'google_business') return call('https://mybusiness.googleapis.com/v4/' + resource.parent_id + '/' + resource.id + '/localPosts', token, json('POST', {languageCode:'en', summary:text, topicType:'STANDARD'}));
     const media = draft.media_url ? publicImageUrl(draft.media_url) : null;
-    if (draft.media_url && !media) throw Object.assign(new Error('The image link is not a public https link.'), {status:400});
+    if (draft.media_url && !media) throw Object.assign(new Error(provider === 'tiktok' ? 'The video link is not a public https link.' : 'The image link is not a public https link.'), {status:400});
+    if (provider === 'tiktok') {
+      if (!media) throw Object.assign(new Error('TikTok posts need a public https video link.'), {status:400});
+      if (!String(bundle.scope || '').split(/[ ,]+/).includes('video.publish')) throw Object.assign(new Error('TikTok posting permission (video.publish) was not granted. Reconnect TikTok after the app is approved for posting.'), {status:403});
+      const privacy = JSON.parse(draft.options_json || '{}').privacy_level, creator = await tiktokCreatorInfo(bundle);
+      if (!creator.privacy_levels.includes(privacy)) throw Object.assign(new Error('Choose who can see this video from the options TikTok allows for this account.'), {status:409});
+      if ([...text].length > 2200) throw Object.assign(new Error('Shorten the TikTok caption to 2,200 characters.'), {status:400});
+      const init = await call('https://open.tiktokapis.com/v2/post/publish/video/init/', token, json('POST', {post_info:{title:text, privacy_level:privacy, disable_comment:creator.comment_disabled, disable_duet:creator.duet_disabled, disable_stitch:creator.stitch_disabled}, source_info:{source:'PULL_FROM_URL', video_url:media}}));
+      const publish = String(init.data?.publish_id || '');
+      if (init.error?.code && init.error.code !== 'ok' || !/^[\w.~-]{4,200}$/.test(publish)) throw Object.assign(new Error('TikTok did not accept the video. Check the link and that its domain is verified with TikTok.'), {status:400});
+      // TikTok has the video now: never start a second post. Report failure only when TikTok says so.
+      for (let i = 0; i < 5; i++) {
+        const st = await call('https://open.tiktokapis.com/v2/post/publish/status/fetch/', token, json('POST', {publish_id:publish}));
+        const state = st.data?.status;
+        if (state === 'PUBLISH_COMPLETE') return {id:publish};
+        if (state === 'FAILED') throw Object.assign(new Error('TikTok could not publish the video (' + cut(st.data?.fail_reason || 'unknown reason', 100) + ').'), {status:400});
+        await new Promise(done => setTimeout(done, Number(env.TIKTOK_PUBLISH_POLL_MS ?? 3000)));
+      }
+      return {id:publish, processing:true};
+    }
     if (provider === 'meta' && resource.type === 'facebook_page') {
       const pages = await call(graph + 'me/accounts?fields=id,access_token', token), page = pages.data?.find(p => String(p.id) === resource.id);
       if (!page?.access_token) throw Object.assign(new Error('Facebook Page posting permission is required.'), {status:403});
@@ -240,5 +259,12 @@ export function createChannelProviderClient({runtime, env = {}}) {
     }
     throw Object.assign(new Error('Publishing is not enabled for this provider or content type.'), {status:409});
   }
-  return {sync, execute, templates};
+  // What this TikTok account may post right now. TikTok requires the creator to choose visibility.
+  async function tiktokCreatorInfo(bundle) {
+    const d = await call('https://open.tiktokapis.com/v2/post/publish/creator_info/query/', bundle.access_token, json('POST', {}));
+    if (d.error?.code && d.error.code !== 'ok') throw Object.assign(new Error('TikTok will not accept posts from this account right now (' + cut(d.error.code, 60) + ').'), {status:409});
+    const u = d.data || {}, allowed = ['PUBLIC_TO_EVERYONE', 'MUTUAL_FOLLOW_FRIENDS', 'FOLLOWER_OF_CREATOR', 'SELF_ONLY'];
+    return {nickname:cut(u.creator_nickname, 100), privacy_levels:(u.privacy_level_options || []).filter(v => allowed.includes(v)), comment_disabled:Boolean(u.comment_disabled), duet_disabled:Boolean(u.duet_disabled), stitch_disabled:Boolean(u.stitch_disabled), max_video_seconds:Number(u.max_video_post_duration_sec) || null};
+  }
+  return {sync, execute, templates, tiktokCreatorInfo};
 }

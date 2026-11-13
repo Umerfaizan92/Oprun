@@ -239,3 +239,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/channel-providers.js,src/channel-operations.js,saas/channel-operations.js,scripts/channel-operations.test.mjs
 - Acceptance: Provider and route tests; channel UI and npm test pass
 - Evidence: channel-operations.test.mjs 15/15 incl. 2 new S3 tests; channel UI 4/4; npm test 73/73; secrets scan passed (recorded 2026-11-13 on claude/s3-whatsapp-templates at 11bac49)
+
+## T-108 S4 TikTok video posting
+- Added: 2026-11-13
+- Requirement: Approved TikTok posts from a public https video link; creator chooses visibility from TikTok's allowed options; video.publish permission required; one post only, status checked; AI suggestions never propose text-only posts where media is required
+- Files: src/channel-providers.js,src/channel-operations.js,saas/channel-operations.js,scripts/channel-operations.test.mjs
+- Acceptance: Unit and UI tests pass; npm test passes
+- Evidence: channel-operations.test.mjs 16/16 incl. S4; channel UI 4/4 (390/768/1440); npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s4-tiktok-publish at 0d2f2dc)
