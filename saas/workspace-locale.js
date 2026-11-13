@@ -1,4 +1,4 @@
-import { message, formatMessage } from './locale-catalog.js?v=20261113.l7';
+import { message, formatMessage } from './locale-catalog.js?v=20261113.l8';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
@@ -15,10 +15,10 @@ const api = async (options = {}) => {
 function translateOne(element, locale) {
   const inLanguage = key => message(locale, key) !== message('en', key) || /^en\b/.test(locale);
   const key = element.dataset.i18n;
-  if (key) { const text = message(locale, key); if (element.textContent !== text) element.textContent = text; element.lang = inLanguage(key) ? locale : 'en'; }
+  if (key && message('en', key) !== key) { const text = message(locale, key); if (element.textContent !== text) element.textContent = text; element.lang = inLanguage(key) ? locale : 'en'; }
   for (const pair of (element.dataset.i18nAttr || '').split(';')) {
     const [attr, attrKey] = pair.split('=').map(x => x?.trim());
-    if (attr && attrKey && /^(aria-label|placeholder|title|data-tip)$/.test(attr)) element.setAttribute(attr, message(locale, attrKey));
+    if (attr && attrKey && message('en', attrKey) !== attrKey && /^(aria-label|placeholder|title|data-tip)$/.test(attr)) element.setAttribute(attr, message(locale, attrKey));
   }
 }
 function translateTree(root, locale) {

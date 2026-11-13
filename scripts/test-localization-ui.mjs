@@ -84,6 +84,18 @@ try {
     terms:document.querySelector('.app-footer [data-i18n="chrome.terms"]')?.textContent,copyright:document.querySelector('.app-footer [data-i18n="chrome.copyright"]')?.textContent}));
   const want={search:'chrome.search',searchLabel:'chrome.search',manual:'manual',pay:'chrome.getPaid',payLabel:'chrome.getPaidLabel',chat:'chrome.officeChat',ask:'chrome.askOprun',askPlaceholder:'chrome.askPlaceholder',terms:'chrome.terms',copyright:'chrome.copyright'};
   for (const [name,key] of Object.entries(want)) assert.equal(chrome[name],MESSAGES.ur[key],`${name} in Urdu`);
+  // Prompt 03 L6: Today tabs and voice bar in Urdu; tab addresses keep their English keys.
+  const tabs=await page.locator('#dashboard-view [role=tab]').evaluateAll(b=>b.map(x=>[x.dataset.sectionKey,x.textContent]));
+  assert.deepEqual(tabs.map(t=>t[0]),['business-overview','your-workspace','action-centre','workflow-guidance'],'tab keys stay English');
+  assert.equal(tabs[2][1],MESSAGES.ur['tab.action-centre'],'tab name in Urdu');
+  await page.locator('#dashboard-view [role=tab][data-section-key="action-centre"]').click();
+  assert.match(await page.evaluate(()=>location.hash),/section=action-centre/,'tab link keeps its English key');
+  await page.locator('#dashboard-view [role=tab][data-section-key="business-overview"]').click();
+  assert.equal(await page.locator('#sp-askbar h2').textContent(),MESSAGES.ur['vb.title']);
+  assert.equal(await page.locator('#sp-ask-input').getAttribute('placeholder'),MESSAGES.ur['vb.placeholder']);
+  assert.equal(await page.locator('#sp-askbar [data-ask-state]').textContent(),MESSAGES.ur['vb.ready']);
+  await page.evaluate(()=>document.querySelector('#sp-askbar form').requestSubmit());
+  assert.equal(await page.locator('#sp-askbar [data-ask-state]').textContent(),MESSAGES.ur['vb.typeFirst'],'status messages in Urdu');
   // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
   const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
   assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');

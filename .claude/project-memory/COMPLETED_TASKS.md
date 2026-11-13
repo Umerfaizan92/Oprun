@@ -204,3 +204,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/locale-catalog.js,saas/workspace-locale.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
 - Acceptance: 197 unique labels, no codes or repeats, capitalised; browser shows English (Australia) and اردو · Urdu; suites pass
 - Evidence: Labels via Intl.DisplayNames languageDisplay standard, capitalised, English appended for non-Latin; Twi override; 197 unique, longest 38 chars; dictionary test; browser picker check PASS; npm test 73/73; test:unit 305 pass 0 fail; console-ui 16 PASS (recorded 2026-11-13 on claude/language-list-labels at a3d2450)
+
+## T-103 Prompt 03 L6: Today tabs and voice bar
+- Added: 2026-11-13
+- Requirement: Translate configured page tab names (28, focused-workspace.js) without changing their English section keys, and the Today voice bar (title, placeholder, buttons, chips, hint and all status messages)
+- Files: saas/page-sections.js,saas/workspace-voicebar.js,saas/workspace-locale.js,saas/locale-catalog.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: Urdu tabs and voice bar in browser; section keys and links unchanged; unknown keys never shown; all suites pass
+- Evidence: 55 keys (28 tab names, 27 voice bar) hi/ur/ar machine draft, dictionary 2026-11-13.7; tab keys stay English (browser asserts keys and ?section link); translateOne skips unknown keys; dictionary 10/10 incl tab-name sync and voice bar script English; localization browser PASS; npm test 73/73; test:unit 306 pass 0 fail; navigation-ui, ui, mobile-workspace, console-all, redesign PASS (recorded 2026-11-13 on claude/l6-today-tabs-voicebar at 2ac4f71)

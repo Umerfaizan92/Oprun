@@ -1795,3 +1795,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Prompt 03 L6 per docs/coordination/claude.md R10
+
+## CP-129 2026-11-13T10:57:06+00:00 T-103 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-103 (COMPLETED)
+- Completed steps: Page tabs and Today voice bar translated
+- Incomplete steps: Merge and deploy; L7 notifications, subscription line, Enquiries body
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/ERROR_LOG.md; SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/locale-catalog.js; saas/page-sections.js; saas/workspace-locale.js; saas/workspace-voicebar.js; saas/workspace.html; scripts/localization-dictionary.test.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; dictionary; localization browser; navigation-ui; ui; mobile-workspace; console-all; redesign
+- Test results: 73/73; 306 pass 0 fail; 10/10; all PASS
+- Git branch: claude/l6-today-tabs-voicebar
+- Commit: 2ac4f71 (Merge PR #108: short language picker labels)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Prompt 03 L7 per docs/coordination/claude.md R12
