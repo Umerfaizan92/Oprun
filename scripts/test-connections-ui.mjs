@@ -47,6 +47,17 @@ try{
  assert.equal(await meta.locator('.connection-confirm').count(),0);assert.match(await meta.locator('.connection-health').innerText(),/^Working\n/);
  if(process.env.UI_SCREENSHOT_DIR)await meta.screenshot({path:path.join(process.env.UI_SCREENSHOT_DIR,'connections-healthy.png')});
  await tk.locator('[data-im-resource]').uncheck();await tk.getByRole('button',{name:'Save selection',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('[data-provider-card="tiktok"] [data-im-save]')?.disabled);assert.deepEqual(saved,[]);
+ // Owner request: switch account and the business's own app keys.
+ let switchBody=null;await page.route('**/api/saas/integrations/self-service/meta/authorise',async route=>{switchBody=route.request().postDataJSON();await route.fulfill({json:{ok:true,status:'authorisation_pending'}})});
+ page.once('dialog',d=>d.accept());await meta.getByRole('button',{name:'Switch account',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('[data-provider-card="meta"] [data-im-switch]')?.disabled);assert.deepEqual(switchBody,{switch_account:true});
+ assert.match(await meta.innerText(),/never asks for or stores your social-media password/);
+ await meta.locator('[data-im-app] > summary').click();await meta.locator('[data-im-app-form]').waitFor();
+ assert.match(await meta.locator('[data-im-app]').innerText(),/\/api\/saas\/integrations\/oauth\/meta\/callback/);
+ assert.equal(await meta.getByLabel('App secret',{exact:true}).getAttribute('type'),'password');
+ await meta.getByLabel('App ID',{exact:true}).fill('987654321012345');await meta.getByLabel('App secret',{exact:true}).fill('own-meta-secret-value-123');
+ await meta.getByRole('button',{name:'Save my app keys',exact:true}).click();await grid.locator('[data-provider-card="meta"]').getByText('Your app keys are saved.',{exact:false}).waitFor();
+ assert.equal(await page.evaluate(()=>JSON.stringify({...localStorage,...sessionStorage}).includes('own-meta-secret-value-123')),false);
+ await meta.locator('[data-im-app] > summary').click();await meta.getByRole('button',{name:'Remove my keys',exact:true}).waitFor();assert.match(await meta.locator('[data-im-app]').innerText(),/Your own app \(9876…2345\)/);
  const email=grid.locator('[data-provider-card="email_sms"]');
  for(let pageNumber=0;pageNumber<3&&!await email.isVisible();pageNumber++)await pager.getByRole('button',{name:'Next →',exact:true}).click();
  await email.waitFor({state:'visible'});
@@ -60,5 +71,5 @@ try{
  await email.getByRole('button',{name:'Troubleshoot',exact:true}).click();await email.locator('[data-im-assistant]').waitFor();assert.match(await email.locator('[data-im-assistant]').innerText(),/cannot approve provider apps/);
  await page.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8'));
  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await page.waitForTimeout(450);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))).then(()=>Promise.race([Promise.all(document.getAnimations().filter(a=>a instanceof CSSTransition).map(a=>a.finished.catch(()=>{}))),new Promise(r=>setTimeout(r,3000))])));const violations=await page.evaluate(async()=>{const result=await axe.run(document.querySelector('#integrations-view'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary,html:n.html}))}))});assert.deepEqual(violations,[],theme+' Connections accessibility');}
- assert.deepEqual(errors,[]);console.log('PASS Connections: 11 providers, pagination, three viewport sizes, truthful metrics, account confirm step, health light, capability list, resource save, write-only credential form, clearing secrets, tenant webhook instructions and diagnostics.');
+ assert.deepEqual(errors,[]);console.log('PASS Connections: 11 providers, pagination, three viewport sizes, truthful metrics, account confirm step, health light, capability list, resource save, switch account, own app keys, write-only credential form, clearing secrets, tenant webhook instructions and diagnostics.');
 }finally{await browser?.close();await server.stop()}
