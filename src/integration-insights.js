@@ -65,10 +65,16 @@ export function createIntegrationInsights({runtime,env,db,fetchImpl=globalThis.f
         const c=await google.gbpPerformance(bundle.access_token,r.id,{startDate:recent(28),endDate:recent(1)});
         const impressionKeys=['BUSINESS_IMPRESSIONS_MOBILE_SEARCH','BUSINESS_IMPRESSIONS_DESKTOP_SEARCH','BUSINESS_IMPRESSIONS_MOBILE_MAPS','BUSINESS_IMPRESSIONS_DESKTOP_MAPS'];
         const views=impressionKeys.every(k=>c[k]!==undefined)?impressionKeys.reduce((sum,k)=>sum+c[k],0):null;
-        base.metrics.push(metric('views','Search / Maps impressions',views,'Last 28 complete days; provider impression counts are not unique people.'),metric('calls','Call clicks',c.CALL_CLICKS),metric('website_clicks','Website clicks',c.WEBSITE_CLICKS));
+        base.metrics.push(metric('views','Search / Maps impressions',views,'Last 28 complete days; provider impression counts are not unique people.'),metric('calls','Call clicks',c.CALL_CLICKS),metric('website_clicks','Website clicks',c.WEBSITE_CLICKS),metric('directions','Direction requests',c.BUSINESS_DIRECTION_REQUESTS));
       } catch {
         base.metrics.push(metric('views','Search / Maps impressions',null,'Performance reporting could not be read. Check Business Profile API approval and location access.'));
       }
+      try {
+        // Previous three complete calendar months. Low counts are reported by Google only as "fewer than N".
+        const now=new Date(),end=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-1,1)),start=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-3,1));
+        base.search_keywords=await google.gbpSearchKeywords(bundle.access_token,r.id,{startMonth:{y:start.getUTCFullYear(),m:start.getUTCMonth()+1},endMonth:{y:end.getUTCFullYear(),m:end.getUTCMonth()+1}});
+        base.search_keywords_period=start.toISOString().slice(0,7)+' to '+end.toISOString().slice(0,7);
+      } catch { base.search_keywords=null; }
     } else {
       base.period='Not available';base.metrics=[metric('insights','Provider insights',null,provider==='snapchat'?'Snapchat Public Profile insights require separate approved Public Profile API access; a Marketing API identity is not a profile metrics connection.':'No social audience metrics apply to this resource. Select a Page, professional account, channel, property or location.')];
     }

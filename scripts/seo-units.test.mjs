@@ -140,3 +140,12 @@ test('builder: safe rendering, accessibility and SEO checks, and change risk', (
   assert.equal(classifyChange(v1, { ...v1, blocks: [...v1.blocks, { type: 'faq', items: [] }] }).low_risk, false, 'adding a section is a design change');
   assert.equal(classifyChange(null, v1, { firstRelease: true }).low_risk, false, 'first release always needs approval');
 });
+
+test('Business Profile search keywords: monthly range, exact values or "fewer than", capped list (S6)', async () => {
+  const urls = [];
+  const google = createGoogleClient({ env: {}, fetchImpl: async (url) => { urls.push(String(url)); return Response.json({ searchKeywordsCounts: [{ searchKeyword: 'plumber fremantle', insightsValue: { value: '42' } }, { searchKeyword: 'hot water repair', insightsValue: { threshold: '15' } }, { searchKeyword: '' }] }); } });
+  const rows = await google.gbpSearchKeywords('t', 'accounts/1/locations/99', { startMonth: { y: 2026, m: 8 }, endMonth: { y: 2026, m: 10 } });
+  assert.match(urls[0], /^https:\/\/businessprofileperformance\.googleapis\.com\/v1\/locations\/99\/searchkeywords\/impressions\/monthly\?/);
+  assert.match(urls[0], /monthlyRange\.start_month\.month=8/); assert.match(urls[0], /monthlyRange\.end_month\.month=10/);
+  assert.deepEqual(rows, [{ keyword: 'plumber fremantle', impressions: 42, below: null }, { keyword: 'hot water repair', impressions: null, below: 15 }]);
+});
