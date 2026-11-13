@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/t094-package-on-main (not on GitHub yet)
 LATEST VERIFIED COMMIT: a526d9d (Coordination log: T-095 parked branch)
 CURRENT PHASE: Candidate foundation and reviewed global-platform blueprint
 CURRENT TASK: T-094 (TESTING)
-LAST COMPLETED STEP: CG-003 connections test timing hardened
-FILES MODIFIED: SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/workspace-locale.js; saas/workspace.html; scripts/localization-ui.test.mjs; scripts/test-connections-ui.mjs; scripts/test-localization-ui.mjs
-TESTS PASSED: npm test 73/73; test:unit 292 pass 0 fail; localization browser PASS; connections-ui x4 PASS; ui 34; mobile-workspace-ui 354; console-all 30; navigation-ui 594; secrets pass; manifest pass
+LAST COMPLETED STEP: Batch R3: PR #99 adds compression edge-case tests (streaming voice, no-store, precompressed, errors) and Command Centre loading-state tests (12 cases)
+FILES MODIFIED: docs/coordination/claude.md
+TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 8 file(s)
+UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Batch-5 review: role-filtered Command Centre placeholders and compression edge cases
+NEXT EXACT ACTION: After owner confirms ownership: T-095 console tables rebase and PR, else Prompt 03 Today group
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-119 at 2026-11-13T01:06:10+00:00
+LAST CHECKPOINT: CP-120 at 2026-11-13T01:17:14+00:00
 <!-- handover:end -->
 
 ## Notes

@@ -1669,3 +1669,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Batch-5 review: role-filtered Command Centre placeholders and compression edge cases
+
+## CP-120 2026-11-13T01:17:14+00:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: Batch R3: PR #99 adds compression edge-case tests (streaming voice, no-store, precompressed, errors) and Command Centre loading-state tests (12 cases)
+- Incomplete steps: Owner review PR #98 and #99; T-095 ownership; Prompt 03; batch-5 perf budgets
+- Files modified (uncommitted at checkpoint): docs/coordination/claude.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/t094-package-on-main
+- Commit: bb40746 (T-094: fix ChatGPT review findings CG-001 to CG-003); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: After owner confirms ownership: T-095 console tables rebase and PR, else Prompt 03 Today group

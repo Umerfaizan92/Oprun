@@ -84,6 +84,20 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
   `test:connections-ui` PASS (single and 3 parallel); `test:ui` 34; `test:mobile-workspace-ui` 354;
   `test:console-all` 30 pages; `test:navigation-ui` 594; secrets scan and manifest PASS.
 
+### 2026-11-13 Batch R3: batch-5 review checks (PR #99, branch `claude/b5-review-checks`, `0a3cef3`)
+
+- Tests only, no application change. Closes ChatGPT's "Batch-5 checks still needed" items 1 and 2.
+- `scripts/compression.test.mjs` (real server; test-only preload `scripts/fixtures/gemini-stream-mock.mjs` intercepts
+  only the Gemini streaming URL): streamed voice chunked and uncompressed, first audio before the 1.5s upstream gap;
+  authenticated JSON gzip with `Vary` and `no-store` kept; precompressed `kit.css` encoded once; plain body without
+  gzip; 401 unchanged. Finding: two independent guards keep voice uncompressed (`application/x-ndjson` is not
+  compressible; route sends `no-transform`). Removing both fails the test; either alone does not.
+- `scripts/test-command-centre-loading-ui.mjs`: owner, manager and custom role; delayed, 403 and 500; 390 and 1440;
+  12/12. Limit: roles simulated client-side, so real manager tile count is not proven (layout-shift risk only, no
+  data exposure).
+- Tests on that branch: `npm test` 73/73; `test:unit` 285 pass, 0 fail; loading UI 12/12; secrets and manifest PASS.
+- Still open from that review: item 3 (repeatable performance runs with budgets and distributions).
+
 ### Parked: T-095 Founder Console tables (not in this PR)
 
 Pushed (parked, no PR): branch `claude/t095-console-tables-wip` at `c419986`, based on `da37f05`. Contents: `office/console-tables.js` (labels cells, explicit table roles),
@@ -95,9 +109,10 @@ Pending: rebase onto this branch, rerun console/navigation/ui suites, own PR.
 ## Exact next action
 
 1. Owner reviews PR #98 (now includes R1 and R2). Claude does not merge or deploy.
-2. Claude next, in order, on separate branches: (a) ChatGPT's batch-5 review checks: role-filtered Command Centre
-   placeholders for manager/custom grants, and compression with no-store, already-encoded and streaming voice
-   responses; (b) T-095 console tables once ownership is confirmed; (c) Prompt 03 localization migration, Today
-   group first.
-3. When ChatGPT resumes it should read this log, mark CG-001 to CG-003 as fixed (pending its own re-verification)
+2. Owner reviews PR #99 (batch-5 review tests). Merge order does not matter; whichever merges second needs
+   `npm run manifest:update` after resolving `SHA256SUMS.txt` and the `package.json` script line.
+3. Claude next, on separate branches: (a) T-095 console tables once ownership is confirmed (the density-batch
+   session follows the same plan); (b) Prompt 03 localization migration, Today group first; (c) batch-5 item 3,
+   repeatable performance budgets.
+4. When ChatGPT resumes it should read this log, mark CG-001 to CG-003 as fixed (pending its own re-verification)
    in its log, and continue its review gates in `ACCEPTANCE_T094.md`.
