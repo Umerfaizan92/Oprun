@@ -147,10 +147,29 @@ export function createChannelProviderClient({runtime, env = {}}) {
     } else throw Object.assign(new Error('Use this service’s existing inbox or insights workflow; content sync is not enabled.'), {status:409});
     return {items:items.slice(0,100), metrics, fetched_at:new Date().toISOString(), coverage:'Bounded recent sample, not complete provider history'};
   }
+  // Approved WhatsApp utility templates for the selected number's business account.
+  async function templates(bundle, resource) {
+    if (resource.type !== 'whatsapp_phone' || !/^\d{3,32}$/.test(resource.parent_id || '')) throw Object.assign(new Error('Choose a WhatsApp phone number.'), {status:409});
+    const d = await call(graph + id(resource.parent_id) + '/message_templates?fields=name,language,status,category,components&limit=100', bundle.access_token);
+    return (d.data || []).filter(t => t.status === 'APPROVED' && t.category === 'UTILITY' && /^[a-z0-9_]{1,512}$/.test(t.name || '') && /^[a-z]{2,3}(_[A-Z]{2})?$/.test(t.language || '')).map(t => {
+      const comps = t.components || [], body = cut(comps.find(c => c.type === 'BODY')?.text, 1024);
+      const params = Math.max(0, ...[...body.matchAll(/\{\{(\d{1,2})\}\}/g)].map(m => Number(m[1])));
+      // Header media, buttons with variables or named parameters need richer input; they are listed as unavailable.
+      const simple = comps.every(c => c.type === 'BODY' || c.type === 'FOOTER' || (c.type === 'HEADER' && c.format === 'TEXT' && !/\{\{/.test(c.text || '')) || (c.type === 'BUTTONS' && (c.buttons || []).every(b => !/\{\{/.test(b.url || '')))) && !/\{\{[^\d}]/.test(body);
+      return {name:t.name, language:t.language, body, params, available:simple && params <= 10};
+    });
+  }
   async function execute(provider, bundle, resource, draft, item) {
     const token = bundle.access_token, text = draft.body;
     if (draft.kind === 'reply') {
       if (!item?.can_reply) throw Object.assign(new Error('This item cannot receive a reply.'), {status:409});
+      if (provider === 'whatsapp' && draft.template_json) {
+        const t = JSON.parse(draft.template_json), current = (await templates(bundle, resource)).find(x => x.name === t.name && x.language === t.language);
+        if (!current?.available || current.params !== t.params.length) throw Object.assign(new Error('This template is no longer approved. Create a new draft.'), {status:409});
+        if (!/^\+[1-9]\d{7,14}$/.test(item.recipient || '')) throw Object.assign(new Error('Invalid WhatsApp recipient.'), {status:400});
+        const template = {name:t.name, language:{code:t.language}, ...(t.params.length ? {components:[{type:'body', parameters:t.params.map(v => ({type:'text', text:cut(v, 1000)}))}]} : {})};
+        return call(graph + id(resource.id) + '/messages', token, json('POST', {messaging_product:'whatsapp', to:item.recipient.slice(1), type:'template', template})).then(d => ({id:d.messages?.[0]?.id}));
+      }
       if (provider === 'whatsapp') {
         if (!/^\+[1-9]\d{7,14}$/.test(item.recipient || '') || Date.now()-Date.parse(item.occurred_at)>86400000 || Date.parse(item.occurred_at)>Date.now()+60000 || !Number.isFinite(Date.parse(item.occurred_at))) throw Object.assign(new Error('The WhatsApp reply window is closed.'),{status:409});
         return call(graph + id(resource.id) + '/messages', token, json('POST',{messaging_product:'whatsapp',to:item.recipient.slice(1),type:'text',text:{body:text}})).then(d=>({id:d.messages?.[0]?.id}));
@@ -221,5 +240,5 @@ export function createChannelProviderClient({runtime, env = {}}) {
     }
     throw Object.assign(new Error('Publishing is not enabled for this provider or content type.'), {status:409});
   }
-  return {sync, execute};
+  return {sync, execute, templates};
 }
