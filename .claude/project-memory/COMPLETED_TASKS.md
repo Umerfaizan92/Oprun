@@ -225,3 +225,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/channel-providers.js,src/server.js,scripts/channel-operations.test.mjs
 - Acceptance: Unit test covers sync, ownership refusal, Page-token use, reply endpoints; npm test passes
 - Evidence: channel-operations.test.mjs 11/11 incl. new S1 test; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s1-meta-sync at cee9f9a)
+
+## T-106 S2 Instagram and Facebook image posting
+- Added: 2026-11-13
+- Requirement: Optional public https image on post drafts (additive column); Instagram container publish with status wait and no double publish; Facebook photo posts; image field in composer per selected account
+- Files: src/channel-providers.js,src/channel-operations.js,saas/channel-operations.js,scripts/channel-operations.test.mjs
+- Acceptance: Provider and route tests cover URL checks, publish once, error and timeout paths; channel UI test and npm test pass
+- Evidence: channel-operations.test.mjs 13/13 incl. 2 new S2 tests; test-channel-operations-ui 4/4 at 390/768/1440; npm test 73/73; secrets scan passed (recorded 2026-11-13 on claude/s2-meta-media at e701f62)

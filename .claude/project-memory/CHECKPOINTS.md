@@ -1837,3 +1837,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: S2: add optional media_url (https, provider-fetchable) to channel_drafts with a safe additive migration; Instagram container publish (media -> media_publish); Facebook photo post; tests; PR; CI; merge; deploy
+
+## CP-132 2026-11-13T12:31:41+00:00 T-106 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-106 (COMPLETED)
+- Completed steps: S2 image posting built and tested
+- Incomplete steps: S3 WhatsApp templates; TikTok publishing; website; Google
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; docs/coordination/claude.md; saas/channel-operations.js; scripts/channel-operations.test.mjs; src/channel-operations.js; src/channel-providers.js
+- Tests executed: npm test
+- Test results: 73/73 passed
+- Git branch: claude/s2-meta-media
+- Commit: e701f62 (Checkpoint after S1 (T-105): next is S2 media posting); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: S3: WhatsApp approved templates (list via Graph message_templates, send template with approval outside 24h window), tests, PR, CI, merge, deploy
