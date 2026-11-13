@@ -98,11 +98,11 @@ test('English navigation names in the dictionary match the live menu exactly', (
 });
 
 test('keys tagged by scripts exist and their English is the exact text those scripts already show', () => {
-  const files = ['workspace-pad.js', 'workspace-chat.js', 'app.js', 'workspace-mobile.js', 'support.js'];
+  const files = ['workspace-pad.js', 'workspace-chat.js', 'app.js', 'workspace-mobile.js', 'support.js', 'workspace-voicebar.js'];
   let found = 0;
   for (const file of files) {
     const source = fs.readFileSync(new URL(`../saas/${file}`, import.meta.url), 'utf8');
-    for (const m of source.matchAll(/data-i18n(?:-attr)?['"]?\s*[:=]\s*['"`]([^'"`]+)['"`]|i18n\s*=\s*'([\w.]+)'|(chrome\.\w+)/g)) {
+    for (const m of source.matchAll(/data-i18n(?:-attr)?['"]?\s*[:=]\s*['"`]([^'"`]+)['"`]|i18n\s*=\s*'([\w.]+)'|((?:chrome|vb)\.\w+)/g)) {
       for (const part of String(m[1] || m[2] || m[3]).split(';')) {
         const key = part.includes('=') ? part.split('=')[1] : part;
         if (!/^[\w.]+$/.test(key) || key.includes('${')) continue;
@@ -128,4 +128,12 @@ test('language picker labels are short, unique and free of codes', () => {
   assert.equal(by('en-AU'), 'English (Australia)');
   assert.equal(by('es-MX'), 'Español (México)');
   assert.equal(by('ur'), 'اردو · Urdu');
+});
+
+test('every configured page tab name has a dictionary key derived from its English name', () => {
+  const source = fs.readFileSync(new URL('../saas/focused-workspace.js', import.meta.url), 'utf8');
+  const slug = (s) => String(s).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'section';
+  const labels = [...source.matchAll(/labels:\[([^\]]*)\]/g)].flatMap((m) => [...m[1].matchAll(/'([^']*)'/g)].map((x) => x[1]));
+  assert.ok(labels.length >= 28);
+  for (const label of labels) assert.equal(MESSAGES.en[`tab.${slug(label)}`], label, `tab.${slug(label)}`);
 });

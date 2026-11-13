@@ -127,6 +127,23 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R12: Prompt 03 L6, page tabs and Today voice bar (T-103)
+
+- Live (R11) deploy: `dep-dbreg9rbc2fs73crni40`, commit `2ac4f71`, live 10:41 UTC.
+- Configured page tabs (28 names in `focused-workspace.js`, 7 pages incl. Today): `page-sections.js` tags each tab
+  with `tab.<english-key>` after the English section key is fixed, so `?section=` links never change. Pages whose
+  tab names come from panel headings are not covered yet (part of each screen's body migration).
+- Today voice bar: title, placeholder, Speak/Send, hint, quick-request chips and 15 status messages (looked up by
+  their English; English kept in `data-en` for comparisons). Quick-request questions sent to the AI stay English.
+- `translateOne` now skips keys that are not in the English dictionary, so a missing key can never show raw text.
+- E-038 (caught before commit): a `//` comment in single-line `page-sections.js` code disabled the rest of the line;
+  replaced with `/* */`. Lesson: never use `//` comments inside minified-style lines.
+- Dictionary `2026-11-13.7`, screens `tabs` (28) and `voiceBar` (27).
+- Tests: dictionary 10 (tab names in sync with the configuration; voice bar English equals the script's text);
+  localization browser (Urdu tabs with English keys, link keeps `section=action-centre`, voice bar text, placeholder
+  and status); `npm test` 73/73; `test:unit` 306 pass, 0 fail; navigation-ui, ui, mobile-workspace, console-all,
+  redesign PASS.
+
 ### 2026-11-13 Batch R11: short language picker labels (T-102, owner request)
 
 - Live (R10) deploy: `dep-dbrdpg56e07s73bcn75g`, commit `a3d2450`, startup diagnostics 16/16.
@@ -256,8 +273,7 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: Prompt 03 L6: Today section tabs (labels from the page-section configuration), the voice bar
-   (`workspace-voicebar.js`), notification panel, subscription footer line; then screen bodies in menu order (Work:
-   Enquiries first). Tag elements with `data-i18n` / `data-i18n-attr`; late elements are handled automatically.
+2. Claude next: Prompt 03 L7: notifications panel and subscription footer line; then screen bodies in menu order
+   (Work: Enquiries first), including tab names that come from panel headings.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.
