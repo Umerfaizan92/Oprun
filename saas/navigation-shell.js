@@ -84,7 +84,7 @@
         b.append(icon, make('span', 'navigation-label', g.label), make('span', 'navigation-chevron', '⌄')); b.setAttribute('aria-label', g.label);
         const children = make('div', 'navigation-children'); children.id = this.rail.id + '-' + g.id; b.setAttribute('aria-controls', children.id);
         const more = make('details', 'navigation-more'); more.open = false;
-        more.append(make('summary', '', 'More ' + g.label.toLowerCase() + ' tools'));
+        more.append(make('summary', '', window.OprunLocale?.translated?.('nav.more') ? window.OprunLocale.t('nav.more', { group: g.label }) : 'More ' + g.label.toLowerCase() + ' tools'));
         for (const p of g.pages) { const a = make('a', 'navigation-page', p.label); a.href = '#' + p.path; a.dataset.navPage = p.id; a.setAttribute('aria-label', p.label); if (p.badge) { const badge = make('span', 'navigation-badge'); badge.dataset.badgeSource = p.badge; a.append(badge); } (p.secondary ? more : children).append(a); }
         if (more.children.length > 1) children.append(more);
         box.append(b, children); this.nav.append(box);

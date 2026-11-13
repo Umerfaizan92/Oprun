@@ -10,6 +10,8 @@ const html = fs.readFileSync(new URL('../saas/workspace.html', import.meta.url),
 const doc = new JSDOM(html).window.document;
 const tagged = [...doc.querySelectorAll('[data-i18n]')];
 const screenKeys = new Set(Object.values(SCREENS).flat());
+// Labels made only of brand names stay the same in every language.
+const BRAND_ONLY = new Set(['nav.page.seogoogle']);
 
 test('every tagged element shows exactly the English dictionary text and has no child elements to lose', () => {
   assert.ok(tagged.length >= 19);
@@ -32,7 +34,7 @@ test('pilot languages cover shell and Today, are marked unreviewed, and others f
   for (const lang of ['hi', 'ur', 'ar']) {
     assert.ok(screenCoverage(lang).every((c) => c.translated === c.total), lang);
     assert.equal(DICTIONARY_REVIEW[lang], 'machine-draft-unreviewed');
-    for (const key of screenKeys) if (/\p{L}/u.test(MESSAGES.en[key].replace(/\{[^{}]*\}/g, ''))) assert.notEqual(MESSAGES[lang][key], MESSAGES.en[key], `${lang} ${key} left in English`); // patterns made only of inserted values are language-neutral
+    for (const key of screenKeys) if (!BRAND_ONLY.has(key) && /\p{L}/u.test(MESSAGES.en[key].replace(/\{[^{}]*\}/g, ''))) assert.notEqual(MESSAGES[lang][key], MESSAGES.en[key], `${lang} ${key} left in English`); // patterns made only of inserted values are language-neutral
   }
   assert.equal(DICTIONARY_REVIEW.en, 'source');
   assert.ok(screenCoverage('fr').every((c) => c.translated === 0));
@@ -79,4 +81,18 @@ test('English industry vocabulary in the dictionary matches the server table for
       assert.equal(MESSAGES.en[`term.${style}.${k}`], t[k], `term.${style}.${k} out of sync with src/industry-registry.js`);
     assert.equal(MESSAGES.en[`term.${style}.member`], t.team.toLowerCase().replace(/s$/, ''), `term.${style}.member`);
   }
+});
+
+test('English navigation names in the dictionary match the live menu exactly', () => {
+  const dom = new JSDOM('<html><body></body></html>', { runScripts: 'outside-only', url: 'https://oprun.example.test' });
+  dom.window.eval(fs.readFileSync(new URL('../saas/workspace-nav.js', import.meta.url), 'utf8'));
+  const N = dom.window.SuperProNav;
+  for (const d of N.DOMAINS) {
+    assert.equal(MESSAGES.en[`nav.group.${d.id}`], d.label, `nav.group.${d.id}`);
+    for (const i of d.items) assert.equal(MESSAGES.en[`nav.page.${i.view}`], i.label, `nav.page.${i.view}`);
+  }
+  const flows = SCREENS.navigation.filter((k) => k.startsWith('nav.flow.'));
+  assert.deepEqual(flows.map((k) => MESSAGES.en[k]), Array.from(N.WORKFLOWS, (w) => w.label), 'related-page group names in menu order');
+  assert.equal(SCREENS.navigation.length, N.DOMAINS.length + N.DOMAINS.flatMap((d) => d.items).length + flows.length + 1, 'every group and page has a key');
+  dom.window.close();
 });

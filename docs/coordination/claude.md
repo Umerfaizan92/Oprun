@@ -127,6 +127,22 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R9: Prompt 03 L4, business navigation menu (T-100)
+
+- Live (R8) deploy: `dep-dbrbq7tbedkc73d55hog`, commit `dc42983`, startup diagnostics 16/16.
+- Dictionary `2026-11-13.5`, screen `navigation`, 78 keys: 8 menu groups, 60 page names, 9 related-page group names
+  (`WORKFLOWS`), and "More {group} tools"; hi, ur, ar machine drafts. "SEO · Google" is brand-only and stays as is.
+- `workspace-nav.js` keeps each English label (`enLabel`) and swaps names on `oprun:locale-changed`, then redraws.
+  Paths, aliases and view IDs never change, so links and old hashes keep working. The redraw announces
+  `superpro:nav-ready`, which rebuilds the side rail, breadcrumb, related-page chips and Today feature tiles.
+- Fixes found on the way: `render()` added a click listener on every call (outside its bind guard), now bound once;
+  the new listener tolerates the minimal stand-in `window` used by older navigation tests.
+- Tests: dictionary 7 (English names equal the live menu, including related-page groups in order); localization
+  browser (Urdu rail and chips, page link still routes); `npm test` 73/73; `test:unit` 303 pass, 0 fail;
+  navigation-ui, test:ui, mobile-workspace, redesign, console-all PASS. Urdu menu: no overflow at 390.
+- Still English: page headings and body text inside individual screens (each screen is its own migration), the
+  industry name, top-bar buttons ("User Manual", "Get paid", search), the floating chat buttons and the footer.
+
 ### 2026-11-13 Batch R8: T-099 Today sections translated; E-037 render loop fixed
 
 - Live (R7) deploy: `dep-dbrb8j5bedkc73d3lln0`, commit `51fcd07`, startup diagnostics 16/16.
@@ -212,7 +228,7 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: Prompt 03 L4: navigation menu labels and page titles (`saas/workspace-nav.js` DOMAINS and
-   pageMeta), which also translates feature-finder tiles and "Open <page>" buttons; then the next screen group.
+2. Claude next: Prompt 03 L5: top bar (User Manual, Get paid, search), floating Office chat and Ask Oprun buttons,
+   and footer links (always visible on every page); then screen bodies in menu order (Work: Enquiries first).
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.

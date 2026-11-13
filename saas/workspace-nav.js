@@ -123,8 +123,9 @@
       section.dataset.open='false';section.querySelector('.nav-domain-toggle')?.setAttribute('aria-expanded','false');
     });
   }
+  let lastRender=null;
   function render(nav,role){
-    if(!nav)return;
+    if(!nav)return;lastRender=[nav,role];
     nav.innerHTML=DOMAINS.map(d=>{
       const items=d.items.filter(i=>allowed(i,role));
       if(!items.length)return'';
@@ -164,9 +165,9 @@
       section.addEventListener('focusout',()=>setTimeout(()=>{if(!section.contains(document.activeElement)&&!section.matches(':hover')){section.dataset.open='false';toggle.setAttribute('aria-expanded','false')}},0));
     });
     // Selecting an item, clicking elsewhere or pressing Escape closes the menu.
-    nav.addEventListener('click',event=>{if(event.target.closest('.nav-item'))closeAll(nav)});
     if(!nav.dataset.navBound){
       nav.dataset.navBound='1';
+      nav.addEventListener('click',event=>{if(event.target.closest('.nav-item'))closeAll(nav)});
       document.addEventListener('click',event=>{if(!nav.contains(event.target))closeAll(nav)});
       document.addEventListener('keydown',event=>{if(event.key==='Escape'){const open=nav.querySelector('.nav-domain[data-open="true"] .nav-domain-toggle');closeAll(nav);open?.focus()}});
     }
@@ -184,5 +185,16 @@
     el.dataset.role=role||'';
     el.textContent=ROLE_LABELS[role]||(role?role.replace(/_/g,' '):'Member');
   }
+  // Prompt 03 L4: menu names in the reader's language. English labels are kept on each entry; routes, paths and
+  // aliases never change, so every link and old hash keeps working. Redrawing announces superpro:nav-ready, which also
+  // rebuilds the side rail and the Command Centre feature tiles.
+  function relabel(){
+    const L=window.OprunLocale,pick=(key,english)=>L?.translated?.(key)?L.t(key):english;
+    for(const d of DOMAINS){d.enLabel??=d.label;d.enKicker??=d.kicker;d.label=pick(`nav.group.${d.id}`,d.enLabel);d.kicker=d.label===d.enLabel?d.enKicker:d.label;
+      for(const i of d.items){i.enLabel??=i.label;i.label=pick(`nav.page.${i.view}`,i.enLabel)}}
+    WORKFLOWS.forEach((w,n)=>{w.enLabel??=w.label;w.label=pick(`nav.flow.${FLOW_KEYS[n]}`,w.enLabel)});
+  }
+  const FLOW_KEYS=['workPipeline', 'unifiedInbox', 'commsSetup', 'growthHub', 'seoCentre', 'docsPayments', 'connections', 'plans', 'people'];
+  window.addEventListener?.('oprun:locale-changed',()=>{relabel();if(lastRender)render(...lastRender)});
   window.SuperProNav={DOMAINS,WORKFLOWS,contexts,FINANCE_ROLES,SENIOR_ROLES,sequence,pathFor,resolve,pageMeta,render,reveal,setRoleBadge};
 })();
