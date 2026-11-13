@@ -1753,3 +1753,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Prompt 03 L4: saas/workspace-nav.js DOMAINS and pageMeta labels via dictionary
+
+## CP-126 2026-11-13T08:30:37+00:00 T-100 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-100 (COMPLETED)
+- Completed steps: Navigation menu translated
+- Incomplete steps: Merge and deploy; L5 top bar, floating buttons, footer
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/locale-catalog.js; saas/navigation-shell.js; saas/workspace-locale.js; saas/workspace-nav.js; saas/workspace.html; scripts/localization-dictionary.test.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; dictionary; localization browser; navigation-ui; ui; mobile-workspace; redesign; console-all
+- Test results: 73/73; 303 pass 0 fail; 13/13; all PASS
+- Git branch: claude/l4-navigation
+- Commit: dc42983 (Merge PR #105: T-099 Today sections translated; E-037 render loop fixed)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Prompt 03 L5: always-visible chrome (top bar, floating buttons, footer)

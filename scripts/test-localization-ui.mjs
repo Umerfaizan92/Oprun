@@ -67,6 +67,14 @@ try {
   assert.equal(await page.locator('.cc-plan b').textContent(),MESSAGES.ur['cc.planTitle']);
   await page.unroute('**/api/saas/ai/threads');
   await page.locator('#dashboard-view [role=tab][data-section-key="business-overview"]').click();
+  // Prompt 03 L4: the business menu is in Urdu and its links still navigate.
+  await page.waitForFunction(t=>[...document.querySelectorAll('#business-navigation .navigation-label')].some(e=>e.textContent===t),MESSAGES.ur['nav.group.money']);
+  const railLinks=await page.locator('#business-navigation a.navigation-page').allTextContents();
+  assert.ok(railLinks.includes(MESSAGES.ur['nav.page.businessinvoices']),'menu page names in Urdu');
+  assert.equal(railLinks.some(t=>/^(Invoices & Quotes|Enquiries|Bookings)$/.test(t)),false,'no English page names left in the menu');
+  await page.evaluate(()=>location.hash='money/invoices');await page.locator('#businessinvoices-view').waitFor({state:'visible'});
+  await page.waitForFunction(t=>document.body.innerText.includes(t),MESSAGES.ur['nav.flow.docsPayments']);
+  await page.evaluate(()=>location.hash='today/home');await page.locator('#dashboard-view').waitFor({state:'visible'});
   // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
   const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
   assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');
