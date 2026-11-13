@@ -301,3 +301,35 @@ test('provider receipts: a Resend hard bounce or spam complaint suppresses the a
   assert.deepEqual(rows.map((r) => [r.address, r.source]), [['bounce@example.test', 'bounce'], ['complain@example.test', 'complaint']]);
   assert.equal(sql("SELECT COUNT(*) n FROM marketing_suppressions WHERE owner_key<>?", owner.org)[0].n, 0, 'no other owner is affected');
 });
+
+test('own verified website: form snippet, CORS only for that origin, return to the same site (S5)', async (t) => {
+  const { s, owner, O, sql, stop } = await setup(); t.after(stop);
+  assert.equal((await O('GET', '/api/saas/website/contact-form')).status, 409, 'no snippet before verification');
+  const site = { url: 'https://harbourplumbing.com.au', hostname: 'harbourplumbing.com.au', verified: true, verified_at: new Date().toISOString() };
+  sql("INSERT INTO organisation_integrations(organisation_id,provider,display_name,status,settings_json,updated_at) VALUES(?, 'website','Website','connected',?,?) ON CONFLICT(organisation_id,provider) DO UPDATE SET status='connected',settings_json=excluded.settings_json", owner.org, JSON.stringify({ website: site }), new Date().toISOString());
+  const snip = (await O('GET', '/api/saas/website/contact-form')).json;
+  assert.equal(snip.website, 'https://harbourplumbing.com.au');
+  assert.match(snip.html, new RegExp(`action="[^"]+/api/public/contact/${owner.slug}"`));
+  assert.match(snip.html, /name="website"/, 'snippet keeps the bot trap');
+  const pre = await fetch(`${s.base}/api/public/contact/${owner.slug}`, { method: 'OPTIONS', headers: { origin: 'https://harbourplumbing.com.au', 'access-control-request-method': 'POST' } });
+  assert.equal(pre.headers.get('access-control-allow-origin'), 'https://harbourplumbing.com.au');
+  const evil = await fetch(`${s.base}/api/public/contact/${owner.slug}`, { method: 'OPTIONS', headers: { origin: 'https://evil.example', 'access-control-request-method': 'POST' } });
+  assert.equal(evil.headers.get('access-control-allow-origin'), null);
+  const send = (return_to) => fetch(`${s.base}/api/public/contact/${owner.slug}`, { method: 'POST', redirect: 'manual', headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'https://harbourplumbing.com.au' }, body: new URLSearchParams({ name: 'Jo Bloggs', email: 'jo@bloggs.example.test', message: 'Leaking tap in the kitchen', return_to }) });
+  let r = await send('https://harbourplumbing.com.au/contact-us?x=1');
+  assert.equal(r.status, 303); assert.equal(r.headers.get('location'), 'https://harbourplumbing.com.au/contact-us?form=sent#contact');
+  assert.equal(r.headers.get('access-control-allow-origin'), 'https://harbourplumbing.com.au');
+  r = await send('https://evil.example/phish');
+  assert.equal(r.status, 201, 'a foreign return address is ignored, never redirected to');
+  assert.equal(sql("SELECT COUNT(*) n FROM tenant_documents WHERE organisation_id=? AND kind='enquiry' AND channel='website'", owner.org)[0].n, 2);
+  sql("UPDATE organisation_integrations SET settings_json=? WHERE organisation_id=? AND provider='website'", JSON.stringify({ website: { ...site, verified: false } }), owner.org);
+  const after = await fetch(`${s.base}/api/public/contact/${owner.slug}`, { method: 'OPTIONS', headers: { origin: 'https://harbourplumbing.com.au' } });
+  assert.equal(after.headers.get('access-control-allow-origin'), null, 'unverified site loses access');
+});
+
+test('contact form refuses posts from websites that are not the verified site (S5)', async (t) => {
+  const { s, owner, sql, stop } = await setup(); t.after(stop);
+  const r = await fetch(`${s.base}/api/public/contact/${owner.slug}`, { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://evil.example' }, body: JSON.stringify({ name: 'Spam Bot', email: 'x@evil.example.test', message: 'Cheap pills here' }) });
+  assert.equal(r.status, 403);
+  assert.equal(sql("SELECT COUNT(*) n FROM tenant_customers WHERE email='x@evil.example.test'")[0].n, 0);
+});

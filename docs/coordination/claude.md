@@ -324,3 +324,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Tests: channel-operations 16/16, channel UI 4/4, npm test 73/73, secrets scan passed.
 - Still pending: Render deploy of PRs #112 and #113 (and this one); the Render connector was unavailable.
 - Exact next action: deploy main to Render; then S5 website connection (lead forms and site analytics), then S6 Google (Business Profile, Search Console, Analytics).
+
+### S5a (T-109): contact form on the business's own website, 2026-11-13
+- New GET /api/saas/website/contact-form (senior roles): a ready-made HTML form for the verified website, with the bot trap and consent box. Connections > Website shows "Get ready-made form" and a copy button.
+- /api/public/contact/:slug: only the verified https origin gets CORS and may be the return address (redirect back to that site); other foreign origins are refused with 403 (previously the global CORS check blocked every external site). Unverifying the site removes access.
+- Tests: comms S5 tests pass, Connections UI PASS, npm test 73/73, secrets scan passed.
+- DEPLOY STILL PENDING: Render connector returns 502; main not deployed since PR #111. Owner told how to deploy manually.
+- Exact next action: S5b privacy-friendly site visit counts (no cookies, no IPs stored, verified origin only), then S6 Google.
