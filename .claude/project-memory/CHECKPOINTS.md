@@ -1823,3 +1823,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Prompt 03 L8: Enquiries screen via phrase translator
+
+## CP-131 2026-11-13T12:15:57+00:00 T-105 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-105 (COMPLETED)
+- Completed steps: S1 Meta sync and comment replies merged (PR #111, ee096b9) and deploying to Render
+- Incomplete steps: S2 Instagram/Facebook image posting; WhatsApp templates; TikTok publishing; website; Google
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: npm test
+- Test results: 73/73 passed
+- Git branch: claude/s2-meta-media
+- Commit: ee096b9 (Merge PR #111: S1 Facebook and Instagram sync and comment replies)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: S2: add optional media_url (https, provider-fetchable) to channel_drafts with a safe additive migration; Instagram container publish (media -> media_publish); Facebook photo post; tests; PR; CI; merge; deploy
