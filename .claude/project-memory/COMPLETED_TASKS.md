@@ -295,3 +295,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/server.js,saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html,scripts/connections-safe-base.test.mjs
 - Acceptance: Round-trip test: core scopes only, extras added, malformed dropped, refused sign-in recorded and shown; npm test passes
 - Evidence: connections-safe-base 8/8 incl. new round-trip test; local browser check: Connect redirects to Facebook, Google, TikTok and X sign-in for 8 providers; connections-ui PASS; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at 8995658)
+
+## T-116 V2 YouTube and X photo/video posting
+- Added: 2026-11-13
+- Requirement: Owner: video, photo and message posting on every social platform where possible. YouTube video upload with title, description and Public/Unlisted/Private; X photo and video via v2 chunked upload (media.write); safe server-side media fetch
+- Files: src/media-fetch.js,src/channel-providers.js,src/channel-operations.js,src/server.js,saas/channel-operations.js,scripts/channel-operations.test.mjs
+- Acceptance: Unit tests for upload, ownership, privacy, chunking, processing failure, fetcher address checks; npm test passes
+- Evidence: channel-operations 21/21 incl. V2 and media-fetcher tests; channels-ui PASS; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at e58cf1b)
+
+## T-117 C3 Connect does nothing on phones; gold badges
+- Added: 2026-11-13
+- Requirement: Owner: pressing Connect / Authorise does nothing. Show the result right under the buttons and scroll to it; show a tappable 'Continue to sign-in' link because phones may block opening the provider app without a direct tap; tidy cards; original gold badges instead of provider logos
+- Files: saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html
+- Acceptance: Browser check: message and link under Connect; connections, channels, navigation, mobile, redesign UI pass
+- Evidence: Browser check at 980px: message under buttons, Continue link with provider URL; connections-ui, channels-ui, navigation-ui, mobile-readiness, redesign-ui pass; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at e58cf1b)
