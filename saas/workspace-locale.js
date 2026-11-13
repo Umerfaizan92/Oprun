@@ -1,4 +1,4 @@
-import { message, formatMessage } from './locale-catalog.js?v=20261113.l8';
+import { message, formatMessage } from './locale-catalog.js?v=20261113.l9';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
@@ -24,6 +24,45 @@ function translateOne(element, locale) {
 function translateTree(root, locale) {
   if (root.matches?.('[data-i18n],[data-i18n-attr]')) translateOne(root, locale);
   for (const element of root.querySelectorAll('[data-i18n],[data-i18n-attr]')) translateOne(element, locale);
+  if (root.matches?.('[data-i18n-phrases]')) watchPhrases(root);
+  for (const element of root.querySelectorAll('[data-i18n-phrases]')) watchPhrases(element);
+  if (root === document) for (const phraseRoot of phraseRoots) translatePhrases(phraseRoot, locale); // language change only
+}
+// Phrase translation for older screens built from HTML strings: an element with data-i18n-phrases="name" uses the
+// map window.OprunPhraseMaps[name] = { 'Exact English text': 'dictionary.key', 'Prefix ': 'key' (trailing space =
+// prefix) }. Text and aria-label/placeholder/title that exactly match are swapped; the English is remembered so a
+// later language switch (including back to English) works. Data that is not in the map is never touched.
+const englishText = new WeakMap(), englishAttr = new WeakMap(), phraseRoots = new Set();
+function translatePhrases(root, locale) {
+  const map = window.OprunPhraseMaps?.[root.dataset.i18nPhrases]; if (!map) return;
+  const swap = english => {
+    const trimmed = english.trim(); if (!trimmed) return english;
+    if (map[trimmed]) return english.replace(trimmed, message(locale, map[trimmed]));
+    for (const [prefix, key] of Object.entries(map)) if (prefix.endsWith(' ') && trimmed.startsWith(prefix)) return english.replace(prefix.trim(), message(locale, key));
+    return english;
+  };
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node.parentElement?.closest('script,style,textarea,input,[contenteditable]')) continue;
+    const english = englishText.get(node) ?? node.nodeValue, next = swap(english);
+    if (next !== english || englishText.has(node)) { englishText.set(node, english); if (node.nodeValue !== next) node.nodeValue = next; }
+  }
+  for (const element of root.querySelectorAll('[aria-label],[placeholder],[title]')) {
+    const saved = englishAttr.get(element) || {};
+    for (const attr of ['aria-label', 'placeholder', 'title']) {
+      if (!element.hasAttribute(attr)) continue;
+      const english = saved[attr] ?? element.getAttribute(attr), next = swap(english);
+      if (next !== english || saved[attr] !== undefined) { saved[attr] = english; if (element.getAttribute(attr) !== next) element.setAttribute(attr, next); }
+    }
+    englishAttr.set(element, saved);
+  }
+}
+function watchPhrases(root) {
+  if (phraseRoots.has(root)) return; phraseRoots.add(root);
+  let queued = false;
+  new MutationObserver(() => { if (queued || !preference) return; queued = true; queueMicrotask(() => { queued = false; translatePhrases(root, preference.locale); }); })
+    .observe(root, { childList: true, subtree: true, characterData: true });
+  if (preference) translatePhrases(root, preference.locale);
 }
 // Elements that scripts add later (top-bar buttons, floating buttons, footer) are translated as they appear.
 new MutationObserver(records => {

@@ -96,6 +96,22 @@ try {
   assert.equal(await page.locator('#sp-askbar [data-ask-state]').textContent(),MESSAGES.ur['vb.ready']);
   await page.evaluate(()=>document.querySelector('#sp-askbar form').requestSubmit());
   assert.equal(await page.locator('#sp-askbar [data-ask-state]').textContent(),MESSAGES.ur['vb.typeFirst'],'status messages in Urdu');
+  // Prompt 03 L7: notifications panel and footer subscription line through the phrase map.
+  await page.locator('.app-topbar [data-i18n-aria="notifications"],.app-topbar button[aria-label="'+MESSAGES.ur.notifications+'"]').first().click();
+  await page.locator('#superpro-platform-notices').waitFor({state:'visible'});
+  await page.waitForFunction(t=>document.querySelector('#superpro-platform-notices h2')?.textContent===t,MESSAGES.ur['np.alerts-updates']);
+  assert.ok((await page.locator('#superpro-platform-notices').innerText()).includes(MESSAGES.ur['np.notification-settings']),'settings button in Urdu');
+  assert.equal(await page.locator('#superpro-platform-notices [data-notice-close]').getAttribute('aria-label'),MESSAGES.ur['np.close-notifications']);
+  await page.locator('#superpro-platform-notices [data-notice-close]').click();
+  await page.waitForFunction(t=>document.querySelector('#subscription-footer')?.textContent.startsWith(t),MESSAGES.ur['np.subscription']);
+  assert.equal((await page.locator('#subscription-footer').textContent()).includes('External services'),false,'subscription line translated');
+  for (const [code,check] of [['en-AU',e=>e.startsWith('Subscription: ')&&e.endsWith('External services require configured providers')],['ur',e=>e.startsWith(MESSAGES.ur['np.subscription'])]]) {
+    await page.locator('#workspace-language').click();await page.locator('#preferred-language').selectOption(code);
+    await page.locator('#workspace-language-dialog button[type=submit]').click();await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>true);await page.waitForTimeout(300);
+    assert.ok(check(await page.locator('#subscription-footer').textContent()),`subscription line after switching to ${code}`);
+  }
+  assert.equal(await page.evaluate(()=>document.querySelector('#superpro-platform-notices h2').textContent),MESSAGES.ur['np.alerts-updates'],'panel follows the switch back to Urdu');
   // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
   const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
   assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');

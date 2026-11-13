@@ -137,3 +137,14 @@ test('every configured page tab name has a dictionary key derived from its Engli
   assert.ok(labels.length >= 28);
   for (const label of labels) assert.equal(MESSAGES.en[`tab.${slug(label)}`], label, `tab.${slug(label)}`);
 });
+
+test('notification panel phrase map matches the English dictionary exactly', () => {
+  const source = fs.readFileSync(new URL('../saas/platform-notices.js', import.meta.url), 'utf8');
+  const map = JSON.parse(source.match(/\{notices:(\{.*?\})\}\);/)[1]);
+  assert.ok(Object.keys(map).length >= 50);
+  for (const [english, key] of Object.entries(map)) {
+    assert.equal(MESSAGES.en[key], english.trim(), `${key} English differs from the phrase it replaces`);
+    assert.ok(SCREENS.notices.includes(key), `${key} assigned to the notices screen`);
+    if (!english.endsWith(' ')) assert.ok(source.includes(english) || /^(trialing|trial|active|past due|cancelled|canceled|paused|expired|unknown|Subscription:|External services require configured providers|Checking subscription status · External services require configured providers)$/.test(english), `${english} appears in the panel`);
+  }
+});
