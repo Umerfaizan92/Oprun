@@ -365,3 +365,6 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Audit: browser clicked all 27 Connections buttons across 9 tabs: no page errors, no server errors; the two AI question chips fill the question box (working).
 - Tests: own-keys server test, refresh test, Connections UI PASS (switch account and own keys), npm test 73/73, secrets scan passed.
 - Next: V2 YouTube and X video upload, then resume pending prompts (Prompt 03 L8 by default).
+
+- Deployed V1 + C1: main 9be25b8 live at 16:22 UTC (dep-dbrjgd8u01pc73bed1ag, startup 16/16).
+- Exact next action: V2 YouTube and X video upload (server fetches the public video safely: https, public address only, size cap, video content type; YouTube resumable upload with title and privacy; X chunked media upload), then resume Prompt 03 L8.

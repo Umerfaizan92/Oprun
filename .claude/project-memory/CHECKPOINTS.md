@@ -1935,3 +1935,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/v1-meta-video/20261113T153408Z (37ee2e9)
 - Known errors: none
 - Next exact action: Run channel UI test and npm test for V1, then start the Connections rework
+
+## CP-139 2026-11-13T16:23:33+00:00 T-113 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-113 (COMPLETED)
+- Completed steps: V1 and C1 merged (PRs #118, #119) and live, startup 16/16
+- Incomplete steps: V2 YouTube and X video upload; then pending prompts
+- Files modified (uncommitted at checkpoint): docs/coordination/claude.md
+- Tests executed: npm test; recovered-release-ui command list
+- Test results: 73/73 passed; all UI checks pass
+- Git branch: claude/v2-youtube-x-video
+- Commit: 9be25b8 (Merge PR #119: C1 own sign-in, own app keys, switch account, Connections audit)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: V2: safe server-side fetch of the public video, YouTube resumable upload, X chunked upload, tests, PR, CI, merge, deploy
