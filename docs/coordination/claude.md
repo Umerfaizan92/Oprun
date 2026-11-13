@@ -306,3 +306,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Composer shows the image field only for accounts that support it (required for Instagram).
 - Tests: channel-operations 13/13, channel UI 4/4 (390/768/1440), npm test 73/73, secrets scan passed. Live use needs Meta app review and credentials (Prompt 14).
 - Exact next action: S3 WhatsApp Business: approved message templates (list from Meta, send a template outside the 24-hour window with approval), then TikTok publishing, website, Google.
+
+### S3 (T-107): WhatsApp approved templates, 2026-11-13
+- Lists the selected number's APPROVED UTILITY templates (body text, up to 10 numbered values). Templates with media headers, variable buttons or named values are listed as unavailable for now.
+- Inbound WhatsApp conversations stay replyable after 24 hours, but only with a template; free text still needs the 24-hour window. Template drafts need approval, are re-checked as approved at send time, and are refused for opted-out numbers. Marketing templates are excluded (consent-based Campaigns later).
+- New nullable column channel_drafts.template_json (additive). Composer shows a template picker for WhatsApp.
+- Tests: channel-operations 15/15, channel UI 4/4, npm test 73/73, secrets scan passed.
+- Exact next action: S4 TikTok video publishing (Content Posting API: direct post from a public video URL with privacy level from creator_info, approval required, status polling), then website, Google.

@@ -228,3 +228,34 @@ test('draft images are additive, validated and refused where the channel cannot 
   const ok=await f.draft();assert.equal(ok.status,201);
   assert.equal(f.db.prepare('SELECT media_url FROM channel_drafts WHERE id=?').get(ok.json.id).media_url,null);
 });
+
+test('WhatsApp sends only approved utility templates, re-checked at send time (S3)',async()=>{
+  const calls=[];let list=[
+    {name:'job_update',language:'en_AU',status:'APPROVED',category:'UTILITY',components:[{type:'BODY',text:'Hi {{1}}, your job is booked for {{2}}.'}]},
+    {name:'promo',language:'en_AU',status:'APPROVED',category:'MARKETING',components:[{type:'BODY',text:'Sale!'}]},
+    {name:'draft_one',language:'en_AU',status:'PENDING',category:'UTILITY',components:[{type:'BODY',text:'x'}]},
+    {name:'with_image',language:'en',status:'APPROVED',category:'UTILITY',components:[{type:'HEADER',format:'IMAGE'},{type:'BODY',text:'Done'}]}];
+  const client=createChannelProviderClient({runtime:{requestJson:async(url,opt={})=>{calls.push({url,body:opt.body&&JSON.parse(opt.body)});
+    if(url.includes('/message_templates'))return {data:list};return {messages:[{id:'wamid.1'}]};}}});
+  const phone={id:'555',type:'whatsapp_phone',parent_id:'444'};
+  const t=await client.templates({access_token:'t'},phone);
+  assert.deepEqual(t.map(x=>[x.name,x.params,x.available]),[['job_update',2,true],['with_image',0,false]]);
+  assert.match(calls[0].url,/\/444\/message_templates\?/);
+  await assert.rejects(client.templates({access_token:'t'},{id:'444',type:'whatsapp_business_account'}),/phone number/);
+  const old={recipient:'+61400000000',occurred_at:new Date(Date.now()-3*86400000).toISOString(),can_reply:true};
+  const draft={kind:'reply',body:'Hi Sam',template_json:JSON.stringify({name:'job_update',language:'en_AU',params:['Sam','Monday']})};
+  const r=await client.execute('whatsapp',{access_token:'t'},phone,draft,old);
+  assert.equal(r.id,'wamid.1');
+  assert.deepEqual(calls.at(-1).body,{messaging_product:'whatsapp',to:'61400000000',type:'template',template:{name:'job_update',language:{code:'en_AU'},components:[{type:'body',parameters:[{type:'text',text:'Sam'},{type:'text',text:'Monday'}]}]}});
+  await assert.rejects(client.execute('whatsapp',{access_token:'t'},phone,{kind:'reply',body:'free text'},old),/window is closed/);
+  list=list.filter(x=>x.name!=='job_update');
+  await assert.rejects(client.execute('whatsapp',{access_token:'t'},phone,draft,old),/no longer approved/);
+});
+
+test('templates are refused outside WhatsApp replies (S3)',async t=>{
+  const f=await fixture(t);await f.call('/youtube/sync',{body:{resource_id:'mine'}});
+  const item=f.db.prepare('SELECT id FROM channel_items LIMIT 1').get().id;
+  const r=await f.call('/drafts',{body:{provider:'youtube',resource_id:'mine',kind:'reply',body:'x',item_id:item,template:{name:'job_update',language:'en_AU',params:[]}}});
+  assert.equal(r.status,409);
+  assert.ok(f.db.prepare('PRAGMA table_info(channel_drafts)').all().some(c=>c.name==='template_json'));
+});

@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import {z} from 'zod';
 import rateLimit from 'express-rate-limit';
+import {normPhone} from './comms/service.js';
 import {CHANNEL_PROVIDERS, channelCapabilities, createChannelProviderClient, publicImageUrl} from './channel-providers.js';
 
 const parse = (s, fallback = {}) => {try {return JSON.parse(s || '{}');} catch {return fallback;}};
@@ -34,6 +35,9 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
     metrics_json TEXT NOT NULL DEFAULT '[]',checked_at TEXT NOT NULL,error TEXT,PRIMARY KEY(organisation_id,provider,resource_id));`);
   // Additive migration: an optional public image for posts. Existing drafts are unchanged.
   if (!db.prepare('PRAGMA table_info(channel_drafts)').all().some(c => c.name === 'media_url')) db.exec('ALTER TABLE channel_drafts ADD COLUMN media_url TEXT');
+  if (!db.prepare('PRAGMA table_info(channel_drafts)').all().some(c => c.name === 'template_json')) db.exec('ALTER TABLE channel_drafts ADD COLUMN template_json TEXT');
+  // Opted-out numbers never receive WhatsApp templates. The table belongs to the inbox and may be absent in isolated tests.
+  const optedOut = (o, address) => { try { return Boolean(db.prepare("SELECT 1 FROM marketing_suppressions WHERE owner_key=? AND channel='sms' AND address=?").get(o, normPhone(address))); } catch { return false; } };
   const currentMember = (org,user) => db.prepare("SELECT m.role,m.created_at FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.user_id=? AND m.status='active' AND u.status='active'").get(org,user);
   const org = req => req.saas.organisation_id;
   const owner = req => currentMember(org(req),req.saas.user_id)?.role === 'owner';
@@ -131,7 +135,7 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
         if(['whatsapp','email_sms','website'].includes(p)){
           const channel=p==='email_sms'?resource.id:p;
           const messages=db.prepare("SELECT m.id,m.thread_id,m.body,m.occurred_at,m.direction,t.contact_address,t.contact_name,t.subject FROM comms_messages m JOIN comms_threads t ON t.id=m.thread_id AND t.organisation_id=m.organisation_id WHERE m.organisation_id=? AND t.channel=? ORDER BY m.occurred_at DESC LIMIT 50").all(org(req),channel);
-          data={items:messages.map(m=>({remote_id:m.id,kind:'message',title:m.subject||m.contact_name||m.contact_address,text:m.body,recipient:m.contact_address,thread_id:m.thread_id,occurred_at:m.occurred_at,can_reply:m.direction==='inbound'&&p!=='website'&&(p!=='whatsapp'||Date.now()-Date.parse(m.occurred_at)<86400000)})),metrics:[{key:'recent_recorded_messages',value:messages.length,source:'Oprun '+channel+' records'}],fetched_at:stamp(),coverage:'Up to 50 recorded messages; provider-wide history is not imported'};
+          data={items:messages.map(m=>({remote_id:m.id,kind:'message',title:m.subject||m.contact_name||m.contact_address,text:m.body,recipient:m.contact_address,thread_id:m.thread_id,occurred_at:m.occurred_at,can_reply:m.direction==='inbound'&&p!=='website',...(p==='whatsapp'?{window_open:Date.now()-Date.parse(m.occurred_at)<86400000}:{})})),metrics:[{key:'recent_recorded_messages',value:messages.length,source:'Oprun '+channel+' records'}],fetched_at:stamp(),coverage:'Up to 50 recorded messages; provider-wide history is not imported'};
         }else data=await client.sync(p,bundle,resource);need(req,p,'sync',resource.id);
         db.transaction(() => {
           const put = db.prepare('INSERT INTO channel_items VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(organisation_id,provider,resource_id,remote_id,kind) DO UPDATE SET content_json=excluded.content_json,synced_at=excluded.synced_at');
@@ -150,8 +154,13 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
       res.json({ok:true,items:db.prepare('SELECT * FROM channel_items WHERE organisation_id=? AND provider=? ORDER BY synced_at DESC LIMIT 500').all(org(req),p).filter(r => ids.has(r.resource_id)).map(r => ({id:r.id,resource_id:r.resource_id,synced_at:r.synced_at,...parse(r.content_json)})),coverage:'Recent synced sample. Refresh is explicit; not a complete provider archive.'});
     }));
     app.get('/api/saas/channels/drafts',...read,wrap((req,res) => res.json({ok:true,drafts:db.prepare('SELECT * FROM channel_drafts WHERE organisation_id=? ORDER BY updated_at DESC LIMIT 200').all(org(req)).filter(r => can(req,r.provider,'read',r.resource_id) && selected(req,r.provider).some(v => v.id === r.resource_id)).map(outDraft)})));
-    app.post('/api/saas/channels/drafts',...read,limit,wrap((req,res) => {
-      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional()}).strict(),req);
+    app.get('/api/saas/channels/whatsapp/templates',...read,limit,wrap(async(req,res) => {
+      const rid = z.string().min(1).max(300).parse(req.query.resource_id);
+      const {bundle,resource} = await verified(req,'whatsapp',rid,'draft');
+      res.json({ok:true,templates:await client.templates(bundle,resource)});
+    }));
+    app.post('/api/saas/channels/drafts',...read,limit,wrap(async(req,res) => {
+      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional(),template:z.object({name:z.string().regex(/^[a-z0-9_]{1,512}$/),language:z.string().regex(/^[a-z]{2,3}(_[A-Z]{2})?$/),params:z.array(z.string().trim().min(1).max(1000)).max(10).default([])}).strict().optional()}).strict(),req);
       need(req,b.provider,'draft',b.resource_id);
       const r = selected(req,b.provider).find(r => r.id === b.resource_id);if (!r) throw fail(404,'Selected resource not found.');
       const cap = channelCapabilities(b.provider,r.type);let target=null;
@@ -166,8 +175,20 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
         const item = db.prepare('SELECT * FROM channel_items WHERE id=? AND organisation_id=? AND provider=? AND resource_id=?').get(b.item_id,org(req),b.provider,b.resource_id);
         if (!item || !parse(item.content_json).can_reply) throw fail(404,'A replyable item from this selected account is required.');target=parse(item.content_json);
       } else if (b.item_id) throw fail(400,'Posts cannot contain a reply item.');
+      let templateJson = null;
+      if (b.provider === 'whatsapp' && b.kind === 'reply') {
+        if (optedOut(org(req), target.recipient)) throw fail(409,'This number has opted out of messages.');
+        if (b.template) {
+          const {bundle,resource} = await verified(req,b.provider,b.resource_id,'draft');
+          const t = (await client.templates(bundle,resource)).find(x => x.name === b.template.name && x.language === b.template.language);
+          if (!t?.available) throw fail(409,'Choose an approved utility template.');
+          if (t.params !== b.template.params.length) throw fail(400,'This template needs '+t.params+' value'+(t.params === 1 ? '' : 's')+'.');
+          b.body = t.body.replace(/\{\{(\d{1,2})\}\}/g,(_,n) => b.template.params[Number(n)-1]).slice(0,5000);
+          templateJson = JSON.stringify({name:t.name,language:t.language,params:b.template.params});
+        } else if (!target.window_open || Date.now()-Date.parse(target.occurred_at) > 86400000) throw fail(409,'More than 24 hours have passed. Choose an approved template.');
+      } else if (b.template) throw fail(409,'Templates are only for WhatsApp replies.');
       const id = crypto.randomUUID(), at = stamp();
-      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,at,at);
+      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,template_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,templateJson,at,at);
       audit(req,'channels.draft_created','channel_draft',id,{provider:b.provider,kind:b.kind});res.status(201).json({ok:true,id,status:'pending'});
     }));
     const draftFor = req => {const r = db.prepare('SELECT * FROM channel_drafts WHERE id=? AND organisation_id=?').get(req.params.id,org(req));if (!r) throw fail(404,'Draft not found.');return r;};
