@@ -374,3 +374,11 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Also: tooltips suppressed inside the open menu; closing the language window returns focus to "More" when the button is hidden; integration-manager render now waits for an in-flight refresh and refetches (fixes an intermittent missing "keys saved" message).
 - Tests: all CI UI suites pass locally (seo-ui had one transient failure that passed twice on rerun and on base), npm test 73/73.
 - Next: V2 YouTube and X video upload, then Prompt 03 L8.
+
+### C2 (T-115): sign-in hardening, 2026-11-14
+- Owner: "sign-in option not coming on any connection". Local browser check with test keys: Connect sends people to the real sign-in page for Meta, WhatsApp, YouTube, Gmail, Business Profile, Google SEO, TikTok and X; Snapchat shows "What is needed" (platform keys not set). So the live failure is on the provider side (app mode, test users, or permissions not added). Asked the owner what Facebook shows.
+- Meta now requests core permissions by default (pages_show_list, pages_read_engagement, pages_manage_posts, instagram_basic, instagram_content_publish). META_EXTRA_SCOPES adds more (for example pages_read_user_content, pages_manage_engagement, instagram_manage_comments for comment sync and replies); META_SCOPES and WHATSAPP_SCOPES replace the defaults. Malformed values are dropped.
+- A refused or failed sign-in is recorded on the connection (signin_error) and shown on its card; the previous working connection is kept.
+- Tests: new round-trip test, connections-safe-base 8/8, connections-ui PASS, npm test 73/73.
+- Owner action: on Render set META_EXTRA_SCOPES only after those permissions are added to the Meta app; switch Meta app to Live (after App Review) and Google consent screen to In production, or add test users.
+- Next: V2 YouTube and X video and photo posting; then Facebook Messenger and Instagram direct message replies.

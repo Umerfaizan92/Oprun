@@ -288,3 +288,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-bars.css,saas/workspace-topbar.js,saas/workspace.html,saas/workspace-locale.js,saas/app.js,saas/integration-manager.js,scripts/test-localization-ui.mjs,scripts/test-connections-ui.mjs
 - Acceptance: Phone 360/390 one-row top bar with name visible; More menu works and closes; one-row dock with no wrapped labels; tablet/laptop single row uniform; UI suites and npm test pass
 - Evidence: Screenshots 360/390/768/1440 checked; navigation-ui 594 checks, mobile-readiness, redesign-ui, test-ui, localization-ui, channels, connections (3 runs), site, pipeline, console, automations, comms, finance, reliability, verify:modules, check:site, release:audit all pass; seo-ui one transient failure, passed 2 reruns and on base; npm test 73/73 (recorded 2026-11-13 on claude/m1-mobile-bars at 9be25b8)
+
+## T-115 C2 sign-in hardening
+- Added: 2026-11-13
+- Requirement: Owner: sign-in not happening on any connection. Verified Oprun redirects correctly for all configured providers; make Meta permissions configurable (core by default, extras via META_EXTRA_SCOPES / META_SCOPES / WHATSAPP_SCOPES) so Meta does not refuse sign-in for unadded permissions; keep failed sign-in visible on the card
+- Files: src/server.js,saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html,scripts/connections-safe-base.test.mjs
+- Acceptance: Round-trip test: core scopes only, extras added, malformed dropped, refused sign-in recorded and shown; npm test passes
+- Evidence: connections-safe-base 8/8 incl. new round-trip test; local browser check: Connect redirects to Facebook, Google, TikTok and X sign-in for 8 providers; connections-ui PASS; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at 8995658)
