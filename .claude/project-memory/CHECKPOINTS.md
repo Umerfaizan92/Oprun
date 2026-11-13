@@ -1893,3 +1893,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Deploy main to Render srv-dan4rdqjnfac73fceor0 and verify startup 16/16; then S5 website connection (lead forms into the inbox, site analytics), then S6 Google (Business Profile, Search Console, Analytics)
+
+## CP-136 2026-11-13T14:33:32+00:00 T-109 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-109 (COMPLETED)
+- Completed steps: S5a merged (PR #115, e3bfc70). S2-S5a merged; CI green
+- Incomplete steps: Render deploy of main e3bfc70 PENDING (connector 502). Then S5b visit counts, S6 Google
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: npm test
+- Test results: 73/73 passed
+- Git branch: claude/s5b-site-visits
+- Commit: e3bfc70 (Merge PR #115: S5a contact form on the business's own website)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Deploy main to Render srv-dan4rdqjnfac73fceor0 and verify startup 16/16; then S5b privacy-friendly site visit counts (no cookies or IPs stored, verified origin only), then S6 Google (Business Profile, Search Console, Analytics)
