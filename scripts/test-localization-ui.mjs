@@ -25,6 +25,21 @@ try {
   assert.equal(await page.evaluate(()=>document.activeElement.id),'workspace-language');
   await page.reload();
   await page.waitForFunction(()=>document.documentElement.dataset.preferredLocale==='ur');
+  // Prompt 03, Today screen: translated text, icons kept, accessible names follow the text, no sideways scroll.
+  const { MESSAGES } = await import('../saas/locale-catalog.js');
+  await page.locator('#dashboard-view [data-i18n="today.kicker"]').waitFor({state:'visible'});
+  for (const key of ['today.kicker','today.briefTitle','today.approvalNote','today.guidanceTitle','today.readinessTitle','today.askAi'])
+    assert.equal(await page.locator(`#dashboard-view [data-i18n="${key}"]`).textContent(),MESSAGES.ur[key],key);
+  assert.equal(await page.locator('#dashboard-view [data-i18n="today.askAi"]').evaluate(el=>el.parentElement.querySelector('svg')!==null),true,'icon kept beside translated text');
+  assert.equal(await page.locator('#dashboard-view [data-i18n="today.openAi"]').evaluate(el=>el.tagName==='BUTTON'&&el.textContent),MESSAGES.ur['today.openAi'],'button text (its accessible name) is translated');
+  // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
+  const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
+  assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');
+  assert.equal(bidi.urdu,'rtl/isolate','translated text starting with Latin letters stays right to left');
+  for (const width of [1440,768,390,360]) {
+    await page.setViewportSize({width,height:900});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,`Urdu Today page has no sideways scroll at ${width}px`);
+  }
   await page.setViewportSize({width:360,height:900});
   await page.locator('#workspace-language').click();
   await page.locator('#workspace-language-dialog').waitFor({state:'visible'});

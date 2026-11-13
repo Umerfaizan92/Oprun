@@ -127,15 +127,43 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R5: E-036 root cause fixed; Prompt 03 L1 (dictionaries + Today)
+
+- **E-036 fixed (`2213382`).** In-page click tracing under 2x load showed the TikTok "Save selection" click landing on
+  the card `<article class="... tilt is-tilting">` instead of the button: the hover tilt renders cards in 3D
+  (`preserve-3d`), and coplanar buttons lose hit-testing to their card while it tilts or springs back. No request was
+  sent, so the save silently did nothing. This is a real usability defect on slow devices. Cards containing buttons,
+  links or form fields no longer tilt (`saas/workspace-fx.js`); display-only cards keep the effect. Probably also
+  the root cause of ChatGPT's CG-003 (Resend form not opening; same card type). `test-ui` default wait 8s -> 15s
+  (other UI suites use 10-12s); failure state now printed as `DIAG` lines (setting `error.message` after creation
+  does not reach the printed stack). Evidence: 2x parallel `test:ui` failed 4/4 before, passed 6/6 after.
+- **T-096 Prompt 03 L1:**
+  - `saas/locale-catalog.js`: `DICTIONARY_VERSION` 2026-11-13.1; `DICTIONARY_REVIEW` (en source; hi, ur, ar
+    `machine-draft-unreviewed`); `SCREENS` (shell 9 keys, today 14); `screenCoverage()`; `formatMessage()` with `{name}`
+    and `{n, plural, =0 {} one {} other {}}` via `Intl.PluralRules` (plain text only); base-language fallback
+    (ur-PK -> ur).
+  - Today screen: 14 static strings tagged; icon buttons keep their icon. Figures strip, greeting, workflow track and
+    loading text are re-rendered by scripts and are not yet migrated.
+  - Mixed-language reading order: on right-to-left pages, untranslated English keeps its punctuation
+    (`unicode-bidi: plaintext`); translated text stays right-to-left even when it starts with "AI" (`isolate`). Before
+    this, Urdu users saw ".Good day, Alex" and "?What would you like done today".
+  - Founder Console Languages page shows version, review status and screens covered.
+  - Tests: `localization-dictionary.test.mjs` 4 (English dictionary equals page text so English users see no change;
+    every key assigned to a screen; coverage and fallback; plurals including Arabic's six forms; values never parsed
+    as HTML); browser test extended (Urdu Today at 1440/768/390/360, no sideways scroll, bidi computed styles).
+- Tests on this branch: `npm test` 73/73; `test:unit` 300 pass 0 fail; connections, console-all, navigation-ui,
+  mobile-workspace-ui, redesign-ui, command-centre-loading, console-ui, localization browser: all PASS.
+- Translation quality: Hindi, Urdu and Arabic strings are drafts written by Claude, not native-speaker reviewed.
+
 ### T-095
 
 Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` is superseded.
 
 ## Exact next action
 
-1. Owner: test the live site on phone, iPad and laptop; fix the S3 upload permission (Open issue 1).
-2. Claude next: (a) make `test-ui.mjs:220` capture state on failure and fix the flaky Staff invite step;
-   (b) Prompt 03 localization migration, Today group first; (c) batch-5 item 3, repeatable performance budgets.
-3. When ChatGPT resumes (about 2026-11-16): read this log; CG-001 to CG-003 are fixed and deployed in `2e51e02`
-   (re-verify independently); continue the review gates in `ACCEPTANCE_T094.md`. Its review branch
-   `codex/cp117-t094-review-20261112` is unmerged; Claude has not edited it.
+1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
+2. Claude next: Prompt 03 L2: the script-rendered Today parts (figures strip, greeting, workflow track, loading
+   text) using `formatMessage`, then the next screen group in navigation order. Native-speaker review is needed
+   before any language is called translated.
+3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
+   Re-verify independently and continue `ACCEPTANCE_T094.md`.

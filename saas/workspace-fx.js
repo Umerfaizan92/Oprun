@@ -4,6 +4,7 @@
   const fine=matchMedia('(hover:hover) and (pointer:fine)'),calm=matchMedia('(prefers-reduced-motion:reduce)');
   if(!fine.matches||calm.matches)return;
   const SEL='.metric-card,.pricing-card,.panel.interactive,.integration-card';
+  const CONTROLS='button,a[href],input,select,textarea,summary,[role=button],[tabindex]:not([tabindex="-1"])';
   const MAX=6;let raf=0,cur=null,ev=null;
   const apply=()=>{
     raf=0;if(!cur||!ev)return;
@@ -17,6 +18,9 @@
     const el=e.target.closest&&e.target.closest(SEL);
     if(cur&&cur!==el){reset(cur);cur=null}
     if(!el)return;
+    // Cards with controls never tilt: a tilting 3D card can take the click meant for its own button (E-036, a Save
+    // click landed on the card and did nothing). Display-only cards keep the effect.
+    if(el.querySelector(CONTROLS)){if(el.classList.contains('tilt')){reset(el);el.classList.remove('tilt')}return}
     if(!el.classList.contains('tilt'))el.classList.add('tilt');
     cur=el;ev=e;el.classList.add('is-tilting');
     if(!raf)raf=requestAnimationFrame(apply);

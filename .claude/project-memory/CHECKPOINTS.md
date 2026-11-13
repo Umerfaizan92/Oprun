@@ -1697,3 +1697,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Capture state on failure in test-ui.mjs:220 and fix; then Prompt 03 Today group
+
+## CP-122 2026-11-13T04:30:33+00:00 T-096 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-096 (COMPLETED)
+- Completed steps: E-036 root cause fixed (tilt swallowed clicks); Prompt 03 L1 dictionaries and Today screen
+- Incomplete steps: Merge, deploy, live check; Prompt 03 L2
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PROGRESS.md; SHA256SUMS.txt; docs/coordination/claude.md; office/console-platform.js; office/console.html; qa/reports/navigation-coverage.json; saas/locale-catalog.js; saas/workspace-locale.css; saas/workspace-locale.js; saas/workspace.html; scripts/test-localization-ui.mjs; src/operator-console.js; scripts/localization-dictionary.test.mjs
+- Tests executed: npm test; test:unit; test:ui 6x under 2x load; connections; console-all; navigation; mobile-workspace; redesign; command-centre-loading; console-ui; localization browser
+- Test results: 73/73; 300 pass 0 fail; 6/6; all PASS
+- Git branch: claude/fix-test-ui-staff
+- Commit: 2213382 (Fix E-036: tilting cards swallowed clicks on their own buttons); 1 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Prompt 03 L2: script-rendered Today parts via formatMessage
