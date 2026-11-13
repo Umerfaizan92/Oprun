@@ -365,3 +365,12 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Audit: browser clicked all 27 Connections buttons across 9 tabs: no page errors, no server errors; the two AI question chips fill the question box (working).
 - Tests: own-keys server test, refresh test, Connections UI PASS (switch account and own keys), npm test 73/73, secrets scan passed.
 - Next: V2 YouTube and X video upload, then resume pending prompts (Prompt 03 L8 by default).
+
+### M1 (T-114): one-row top and bottom bars, 2026-11-14
+- Owner: bars messy on phones; the language button hid the business name; wants one row each, premium and organised.
+- New saas/workspace-bars.css (loaded last) and saas/workspace-topbar.js. Phone top bar: logo and business name (ellipsis), search, notifications, "More" (language, replay tour, get paid, user manual, each with its name), profile. Buttons are moved, not copied: IDs and handlers unchanged. On 761px+ the wrapper is display:contents and the original order is kept.
+- Tablet and laptop: one row, one tool style (no gold glow); tablet tools icon-only.
+- Phone dock: one row, icons only; the current page widens into a gold pill with its name on one line; names remain for screen readers.
+- Also: tooltips suppressed inside the open menu; closing the language window returns focus to "More" when the button is hidden; integration-manager render now waits for an in-flight refresh and refetches (fixes an intermittent missing "keys saved" message).
+- Tests: all CI UI suites pass locally (seo-ui had one transient failure that passed twice on rerun and on base), npm test 73/73.
+- Next: V2 YouTube and X video upload, then Prompt 03 L8.

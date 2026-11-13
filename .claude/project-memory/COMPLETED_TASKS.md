@@ -281,3 +281,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/oauth-apps.js,src/server.js,src/integration-runtime.js,saas/integration-manager.js,saas/workspace.html,scripts/connections-safe-base.test.mjs,scripts/integration-tenant.test.mjs,scripts/test-connections-ui.mjs
 - Acceptance: Server test for own keys; refresh test; Connections UI test incl. switch and own keys; button audit; npm test passes
 - Evidence: connections-safe-base own-keys test pass; integration-tenant 8/8 incl. refresh; test-connections-ui PASS incl. switch account and own app keys; browser audit of 27 Connections buttons: no errors, no 5xx, no broken buttons; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/c1-own-accounts at e53cebe)
+
+## T-114 M1 one-row top and bottom bars
+- Added: 2026-11-13
+- Requirement: Owner: top and bottom bars messy on phones; business name hidden under the language button; redesign premium, organised, one row each; consistent sizing and spacing
+- Files: saas/workspace-bars.css,saas/workspace-topbar.js,saas/workspace.html,saas/workspace-locale.js,saas/app.js,saas/integration-manager.js,scripts/test-localization-ui.mjs,scripts/test-connections-ui.mjs
+- Acceptance: Phone 360/390 one-row top bar with name visible; More menu works and closes; one-row dock with no wrapped labels; tablet/laptop single row uniform; UI suites and npm test pass
+- Evidence: Screenshots 360/390/768/1440 checked; navigation-ui 594 checks, mobile-readiness, redesign-ui, test-ui, localization-ui, channels, connections (3 runs), site, pipeline, console, automations, comms, finance, reliability, verify:modules, check:site, release:audit all pass; seo-ui one transient failure, passed 2 reruns and on base; npm test 73/73 (recorded 2026-11-13 on claude/m1-mobile-bars at 9be25b8)

@@ -1,0 +1,113 @@
+/* Owner request (2026-11-14): calm, organised top and bottom bars. Loaded last, so it settles earlier layers.
+   Phone: row 1 = business identity + profile; row 2 = one toolbar of six equal tools.
+   Tablet: one row, icon-only tools. Bottom dock: equal columns, one icon size, one clear "you are here" state.
+   Every existing button, ID and handler is unchanged; only placement and styling differ. */
+
+/* ---------- Phone top bar: one row ----------
+   Logo and business name | search | notifications | more (language, help, get paid, manual) | profile. */
+@media (max-width:760px){
+  html body #workspace .app-topbar{display:flex;flex-wrap:nowrap;align-items:center;gap:4px;padding:10px 12px;min-height:0;height:auto}
+  html body #workspace .app-topbar>.topbar-left{flex:1 1 auto;min-width:0;display:flex;align-items:center}
+  html body #workspace .app-topbar>.topbar-actions{position:relative;flex:none;display:flex;flex-wrap:nowrap;align-items:center;gap:4px;margin:0!important}
+  html body #workspace .workspace-mobile-identity{display:flex;align-items:center;gap:9px;min-width:0;max-width:100%;padding:0}
+  html body #workspace .workspace-mobile-identity .navigation-identity-logo{width:34px!important;height:34px!important;min-width:34px;border-radius:10px}
+  html body #workspace .workspace-mobile-identity .navigation-identity-name{display:block!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px;font-weight:750;line-height:1.2;color:var(--text)}
+  html body #workspace .app-topbar :is(.search-button,.topbar-actions>.icon-button:not(.theme-toggle),.topbar-more-toggle){
+    display:grid;place-items:center;width:38px;min-width:38px;height:38px;min-height:38px;padding:0;margin:0;
+    border:0;border-radius:12px;background:transparent;box-shadow:none;color:var(--muted,#a9b2c3)
+  }
+  html body #workspace .app-topbar :is(.search-button,.topbar-actions>.icon-button:not(.theme-toggle),.topbar-more-toggle):is(:hover,:focus-visible,[aria-expanded="true"]){background:var(--panel-2,rgba(255,255,255,.06));color:var(--text)}
+  html body #workspace .app-topbar :is(.search-button,.icon-button) svg{width:20px;height:20px}
+  html body #workspace .app-topbar .search-button>:is(span,kbd){display:none}
+  html body #workspace .app-topbar .topbar-actions>:is(.search-button,.icon-button,.topbar-more-toggle){justify-content:center!important;align-items:center!important}
+  html body #workspace .app-topbar .notification-dot{top:7px;right:8px}
+  html body #workspace .app-topbar .profile-menu{flex:none;min-width:0;padding:0;margin-left:2px;border:0;background:none}
+  html body #workspace .app-topbar .profile-avatar{width:36px;height:36px;border-radius:50%;font-size:12px}
+  html body #workspace .app-topbar :is(.theme-toggle,#logout,#open-sidebar,.page-context){display:none!important}
+
+  /* The "more" menu: same buttons as on larger screens, listed with their names. */
+  html body #workspace .topbar-more{position:absolute;top:calc(100% + 10px);right:0;z-index:120;display:flex;flex-direction:column;gap:2px;min-width:220px;padding:6px;
+    border:1px solid var(--line,rgba(255,255,255,.1));border-radius:16px;background:var(--panel,#121826);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+  html body #workspace .topbar-more[hidden]{display:none}
+  html body #workspace .topbar-more>:is(button,a){display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-width:0;max-width:none;height:46px;min-height:46px;padding:0 12px;margin:0;
+    border:0;border-radius:11px;background:transparent;box-shadow:none;transform:none;color:var(--text);font-size:14px;font-weight:600;text-align:left;white-space:nowrap}
+  html body #workspace .topbar-more>:is(button,a):is(:hover,:focus-visible){background:var(--panel-2,rgba(255,255,255,.06))}
+  html body #workspace .topbar-more>#workspace-language{overflow:hidden;text-overflow:ellipsis}
+  html body #workspace .topbar-more>#workspace-language::before{content:"";flex:none;width:20px;height:20px;background:currentColor;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z'/%3E%3C/svg%3E") center/contain no-repeat}
+  html body #workspace .topbar-more>#replay-tour{font-size:0;gap:0}
+  html body #workspace .topbar-more>#replay-tour::before{content:"?";display:grid;place-items:center;width:20px;margin-right:12px;font-size:17px;font-weight:800;color:var(--muted,#a9b2c3)}
+  html body #workspace .topbar-more>#replay-tour::after{content:attr(aria-label);font-size:14px;font-weight:600}
+  html body #workspace .topbar-more>#pad-open>span{flex:none;display:grid;place-items:center;width:22px;height:22px;font-size:12px;box-shadow:none;background:var(--brand,#d9ad59);color:var(--brand-ink,#111)}
+  html body #workspace .topbar-more>:is(#pad-open,#open-digital-manual)>b{display:inline!important;font-size:14px;font-weight:600}
+  html body #workspace .topbar-more>#open-digital-manual>span{display:grid;place-items:center;width:20px;font-size:17px;color:var(--muted,#a9b2c3)}
+}
+/* On larger screens the wrapper is invisible and its buttons sit in the bar as before. */
+@media (min-width:761px){
+  html body #workspace .topbar-more{display:contents!important}
+  html body #workspace .topbar-more-toggle{display:none!important}
+  /* Keep the original order: language, search, then the rest. */
+  html body #workspace .app-topbar #workspace-language{order:-2}
+  html body #workspace .app-topbar .search-button{order:-1}
+}
+
+/* ---------- Tablet top bar: one tidy row ---------- */
+@media (min-width:761px) and (max-width:1100px){
+  html body #workspace .app-topbar{flex-wrap:nowrap;gap:8px}
+  html body #workspace .app-topbar>.topbar-left{flex:1 1 auto;min-width:0}
+  html body #workspace .app-topbar>.topbar-actions{flex:none;flex-wrap:nowrap;gap:6px}
+  html body #workspace .app-topbar #pad-open>b,html body #workspace .app-topbar #open-digital-manual>b{display:none}
+  html body #workspace .app-topbar #pad-open{padding:0 8px}
+  html body #workspace .app-topbar #workspace-language{max-width:112px}
+  html body #workspace .navigation-business-trigger{min-width:0;max-width:100%}
+  html body #workspace .navigation-business-trigger .navigation-identity-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+
+/* ---------- Phone bottom dock: one row, icons; the current page widens into a gold pill with its name ---------- */
+@media (max-width:760px){
+  body.portal-workspace .mobile-workspace-dock{gap:4px;padding:8px 10px max(8px,env(safe-area-inset-bottom));align-items:center}
+  body.portal-workspace .mobile-workspace-sections{flex:1 1 auto;gap:0;align-items:center}
+  body.portal-workspace .mobile-workspace-section-group{flex:1 0 100%;flex-wrap:nowrap!important;gap:4px;align-items:center}
+  html body.portal-workspace .mobile-workspace-section-group .mobile-workspace-item:not([aria-current]){flex:1 1 0!important;min-width:40px}
+  body.portal-workspace .mobile-workspace-section-group+.mobile-workspace-section-group{flex-basis:auto}
+  html body.portal-workspace .mobile-workspace-dock :is(.mobile-workspace-item,.mobile-workspace-menu){
+    position:relative;flex:1 1 0;flex-direction:row;align-items:center;justify-content:center;gap:8px;
+    min-width:40px;max-width:none;height:46px;min-height:46px;margin:0;padding:0 6px;
+    border:0;border-radius:23px;background:transparent;box-shadow:none;color:var(--muted,#a9b2c3);transition:background .2s,color .2s
+  }
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-menu{flex:0 0 46px;padding:0;background:var(--panel-2,rgba(255,255,255,.06));color:var(--text)}
+  body.portal-workspace .mobile-workspace-icon{width:auto;height:auto;border-radius:0;background:transparent!important;color:inherit}
+  body.portal-workspace .mobile-workspace-icon svg{width:22px;height:22px}
+  /* Names stay in the page for screen readers; only the current page shows its name. */
+  body.portal-workspace .mobile-workspace-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current]{flex:0 1 auto!important;max-width:60%;padding:0 16px 0 14px;background:var(--brand,#d9ad59);color:var(--brand-ink,#111);box-shadow:none;border:0}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current] .mobile-workspace-label{position:static;width:auto;height:auto;clip:auto;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:750;line-height:1;color:inherit}
+  body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu)::after{display:none!important}
+  body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu):focus-visible{outline:2px solid var(--brand,#d9ad59);outline-offset:2px}
+}
+
+/* ---------- Tablet and laptop: one consistent tool style ---------- */
+@media (min-width:761px){
+  html body #workspace .app-topbar>.topbar-actions{align-items:center;gap:8px}
+  html body #workspace .app-topbar :is(.search-button,#replay-tour,#pad-open,#open-digital-manual,.topbar-actions>.icon-button:not(.theme-toggle),.theme-toggle){
+    height:40px;min-height:40px;border-radius:12px;border:1px solid var(--line,rgba(255,255,255,.1));
+    background:var(--panel-2,rgba(255,255,255,.04));color:var(--muted,#a9b2c3);box-shadow:none;transform:none
+  }
+  html body #workspace .app-topbar :is(#replay-tour,.topbar-actions>.icon-button:not(.theme-toggle),.theme-toggle){width:40px;min-width:40px;padding:0}
+  html body #workspace .app-topbar :is(.search-button,#replay-tour,#pad-open,#open-digital-manual,.icon-button,.theme-toggle):is(:hover,:focus-visible){color:var(--text);border-color:var(--brand-line,rgba(217,173,89,.45));background:var(--panel,rgba(255,255,255,.06))}
+  html body #workspace .app-topbar #pad-open{gap:8px;padding:0 12px 0 8px;font-weight:700;color:var(--text)}
+  html body #workspace .app-topbar #pad-open>span{width:24px;height:24px;font-size:13px;box-shadow:none;background:var(--brand,#d9ad59);color:var(--brand-ink,#111)}
+  html body #workspace .app-topbar #open-digital-manual{gap:8px;padding:0 12px;font-weight:600}
+  html body #workspace .app-topbar #open-digital-manual>span{font-size:16px;color:inherit}
+  html body #workspace .app-topbar #workspace-language{height:40px;min-height:40px;border-radius:12px;padding:0 12px}
+  html body #workspace .app-topbar .profile-avatar{width:40px;height:40px;border-radius:50%}
+}
+@media (min-width:761px) and (max-width:1100px){
+  html body #workspace .app-topbar #pad-open{width:40px;min-width:40px;padding:0;justify-content:center}
+  html body #workspace .app-topbar #open-digital-manual{width:40px;min-width:40px;padding:0;justify-content:center}
+}
+@media (min-width:761px){
+  html body #workspace .app-topbar :is(#pad-open,#open-digital-manual)>b{font-size:13px;font-weight:650;letter-spacing:0}
+  html body #workspace .app-topbar .search-button svg{width:18px;height:18px}
+}

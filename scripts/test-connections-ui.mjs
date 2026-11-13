@@ -55,7 +55,7 @@ try{
  assert.match(await meta.locator('[data-im-app]').innerText(),/\/api\/saas\/integrations\/oauth\/meta\/callback/);
  assert.equal(await meta.getByLabel('App secret',{exact:true}).getAttribute('type'),'password');
  await meta.getByLabel('App ID',{exact:true}).fill('987654321012345');await meta.getByLabel('App secret',{exact:true}).fill('own-meta-secret-value-123');
- await meta.getByRole('button',{name:'Save my app keys',exact:true}).click();await grid.locator('[data-provider-card="meta"]').getByText('Your app keys are saved.',{exact:false}).waitFor();
+ const savedKeys=page.waitForResponse(r=>r.url().endsWith('/meta/app-keys')&&r.request().method()==='PUT');await meta.getByRole('button',{name:'Save my app keys',exact:true}).click();assert.equal((await savedKeys).status(),200);await grid.locator('[data-provider-card="meta"]').getByText('Your app keys are saved.',{exact:false}).waitFor();
  assert.equal(await page.evaluate(()=>JSON.stringify({...localStorage,...sessionStorage}).includes('own-meta-secret-value-123')),false);
  await meta.locator('[data-im-app] > summary').click();await meta.getByRole('button',{name:'Remove my keys',exact:true}).waitFor();assert.match(await meta.locator('[data-im-app]').innerText(),/Your own app \(9876…2345\)/);
  const email=grid.locator('[data-provider-card="email_sms"]');

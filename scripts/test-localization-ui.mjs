@@ -4,6 +4,8 @@ import fs, { existsSync } from 'node:fs';
 import path from 'node:path';
 import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
+// On phones the language button sits in the top bar's "More" menu (owner request 2026-11-14).
+const openLanguage=async page=>{if(!await page.locator('#workspace-language').isVisible())await page.locator('.topbar-more-toggle').click();await page.locator('#workspace-language').click();};
 const server = await startServer(); let browser;
 try {
   const owner = await seedOwner(server);
@@ -11,7 +13,7 @@ try {
   const ctx = await ownerContext(browser,server,owner,{viewport:{width:1440,height:1000}}),page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(server.base+'/saas/workspace.html#today/home');
-  await page.locator('#workspace-language').click();
+  await openLanguage(page);
   await page.locator('#workspace-language-dialog').waitFor({state:'visible'});
   assert.ok(await page.locator('#preferred-language option').count()>180);
   assert.equal(await page.locator('#preferred-language option[value="ur"]').textContent(),'اردو · Urdu','short picker label');
@@ -45,12 +47,12 @@ try {
   assert.equal(await page.locator('.gx-board .gx-sub').first().evaluate(e=>getComputedStyle(e).direction+'/'+getComputedStyle(e).unicodeBidi),'rtl/isolate','translated tile lines keep right-to-left order even when they start with a number');
   // Switching language redraws the board from loaded figures, without a page reload.
   await page.evaluate(()=>{window.__noReload=true});
-  await page.locator('#workspace-language').click();await page.locator('#preferred-language').selectOption('ar');
+  await openLanguage(page);await page.locator('#preferred-language').selectOption('ar');
   await page.locator('#workspace-language-dialog button[type=submit]').click();
   await page.waitForFunction(text=>document.querySelector('.gx-board')?.innerText.includes(text),MESSAGES.ar['gx.inboxLabel']);
   assert.equal(await page.evaluate(()=>window.__noReload),true,'redrawn in place');
   await page.keyboard.press('Escape');
-  await page.locator('#workspace-language').click();await page.locator('#preferred-language').selectOption('ur');
+  await openLanguage(page);await page.locator('#preferred-language').selectOption('ur');
   await page.locator('#workspace-language-dialog button[type=submit]').click();
   await page.waitForFunction(text=>document.querySelector('.gx-board')?.innerText.includes(text),MESSAGES.ur['gx.inboxLabel']);
   await page.keyboard.press('Escape');
@@ -106,7 +108,7 @@ try {
   await page.waitForFunction(t=>document.querySelector('#subscription-footer')?.textContent.startsWith(t),MESSAGES.ur['np.subscription']);
   assert.equal((await page.locator('#subscription-footer').textContent()).includes('External services'),false,'subscription line translated');
   for (const [code,check] of [['en-AU',e=>e.startsWith('Subscription: ')&&e.endsWith('External services require configured providers')],['ur',e=>e.startsWith(MESSAGES.ur['np.subscription'])]]) {
-    await page.locator('#workspace-language').click();await page.locator('#preferred-language').selectOption(code);
+    await openLanguage(page);await page.locator('#preferred-language').selectOption(code);
     await page.locator('#workspace-language-dialog button[type=submit]').click();await page.keyboard.press('Escape');
     await page.waitForFunction(()=>true);await page.waitForTimeout(300);
     assert.ok(check(await page.locator('#subscription-footer').textContent()),`subscription line after switching to ${code}`);
@@ -123,7 +125,7 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,`Urdu Today page has no sideways scroll at ${width}px`);
   }
   await page.setViewportSize({width:360,height:900});
-  await page.locator('#workspace-language').click();
+  await openLanguage(page);
   await page.locator('#workspace-language-dialog').waitFor({state:'visible'});
   const box=await page.locator('#workspace-language-dialog').boundingBox();assert.ok(box.x>=0&&box.x+box.width<=361,'language panel fits narrow phones');
   const overflow=await page.locator('#workspace-language-dialog').evaluate(el=>el.scrollWidth>el.clientWidth+1);assert.equal(overflow,false);

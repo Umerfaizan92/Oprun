@@ -80,7 +80,7 @@ function apply(data) {
   const bell = document.querySelector('.app-topbar button[aria-label="Notifications"],.app-topbar [data-i18n-aria="notifications"]');
   if (bell) { bell.dataset.i18nAria = 'notifications'; bell.setAttribute('aria-label', message(data.locale, 'notifications')); }
   const localeName = data.locales.find(x => x.code === data.locale)?.native_name || data.locale;
-  trigger.textContent = localeName; trigger.lang = data.locale; trigger.setAttribute('aria-label', `${message(data.locale, 'language')}: ${localeName}`);
+  trigger.textContent = localeName; trigger.dataset.short = String(data.locale || 'en').split('-')[0].toUpperCase(); trigger.lang = data.locale; trigger.setAttribute('aria-label', `${message(data.locale, 'language')}: ${localeName}`);
   form.elements.locale.replaceChildren(...data.locales.map(locale => {
     const option = document.createElement('option'); option.value = locale.code;
     option.textContent = locale.label || locale.native_name; option.lang = locale.code; option.selected = locale.code === data.locale;
