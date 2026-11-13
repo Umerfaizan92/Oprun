@@ -309,3 +309,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html
 - Acceptance: Browser check: message and link under Connect; connections, channels, navigation, mobile, redesign UI pass
 - Evidence: Browser check at 980px: message under buttons, Continue link with provider URL; connections-ui, channels-ui, navigation-ui, mobile-readiness, redesign-ui pass; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at e58cf1b)
+
+## T-118 M3 bottom bar on every page
+- Added: 2026-11-13
+- Requirement: Owner: bottom tabs only on Today; want relevant tabs on every section. Pages without their own tabs show their menu group's pages (related pages for single-page groups); distinct icons (19 new original icons) or short codes; many tabs scroll instead of squeezing
+- Files: saas/workspace-mobile.js,saas/workspace-bars.css,saas/workspace.html,scripts/mobile-workspace.test.mjs
+- Acceptance: All 60 menu pages show at least 2 dock items; mobile tests and UI suites pass
+- Evidence: Browser sweep: 60/60 pages have dock items; mobile-workspace 9/9; mobile-readiness, navigation, redesign UI pass; npm test 73/73 (recorded 2026-11-13 on claude/m3-dock-everywhere at 0258280)
+
+## T-119 C4 Connect blocked by callback check; compact Connections
+- Added: 2026-11-13
+- Requirement: Owner: Connect does nothing. Live logs: every provider stopped with 'callback address points to a different website'. Trust this app's own addresses (PUBLIC_BASE_URL, RENDER_EXTERNAL_HOSTNAME, APP_HOSTS); record the starting address and hand returning browsers back to it; log hosts on failure. Organise and compact cards
+- Files: src/server.js,src/integration-security.js,saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html,scripts/connections-safe-base.test.mjs,scripts/test-connections-ui.mjs
+- Acceptance: Relay test; unknown hosts still blocked; connections UI passes repeatedly; npm test passes
+- Evidence: connections-safe-base 9/9 incl. relay test; connections-ui 4/4 consecutive runs; navigation-ui PASS; npm test 73/73; secrets passed (recorded 2026-11-13 on claude/m3-dock-everywhere at 0258280)

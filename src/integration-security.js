@@ -56,18 +56,21 @@ export function createIntegrationOAuthStore({db, secret, production=false, clock
     session_id TEXT NOT NULL, provider TEXT NOT NULL, browser_hash TEXT NOT NULL,
     redirect_uri TEXT NOT NULL, created_at INTEGER NOT NULL, consumed_at INTEGER
   ); CREATE INDEX IF NOT EXISTS integration_oauth_expiry ON integration_oauth_sessions(created_at);`);
+  // Additive: the web address the sign-in started on, so a provider returning to another of this app's own
+  // addresses can hand the browser back to where its session cookie lives.
+  if (!db.prepare('PRAGMA table_info(integration_oauth_sessions)').all().some(c => c.name === 'origin_host')) db.exec('ALTER TABLE integration_oauth_sessions ADD COLUMN origin_host TEXT');
   const hash = value => crypto.createHash('sha256').update(value).digest('hex');
   const cookieName = provider => 'sp_connect_' + provider;
   const cookie = (provider, value, age=900, path="/api/saas/integrations/oauth") => `${cookieName(provider)}=${value}; Path=${path}; HttpOnly; SameSite=Lax; Max-Age=${age}${production?'; Secure':''}`;
   const verifier = payload => crypto.createHmac('sha256',String(secret())).update('superpro-pkce:'+payload).digest('base64url');
-  function begin({organisation_id,user_id,session_id,provider,redirect_uri}) {
+  function begin({organisation_id,user_id,session_id,provider,redirect_uri,origin_host=null}) {
     if (!secret()) throw new Error('Secure OAuth state signing is not configured.');
     const state=crypto.randomBytes(32).toString('base64url'), browser=crypto.randomBytes(32).toString('base64url'), stamp=clock();
     db.transaction(()=>{
       db.prepare('DELETE FROM integration_oauth_sessions WHERE created_at<?').run(stamp-900000);
       db.prepare('UPDATE integration_oauth_sessions SET consumed_at=? WHERE organisation_id=? AND provider=? AND consumed_at IS NULL').run(stamp,organisation_id,provider);
-      db.prepare('INSERT INTO integration_oauth_sessions(state_hash,organisation_id,user_id,session_id,provider,browser_hash,redirect_uri,created_at) VALUES (?,?,?,?,?,?,?,?)')
-        .run(hash(state),organisation_id,user_id,session_id,provider,hash(browser),redirect_uri,stamp);
+      db.prepare('INSERT INTO integration_oauth_sessions(state_hash,organisation_id,user_id,session_id,provider,browser_hash,redirect_uri,created_at,origin_host) VALUES (?,?,?,?,?,?,?,?,?)')
+        .run(hash(state),organisation_id,user_id,session_id,provider,hash(browser),redirect_uri,stamp,origin_host?String(origin_host).toLowerCase():null);
     })();
     return {state,payload:state,cookie:cookie(provider,browser,900,new URL(redirect_uri).pathname),verifier:verifier(state)};
   }
@@ -87,6 +90,13 @@ export function createIntegrationOAuthStore({db, secret, production=false, clock
       return {o:row.organisation_id,u:row.user_id,p:row.provider,payload:raw,redirect_uri:row.redirect_uri,clearCookie:cookie(row.provider,'',0,new URL(row.redirect_uri).pathname)};
     })();
   }
+  // Where to hand a returning browser back to: only for a live, unused sign-in that started on another host.
+  function originFor(raw,pathProvider,currentHost) {
+    if (typeof raw!=='string' || !/^[\w-]{43}$/.test(raw)) return null;
+    const row=db.prepare('SELECT * FROM integration_oauth_sessions WHERE state_hash=?').get(hash(raw));
+    if (!row || row.consumed_at!==null || clock()-row.created_at>900000 || !(pathProvider===row.provider || OAUTH_CALLBACK_ALIASES[pathProvider]?.includes(row.provider))) return null;
+    return row.origin_host && row.origin_host!==String(currentHost||'').toLowerCase() ? row.origin_host : null;
+  }
   const owns=(raw,provider)=>typeof raw==='string' && /^[\w-]{43}$/.test(raw) && Boolean(db.prepare('SELECT 1 FROM integration_oauth_sessions WHERE state_hash=? AND provider=?').get(hash(raw),provider));
-  return {begin,consume,verifier,owns};
+  return {begin,consume,verifier,owns,originFor};
 }
