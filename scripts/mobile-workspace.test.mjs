@@ -149,7 +149,10 @@ test('business identity is static on mobile and nested sub-section groups share 
     assert.equal(dock.children.length,2);assert.equal(dock.querySelectorAll('.mobile-workspace-sections').length,1);
     assert.equal(dock.querySelectorAll('.mobile-workspace-section-group').length,2);
     assert.deepEqual([...dock.querySelectorAll('.mobile-workspace-section-group')].map(g=>g.parentElement),[dock.lastElementChild,dock.lastElementChild]);
-    root.replaceChildren();await f.flush();assert.equal(dock.lastElementChild.hidden,true);assert.equal(dock.querySelectorAll('button').length,1);
+    // Owner request 2026-11-14: a page without its own tabs shows the other pages of its menu group, never an empty bar.
+    root.replaceChildren();await f.flush();assert.equal(dock.lastElementChild.hidden,false);
+    const pages=[...dock.lastElementChild.querySelectorAll('button')];assert.ok(pages.length>1,'group pages shown');
+    assert.equal(pages.filter(b=>b.getAttribute('aria-current')==='page').length,1,'current page marked');
   }finally{f.close()}
 });
 

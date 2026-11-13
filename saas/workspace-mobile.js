@@ -7,22 +7,35 @@
     return node;
   };
   const icon = (name) => {
+    // A short code where no drawn icon fits, so pages never show a row of identical icons.
+    if (String(name).startsWith('mono:')) { const t = make('b', 'mobile-workspace-mono', String(name).slice(5) || '•'); t.setAttribute('aria-hidden', 'true'); return t; }
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('aria-hidden', 'true');
     const use = document.createElementNS(svg.namespaceURI, 'use');
     use.setAttribute('href', '#' + name); svg.append(use); return svg;
   };
-  const sectionIcon = label => /^(action centre|priorities)$/i.test(label) ? 'i-target' : /^workflow guidance$/i.test(label) ? 'i-route' : /your workspace|all features/i.test(label) ? 'i-briefcase'
-    : /overview|dashboard|summary/i.test(label) ? 'i-grid'
-    : /attention|alert|notification/i.test(label) ? 'i-bell'
-    : /readiness|ready|check/i.test(label) ? 'i-check'
-    : /workflow|guide|next|step/i.test(label) ? 'i-arrow'
-    : /calendar|schedule|history|activity|queue/i.test(label) ? 'i-clock'
-    : /security|trust|approval|compliance|rule/i.test(label) ? 'i-shield'
-    : /people|staff|team|customer|contact|applicant/i.test(label) ? 'i-users'
-    : /inbox|message|call|email|reply/i.test(label) ? 'i-bell'
-    : /setting|appearance|profile|brand|business/i.test(label) ? 'i-building'
-    : /ai|suggest|readiness/i.test(label) ? 'i-spark' : 'i-doc';
+  // Each tab gets the closest drawn icon; a short code only where nothing fits.
+  const ICON_RULES = [
+    [/^action centre$|priorities/i, 'i-target'], [/^workflow guidance$/i, 'i-route'], [/your workspace|all features|workspace map/i, 'i-briefcase'],
+    [/^enquir|unified inbox|^inbox|channel inbox|received/i, 'i-inbox'], [/quote|estimate|quotation/i, 'i-quote'],
+    [/invoice|receipt|gst|bas\b|sales doc/i, 'i-receipt'], [/booking|calendar|schedul/i, 'i-calendar'],
+    [/job|work order|dispatch/i, 'i-tool'], [/stock|suppl|reorder|inventory/i, 'i-box'], [/archiv/i, 'i-archive'],
+    [/mail|sent|spam|unsubscrib|suppress/i, 'i-mail'], [/call|phone|number|sms|receptionist/i, 'i-phone'],
+    [/chat|message|conversation|content & replies/i, 'i-chat'], [/review|score/i, 'i-star'],
+    [/payment|refund|paid|owed|bank|cost|profit|money|ledger|reconcil|get paid/i, 'i-coin'], [/billing|plan|usage|add-on/i, 'i-card'],
+    [/report|summary|analytics|overview|keyword|insight|decision/i, 'i-chart'], [/help|support|manual|faq|complaint|guide/i, 'i-help'],
+    [/about you|your role|profile|contact|address|applicant|worker|offshore/i, 'i-user'], [/staff|team|people|customer|member|access|roles/i, 'i-users'],
+    [/polic|consent|lock|protected|security|trust|safety|safeguard/i, 'i-lock'], [/approval|compliance|rule|audit|governance/i, 'i-shield'],
+    [/import|backup|upload|export|print/i, 'i-upload'], [/^new |create|^add /i, 'i-plus'], [/check|ready|readiness|flagged|task/i, 'i-check'],
+    [/\bai\b|assistant|suggest|automat|growth hub/i, 'i-spark'], [/seo|search|google/i, 'i-search'],
+    [/website|site|domain|link|connect|integration/i, 'i-link'], [/video|media|post|social|campaign|studio|creative|marketing/i, 'i-video'],
+    [/activity|history|queue|log|recent/i, 'i-clock'], [/setting|appearance|brand|business|design|facts/i, 'i-building'],
+    [/document|record|form|template|draft|specification|schema|file/i, 'i-doc'], [/next|step|start/i, 'i-arrow'], [/notification|alert|attention|fail|error|blocked/i, 'i-bell'], [/most used|favou?rite/i, 'i-star']
+  ];
+  const sectionIcon = label => ICON_RULES.find(([re]) => re.test(label))?.[1]
+    || 'mono:' + String(label).replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  // Single-page menu groups borrow their closest related pages.
+  const RELATED = { customers: ['enquiries', 'quotes', 'jobs', 'unifiedinbox', 'businessinvoices'] };
   let dock, menu, sections, actions, frame, signature = '', resize;
   const watched = new WeakSet();
   const badges = new MutationObserver(() => queue());
@@ -110,7 +123,18 @@
       });
       sections.append(row);
     });
-    sections.hidden = !sources.length;
+    // Pages without their own tabs show the other pages of the same menu group, so the bar is never empty.
+    if (!sources.length) {
+      const allowed = new Set(nav.sequence(session.user.role)), domain = (nav.DOMAINS || []).find(d => d.items.some(i => i.view === view));
+      let items = domain ? domain.items.filter(i => allowed.has(i.view)) : [];
+      if (items.length < 2) items = [...items, ...(RELATED[view] || []).map(v => (nav.DOMAINS || []).flatMap(d => d.items).find(i => i.view === v)).filter(i => i && allowed.has(i.view) && !items.some(x => x.view === i.view))];
+      if (items.length > 1) {
+        const row = make('div', 'mobile-workspace-section-group'); row.setAttribute('role', 'group'); row.setAttribute('aria-label', (domain?.label || 'Related') + ' pages');
+        items.forEach((item, j) => row.append(control(item.label, sectionIcon(item.label), () => { location.hash = item.path; queue(); }, item.view === view ? 'page' : null, `page-${j}`)));
+        sections.append(row);
+      }
+    }
+    sections.hidden = !sections.children.length;
     sections.scrollLeft = sectionScroll;
     if (focused) { const selector = `[data-dock-key="${CSS.escape(focused)}"]`; (dock.querySelector(selector) || actions?.querySelector(selector) || (rail?.dataset.drawer === 'true' ? rail.querySelector('.business-navigation-close') : menu))?.focus({preventScroll:true}); }
     else sections.querySelector('[aria-current]')?.scrollIntoView({block:'nearest',inline:'nearest'});

@@ -75,7 +75,22 @@
     if(!card){card=document.createElement('article');card.dataset.providerCard=x.provider;card.className='integration-card self-service connection-card';grid.append(card);}
     const config=card.querySelector('[data-im-config]');config?.remove();
     const assistant=card.querySelector('[data-im-assistant]');assistant?.remove();
-    card.innerHTML=bodyHtml(x);if(config)card.append(config);if(assistant)card.append(assistant);
+    // An open own-app-keys form survives a background refresh, so typed values are never lost.
+    const openApp=card.querySelector('[data-im-app][open]');openApp?.remove();
+    card.innerHTML=bodyHtml(x);compact(card,x);if(config)card.append(config);if(assistant)card.append(assistant);
+    if(openApp){const fresh=card.querySelector('[data-im-app]');if(fresh)fresh.replaceWith(openApp);const more=card.querySelector('[data-im-more]');if(more){more.open=true;moreOpen.add(x.provider);}}
+  }
+  // Owner request (2026-11-14): compact cards. Setup help, what the connection can do, own app keys, the password
+  // note and the last check move into one "More" section; the elements themselves are moved, never rebuilt.
+  const moreOpen=new Set();
+  function compact(card,x){
+    const parts=[...card.querySelectorAll(':scope > details, :scope > .connection-note, :scope > .integration-manager-status')];
+    if(!parts.length)return;
+    const more=document.createElement('details');more.className='connection-more';more.dataset.imMore=x.provider;more.open=moreOpen.has(x.provider);
+    const summary=document.createElement('summary');summary.textContent='More: setup help, permissions and app keys';more.append(summary,...parts);
+    more.addEventListener('toggle',()=>{more.open?moreOpen.add(x.provider):moreOpen.delete(x.provider)});
+    const actions=card.querySelector(':scope > .connection-action-result')||card.querySelector(':scope > .integration-manager-actions');
+    (actions||card.lastElementChild).after(more);
   }
   async function render(){
     if(window.GDS_SESSION?.user?.role!=='owner'){const accounts=document.getElementById('integration-self-service');if(accounts)accounts.hidden=true;return;}
@@ -169,6 +184,7 @@
   // Own developer app keys: loaded when opened; the secret field is write-only and cleared after saving.
   async function paintOwnApp(details){
     const provider=details.dataset.imApp,box=details.querySelector('[data-im-app-box]');
+    if([...box.querySelectorAll('[data-im-app-form] input')].some(i=>i.value))return; // never wipe what the owner is typing
     try{
       const k=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/app-keys'),off=k.can_manage?'':'disabled';
       const inUse={own:'Your own app ('+(k.client_id_hint||'saved')+')',oprun:'Oprun’s app',none:'No app yet: add your own keys below'}[k.in_use]||'';
@@ -179,14 +195,14 @@
   document.addEventListener('submit',async e=>{
     const form=e.target;if(!form.matches('[data-im-app-form]'))return;
     e.preventDefault();const details=form.closest('[data-im-app]'),card=form.closest('[data-provider-card]'),provider=details.dataset.imApp,b=form.querySelector('button[type=submit]');b.disabled=true;
-    try{const d=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/app-keys',{method:'PUT',body:JSON.stringify(Object.fromEntries(new FormData(form)))});form.reset();
+    try{const d=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/app-keys',{method:'PUT',body:JSON.stringify(Object.fromEntries(new FormData(form)))});form.reset();details.open=false;
       await render();const fresh=document.querySelector(`[data-provider-card="${CSS.escape(provider)}"]`);announce(fresh,'Your app keys are saved.'+(d.signed_out?.length?' Signed out: '+d.signed_out.join(', ')+'. Connect again.':' Choose Connect to sign in.'));}
     catch(error){announce(card,error.message,true);}finally{if(b.isConnected)b.disabled=false;}
   });
   document.addEventListener('click',async e=>{
     const b=e.target.closest?.('[data-im-app-remove]');if(!b)return;
     const details=b.closest('[data-im-app]'),provider=details.dataset.imApp,card=b.closest('[data-provider-card]');
-    if(!confirm('Remove your own app keys? Connections made with them are signed out, and Oprun’s app is used again if available.'))return;
+    if(!confirm('Remove your own app keys? Connections made with them are signed out, and Oprun’s app is used again if available.'))return;details.open=false;
     b.disabled=true;try{const d=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/app-keys',{method:'DELETE'});await render();const fresh=document.querySelector(`[data-provider-card="${CSS.escape(provider)}"]`);announce(fresh,'Your app keys were removed.'+(d.signed_out?.length?' Signed out: '+d.signed_out.join(', ')+'.':''));}
     catch(error){announce(card,error.message,true);b.disabled=false;}
   });

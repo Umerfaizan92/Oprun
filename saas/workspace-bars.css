@@ -68,8 +68,11 @@
 @media (max-width:760px){
   body.portal-workspace .mobile-workspace-dock{gap:4px;padding:8px 10px max(8px,env(safe-area-inset-bottom));align-items:center}
   body.portal-workspace .mobile-workspace-sections{flex:1 1 auto;gap:0;align-items:center}
-  body.portal-workspace .mobile-workspace-section-group{flex:1 0 100%;flex-wrap:nowrap!important;gap:4px;align-items:center}
-  html body.portal-workspace .mobile-workspace-section-group .mobile-workspace-item:not([aria-current]){flex:1 1 0!important;min-width:40px}
+  body.portal-workspace .mobile-workspace-section-group{flex:1 0 auto;min-width:100%;flex-wrap:nowrap!important;gap:4px;align-items:center}
+  /* Many tabs scroll sideways instead of squeezing; few tabs share the width evenly. */
+  html body.portal-workspace .mobile-workspace-section-group .mobile-workspace-item:not([aria-current]){flex:1 0 44px!important;min-width:44px}
+  body.portal-workspace .mobile-workspace-sections{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  body.portal-workspace .mobile-workspace-sections::-webkit-scrollbar{display:none}
   body.portal-workspace .mobile-workspace-section-group+.mobile-workspace-section-group{flex-basis:auto}
   html body.portal-workspace .mobile-workspace-dock :is(.mobile-workspace-item,.mobile-workspace-menu){
     position:relative;flex:1 1 0;flex-direction:row;align-items:center;justify-content:center;gap:8px;
@@ -81,7 +84,7 @@
   body.portal-workspace .mobile-workspace-icon svg{width:22px;height:22px}
   /* Names stay in the page for screen readers; only the current page shows its name. */
   body.portal-workspace .mobile-workspace-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current]{flex:0 1 auto!important;max-width:60%;padding:0 16px 0 14px;background:var(--brand,#d9ad59);color:var(--brand-ink,#111);box-shadow:none;border:0}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current]{flex:0 0 auto!important;max-width:min(62vw,250px);padding:0 16px 0 14px;background:var(--brand,#d9ad59);color:var(--brand-ink,#111);box-shadow:none;border:0}
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current] .mobile-workspace-label{position:static;width:auto;height:auto;clip:auto;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:750;line-height:1;color:inherit}
   body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu)::after{display:none!important}
   body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu):focus-visible{outline:2px solid var(--brand,#d9ad59);outline-offset:2px}
@@ -131,7 +134,29 @@ html body #workspace .integration-logo.integration-badge[data-provider="website"
 html body #workspace .integration-logo.integration-badge[data-provider="email_sms"]{font-size:18px}
 html[data-theme="light"] body #workspace .integration-logo.integration-badge{background:linear-gradient(180deg,#fff8e6,#f3e2b6);color:#7a5a12;border-color:rgba(166,124,36,.55);box-shadow:inset 0 1px 0 #fff,0 4px 12px rgba(122,90,18,.15)}
 /* Connections cards: one column rhythm; collapsible sections full width; notes aligned with the content. */
-html body #workspace [data-provider-card]>details,html body #workspace [data-provider-card] details.connection-own-app{display:block;width:100%;max-width:none;box-sizing:border-box;margin:8px 0;padding:10px 12px;border-radius:12px}
+html body #workspace [data-provider-card]>details:not(.connection-more),html body #workspace [data-provider-card] details.connection-own-app{display:block;width:100%;max-width:none;box-sizing:border-box;margin:8px 0;padding:10px 12px;border-radius:12px}
 html body #workspace [data-provider-card]>details>summary{cursor:pointer;font-size:13px;font-weight:600}
 html body #workspace [data-provider-card]>.connection-note{margin:10px 0;padding:0;font-size:12.5px;line-height:1.5;color:var(--muted,#a9b2c3)}
 html body #workspace [data-provider-card] .integration-manager-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+
+/* Short code shown where no drawn icon fits. */
+.mobile-workspace-mono{display:grid;place-items:center;min-width:26px;height:22px;padding:0 4px;border:1.6px solid currentColor;border-radius:7px;font-size:10px;font-weight:800;letter-spacing:.03em;line-height:1}
+
+/* Connections, compact cards (owner request 2026-11-14). */
+html body #workspace [data-provider-card]{padding:16px;gap:0}
+html body #workspace [data-provider-card] .connection-card-heading{display:flex!important;flex-direction:row!important;align-items:center;gap:12px;margin-bottom:8px;grid-template-columns:none!important}
+html body #workspace [data-provider-card] .connection-card-heading>.integration-logo{order:0!important;margin:0!important}
+html body #workspace [data-provider-card] .connection-card-heading>div{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+html body #workspace [data-provider-card] .connection-card-heading h3{margin:0;font-size:16px;line-height:1.25}
+html body #workspace [data-provider-card] .connection-card-heading .connection-state{justify-self:start;margin:0;padding:3px 10px;font-size:12px;border-radius:999px}
+html body #workspace [data-provider-card]>p:not([class]){margin:0 0 8px;font-size:13px;line-height:1.5;color:var(--muted,#a9b2c3);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+html body #workspace [data-provider-card] .integration-manager-actions{margin:10px 0 4px}
+html body #workspace [data-provider-card] .integration-manager-actions>button{min-height:44px;padding:0 14px;border-radius:10px;font-size:13px}
+html body #workspace [data-provider-card] .integration-manager-actions>[data-connect-provider]:not([data-im-switch]){background:var(--brand,#d9ad59);color:var(--brand-ink,#111);border-color:transparent}
+html body #workspace .connection-more{margin:10px 0 0;padding:8px 0 0!important;border:0!important;border-radius:0!important;background:none!important;border-top:1px solid var(--line,rgba(255,255,255,.08));padding-top:8px}
+html body #workspace .connection-more>summary{cursor:pointer;list-style:none;font-size:13px;font-weight:650;color:var(--muted,#a9b2c3);padding:6px 0}
+html body #workspace .connection-more>summary::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;margin-right:8px;border-radius:6px;border:1px solid currentColor;font-size:12px;line-height:1}
+html body #workspace .connection-more[open]>summary::before{content:"–"}
+html body #workspace .connection-more>details{margin:6px 0;padding:8px 10px;border-radius:10px}
+html body #workspace .connection-more>.connection-note,html body #workspace .connection-more>.integration-manager-status{margin:8px 0 2px;font-size:12px;color:var(--muted,#a9b2c3)}
+html[data-theme="light"] body #workspace [data-provider-card] .integration-manager-actions>[data-connect-provider]:not([data-im-switch]),html[data-theme="light"] body #workspace .connection-continue{color:#fff!important}

@@ -50,14 +50,14 @@ try{
  // Owner request: switch account and the business's own app keys.
  let switchBody=null;await page.route('**/api/saas/integrations/self-service/meta/authorise',async route=>{switchBody=route.request().postDataJSON();await route.fulfill({json:{ok:true,status:'authorisation_pending'}})});
  page.once('dialog',d=>d.accept());await meta.getByRole('button',{name:'Switch account',exact:true}).click();await page.waitForFunction(()=>!document.querySelector('[data-provider-card="meta"] [data-im-switch]')?.disabled);assert.deepEqual(switchBody,{switch_account:true});
- assert.match(await meta.innerText(),/never asks for or stores your social-media password/);
- await meta.locator('[data-im-app] > summary').click();await meta.locator('[data-im-app-form]').waitFor();
+ assert.match(await meta.textContent(),/never asks for or stores your social-media password/);
+ await meta.locator('[data-im-more] > summary').click();await meta.locator('[data-im-app] > summary').click();await meta.locator('[data-im-app-form]').waitFor();
  assert.match(await meta.locator('[data-im-app]').innerText(),/\/api\/saas\/integrations\/oauth\/meta\/callback/);
  assert.equal(await meta.getByLabel('App secret',{exact:true}).getAttribute('type'),'password');
  await meta.getByLabel('App ID',{exact:true}).fill('987654321012345');await meta.getByLabel('App secret',{exact:true}).fill('own-meta-secret-value-123');
  const savedKeys=page.waitForResponse(r=>r.url().endsWith('/meta/app-keys')&&r.request().method()==='PUT');await meta.getByRole('button',{name:'Save my app keys',exact:true}).click();assert.equal((await savedKeys).status(),200);await grid.locator('[data-provider-card="meta"]').getByText('Your app keys are saved.',{exact:false}).waitFor();
  assert.equal(await page.evaluate(()=>JSON.stringify({...localStorage,...sessionStorage}).includes('own-meta-secret-value-123')),false);
- await meta.locator('[data-im-app] > summary').click();await meta.getByRole('button',{name:'Remove my keys',exact:true}).waitFor();assert.match(await meta.locator('[data-im-app]').innerText(),/Your own app \(9876…2345\)/);
+ if(!await meta.locator('[data-im-app]').isVisible())await meta.locator('[data-im-more] > summary').click();await meta.locator('[data-im-app] > summary').click();await meta.getByRole('button',{name:'Remove my keys',exact:true}).waitFor();assert.match(await meta.locator('[data-im-app]').innerText(),/Your own app \(9876…2345\)/);
  const email=grid.locator('[data-provider-card="email_sms"]');
  for(let pageNumber=0;pageNumber<3&&!await email.isVisible();pageNumber++)await pager.getByRole('button',{name:'Next →',exact:true}).click();
  await email.waitFor({state:'visible'});

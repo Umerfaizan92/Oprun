@@ -212,3 +212,23 @@ test('Meta asks only for permissions the app has, and a refused sign-in stays vi
   const meta = (await s.call('GET', '/api/saas/integrations/self-service', { cookie: owner.cookie })).json.integrations.find((x) => x.provider === 'meta');
   assert.match(meta.signin_error?.message || '', /Connection cancelled/); assert.equal(meta.status, 'not_connected');
 });
+
+test('a provider returning to another of this app\'s own addresses is handed back to the starting address', async (t) => {
+  const http = await import('node:http');
+  const s = await startServer({ META_APP_ID: '1234567890123', META_APP_SECRET: 'meta-secret-value-xyz', APP_HOSTS: 'app-render.example',
+    META_REDIRECT_URI: 'https://app-render.example/api/saas/integrations/oauth/meta/callback', GOOGLE_CLIENT_ID: 'abc.apps.googleusercontent.com', GOOGLE_CLIENT_SECRET: 'g-secret-value-xyz',
+    GOOGLE_REDIRECT_URI: 'https://unknown-site.example/api/saas/integrations/oauth/youtube/callback' });
+  t.after(s.stop);
+  const owner = await seedOwner(s);
+  await s.call('GET', '/api/saas/integrations/self-service', { cookie: owner.cookie });
+  const start = await s.call('POST', '/api/saas/integrations/self-service/meta/authorise', { cookie: owner.cookie, body: {} });
+  assert.equal(start.status, 200, 'own hosting address is accepted as a callback'); 
+  const state = new URL(start.json.authorize_url).searchParams.get('state');
+  const base = new URL(s.base);
+  const back = await new Promise((resolve, reject) => http.request({ host: base.hostname, port: base.port, path: '/api/saas/integrations/oauth/meta/callback?code=abc&state=' + state, headers: { host: 'app-render.example' } }, (r) => { r.resume(); resolve(r); }).on('error', reject).end());
+  assert.equal(back.statusCode, 303);
+  assert.equal(back.headers.location, 'https://' + base.host + '/api/saas/integrations/oauth/meta/callback?code=abc&state=' + state, 'handed back to where the sign-in started');
+  const google = await s.call('POST', '/api/saas/integrations/self-service/youtube/authorise', { cookie: owner.cookie, body: {} });
+  assert.equal(google.status, 409, 'an address that is not this application stays blocked');
+  assert.equal(google.json.code, 'redirect_misconfigured');
+});
