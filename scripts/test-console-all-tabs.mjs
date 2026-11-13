@@ -15,7 +15,7 @@ const browser = await chromium.launch();
 const problems = [];
 try {
   await seedOwner(s);
-  for (const [width, height] of [[1440, 900], [390, 844]]) {
+  for (const [width, height] of [[1440, 900], [768, 1024], [390, 844]]) {
     const ctx = await browser.newContext({ viewport: { width, height }, reducedMotion: 'reduce' });
     const p = await ctx.newPage();
     let current = '';
@@ -33,10 +33,29 @@ try {
       if (!info.text.trim()) problems.push(`${width} ${route} empty page`);
       if (/\[object Object\]|\bundefined\b|\bNaN\b/.test(info.text)) problems.push(`${width} ${route} raw value: ${(info.text.match(/.{0,40}(\[object Object\]|\bundefined\b|\bNaN\b).{0,40}/) || [''])[0].replace(/\s+/g, ' ')}`);
       if (info.wide) problems.push(`${width} ${route} sideways scroll`);
+      // T-094: every visible console table is labelled; laptops keep headings in view; phones show 3+ column tables
+      // as labelled cards that fit the screen.
+      const tables = await p.evaluate(() => [...document.querySelectorAll('#console-content table')].filter((t) => t.offsetParent && t.tHead).map((t) => {
+        const cards = t.classList.contains('cx-cards');
+        const headed = [...t.tHead.rows[0].cells].every((h) => h.textContent.trim());
+        const unlabelled = [...t.querySelectorAll('tbody td')].filter((c) => c.colSpan === 1 && !c.hasAttribute('data-label'));
+        return {
+          labelled: t.classList.contains('cx-table') && t.getAttribute('role') === 'table',
+          missingLabel: headed && unlabelled.length > 0,
+          sticky: getComputedStyle(t.tHead.rows[0].cells[0]).position === 'sticky',
+          cards, display: getComputedStyle(t).display, overflow: t.scrollWidth > t.parentElement.clientWidth + 1
+        };
+      }));
+      tables.forEach((t, i) => {
+        if (!t.labelled) problems.push(`${width} ${route} table ${i} not labelled`);
+        if (t.missingLabel) problems.push(`${width} ${route} table ${i} cell without its column label`);
+        if (width >= 761 && !t.sticky) problems.push(`${width} ${route} table ${i} headings not kept in view`);
+        if (width < 761 && t.cards && (t.display !== 'block' || t.overflow)) problems.push(`${width} ${route} table ${i} not shown as fitting cards`);
+      });
     }
     await ctx.close();
   }
   if (problems.length) console.log(problems.join('\n'));
   assert.deepEqual(problems, []);
-  console.log(`CONSOLE SWEEP PASSED: ${routes.length} founder pages at 1440px and 390px`);
+  console.log(`CONSOLE SWEEP PASSED: ${routes.length} founder pages at 1440px, 768px and 390px`);
 } finally { await browser.close(); await s.stop(); }

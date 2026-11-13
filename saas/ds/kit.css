@@ -52,3 +52,29 @@ html body #workspace .view-empty-guide p{font-size:.88rem;line-height:1.4}
   html body #workspace .app-topbar>.topbar-actions>:is(.pad-top-button,.manual-top-button,.search-button){padding-inline:6px}
 }
 @media (max-width:374px){html body #workspace .workspace-mobile-identity .navigation-identity-name{display:none}}
+
+/* Founder Console tables (batch 3 follow-up, T-094). Scoped to #console-content so the Business Workspace is unchanged.
+   Dense rows on every width; on laptops a long table scrolls inside its frame with the column headings kept in view;
+   on phones a table with three or more columns becomes one card per row, each value labelled with its column
+   (labels come from office/console-tables.js). Nothing hidden: every cell, control and ID stays in the page. */
+html body #console-content :is(.cp-table-wrap,.au-tablewrap,.table-wrap):has(>table.cx-table){border:1px solid var(--sp-line,var(--line));border-radius:12px}
+html body #console-content table.cx-table{font-size:13px;line-height:1.38;min-width:0}
+html body #console-content table.cx-table :is(th,td){padding:7px 10px}
+html body #console-content table.cx-table thead th{font-size:11.5px;letter-spacing:.04em;white-space:nowrap;background:var(--sp-graphite-2,var(--panel2,var(--panel)));z-index:1}
+html body #console-content table.cx-table tbody tr:last-child>*{border-bottom:0}
+html body #console-content table.cx-table tbody tr:hover{background:color-mix(in srgb,var(--sp-fg,currentColor) 4%,transparent)}
+@media (min-width:761px){
+  html body #console-content :is(.cp-table-wrap,.au-tablewrap,.table-wrap):has(>table.cx-table){max-height:min(70vh,640px);overflow:auto}
+  html body #console-content table.cx-table thead th{position:sticky;top:0}
+}
+@media (max-width:760px){
+  html body #console-content :is(.cp-table-wrap,.au-tablewrap,.table-wrap):has(>table.cx-cards){border:0;border-radius:0;overflow:visible}
+  html body #console-content table.cx-cards,html body #console-content table.cx-cards>tbody{display:block;width:100%}
+  html body #console-content table.cx-cards>caption{display:block}
+  html body #console-content table.cx-cards>thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+  html body #console-content table.cx-cards>tbody>tr{display:block;margin:0 0 8px;padding:6px 10px;border:1px solid var(--sp-line,var(--line));border-radius:12px;background:var(--sp-graphite-1,var(--panel))}
+  html body #console-content table.cx-cards>tbody>tr>:is(td,th){display:grid;grid-template-columns:minmax(6.5em,38%) minmax(0,1fr);gap:2px 10px;align-items:start;padding:5px 0;border-bottom:1px solid var(--sp-line,var(--line));overflow-wrap:anywhere;text-align:left}
+  html body #console-content table.cx-cards>tbody>tr>:is(td,th):last-child{border-bottom:0}
+  html body #console-content table.cx-cards>tbody>tr>td[data-label]::before{content:attr(data-label);font-size:11.5px;font-weight:600;color:var(--sp-fg-muted,var(--muted))}
+  html body #console-content table.cx-cards>tbody>tr>td:not([data-label]),html body #console-content table.cx-cards>tbody>tr>td[colspan]{grid-template-columns:minmax(0,1fr)}
+}

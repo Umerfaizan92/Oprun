@@ -148,3 +148,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-setup.js saas/command-centre-sections.js saas/workspace.html saas/command-centre.css saas/focused-workspace.js saas/page-sections.js saas/workspace-mobile.js scripts/test-redesign-ui.mjs
 - Acceptance: npm test, test:redesign-ui, test:mobile-workspace-ui pass; live deploy healthy
 - Evidence: npm test 73/73; test:redesign-ui PASS 320/390/768/1440 (4 tabs, 8 stages, checklist navigates+focuses, aliases, axe dark/light); test:mobile-workspace-ui 354 checks; verify:manifest; security:secrets (recorded 2026-11-12 on claude/workspace-and-priorities at 66b79aa)
+
+## T-095 Founder Console tables: dense rows, sticky headings, phone cards (density batch 3 follow-up)
+- Added: 2026-11-12
+- Requirement: Frontend transformation progress file pending batch B3 follow-up: console tables sticky headers, dense rows, phone card layout; scoped to Founder Console; keep IDs/routes/RBAC
+- Files: office/console-tables.js,saas/ds/kit.css,office/console.html,scripts/test-console-all-tabs.mjs
+- Acceptance: No table sideways scroll at 390; labelled cards for 3+ columns; sticky headings at 1440; console-all, console-ui, navigation-ui, ui pass; own PR
+- Evidence: Console tables: dense rows, sticky headings at 768/1440, labelled cards at 390 for 3+ column tables, scoped to #console-content. console-all 30 pages at 1440/768/390 with table assertions (negative check fails without script); console-ui 16; navigation-ui 594; ui 34; mobile-workspace-ui 354; npm test 73/73 (recorded 2026-11-13 on claude/t095-console-tables at 7750aae)
