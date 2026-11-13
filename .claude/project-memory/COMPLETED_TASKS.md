@@ -169,3 +169,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/locale-catalog.js,saas/workspace-locale.js,saas/workspace-gadgets.js,saas/workspace.html,saas/workspace-locale.css,scripts/localization-dictionary.test.mjs,scripts/localization-ui.test.mjs,scripts/test-localization-ui.mjs
 - Acceptance: English output identical; hi/ur/ar todayLive 24/24; board redraws without reload; Urdu tiles RTL isolate; npm test, unit, UI suites pass
 - Evidence: todayLive 24 keys in hi/ur/ar (machine draft); OprunLocale.t; board redraw on oprun:locale-changed; Arabic six plural forms; English identical (tests); browser: Urdu greeting and board, ur->ar->ur switch without reload, tile lines rtl/isolate; npm test 73/73; test:unit 301 pass 0 fail; test:ui, command-centre-loading, redesign, mobile-workspace 354, navigation 594, console-all PASS (recorded 2026-11-13 on claude/l2-today-scripts at 3ac5a02)
+
+## T-098 Prompt 03 L3a: industry vocabulary per locale
+- Added: 2026-11-13
+- Requirement: Translate server industry vocabulary (8 groups x 9 words incl. singular member) per locale; English stays server text; board uses translated words when available
+- Files: saas/locale-catalog.js,saas/workspace-gadgets.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: English dictionary equals src/industry-registry.js TERMS (test); Urdu board shows no English vocabulary; suites pass
+- Evidence: 72 term keys hi/ur/ar (machine draft); dictionary 2026-11-13.3; sync test with industry registry 8 groups; browser: Urdu board has no Jobs/Team/Income/costs; npm test 73/73; test:unit 302 pass 0 fail; test:ui, command-centre-loading, mobile-workspace 354 PASS (recorded 2026-11-13 on claude/l3-terms-today at 8254b6e)

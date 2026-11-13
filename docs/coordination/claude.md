@@ -127,6 +127,19 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R7: Prompt 03 L3a, industry vocabulary per locale (T-098)
+
+- Live (R6) deploy: `dep-dbrahl49v7es73c16a0g`, commit `8254b6e`, startup diagnostics 16/16.
+- Dictionary `2026-11-13.3`: screen `terms`, 72 keys (8 industry groups x job, jobs, customer, customers, team,
+  member, revenue, costs, pitch) in hi, ur, ar (machine draft). `member` is the singular team word the board used to
+  derive with an English-only rule.
+- The board uses a translated word only when the reader's dictionary has it; otherwise the server's English
+  (English output unchanged). Test keeps the English dictionary in sync with `src/industry-registry.js` TERMS.
+- Still English inside translated text: the industry name in the status line ("tuned for plumbing", about 40
+  industry labels).
+- Tests: dictionary 6/6; browser test asserts no Jobs/Team/Income/costs on the Urdu board; `npm test` 73/73;
+  `test:unit` 302 pass, 0 fail; test:ui, Command Centre loading, mobile-workspace 354 PASS.
+
 ### 2026-11-13 Batch R6: Prompt 03 L2, Today greeting and live figures board (T-097)
 
 - Live (R5) deploy: `dep-dbr99nk9v7es73btr7mg`, commit `3ac5a02`, startup diagnostics 16/16.
@@ -179,8 +192,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: Prompt 03 L3: Today workflow track and readiness checklist (`command-centre-sections.js`) and
-   industry vocabulary per locale; then the next screen group in navigation order. Native-speaker review is needed
+2. Claude next: T-099 Prompt 03 L3b, `saas/command-centre-sections.js` (about 60 strings: feature finder, Action
+   Centre next steps, Workflow Guidance 8 stages, checklist states). Same pattern as `workspace-gadgets.js`: a local
+   `tr(key, values, english)` calling `OprunLocale.t`; redraw on `oprun:locale-changed`; keep AI prompt text English
+   but say which language to answer in. Then industry labels, then the next screen group in navigation order. Native-speaker review is needed
    before any language is called translated.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.

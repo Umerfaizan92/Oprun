@@ -68,3 +68,15 @@ test('live Today board patterns keep the exact English the board showed before a
     assert.doesNotMatch(out, /[{}]/, `${lang} ${key} left a placeholder unformatted`);
   }
 });
+
+test('English industry vocabulary in the dictionary matches the server table for every industry group', async () => {
+  const { INDUSTRY_REGISTRY, industryTerms } = await import('../src/industry-registry.js');
+  const groups = new Map([['general', industryTerms('custom')]]);
+  for (const row of INDUSTRY_REGISTRY) { const t = industryTerms(row.code); groups.set(t.style, t); }
+  assert.equal(groups.size, 8, 'all eight vocabulary groups found');
+  for (const [style, t] of groups) {
+    for (const k of ['job', 'jobs', 'customer', 'customers', 'team', 'revenue', 'costs', 'pitch'])
+      assert.equal(MESSAGES.en[`term.${style}.${k}`], t[k], `term.${style}.${k} out of sync with src/industry-registry.js`);
+    assert.equal(MESSAGES.en[`term.${style}.member`], t.team.toLowerCase().replace(/s$/, ''), `term.${style}.member`);
+  }
+});
