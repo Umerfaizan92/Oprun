@@ -313,3 +313,5 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - New nullable column channel_drafts.template_json (additive). Composer shows a template picker for WhatsApp.
 - Tests: channel-operations 15/15, channel UI 4/4, npm test 73/73, secrets scan passed.
 - Exact next action: S4 TikTok video publishing (Content Posting API: direct post from a public video URL with privacy level from creator_info, approval required, status polling), then website, Google.
+
+- DEPLOY PENDING (13:10 UTC): PRs #112 and #113 are merged (main 6c09513) but not yet deployed; the Render connector timed out. Deploy first on resume.
