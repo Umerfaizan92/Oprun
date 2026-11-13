@@ -1,4 +1,4 @@
-import { message } from './locale-catalog.js?v=20261113.l1';
+import { message, formatMessage } from './locale-catalog.js?v=20261113.l2';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
@@ -61,6 +61,10 @@ if (trigger && dialog && form) {
 // Domain data is formatted on demand; never rewrite user-entered content or stored money.
 window.OprunLocale = Object.freeze({
   get locale() { return preference?.locale || 'en-AU'; },
+  // Script-rendered text: dictionary pattern for the reader's language (English when untranslated), formatted with
+  // plurals and placeholders. Returns undefined for an unknown key so callers keep their own English.
+  t: (key, values = {}) => { const locale = preference?.locale || 'en-AU', pattern = message(locale, key); return pattern === key ? undefined : formatMessage(locale, pattern, values); },
+  translated: key => { const locale = preference?.locale || 'en-AU'; return message(locale, key) !== message('en', key); },
   number: (value, options) => new Intl.NumberFormat(preference?.locale || 'en-AU', options).format(value),
   date: (value, options) => new Intl.DateTimeFormat(preference?.locale || 'en-AU', options).format(value),
   currency: (value, currency) => new Intl.NumberFormat(preference?.locale || 'en-AU', { style: 'currency', currency }).format(value)

@@ -59,32 +59,39 @@
     countUp(num,value,fmt);tilt(card);return card;
   }
   const plural=(n,one,many)=>`${n} ${n===1?one:many||one+'s'}`;
+  // Prompt 03 L2: text comes from the reader's dictionary (workspace-locale.js); the English here is only used if that
+  // script has not loaded. Business vocabulary (T.jobs, T.team…) is the business's own wording and is inserted as is.
+  const tr=(key,values,english)=>window.OprunLocale?.t?.(key,values)??english;
+  const clock=time=>new Date(time).toLocaleTimeString(window.OprunLocale?.locale||[],{hour:'numeric',minute:'2-digit'});
+  let lastData=null;
 
   function render(d){
     const T=d.terms,cards=[];
     const topCh=d.inbox.channels[0];
-    cards.push(tile({key:'inbox',label:'Waiting for a reply',value:d.inbox.needs_reply,unit:d.inbox.needs_reply===1?'conversation':'conversations',sub:d.inbox.week?`${plural(d.inbox.week,'message')} this week${topCh?`, most from ${CHANNEL[topCh.channel]||topCh.channel}`:''}`:'No new messages this week',graphic:spark(d.inbox.daily),jump:'comms',tone:d.inbox.needs_reply?'alert':'gold'}));
-    cards.push(tile({key:'approvals',label:'Needs your approval',value:d.approvals.pending,sub:d.inbox.drafts_waiting?`${plural(d.inbox.drafts_waiting,'AI reply draft')} ready to review`:'Nothing is waiting on you',jump:'approvals',tone:d.approvals.pending?'alert':'good',graphic:ring(d.approvals.pending?0.25:1)}));
-    cards.push(tile({key:'jobs-today',label:`${T.jobs} today`,value:d.jobs.today,sub:`${d.jobs.awaiting} awaiting a ${T.team.toLowerCase().replace(/s$/,'')}, ${d.jobs.allocated} lined up`,graphic:spark(d.jobs.next7),jump:'jobs'}));
+    const channel=topCh?CHANNEL[topCh.channel]||topCh.channel:'';
+    cards.push(tile({key:'inbox',label:tr('gx.inboxLabel',{},'Waiting for a reply'),value:d.inbox.needs_reply,unit:tr('gx.conversations',{n:d.inbox.needs_reply},d.inbox.needs_reply===1?'conversation':'conversations'),sub:d.inbox.week?(topCh?tr('gx.inboxWeekFrom',{n:d.inbox.week,channel},`${plural(d.inbox.week,'message')} this week, most from ${channel}`):tr('gx.inboxWeek',{n:d.inbox.week},`${plural(d.inbox.week,'message')} this week`)):tr('gx.inboxNone',{},'No new messages this week'),graphic:spark(d.inbox.daily),jump:'comms',tone:d.inbox.needs_reply?'alert':'gold'}));
+    cards.push(tile({key:'approvals',label:tr('gx.approvalsLabel',{},'Needs your approval'),value:d.approvals.pending,sub:d.inbox.drafts_waiting?tr('gx.drafts',{n:d.inbox.drafts_waiting},`${plural(d.inbox.drafts_waiting,'AI reply draft')} ready to review`):tr('gx.approvalsNone',{},'Nothing is waiting on you'),jump:'approvals',tone:d.approvals.pending?'alert':'good',graphic:ring(d.approvals.pending?0.25:1)}));
+    const member=T.team.toLowerCase().replace(/s$/,'');
+    cards.push(tile({key:'jobs-today',label:tr('gx.jobsLabel',{jobs:T.jobs},`${T.jobs} today`),value:d.jobs.today,sub:tr('gx.jobsSub',{awaiting:d.jobs.awaiting,team:member,allocated:d.jobs.allocated},`${d.jobs.awaiting} awaiting a ${member}, ${d.jobs.allocated} lined up`),graphic:spark(d.jobs.next7),jump:'jobs'}));
     const pct=d.team.total?d.team.ready/d.team.total:0;
-    cards.push(tile({key:'team',label:`${T.team} ready to work`,value:d.team.ready,unit:`of ${d.team.total}`,sub:d.team.attention||d.team.expiring?`${d.team.attention} need checks, ${d.team.expiring} documents expiring in 30 days`:'All checks are up to date',graphic:ring(pct),jump:'workforce',tone:d.team.attention?'warn':'good'}));
+    cards.push(tile({key:'team',label:tr('gx.teamLabel',{team:T.team},`${T.team} ready to work`),value:d.team.ready,unit:tr('gx.teamOf',{total:d.team.total},`of ${d.team.total}`),sub:d.team.attention||d.team.expiring?tr('gx.teamSub',{attention:d.team.attention,expiring:d.team.expiring},`${d.team.attention} need checks, ${d.team.expiring} documents expiring in 30 days`):tr('gx.teamNone',{},'All checks are up to date'),graphic:ring(pct),jump:'workforce',tone:d.team.attention?'warn':'good'}));
     if(d.finance){
       const f=d.finance;
-      cards.push(tile({key:'profit',label:'Profit this month',value:f.profit_cents/100,fmt:v=>money(Math.round(v*100)),sub:`${T.revenue} ${money(f.revenue_cents)}, ${T.costs.toLowerCase()} ${money(f.expense_cents)}`,graphic:spark(f.daily_revenue_cents),jump:'finance',tone:f.profit_cents<0?'alert':'good'}));
+      cards.push(tile({key:'profit',label:tr('gx.profitLabel',{},'Profit this month'),value:f.profit_cents/100,fmt:v=>money(Math.round(v*100)),sub:tr('gx.profitSub',{revenue:T.revenue,revenueAmount:money(f.revenue_cents),costs:T.costs.toLowerCase(),costAmount:money(f.expense_cents)},`${T.revenue} ${money(f.revenue_cents)}, ${T.costs.toLowerCase()} ${money(f.expense_cents)}`),graphic:spark(f.daily_revenue_cents),jump:'finance',tone:f.profit_cents<0?'alert':'good'}));
     }
     // Command Centre (Prompt 01): no repeated business name; one quiet status line with an honest live indicator.
-    const head=el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:d.business.industry&&d.business.code!=='custom'?`Figures refresh by themselves · tuned for ${d.business.industry.toLowerCase()}`:'Figures refresh by themselves'}),liveBadge());
-    const features={comms:'inbox',approvals:'approvals',jobs:'jobs',workforce:'workforce',finance:'finance'};const shown=cards.filter(c=>window.GDS_SESSION?.access?.mode!=='custom'||window.SuperProCan(features[c.dataset.jump]));const focus=board.contains(document.activeElement)?document.activeElement.closest('[data-jump]')?.dataset.jump:null;board.dataset.cards=String(shown.length);board.replaceChildren(head,el('div',{class:'gx-grid'},shown));if(focus)board.querySelector('[data-jump="'+focus+'"]')?.focus({preventScroll:true});
+    const head=el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:d.business.industry&&d.business.code!=='custom'?tr('gx.statusIndustry',{industry:d.business.industry.toLowerCase()},`Figures refresh by themselves · tuned for ${d.business.industry.toLowerCase()}`):tr('gx.status',{},'Figures refresh by themselves')}),liveBadge());
+    const features={comms:'inbox',approvals:'approvals',jobs:'jobs',workforce:'workforce',finance:'finance'};const shown=cards.filter(c=>window.GDS_SESSION?.access?.mode!=='custom'||window.SuperProCan(features[c.dataset.jump]));const focus=board.contains(document.activeElement)?document.activeElement.closest('[data-jump]')?.dataset.jump:null;board.dataset.cards=String(shown.length);board.dataset.i18nScope='today-live';board.lang=window.OprunLocale?.translated?.('gx.inboxLabel')?window.OprunLocale.locale:'en';board.replaceChildren(head,el('div',{class:'gx-grid'},shown));if(focus)board.querySelector('[data-jump="'+focus+'"]')?.focus({preventScroll:true});
   }
   // Live indicator reflects the last refresh: Live (with time) after success, Reconnecting after a failed refresh.
   let lastOk=0,lastFailed=false;
   function liveBadge(){
-    const t=lastOk?new Date(lastOk).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):'';
-    return el('span',{class:'gx-live'+(lastFailed?' is-stale':''),role:'status','aria-live':'polite',title:lastOk?`Last updated ${t}`:''},el('i',{'aria-hidden':'true'}),lastFailed?'Reconnecting…':(t?`Live · ${t}`:'Live'));
+    const t=lastOk?clock(lastOk):'';
+    return el('span',{class:'gx-live'+(lastFailed?' is-stale':''),role:'status','aria-live':'polite',title:lastOk?tr('gx.lastUpdated',{time:t},`Last updated ${t}`):''},el('i',{'aria-hidden':'true'}),lastFailed?tr('gx.reconnecting',{},'Reconnecting…'):(t?tr('gx.liveAt',{time:t},`Live · ${t}`):tr('gx.live',{},'Live')));
   }
   async function load(){
     if(!board)return;
-    try{const data=await api('/api/saas/command-centre');lastOk=Date.now();lastFailed=false;render(data);board.removeAttribute('aria-busy');document.querySelector('.operational-strip')?.classList.add('gx-replaced')}
+    try{const data=await api('/api/saas/command-centre');lastOk=Date.now();lastFailed=false;lastData=data;render(data);board.removeAttribute('aria-busy');document.querySelector('.operational-strip')?.classList.add('gx-replaced')}
     catch{/* workers and unconnected data keep the simple strip */if(lastOk){lastFailed=true;board.querySelector('.gx-live')?.replaceWith(liveBadge())}else{board.replaceChildren();board.removeAttribute('aria-busy');document.querySelector('.operational-strip')?.classList.remove('gx-replaced')}}
   }
   // The workspace shortcut collection now lives in All Features (the navigation drawer), not on the Command Centre.
@@ -94,7 +101,7 @@
   function placeholder(){
     const n=['owner','admin','super_admin'].includes(String(window.GDS_SESSION?.user?.role||'').toLowerCase())?5:4;
     const ghost=()=>el('div',{class:'gx-tile gx-skeleton','aria-hidden':'true'},el('div',{class:'gx-tile-head'},el('span',{class:'gx-label',text:'\u00a0'})),el('div',{class:'gx-main'},el('div',{class:'gx-figure'},el('strong',{class:'gx-num',text:'\u2013'}))),el('span',{class:'gx-sub',text:'\u00a0'}));
-    board.replaceChildren(el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:'Loading live figures\u2026'})),el('div',{class:'gx-grid'},Array.from({length:n},ghost)));
+    board.replaceChildren(el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:tr('gx.loading',{},'Loading live figures\u2026')})),el('div',{class:'gx-grid'},Array.from({length:n},ghost)));
     board.setAttribute('aria-busy','true');document.querySelector('.operational-strip')?.classList.add('gx-replaced');
   }
   function mount(){
@@ -104,4 +111,6 @@
   }
   onView('dashboard',{enter(){mount();load();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)load()},30000)},leave(){clearInterval(timer)}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&board&&!board.closest('[hidden]'))load()});
+  // A language change redraws the board from the figures already loaded (no extra request).
+  window.addEventListener('oprun:locale-changed',()=>{if(board&&lastData)render(lastData)});
 })();

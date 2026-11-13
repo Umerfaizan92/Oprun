@@ -30,12 +30,12 @@ test('every Today key is tagged once in the page and every screen key exists in 
 test('pilot languages cover shell and Today, are marked unreviewed, and others fall back to English', () => {
   assert.match(DICTIONARY_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/);
   for (const lang of ['hi', 'ur', 'ar']) {
-    assert.deepEqual(screenCoverage(lang).map((c) => c.translated === c.total), [true, true], lang);
+    assert.ok(screenCoverage(lang).every((c) => c.translated === c.total), lang);
     assert.equal(DICTIONARY_REVIEW[lang], 'machine-draft-unreviewed');
-    for (const key of screenKeys) assert.notEqual(MESSAGES[lang][key], MESSAGES.en[key], `${lang} ${key} left in English`);
+    for (const key of screenKeys) if (/\p{L}/u.test(MESSAGES.en[key].replace(/\{[^{}]*\}/g, ''))) assert.notEqual(MESSAGES[lang][key], MESSAGES.en[key], `${lang} ${key} left in English`); // patterns made only of inserted values are language-neutral
   }
   assert.equal(DICTIONARY_REVIEW.en, 'source');
-  assert.deepEqual(screenCoverage('fr').map((c) => c.translated), [0, 0]);
+  assert.ok(screenCoverage('fr').every((c) => c.translated === 0));
   assert.equal(message('fr', 'today.briefTitle'), MESSAGES.en['today.briefTitle']);
   assert.equal(message('ur-PK', 'today.briefTitle'), MESSAGES.ur['today.briefTitle'], 'regional variants use the base language');
   const ur = localeCatalogue().find((x) => x.code === 'ur');
@@ -53,4 +53,18 @@ test('plurals and placeholders follow each language\'s rules and stay plain text
   assert.deepEqual([0, 1, 2, 3, 11, 100].map((n) => formatMessage('ar', ar, { n })), ['z', 'o', 't', 'f', 'm', 'x']);
   assert.equal(formatMessage('en', 'Hello {name}', { name: '<img src=x onerror=alert(1)>' }), 'Hello <img src=x onerror=alert(1)>', 'values are inserted as text for textContent, never parsed');
   assert.equal(formatMessage('en', 'Missing {gone}.', {}), 'Missing .');
+});
+
+test('live Today board patterns keep the exact English the board showed before and format in every pilot language', () => {
+  const f = (l, k, v) => formatMessage(l, message(l, k), v);
+  assert.equal(f('en', 'gx.inboxWeekFrom', { n: 1, channel: 'email' }), '1 message this week, most from email');
+  assert.equal(f('en', 'gx.inboxWeek', { n: 3 }), '3 messages this week');
+  assert.equal(f('en', 'gx.drafts', { n: 2 }), '2 AI reply drafts ready to review');
+  assert.equal(f('en', 'gx.conversations', { n: 1 }), 'conversation');
+  assert.equal(f('en', 'gx.jobsSub', { awaiting: 0, team: 'team', allocated: 0 }), '0 awaiting a team, 0 lined up');
+  assert.equal(f('en', 'gx.liveAt', { time: '3:47 AM' }), 'Live · 3:47 AM');
+  for (const lang of ['hi', 'ur', 'ar']) for (const key of SCREENS.todayLive) {
+    const out = formatMessage(lang, MESSAGES[lang][key], { n: 2, channel: 'email', jobs: 'Jobs', team: 'Team', awaiting: 1, allocated: 2, total: 3, attention: 1, expiring: 0, revenue: 'Income', revenueAmount: '$1', costs: 'costs', costAmount: '$0', industry: 'plumbing', time: '9:00' });
+    assert.doesNotMatch(out, /[{}]/, `${lang} ${key} left a placeholder unformatted`);
+  }
 });

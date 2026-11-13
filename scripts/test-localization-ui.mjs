@@ -32,6 +32,25 @@ try {
     assert.equal(await page.locator(`#dashboard-view [data-i18n="${key}"]`).textContent(),MESSAGES.ur[key],key);
   assert.equal(await page.locator('#dashboard-view [data-i18n="today.askAi"]').evaluate(el=>el.parentElement.querySelector('svg')!==null),true,'icon kept beside translated text');
   assert.equal(await page.locator('#dashboard-view [data-i18n="today.openAi"]').evaluate(el=>el.tagName==='BUTTON'&&el.textContent),MESSAGES.ur['today.openAi'],'button text (its accessible name) is translated');
+  // Prompt 03 L2: greeting and the live figures board are drawn by scripts in the reader's language.
+  assert.equal(await page.locator('[data-i18n="today.greeting"]').textContent(),MESSAGES.ur['today.greeting']);
+  await page.waitForFunction(()=>document.querySelectorAll('.gx-board .gx-tile:not(.gx-skeleton)').length>0);
+  const boardText=await page.locator('.gx-board').innerText();
+  for (const key of ['gx.inboxLabel','gx.approvalsLabel','gx.profitLabel']) assert.ok(boardText.includes(MESSAGES.ur[key]),key+' shown in Urdu');
+  assert.match(await page.locator('.gx-live').innerText(),new RegExp(MESSAGES.ur['gx.live']));
+  assert.equal(boardText.includes('Waiting for a reply'),false,'no English left on translated tiles');
+  assert.equal(await page.locator('.gx-board .gx-sub').first().evaluate(e=>getComputedStyle(e).direction+'/'+getComputedStyle(e).unicodeBidi),'rtl/isolate','translated tile lines keep right-to-left order even when they start with a number');
+  // Switching language redraws the board from loaded figures, without a page reload.
+  await page.evaluate(()=>{window.__noReload=true});
+  await page.locator('#workspace-language').click();await page.locator('#preferred-language').selectOption('ar');
+  await page.locator('#workspace-language-dialog button[type=submit]').click();
+  await page.waitForFunction(text=>document.querySelector('.gx-board')?.innerText.includes(text),MESSAGES.ar['gx.inboxLabel']);
+  assert.equal(await page.evaluate(()=>window.__noReload),true,'redrawn in place');
+  await page.keyboard.press('Escape');
+  await page.locator('#workspace-language').click();await page.locator('#preferred-language').selectOption('ur');
+  await page.locator('#workspace-language-dialog button[type=submit]').click();
+  await page.waitForFunction(text=>document.querySelector('.gx-board')?.innerText.includes(text),MESSAGES.ur['gx.inboxLabel']);
+  await page.keyboard.press('Escape');
   // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
   const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
   assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');
