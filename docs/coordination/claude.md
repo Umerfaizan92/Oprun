@@ -9,7 +9,7 @@ committed work and pull requests. No tool merges or deploys without the owner.
 | Owner | Scope | Branch prefix |
 |---|---|---|
 | Claude | T-094 reconcile and browser verification (done); Prompt 03 localization migration of Business Workspace and Console views; T-095 Founder Console tables (density batch 3 follow-up) | `claude/` |
-| ChatGPT | Prompt 02 security and identity review; Prompt 04 Connection and Services Hub; next prompts in `docs/platform-blueprint/PROMPTS.md` order unless reassigned | `codex/` |
+| ChatGPT | (out of usage until about 2026-11-16; Claude covers its open findings meanwhile) Prompt 02 security and identity review; Prompt 04 Connection and Services Hub; next prompts in `docs/platform-blueprint/PROMPTS.md` order unless reassigned | `codex/` |
 
 Shared files that need care (touch only in small, rebased commits): `saas/workspace.html`, `office/console.html`,
 `SHA256SUMS.txt` (regenerate with `npm run manifest:update`, never hand-merge), `.claude/project-memory/*` (append via
@@ -54,6 +54,36 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
 - Coordination note: another session is continuing the density batches on `claude/frontend-transformation-bN`
   (batch 5 merged). T-095 overlaps that plan's "B3 follow-up", so it stays parked until the owner confirms who owns it.
 
+### 2026-11-13 Batch R2: ChatGPT review findings CG-001 to CG-003 fixed (CP-119)
+
+- Input: ChatGPT review on `codex/cp117-t094-review-20261112` (`4b0c1ba`, `docs/coordination/chatgpt.md`,
+  `REVIEW_CP117_T094.md`, `ACCEPTANCE_T094.md`). ChatGPT is out of usage for about 3 days, and the owner asked Claude
+  to complete everything, so Claude took the implementation of the three findings. ChatGPT's branch and files were
+  not edited.
+- **CG-001 (P1, R14-01)**, `saas/workspace-locale.js`: the save request now records the request revision and a context
+  generation, which bumps on business switch (`superpro:workspace-ready`) and on sign-out click. A response from an
+  older save, business or session cannot repaint the page, set a status message or re-enable the save button.
+  Switching business clears the status and re-enables Save. Cache version `workspace-locale.js?v=20261113`.
+  Regression (`scripts/localization-ui.test.mjs`, 5 new): late success after switch; late failure after switch;
+  reverse-order responses (newest wins); older save cannot re-enable the button while a newer save is pending;
+  save finishing after sign-out. Negative check: on the unfixed file all 5 new tests fail; with the fix 6/6 pass.
+- **CG-002 (P2)**, `scripts/test-localization-ui.mjs`: removed the stale absolute screenshot path. A screenshot is
+  saved only when `UI_SCREENSHOT_DIR` is set (folder created), the same as the other UI tests. Urdu phone
+  screenshot checked: right-to-left panel at 360px.
+- **CG-003 (release gate)**, `scripts/test-connections-ui.mjs`: CI on current main `ad2713f` and on this PR passes, so
+  the failure on `da37f05` was intermittent. Two timing weaknesses fixed without hiding anything:
+  1. After switching theme the accessibility scan waited a fixed 450ms; on a slow runner it sampled the light
+     background with dark-theme text (contrast 1.03). It now also waits for running CSS transitions to finish
+     (capped at 3s; looping animations are not awaited). Evidence: under 3 parallel runs the old test failed 3/3 on
+     light-theme contrast; the new test passed 3/3.
+  2. The Resend form is a `<details>` opened by a summary click after Connect. The test now waits for the email
+     section, clicks the summary only if the form is closed, and fails with an explicit CG-003 message if the form
+     does not stay open. Limit: the original "form stayed collapsed" failure was not reproduced locally, so its root
+     cause is not proven; the new message will identify it if it recurs. No UI behaviour was changed.
+- Tests on this branch: `npm test` 73/73; `test:unit` 292 pass, 0 fail; localization browser test PASS;
+  `test:connections-ui` PASS (single and 3 parallel); `test:ui` 34; `test:mobile-workspace-ui` 354;
+  `test:console-all` 30 pages; `test:navigation-ui` 594; secrets scan and manifest PASS.
+
 ### Parked: T-095 Founder Console tables (not in this PR)
 
 Pushed (parked, no PR): branch `claude/t095-console-tables-wip` at `c419986`, based on `da37f05`. Contents: `office/console-tables.js` (labels cells, explicit table roles),
@@ -64,8 +94,10 @@ Pending: rebase onto this branch, rerun console/navigation/ui suites, own PR.
 
 ## Exact next action
 
-1. Owner reviews and merges the R1 PR (Claude does not merge or deploy).
-2. Owner confirms whether T-095 (console tables) belongs to Claude or to the density-batch session; if Claude, rebase it
-   onto the merged result, run suites and open its PR.
-3. Claude: start Prompt 03 localization migration group by group (Today first), adding dictionary keys and per-screen
-   coverage tests, with browser RTL checks per group.
+1. Owner reviews PR #98 (now includes R1 and R2). Claude does not merge or deploy.
+2. Claude next, in order, on separate branches: (a) ChatGPT's batch-5 review checks: role-filtered Command Centre
+   placeholders for manager/custom grants, and compression with no-store, already-encoded and streaming voice
+   responses; (b) T-095 console tables once ownership is confirmed; (c) Prompt 03 localization migration, Today
+   group first.
+3. When ChatGPT resumes it should read this log, mark CG-001 to CG-003 as fixed (pending its own re-verification)
+   in its log, and continue its review gates in `ACCEPTANCE_T094.md`.

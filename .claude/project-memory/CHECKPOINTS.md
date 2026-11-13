@@ -1655,3 +1655,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Owner reviews R1 PR; then rebase T-095 and open its PR; then Prompt 03 Today group
+
+## CP-119 2026-11-13T01:06:10+00:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: ChatGPT findings CG-001 locale save race fixed with 5 regressions; CG-002 screenshot path; CG-003 connections test timing hardened
+- Incomplete steps: Owner review PR #98; batch-5 review checks; T-095; Prompt 03
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/workspace-locale.js; saas/workspace.html; scripts/localization-ui.test.mjs; scripts/test-connections-ui.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; localization browser; connections-ui x4; ui; mobile-workspace-ui; console-all; navigation-ui; secrets; manifest
+- Test results: 73/73; 292 pass 0 fail; PASS; PASS; 34; 354; 30; 594; pass; pass
+- Git branch: claude/t094-package-on-main
+- Commit: a526d9d (Coordination log: T-095 parked branch); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Batch-5 review: role-filtered Command Centre placeholders and compression edge cases

@@ -2,7 +2,9 @@ import { message } from './locale-catalog.js';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
-let preference = null, loading = null, revision = 0;
+// revision: newest GET/PUT wins. context: bumps on business switch or sign-out, so a response that belongs to the
+// previous business or session can never repaint the page, set a status, or re-enable the save button (CG-001).
+let preference = null, loading = null, revision = 0, context = 0, activeSave = 0;
 const api = async (options = {}) => {
   const response = await fetch('/api/saas/preferences/language', { credentials: 'same-origin', ...options });
   if (!response.ok) throw new Error('Language preference unavailable');
@@ -40,14 +42,20 @@ if (trigger && dialog && form) {
   dialog.querySelector('[data-language-close]').addEventListener('click', () => dialog.close());
   form.addEventListener('submit', async event => {
     event.preventDefault(); const save = form.querySelector('[type="submit"]'); save.disabled = true;
+    const mine = ++revision, ctx = context; activeSave = mine;
+    const current = () => mine === revision && ctx === context;
     try {
-      ++revision;
       const data = await api({ method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locale: form.elements.locale.value }) });
-      apply(data); dialog.querySelector('[role="status"]').textContent = message(data.locale, 'notice');
-    } catch { dialog.querySelector('[role="status"]').textContent = message(preference?.locale || 'en', 'error'); }
-    finally { save.disabled = false; }
+      if (current()) { apply(data); dialog.querySelector('[role="status"]').textContent = message(data.locale, 'notice'); }
+    } catch { if (current()) dialog.querySelector('[role="status"]').textContent = message(preference?.locale || 'en', 'error'); }
+    finally { if (activeSave === mine) { activeSave = 0; save.disabled = false; } }
   });
-  window.addEventListener('superpro:workspace-ready', () => { load(); });
+  const resetContext = () => {
+    context++; activeSave = 0;
+    form.querySelector('[type="submit"]').disabled = false; dialog.querySelector('[role="status"]').textContent = '';
+  };
+  window.addEventListener('superpro:workspace-ready', () => { resetContext(); load(); });
+  document.getElementById('logout')?.addEventListener('click', resetContext, true);
   if (window.GDS_SESSION) load();
 }
 // Domain data is formatted on demand; never rewrite user-entered content or stored money.

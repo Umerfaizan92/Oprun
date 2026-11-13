@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import fs, { existsSync } from 'node:fs';
+import path from 'node:path';
 import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
 const server = await startServer(); let browser;
@@ -29,7 +30,8 @@ try {
   await page.locator('#workspace-language-dialog').waitFor({state:'visible'});
   const box=await page.locator('#workspace-language-dialog').boundingBox();assert.ok(box.x>=0&&box.x+box.width<=361,'language panel fits narrow phones');
   const overflow=await page.locator('#workspace-language-dialog').evaluate(el=>el.scrollWidth>el.clientWidth+1);assert.equal(overflow,false);
-  await page.screenshot({path:'/workspace/scratch/88396daa6758/localization-mobile-ur.png'});
+  // CG-002: screenshots only when asked for, into a folder the caller chooses (same convention as the other UI tests).
+  if(process.env.UI_SCREENSHOT_DIR){fs.mkdirSync(process.env.UI_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.UI_SCREENSHOT_DIR,'localization-mobile-ur.png')});}
   await page.locator('#preferred-language').selectOption('ja');
   await page.locator('#workspace-language-dialog button[type=submit]').click();
   await page.waitForFunction(()=>document.documentElement.dataset.preferredLocale==='ja');

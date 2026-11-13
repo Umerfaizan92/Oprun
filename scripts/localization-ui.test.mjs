@@ -28,3 +28,54 @@ test('language UI persists only validated API results and recovers from save fai
   assert.equal(w.OprunLocale.currency(125,'AUD'),new Intl.NumberFormat('hi',{style:'currency',currency:'AUD'}).format(125));
   dom.window.close();
 });
+
+// CG-001 (ChatGPT review of CP-117): a save started in one business must never repaint, set status or re-enable the
+// button after the user has switched business, signed out, or started a newer save.
+async function raceHarness() {
+  const dom=new JSDOM(`<html><body><button id="workspace-language">Language</button><button id="logout" data-i18n="signOut">Sign out</button><dialog id="workspace-language-dialog"><form><select name="locale"></select><p role="status"></p><button data-language-close type="button"></button><button type="submit"></button></form></dialog></body></html>`,{url:'https://oprun.example.test',runScripts:'outside-only'});
+  const w=dom.window,pending=[];const state={workspace:'A'};
+  const data=locale=>({locale,direction:localeDirection(locale),locales:localeCatalogue(locale)});
+  w.message=message;w.GDS_SESSION={};
+  w.fetch=async(_url,options={})=>{
+    if(options.method==='PUT'){const locale=JSON.parse(options.body).locale;return await new Promise(resolve=>pending.push({locale,ok:()=>resolve({ok:true,json:async()=>data(locale)}),fail:()=>resolve({ok:false})}));}
+    return {ok:true,json:async()=>data(state.workspace==='A'?'en-AU':'ja')};
+  };
+  const dialog=w.document.querySelector('dialog');dialog.showModal=()=>{dialog.open=true};dialog.close=()=>{dialog.open=false};
+  w.eval(source);await tick();
+  const form=w.document.querySelector('form'),status=w.document.querySelector('[role="status"]'),button=form.querySelector('[type="submit"]');
+  const save=async locale=>{form.elements.locale.value=locale;form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();};
+  const switchTo=async id=>{state.workspace=id;w.dispatchEvent(new w.Event('superpro:workspace-ready'));await tick();};
+  const locale=()=>w.document.documentElement.dataset.preferredLocale;
+  return {dom,w,pending,save,switchTo,locale,status,button};
+}
+for (const outcome of ['ok','fail']) test(`late ${outcome==='ok'?'success':'failure'} from business A cannot change business B`,async()=>{
+  const h=await raceHarness();
+  await h.save('ur');assert.equal(h.button.disabled,true);
+  await h.switchTo('B');assert.equal(h.locale(),'ja');assert.equal(h.button.disabled,false,'B can save straight away');
+  h.pending[0][outcome]();await tick();
+  assert.equal(h.locale(),'ja');assert.equal(h.w.document.documentElement.dir,'ltr');
+  assert.equal(h.status.textContent,'','no stale saved or error message');assert.equal(h.button.disabled,false);
+  h.dom.window.close();
+});
+test('newest save wins when responses arrive in reverse order',async()=>{
+  const h=await raceHarness();
+  await h.save('ur');await h.save('hi');
+  h.pending[1].ok();await tick();assert.equal(h.locale(),'hi');assert.equal(h.button.disabled,false);
+  h.pending[0].ok();await tick();assert.equal(h.locale(),'hi','older Urdu save arrives late and is ignored');
+  assert.equal(h.status.textContent,message('hi','notice'));
+  h.dom.window.close();
+});
+test('older save cannot re-enable the button while a newer save is pending',async()=>{
+  const h=await raceHarness();
+  await h.save('ur');await h.save('hi');
+  h.pending[0].ok();await tick();assert.equal(h.button.disabled,true);assert.equal(h.locale(),'en-AU');
+  h.pending[1].ok();await tick();assert.equal(h.button.disabled,false);assert.equal(h.locale(),'hi');
+  h.dom.window.close();
+});
+test('save finishing after sign-out is clicked does not repaint the page',async()=>{
+  const h=await raceHarness();
+  await h.save('ur');h.w.document.querySelector('#logout').click();
+  h.pending[0].ok();await tick();
+  assert.equal(h.locale(),'en-AU');assert.equal(h.status.textContent,'');
+  h.dom.window.close();
+});
