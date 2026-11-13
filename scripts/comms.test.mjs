@@ -333,3 +333,27 @@ test('contact form refuses posts from websites that are not the verified site (S
   assert.equal(r.status, 403);
   assert.equal(sql("SELECT COUNT(*) n FROM tenant_customers WHERE email='x@evil.example.test'")[0].n, 0);
 });
+
+test('website visit counts: verified site only, no personal data, bots and do-not-track skipped (S5b)', async (t) => {
+  const { s, owner, O, sql, stop } = await setup(); t.after(stop);
+  assert.equal((await O('GET', '/api/saas/website/visit-script')).status, 409);
+  const site = { url: 'https://harbourplumbing.com.au', hostname: 'harbourplumbing.com.au', verified: true };
+  sql("INSERT INTO organisation_integrations(organisation_id,provider,display_name,status,settings_json,updated_at) VALUES(?, 'website','Website','connected',?,?) ON CONFLICT(organisation_id,provider) DO UPDATE SET status='connected',settings_json=excluded.settings_json", owner.org, JSON.stringify({ website: site }), new Date().toISOString());
+  const script = (await O('GET', '/api/saas/website/visit-script')).json;
+  assert.match(script.html, new RegExp(`/api/public/visit/${owner.slug}`)); assert.doesNotMatch(script.html, /cookie/i);
+  const visit = (body, headers = {}) => fetch(`${s.base}/api/public/visit/${owner.slug}`, { method: 'POST', headers: { 'content-type': 'text/plain', origin: 'https://harbourplumbing.com.au', 'user-agent': 'Mozilla/5.0 Safari', ...headers }, body: JSON.stringify(body) });
+  let r = await visit({ p: '/services/hot-water?email=jo@x.com', r: 'https://www.google.com/search?q=plumber' });
+  assert.equal(r.status, 204); assert.equal(r.headers.get('access-control-allow-origin'), 'https://harbourplumbing.com.au');
+  await visit({ p: '/services/hot-water', r: 'https://harbourplumbing.com.au/' });
+  await visit({ p: '/', r: '' });
+  await visit({ p: '/' }, { 'user-agent': 'Googlebot/2.1' });
+  await visit({ p: '/' }, { dnt: '1' });
+  assert.equal((await visit({ p: '/' }, { origin: 'https://evil.example' })).status, 204, 'same answer for everyone');
+  const rows = sql('SELECT kind,key,visits FROM website_visit_counts WHERE organisation_id=? ORDER BY kind,key', owner.org);
+  assert.deepEqual(rows.map((x) => [x.kind, x.key, x.visits]), [['page', '/', 1], ['page', '/services/hot-water', 2], ['source', 'direct', 1], ['source', 'google.com', 1]]);
+  assert.ok(!JSON.stringify(rows).includes('jo@x.com'), 'query strings are never stored');
+  const v = (await O('GET', '/api/saas/website/visits?days=7')).json;
+  assert.equal(v.total, 3); assert.equal(v.pages[0].key, '/services/hot-water'); assert.equal(v.sources.length, 2);
+  const other = await seedOwner(s, { business: 'Other Co', email: 'other2@other.example.test' });
+  assert.equal((await s.call('GET', '/api/saas/website/visits', { cookie: other.cookie })).json.total, 0, 'counts are per business');
+});

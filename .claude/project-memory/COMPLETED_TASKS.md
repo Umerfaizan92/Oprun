@@ -253,3 +253,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/server.js,src/comms/routes.js,saas/integration-manager.js,saas/workspace.html,scripts/comms.test.mjs
 - Acceptance: comms tests incl. S5 pass; Connections UI test passes; npm test passes
 - Evidence: comms.test.mjs S5 tests 2/2 plus existing contact test; test-connections-ui PASS; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s5-website at 465b45b)
+
+## T-110 S5b website visit counts
+- Added: 2026-11-13
+- Requirement: Privacy-friendly daily visit counts for the verified website: page path and referring site only, no cookies, IPs, identifiers or query strings; bots and do-not-track skipped; verified origin only; owner view of totals, top pages and sources
+- Files: src/website-visits.js,src/comms/routes.js,src/server.js,saas/integration-manager.js,saas/workspace.html,scripts/comms.test.mjs,scripts/route-guards.test.mjs
+- Acceptance: comms S5b test passes; route guard reviewed; Connections UI passes; npm test passes
+- Evidence: comms.test.mjs S5 tests 3/3; route-guards with reviewed public visit route; test-connections-ui PASS; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s5b-site-visits at 53ba53a)

@@ -10,6 +10,7 @@ const OWNERS = ['owner', 'admin', 'super_admin', 'director'];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const page = (title, body) => `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:560px;margin:40px auto;padding:0 16px;color:#1b1f24}button{font:inherit;padding:10px 18px;border-radius:8px;border:0;background:#1f4e79;color:#fff;cursor:pointer}button:focus-visible{outline:3px solid #1f4e79;outline-offset:3px}</style></head><body><main>${body}</main></body></html>`;
 
+import { installWebsiteVisits } from '../website-visits.js';
 export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasUser, requireSaasRole, platform, saasAudit = () => {}, createApproval }) {
   const limiter = rateLimit({ windowMs: 60000, limit: 90, standardHeaders: true, legacyHeaders: false, keyGenerator: (req) => req.saas?.organisation_id || req.platform?.id || req.ip, message: { ok: false, error: 'Too many requests. Wait a minute and try again.' } });
   const publicLimiter = rateLimit({ windowMs: 10 * 60000, limit: 8, standardHeaders: true, legacyHeaders: false, message: { ok: false, error: 'Too many messages from this connection. Try again later or call the business.' } });
@@ -95,6 +96,7 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
     return site?.verified === true && /^https:\/\/[a-z0-9.-]+$/i.test(site.url || '') ? site.url.toLowerCase() : null;
   };
   const allowOrigin = (req, res) => { const origin = String(req.get('origin') || '').toLowerCase(), own = origin && siteOrigin(req.params.slug); if (own && origin === own) { res.set({ 'Access-Control-Allow-Origin': own, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '600' }); } res.vary('Origin'); };
+  installWebsiteVisits(app, { db, read, siteOrigin, wrap });
   app.options('/api/public/contact/:slug', publicLimiter, (req, res) => { allowOrigin(req, res); res.status(204).end(); });
   app.post('/api/public/contact/:slug', publicLimiter, express.urlencoded({ extended: false, limit: '20kb' }), wrap((req, res) => {
     allowOrigin(req, res);

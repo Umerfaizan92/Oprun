@@ -331,3 +331,11 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Tests: comms S5 tests pass, Connections UI PASS, npm test 73/73, secrets scan passed.
 - DEPLOY STILL PENDING: Render connector returns 502; main not deployed since PR #111. Owner told how to deploy manually.
 - Exact next action: S5b privacy-friendly site visit counts (no cookies, no IPs stored, verified origin only), then S6 Google.
+
+### S5b (T-110): website visit counts, 2026-11-13
+- New src/website-visits.js: POST /api/public/visit/:slug (always 204, counts only from the verified origin; skips bots, Do Not Track and Global Privacy Control; stores page path without query string and referring site host; daily totals only; 500 keys per business per day, overflow grouped; own rate limit 120 per 10 minutes).
+- Owner routes: GET /api/saas/website/visit-script and /api/saas/website/visits?days=. Connections > Website: "Get visit counter" and "Show visit counts".
+- New table website_visit_counts (cascade delete with the business). Reviewed and added to the route-guard public list.
+- Tests: comms S5 tests 3/3, Connections UI PASS, npm test 73/73, secrets scan passed.
+- DEPLOY STILL PENDING (Render connector 502).
+- Exact next action: S6 Google: check the existing Business Profile, Search Console and Analytics adapters (src/channel-providers.js google_business, google_seo, src/server.js Phase 06) and close the gaps.
