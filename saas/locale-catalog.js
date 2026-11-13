@@ -68,11 +68,22 @@ export function formatMessage(locale, pattern, values = {}) {
 // Lookup uses the base language, so a regional or unlisted variant (ur-PK, hi-IN) still finds its language's text.
 const baseLanguage = locale => { try { return new Intl.Locale(canonicalLocale(locale) || Intl.getCanonicalLocales(String(locale || ''))[0] || 'en').language; } catch { return 'en'; } };
 export function message(locale, key) { return MESSAGES[baseLanguage(locale)]?.[key] ?? MESSAGES.en[key] ?? key; }
+// Picker labels: each language once, in its own name, written the standard way ("English (Australia)",
+// "Español (México)"). Non-Latin names add the English name so anyone can find them ("اردو · Urdu"). No codes.
+// Browsers name Twi as Akan (its language family), which would show two identical entries.
+const NAME_OVERRIDES = { tw: 'Twi' };
+function capitalise(name, code) { try { return name.charAt(0).toLocaleUpperCase(code) + name.slice(1); } catch { return name; } }
+function pickerLabel(nativeName, englishName) {
+  const latin = !/[^\p{Script=Latin}\p{P}\p{Z}\p{N}]/u.test(nativeName);
+  return latin || !englishName || englishName === nativeName ? nativeName : `${nativeName} · ${englishName}`;
+}
 export function localeCatalogue(displayLocale = 'en') {
-  const names = new Intl.DisplayNames([canonicalLocale(displayLocale) || 'en', 'en'], { type: 'language' });
+  const names = new Intl.DisplayNames([canonicalLocale(displayLocale) || 'en', 'en'], { type: 'language', languageDisplay: 'standard' });
+  const english = new Intl.DisplayNames(['en'], { type: 'language', languageDisplay: 'standard' });
   return SELECTABLE_LOCALES.map(code => {
     let nativeName = code;
-    try { nativeName = new Intl.DisplayNames([code, 'en'], { type: 'language' }).of(code); } catch {}
-    return { code, name: names.of(code), native_name: nativeName, direction: localeDirection(code), translation_status: 'partial', translated_scope: MESSAGES[code.split('-')[0]] ? screenCoverage(code).filter(c => c.translated === c.total).map(c => c.screen).join(', ') + ' (machine draft, unreviewed)' : 'English-fallback', workspace_translation_certified: false };
+    try { nativeName = new Intl.DisplayNames([code, 'en'], { type: 'language', languageDisplay: 'standard' }).of(code); } catch {}
+    nativeName = NAME_OVERRIDES[code] || capitalise(nativeName, code);
+    return { code, name: names.of(code), native_name: nativeName, label: pickerLabel(nativeName, english.of(code)), direction: localeDirection(code), translation_status: 'partial', translated_scope: MESSAGES[code.split('-')[0]] ? screenCoverage(code).filter(c => c.translated === c.total).map(c => c.screen).join(', ') + ' (machine draft, unreviewed)' : 'English-fallback', workspace_translation_certified: false };
   });
 }

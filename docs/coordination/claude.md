@@ -127,6 +127,18 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R11: short language picker labels (T-102, owner request)
+
+- Live (R10) deploy: `dep-dbrdpg56e07s73bcn75g`, commit `a3d2450`, startup diagnostics 16/16.
+- Owner asked for short, professional language names (was "Australian English — Australian English (en-AU)").
+  Now each language once in its own standard name ("English (Australia)", "Español (México)"), with the English name
+  added only for non-Latin scripts ("اردو · Urdu"); no codes. Twi overridden (browsers call it Akan). 197 unique
+  labels, longest 38 characters. Same names on the Founder Console Languages page.
+- Live-site testing: this workspace cannot reach onrender.com (shell, fetch and browser blocked); the Chrome extension
+  is not connected from the owner's phone. Owner testing on device, or Claude in Chrome from the owner's computer.
+- Tests: label test (unique, short, no codes, capitalised); browser picker check; `npm test` 73/73; `test:unit` 305
+  pass, 0 fail; console-ui 16 PASS.
+
 ### 2026-11-13 Batch R10: Prompt 03 L5, always-visible chrome (T-101)
 
 - Live (R9) deploy: `dep-dbrcq66i0phs73ffuk8g`, commit `4581eca`, startup diagnostics 16/16.
