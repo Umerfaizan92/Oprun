@@ -288,3 +288,24 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-bars.css,saas/workspace-topbar.js,saas/workspace.html,saas/workspace-locale.js,saas/app.js,saas/integration-manager.js,scripts/test-localization-ui.mjs,scripts/test-connections-ui.mjs
 - Acceptance: Phone 360/390 one-row top bar with name visible; More menu works and closes; one-row dock with no wrapped labels; tablet/laptop single row uniform; UI suites and npm test pass
 - Evidence: Screenshots 360/390/768/1440 checked; navigation-ui 594 checks, mobile-readiness, redesign-ui, test-ui, localization-ui, channels, connections (3 runs), site, pipeline, console, automations, comms, finance, reliability, verify:modules, check:site, release:audit all pass; seo-ui one transient failure, passed 2 reruns and on base; npm test 73/73 (recorded 2026-11-13 on claude/m1-mobile-bars at 9be25b8)
+
+## T-115 C2 sign-in hardening
+- Added: 2026-11-13
+- Requirement: Owner: sign-in not happening on any connection. Verified Oprun redirects correctly for all configured providers; make Meta permissions configurable (core by default, extras via META_EXTRA_SCOPES / META_SCOPES / WHATSAPP_SCOPES) so Meta does not refuse sign-in for unadded permissions; keep failed sign-in visible on the card
+- Files: src/server.js,saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html,scripts/connections-safe-base.test.mjs
+- Acceptance: Round-trip test: core scopes only, extras added, malformed dropped, refused sign-in recorded and shown; npm test passes
+- Evidence: connections-safe-base 8/8 incl. new round-trip test; local browser check: Connect redirects to Facebook, Google, TikTok and X sign-in for 8 providers; connections-ui PASS; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at 8995658)
+
+## T-116 V2 YouTube and X photo/video posting
+- Added: 2026-11-13
+- Requirement: Owner: video, photo and message posting on every social platform where possible. YouTube video upload with title, description and Public/Unlisted/Private; X photo and video via v2 chunked upload (media.write); safe server-side media fetch
+- Files: src/media-fetch.js,src/channel-providers.js,src/channel-operations.js,src/server.js,saas/channel-operations.js,scripts/channel-operations.test.mjs
+- Acceptance: Unit tests for upload, ownership, privacy, chunking, processing failure, fetcher address checks; npm test passes
+- Evidence: channel-operations 21/21 incl. V2 and media-fetcher tests; channels-ui PASS; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at e58cf1b)
+
+## T-117 C3 Connect does nothing on phones; gold badges
+- Added: 2026-11-13
+- Requirement: Owner: pressing Connect / Authorise does nothing. Show the result right under the buttons and scroll to it; show a tappable 'Continue to sign-in' link because phones may block opening the provider app without a direct tap; tidy cards; original gold badges instead of provider logos
+- Files: saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html
+- Acceptance: Browser check: message and link under Connect; connections, channels, navigation, mobile, redesign UI pass
+- Evidence: Browser check at 980px: message under buttons, Continue link with provider URL; connections-ui, channels-ui, navigation-ui, mobile-readiness, redesign-ui pass; npm test 73/73 (recorded 2026-11-13 on claude/m2-connections-tidy at e58cf1b)

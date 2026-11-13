@@ -27,18 +27,20 @@ export const CHANNEL_PROVIDERS = {
 };
 export function channelCapabilities(provider, type) {
   const read = ['meta', 'youtube', 'gmail', 'tiktok', 'x', 'google_business', 'whatsapp', 'email_sms', 'website', 'google_seo'].includes(provider);
-  return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location' || provider === 'tiktok' && type === 'tiktok_account',
-    media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'tiktok' || provider === 'google_business' && type === 'google_business_location', media_required: provider === 'meta' && type === 'instagram_account' || provider === 'tiktok',
+  return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location' || provider === 'tiktok' && type === 'tiktok_account' || provider === 'youtube' && type === 'youtube_channel',
+    media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'tiktok' || provider === 'google_business' && type === 'google_business_location' || provider === 'youtube' || provider === 'x', media_required: provider === 'meta' && type === 'instagram_account' || provider === 'tiktok' || provider === 'youtube',
     reply: ['meta', 'youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: provider === 'tiktok',
     // Which kinds of media a post may carry. TikTok is video only; Facebook Pages and Instagram take either.
-    image: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location',
-    video: provider === 'tiktok' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account'),
+    image: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location' || provider === 'x',
+    video: provider === 'tiktok' || provider === 'youtube' || provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account'),
     ads_launch: false, note: provider === 'whatsapp' || provider === 'email_sms' || provider === 'website'
       ? 'Messages and delivery receipts use the existing Unified Inbox. Provider setup and consent are required.'
       : provider === 'meta' ? 'Facebook Page and Instagram posts, comments and follower totals sync; comment replies need approval. Facebook posts (text or one image) need Page permission; Instagram posts need one public image. Instagram direct messages require an additional reviewed adapter.'
       : 'Only granted provider permissions apply. Video upload and paid-ad launch are not enabled by this adapter.' };
 }
-export function createChannelProviderClient({runtime, env = {}}) {
+import {createMediaFetcher} from './media-fetch.js';
+export function createChannelProviderClient({runtime, env = {}, fetchMedia = createMediaFetcher(), http = globalThis.fetch}) {
+  const maxVideo = Math.min(500, Math.max(5, Number(env.MEDIA_MAX_MB) || 100)) * 1048576;
   const call = (url, token, options = {}) => runtime.requestJson(url, {...options, headers: {authorization: 'Bearer ' + token, ...options.headers}});
   const json = (method, body) => ({method, headers: {'content-type': 'application/json'}, body: JSON.stringify(body)});
   const graph = 'https://graph.facebook.com/' + String(env.META_GRAPH_VERSION || 'v23.0') + '/';
@@ -213,14 +215,32 @@ export function createChannelProviderClient({runtime, env = {}}) {
     }
     if (provider === 'x') {
       if ([...text].length > 280) throw Object.assign(new Error('Shorten the X post to 280 characters.'), {status:400});
-      return call('https://api.x.com/2/tweets', token, json('POST', {text, ...(draft.kind === 'reply' ? {reply:{in_reply_to_tweet_id:item.remote_id}} : {})}));
+      const xMedia = draft.kind === 'post' && draft.media_url ? publicImageUrl(draft.media_url) : null;
+      const mediaIds = xMedia ? [await uploadToX(bundle, xMedia, JSON.parse(draft.options_json || '{}').media_kind === 'video')] : [];
+      return call('https://api.x.com/2/tweets', token, json('POST', {text, ...(mediaIds.length ? {media:{media_ids:mediaIds}} : {}), ...(draft.kind === 'reply' ? {reply:{in_reply_to_tweet_id:item.remote_id}} : {})}));
     }
     const media = draft.media_url ? publicImageUrl(draft.media_url) : null;
-    const isVideo = provider === 'tiktok' || JSON.parse(draft.options_json || '{}').media_kind === 'video';
+    const opts = JSON.parse(draft.options_json || '{}'), isVideo = provider === 'tiktok' || provider === 'youtube' || opts.media_kind === 'video';
     if (draft.media_url && !media) throw Object.assign(new Error(provider === 'tiktok' ? 'The video link is not a public https link.' : 'The image link is not a public https link.'), {status:400});
     if (provider === 'google_business') {
       if ([...text].length > 1500) throw Object.assign(new Error('Shorten the Business Profile post to 1,500 characters.'), {status:400});
       return call('https://mybusiness.googleapis.com/v4/' + resource.parent_id + '/' + resource.id + '/localPosts', token, json('POST', {languageCode:'en', summary:text, topicType:'STANDARD', ...(media ? {media:[{mediaFormat:'PHOTO', sourceUrl:media}]} : {})}));
+    }
+    if (provider === 'youtube') {
+      if (!media) throw Object.assign(new Error('YouTube posts need a public https video link.'), {status:400});
+      const privacy = ['public', 'unlisted', 'private'].includes(opts.video_privacy) ? opts.video_privacy : null;
+      if (!privacy) throw Object.assign(new Error('Choose who can see this YouTube video.'), {status:400});
+      const mine = await call('https://www.googleapis.com/youtube/v3/channels?part=id&mine=true', token);
+      if (!mine.items?.some(c => c.id === resource.id)) throw Object.assign(new Error('The selected YouTube channel is not owned by this authorisation.'), {status:403});
+      const file = await fetchMedia(media, {kind:'video', maxBytes:maxVideo});
+      const lines = text.split(/\r?\n/), title = cut(lines[0].replace(/[<>]/g, '').trim() || 'New video', 100), description = cut(lines.slice(1).join('\n').replace(/[<>]/g, '').trim(), 5000);
+      const start = await http('https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status', {method:'POST', headers:{authorization:'Bearer ' + token, 'content-type':'application/json; charset=UTF-8', 'x-upload-content-type':file.type, 'x-upload-content-length':String(file.size)}, body:JSON.stringify({snippet:{title, description}, status:{privacyStatus:privacy, selfDeclaredMadeForKids:false}})});
+      const session = start.headers.get('location') || '';
+      if (!start.ok || !/^https:\/\/www\.googleapis\.com\/upload\/youtube\/v3\/videos\?/.test(session)) throw Object.assign(new Error('YouTube did not accept the upload (' + start.status + '). Check the channel permissions.'), {status:start.status === 403 ? 403 : 400});
+      const up = await http(session, {method:'PUT', headers:{authorization:'Bearer ' + token, 'content-type':file.type}, body:file.body});
+      const done = await up.json().catch(() => ({}));
+      if (!up.ok || !/^[\w-]{6,20}$/.test(String(done.id || ''))) throw Object.assign(new Error('YouTube did not finish the upload (' + up.status + '). Nothing else was sent.'), {status:400});
+      return {id:done.id, url:'https://www.youtube.com/watch?v=' + done.id};
     }
     if (provider === 'tiktok') {
       if (!media) throw Object.assign(new Error('TikTok posts need a public https video link.'), {status:400});
@@ -266,6 +286,28 @@ export function createChannelProviderClient({runtime, env = {}}) {
       return call(graph + id(resource.id) + '/media_publish', token, json('POST', {creation_id:container.id}));
     }
     throw Object.assign(new Error('Publishing is not enabled for this provider or content type.'), {status:409});
+  }
+  // X: photo or video through the v2 chunked upload (needs the media.write permission), then one post.
+  async function uploadToX(bundle, link, isVideo) {
+    if (!String(bundle.scope || '').split(/[ ,]+/).includes('media.write')) throw Object.assign(new Error('Reconnect X to allow photo and video posts (media.write permission).'), {status:403});
+    const token = bundle.access_token, file = await fetchMedia(link, {kind:isVideo ? 'video' : 'image', maxBytes:isVideo ? maxVideo : 5 * 1048576});
+    const init = await call('https://api.x.com/2/media/upload/initialize', token, json('POST', {media_type:file.type, total_bytes:file.size, media_category:isVideo ? 'tweet_video' : 'tweet_image'}));
+    const mid = String(init.data?.id || '');
+    if (!/^\d{5,30}$/.test(mid)) throw Object.assign(new Error('X did not accept the media.'), {status:400});
+    const step = 4 * 1048576;
+    for (let i = 0, at = 0; at < file.size; i++, at += step) {
+      const form = new FormData(); form.append('segment_index', String(i)); form.append('media', new Blob([file.body.subarray(at, at + step)], {type:file.type}), 'media');
+      const r = await http('https://api.x.com/2/media/upload/' + mid + '/append', {method:'POST', headers:{authorization:'Bearer ' + token}, body:form});
+      if (!r.ok) throw Object.assign(new Error('X stopped the upload (' + r.status + '). Nothing was posted.'), {status:400});
+    }
+    let info = (await call('https://api.x.com/2/media/upload/' + mid + '/finalize', token, json('POST', {}))).data?.processing_info;
+    for (let i = 0; info && info.state !== 'succeeded'; i++) {
+      if (info.state === 'failed') throw Object.assign(new Error('X could not process the ' + (isVideo ? 'video' : 'image') + '. Nothing was posted.'), {status:400});
+      if (i >= 20) throw Object.assign(new Error('X is still processing the video. Nothing was posted; try again later.'), {status:409});
+      await new Promise(done => setTimeout(done, env.X_MEDIA_POLL_MS !== undefined ? Number(env.X_MEDIA_POLL_MS) : Math.min(10, Math.max(1, Number(info.check_after_secs) || 2)) * 1000));
+      info = (await call('https://api.x.com/2/media/upload?command=STATUS&media_id=' + mid, token)).data?.processing_info;
+    }
+    return mid;
   }
   // What this TikTok account may post right now. TikTok requires the creator to choose visibility.
   async function tiktokCreatorInfo(bundle) {

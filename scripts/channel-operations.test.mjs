@@ -214,7 +214,7 @@ test('Instagram and Facebook image posts use public https images and publish onc
   assert.equal(fb.id,'111_77');assert.equal(calls.at(-1).auth,'Bearer page-token');assert.deepEqual(calls.at(-1).body,{url:'https://cdn.example.com/a.jpg',caption:'Hi'});
   await assert.rejects(client.execute('meta',{access_token:'t'},{id:'111',type:'facebook_page'},{kind:'post',body:'Hi',media_url:'http://x.com/a.jpg'},null),/public https/);
   const c=channelCapabilities('meta','instagram_account');assert.equal(c.post,true);assert.equal(c.media_required,true);
-  assert.equal(channelCapabilities('x','x_account').media,false);
+  assert.equal(channelCapabilities('x','x_account').media,true,'X takes photos and videos since V2');
 });
 
 test('draft images are additive, validated and refused where the channel cannot post them (S2)',async t=>{
@@ -332,5 +332,57 @@ test('Facebook Page video and Instagram Reels post from a public video link (V1)
   assert.equal(channelCapabilities('meta', 'instagram_account').video, true); assert.equal(channelCapabilities('tiktok', 'tiktok_account').image, false);
   const f = await fixture(t);
   const r = await f.call('/drafts', { body: { provider: 'youtube', resource_id: 'mine', kind: 'post', body: 'x', media_url: 'https://cdn.example.com/v.mp4', media_kind: 'video' } });
-  assert.equal(r.status, 409);
+  assert.equal(r.status, 400, 'YouTube video posts need a visibility choice (V2)');
+});
+
+test('YouTube uploads and X photo and video posts use the safe media fetcher and post once (V2)', async () => {
+  const calls = [], http = [];
+  const file = { body: Buffer.alloc(9 * 1048576, 1), type: 'video/mp4', size: 9 * 1048576 };
+  const fetchMedia = async (link, o) => { calls.push({ media: link, kind: o.kind }); return o.kind === 'image' ? { body: Buffer.from('img'), type: 'image/png', size: 3 } : file; };
+  let xStatus = ['in_progress', 'succeeded'], finalizeReply = { data: { processing_info: { state: 'pending' } } };
+  const fakeHttp = async (url, opt) => { http.push({ url, method: opt.method, body: opt.body });
+    if (url.includes('upload_id=abc')) return Response.json({ id: 'dQw4w9WgXcQ' });
+    if (url.includes('uploadType=resumable')) return new Response(null, { status: 200, headers: { location: 'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&upload_id=abc' } });
+    if (url.includes('/append')) return new Response(null, { status: 204 });
+    return new Response('{}', { status: 404 }); };
+  const client = createChannelProviderClient({ env: { X_MEDIA_POLL_MS: 0 }, fetchMedia, http: fakeHttp, runtime: { requestJson: async (url, opt = {}) => { calls.push({ url, body: opt.body && JSON.parse(opt.body) });
+    if (url.includes('channels?part=id&mine=true')) return { items: [{ id: 'UC123' }] };
+    if (url.endsWith('/initialize')) return { data: { id: '1880028106020515840' } };
+    if (url.endsWith('/finalize')) return finalizeReply;
+    if (url.includes('command=STATUS')) return { data: { processing_info: { state: xStatus.shift() || 'in_progress' } } };
+    if (url.endsWith('/2/tweets')) return { data: { id: '42' } };
+    return {}; } } });
+  const yt = { id: 'UC123', type: 'youtube_channel' };
+  const ytDraft = (privacy) => ({ kind: 'post', body: 'Gutter clean <before & after>\nFull job in Fremantle', media_url: 'https://cdn.example.com/job.mp4', options_json: JSON.stringify({ media_kind: 'video', ...(privacy ? { video_privacy: privacy } : {}) }) });
+  await assert.rejects(client.execute('youtube', { access_token: 't' }, yt, ytDraft()), /Choose who can see/);
+  await assert.rejects(client.execute('youtube', { access_token: 't' }, { id: 'UCother', type: 'youtube_channel' }, ytDraft('public')), /not owned/);
+  assert.deepEqual(await client.execute('youtube', { access_token: 't' }, yt, ytDraft('unlisted')), { id: 'dQw4w9WgXcQ', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+  const meta = JSON.parse(http.find((h) => h.method === 'POST' && h.url.includes('uploadType=resumable')).body);
+  assert.equal(meta.snippet.title, 'Gutter clean before & after'); assert.equal(meta.status.privacyStatus, 'unlisted');
+  assert.equal(http.filter((h) => h.method === 'PUT').length, 1, 'uploaded once');
+  const xDraft = (kind, link) => ({ kind: 'post', body: 'New job done', media_url: link, options_json: JSON.stringify({ media_kind: kind }) });
+  await assert.rejects(client.execute('x', { access_token: 't', scope: 'tweet.write' }, { id: '1', type: 'x_account' }, xDraft('video', 'https://cdn.example.com/v.mp4')), /media.write/);
+  http.length = 0; calls.length = 0;
+  await client.execute('x', { access_token: 't', scope: 'tweet.write media.write' }, { id: '1', type: 'x_account' }, xDraft('video', 'https://cdn.example.com/v.mp4'));
+  assert.equal(http.filter((h) => h.url.includes('/append')).length, 3, '9 MB in 4 MB chunks');
+  const tweet = calls.find((c) => c.url?.endsWith('/2/tweets'));
+  assert.deepEqual(tweet.body.media, { media_ids: ['1880028106020515840'] });
+  xStatus = ['failed']; calls.length = 0;
+  await assert.rejects(client.execute('x', { access_token: 't', scope: 'media.write' }, { id: '1', type: 'x_account' }, xDraft('video', 'https://cdn.example.com/v.mp4')), /could not process/);
+  assert.equal(calls.filter((c) => c.url?.endsWith('/2/tweets')).length, 0, 'nothing posted after a failed upload');
+  calls.length = 0; finalizeReply = { data: {} };
+  await client.execute('x', { access_token: 't', scope: 'media.write' }, { id: '1', type: 'x_account' }, { ...xDraft('image', 'https://cdn.example.com/a.png'), options_json: JSON.stringify({ media_kind: 'image' }) });
+  assert.equal(calls.find((c) => c.media)?.kind, 'image');
+  assert.equal(channelCapabilities('youtube', 'youtube_channel').post, true); assert.equal(channelCapabilities('youtube', 'youtube_channel').image, false);
+});
+
+test('media fetcher refuses private addresses, wrong types and oversize files', async () => {
+  const { createMediaFetcher, isPublicAddress } = await import('../src/media-fetch.js');
+  for (const ip of ['127.0.0.1', '10.1.2.3', '169.254.169.254', '192.168.1.1', '100.64.0.1', '::1', 'fd00::1', '::ffff:127.0.0.1']) assert.equal(isPublicAddress(ip), false, ip);
+  assert.equal(isPublicAddress('142.250.70.14'), true);
+  const fetchMedia = createMediaFetcher({ lookup: async (h) => [{ address: h === 'evil.example.com' ? '169.254.169.254' : '93.184.216.34', family: 4 }] });
+  await assert.rejects(fetchMedia('https://evil.example.com/v.mp4'), /public website/);
+  await assert.rejects(fetchMedia('http://cdn.example.com/v.mp4'), /public https link/);
+  await assert.rejects(fetchMedia('https://user:pw@cdn.example.com/v.mp4'), /public https link/);
+  await assert.rejects(fetchMedia('https://127.0.0.1/v.mp4'), /public https link/);
 });

@@ -374,3 +374,17 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Also: tooltips suppressed inside the open menu; closing the language window returns focus to "More" when the button is hidden; integration-manager render now waits for an in-flight refresh and refetches (fixes an intermittent missing "keys saved" message).
 - Tests: all CI UI suites pass locally (seo-ui had one transient failure that passed twice on rerun and on base), npm test 73/73.
 - Next: V2 YouTube and X video upload, then Prompt 03 L8.
+
+### C2 (T-115): sign-in hardening, 2026-11-14
+- Owner: "sign-in option not coming on any connection". Local browser check with test keys: Connect sends people to the real sign-in page for Meta, WhatsApp, YouTube, Gmail, Business Profile, Google SEO, TikTok and X; Snapchat shows "What is needed" (platform keys not set). So the live failure is on the provider side (app mode, test users, or permissions not added). Asked the owner what Facebook shows.
+- Meta now requests core permissions by default (pages_show_list, pages_read_engagement, pages_manage_posts, instagram_basic, instagram_content_publish). META_EXTRA_SCOPES adds more (for example pages_read_user_content, pages_manage_engagement, instagram_manage_comments for comment sync and replies); META_SCOPES and WHATSAPP_SCOPES replace the defaults. Malformed values are dropped.
+- A refused or failed sign-in is recorded on the connection (signin_error) and shown on its card; the previous working connection is kept.
+- Tests: new round-trip test, connections-safe-base 8/8, connections-ui PASS, npm test 73/73.
+- Owner action: on Render set META_EXTRA_SCOPES only after those permissions are added to the Meta app; switch Meta app to Live (after App Review) and Google consent screen to In production, or add test users.
+- Next: V2 YouTube and X video and photo posting; then Facebook Messenger and Instagram direct message replies.
+
+### V2 (T-116) and C3 (T-117), 2026-11-14
+- V2: YouTube video posts (resumable upload; first line = title, rest = description; owner picks Public, Unlisted or Private; channel ownership checked). X photo and video posts (v2 initialize/append/finalize/status; media.write added to the X permission list, existing X connections reconnect once). New src/media-fetch.js: https only, public addresses only and pinned (no DNS rebinding), 3 redirects re-checked, type and size limits (MEDIA_MAX_MB, default 100), no disk writes.
+- C3: owner said Connect does nothing. Result messages now appear directly under the buttons and scroll into view; when a sign-in address is returned a "Continue to … sign-in" button is shown as well (phones can block opening the provider app without a direct tap). Cards tidied; original gold badges (FI, WA, TT, YT, GM, GB, GS, X, SC) instead of provider logos (trademarks; their brand rules also forbid recolouring).
+- Coverage now: Facebook text/photo/video + comment replies; Instagram photo/Reels + comment replies; TikTok video; YouTube video + comment replies; X text/photo/video + replies; Business Profile text/photo + review replies; WhatsApp replies and templates. Not yet: Messenger and Instagram direct-message replies (inbound already arrives); Snapchat has no organic posting API for this account type.
+- Next: Messenger and Instagram DM replies (needs pages_messaging / instagram_manage_messages via META_EXTRA_SCOPES), then Prompt 03 L8.

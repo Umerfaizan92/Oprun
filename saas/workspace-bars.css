@@ -111,3 +111,27 @@
   html body #workspace .app-topbar :is(#pad-open,#open-digital-manual)>b{font-size:13px;font-weight:650;letter-spacing:0}
   html body #workspace .app-topbar .search-button svg{width:18px;height:18px}
 }
+
+/* Connections: a failed sign-in stays visible on its card. */
+.connection-signin-error{margin:10px 0;padding:10px 12px;border:1px solid rgba(239,107,107,.45);border-left-width:3px;border-radius:10px;background:rgba(239,107,107,.08);color:var(--text);font-size:13px;line-height:1.45}
+.connection-signin-error small{display:block;margin-top:2px;color:var(--muted,#a9b2c3)}
+.connection-action-result:not(:empty){margin:10px 0 4px;padding:10px 12px;border-radius:10px;background:var(--panel-2,rgba(255,255,255,.05));font-size:13px;line-height:1.45}
+.connection-action-result.connection-error{border:1px solid rgba(239,107,107,.45);background:rgba(239,107,107,.08)}
+.connection-continue{display:inline-flex;align-items:center;min-height:40px;margin-top:6px;padding:0 14px;border-radius:10px;background:var(--brand,#d9ad59);color:var(--brand-ink,#111)!important;font-weight:700;text-decoration:none}
+
+/* Connections: original gold badges in the Oprun palette. */
+html body #workspace .integration-logo.integration-badge{
+  display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:14px;padding:0;
+  background:radial-gradient(120% 120% at 20% 10%,#2a2112 0%,#14100a 70%);
+  border:1px solid rgba(217,173,89,.55);box-shadow:inset 0 1px 0 rgba(255,232,170,.18),0 6px 16px rgba(0,0,0,.35);
+  color:#f2cf7c;font-family:inherit;font-weight:800;font-size:14px;line-height:1;letter-spacing:.04em;text-transform:uppercase;
+  background-clip:padding-box
+}
+html body #workspace .integration-logo.integration-badge[data-provider="website"]{font-size:11px}
+html body #workspace .integration-logo.integration-badge[data-provider="email_sms"]{font-size:18px}
+html[data-theme="light"] body #workspace .integration-logo.integration-badge{background:linear-gradient(180deg,#fff8e6,#f3e2b6);color:#7a5a12;border-color:rgba(166,124,36,.55);box-shadow:inset 0 1px 0 #fff,0 4px 12px rgba(122,90,18,.15)}
+/* Connections cards: one column rhythm; collapsible sections full width; notes aligned with the content. */
+html body #workspace [data-provider-card]>details,html body #workspace [data-provider-card] details.connection-own-app{display:block;width:100%;max-width:none;box-sizing:border-box;margin:8px 0;padding:10px 12px;border-radius:12px}
+html body #workspace [data-provider-card]>details>summary{cursor:pointer;font-size:13px;font-weight:600}
+html body #workspace [data-provider-card]>.connection-note{margin:10px 0;padding:0;font-size:12.5px;line-height:1.5;color:var(--muted,#a9b2c3)}
+html body #workspace [data-provider-card] .integration-manager-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}

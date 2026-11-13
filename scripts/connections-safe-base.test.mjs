@@ -194,3 +194,21 @@ test('a business can use its own developer app keys: write-only, isolated, used 
   assert.equal(removed.json.in_use, 'none'); assert.equal(await ready('meta'), false);
   assert.equal((await O('GET', '/api/saas/integrations/self-service/website/app-keys')).status, 404);
 });
+
+test('Meta asks only for permissions the app has, and a refused sign-in stays visible on the card', async (t) => {
+  const s = await startServer({ META_APP_ID: '1234567890123', META_APP_SECRET: 'meta-secret-value-xyz', META_EXTRA_SCOPES: 'pages_manage_engagement, bad scope!' });
+  t.after(s.stop);
+  const owner = await seedOwner(s);
+  await s.call('GET', '/api/saas/integrations/self-service', { cookie: owner.cookie });
+  const start = await fetch(s.base + '/api/saas/integrations/self-service/meta/authorise', { method: 'POST', headers: { 'content-type': 'application/json', cookie: owner.cookie, origin: s.base }, body: '{}' });
+  const body = await start.json(); assert.equal(start.status, 200, JSON.stringify(body));
+  const url = new URL(body.authorize_url), scope = url.searchParams.get('scope').split(',');
+  assert.ok(scope.includes('pages_manage_posts') && scope.includes('pages_manage_engagement'));
+  assert.ok(!scope.includes('pages_read_user_content') && !scope.includes('instagram_manage_comments'), 'review-only permissions are not requested by default');
+  assert.ok(!scope.some((x) => /\s|!/.test(x)), 'malformed extra scopes are dropped');
+  const flowCookie = (start.headers.getSetCookie?.() || []).map((c) => c.split(';')[0]).join('; ');
+  const back = await fetch(s.base + '/api/saas/integrations/oauth/meta/callback?error=access_denied&state=' + encodeURIComponent(url.searchParams.get('state')), { redirect: 'manual', headers: { cookie: owner.cookie + '; ' + flowCookie } });
+  assert.equal(back.status, 303); assert.match(back.headers.get('location'), /integration_error=/);
+  const meta = (await s.call('GET', '/api/saas/integrations/self-service', { cookie: owner.cookie })).json.integrations.find((x) => x.provider === 'meta');
+  assert.match(meta.signin_error?.message || '', /Connection cancelled/); assert.equal(meta.status, 'not_connected');
+});
