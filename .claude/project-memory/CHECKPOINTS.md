@@ -1711,3 +1711,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Prompt 03 L2: script-rendered Today parts via formatMessage
+
+## CP-123 2026-11-13T05:55:55+00:00 T-097 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-097 (COMPLETED)
+- Completed steps: Prompt 03 L2 Today greeting and live board
+- Incomplete steps: Merge and deploy; L3 workflow track, readiness, industry vocabulary
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/locale-catalog.js; saas/workspace-gadgets.js; saas/workspace-locale.css; saas/workspace-locale.js; saas/workspace.html; scripts/localization-dictionary.test.mjs; scripts/localization-ui.test.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; UI suites; localization browser
+- Test results: 73/73; 301 pass 0 fail; all PASS
+- Git branch: claude/l2-today-scripts
+- Commit: 3ac5a02 (Merge PR #102: fix tilting cards swallowing clicks (E-036) + Prompt 03 L1 Today)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Prompt 03 L3: command-centre-sections.js strings and server terms per locale

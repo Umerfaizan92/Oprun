@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { JSDOM } from 'jsdom';
-import { message, localeCatalogue, localeDirection } from '../saas/locale-catalog.js';
+import { message, formatMessage, localeCatalogue, localeDirection } from '../saas/locale-catalog.js';
 const source=fs.readFileSync(new URL('../saas/workspace-locale.js',import.meta.url),'utf8').replace(/^import .*;\n/,'');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 test('language UI persists only validated API results and recovers from save failure',async()=>{
   const dom=new JSDOM(`<html><body><button id="workspace-language">Language</button><button id="logout" data-i18n="signOut">Sign out</button><dialog id="workspace-language-dialog"><form><h2 data-i18n="language"></h2><select name="locale"></select><p role="status"></p><button data-language-close type="button"></button><button type="submit" data-i18n="save"></button></form></dialog></body></html>`,{url:'https://oprun.example.test',runScripts:'outside-only'});
   const w=dom.window,requests=[];let locale='ur',fail=false;
-  w.message=message;w.GDS_SESSION={};
+  w.message=message;w.formatMessage=formatMessage;w.GDS_SESSION={};
   const dialog=w.document.querySelector('dialog');dialog.showModal=()=>{dialog.open=true};dialog.close=()=>{dialog.open=false};
   w.fetch=async(url,options)=>{requests.push({url,options});if(fail)return {ok:false};if(options.method==='PUT')locale=JSON.parse(options.body).locale;return {ok:true,json:async()=>({locale,direction:localeDirection(locale),locales:localeCatalogue(locale)})};};
   w.eval(source);await tick();
@@ -35,7 +35,7 @@ async function raceHarness() {
   const dom=new JSDOM(`<html><body><button id="workspace-language">Language</button><button id="logout" data-i18n="signOut">Sign out</button><dialog id="workspace-language-dialog"><form><select name="locale"></select><p role="status"></p><button data-language-close type="button"></button><button type="submit"></button></form></dialog></body></html>`,{url:'https://oprun.example.test',runScripts:'outside-only'});
   const w=dom.window,pending=[];const state={workspace:'A'};
   const data=locale=>({locale,direction:localeDirection(locale),locales:localeCatalogue(locale)});
-  w.message=message;w.GDS_SESSION={};
+  w.message=message;w.formatMessage=formatMessage;w.GDS_SESSION={};
   w.fetch=async(_url,options={})=>{
     if(options.method==='PUT'){const locale=JSON.parse(options.body).locale;return await new Promise(resolve=>pending.push({locale,ok:()=>resolve({ok:true,json:async()=>data(locale)}),fail:()=>resolve({ok:false})}));}
     return {ok:true,json:async()=>data(state.workspace==='A'?'en-AU':'ja')};

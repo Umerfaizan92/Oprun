@@ -19,3 +19,6 @@ html[dir="rtl"] input:not([type=email]):not([type=url]):not([type=tel]){unicode-
 /* Translated text (Urdu, Arabic) keeps the page's right-to-left direction even when it starts with Latin letters
    such as "AI", so its words stay in reading order. */
 html[dir="rtl"] [data-i18n][lang]:not([lang|="en"]){unicode-bidi:isolate}
+/* Script-drawn areas written in the reader's language (data-i18n-scope + lang) keep right-to-left order even when a
+   line starts with a number or an English business term ("0 team کے منتظر"). */
+html[dir="rtl"] [data-i18n-scope][lang]:not([lang|="en"]) :is(p,span,strong,b,em,small,button,li){unicode-bidi:isolate}

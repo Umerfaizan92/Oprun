@@ -127,6 +127,23 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R6: Prompt 03 L2, Today greeting and live figures board (T-097)
+
+- Live (R5) deploy: `dep-dbr99nk9v7es73btr7mg`, commit `3ac5a02`, startup diagnostics 16/16.
+- `OprunLocale.t(key, values)` for script-drawn text; English fallback kept inline in the scripts.
+- Dictionary `2026-11-13.2`: new screen `todayLive` (24 keys: greeting, tile labels, plurals, status line, live badge,
+  loading text) in hi, ur, ar (machine draft, unreviewed). Arabic uses all six plural forms; English output is
+  word-for-word what the board showed before (tested).
+- The board redraws from already-loaded figures when the language changes (no reload, no extra request).
+- Tile lines in Urdu/Arabic keep right-to-left order even when they start with a number or an English term
+  (`data-i18n-scope` + `lang` on the board).
+- **Known gap:** business vocabulary from the server (`terms`: Jobs, Team, Income, costs) stays in English inside
+  translated sentences. Next: translate the industry vocabulary on the server per locale, or let owners set it.
+- Not yet migrated on Today: workflow track and readiness checklist (`command-centre-sections.js`, about 22 KB).
+- Tests: dictionary 5/5; locale UI 6/6; browser test extended (Urdu greeting and board, ur->ar->ur switch without
+  reload, RTL isolate on tiles); `npm test` 73/73; `test:unit` 301 pass, 0 fail; test:ui, Command Centre loading,
+  redesign, mobile-workspace 354, navigation 594, console-all PASS.
+
 ### 2026-11-13 Batch R5: E-036 root cause fixed; Prompt 03 L1 (dictionaries + Today)
 
 - **E-036 fixed (`2213382`).** In-page click tracing under 2x load showed the TikTok "Save selection" click landing on
@@ -162,8 +179,8 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: Prompt 03 L2: the script-rendered Today parts (figures strip, greeting, workflow track, loading
-   text) using `formatMessage`, then the next screen group in navigation order. Native-speaker review is needed
+2. Claude next: Prompt 03 L3: Today workflow track and readiness checklist (`command-centre-sections.js`) and
+   industry vocabulary per locale; then the next screen group in navigation order. Native-speaker review is needed
    before any language is called translated.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.
