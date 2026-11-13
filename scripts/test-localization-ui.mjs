@@ -75,11 +75,20 @@ try {
   await page.evaluate(()=>location.hash='money/invoices');await page.locator('#businessinvoices-view').waitFor({state:'visible'});
   await page.waitForFunction(t=>document.body.innerText.includes(t),MESSAGES.ur['nav.flow.docsPayments']);
   await page.evaluate(()=>location.hash='today/home');await page.locator('#dashboard-view').waitFor({state:'visible'});
+  // Prompt 03 L5: always-visible parts (top bar, floating buttons, footer) in Urdu, including screen-reader labels.
+  const chrome=await page.evaluate(()=>({search:document.querySelector('.search-button [data-i18n]')?.textContent,searchLabel:document.querySelector('.search-button')?.getAttribute('aria-label'),
+    manual:document.querySelector('#open-digital-manual b')?.textContent,pay:document.querySelector('#pad-open b')?.textContent,payLabel:document.querySelector('#pad-open')?.getAttribute('aria-label'),
+    chat:document.querySelector('[data-i18n="chrome.officeChat"]')?.textContent,ask:document.querySelector('.copilot-launch b')?.textContent,askPlaceholder:document.querySelector('.copilot textarea')?.placeholder,
+    terms:document.querySelector('.app-footer [data-i18n="chrome.terms"]')?.textContent,copyright:document.querySelector('.app-footer [data-i18n="chrome.copyright"]')?.textContent}));
+  const want={search:'chrome.search',searchLabel:'chrome.search',manual:'manual',pay:'chrome.getPaid',payLabel:'chrome.getPaidLabel',chat:'chrome.officeChat',ask:'chrome.askOprun',askPlaceholder:'chrome.askPlaceholder',terms:'chrome.terms',copyright:'chrome.copyright'};
+  for (const [name,key] of Object.entries(want)) assert.equal(chrome[name],MESSAGES.ur[key],`${name} in Urdu`);
   // Mixed-language reading order (R14-02): untranslated English keeps its punctuation; translated Urdu stays right to left.
   const bidi=await page.evaluate(()=>{const s=e=>{const c=getComputedStyle(e);return c.direction+'/'+c.unicodeBidi};return{english:s(document.querySelector('#user-line')),urdu:s(document.querySelector('[data-i18n="today.askAi"]'))}});
   assert.equal(bidi.english,'rtl/plaintext','English text takes its own direction inside a right-to-left page');
   assert.equal(bidi.urdu,'rtl/isolate','translated text starting with Latin letters stays right to left');
   for (const width of [1440,768,390,360]) {
+    if (width===390) { const dock=await page.evaluate(()=>[...document.querySelectorAll('.mobile-workspace-item[data-dock-key] .mobile-workspace-label')].map(e=>e.textContent));
+      if (dock.length) assert.ok(dock.includes(MESSAGES.ur['chrome.allFeatures']),'phone bottom bar in Urdu: '+dock.join(', ')); }
     await page.setViewportSize({width,height:900});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,`Urdu Today page has no sideways scroll at ${width}px`);
   }

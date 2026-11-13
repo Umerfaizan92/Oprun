@@ -10,7 +10,7 @@
   function build(){
     if(document.querySelector('#gds-staff-chat'))return;
     const badge=el('span',{class:'sc-badge',hidden:true,'aria-label':'Unread messages'});
-    const launch=el('button',{class:'sc-launch',type:'button','aria-expanded':'false','aria-controls':'gds-staff-chat-panel'},el('span',{class:'sc-launch-icon','aria-hidden':'true',text:'◎'}),el('span',{class:'sc-launch-text'},el('b',{text:'Office chat'}),el('small',{text:'Internal staff only'})),badge);
+    const launch=el('button',{class:'sc-launch',type:'button','aria-expanded':'false','aria-controls':'gds-staff-chat-panel'},el('span',{class:'sc-launch-icon','aria-hidden':'true',text:'◎'}),el('span',{class:'sc-launch-text'},el('b',{text:'Office chat','data-i18n':'chrome.officeChat'}),el('small',{text:'Internal staff only','data-i18n':'chrome.staffOnly'})),badge);
     const btn=(label,text,attr)=>el('button',{type:'button','aria-label':label,title:label,...attr,text});
     const bMin=btn('Minimise staff chat','—',{'data-sc':'min'}),bMax=btn('Maximise staff chat','⤢',{'data-sc':'max'}),bClose=btn('Close staff chat','×',{'data-sc':'close'});
     const log=el('div',{class:'sc-log',role:'log','aria-live':'polite'},el('p',{class:'sc-empty',text:'Loading messages…'}));

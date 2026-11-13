@@ -37,11 +37,14 @@
     }
     return !list.hidden;
   };
+  const DOCK_I18N = { menu: 'chrome.allFeatures', ask: 'chrome.askOprun', chat: 'chrome.officeChat' };
   function control(label, symbol, action, current, key) {
     const b = make('button', 'mobile-workspace-item'); b.type = 'button'; b.dataset.dockKey = key;
     b.title = label; b.setAttribute('aria-label', label);
     const plate = make('span', 'mobile-workspace-icon'); plate.append(icon(symbol));
-    b.append(plate, make('span', 'mobile-workspace-label', label));
+    const text = make('span', 'mobile-workspace-label', label), i18n = DOCK_I18N[key];
+    if (i18n) { text.dataset.i18n = i18n; b.dataset.i18nAttr = `title=${i18n};aria-label=${i18n}`; } // Prompt 03 L5: translated as it appears
+    b.append(plate, text);
     if (current) b.setAttribute('aria-current', current);
     b.addEventListener('click', action); return b;
   }
