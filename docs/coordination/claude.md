@@ -354,3 +354,14 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Composer: "Post type" Photo/Video where both apply. channel-operations.js cache version bumped (it had not changed since 12 Nov, so S2-S4 composer fields may have been served stale).
 - Tests: channel-operations 18/18, channel UI 4/4, npm test 73/73, secrets scan passed.
 - Next: owner's Connections rework (own sign-in plus optional own app keys, switch account, audit), then V2 YouTube and X video upload.
+
+### C1 (T-113): Connections: own sign-in, own app keys, switch account, audit, 2026-11-13
+- Owner request: every business connects its own accounts, never Oprun's or Fleet Parlour's; no passwords; switch account; organise and audit Connections; secure.
+- New src/oauth-apps.js and table organisation_oauth_apps: a business may save its own developer app keys per family (Meta covers Facebook, Instagram and WhatsApp; Google covers YouTube, Gmail, Business Profile and SEO; TikTok; X; Snapchat). Secret AES-GCM encrypted, write-only, owner/admin only, rate limited, audited, isolated per business.
+- Sign-in start, sign-in completion, Meta long-lived token, token refresh and TikTok revoke use the business's own app when saved (kept inside the encrypted token bundle), else Oprun's app. A business with its own keys can connect even when Oprun's app is not configured.
+- Saving or removing keys signs out connections made with a different app (with a "Sign in again" note).
+- Switch account: button on connected cards; asks the provider for an account choice (Meta auth_type=reauthenticate; Google already uses select_account; TikTok disable_auto_auth); the old connection stays until the new sign-in finishes; selections and confirmation reset on the new account.
+- Each card now states that sign-in happens on the provider's own page and Oprun never asks for or stores social-media passwords. "Use your own app keys (advanced)" panel shows the exact callback address to register.
+- Audit: browser clicked all 27 Connections buttons across 9 tabs: no page errors, no server errors; the two AI question chips fill the question box (working).
+- Tests: own-keys server test, refresh test, Connections UI PASS (switch account and own keys), npm test 73/73, secrets scan passed.
+- Next: V2 YouTube and X video upload, then resume pending prompts (Prompt 03 L8 by default).

@@ -81,18 +81,21 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
     for(const [k,v] of Object.entries(values||{}))if(useful(v))body.set(k,String(v));
     return requestJson(url,{method:'POST',headers:{'content-type':'application/x-www-form-urlencoded',...headers},body});
   }
+  // A connection made with the business's own developer app carries that app inside its encrypted bundle, so
+  // refreshes keep using the same app. Connections made with Oprun's app use the platform configuration.
+  const appOf=(bundle,idKey,secretKey)=>bundle?.oauth_app?.client_id&&bundle?.oauth_app?.client_secret?{id:bundle.oauth_app.client_id,secret:bundle.oauth_app.client_secret}:{id:String(env[idKey]||''),secret:String(env[secretKey]||'')};
   async function refreshToken(provider,bundle){
     if(!bundle?.refresh_token)throw new Error('This provider did not return a refresh token. Re-authorisation is required.');
     let next;
     if(provider==='youtube'||provider==='google_business'||provider==='google_seo'||provider==='gmail'){
-      next=await postForm('https://oauth2.googleapis.com/token',{client_id:env.GOOGLE_CLIENT_ID,client_secret:env.GOOGLE_CLIENT_SECRET,refresh_token:bundle.refresh_token,grant_type:'refresh_token'});
+      const a=appOf(bundle,'GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET');next=await postForm('https://oauth2.googleapis.com/token',{client_id:a.id,client_secret:a.secret,refresh_token:bundle.refresh_token,grant_type:'refresh_token'});
     }else if(provider==='tiktok'){
-      next=await postForm('https://open.tiktokapis.com/v2/oauth/token/',{client_key:env.TIKTOK_CLIENT_KEY,client_secret:env.TIKTOK_CLIENT_SECRET,grant_type:'refresh_token',refresh_token:bundle.refresh_token});
+      const a=appOf(bundle,'TIKTOK_CLIENT_KEY','TIKTOK_CLIENT_SECRET');next=await postForm('https://open.tiktokapis.com/v2/oauth/token/',{client_key:a.id,client_secret:a.secret,grant_type:'refresh_token',refresh_token:bundle.refresh_token});
     }else if(provider==='x'){
-      const basic=Buffer.from(String(env.X_CLIENT_ID||'')+':'+String(env.X_CLIENT_SECRET||'')).toString('base64');
-      next=await postForm('https://api.x.com/2/oauth2/token',{client_id:env.X_CLIENT_ID,grant_type:'refresh_token',refresh_token:bundle.refresh_token},{authorization:'Basic '+basic});
+      const a=appOf(bundle,'X_CLIENT_ID','X_CLIENT_SECRET'),basic=Buffer.from(a.id+':'+a.secret).toString('base64');
+      next=await postForm('https://api.x.com/2/oauth2/token',{client_id:a.id,grant_type:'refresh_token',refresh_token:bundle.refresh_token},{authorization:'Basic '+basic});
     }else if(provider==='snapchat'){
-      const basic=Buffer.from(String(env.SNAPCHAT_CLIENT_ID||'')+':'+String(env.SNAPCHAT_CLIENT_SECRET||'')).toString('base64');
+      const a=appOf(bundle,'SNAPCHAT_CLIENT_ID','SNAPCHAT_CLIENT_SECRET'),basic=Buffer.from(a.id+':'+a.secret).toString('base64');
       next=await postForm(String(env.SNAPCHAT_TOKEN_URL||'https://accounts.snapchat.com/login/oauth2/access_token'),{grant_type:'refresh_token',refresh_token:bundle.refresh_token},{authorization:'Basic '+basic});
     }else{
       throw new Error('Automatic token refresh is not available for '+provider+'. Re-authorisation may be required when the provider token expires.');
@@ -204,11 +207,12 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
   }
   // Meta issues a sign-in token that lasts hours. Exchanging it on the server gives one that lasts about 60 days, so a
   // subscriber is not asked to reconnect the same day (T-070, audit finding F5). Meta has no refresh token.
-  async function extendMetaToken(bundle){
-    if(!bundle?.access_token||!useful(env.META_APP_ID)||!useful(env.META_APP_SECRET))return bundle;
-    const version=String(env.META_GRAPH_VERSION||'v23.0'),query=new URLSearchParams({grant_type:'fb_exchange_token',client_id:String(env.META_APP_ID).trim(),client_secret:String(env.META_APP_SECRET),fb_exchange_token:String(bundle.access_token)});
+  async function extendMetaToken(bundle,app=null){
+    const id=String(app?.client_id||env.META_APP_ID||'').trim(),secret=String(app?.client_secret||env.META_APP_SECRET||'');
+    if(!bundle?.access_token||!useful(id)||!useful(secret))return bundle;
+    const version=String(env.META_GRAPH_VERSION||'v23.0'),query=new URLSearchParams({grant_type:'fb_exchange_token',client_id:id,client_secret:secret,fb_exchange_token:String(bundle.access_token)});
     let data;try{data=await requestJson('https://graph.facebook.com/'+version+'/oauth/access_token?'+query)}
-    catch(error){const safe=new Error(redactIntegrationError(error,[env.META_APP_SECRET,bundle.access_token]));safe.status=error?.status;throw safe} // these values travel in the address, so redact them here
+    catch(error){const safe=new Error(redactIntegrationError(error,[secret,env.META_APP_SECRET,bundle.access_token]));safe.status=error?.status;throw safe} // these values travel in the address, so redact them here
     if(!data?.access_token)return bundle;
     const base={...bundle};delete base.expires_in;delete base.expires_at; // a reply without expires_in means the short expiry no longer applies
     return normalizeToken({access_token:data.access_token,token_type:data.token_type||bundle.token_type,...(Number(data.expires_in)>0?{expires_in:Number(data.expires_in)}:{})},base);
@@ -237,7 +241,7 @@ export function createIntegrationRuntime({env,fetchImpl=globalThis.fetch,legacyS
         return {remote_revoked:true};
       }
       if(provider==='tiktok'){
-        await postForm('https://open.tiktokapis.com/v2/oauth/revoke/',{client_key:env.TIKTOK_CLIENT_KEY,client_secret:env.TIKTOK_CLIENT_SECRET,token});
+        const a=appOf(bundle,'TIKTOK_CLIENT_KEY','TIKTOK_CLIENT_SECRET');await postForm('https://open.tiktokapis.com/v2/oauth/revoke/',{client_key:a.id,client_secret:a.secret,token});
         return {remote_revoked:true};
       }
       if(provider==='meta'||provider==='whatsapp'){

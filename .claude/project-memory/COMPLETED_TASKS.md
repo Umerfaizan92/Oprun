@@ -274,3 +274,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/channel-providers.js,src/channel-operations.js,saas/channel-operations.js,saas/workspace.html,scripts/channel-operations.test.mjs
 - Acceptance: channel unit + UI tests and npm test pass
 - Evidence: channel-operations 18/18 incl. V1 test; channel UI 4/4 (390/768/1440); npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/v1-meta-video at d406973)
+
+## T-113 C1 Connections: own sign-in, own app keys, switch account, audit
+- Added: 2026-11-13
+- Requirement: Owner: each business connects its own accounts (provider sign-in; never Oprun or Fleet Parlour accounts, never passwords); optional own developer app keys per platform family (encrypted, write-only, isolated); switch account; organised Connections; audit and fix buttons; secure backend
+- Files: src/oauth-apps.js,src/server.js,src/integration-runtime.js,saas/integration-manager.js,saas/workspace.html,scripts/connections-safe-base.test.mjs,scripts/integration-tenant.test.mjs,scripts/test-connections-ui.mjs
+- Acceptance: Server test for own keys; refresh test; Connections UI test incl. switch and own keys; button audit; npm test passes
+- Evidence: connections-safe-base own-keys test pass; integration-tenant 8/8 incl. refresh; test-connections-ui PASS incl. switch account and own app keys; browser audit of 27 Connections buttons: no errors, no 5xx, no broken buttons; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/c1-own-accounts at e53cebe)

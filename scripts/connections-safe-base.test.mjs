@@ -162,3 +162,35 @@ test('one external account serves one workspace only', async (t) => {
   assert.deepEqual(saved(b.org), ['page-111', 'page-222']);
   check.close();
 });
+
+test('a business can use its own developer app keys: write-only, isolated, used for sign-in, and changes sign out (owner request)', async (t) => {
+  const s = await startServer({ GOOGLE_CLIENT_ID: 'platform-client.apps.googleusercontent.com', GOOGLE_CLIENT_SECRET: 'platform-secret-value' });
+  t.after(s.stop);
+  const owner = await seedOwner(s), other = await seedOwner(s, { business: 'Second Co', email: 'second@second.example.test' });
+  const O = (m, u, body) => s.call(m, u, { cookie: owner.cookie, body });
+  const list = async (who = owner) => (await s.call('GET', '/api/saas/integrations/self-service', { cookie: who.cookie })).json.integrations;
+  const ready = async (p, who) => (await list(who)).find((x) => x.provider === p).provider_ready;
+  assert.equal(await ready('meta'), false, 'no platform Meta app and no own app');
+  let keys = (await O('GET', '/api/saas/integrations/self-service/meta/app-keys')).json;
+  assert.equal(keys.in_use, 'none'); assert.equal(keys.family, 'meta'); assert.match(keys.callback_url || '', /\/api\/saas\/integrations\/oauth\/meta\/callback$/);
+  assert.equal((await O('PUT', '/api/saas/integrations/self-service/meta/app-keys', { client_id: 'not-a-number', client_secret: 'abcdefghijklmnopqrstuvwxyz' })).status, 400);
+  const sql = (q, ...a) => { const d = new Database(s.dbPath); try { return /^\s*select/i.test(q) ? d.prepare(q).all(...a) : d.prepare(q).run(...a); } finally { d.close(); } };
+  sql("UPDATE organisation_integrations SET status='connected',account_label='Old account',settings_json='{}' WHERE organisation_id=? AND provider='meta'", owner.org);
+  const saved = await O('PUT', '/api/saas/integrations/self-service/meta/app-keys', { client_id: '987654321012345', client_secret: 'own-meta-secret-value-123' });
+  assert.equal(saved.status, 200); assert.equal(saved.json.in_use, 'own'); assert.deepEqual(saved.json.signed_out, ['meta']);
+  assert.ok(!JSON.stringify(saved.json).includes('own-meta-secret-value-123'), 'the secret is never returned');
+  assert.ok(!JSON.stringify(sql('SELECT * FROM organisation_oauth_apps')).includes('own-meta-secret-value-123'), 'the secret is stored encrypted');
+  assert.equal(sql("SELECT status FROM organisation_integrations WHERE organisation_id=? AND provider='meta'", owner.org)[0].status, 'not_connected');
+  assert.equal(await ready('meta'), true); assert.equal(await ready('whatsapp'), true, 'WhatsApp shares the Meta app');
+  const auth = await O('POST', '/api/saas/integrations/self-service/meta/authorise', { switch_account: true });
+  assert.equal(auth.status, 200, JSON.stringify(auth.json));
+  const url = new URL(auth.json.authorize_url);
+  assert.equal(url.searchParams.get('client_id'), '987654321012345'); assert.equal(url.searchParams.get('auth_type'), 'reauthenticate');
+  assert.equal(await ready('meta', other), false, 'another business does not get these keys');
+  assert.equal((await s.call('GET', '/api/saas/integrations/self-service/meta/app-keys', { cookie: other.cookie })).json.in_use, 'none');
+  const g = await O('POST', '/api/saas/integrations/self-service/youtube/authorise', {});
+  assert.equal(new URL(g.json.authorize_url).searchParams.get('client_id'), 'platform-client.apps.googleusercontent.com', 'Oprun app still used where no own keys exist');
+  const removed = await O('DELETE', '/api/saas/integrations/self-service/meta/app-keys');
+  assert.equal(removed.json.in_use, 'none'); assert.equal(await ready('meta'), false);
+  assert.equal((await O('GET', '/api/saas/integrations/self-service/website/app-keys')).status, 404);
+});

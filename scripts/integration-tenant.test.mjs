@@ -124,3 +124,13 @@ test('signed tenant email verifies the account, recipient and receipt ownership 
  db.prepare('INSERT INTO communication_deliveries VALUES (?,?,?)').run('b','resend','early-other');webhooks.flushPending();
  assert.equal(receipts.length,2,'a queued event cannot apply to a later record in a different workspace');db.close();
 });
+
+test('token refresh keeps using the business own app when the connection was made with it', async () => {
+  const bodies = [];
+  const runtime = createIntegrationRuntime({ env: { INTEGRATION_ENCRYPTION_KEY: 'test-encryption-only', GOOGLE_CLIENT_ID: 'platform-id', GOOGLE_CLIENT_SECRET: 'platform-secret' }, fetchImpl: async (url, opt) => { bodies.push(String(opt?.body || '')); return Response.json({ access_token: 'new', expires_in: 3600 }); } });
+  const own = await runtime.refreshToken('youtube', { refresh_token: 'r', oauth_app: { client_id: 'own-id', client_secret: 'own-secret' } });
+  assert.match(bodies[0], /client_id=own-id/); assert.match(bodies[0], /client_secret=own-secret/);
+  assert.equal(own.oauth_app.client_id, 'own-id', 'the app stays with the refreshed bundle');
+  await runtime.refreshToken('youtube', { refresh_token: 'r' });
+  assert.match(bodies[1], /client_id=platform-id/);
+});
