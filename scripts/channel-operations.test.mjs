@@ -259,3 +259,36 @@ test('templates are refused outside WhatsApp replies (S3)',async t=>{
   assert.equal(r.status,409);
   assert.ok(f.db.prepare('PRAGMA table_info(channel_drafts)').all().some(c=>c.name==='template_json'));
 });
+
+test('TikTok posting: permission, creator-chosen visibility, one post only, status checked (S4)',async t=>{
+  const f=await fixture(t);
+  assert.ok(f.db.prepare('PRAGMA table_info(channel_drafts)').all().some(c=>c.name==='options_json'));
+  const bad=await f.call('/drafts',{body:{provider:'youtube',resource_id:'mine',kind:'post',body:'Hi',privacy_level:'SELF_ONLY'}});
+  assert.ok([400,409].includes(bad.status));
+  const calls=[];let status=['PROCESSING_DOWNLOAD','PUBLISH_COMPLETE'],initReply={data:{publish_id:'v_pub_url~v2.123'},error:{code:'ok'}};
+  const client=createChannelProviderClient({env:{TIKTOK_PUBLISH_POLL_MS:0},runtime:{requestJson:async(url,opt={})=>{calls.push({url,body:opt.body&&JSON.parse(opt.body)});
+    if(url.includes('creator_info'))return {data:{creator_nickname:'Fleet',privacy_level_options:['SELF_ONLY','FOLLOWER_OF_CREATOR'],comment_disabled:false,duet_disabled:true,stitch_disabled:true,max_video_post_duration_sec:300},error:{code:'ok'}};
+    if(url.includes('/video/init/'))return initReply;
+    if(url.includes('/status/fetch/'))return {data:{status:status.shift()||'PROCESSING_UPLOAD'}};
+    return {};}}});
+  const acct={id:'open1',type:'tiktok_account'},granted={access_token:'t',scope:'user.info.basic,video.list,video.publish'};
+  const post=(privacy,media='https://cdn.example.com/v.mp4')=>({kind:'post',body:'Gutter clean before and after',media_url:media,options_json:JSON.stringify({privacy_level:privacy})});
+  const info=await client.tiktokCreatorInfo(granted);
+  assert.deepEqual(info.privacy_levels,['SELF_ONLY','FOLLOWER_OF_CREATOR']);
+  await assert.rejects(client.execute('tiktok',{access_token:'t',scope:'video.list'},acct,post('SELF_ONLY')),/video\.publish/);
+  await assert.rejects(client.execute('tiktok',granted,acct,post('PUBLIC_TO_EVERYONE')),/Choose who can see/);
+  await assert.rejects(client.execute('tiktok',granted,acct,post('SELF_ONLY','http://localhost/v.mp4')),/video link is not a public https link/);
+  calls.length=0;
+  assert.deepEqual(await client.execute('tiktok',granted,acct,post('SELF_ONLY')),{id:'v_pub_url~v2.123'});
+  const init=calls.find(c=>c.url.includes('/video/init/'));
+  assert.equal(init.body.source_info.source,'PULL_FROM_URL');assert.equal(init.body.post_info.privacy_level,'SELF_ONLY');assert.equal(init.body.post_info.disable_duet,true);
+  assert.equal(calls.filter(c=>c.url.includes('/video/init/')).length,1);
+  status=[];calls.length=0;
+  assert.deepEqual(await client.execute('tiktok',granted,acct,post('SELF_ONLY')),{id:'v_pub_url~v2.123',processing:true});
+  assert.equal(calls.filter(c=>c.url.includes('/video/init/')).length,1);
+  status=['FAILED'];
+  await assert.rejects(client.execute('tiktok',granted,acct,post('SELF_ONLY')),/could not publish/);
+  initReply={error:{code:'url_ownership_unverified'}};
+  await assert.rejects(client.execute('tiktok',granted,acct,post('SELF_ONLY')),/domain is verified/);
+  assert.equal(channelCapabilities('tiktok','tiktok_account').post,true);assert.equal(channelCapabilities('tiktok','tiktok_account').media_required,true);
+});

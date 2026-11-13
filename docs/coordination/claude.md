@@ -313,3 +313,14 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - New nullable column channel_drafts.template_json (additive). Composer shows a template picker for WhatsApp.
 - Tests: channel-operations 15/15, channel UI 4/4, npm test 73/73, secrets scan passed.
 - Exact next action: S4 TikTok video publishing (Content Posting API: direct post from a public video URL with privacy level from creator_info, approval required, status polling), then website, Google.
+
+- DEPLOY PENDING (13:10 UTC): PRs #112 and #113 are merged (main 6c09513) but not yet deployed; the Render connector timed out. Deploy first on resume.
+
+### S4 (T-108): TikTok video posting, 2026-11-13
+- TikTok accounts can post a video from a public https link (TikTok fetches it; the link's domain must be verified with TikTok). Requires the video.publish permission, which TikTok grants only after app review (Prompt 14).
+- The creator picks who can see the video; before sending, TikTok's creator_info is checked and only allowed options are accepted. Comment, duet and stitch settings follow the account. One post only: once TikTok accepts the video it is never sent again; status is checked up to 5 times.
+- New GET /api/saas/channels/tiktok/creator-info; new nullable column channel_drafts.options_json (additive). Composer shows "Video link" and "Who can see this video" for TikTok.
+- Fix: AI growth suggestions no longer offer text-only posts on channels that need an image or video (TikTok, Instagram); they offer a plan instead.
+- Tests: channel-operations 16/16, channel UI 4/4, npm test 73/73, secrets scan passed.
+- Still pending: Render deploy of PRs #112 and #113 (and this one); the Render connector was unavailable.
+- Exact next action: deploy main to Render; then S5 website connection (lead forms and site analytics), then S6 Google (Business Profile, Search Console, Analytics).

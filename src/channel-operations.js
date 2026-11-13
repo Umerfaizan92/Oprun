@@ -36,6 +36,8 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
   // Additive migration: an optional public image for posts. Existing drafts are unchanged.
   if (!db.prepare('PRAGMA table_info(channel_drafts)').all().some(c => c.name === 'media_url')) db.exec('ALTER TABLE channel_drafts ADD COLUMN media_url TEXT');
   if (!db.prepare('PRAGMA table_info(channel_drafts)').all().some(c => c.name === 'template_json')) db.exec('ALTER TABLE channel_drafts ADD COLUMN template_json TEXT');
+  // Additive migration: per-post options such as TikTok visibility.
+  if (!db.prepare('PRAGMA table_info(channel_drafts)').all().some(c => c.name === 'options_json')) db.exec('ALTER TABLE channel_drafts ADD COLUMN options_json TEXT');
   // Opted-out numbers never receive WhatsApp templates. The table belongs to the inbox and may be absent in isolated tests.
   const optedOut = (o, address) => { try { return Boolean(db.prepare("SELECT 1 FROM marketing_suppressions WHERE owner_key=? AND channel='sms' AND address=?").get(o, normPhone(address))); } catch { return false; } };
   const currentMember = (org,user) => db.prepare("SELECT m.role,m.created_at FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.user_id=? AND m.status='active' AND u.status='active'").get(org,user);
@@ -126,6 +128,12 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
       })();
       res.json({ok:true,revision:b.revision+1});
     }));
+    app.get('/api/saas/channels/tiktok/creator-info',...read,limit,wrap(async(req,res) => {
+      const rid = z.string().min(1).max(300).parse(req.query.resource_id);
+      need(req,'tiktok','draft',rid);
+      const {bundle} = await verified(req,'tiktok',rid,'draft');
+      res.json({ok:true,creator:await client.tiktokCreatorInfo(bundle),posting_permission:String(bundle.scope || '').split(/[ ,]+/).includes('video.publish')});
+    }));
     app.post('/api/saas/channels/:provider/sync',...read,limit,wrap(async(req,res) => {
       const p = providerSchema.parse(req.params.provider), b = body(z.object({resource_id:z.string().min(1).max(300)}).strict(),req);
       need(req,p,'sync',b.resource_id);
@@ -160,7 +168,7 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
       res.json({ok:true,templates:await client.templates(bundle,resource)});
     }));
     app.post('/api/saas/channels/drafts',...read,limit,wrap(async(req,res) => {
-      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional(),template:z.object({name:z.string().regex(/^[a-z0-9_]{1,512}$/),language:z.string().regex(/^[a-z]{2,3}(_[A-Z]{2})?$/),params:z.array(z.string().trim().min(1).max(1000)).max(10).default([])}).strict().optional()}).strict(),req);
+      const b = body(z.object({provider:providerSchema,resource_id:z.string().min(1).max(300),kind:z.enum(['post','reply']),body:z.string().trim().min(1).max(5000),item_id:z.string().uuid().nullable().default(null),media_url:z.string().trim().max(1500).optional(),privacy_level:z.enum(['PUBLIC_TO_EVERYONE','MUTUAL_FOLLOW_FRIENDS','FOLLOWER_OF_CREATOR','SELF_ONLY']).optional(),template:z.object({name:z.string().regex(/^[a-z0-9_]{1,512}$/),language:z.string().regex(/^[a-z]{2,3}(_[A-Z]{2})?$/),params:z.array(z.string().trim().min(1).max(1000)).max(10).default([])}).strict().optional()}).strict(),req);
       need(req,b.provider,'draft',b.resource_id);
       const r = selected(req,b.provider).find(r => r.id === b.resource_id);if (!r) throw fail(404,'Selected resource not found.');
       const cap = channelCapabilities(b.provider,r.type);let target=null;
@@ -169,7 +177,9 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
       const media = b.media_url ? publicImageUrl(b.media_url) : null;
       if (b.media_url && !media) throw fail(400,'Use a public https image link (JPEG or PNG), without a username, password or port.');
       if (media && (b.kind !== 'post' || !cap.media)) throw fail(409,'Images are not enabled for this action.');
-      if (b.kind === 'post' && cap.media_required && !media) throw fail(400,'Instagram posts need an image link.');
+      if (b.kind === 'post' && cap.media_required && !media) throw fail(400,b.provider === 'tiktok' ? 'TikTok posts need a public video link.' : 'Instagram posts need an image link.');
+      if (b.privacy_level && (b.provider !== 'tiktok' || b.kind !== 'post')) throw fail(409,'Visibility is only for TikTok posts.');
+      if (b.provider === 'tiktok' && b.kind === 'post' && !b.privacy_level) throw fail(400,'Choose who can see this TikTok video.');
       if (r.type === 'instagram_account' && [...b.body].length > 2200) throw fail(400,'Instagram captions must be at most 2,200 characters.');
       if (b.kind === 'reply') {
         const item = db.prepare('SELECT * FROM channel_items WHERE id=? AND organisation_id=? AND provider=? AND resource_id=?').get(b.item_id,org(req),b.provider,b.resource_id);
@@ -188,7 +198,7 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
         } else if (!target.window_open || Date.now()-Date.parse(target.occurred_at) > 86400000) throw fail(409,'More than 24 hours have passed. Choose an approved template.');
       } else if (b.template) throw fail(409,'Templates are only for WhatsApp replies.');
       const id = crypto.randomUUID(), at = stamp();
-      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,template_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,templateJson,at,at);
+      db.prepare("INSERT INTO channel_drafts(id,organisation_id,provider,resource_id,item_id,kind,body,status,created_by,target_json,media_url,template_json,options_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?)").run(id,org(req),b.provider,b.resource_id,b.item_id,b.kind,b.body,req.saas.user_id,target?JSON.stringify(target):null,media,templateJson,b.privacy_level?JSON.stringify({privacy_level:b.privacy_level}):null,at,at);
       audit(req,'channels.draft_created','channel_draft',id,{provider:b.provider,kind:b.kind});res.status(201).json({ok:true,id,status:'pending'});
     }));
     const draftFor = req => {const r = db.prepare('SELECT * FROM channel_drafts WHERE id=? AND organisation_id=?').get(req.params.id,org(req));if (!r) throw fail(404,'Draft not found.');return r;};
@@ -276,7 +286,8 @@ export function createChannelOperations({db, env = {}, runtime, connections, pub
         const reach = i => Number(i.metrics?.views ?? i.metrics?.impression_count ?? i.metrics?.viewCount);
         const top = sample.filter(i => Number.isFinite(reach(i))).sort((x,y) => reach(y) - reach(x))[0];
         const evidence = top ? {title:short(top.title || top.text),views:reach(top)} : null;
-        const canPost = cap.post && allowed.includes('draft'), canPlan = allowed.includes('campaign');
+        // Suggestions are text only, so channels that need an image or video get a plan instead.
+        const canPost = cap.post && !cap.media_required && allowed.includes('draft'), canPlan = allowed.includes('campaign');
         const post = text => ({type:'post',provider:p,resource_id:resource.id,body:text});
         const plan = (name,goal,text) => ({type:'campaign',name:(name + ' · ' + label).slice(0,160),goal,providers:[p],mode:'organic',body:text});
         let title, why, text, apply;
