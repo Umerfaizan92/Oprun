@@ -28,7 +28,7 @@ export const CHANNEL_PROVIDERS = {
 export function channelCapabilities(provider, type) {
   const read = ['meta', 'youtube', 'gmail', 'tiktok', 'x', 'google_business', 'whatsapp', 'email_sms', 'website', 'google_seo'].includes(provider);
   return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'google_business' && type === 'google_business_location' || provider === 'tiktok' && type === 'tiktok_account',
-    media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'tiktok', media_required: provider === 'meta' && type === 'instagram_account' || provider === 'tiktok',
+    media: provider === 'meta' && (type === 'facebook_page' || type === 'instagram_account') || provider === 'tiktok' || provider === 'google_business' && type === 'google_business_location', media_required: provider === 'meta' && type === 'instagram_account' || provider === 'tiktok',
     reply: ['meta', 'youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: provider === 'tiktok',
     ads_launch: false, note: provider === 'whatsapp' || provider === 'email_sms' || provider === 'website'
       ? 'Messages and delivery receipts use the existing Unified Inbox. Provider setup and consent are required.'
@@ -212,9 +212,12 @@ export function createChannelProviderClient({runtime, env = {}}) {
       if ([...text].length > 280) throw Object.assign(new Error('Shorten the X post to 280 characters.'), {status:400});
       return call('https://api.x.com/2/tweets', token, json('POST', {text, ...(draft.kind === 'reply' ? {reply:{in_reply_to_tweet_id:item.remote_id}} : {})}));
     }
-    if (provider === 'google_business') return call('https://mybusiness.googleapis.com/v4/' + resource.parent_id + '/' + resource.id + '/localPosts', token, json('POST', {languageCode:'en', summary:text, topicType:'STANDARD'}));
     const media = draft.media_url ? publicImageUrl(draft.media_url) : null;
     if (draft.media_url && !media) throw Object.assign(new Error(provider === 'tiktok' ? 'The video link is not a public https link.' : 'The image link is not a public https link.'), {status:400});
+    if (provider === 'google_business') {
+      if ([...text].length > 1500) throw Object.assign(new Error('Shorten the Business Profile post to 1,500 characters.'), {status:400});
+      return call('https://mybusiness.googleapis.com/v4/' + resource.parent_id + '/' + resource.id + '/localPosts', token, json('POST', {languageCode:'en', summary:text, topicType:'STANDARD', ...(media ? {media:[{mediaFormat:'PHOTO', sourceUrl:media}]} : {})}));
+    }
     if (provider === 'tiktok') {
       if (!media) throw Object.assign(new Error('TikTok posts need a public https video link.'), {status:400});
       if (!String(bundle.scope || '').split(/[ ,]+/).includes('video.publish')) throw Object.assign(new Error('TikTok posting permission (video.publish) was not granted. Reconnect TikTok after the app is approved for posting.'), {status:403});

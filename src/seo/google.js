@@ -98,6 +98,12 @@ export function createGoogleClient({ fetchImpl = globalThis.fetch, env = {} } = 
       const STARS = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };
       return { average: j.averageRating ?? null, total: j.totalReviewCount ?? null, reviews: (j.reviews || []).map((r) => ({ review_id: r.reviewId, reviewer: r.reviewer?.isAnonymous ? 'Anonymous' : r.reviewer?.displayName || 'Google user', rating: STARS[r.starRating] ?? null, comment: r.comment || '', created_at: r.createTime, reply: r.reviewReply?.comment || null, name: r.name })) };
     },
+    // What people typed into Google Search or Maps before the business appeared (monthly, last full months).
+    async gbpSearchKeywords(token, location, { startMonth, endMonth } = {}) {
+      const id = location.split('/').slice(-2).join('/'), q = new URLSearchParams({ 'monthlyRange.start_month.year': startMonth.y, 'monthlyRange.start_month.month': startMonth.m, 'monthlyRange.end_month.year': endMonth.y, 'monthlyRange.end_month.month': endMonth.m, pageSize: '100' });
+      const j = await call(fetchImpl, `https://businessprofileperformance.googleapis.com/v1/${id}/searchkeywords/impressions/monthly?${q}`, { token });
+      return (j.searchKeywordsCounts || []).map((k) => ({ keyword: String(k.searchKeyword || '').slice(0, 120), impressions: k.insightsValue?.value !== undefined ? Number(k.insightsValue.value) : null, below: k.insightsValue?.threshold !== undefined ? Number(k.insightsValue.threshold) : null })).filter((k) => k.keyword).slice(0, 25);
+    },
     async gbpReply(token, reviewName, comment) {
       await call(fetchImpl, `https://mybusiness.googleapis.com/v4/${reviewName}/reply`, { token, method: 'PUT', body: { comment } });
       return { replied: true };

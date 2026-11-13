@@ -260,3 +260,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/website-visits.js,src/comms/routes.js,src/server.js,saas/integration-manager.js,saas/workspace.html,scripts/comms.test.mjs,scripts/route-guards.test.mjs
 - Acceptance: comms S5b test passes; route guard reviewed; Connections UI passes; npm test passes
 - Evidence: comms.test.mjs S5 tests 3/3; route-guards with reviewed public visit route; test-connections-ui PASS; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s5b-site-visits at 53ba53a)
+
+## T-111 S6 Google Business Profile gaps
+- Added: 2026-11-13
+- Requirement: Show direction requests; monthly search terms that found the business (exact or fewer-than values); Business Profile posts may include a public photo, 1,500-character limit
+- Files: src/seo/google.js,src/integration-insights.js,src/channel-providers.js,saas/integration-manager.js,saas/workspace.html,scripts/seo-units.test.mjs,scripts/channel-operations.test.mjs
+- Acceptance: seo-units and channel tests pass; Connections UI passes; npm test passes
+- Evidence: seo-units + channel-operations 0 failures incl. 2 new S6 tests; test-connections-ui PASS; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s6-google at 53fa914)

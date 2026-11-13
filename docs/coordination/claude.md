@@ -339,3 +339,11 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Tests: comms S5 tests 3/3, Connections UI PASS, npm test 73/73, secrets scan passed.
 - DEPLOY STILL PENDING (Render connector 502).
 - Exact next action: S6 Google: check the existing Business Profile, Search Console and Analytics adapters (src/channel-providers.js google_business, google_seo, src/server.js Phase 06) and close the gaps.
+
+### S6 (T-111): Google Business Profile gaps, 2026-11-13
+- Review found Google mostly complete already (Search Console queries, URL inspection, sitemaps; GA4 reports; Tag Manager; Business Profile reviews, review replies, posts, performance).
+- Added: direction requests in Business Profile figures; monthly search terms that found the business (Business Profile Performance searchkeywords, previous three complete months, "fewer than N" kept as Google reports it), shown on Connections; Business Profile posts may include a public photo (1,500-character limit).
+- Tests: seo-units and channel-operations pass (2 new), Connections UI PASS, npm test 73/73, secrets scan passed.
+- Deployed: PRs #112-#116 live at 15:15 UTC (dep-dbrigiuc6qcc73e10g20, startup 16/16).
+- Connections batch (owner order: social, WhatsApp, TikTok, website, Google) is complete in code. Live use needs provider app reviews and credentials (Prompt 14).
+- Exact next action: owner to choose the next area. Default: resume Prompt 03 L8 (screen bodies in menu order, starting with Work > Enquiries).

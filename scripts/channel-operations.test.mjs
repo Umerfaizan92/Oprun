@@ -292,3 +292,15 @@ test('TikTok posting: permission, creator-chosen visibility, one post only, stat
   await assert.rejects(client.execute('tiktok',granted,acct,post('SELF_ONLY')),/domain is verified/);
   assert.equal(channelCapabilities('tiktok','tiktok_account').post,true);assert.equal(channelCapabilities('tiktok','tiktok_account').media_required,true);
 });
+
+test('Business Profile posts may carry a public photo and are length-checked (S6)', async () => {
+  const calls = []; const client = createChannelProviderClient({ runtime: { requestJson: async (url, opt = {}) => { calls.push({ url, body: JSON.parse(opt.body || '{}') }); return { name: 'accounts/1/locations/2/localPosts/3' }; } } });
+  const loc = { id: 'locations/2', parent_id: 'accounts/1', type: 'google_business_location' };
+  await client.execute('google_business', { access_token: 't' }, loc, { kind: 'post', body: 'Winter special', media_url: 'https://cdn.example.com/a.jpg' });
+  assert.deepEqual(calls[0].body.media, [{ mediaFormat: 'PHOTO', sourceUrl: 'https://cdn.example.com/a.jpg' }]);
+  await client.execute('google_business', { access_token: 't' }, loc, { kind: 'post', body: 'Text only' });
+  assert.equal(calls[1].body.media, undefined);
+  await assert.rejects(client.execute('google_business', { access_token: 't' }, loc, { kind: 'post', body: 'x'.repeat(1501) }), /1,500/);
+  assert.equal(channelCapabilities('google_business', 'google_business_location').media, true);
+  assert.equal(channelCapabilities('google_business', 'google_business_location').media_required, false);
+});
