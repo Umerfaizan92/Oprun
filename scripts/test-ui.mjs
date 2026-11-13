@@ -24,7 +24,7 @@ const screenshot=async(page,name)=>{if(process.env.UI_SCREENSHOT_DIR){fs.mkdirSy
 try{
   let ready=false;for(let i=0;i<100&&!ready;i++){if(child.exitCode!==null)throw Error(serverLog.slice(-2000));try{ready=(await fetch(base+'/healthz')).ok}catch{}if(!ready)await new Promise(r=>setTimeout(r,100))}assert.ok(ready,'local server starts');
   browser=await chromium.launch({headless:true,...(process.env.UI_CHROMIUM_PATH?{executablePath:process.env.UI_CHROMIUM_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']}:{} )});
-  const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(8000);page.on('pageerror',e=>errors.push(e.message));
+  const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(15000);// E-036: 8s missed slow re-renders under CI load at different steps (lines 173, 220, 235); other UI suites use 10-12spage.on('pageerror',e=>errors.push(e.message));
   await check('public landing keeps its palette and compact responsive layout',async()=>{
     for(const width of [390,1440]){await page.setViewportSize({width,height:900});await page.goto(base+'/saas/index.html');await page.locator('.guide-card').waitFor({state:'visible'});assert.equal(await page.locator('.sp-motion-toggle').count(),0);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await screenshot(page,'landing-'+width);}
   });
@@ -182,8 +182,20 @@ try{
     }
     await card.locator('[data-im-resource]').uncheck();
     const savedResponse=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/saas/integrations/self-service/tiktok/resources'&&r.request().method()==='POST');
-    await card.getByRole('button',{name:'Save selection'}).click();
-    assert.ok((await savedResponse).ok(),'resource selection request must succeed');
+    const requests=[];const onRequest=r=>{if(r.url().includes('/integrations/self-service'))requests.push(r.method()+' '+new URL(r.url()).pathname+' '+(Date.now()%100000))};page.on('request',onRequest);
+    savedResponse.catch(()=>{});
+    await page.evaluate(()=>{window.__saveClicks=[];document.addEventListener('click',e=>{window.__saveClicks.push({phase:'capture',target:(e.target.outerHTML||String(e.target)).slice(0,140),x:e.clientX,y:e.clientY})},true);window.addEventListener('click',e=>{if(e.target.closest?.('[data-im-save]'))window.__saveClicks.push({phase:'reached-window',prevented:e.defaultPrevented})})});
+    await card.getByRole('button',{name:'Save selection'}).hover();await page.mouse.move(980,470,{steps:3});
+    assert.equal(await card.evaluate(c=>c.classList.contains('is-tilting')||c.classList.contains('tilt')),false,'E-036: a card with controls must not tilt under the pointer');
+    await card.getByRole('button',{name:'Save selection'}).click({timeout:12000}).catch(async error=>{
+      const state=await page.evaluate(()=>{const c=document.querySelector('[data-provider-card="tiktok"]'),b=c?.querySelector('[data-im-save]');const r=b?.getBoundingClientRect();const top=r&&document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+        return{save:b&&{text:b.textContent,disabled:b.disabled,rect:[r.x,r.y,r.width,r.height],covered:top&&top!==b&&!b.contains(top)?(top.id||top.className||top.tagName):null},checked:[...(c?.querySelectorAll('[data-im-resource]')||[])].map(i=>i.checked),viewport:[innerWidth,innerHeight],scrollY}});
+      console.log('DIAG TikTok click state: '+JSON.stringify(state));throw error;});
+    const response=await savedResponse.catch(async error=>{
+      const state=await card.evaluate(c=>({checked:[...c.querySelectorAll('[data-im-resource]')].map(i=>i.checked),save:[...c.querySelectorAll('[data-im-save]')].map(b=>({text:b.textContent,disabled:b.disabled})),connected:c.isConnected,cards:document.querySelectorAll('[data-provider-card="tiktok"]').length}));
+      console.log('DIAG TikTok save state: '+JSON.stringify({requests,state,clicks:await page.evaluate(()=>window.__saveClicks),named:await page.evaluate(()=>[...document.querySelectorAll('button')].filter(b=>b.textContent.trim()==='Save selection').map(b=>{const r=b.getBoundingClientRect();return{attrs:[...b.attributes].map(a=>a.name).join(' '),inCard:!!b.closest('[data-provider-card="tiktok"]'),rect:[r.x|0,r.y|0,r.width|0,r.height|0]}}))}));throw error;});
+    page.off('request',onRequest);
+    assert.ok(response.ok(),'resource selection request must succeed');
     await page.waitForFunction(()=>!document.querySelector('[data-provider-card="tiktok"] [data-im-save]')?.disabled);
     assert.deepEqual(saved,[]);
     await page.unrouteAll({behavior:'wait'});
@@ -219,7 +231,12 @@ try{
   });
   await check('owner can find role authorisation and save employee permissions',async()=>{
     await page.evaluate(()=>location.hash='people/staff');await page.locator('#team-view').waitFor({state:'visible'});
-    await page.locator('#team-open-invite').waitFor({state:'visible'});
+    // E-036: intermittent timeout here (1 in 3 to 1 in 4 runs). On failure, record why the button is not visible.
+    await page.locator('#team-open-invite').waitFor({state:'visible'}).catch(async error=>{
+      const state=await page.evaluate(()=>{const b=document.querySelector('#team-open-invite'),r=b?.getBoundingClientRect(),hidden=[];
+        for(let x=b;x;x=x.parentElement){const cs=getComputedStyle(x);if(x.hidden||x.inert||cs.display==='none'||cs.visibility!=='visible'||+cs.opacity===0)hidden.push(`${x.id||x.className||x.tagName} hidden=${x.hidden} inert=${x.inert} ${cs.display}/${cs.visibility}/${cs.opacity}`)}
+        return{hash:location.hash,width:innerWidth,rect:r&&[r.x,r.y,r.width,r.height],hidden,visibleViews:[...document.querySelectorAll('.view')].filter(v=>!v.hidden).map(v=>v.id),openDialogs:[...document.querySelectorAll('dialog[open]')].map(d=>d.id)}});
+      console.log('DIAG E-036 state: '+JSON.stringify(state));throw error;});
     const worker=await post('/api/saas/workers',{full_name:'UI Test Employee',email:'ui.employee@example.test',role_title:'Office employee',employment_type:'casual',work_status:'australian_citizen'});
     const invitation=await post('/api/saas/team-accounts/invitations',{worker_id:worker.id,email:'ui.employee@example.test',role:'employee'});
     const db=createDb(path.join(temp,'test.sqlite'));
