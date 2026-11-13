@@ -14,6 +14,8 @@ try {
   await page.locator('#workspace-language').click();
   await page.locator('#workspace-language-dialog').waitFor({state:'visible'});
   assert.ok(await page.locator('#preferred-language option').count()>180);
+  assert.equal(await page.locator('#preferred-language option[value="ur"]').textContent(),'اردو · Urdu','short picker label');
+  assert.equal(await page.locator('#preferred-language option[value="en-AU"]').textContent(),'English (Australia)');
   await page.locator('#preferred-language').selectOption('ur');
   await page.locator('#workspace-language-dialog button[type=submit]').click();
   await page.waitForFunction(()=>document.documentElement.dataset.preferredLocale==='ur');

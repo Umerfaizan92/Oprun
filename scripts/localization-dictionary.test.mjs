@@ -115,3 +115,17 @@ test('keys tagged by scripts exist and their English is the exact text those scr
   }
   assert.ok(found >= 12, `found ${found} tagged keys`);
 });
+
+test('language picker labels are short, unique and free of codes', () => {
+  const list = localeCatalogue();
+  assert.equal(new Set(list.map((x) => x.label)).size, list.length, 'no two languages share a label');
+  for (const x of list) {
+    assert.ok(x.label.length <= 45, `${x.code}: label too long (${x.label})`);
+    assert.doesNotMatch(x.label, new RegExp(`\\(${x.code.replace('-', '\\-')}\\)|—`), `${x.code}: no codes or repeated names`);
+    assert.equal(x.label[0], x.label[0].toLocaleUpperCase(x.code), `${x.code}: starts with a capital where the script has one`);
+  }
+  const by = (code) => list.find((x) => x.code === code).label;
+  assert.equal(by('en-AU'), 'English (Australia)');
+  assert.equal(by('es-MX'), 'Español (México)');
+  assert.equal(by('ur'), 'اردو · Urdu');
+});

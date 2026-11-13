@@ -1,4 +1,4 @@
-import { message, formatMessage } from './locale-catalog.js?v=20261113.l6';
+import { message, formatMessage } from './locale-catalog.js?v=20261113.l7';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
@@ -44,7 +44,7 @@ function apply(data) {
   trigger.textContent = localeName; trigger.lang = data.locale; trigger.setAttribute('aria-label', `${message(data.locale, 'language')}: ${localeName}`);
   form.elements.locale.replaceChildren(...data.locales.map(locale => {
     const option = document.createElement('option'); option.value = locale.code;
-    option.textContent = `${locale.native_name} — ${locale.name} (${locale.code})`; option.selected = locale.code === data.locale;
+    option.textContent = locale.label || locale.native_name; option.lang = locale.code; option.selected = locale.code === data.locale;
     return option;
   }));
   window.dispatchEvent(new CustomEvent('oprun:locale-changed', { detail: { locale: data.locale, direction: data.direction } }));
