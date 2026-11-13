@@ -103,10 +103,21 @@
   }
   function updateInstructions(card,x){
     const proof=card.querySelector('[data-im-website-proof]');
-    if(proof&&x.website){proof.innerHTML=`<p>Add this TXT record in your domain dashboard, then choose Verify website:</p><dl><dt>Name</dt><dd><code>${esc(x.website.verification_name)}</code></dd><dt>Value</dt><dd><code>${esc(x.website.verification_value)}</code></dd><dt>Status</dt><dd>${x.website.verified?'Ownership verified':'Waiting for verification'}</dd></dl>${x.website.verified?`<p>Use this workspace’s form endpoint with name, email or phone, and message fields:</p><code>${esc(location.origin+x.form_action)}</code><p>Recorded enquiries appear in the Unified Inbox. This is not a page-view tracking script.</p>`:''}`;}
+    if(proof&&x.website){proof.innerHTML=`<p>Add this TXT record in your domain dashboard, then choose Verify website:</p><dl><dt>Name</dt><dd><code>${esc(x.website.verification_name)}</code></dd><dt>Value</dt><dd><code>${esc(x.website.verification_value)}</code></dd><dt>Status</dt><dd>${x.website.verified?'Ownership verified':'Waiting for verification'}</dd></dl>${x.website.verified?`<p>Use this workspace’s form endpoint with name, email or phone, and message fields:</p><code>${esc(location.origin+x.form_action)}</code><p>Recorded enquiries appear in the Unified Inbox. This is not a page-view tracking script.</p><button type="button" class="secondary-button" data-im-form-code>Get ready-made form</button><div data-im-form-box></div>`:''}`;}
     const hooks=card.querySelector('[data-im-webhook]');
     if(hooks&&x.transport){const org=window.GDS_SESSION?.organisation?.id;hooks.innerHTML=`<p>Signed provider webhook endpoints:</p><p>Email: <code>${esc(location.origin+'/api/webhooks/communications/resend/'+org)}</code></p><p>SMS: <code>${esc(location.origin+'/api/webhooks/communications/telnyx/'+org)}</code></p><p>Configure these in the provider dashboard. Inbound mail requires Resend Receiving for the connected domain; it does not sync an existing Gmail/Outlook inbox.</p>`;}
   }
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest?.('[data-im-form-code]');if(!b)return;
+    const box=b.parentElement.querySelector('[data-im-form-box]');b.disabled=true;
+    try{const d=await api('/api/saas/website/contact-form');box.innerHTML=`<p>${esc(d.note)}</p><label>Form code<textarea readonly rows="10" data-im-form-html></textarea></label><button type="button" class="secondary-button" data-im-form-copy>Copy form code</button>`;box.querySelector('[data-im-form-html]').value=d.html;}
+    catch(err){box.textContent=err.message||'The form code is not available yet.';}
+    finally{b.disabled=false;}
+  });
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest?.('[data-im-form-copy]');if(!b)return;
+    const t=b.parentElement.querySelector('[data-im-form-html]');try{await navigator.clipboard.writeText(t.value);b.textContent='Copied';}catch{t.select();b.textContent='Select and copy';}
+  });
   function announce(card,text,error=false){const p=card.querySelector('.connection-action-result');if(p){p.textContent=text;p.classList.toggle('connection-error',error);}}
   document.addEventListener('change',e=>{
     if(!e.target.matches('[data-im-resource]'))return;

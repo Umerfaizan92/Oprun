@@ -65,12 +65,44 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
     app.get('/api/operator/comms/overview', ...op('read'), wrap((req, res) => res.json({ ok: true, note: 'Business customer conversations are private to each business and are not shown here.', businesses_with_inbox: db.prepare('SELECT COUNT(DISTINCT organisation_id) n FROM comms_threads').get().n, messages_30d: db.prepare('SELECT COUNT(*) n FROM comms_messages WHERE created_at>=?').get(new Date(Date.now() - 30 * 86400000).toISOString()).n, calls_30d: db.prepare('SELECT COUNT(*) n FROM voice_calls WHERE started_at>=?').get(new Date(Date.now() - 30 * 86400000).toISOString()).n, call_failures_30d: db.prepare("SELECT COUNT(*) n FROM voice_calls WHERE started_at>=? AND failures_json<>'[]'").get(new Date(Date.now() - 30 * 86400000).toISOString()).n, platform_calls: voice.calls(null, 20), newsletter: db.prepare("SELECT SUM(status='subscribed') subscribed, SUM(status='unsubscribed') unsubscribed FROM newsletter_subscribers").get(), platform_suppressions: db.prepare("SELECT COUNT(*) n FROM marketing_suppressions WHERE owner_key='platform'").get().n })));
   }
 
+  // ---------------- website: form to paste into the business's own verified site (S5) ----------------
+  app.get('/api/saas/website/contact-form', ...read, wrap((req, res) => {
+    const slug = db.prepare('SELECT slug FROM organisations WHERE id=?').get(req.saas.organisation_id)?.slug, own = slug && siteOrigin(slug);
+    if (!own) return res.status(409).json({ ok: false, error: 'Verify your website in Connections first.' });
+    const base = (/^https:\/\//.test(process.env.PUBLIC_BASE_URL || '') ? process.env.PUBLIC_BASE_URL : `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
+    const action = `${base}/api/public/contact/${encodeURIComponent(slug)}`;
+    const html = `<form method="post" action="${action}" id="contact">
+  <input type="hidden" name="return_to" value="${own}/">
+  <p hidden><label>Leave empty <input name="website" tabindex="-1" autocomplete="off"></label></p>
+  <p><label>Name <input name="name" required minlength="2" maxlength="120" autocomplete="name"></label></p>
+  <p><label>Email <input name="email" type="email" maxlength="254" autocomplete="email"></label></p>
+  <p><label>Phone <input name="phone" type="tel" maxlength="40" autocomplete="tel"></label></p>
+  <p><label>How can we help? <textarea name="message" required minlength="5" maxlength="5000"></textarea></label></p>
+  <p><label><input type="checkbox" name="marketing_consent" value="yes"> Send me news and offers</label></p>
+  <p><button type="submit">Send</button></p>
+</form>`;
+    res.json({ ok: true, website: own, action, html, note: 'Paste this form into any page on your verified website. Change return_to to the page address visitors should go back to. Enquiries arrive in your Unified Inbox and Enquiries.' });
+  }));
+
   // ---------------- public: website contact form, unsubscribe, click ----------------
   const formSchema = z.object({ name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(254).optional().or(z.literal('')), phone: z.string().trim().max(40).optional().or(z.literal('')), message: z.string().trim().min(5).max(5000), marketing_consent: z.union([z.boolean(), z.literal('on'), z.literal('yes'), z.literal('')]).optional(), website: z.string().max(200).optional(), return_to: z.string().max(300).optional() }).passthrough();
+  // S5: a business's own verified website may host the contact form. Only that exact https origin
+  // gets CORS access and may be the return address after sending; every other origin is unchanged.
+  const siteOrigin = (slug) => {
+    const org = db.prepare('SELECT id FROM organisations WHERE slug=?').get(slug)?.id;
+    const row = org && db.prepare("SELECT settings_json FROM organisation_integrations WHERE organisation_id=? AND provider='website' AND status='connected'").get(org);
+    let site; try { site = JSON.parse(row?.settings_json || '{}').website; } catch { site = null; }
+    return site?.verified === true && /^https:\/\/[a-z0-9.-]+$/i.test(site.url || '') ? site.url.toLowerCase() : null;
+  };
+  const allowOrigin = (req, res) => { const origin = String(req.get('origin') || '').toLowerCase(), own = origin && siteOrigin(req.params.slug); if (own && origin === own) { res.set({ 'Access-Control-Allow-Origin': own, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '600' }); } res.vary('Origin'); };
+  app.options('/api/public/contact/:slug', publicLimiter, (req, res) => { allowOrigin(req, res); res.status(204).end(); });
   app.post('/api/public/contact/:slug', publicLimiter, express.urlencoded({ extended: false, limit: '20kb' }), wrap((req, res) => {
+    allowOrigin(req, res);
+    if (req.foreignOrigin && String(req.get('origin')).toLowerCase() !== siteOrigin(req.params.slug)) return res.status(403).json({ ok: false, error: 'This website is not verified for this business.' });
     const isForm = !req.is('application/json');
     const b = formSchema.safeParse(req.body);
-    const back = (q) => { const to = String(req.body?.return_to || '').startsWith('/sites/') ? String(req.body.return_to).split('?')[0] : null; if (!to) return false; res.redirect(303, `${to}?${q}#contact`); return true; };
+    const ownBack = () => { try { const u = new URL(String(req.body?.return_to || '')), own = siteOrigin(req.params.slug); return own && u.origin.toLowerCase() === own && !u.username && !u.password ? own + u.pathname : null; } catch { return null; } };
+    const back = (q) => { const local = String(req.body?.return_to || '').startsWith('/sites/') ? String(req.body.return_to).split('?')[0] : null, to = local || ownBack(); if (!to) return false; res.redirect(303, `${to}?${q}#contact`); return true; };
     if (!b.success || (!b.data.email && !b.data.phone)) { if (isForm && back('form=error')) return; return res.status(400).json({ ok: false, error: 'Add your name, a message, and an email or phone number.' }); }
     if (b.data.website) { if (isForm && back('form=sent')) return; return res.status(201).json({ ok: true }); }
     // T-071: a visitor who arrived through a tracked link carries its code in the form or in the page address.

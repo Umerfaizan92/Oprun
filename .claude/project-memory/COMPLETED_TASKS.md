@@ -246,3 +246,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/channel-providers.js,src/channel-operations.js,saas/channel-operations.js,scripts/channel-operations.test.mjs
 - Acceptance: Unit and UI tests pass; npm test passes
 - Evidence: channel-operations.test.mjs 16/16 incl. S4; channel UI 4/4 (390/768/1440); npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s4-tiktok-publish at 0d2f2dc)
+
+## T-109 S5a own-website contact form
+- Added: 2026-11-13
+- Requirement: Business can paste a ready-made enquiry form into its own verified website; only that https origin gets CORS and may be the return address; other foreign origins are refused; enquiries go to inbox and enquiries
+- Files: src/server.js,src/comms/routes.js,saas/integration-manager.js,saas/workspace.html,scripts/comms.test.mjs
+- Acceptance: comms tests incl. S5 pass; Connections UI test passes; npm test passes
+- Evidence: comms.test.mjs S5 tests 2/2 plus existing contact test; test-connections-ui PASS; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s5-website at 465b45b)

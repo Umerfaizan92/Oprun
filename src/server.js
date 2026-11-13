@@ -970,7 +970,7 @@ app.use(
   })
 );
 
-app.use(
+const globalCors =
   cors({
     origin(origin, cb) {
 
@@ -994,8 +994,14 @@ app.use(
       'PUT',
       'OPTIONS'
     ]
-  })
-);
+  });
+// S5: a business's verified website may post its contact form here. Origins not on the platform
+// list skip the global check only for this path; the route itself admits only the verified site.
+app.use((req, res, next) => {
+  const origin = req.get('origin');
+  if (origin && req.path.startsWith('/api/public/contact/') && !allowedOrigins.includes(origin) && !allowUnlistedOrigins) { req.foreignOrigin = true; return next(); }
+  return globalCors(req, res, next);
+});
 
 app.use(
   express.json({
