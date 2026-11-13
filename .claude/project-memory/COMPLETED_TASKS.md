@@ -218,3 +218,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-locale.js,saas/platform-notices.js,saas/app.js,saas/locale-catalog.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
 - Acceptance: Urdu panel text and labels, footer line; switching to English restores exact English; data untouched; suites pass
 - Evidence: Phrase translator (data-i18n-phrases + window.OprunPhraseMaps) with English memory for text and aria-label/placeholder/title; notices map 62 phrases hi/ur/ar machine draft, dictionary 2026-11-13.8; subscription line split into text nodes (same English); tests: dictionary 11/11 incl phrase map sync; browser Urdu panel, close label, footer, en-AU round trip restores English; npm test 73/73; test:unit 307 pass 0 fail; ui, navigation, mobile-workspace, redesign PASS (recorded 2026-11-13 on claude/l7-notifications at 3ade869)
+
+## T-105 S1 Meta sync and comment replies
+- Added: 2026-11-13
+- Requirement: Sync Facebook Page and linked Instagram posts, comments and follower totals; approved replies to synced comments; ownership re-checked on every call
+- Files: src/channel-providers.js,src/server.js,scripts/channel-operations.test.mjs
+- Acceptance: Unit test covers sync, ownership refusal, Page-token use, reply endpoints; npm test passes
+- Evidence: channel-operations.test.mjs 11/11 incl. new S1 test; npm test 73/73; security:secrets passed (recorded 2026-11-13 on claude/s1-meta-sync at cee9f9a)

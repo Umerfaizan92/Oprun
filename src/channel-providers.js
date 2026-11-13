@@ -18,18 +18,24 @@ export const CHANNEL_PROVIDERS = {
   google_seo: 'Google Search & Analytics', snapchat: 'Snapchat', website: 'Website', email_sms: 'Email & SMS'
 };
 export function channelCapabilities(provider, type) {
-  const read = ['youtube', 'gmail', 'tiktok', 'x', 'google_business', 'whatsapp', 'email_sms', 'website', 'google_seo'].includes(provider);
+  const read = ['meta', 'youtube', 'gmail', 'tiktok', 'x', 'google_business', 'whatsapp', 'email_sms', 'website', 'google_seo'].includes(provider);
   return { sync: read && (provider !== 'google_seo' || type === 'google_ads_customer'), post: provider === 'x' || provider === 'meta' && type === 'facebook_page' || provider === 'google_business' && type === 'google_business_location',
-    reply: ['youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: false,
+    reply: ['meta', 'youtube', 'gmail', 'google_business', 'x', 'whatsapp', 'email_sms'].includes(provider), video_upload: false,
     ads_launch: false, note: provider === 'whatsapp' || provider === 'email_sms' || provider === 'website'
       ? 'Messages and delivery receipts use the existing Unified Inbox. Provider setup and consent are required.'
-      : provider === 'meta' ? 'Facebook text publishing is available with Page permission. Instagram publishing and messaging require additional reviewed adapters.'
+      : provider === 'meta' ? 'Facebook Page and Instagram posts, comments and follower totals sync; comment replies need approval. Facebook text publishing needs Page permission. Instagram publishing and direct messages require additional reviewed adapters.'
       : 'Only granted provider permissions apply. Video upload and paid-ad launch are not enabled by this adapter.' };
 }
 export function createChannelProviderClient({runtime, env = {}}) {
   const call = (url, token, options = {}) => runtime.requestJson(url, {...options, headers: {authorization: 'Bearer ' + token, ...options.headers}});
   const json = (method, body) => ({method, headers: {'content-type': 'application/json'}, body: JSON.stringify(body)});
   const graph = 'https://graph.facebook.com/' + String(env.META_GRAPH_VERSION || 'v23.0') + '/';
+  // Page actions use the Page's own token, issued only for Pages this authorisation manages.
+  async function pageToken(token, pageId) {
+    const pages = await call(graph + 'me/accounts?fields=id,access_token,instagram_business_account{id}', token), page = pages.data?.find(p => String(p.id) === String(pageId));
+    if (!page?.access_token) throw Object.assign(new Error('The selected Facebook Page is not managed by this authorisation. Reconnect Meta.'), {status:403});
+    return page;
+  }
   async function sync(provider, bundle, resource) {
     const token = bundle.access_token, items = [], metrics = [];
     const add = (remote_id, kind, title, text, extra = {}) => items.push({remote_id: cut(remote_id, 300), kind, title: cut(title, 300), text: cut(text, 12000), ...extra});
@@ -52,6 +58,30 @@ export function createChannelProviderClient({runtime, env = {}}) {
         const vid = String(thread.snippet?.videoId || '');
         if (c?.id) add(c.id, 'comment', c.snippet?.authorDisplayName, c.snippet?.textDisplay, {can_reply:Boolean(thread.snippet?.canReply), parent_id:/^[\w-]{6,20}$/.test(vid) ? vid : undefined, occurred_at:when(c.snippet?.publishedAt), metrics:{likes:c.snippet?.likeCount, replies:thread.snippet?.totalReplyCount}, ...(/^[\w-]{6,20}$/.test(vid) ? {url:'https://www.youtube.com/watch?v=' + vid + '&lc=' + id(c.id)} : {})});
       }
+    } else if (provider === 'meta' && resource.type === 'facebook_page') {
+      if (!/^\d{3,32}$/.test(resource.id)) throw new Error('Invalid Facebook Page selection.');
+      const page = await pageToken(token, resource.id), pt = page.access_token;
+      const info = await call(graph + id(resource.id) + '?fields=followers_count,fan_count', pt);
+      for (const [key, field] of [['followers','followers_count'],['page_likes','fan_count']]) if (Number.isFinite(Number(info[field])) && info[field] !== null && info[field] !== undefined) metrics.push({key, value:Number(info[field]), source:'Facebook Page'});
+      const posts = await call(graph + id(resource.id) + '/posts?limit=20&fields=id,message,created_time,permalink_url,full_picture,comments.limit(15){id,message,created_time,from{name}}', pt);
+      for (const p of posts.data || []) {
+        add(p.id, 'post', 'Facebook post', p.message, {url:providerLink(p.permalink_url, ['facebook.com']), thumbnail:providerLink(p.full_picture, ['fbcdn.net']), occurred_at:when(p.created_time)});
+        for (const c of p.comments?.data || []) if (c?.id) add(c.id, 'comment', c.from?.name || 'Facebook comment', c.message, {can_reply:true, parent_id:cut(p.id, 300), occurred_at:when(c.created_time)});
+      }
+    } else if (provider === 'meta' && resource.type === 'instagram_account') {
+      if (!/^\d{3,32}$/.test(resource.id) || !/^\d{3,32}$/.test(resource.parent_id || '')) throw new Error('Invalid Instagram selection.');
+      const page = await pageToken(token, resource.parent_id);
+      if (String(page.instagram_business_account?.id || '') !== resource.id) throw Object.assign(new Error('The Instagram account is no longer linked to the selected Facebook Page. Reconnect Meta.'), {status:403});
+      const info = await call(graph + id(resource.id) + '?fields=followers_count,media_count', token);
+      for (const [key, field] of [['followers','followers_count'],['posts','media_count']]) if (Number.isFinite(Number(info[field])) && info[field] !== null && info[field] !== undefined) metrics.push({key, value:Number(info[field]), source:'Instagram'});
+      const media = await call(graph + id(resource.id) + '/media?limit=20&fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,comments.limit(15){id,text,username,timestamp}', token);
+      const list = media.data || [], igHosts = ['cdninstagram.com', 'fbcdn.net'];
+      for (const m of list) {
+        add(m.id, m.media_type === 'VIDEO' || m.media_type === 'REELS' ? 'video' : 'post', 'Instagram post', m.caption, {url:providerLink(m.permalink, ['instagram.com']), thumbnail:providerLink(m.media_type === 'VIDEO' ? m.thumbnail_url : m.media_url, igHosts), occurred_at:when(m.timestamp), metrics:{likes:m.like_count, comments:m.comments_count}});
+        for (const c of m.comments?.data || []) if (c?.id) add(c.id, 'comment', c.username || 'Instagram comment', c.text, {can_reply:true, parent_id:cut(m.id, 300), occurred_at:when(c.timestamp)});
+      }
+      const sample = 'Instagram / latest ' + list.length + ' posts';
+      for (const [key, field] of [['likes','like_count'],['comments','comments_count']]) metrics.push({key, value:total(list, field), source:sample});
     } else if (provider === 'gmail') {
       const profile = await call('https://gmail.googleapis.com/gmail/v1/users/me/profile', token);
       if (profile.emailAddress?.toLowerCase() !== resource.id.toLowerCase()) throw Object.assign(new Error('Mailbox ownership changed. Reconnect Gmail.'), {status:403});
@@ -123,6 +153,18 @@ export function createChannelProviderClient({runtime, env = {}}) {
       if (provider === 'email_sms' && resource.id === 'sms') {
         if (!/^\+[1-9]\d{7,14}$/.test(item.recipient || '')) throw new Error('Invalid SMS recipient.');
         return call('https://api.telnyx.com/v2/messages',bundle.sms.api_key,json('POST',{from:bundle.sms.number,to:item.recipient,text})).then(d=>({id:d.data?.id}));
+      }
+      if (provider === 'meta') {
+        if (item.kind !== 'comment' || !/^[\w.-]{3,120}$/.test(String(item.remote_id || ''))) throw Object.assign(new Error('Only synced comments can receive a reply.'), {status:409});
+        if (resource.type === 'facebook_page') {
+          const page = await pageToken(token, resource.id);
+          return call(graph + id(item.remote_id) + '/comments', page.access_token, json('POST', {message:text}));
+        }
+        if (resource.type === 'instagram_account') {
+          if ([...text].length > 2200) throw Object.assign(new Error('Shorten the Instagram reply to 2,200 characters.'), {status:400});
+          return call(graph + id(item.remote_id) + '/replies', token, json('POST', {message:text}));
+        }
+        throw Object.assign(new Error('Replies are not enabled for this Meta resource.'), {status:409});
       }
       if (provider === 'youtube') return call('https://www.googleapis.com/youtube/v3/comments?part=snippet', token, json('POST', {snippet:{parentId:item.remote_id, textOriginal:text}}));
       if (provider === 'google_business') {
