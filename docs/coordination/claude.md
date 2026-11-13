@@ -347,3 +347,5 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Deployed: PRs #112-#116 live at 15:15 UTC (dep-dbrigiuc6qcc73e10g20, startup 16/16).
 - Connections batch (owner order: social, WhatsApp, TikTok, website, Google) is complete in code. Live use needs provider app reviews and credentials (Prompt 14).
 - Exact next action: owner to choose the next area. Default: resume Prompt 03 L8 (screen bodies in menu order, starting with Work > Enquiries).
+
+- Deployed S6: PR #117 live at 15:29 UTC (dep-dbrinemtlv9c738lekog, startup 16/16). Nothing pending deploy.
