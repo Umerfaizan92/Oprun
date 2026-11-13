@@ -77,7 +77,8 @@
   }
   async function render(){
     if(window.GDS_SESSION?.user?.role!=='owner'){const accounts=document.getElementById('integration-self-service');if(accounts)accounts.hidden=true;return;}
-    if(loading)return loading;
+    // A change made while a refresh is running must be shown with fresh data, not the earlier answer.
+    while(loading)await loading.catch(()=>{});
     const grid=document.getElementById('self-service-integration-grid');if(!grid)return;
     const current=context();
     if(identity!==current){identity=current;pendingSelections.clear();records.clear();grid.replaceChildren();}
