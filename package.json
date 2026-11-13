@@ -73,7 +73,8 @@
     "test:mobile-readiness": "node scripts/test-mobile-readiness.mjs",
     "test:channels-ui": "node scripts/test-channel-operations-ui.mjs",
     "test:redesign-ui": "node scripts/test-redesign-ui.mjs",
-    "test:mobile-workspace-ui": "node scripts/test-mobile-workspace-ui.mjs"
+    "test:mobile-workspace-ui": "node scripts/test-mobile-workspace-ui.mjs",
+    "test:command-centre-loading-ui": "node scripts/test-command-centre-loading-ui.mjs"
   },
   "engines": {
     "node": "22.x"
