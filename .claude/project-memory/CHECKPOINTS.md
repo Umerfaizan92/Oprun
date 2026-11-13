@@ -1767,3 +1767,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Prompt 03 L5: always-visible chrome (top bar, floating buttons, footer)
+
+## CP-127 2026-11-13T09:38:26+00:00 T-101 COMPLETED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-101 (COMPLETED)
+- Completed steps: Always-visible chrome translated; late-element translation
+- Incomplete steps: Merge and deploy; L6 Today tabs, voice bar, notifications
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/app.js; saas/locale-catalog.js; saas/support.js; saas/workspace-chat.js; saas/workspace-locale.js; saas/workspace-mobile.js; saas/workspace-pad.js; saas/workspace.html; scripts/localization-dictionary.test.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; dictionary; localization browser; ui; mobile-workspace; navigation; redesign; site-ui
+- Test results: 73/73; 304 pass 0 fail; 8/8; all PASS
+- Git branch: claude/l5-chrome
+- Commit: 4581eca (Merge PR #106: Prompt 03 L4 business navigation menu)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Prompt 03 L6 per docs/coordination/claude.md R10

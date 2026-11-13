@@ -96,3 +96,22 @@ test('English navigation names in the dictionary match the live menu exactly', (
   assert.equal(SCREENS.navigation.length, N.DOMAINS.length + N.DOMAINS.flatMap((d) => d.items).length + flows.length + 1, 'every group and page has a key');
   dom.window.close();
 });
+
+test('keys tagged by scripts exist and their English is the exact text those scripts already show', () => {
+  const files = ['workspace-pad.js', 'workspace-chat.js', 'app.js', 'workspace-mobile.js', 'support.js'];
+  let found = 0;
+  for (const file of files) {
+    const source = fs.readFileSync(new URL(`../saas/${file}`, import.meta.url), 'utf8');
+    for (const m of source.matchAll(/data-i18n(?:-attr)?['"]?\s*[:=]\s*['"`]([^'"`]+)['"`]|i18n\s*=\s*'([\w.]+)'|(chrome\.\w+)/g)) {
+      for (const part of String(m[1] || m[2] || m[3]).split(';')) {
+        const key = part.includes('=') ? part.split('=')[1] : part;
+        if (!/^[\w.]+$/.test(key) || key.includes('${')) continue;
+        found++;
+        assert.ok(MESSAGES.en[key], `${file}: ${key} missing from English dictionary`);
+        assert.ok(screenKeys.has(key), `${file}: ${key} not assigned to a screen`);
+        assert.ok(source.includes(MESSAGES.en[key]), `${file}: English for ${key} differs from the script's own text`);
+      }
+    }
+  }
+  assert.ok(found >= 12, `found ${found} tagged keys`);
+});

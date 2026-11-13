@@ -190,3 +190,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/locale-catalog.js,saas/workspace-nav.js,saas/navigation-shell.js,saas/workspace.html,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
 - Acceptance: English labels equal dictionary (test); Urdu menu, breadcrumb and chips translated; links still route; no overflow at 390; navigation-ui and all suites pass
 - Evidence: nav dictionary 78 keys (8 groups, 60 pages, 9 related groups, More tools) hi/ur/ar machine draft, dictionary 2026-11-13.5; relabel on oprun:locale-changed keeps routes; render click listener moved inside bind guard; tests: dictionary+locale 13/13 incl sync with live menu; localization browser PASS (Urdu rail, chips, link routes); npm test 73/73; test:unit 303 pass 0 fail; navigation-ui, ui, mobile-workspace, redesign, console-all PASS; Urdu menu no overflow at 390 (recorded 2026-11-13 on claude/l4-navigation at dc42983)
+
+## T-101 Prompt 03 L5: always-visible chrome
+- Added: 2026-11-13
+- Requirement: Translate top bar, floating Office chat and Ask Oprun, phone bottom bar and footer, including aria-labels, tooltips and placeholders; translate elements created after load
+- Files: saas/workspace-locale.js,saas/locale-catalog.js,saas/workspace.html,saas/workspace-pad.js,saas/workspace-chat.js,saas/app.js,saas/workspace-mobile.js,saas/support.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: Urdu chrome text and labels in browser; English identical (script text test); no clipping at 390; npm test, unit, UI and site suites pass
+- Evidence: 19 chrome keys hi/ur/ar (machine draft), dictionary 2026-11-13.6; workspace-locale translateTree with data-i18n-attr (aria-label, placeholder, title, data-tip) and MutationObserver for late elements; tests: dictionary 8/8 incl script English invariant; localization browser PASS (top bar, labels, floating buttons, footer, phone dock in Urdu); npm test 73/73; test:unit 304 pass 0 fail; ui, mobile-workspace, navigation, redesign, site-ui 16 PASS; no clipping at 390 (recorded 2026-11-13 on claude/l5-chrome at 4581eca)

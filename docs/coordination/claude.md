@@ -127,6 +127,22 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
    consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
    failure permanently and fix.
 
+### 2026-11-13 Batch R10: Prompt 03 L5, always-visible chrome (T-101)
+
+- Live (R9) deploy: `dep-dbrcq66i0phs73ffuk8g`, commit `4581eca`, startup diagnostics 16/16.
+- `workspace-locale.js`: `translateTree()` handles `data-i18n` (text) and `data-i18n-attr="aria-label=key;placeholder=key;
+  title=key;data-tip=key"`; a `MutationObserver` translates tagged elements as scripts add them, so other scripts
+  only need to tag elements. `lang` now marks only text really in the reader's language.
+- Tagged (English unchanged): top bar search (text, label, tooltip), tour button label and tooltip, User Manual,
+  Get paid (text and label), Office chat launcher, Ask Oprun launcher (text, label, placeholder), phone bottom bar
+  (All Features, Ask Oprun, Office chat), footer links and copyright. Dictionary `2026-11-13.6`, screen `chrome`, 19
+  keys. `support.js` also runs on public pages; there only the tags are added (harmless).
+- Still English on Today: section tabs (Workflow Guidance, Action Centre, Your Workspace, Business overview), the
+  "What would you like done today?" voice bar, subscription footer line (status word), notification panel.
+- Tests: dictionary 8 (new: every key a script tags exists and its English is that script's own text); localization
+  browser (Urdu top bar, labels, floating buttons, footer, phone dock); `npm test` 73/73; `test:unit` 304 pass,
+  0 fail; ui, mobile-workspace, navigation, redesign, site-ui 16 PASS; no clipping at 390.
+
 ### 2026-11-13 Batch R9: Prompt 03 L4, business navigation menu (T-100)
 
 - Live (R8) deploy: `dep-dbrbq7tbedkc73d55hog`, commit `dc42983`, startup diagnostics 16/16.
@@ -228,7 +244,8 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 ## Exact next action
 
 1. Owner: live check on phone, iPad and laptop; S3 upload permission (E-035).
-2. Claude next: Prompt 03 L5: top bar (User Manual, Get paid, search), floating Office chat and Ask Oprun buttons,
-   and footer links (always visible on every page); then screen bodies in menu order (Work: Enquiries first).
+2. Claude next: Prompt 03 L6: Today section tabs (labels from the page-section configuration), the voice bar
+   (`workspace-voicebar.js`), notification panel, subscription footer line; then screen bodies in menu order (Work:
+   Enquiries first). Tag elements with `data-i18n` / `data-i18n-attr`; late elements are handled automatically.
 3. When ChatGPT resumes: CG-001 to CG-003 fixed and deployed; CG-003's probable root cause is E-036 (fixed in R5).
    Re-verify independently and continue `ACCEPTANCE_T094.md`.

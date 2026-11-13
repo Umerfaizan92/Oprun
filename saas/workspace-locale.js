@@ -1,4 +1,4 @@
-import { message, formatMessage } from './locale-catalog.js?v=20261113.l5';
+import { message, formatMessage } from './locale-catalog.js?v=20261113.l6';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
@@ -10,6 +10,26 @@ const api = async (options = {}) => {
   if (!response.ok) throw new Error('Language preference unavailable');
   return response.json();
 };
+// Tagged elements: data-i18n="key" sets the text; data-i18n-attr="aria-label=key;placeholder=key;data-tip=key" sets
+// attributes. lang marks text that really is in the reader's language (English fallback stays lang="en").
+function translateOne(element, locale) {
+  const inLanguage = key => message(locale, key) !== message('en', key) || /^en\b/.test(locale);
+  const key = element.dataset.i18n;
+  if (key) { const text = message(locale, key); if (element.textContent !== text) element.textContent = text; element.lang = inLanguage(key) ? locale : 'en'; }
+  for (const pair of (element.dataset.i18nAttr || '').split(';')) {
+    const [attr, attrKey] = pair.split('=').map(x => x?.trim());
+    if (attr && attrKey && /^(aria-label|placeholder|title|data-tip)$/.test(attr)) element.setAttribute(attr, message(locale, attrKey));
+  }
+}
+function translateTree(root, locale) {
+  if (root.matches?.('[data-i18n],[data-i18n-attr]')) translateOne(root, locale);
+  for (const element of root.querySelectorAll('[data-i18n],[data-i18n-attr]')) translateOne(element, locale);
+}
+// Elements that scripts add later (top-bar buttons, floating buttons, footer) are translated as they appear.
+new MutationObserver(records => {
+  if (!preference) return;
+  for (const record of records) for (const node of record.addedNodes) if (node.nodeType === 1) translateTree(node, preference.locale);
+}).observe(document.documentElement, { childList: true, subtree: true });
 function apply(data) {
   preference = data;
   // No account preferences in shared-device localStorage; the session is authoritative.
@@ -17,7 +37,7 @@ function apply(data) {
   document.documentElement.lang = 'en';
   document.documentElement.dataset.preferredLocale = data.locale;
   document.documentElement.dir = data.direction;
-  for (const element of document.querySelectorAll('[data-i18n]')) { element.textContent = message(data.locale, element.dataset.i18n); element.lang = ['en','hi','ur','ar'].includes(data.locale.split('-')[0]) ? data.locale : 'en'; }
+  translateTree(document, data.locale);
   const bell = document.querySelector('.app-topbar button[aria-label="Notifications"],.app-topbar [data-i18n-aria="notifications"]');
   if (bell) { bell.dataset.i18nAria = 'notifications'; bell.setAttribute('aria-label', message(data.locale, 'notifications')); }
   const localeName = data.locales.find(x => x.code === data.locale)?.native_name || data.locale;

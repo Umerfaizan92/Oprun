@@ -81,7 +81,7 @@
   function mount(){
     if(document.querySelector('#pad-open'))return;
     const anchor=document.querySelector('#open-digital-manual');if(!anchor)return;
-    anchor.before(el('button',{type:'button',id:'pad-open',class:'pad-top-button',onclick:open,'aria-label':'Get paid: take a payment from a customer'},el('span',{'aria-hidden':'true',text:'$'}),el('b',{text:'Get paid'})));
+    anchor.before(el('button',{type:'button',id:'pad-open',class:'pad-top-button',onclick:open,'aria-label':'Get paid: take a payment from a customer','data-i18n-attr':'aria-label=chrome.getPaidLabel'},el('span',{'aria-hidden':'true',text:'$'}),el('b',{text:'Get paid','data-i18n':'chrome.getPaid'})));
   }
   const ready=()=>{mount()};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
