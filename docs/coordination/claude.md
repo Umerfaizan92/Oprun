@@ -347,3 +347,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - Deployed: PRs #112-#116 live at 15:15 UTC (dep-dbrigiuc6qcc73e10g20, startup 16/16).
 - Connections batch (owner order: social, WhatsApp, TikTok, website, Google) is complete in code. Live use needs provider app reviews and credentials (Prompt 14).
 - Exact next action: owner to choose the next area. Default: resume Prompt 03 L8 (screen bodies in menu order, starting with Work > Enquiries).
+
+### V1 (T-112): Facebook video and Instagram Reels, 2026-11-13
+- Owner asked for proper video posting on every social platform. Post drafts take media_kind image|video (stored in options_json). Capabilities now report image and video per account.
+- Facebook Page: video from a public link (graph-video /videos, Page token). Instagram: Reels container (media_type REELS, share_to_feed), status checked up to 20 times, published once, nothing published while processing.
+- Composer: "Post type" Photo/Video where both apply. channel-operations.js cache version bumped (it had not changed since 12 Nov, so S2-S4 composer fields may have been served stale).
+- Tests: channel-operations 18/18, channel UI 4/4, npm test 73/73, secrets scan passed.
+- Next: owner's Connections rework (own sign-in plus optional own app keys, switch account, audit), then V2 YouTube and X video upload.

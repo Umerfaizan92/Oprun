@@ -304,3 +304,33 @@ test('Business Profile posts may carry a public photo and are length-checked (S6
   assert.equal(channelCapabilities('google_business', 'google_business_location').media, true);
   assert.equal(channelCapabilities('google_business', 'google_business_location').media_required, false);
 });
+
+test('Facebook Page video and Instagram Reels post from a public video link (V1)', async t => {
+  const calls = [];let igStatus = ['IN_PROGRESS', 'FINISHED'];
+  const client = createChannelProviderClient({ env: { META_MEDIA_POLL_MS: 0 }, runtime: { requestJson: async (url, opt = {}) => { calls.push({ url, auth: opt.headers?.authorization, body: opt.body && JSON.parse(opt.body) });
+    if (url.includes('me/accounts')) return { data: [{ id: '111', access_token: 'page-token', instagram_business_account: { id: '222' } }] };
+    if (url.endsWith('/111/videos')) return { id: 'vid1' };
+    if (url.endsWith('/222/media')) return { id: '3333' };
+    if (url.includes('/3333?fields=status_code')) return { status_code: igStatus.shift() || 'IN_PROGRESS' };
+    if (url.endsWith('/media_publish')) return { id: 'reel1' };
+    return {}; } } });
+  const draft = kind => ({ kind: 'post', body: 'Before and after', media_url: 'https://cdn.example.com/job.mp4', options_json: JSON.stringify({ media_kind: kind }) });
+  assert.deepEqual(await client.execute('meta', { access_token: 'u' }, { id: '111', type: 'facebook_page' }, draft('video')), { id: 'vid1' });
+  const fb = calls.find(c => c.url.endsWith('/111/videos'));
+  assert.match(fb.url, /^https:\/\/graph-video\.facebook\.com\/v[\d.]+\/111\/videos$/); assert.equal(fb.auth, 'Bearer page-token');
+  assert.deepEqual(fb.body, { file_url: 'https://cdn.example.com/job.mp4', description: 'Before and after' });
+  calls.length = 0;
+  await client.execute('meta', { access_token: 'u' }, { id: '222', type: 'instagram_account', parent_id: '111' }, draft('video'));
+  assert.deepEqual(calls.find(c => c.url.endsWith('/222/media')).body, { media_type: 'REELS', video_url: 'https://cdn.example.com/job.mp4', caption: 'Before and after', share_to_feed: true });
+  assert.equal(calls.filter(c => c.url.endsWith('/media_publish')).length, 1);
+  calls.length = 0; igStatus = [];
+  await assert.rejects(client.execute('meta', { access_token: 'u' }, { id: '222', type: 'instagram_account', parent_id: '111' }, draft('video')), /still processing the video/);
+  assert.equal(calls.filter(c => c.url.endsWith('/media_publish')).length, 0, 'nothing published while still processing');
+  calls.length = 0;
+  await client.execute('meta', { access_token: 'u' }, { id: '111', type: 'facebook_page' }, { ...draft('image'), media_url: 'https://cdn.example.com/a.jpg' });
+  assert.ok(calls.some(c => c.url.endsWith('/111/photos')));
+  assert.equal(channelCapabilities('meta', 'instagram_account').video, true); assert.equal(channelCapabilities('tiktok', 'tiktok_account').image, false);
+  const f = await fixture(t);
+  const r = await f.call('/drafts', { body: { provider: 'youtube', resource_id: 'mine', kind: 'post', body: 'x', media_url: 'https://cdn.example.com/v.mp4', media_kind: 'video' } });
+  assert.equal(r.status, 409);
+});
