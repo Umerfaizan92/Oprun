@@ -64,20 +64,23 @@
   const tr=(key,values,english)=>window.OprunLocale?.t?.(key,values)??english;
   const clock=time=>new Date(time).toLocaleTimeString(window.OprunLocale?.locale||[],{hour:'numeric',minute:'2-digit'});
   let lastData=null;
+  // Industry words: translated for the reader's language when the dictionary has them, otherwise the server's English.
+  const vocab=T=>{const L=window.OprunLocale,word=(k,english)=>{const key=`term.${T.style||'general'}.${k}`;return L?.translated?.(key)?L.t(key):english};
+    return {jobs:word('jobs',T.jobs),team:word('team',T.team),member:word('member',T.team.toLowerCase().replace(/s$/,'')),revenue:word('revenue',T.revenue),costs:word('costs',T.costs.toLowerCase())}};
 
   function render(d){
-    const T=d.terms,cards=[];
+    const T=d.terms,V=vocab(T),cards=[];
     const topCh=d.inbox.channels[0];
     const channel=topCh?CHANNEL[topCh.channel]||topCh.channel:'';
     cards.push(tile({key:'inbox',label:tr('gx.inboxLabel',{},'Waiting for a reply'),value:d.inbox.needs_reply,unit:tr('gx.conversations',{n:d.inbox.needs_reply},d.inbox.needs_reply===1?'conversation':'conversations'),sub:d.inbox.week?(topCh?tr('gx.inboxWeekFrom',{n:d.inbox.week,channel},`${plural(d.inbox.week,'message')} this week, most from ${channel}`):tr('gx.inboxWeek',{n:d.inbox.week},`${plural(d.inbox.week,'message')} this week`)):tr('gx.inboxNone',{},'No new messages this week'),graphic:spark(d.inbox.daily),jump:'comms',tone:d.inbox.needs_reply?'alert':'gold'}));
     cards.push(tile({key:'approvals',label:tr('gx.approvalsLabel',{},'Needs your approval'),value:d.approvals.pending,sub:d.inbox.drafts_waiting?tr('gx.drafts',{n:d.inbox.drafts_waiting},`${plural(d.inbox.drafts_waiting,'AI reply draft')} ready to review`):tr('gx.approvalsNone',{},'Nothing is waiting on you'),jump:'approvals',tone:d.approvals.pending?'alert':'good',graphic:ring(d.approvals.pending?0.25:1)}));
-    const member=T.team.toLowerCase().replace(/s$/,'');
-    cards.push(tile({key:'jobs-today',label:tr('gx.jobsLabel',{jobs:T.jobs},`${T.jobs} today`),value:d.jobs.today,sub:tr('gx.jobsSub',{awaiting:d.jobs.awaiting,team:member,allocated:d.jobs.allocated},`${d.jobs.awaiting} awaiting a ${member}, ${d.jobs.allocated} lined up`),graphic:spark(d.jobs.next7),jump:'jobs'}));
+    const member=V.member;
+    cards.push(tile({key:'jobs-today',label:tr('gx.jobsLabel',{jobs:V.jobs},`${T.jobs} today`),value:d.jobs.today,sub:tr('gx.jobsSub',{awaiting:d.jobs.awaiting,team:member,allocated:d.jobs.allocated},`${d.jobs.awaiting} awaiting a ${member}, ${d.jobs.allocated} lined up`),graphic:spark(d.jobs.next7),jump:'jobs'}));
     const pct=d.team.total?d.team.ready/d.team.total:0;
-    cards.push(tile({key:'team',label:tr('gx.teamLabel',{team:T.team},`${T.team} ready to work`),value:d.team.ready,unit:tr('gx.teamOf',{total:d.team.total},`of ${d.team.total}`),sub:d.team.attention||d.team.expiring?tr('gx.teamSub',{attention:d.team.attention,expiring:d.team.expiring},`${d.team.attention} need checks, ${d.team.expiring} documents expiring in 30 days`):tr('gx.teamNone',{},'All checks are up to date'),graphic:ring(pct),jump:'workforce',tone:d.team.attention?'warn':'good'}));
+    cards.push(tile({key:'team',label:tr('gx.teamLabel',{team:V.team},`${T.team} ready to work`),value:d.team.ready,unit:tr('gx.teamOf',{total:d.team.total},`of ${d.team.total}`),sub:d.team.attention||d.team.expiring?tr('gx.teamSub',{attention:d.team.attention,expiring:d.team.expiring},`${d.team.attention} need checks, ${d.team.expiring} documents expiring in 30 days`):tr('gx.teamNone',{},'All checks are up to date'),graphic:ring(pct),jump:'workforce',tone:d.team.attention?'warn':'good'}));
     if(d.finance){
       const f=d.finance;
-      cards.push(tile({key:'profit',label:tr('gx.profitLabel',{},'Profit this month'),value:f.profit_cents/100,fmt:v=>money(Math.round(v*100)),sub:tr('gx.profitSub',{revenue:T.revenue,revenueAmount:money(f.revenue_cents),costs:T.costs.toLowerCase(),costAmount:money(f.expense_cents)},`${T.revenue} ${money(f.revenue_cents)}, ${T.costs.toLowerCase()} ${money(f.expense_cents)}`),graphic:spark(f.daily_revenue_cents),jump:'finance',tone:f.profit_cents<0?'alert':'good'}));
+      cards.push(tile({key:'profit',label:tr('gx.profitLabel',{},'Profit this month'),value:f.profit_cents/100,fmt:v=>money(Math.round(v*100)),sub:tr('gx.profitSub',{revenue:V.revenue,revenueAmount:money(f.revenue_cents),costs:V.costs,costAmount:money(f.expense_cents)},`${T.revenue} ${money(f.revenue_cents)}, ${T.costs.toLowerCase()} ${money(f.expense_cents)}`),graphic:spark(f.daily_revenue_cents),jump:'finance',tone:f.profit_cents<0?'alert':'good'}));
     }
     // Command Centre (Prompt 01): no repeated business name; one quiet status line with an honest live indicator.
     const head=el('div',{class:'gx-head'},el('p',{class:'gx-status-line',text:d.business.industry&&d.business.code!=='custom'?tr('gx.statusIndustry',{industry:d.business.industry.toLowerCase()},`Figures refresh by themselves · tuned for ${d.business.industry.toLowerCase()}`):tr('gx.status',{},'Figures refresh by themselves')}),liveBadge());

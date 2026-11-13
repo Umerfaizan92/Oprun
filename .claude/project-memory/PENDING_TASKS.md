@@ -323,3 +323,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/localization.js; saas/workspace-locale.js; saas/workspace.html; docs/platform-blueprint; scripts/localization.test.mjs
 - Acceptance: Authentication and cross-tenant tests, locale validation, preference persistence, fallback and RTL checks, existing regression suite; no production activation claims.
 
+## T-099 Prompt 03 L3b: Today workflow guidance, Action Centre and feature finder
+- Status: NOT_STARTED
+- Added: 2026-11-13
+- Requirement: Migrate about 60 strings in saas/command-centre-sections.js (feature finder, Action Centre next steps, workflow guidance 8 stages with what/how/needs text, checklist states) to dictionaries via OprunLocale.t with English fallback; AI prompt texts stay English for the model but add the reader's language to the request; redraw on oprun:locale-changed
+- Files: saas/command-centre-sections.js,saas/locale-catalog.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: English output identical; hi/ur/ar coverage for new screen keys; browser check of Workflow Guidance and Action Centre tabs in Urdu at 390/1440; suites pass

@@ -1725,3 +1725,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Prompt 03 L3: command-centre-sections.js strings and server terms per locale
+
+## CP-124 2026-11-13T06:44:52+00:00 T-099 NOT_STARTED
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-099 (NOT_STARTED)
+- Completed steps: T-098 industry vocabulary per locale verified
+- Incomplete steps: T-099 command-centre-sections.js migration
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/coordination/claude.md; saas/locale-catalog.js; saas/workspace-gadgets.js; saas/workspace-locale.js; saas/workspace.html; scripts/localization-dictionary.test.mjs; scripts/test-localization-ui.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/l3-terms-today
+- Commit: 8254b6e (Merge PR #103: Prompt 03 L2 Today greeting and live figures board)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read saas/command-centre-sections.js, add tr() helper and keys under screen todaySections, follow docs/coordination/claude.md R7

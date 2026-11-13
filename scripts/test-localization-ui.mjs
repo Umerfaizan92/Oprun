@@ -39,6 +39,7 @@ try {
   for (const key of ['gx.inboxLabel','gx.approvalsLabel','gx.profitLabel']) assert.ok(boardText.includes(MESSAGES.ur[key]),key+' shown in Urdu');
   assert.match(await page.locator('.gx-live').innerText(),new RegExp(MESSAGES.ur['gx.live']));
   assert.equal(boardText.includes('Waiting for a reply'),false,'no English left on translated tiles');
+  for (const word of ['Jobs','Team','Income','costs']) assert.equal(new RegExp(`\\b${word}\\b`).test(boardText),false,`business vocabulary "${word}" is translated`);
   assert.equal(await page.locator('.gx-board .gx-sub').first().evaluate(e=>getComputedStyle(e).direction+'/'+getComputedStyle(e).unicodeBidi),'rtl/isolate','translated tile lines keep right-to-left order even when they start with a number');
   // Switching language redraws the board from loaded figures, without a page reload.
   await page.evaluate(()=>{window.__noReload=true});
