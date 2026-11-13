@@ -1,0 +1,122 @@
+[
+  {
+    "id": "01",
+    "domain": "Platform overview",
+    "current_route_or_reference": "overview / system / platform/ai-usage",
+    "baseline": "Existing",
+    "required_controls": "Release SHA/version, actual readiness, uptime, queue lag, provider incidents, cost and red/amber health. No hardcoded preview version as live truth.",
+    "verification": "Boot probe and synthetic enquiry-to-invoice; prove failed dependencies surface."
+  },
+  {
+    "id": "02",
+    "domain": "Subscribers & workspaces",
+    "current_route_or_reference": "subscribers",
+    "baseline": "Existing",
+    "required_controls": "Tenant search, lifecycle, plans, entitlements, roles, authorized support grant and export/deletion requests. Impersonation must be explicit, scoped, expiring and audited.",
+    "verification": "Wrong-tenant read and delegated support expiry tests."
+  },
+  {
+    "id": "03",
+    "domain": "Billing & usage",
+    "current_route_or_reference": "platform/finance / platform/revenue",
+    "baseline": "Existing / extend",
+    "required_controls": "Versioned prices, tax settings, subscriptions, usage meters, partner costs, invoices, refunds, disputes and reconciliation. Separate operational credits from money custody.",
+    "verification": "Duplicate webhook, wrong amount, failed settlement, refund permissions."
+  },
+  {
+    "id": "04",
+    "domain": "People & operator access",
+    "current_route_or_reference": "operator identity and staff controls",
+    "baseline": "Existing / extend",
+    "required_controls": "Founder recovery, operator roles, MFA, sessions, devices, joiner/mover/leaver workflow and reviewed access grants.",
+    "verification": "Subscriber owner cannot call operator APIs; revoke operator sessions immediately."
+  },
+  {
+    "id": "05",
+    "domain": "Connections & credentials",
+    "current_route_or_reference": "legacy:connections; proposed typed connection page",
+    "baseline": "Partial",
+    "required_controls": "Provider capability by action and tenant; encrypted credential metadata only, owner, scope, expiry, last verified, reconnect action, test/live distinction and supplier incident.",
+    "verification": "Never return secrets; invalid/revoked grant disables only affected tenant/action."
+  },
+  {
+    "id": "06",
+    "domain": "Provisioning & domains",
+    "current_route_or_reference": "proposed operations provisioning page",
+    "baseline": "Planned",
+    "required_controls": "Orders, quotes, approvals, number/domain/assistant resources, pending KYC, callbacks, reconciliation, renewals, cancellations and orphan cleanup.",
+    "verification": "Crash after provider success must reconcile rather than buy twice."
+  },
+  {
+    "id": "07",
+    "domain": "Automation & jobs",
+    "current_route_or_reference": "platform/automation; queue controls",
+    "baseline": "Existing / extend",
+    "required_controls": "Scheduler health, leases, attempts, dead letters, dry-run preview, pause switches and approval-bound recovery actions.",
+    "verification": "No double sends/charges from replay; operator cannot replay another business unintentionally."
+  },
+  {
+    "id": "08",
+    "domain": "AI governance",
+    "current_route_or_reference": "platform/ai-usage / platform/automation",
+    "baseline": "Existing / extend",
+    "required_controls": "Model/provider catalogue, budgets, knowledge isolation, versioned prompts, eval results, redacted traces, safety escalations and human handoff.",
+    "verification": "Injection tests, provider outage fallback, language and tool-call evaluation."
+  },
+  {
+    "id": "09",
+    "domain": "Reliability & backups",
+    "current_route_or_reference": "platform/reliability / platform/backups",
+    "baseline": "Existing",
+    "required_controls": "Primary/backup location, backup age/integrity, restore history, recovery owner, RPO/RTO, expiry and verified drill. A backup uploaded is not a restore proven.",
+    "verification": "Recover a separate temporary environment without production writes."
+  },
+  {
+    "id": "10",
+    "domain": "Releases & updates",
+    "current_route_or_reference": "records:task; proposed release execution page",
+    "baseline": "Partial",
+    "required_controls": "Dependency/SBOM inventory, release artifacts, migrations, approvals, canary, deployment evidence, rollback and flags. Approved human-controlled execution first.",
+    "verification": "Deploy exact artifact to isolated preview; forward/backward schema checks and rollback rehearsal."
+  },
+  {
+    "id": "11",
+    "domain": "Incidents & support",
+    "current_route_or_reference": "records:incident",
+    "baseline": "Existing / extend",
+    "required_controls": "Severity, owner, affected tenant/services, timeline, communication drafts, escalation, postmortem, corrective actions and support SLA.",
+    "verification": "Simulated provider outage creates one incident and routes alert without exposing PII."
+  },
+  {
+    "id": "12",
+    "domain": "Security, privacy & audit",
+    "current_route_or_reference": "audit / platform/compliance",
+    "baseline": "Existing / extend",
+    "required_controls": "ASVS evidence, findings, export permissions, consent/retention, subprocessor register, breach workflow, DSAR and legal holds.",
+    "verification": "Audit access control, redaction, retention/deletion propagation and tamper detection."
+  },
+  {
+    "id": "13",
+    "domain": "Languages & accessibility",
+    "current_route_or_reference": "platform/localization",
+    "baseline": "Candidate partial",
+    "required_controls": "Selectable locale list, pilot dictionary keys, saved preference counts, honest coverage and pending language release gates. Extend to per-screen review and translation workflow.",
+    "verification": "Operator-only endpoint; no user identifiers; RTL/device/native-speaker signoff required."
+  },
+  {
+    "id": "14",
+    "domain": "Product & configuration",
+    "current_route_or_reference": "platform/configuration",
+    "baseline": "Existing / extend",
+    "required_controls": "Feature ownership, release flags by tenant/plan/country, API versions, regional defaults, template versions, change history and rollback.",
+    "verification": "Changes require server permission, revision conflict handling and recorded actor."
+  },
+  {
+    "id": "15",
+    "domain": "Records & knowledge",
+    "current_route_or_reference": "records:task / records:cost and operating runbooks",
+    "baseline": "Existing / extend",
+    "required_controls": "Requirements, decisions, releases, approvals, supplier agreements, licence expiries, runbooks, test evidence and resumable checkpoints.",
+    "verification": "Every completed task links artifact SHA, tests, owner and next action; restore handover on fresh checkout."
+  }
+]

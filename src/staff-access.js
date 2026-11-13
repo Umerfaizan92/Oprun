@@ -34,6 +34,8 @@ const utility=new Set(['channels','me','logout','login','account','mfa','legal',
 const area={'business-hub':'customers','business-archive':'customers','service-requests':'settings','receptionist-profile':'settings',mail:'mail','support-access':'governance',dashboard:'dashboard','command-centre':'dashboard',customers:'customers',stock:'stock','work-orders':'jobs','job-offers':'jobs','job-media':'jobs',workers:'workforce','staff-chat':'staff_chat','staff-availability':'staff_chat',ai:'ai',voice:'ai',content:'content',media:'content','video-renders':'content',growth:'growth',seo:'visibility',comms:'inbox',finance:'finance',payments:'finance',approvals:'approvals',integrations:'integrations','platform-capabilities':'integrations',onboarding:'settings',branding:'settings',address:'settings','industry-registry':'settings',regulatory:'settings',hiring:'hiring',governance:'governance','live-activity':'governance',activity:'governance',billing:'billing',subscription:'billing',plans:'billing',addons:'billing',entitlements:'billing','platform-invoices':'billing','message-delivery':'finance',automation:'settings',search:'dashboard'};
 export function accessRoute(req){
  const path=String(req.originalUrl||req.path||'').split('?')[0];if(!path.startsWith('/api/saas/'))return null;
+ // A person's own locale is available to every active member; other preference routes stay restricted.
+ if(path==='/api/saas/preferences/language'&&['GET','PUT'].includes(req.method))return null;
  const tail=path.slice(10),parts=tail.split('/'),first=parts[0];
  if(utility.has(first))return null;
  let feature=area[first]||'restricted';

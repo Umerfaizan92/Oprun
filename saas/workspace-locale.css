@@ -1,0 +1,13 @@
+.language-trigger{max-width:128px;min-height:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px;border:1px solid var(--line,#48505f);border-radius:8px;background:var(--panel,#161c29);color:var(--text,#fff);font:inherit;font-size:12px;cursor:pointer}
+.language-dialog{width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow:auto;box-sizing:border-box;border:1px solid var(--line,#48505f);border-radius:16px;background:var(--panel,#161c29);color:var(--text,#fff);padding:20px}
+.language-dialog::backdrop{background:rgb(0 0 0 / .6)}
+.language-dialog form{display:grid;gap:14px}.language-dialog h2{font-size:20px;margin:0}.language-dialog select{width:100%;min-height:44px;box-sizing:border-box;background:var(--panel-2,#222b3b);color:inherit;padding:8px;border:1px solid var(--line,#48505f);border-radius:8px;font:inherit}.language-dialog [role="status"]{font-size:13px;line-height:1.6;color:var(--muted,#b5bdcc)}.language-dialog-actions{display:flex;gap:10px;justify-content:flex-end}
+.language-trigger:focus-visible,.language-dialog :focus-visible{outline:2px solid var(--brand,#d9ad59);outline-offset:3px}
+/* Logical shell overrides. Individual legacy screens still require RTL certification. */
+html[dir="rtl"] body[data-navigation="nested"] #workspace{padding-left:0!important;padding-right:var(--portal-rail)!important}
+html[dir="rtl"] body[data-navigation="nested"] .nested-rail{left:auto;right:0}
+html[dir="rtl"] .navigation-children{margin:4px 20px 10px 0;padding-left:0;padding-right:12px;border-left:0;border-right:1px solid var(--line)}
+html[dir="rtl"] .navigation-chevron,html[dir="rtl"] .navigation-badge{margin-left:0;margin-right:auto}
+html[dir="rtl"] .navigation-page[aria-current="page"]{box-shadow:inset -3px 0 var(--brand)}
+html[dir="rtl"] input[type="email"],html[dir="rtl"] input[type="url"],html[dir="rtl"] input[type="tel"]{direction:ltr;text-align:start}
+@media(max-width:1024px){html[dir="rtl"] body[data-navigation="nested"] .nested-rail{transform:translateX(105%)}html[dir="rtl"] body[data-navigation="nested"] .nested-rail[data-drawer="true"]{transform:none}html[dir="rtl"] body[data-navigation="nested"] .navigation-children{margin:4px 20px 10px 0!important}.language-trigger{max-width:94px}}

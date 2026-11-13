@@ -1599,3 +1599,87 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Await approval for PR #89 and this PR; await Prompt 03
+
+## CP-115 2026-11-12T19:49:25+08:00 T-094 IN_PROGRESS
+- Phase: Single mobile sub-section bar LIVE and verified
+- Task: T-094 (IN_PROGRESS)
+- Completed steps: none
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; office/console-platform.js; office/console.js; saas/workspace.html; scripts/two-portal-security.test.mjs; src/operator-console.js; src/server.js; src/staff-access.js; saas/locale-catalog.js; saas/workspace-locale.css; saas/workspace-locale.js; scripts/localization-ui.test.mjs; scripts/localization.test.mjs; scripts/test-localization-ui.mjs; src/localization.js
+- Tests executed: Node 22 npm test; localization and portal security tests
+- Test results: Baseline 73/73 checks; focused security tests pass; visual browser launch blocked by environment
+- Git branch: codex/self-service-blueprint-20261112
+- Commit: ff4efc8 (Merge PR #93: Frontend transformation batch 1); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Finish requirement/provider/credential registers and operating-console map; run final manifest, security and regression checks; package candidate without claiming full translation or activation
+
+## CP-116 2026-11-12T20:02:20+08:00 T-094 TESTING
+- Phase: Global platform foundation and complete implementation blueprint
+- Task: T-094 (TESTING)
+- Completed steps: 197 locale choices and session-bound language preference; partial pilot dictionaries and RTL shell; operator coverage endpoint and page; 96 requirement rows; 24 provider entries; 15 operator domains and 15 prompts; minor dependency updates; latest main density changes incorporated
+- Incomplete steps: Real-browser desktop/mobile/RTL and operator-page visual verification; full UI translation migration and native-speaker review; provider-specific sandbox and activation; implement remaining feature register
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; office/console-platform.js; office/console.html; office/console.js; package-lock.json; package.json; saas/locale-catalog.js; saas/workspace-locale.css; saas/workspace-locale.js; saas/workspace.html; scripts/localization-ui.test.mjs; scripts/localization.test.mjs; scripts/test-localization-ui.mjs; scripts/two-portal-security.test.mjs; src/localization.js; src/operator-console.js; src/server.js; src/staff-access.js; docs/platform-blueprint/MASTER_BLUEPRINT.md; docs/platform-blueprint/PROMPTS.md; docs/platform-blueprint/VERSION_REGISTER.md; docs/platform-blueprint/operator-control-matrix.json; docs/platform-blueprint/providers-and-approvals.json; docs/platform-blueprint/requirements.csv; docs/platform-blueprint/requirements.json; docs/platform-blueprint/sources.json; scripts/localization-live.test.mjs
+- Tests executed: Node 22.23.5 full baseline suite; targeted tests; final latest-main full suite
+- Test results: 73/73 checks before latest-main integration; 12/12 focused tests after CORS correction; final latest-main suite running
+- Git branch: codex/self-service-blueprint-20261112
+- Commit: 7310f6c (Merge PR #94: Frontend transformation batch 2); branch not on remote
+- Recovery snapshot: refs/recovery/codex/self-service-blueprint-20261112/20261112T120220Z (fdf68db)
+- Known errors: none
+- Next exact action: Finish latest-main regression, manifest, secret scan and source patch verification; save final PDF and source package; resume first incomplete requirement with visual review pending
+
+## CP-117 2026-11-12T20:05:47+08:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: Latest-main full regression passed; focused security and locale tests passed; blueprint registers and 15 ordered prompts written; operator inventory cross-checked; dependency updates and SBOM captured
+- Incomplete steps: Run desktop/mobile/RTL and operator-page visual tests in supported browser environment; migrate remaining UI/template translations; implement remaining feature and operator control register; sandbox providers before final activation
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/platform-blueprint/MASTER_BLUEPRINT.md; docs/platform-blueprint/PROMPTS.md; docs/platform-blueprint/VERSION_REGISTER.md; docs/platform-blueprint/operator-control-matrix.json; docs/platform-blueprint/operator-navigation-inventory.json; docs/platform-blueprint/providers-and-approvals.json; docs/platform-blueprint/requirements.csv; docs/platform-blueprint/requirements.json; docs/platform-blueprint/sources.json; office/console-platform.js; office/console.html; office/console.js; package-lock.json; package.json; saas/locale-catalog.js; saas/workspace-locale.css; saas/workspace-locale.js; saas/workspace.html; scripts/localization-live.test.mjs; scripts/localization-ui.test.mjs; scripts/localization.test.mjs; scripts/test-localization-ui.mjs; scripts/two-portal-security.test.mjs; src/localization.js; src/operator-console.js; src/server.js; src/staff-access.js
+- Tests executed: Node 22.23.5 npm test on latest-main candidate; locale and two-portal tests; production dependency audit; manifest and secret scan
+- Test results: 73/73 PASS; 12/12 PASS; 0 reported known production vulnerabilities; PASS
+- Git branch: codex/self-service-blueprint-20261112
+- Commit: 7310f6c (Merge PR #94: Frontend transformation batch 2); branch not on remote
+- Recovery snapshot: refs/recovery/codex/self-service-blueprint-20261112/20261112T120547Z (1c57ae9)
+- Known errors: none
+- Next exact action: Resume T-094 from saved implementation package: verify hashes and current main, then run browser visual tests and finish localization coverage before claiming multilingual production readiness
+
+## CP-118 2026-11-12T13:43:32+00:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: Package CP-117 reconciled onto main da37f05 on claude/t094-package-on-main; conflicts resolved keeping main; real-browser localization UI test passes; language page added to navigation map
+- Incomplete steps: Owner PR review; Prompt 03 localization migration; T-095 console tables PR
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/navigation/MAPPING.json; docs/navigation/MAPPING.md; docs/platform-blueprint/MASTER_BLUEPRINT.md; docs/platform-blueprint/PROMPTS.md; docs/platform-blueprint/VERSION_REGISTER.md; docs/platform-blueprint/operator-control-matrix.json; docs/platform-blueprint/operator-navigation-inventory.json; docs/platform-blueprint/providers-and-approvals.json; docs/platform-blueprint/requirements.csv; docs/platform-blueprint/requirements.json; docs/platform-blueprint/sources.json; office/console-platform.js; office/console.html; office/console.js; package-lock.json; package.json; qa/reports/navigation-coverage.json; saas/locale-catalog.js; saas/workspace-locale.css; saas/workspace-locale.js; saas/workspace.html; scripts/localization-live.test.mjs; scripts/localization-ui.test.mjs; scripts/localization.test.mjs; scripts/test-localization-ui.mjs; scripts/two-portal-security.test.mjs; src/localization.js; src/operator-console.js; src/server.js; src/staff-access.js; docs/coordination/claude.md
+- Tests executed: npm test; test-localization-ui; localization+two-portal unit; test:unit; console-all; console-ui; navigation-ui; ui; redesign-ui; mobile-workspace-ui; secrets; manifest; memory:validate
+- Test results: 73/73; PASS; 12/12; 287 pass 0 fail; 30 pages; 16; 594; 34; pass; 354; pass; 612 files; valid
+- Git branch: claude/t094-package-on-main
+- Commit: da37f05 (Merge PR #96: Frontend transformation batch 4)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Owner reviews R1 PR; then rebase T-095 and open its PR; then Prompt 03 Today group
+
+## CP-119 2026-11-13T01:06:10+00:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: ChatGPT findings CG-001 locale save race fixed with 5 regressions; CG-002 screenshot path; CG-003 connections test timing hardened
+- Incomplete steps: Owner review PR #98; batch-5 review checks; T-095; Prompt 03
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; docs/coordination/claude.md; qa/reports/navigation-coverage.json; saas/workspace-locale.js; saas/workspace.html; scripts/localization-ui.test.mjs; scripts/test-connections-ui.mjs; scripts/test-localization-ui.mjs
+- Tests executed: npm test; test:unit; localization browser; connections-ui x4; ui; mobile-workspace-ui; console-all; navigation-ui; secrets; manifest
+- Test results: 73/73; 292 pass 0 fail; PASS; PASS; 34; 354; 30; 594; pass; pass
+- Git branch: claude/t094-package-on-main
+- Commit: a526d9d (Coordination log: T-095 parked branch); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Batch-5 review: role-filtered Command Centre placeholders and compression edge cases
+
+## CP-120 2026-11-13T01:17:14+00:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: Batch R3: PR #99 adds compression edge-case tests (streaming voice, no-store, precompressed, errors) and Command Centre loading-state tests (12 cases)
+- Incomplete steps: Owner review PR #98 and #99; T-095 ownership; Prompt 03; batch-5 perf budgets
+- Files modified (uncommitted at checkpoint): docs/coordination/claude.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/t094-package-on-main
+- Commit: bb40746 (T-094: fix ChatGPT review findings CG-001 to CG-003); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: After owner confirms ownership: T-095 console tables rebase and PR, else Prompt 03 Today group

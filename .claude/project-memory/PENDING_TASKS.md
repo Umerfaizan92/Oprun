@@ -316,3 +316,16 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: saas/command-centre-sections.js,saas/command-centre.css,saas/workspace.html,saas/focused-workspace.js,saas/page-sections.js,saas/workspace-mobile.js
 - Acceptance: Both sections verified 320-1440 incl. axe; npm test; PR opened, not merged
 
+## T-094 Global language preferences and competitive platform blueprint
+- Status: TESTING
+- Added: 2026-11-12
+- Requirement: Add tenant-bound subscriber language preferences, honest translation coverage and RTL foundation; map HighLevel and three peer benchmarks with provider activation register; keys and approvals deferred by owner.
+- Files: src/localization.js; saas/workspace-locale.js; saas/workspace.html; docs/platform-blueprint; scripts/localization.test.mjs
+- Acceptance: Authentication and cross-tenant tests, locale validation, preference persistence, fallback and RTL checks, existing regression suite; no production activation claims.
+
+## T-095 Founder Console tables: dense rows, sticky headings, phone cards (density batch 3 follow-up)
+- Status: NOT_STARTED
+- Added: 2026-11-12
+- Requirement: Frontend transformation progress file pending batch B3 follow-up: console tables sticky headers, dense rows, phone card layout; scoped to Founder Console; keep IDs/routes/RBAC
+- Files: office/console-tables.js,saas/ds/kit.css,office/console.html,scripts/test-console-all-tabs.mjs
+- Acceptance: No table sideways scroll at 390; labelled cards for 3+ columns; sticky headings at 1440; console-all, console-ui, navigation-ui, ui pass; own PR

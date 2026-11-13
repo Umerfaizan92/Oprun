@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T13:06:21.820Z",
+  "generated_at": "2026-11-13T01:05:46.992Z",
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
@@ -3796,6 +3796,46 @@
     },
     {
       "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Required before global release",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Dictionary coverage",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Saved language preferences",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Selectable languages",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
       "route": "f08/audit",
       "section": "",
       "width": 1440,
@@ -4542,6 +4582,46 @@
       "portal": "Founder",
       "route": "f07/platform/reliability",
       "section": "Daily summaries",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Required before global release",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Dictionary coverage",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Saved language preferences",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/localization",
+      "section": "Selectable languages",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"

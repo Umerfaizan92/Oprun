@@ -1207,6 +1207,10 @@
         [
           "platform/reliability",
           "Reliability & backups"
+        ],
+        [
+          "platform/localization",
+          "Languages & translation coverage"
         ]
       ]
     ],
