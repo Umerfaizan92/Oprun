@@ -28,7 +28,7 @@
       host.append(note(d.evidence),
         grid(stat('Selectable locales', String(d.locales.length), 'Selection is separate from translated screen coverage'), stat('Pilot dictionaries', String(d.dictionaries.length), 'Native-speaker review and whole-workspace migration pending')),
         section('Required before global release', el('ul', {}, d.release_gates.map(text => el('li', { text })))),
-        section('Dictionary coverage', table([['locale', 'Locale'], ['translated_keys', 'Keys'], ['scope', 'Scope'], ['reviewed', 'Reviewed', yes]], d.dictionaries)),
+        section('Dictionary coverage', table([['locale', 'Locale'], ['translated_keys', 'Keys'], ['scope', 'Screens covered'], ['review', 'Review status'], ['version', 'Version']], d.dictionaries)),
         section('Saved language preferences', table([['locale', 'Locale'], ['count', 'Preferences']], d.preference_counts, 'No language preferences saved yet.')),
         section('Selectable languages', table([['native_name', 'Native name'], ['code', 'Locale'], ['direction', 'Direction'], ['translated_scope', 'Translation scope']], d.locales)));
     },

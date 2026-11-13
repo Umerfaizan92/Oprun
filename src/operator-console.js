@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { z } from "zod";
-import { localeCatalogue, MESSAGES } from '../saas/locale-catalog.js';
+import { localeCatalogue, MESSAGES, DICTIONARY_VERSION, DICTIONARY_REVIEW, screenCoverage } from '../saas/locale-catalog.js';
 const iso = () => new Date().toISOString();
 export function installOperatorConsole(
   app,
@@ -28,7 +28,9 @@ export function installOperatorConsole(
     const exists = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='user_locale_preferences'").get();
     res.json({ ok: true, evidence: 'Catalogue and stored preference counts; not full-screen translation certification.',
       locales: localeCatalogue('en'),
-      dictionaries: Object.entries(MESSAGES).map(([locale, messages]) => ({ locale, translated_keys: Object.keys(messages).length, scope: 'language-panel-and-selected-header-controls', reviewed: false })),
+      dictionary_version: DICTIONARY_VERSION,
+      dictionaries: Object.entries(MESSAGES).map(([locale, messages]) => ({ locale, translated_keys: Object.keys(messages).length, version: DICTIONARY_VERSION, review: DICTIONARY_REVIEW[locale] || 'machine-draft-unreviewed',
+        scope: screenCoverage(locale).map(c => `${c.screen} ${c.translated}/${c.total}`).join(', '), reviewed: DICTIONARY_REVIEW[locale] === 'source' })),
       preference_counts: exists ? db.prepare('SELECT locale,COUNT(*) count FROM user_locale_preferences GROUP BY locale ORDER BY count DESC,locale').all() : [],
       release_gates: ['Extract and migrate all interface strings', 'Native-speaker review', 'Screen-level RTL and accessibility tests', 'Localized emails, notifications and legal copy review', 'Provider-specific speech language tests']
     });

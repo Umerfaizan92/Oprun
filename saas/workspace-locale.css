@@ -11,3 +11,11 @@ html[dir="rtl"] .navigation-chevron,html[dir="rtl"] .navigation-badge{margin-lef
 html[dir="rtl"] .navigation-page[aria-current="page"]{box-shadow:inset -3px 0 var(--brand)}
 html[dir="rtl"] input[type="email"],html[dir="rtl"] input[type="url"],html[dir="rtl"] input[type="tel"]{direction:ltr;text-align:start}
 @media(max-width:1024px){html[dir="rtl"] body[data-navigation="nested"] .nested-rail{transform:translateX(105%)}html[dir="rtl"] body[data-navigation="nested"] .nested-rail[data-drawer="true"]{transform:none}html[dir="rtl"] body[data-navigation="nested"] .navigation-children{margin:4px 20px 10px 0!important}.language-trigger{max-width:94px}}
+/* Prompt 03 / R14-02: while most screens are still English, a right-to-left page must not flip English punctuation
+   (".Good day" or "?What would you like"). Each text block takes its direction from its own first strong letter:
+   English and numbers read left to right, Urdu and Arabic right to left, inside the mirrored layout. */
+html[dir="rtl"] :is(p,h1,h2,h3,h4,h5,h6,li,dt,dd,td,th,label,legend,summary,figcaption,blockquote,small,span,strong,b,em,a,button,option,textarea){unicode-bidi:plaintext}
+html[dir="rtl"] input:not([type=email]):not([type=url]):not([type=tel]){unicode-bidi:plaintext}
+/* Translated text (Urdu, Arabic) keeps the page's right-to-left direction even when it starts with Latin letters
+   such as "AI", so its words stay in reading order. */
+html[dir="rtl"] [data-i18n][lang]:not([lang|="en"]){unicode-bidi:isolate}

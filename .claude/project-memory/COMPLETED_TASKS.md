@@ -155,3 +155,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: office/console-tables.js,saas/ds/kit.css,office/console.html,scripts/test-console-all-tabs.mjs
 - Acceptance: No table sideways scroll at 390; labelled cards for 3+ columns; sticky headings at 1440; console-all, console-ui, navigation-ui, ui pass; own PR
 - Evidence: Console tables: dense rows, sticky headings at 768/1440, labelled cards at 390 for 3+ column tables, scoped to #console-content. console-all 30 pages at 1440/768/390 with table assertions (negative check fails without script); console-ui 16; navigation-ui 594; ui 34; mobile-workspace-ui 354; npm test 73/73 (recorded 2026-11-13 on claude/t095-console-tables at 7750aae)
+
+## T-096 Prompt 03 L1: dictionary foundation and Today screen
+- Added: 2026-11-13
+- Requirement: Prompt 03 Complete localization, first group: versioned dictionaries with review status, ICU-style plural/interpolation, per-screen coverage, explicit fallback, Today screen strings, mixed-language bidi isolation; translations marked machine-draft-unreviewed
+- Files: saas/locale-catalog.js,saas/workspace.html,saas/workspace-locale.js,saas/workspace-locale.css,src/operator-console.js,office/console-platform.js,scripts/localization-dictionary.test.mjs,scripts/test-localization-ui.mjs
+- Acceptance: English unchanged (dictionary equals HTML); hi/ur/ar cover shell+Today; plural/placeholder tests; Urdu Today in browser at 1440/768/390/360 with no sideways scroll and correct bidi; operator page shows version/review/per-screen coverage; npm test and UI suites pass
+- Evidence: Dictionary foundation (version 2026-11-13.1, review status, SCREENS, screenCoverage, formatMessage with Intl.PluralRules) and 14 Today strings in hi/ur/ar (machine draft, unreviewed). localization-dictionary.test 4/4; localization unit 13/13; browser test PASS incl Urdu Today at 1440/768/390/360, bidi plaintext for English and isolate for translated text; npm test 73/73; test:unit 300 pass 0 fail (recorded 2026-11-13 on claude/fix-test-ui-staff at 20441bc)
