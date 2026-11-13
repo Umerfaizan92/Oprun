@@ -98,21 +98,44 @@ Shared files that need care (touch only in small, rebased commits): `saas/worksp
 - Tests on that branch: `npm test` 73/73; `test:unit` 285 pass, 0 fail; loading UI 12/12; secrets and manifest PASS.
 - Still open from that review: item 3 (repeatable performance runs with budgets and distributions).
 
-### Parked: T-095 Founder Console tables (not in this PR)
+### 2026-11-13 Batch R4: T-095 done, merged and deployed to Render (owner-authorised)
 
-Pushed (parked, no PR): branch `claude/t095-console-tables-wip` at `c419986`, based on `da37f05`. Contents: `office/console-tables.js` (labels cells, explicit table roles),
-`saas/ds/kit.css` dense rows, sticky headings on laptops, labelled cards on phones for 3+ column tables (scoped to
-`#console-content`), rebuilt `kit.css.br/.gz`, and regression checks in `scripts/test-console-all-tabs.mjs`.
-Verified so far: `test:console-all` passes; a negative check confirmed the new assertions fail without the script.
-Pending: rebase onto this branch, rerun console/navigation/ui suites, own PR.
+- Owner instruction 2026-11-13: "Complete all tasks and prompts accurately then push it to render for live testing".
+  This explicitly authorised merge and deploy for this batch.
+- T-095 Founder Console tables completed (`5960cf2`) on top of PR #98; console sweep now also checks 768px.
+- Integration tested as one tree (`282e07c` = main + #98 + T-095 + #99): `npm test` 73/73; `test:unit` 296 pass,
+  0 fail; console-all 30 pages at 1440/768/390; console-ui 16; navigation-ui 594; mobile-workspace-ui 354;
+  redesign-ui; connections-ui; Command Centre loading 12/12; localization browser PASS; secrets, manifest, memory PASS.
+  GitHub CI on `282e07c`: all 7 checks success.
+- Merged: PR #98 -> `cdef42b`; PR #100 (T-095 + PR #99 commits) -> `2e51e02`. GitHub marks PR #99 merged. Main
+  tree verified identical to the tested tree.
+- Render service `Oprun` (`srv-dan4rdqjnfac73fceor0`, autoDeploy off) deployed manually: deploy
+  `dep-dbr7ctec6qcc73d2an5g`, commit `2e51e02`, status live at 02:36 UTC. Render build re-ran `npm test` (62 contract
+  files, live RBAC and pipeline checks PASS). Startup: diagnostics 16/16, existing database kept, database snapshot
+  written to S3 at 02:35:57. Rollback point: previous live deploy `dep-dbqs1dm7bikc73avofbg` (commit `ad2713f`).
+- Not verified: live pages were not opened from this workspace (network allowlist blocks onrender.com for shell,
+  fetch and browser). Owner should check the live site on phone, iPad and laptop.
+
+#### Open issues found
+1. **S3 upload backup permission (owner action, infrastructure).** Every 2 minutes since at least 2026-11-13 01:50
+   UTC (both old and new instance): AWS user `superpro-app` is denied `s3:PutObject` on
+   `super-pro-v2/uploads/branding/...` in the production bucket. The file is safe on the Render disk but is not
+   copied to S3. Database snapshots to S3 succeed. Fix: allow `s3:PutObject` for `super-pro-v2/uploads/*` on that
+   IAM user (owner, in AWS). Claude made no credential or infrastructure change.
+2. **Intermittent `test:ui` failure at `scripts/test-ui.mjs:220`** (Staff page, `#team-open-invite` not visible).
+   Pre-existing: 1 of 3 runs failed on `ad2713f` before today's changes; 1 of 4 on the integration tree; then 7
+   consecutive passes with state capture enabled, so the cause is not yet known. CI passed. Next: capture state on
+   failure permanently and fix.
+
+### T-095
+
+Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` is superseded.
 
 ## Exact next action
 
-1. Owner reviews PR #98 (now includes R1 and R2). Claude does not merge or deploy.
-2. Owner reviews PR #99 (batch-5 review tests). Merge order does not matter; whichever merges second needs
-   `npm run manifest:update` after resolving `SHA256SUMS.txt` and the `package.json` script line.
-3. Claude next, on separate branches: (a) T-095 console tables once ownership is confirmed (the density-batch
-   session follows the same plan); (b) Prompt 03 localization migration, Today group first; (c) batch-5 item 3,
-   repeatable performance budgets.
-4. When ChatGPT resumes it should read this log, mark CG-001 to CG-003 as fixed (pending its own re-verification)
-   in its log, and continue its review gates in `ACCEPTANCE_T094.md`.
+1. Owner: test the live site on phone, iPad and laptop; fix the S3 upload permission (Open issue 1).
+2. Claude next: (a) make `test-ui.mjs:220` capture state on failure and fix the flaky Staff invite step;
+   (b) Prompt 03 localization migration, Today group first; (c) batch-5 item 3, repeatable performance budgets.
+3. When ChatGPT resumes (about 2026-11-16): read this log; CG-001 to CG-003 are fixed and deployed in `2e51e02`
+   (re-verify independently); continue the review gates in `ACCEPTANCE_T094.md`. Its review branch
+   `codex/cp117-t094-review-20261112` is unmerged; Claude has not edited it.

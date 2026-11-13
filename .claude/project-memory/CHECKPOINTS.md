@@ -1683,3 +1683,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: After owner confirms ownership: T-095 console tables rebase and PR, else Prompt 03 Today group
+
+## CP-121 2026-11-13T02:38:26+00:00 T-094 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-094 (TESTING)
+- Completed steps: T-095 completed; PR #98 and #100 (incl #99) merged to main 2e51e02; deployed to Render dep-dbr7ctec6qcc73d2an5g live; startup diagnostics 16/16; DB snapshot to S3 ok
+- Incomplete steps: Owner live check and S3 upload permission; fix flaky test-ui:220; Prompt 03; perf budgets
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; docs/coordination/claude.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/deploy-evidence-20261113
+- Commit: 2e51e02 (Merge PR #100: T-095 Founder Console tables + batch-5 review checks)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Capture state on failure in test-ui.mjs:220 and fix; then Prompt 03 Today group
