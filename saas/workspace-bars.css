@@ -160,3 +160,40 @@ html body #workspace .connection-more[open]>summary::before{content:"–"}
 html body #workspace .connection-more>details{margin:6px 0;padding:8px 10px;border-radius:10px}
 html body #workspace .connection-more>.connection-note,html body #workspace .connection-more>.integration-manager-status{margin:8px 0 2px;font-size:12px;color:var(--muted,#a9b2c3)}
 html[data-theme="light"] body #workspace [data-provider-card] .integration-manager-actions>[data-connect-provider]:not([data-im-switch]),html[data-theme="light"] body #workspace .connection-continue{color:#fff!important}
+
+/* Your Workspace feature grid (owner request 2026-11-14): one panel per group, even columns, distinct icons. */
+html body #workspace .cc-group{margin:0 0 14px;padding:14px 14px 12px;border:1px solid var(--line,rgba(255,255,255,.08));border-radius:18px;background:var(--panel,rgba(255,255,255,.02))}
+html body #workspace .cc-group>h3{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:.74rem;font-weight:800;letter-spacing:.08em;color:var(--brand,#d9ad59)}
+html body #workspace .cc-group>h3 svg{width:16px;height:16px}
+html body #workspace .cc-group-count{margin-left:auto;min-width:22px;padding:2px 7px;border-radius:999px;background:var(--panel-2,rgba(255,255,255,.06));color:var(--muted,#a9b2c3);font-size:.7rem;font-weight:700;letter-spacing:0;text-align:center}
+html body #workspace .cc-group .cc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+html body #workspace .cc-group .cc-tile{flex-direction:row!important;align-items:center;justify-content:flex-start;gap:10px;min-height:58px;padding:10px 12px;text-align:left;border:1px solid transparent;border-radius:13px;background:var(--panel-2,rgba(255,255,255,.04))}
+html body #workspace .cc-group .cc-tile:hover,html body #workspace .cc-group .cc-tile:focus-visible{border-color:var(--brand,#d9ad59)}
+html body #workspace .cc-group .cc-tile-icon{width:36px;height:36px;border-radius:11px;background:rgba(217,173,89,.1);border-color:rgba(217,173,89,.35)}
+html body #workspace .cc-group .cc-tile-icon svg{width:18px;height:18px}
+html body #workspace .cc-group .cc-tile-text{min-width:0}
+html body #workspace .cc-group .cc-tile-text b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;font-size:.84rem;font-weight:650;line-height:1.25}
+html body #workspace .cc-group .cc-tile .cc-count{top:6px;right:6px;left:auto}
+html body #workspace .cc-group .cc-more{margin-top:8px}
+html body #workspace .cc-group .cc-more>summary{cursor:pointer;padding:6px 2px;font-size:.8rem;font-weight:650;color:var(--muted,#a9b2c3)}
+@media (max-width:760px){
+  html body #workspace .cc-group{padding:12px 10px 10px;border-radius:16px}
+  html body #workspace .cc-group .cc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  html body #workspace .cc-group .cc-tile{min-height:56px;padding:9px 10px;gap:9px}
+  html body #workspace .cc-group .cc-tile-icon{width:32px;height:32px;border-radius:10px}
+  html body #workspace .cc-group .cc-tile-text b{font-size:.8rem}
+}
+html[data-theme="light"] body #workspace .cc-group .cc-tile-icon{background:rgba(166,124,36,.08)}
+
+/* Nested tabs (a page's tabs plus a section's own tabs) share ONE row that scrolls sideways (owner request).
+   The outer group's current page shows as an outlined icon; only the innermost current tab is the gold pill. */
+@media (max-width:760px){
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-sections{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center;gap:0}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group{flex:0 0 auto!important;min-width:0!important;width:auto!important;border:0!important;margin:0!important;padding:0!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child{flex:1 0 auto!important;min-width:100%!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group+.mobile-workspace-section-group{padding-left:6px!important;margin-left:6px!important;border-left:1px solid var(--line,rgba(255,255,255,.12))!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:only-child) .mobile-workspace-item:not([aria-current]){flex:0 0 46px!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current]{flex:0 0 46px!important;max-width:46px;padding:0!important;background:transparent!important;color:var(--brand,#d9ad59)!important;box-shadow:inset 0 0 0 1.5px var(--brand,#d9ad59)!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important}
+}
+@media (max-width:760px){html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-icon{color:var(--brand,#d9ad59)!important}}

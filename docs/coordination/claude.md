@@ -394,3 +394,10 @@ Completed and deployed (see Batch R4). Branch `claude/t095-console-tables-wip` i
 - C4: live logs showed every Connect stopped with "callback address points to a different website": the *_REDIRECT_URI host differed from oprun.ai. Own hosts now include RENDER_EXTERNAL_HOSTNAME (set by Render) and APP_HOSTS; the sign-in start host is recorded (integration_oauth_sessions.origin_host, additive) and a provider return to another own host is handed back with the same query, where the flow cookie lives. Other hosts stay blocked; failures log the hosts compared.
 - Connections cards compacted: header row (badge, name, status), 3-line description, buttons with result right below, one "More" section for setup help, permissions, own app keys, password note and last check. Open own-app forms survive background refreshes; typed values are never wiped. Light-theme contrast fixed.
 - If Connect still stops after this deploy, read the "[INTEGRATION OAUTH] callback check" log line: the callback host is not one of this app's addresses; add it to APP_HOSTS or correct the *_REDIRECT_URI on Render (and in the provider console).
+
+## 2026-11-14 · T-120 Workspace grid + one-row bottom bar (branch claude/m4-workspace-grid)
+- Workspace page: features grouped in panels, each tile has a distinct icon (shared `window.OprunIconFor`), small groups shown inline, group counts.
+- Bottom bar: nested tab groups (e.g. Connections → Channel operations → Overview) now render in ONE row: outer current tab = outlined gold icon, inner current tab = gold pill. No more double bar.
+- Icons: 20 new original sprite icons; `rowIcons` guarantees no two items in one bar share an icon (Call handling: #, phone, history).
+- Tests: mobile-workspace 9/9, mobile-readiness, navigation-ui, redesign-ui, command-centre-loading-ui, npm test 73/73, secrets scan.
+- Next: Messenger/Instagram DM replies; Prompt 03 L8 translations.

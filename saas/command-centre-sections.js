@@ -57,7 +57,7 @@
     const tile = (g, i) => {
       const n = counts[i.view];
       const a = el('a', { class: 'cc-tile' + (i.secondary ? ' is-secondary' : ''), href: '#' + i.path, 'data-cc-view': i.view },
-        el('span', { class: 'cc-tile-icon' }, icon(i.icon || GROUP_ICON[g.id] || 'i-doc')),
+        el('span', { class: 'cc-tile-icon' }, icon(((ic) => ic && !ic.startsWith('mono:') ? ic : null)(window.OprunIconFor?.(i.label)) || i.icon || GROUP_ICON[g.id] || 'i-doc')),
         el('span', { class: 'cc-tile-text' }, el('b', { text: i.label }), el('small', { text: g.label })),
         n ? el('span', { class: 'cc-count', 'aria-label': tr('ff.waiting', { n }, `${n} waiting`), text: n > 99 ? '99+' : String(n) }) : null);
       return a;
@@ -71,14 +71,15 @@
     host.querySelector('label[for=cc-feature-filter]').textContent = tr('ff.label', {}, 'Find a feature');
     host.querySelector('#cc-feature-filter').placeholder = tr('ff.placeholder', {}, 'Find a feature…');
     const results = host.querySelector('#cc-feature-results');
-    const sig = JSON.stringify([window.OprunLocale?.locale, q, groups.map(x => [x.g.id, x.g.label, x.items.map(i => [i.view, i.label, counts[i.view]])])]);
+    const sig = JSON.stringify([window.OprunLocale?.locale, q, Boolean(window.OprunIconFor), groups.map(x => [x.g.id, x.g.label, x.items.map(i => [i.view, i.label, counts[i.view]])])]);
     if (results.dataset.ccSig === sig) return; results.dataset.ccSig = sig; // E-037: same loop guard as the Action Centre
     const sections = [];
     let shown = 0;
     for (const { g, items } of groups) {
-      const main = items.filter(i => !i.secondary && match(i)), more = items.filter(i => i.secondary && match(i));
+      // One or two extra features are shown directly; only longer lists sit behind "More in …".
+      const extra = items.filter(i => i.secondary && match(i)), main = [...items.filter(i => !i.secondary && match(i)), ...(extra.length < 3 ? extra : [])], more = extra.length < 3 ? [] : extra;
       if (!main.length && !more.length) continue; shown += main.length + more.length;
-      const block = el('section', { class: 'cc-group', 'aria-label': g.label }, el('h3', {}, icon(GROUP_ICON[g.id] || 'i-grid'), g.label), el('div', { class: 'cc-grid' }, main.map(i => tile(g, i))));
+      const block = el('section', { class: 'cc-group', 'aria-label': g.label }, el('h3', {}, icon(GROUP_ICON[g.id] || 'i-grid'), el('span', { text: g.label }), el('small', { class: 'cc-group-count', text: String(main.length + more.length) })), el('div', { class: 'cc-grid' }, main.map(i => tile(g, i))));
       if (more.length) block.append(q ? el('div', { class: 'cc-grid' }, more.map(i => tile(g, i))) : el('details', { class: 'cc-more' }, el('summary', { text: tr('ff.more', { group: g.label, n: more.length }, `More in ${g.label} (${more.length})`) }), el('div', { class: 'cc-grid' }, more.map(i => tile(g, i)))));
       sections.push(block);
     }

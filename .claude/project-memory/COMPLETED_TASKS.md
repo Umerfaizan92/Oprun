@@ -323,3 +323,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/server.js,src/integration-security.js,saas/integration-manager.js,saas/workspace-bars.css,saas/workspace.html,scripts/connections-safe-base.test.mjs,scripts/test-connections-ui.mjs
 - Acceptance: Relay test; unknown hosts still blocked; connections UI passes repeatedly; npm test passes
 - Evidence: connections-safe-base 9/9 incl. relay test; connections-ui 4/4 consecutive runs; navigation-ui PASS; npm test 73/73; secrets passed (recorded 2026-11-13 on claude/m3-dock-everywhere at 0258280)
+
+## T-120 M4 Workspace grid organised + one-row unique-icon bottom bar on every page
+- Added: 2026-11-14
+- Requirement: Owner: organise Workspace page icons professionally; fix double bottom bar on Connections (Overview); give every page one bottom bar with relevant, non-duplicate icons, especially Call handling
+- Files: saas/command-centre-sections.js saas/workspace-bars.css saas/workspace-mobile.js saas/workspace.html
+- Acceptance: Workspace grid grouped with distinct icons; nested tab groups render in one row; no two dock items share an icon on any page; tests pass
+- Evidence: Sweep of 36 bar variations: none with two rows, no duplicate icons, no short codes; Connections Overview shows one bar (outer tab outlined gold, inner gold pill); Call handling: hash/phone/history. mobile-workspace 9/9, test:mobile-readiness, test:navigation-ui, test:redesign-ui, command-centre-loading-ui, npm test 73/73, secrets scan passed (recorded 2026-11-14 on claude/m4-workspace-grid at d967e48)
