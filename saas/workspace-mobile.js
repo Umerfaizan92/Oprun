@@ -16,6 +16,14 @@
   };
   // Each tab gets the closest drawn icon; a short code only where nothing fits.
   const ICON_RULES = [
+    // Specific names first, so close neighbours in one bar get different icons.
+    [/^sent$|\bsend\b|outbox/i, 'i-send'], [/spam|block|unsubscrib|suppress|opt.?out/i, 'i-ban'], [/profit|loss|trend|growth rate/i, 'i-trend'],
+    [/cost|overhead|expense|spend/i, 'i-wallet'], [/your number|numbers?$|phone number/i, 'i-hash'], [/recent calls|call log|history|activity/i, 'i-history'],
+    [/recording|voicemail|voice/i, 'i-mic'], [/address|service.?area|location|current area|local area|area$/i, 'i-pin'],
+    [/appearance|design|theme|colou?r/i, 'i-palette'], [/compare|plan features|layers|catalogue/i, 'i-layers'], [/usage|add-on|limit|capacity/i, 'i-gauge'],
+    [/guide|manual|library|handbook|how .* works/i, 'i-book'], [/owner|control centre/i, 'i-crown'], [/polic|governance|terms/i, 'i-scale'],
+    [/marketing|campaign|promot/i, 'i-megaphone'], [/reorder|purchase|order stock|buy/i, 'i-cart'], [/^all |^open |list$|directory/i, 'i-list'],
+    [/saved|bookmark|favourite/i, 'i-bookmark'], [/channel operations|operations|controls|preferences/i, 'i-sliders'], [/^create|^new |^add |^start/i, 'i-file-plus'],
     [/^action centre$|priorities/i, 'i-target'], [/^workflow guidance$/i, 'i-route'], [/your workspace|all features|workspace map/i, 'i-briefcase'],
     [/^enquir|unified inbox|^inbox|channel inbox|received/i, 'i-inbox'], [/quote|estimate|quotation/i, 'i-quote'],
     [/invoice|receipt|gst|bas\b|sales doc/i, 'i-receipt'], [/booking|calendar|schedul/i, 'i-calendar'],
@@ -32,8 +40,14 @@
     [/activity|history|queue|log|recent/i, 'i-clock'], [/setting|appearance|brand|business|design|facts/i, 'i-building'],
     [/document|record|form|template|draft|specification|schema|file/i, 'i-doc'], [/next|step|start/i, 'i-arrow'], [/notification|alert|attention|fail|error|blocked/i, 'i-bell'], [/most used|favou?rite/i, 'i-star']
   ];
-  const sectionIcon = label => ICON_RULES.find(([re]) => re.test(label))?.[1]
-    || 'mono:' + String(label).replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const POOL = ['i-doc', 'i-grid', 'i-layers', 'i-list', 'i-bookmark', 'i-sliders', 'i-target', 'i-clock'];
+  const mono = label => 'mono:' + String(label).replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const candidates = label => [...new Set([...ICON_RULES.filter(([re]) => re.test(label)).map(([, ic]) => ic), ...POOL])];
+  const sectionIcon = label => ICON_RULES.find(([re]) => re.test(label))?.[1] || mono(label);
+  // Within one bar no two items share an icon: each takes its best match that is still free.
+  const rowIcons = labels => { const used = new Set(); return labels.map(l => { const ic = candidates(l).find(c => !used.has(c)) || mono(l); used.add(ic); return ic; }); };
+  // Shared with the Your Workspace feature grid so both use the same icon for the same feature.
+  window.OprunIconFor = sectionIcon;
   // Single-page menu groups borrow their closest related pages.
   const RELATED = { customers: ['enquiries', 'quotes', 'jobs', 'unifiedinbox', 'businessinvoices'] };
   let dock, menu, sections, actions, frame, signature = '', resize;
@@ -111,12 +125,13 @@
       actions.hidden = !actions.children.length;
     }
     sections.replaceChildren();
+    const dockIcons = rowIcons(sources.flatMap(({buttons}) => buttons.map(b => b.textContent.trim()))); let iconAt = 0;
     sources.forEach(({list, buttons}, i) => {
       list.classList.add('mobile-workspace-source');
       const row = make('div', 'mobile-workspace-section-group'); row.setAttribute('role','group'); row.setAttribute('aria-label', list.getAttribute('aria-label') || 'Page sections');
       buttons.forEach((b, j) => {
         const label = b.textContent.trim(), selected = b.getAttribute('aria-selected') === 'true' || !!b.getAttribute('aria-current');
-        const proxy = control(label, sectionIcon(label), () => { b.click(); queue(); }, selected ? 'location' : null, `section-${i}-${j}`);
+        const proxy = control(label, dockIcons[iconAt++], () => { b.click(); queue(); }, selected ? 'location' : null, `section-${i}-${j}`);
         proxy.disabled = b.disabled;
         if (b.hasAttribute('aria-controls')) proxy.setAttribute('aria-controls', b.getAttribute('aria-controls'));
         row.append(proxy);
@@ -130,7 +145,8 @@
       if (items.length < 2) items = [...items, ...(RELATED[view] || []).map(v => (nav.DOMAINS || []).flatMap(d => d.items).find(i => i.view === v)).filter(i => i && allowed.has(i.view) && !items.some(x => x.view === i.view))];
       if (items.length > 1) {
         const row = make('div', 'mobile-workspace-section-group'); row.setAttribute('role', 'group'); row.setAttribute('aria-label', (domain?.label || 'Related') + ' pages');
-        items.forEach((item, j) => row.append(control(item.label, sectionIcon(item.label), () => { location.hash = item.path; queue(); }, item.view === view ? 'page' : null, `page-${j}`)));
+        const pageIcons = rowIcons(items.map(i => i.label));
+        items.forEach((item, j) => row.append(control(item.label, pageIcons[j], () => { location.hash = item.path; queue(); }, item.view === view ? 'page' : null, `page-${j}`)));
         sections.append(row);
       }
     }
