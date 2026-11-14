@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "base_sha": "7742dec32eaf32b5b100eeb8361240835db7992e",
+  "tasks": [
+    {
+      "id": "P0-001",
+      "priority": "P0",
+      "owner": "ChatGPT investigation; AWS remediation requires owner",
+      "status": "BLOCKED",
+      "description": "S3 uploads backup AccessDenied; verify recovery",
+      "evidence": "Render production logs 2026-11-14 08:42-08:54 UTC; Claude E-035",
+      "next_action": "Inspect backup source and IAM policy scope; obtain owner authorization for AWS IAM change and non-destructive restore test"
+    },
+    {
+      "id": "P0-002",
+      "priority": "P0",
+      "owner": "ChatGPT",
+      "status": "TODO",
+      "description": "Independent auth/RBAC/tenant security review"
+    },
+    {
+      "id": "P0-003",
+      "priority": "P0",
+      "owner": "ChatGPT+QA",
+      "status": "TODO",
+      "description": "Core business workflow E2E tests"
+    },
+    {
+      "id": "P1-001",
+      "priority": "P1",
+      "owner": "ChatGPT architecture; Grok UX",
+      "status": "TODO",
+      "description": "Subscriber self-service provider connections"
+    },
+    {
+      "id": "P1-002",
+      "priority": "P1",
+      "owner": "Grok specs; ChatGPT backend",
+      "status": "TODO",
+      "description": "Domains and phone number marketplace/porting"
+    },
+    {
+      "id": "P1-003",
+      "priority": "P1",
+      "owner": "Claude after reset",
+      "status": "TODO",
+      "description": "Messenger and Instagram DM replies; review latest main first"
+    }
+  ]
+}
