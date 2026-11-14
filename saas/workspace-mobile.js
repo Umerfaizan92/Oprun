@@ -17,9 +17,9 @@
   // Each tab gets the closest drawn icon; a short code only where nothing fits.
   const ICON_RULES = [
     // Specific names first, so close neighbours in one bar get different icons.
-    [/^sent$|\bsend\b|outbox/i, 'i-send'], [/spam|block|unsubscrib|suppress|opt.?out/i, 'i-ban'], [/profit|loss|trend|growth rate/i, 'i-trend'],
-    [/cost|overhead|expense|spend/i, 'i-wallet'], [/your number|numbers?$|phone number/i, 'i-hash'], [/recent calls|call log|history|activity/i, 'i-history'],
-    [/recording|voicemail|voice/i, 'i-mic'], [/address|service.?area|location|current area|local area|area$/i, 'i-pin'],
+    [/(?:^sent$)|(?:\bsend\b)|(?:outbox)/i, 'i-send'], [/spam|block|unsubscrib|suppress|opt.?out/i, 'i-ban'], [/profit|loss|trend|growth rate/i, 'i-trend'],
+    [/cost|overhead|expense|spend/i, 'i-wallet'], [/(?:your number)|(?:numbers?$)|(?:phone number)/i, 'i-hash'], [/recent calls|call log|history|activity/i, 'i-history'],
+    [/recording|voicemail|voice/i, 'i-mic'], [/(?:address)|(?:service.?area)|(?:location)|(?:current area)|(?:local area)|(?:area$)/i, 'i-pin'],
     [/appearance|design|theme|colou?r/i, 'i-palette'], [/compare|plan features|layers|catalogue/i, 'i-layers'], [/usage|add-on|limit|capacity/i, 'i-gauge'],
     [/guide|manual|library|handbook|how .* works/i, 'i-book'], [/owner|control centre/i, 'i-crown'], [/polic|governance|terms/i, 'i-scale'],
     [/marketing|campaign|promot/i, 'i-megaphone'], [/reorder|purchase|order stock|buy/i, 'i-cart'], [/^all |^open |list$|directory/i, 'i-list'],
