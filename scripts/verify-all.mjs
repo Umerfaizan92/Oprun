@@ -262,7 +262,9 @@ await stage('suites', 'Contract tests, final validation, quality gate', async ()
       const lines = output.split('\n');
       const failures = [];
       for (let i = 0; i < lines.length; i++) {
-        if (/^\s*not ok\s+\d+\s+-/.test(lines[i])) failures.push(lines.slice(i, i + 35).join('\n'));
+        if (/^\s*not ok\s+\d+\s+-/.test(lines[i])) {
+  failures.push(lines.slice(Math.max(0, i - 10), i + 80).join('\n'));
+}
       }
       throw new Error('Contract tests failed (exit ' + r.status + '):\n' + (failures.length ? failures.join('\n---\n') : output.slice(-12000)));
     }
