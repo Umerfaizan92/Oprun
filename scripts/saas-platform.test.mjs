@@ -11,7 +11,16 @@ const port=42000+Math.floor(Math.random()*6000);
 const base='http://127.0.0.1:'+port;
 const dbPath=path.join(tempRoot,'platform.sqlite');
 const MAIL_SECRET='mail-secret-'+randomBytes(8).toString('hex'),META_SECRET='meta-secret-'+randomBytes(8).toString('hex');
-const child=spawn(process.execPath,['src/server.js'],{cwd:process.cwd(),env:{...process.env,PORT:String(port),NODE_ENV:'test',PUBLIC_BASE_URL:base,ALLOWED_ORIGINS:base,DATABASE_PATH:dbPath,UPLOAD_DIR:path.join(tempRoot,'uploads'),SAAS_VERIFICATION_TEST_MODE:'0',INBOUND_EMAIL_WEBHOOK_SECRET:MAIL_SECRET,META_APP_SECRET:META_SECRET,WHATSAPP_VERIFY_TOKEN:'verify-me',GEMINI_API_KEY:'',GOOGLE_AI_API_KEY:'',AI_PROVIDER_API_KEY:'',AI_PROVIDER_BASE_URL:'',OPENAI_API_KEY:'',TELNYX_API_KEY:'',WHATSAPP_ACCESS_TOKEN:'',RESEND_API_KEY:''},stdio:['ignore','pipe','pipe']});
+const child=spawn(process.execPath,['src/server.js'],{
+  cwd:process.cwd(),
+  env:{
+    HOME:tempRoot,USERPROFILE:tempRoot,
+    SUPERPRO_SKIP_DOTENV:'1',NODE_ENV:'test',PORT:String(port),PUBLIC_BASE_URL:base,ALLOWED_ORIGINS:base,
+    DATABASE_PATH:dbPath,UPLOAD_DIR:path.join(tempRoot,'uploads'),SAAS_VERIFICATION_TEST_MODE:'0',
+    INBOUND_EMAIL_WEBHOOK_SECRET:MAIL_SECRET,META_APP_SECRET:META_SECRET,WHATSAPP_VERIFY_TOKEN:'verify-me'
+  },
+  stdio:['ignore','pipe','pipe']
+});
 let output='';child.stdout.on('data',b=>{output+=b});child.stderr.on('data',b=>{output+=b});
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 async function waitForHealth(){for(let i=0;i<60;i++){if(child.exitCode!==null)throw Error('Server exited: '+output.slice(-2000));try{if((await fetch(base+'/healthz')).status===200)return}catch{}await delay(200)}throw Error('No health: '+output.slice(-2000))}
@@ -114,7 +123,9 @@ try{
   assert.equal((await call('PUT','/api/saas/comms/channels/facebook',cookies.manager,{address:'12345'})).status,403);
   db.prepare("UPDATE comms_channels SET status='active' WHERE organisation_id=? AND channel='instagram'").run(A);
   const soc=(id,to)=>{const body=JSON.stringify({message_id:id,to,from:{id:'ig_user_9',name:'Sam'},text:'Hi, can I get a quote?'});const ts=String(Math.floor(Date.now()/1000));return call('POST','/api/webhooks/social/instagram',null,body,{'x-webhook-timestamp':ts,'x-webhook-signature':createHmac('sha256',MAIL_SECRET).update(`${ts}.${body}`).digest('hex')})};
-  assert.equal((await soc('s1','acme.plumbing')).json.routed,true);
+  const social=await soc('s1','acme.plumbing');
+  assert.equal(social.status,202,'social webhook accepts the fixture email secret as a fallback');
+  assert.equal(social.json.routed,true);
   assert.equal((await soc('s1','acme.plumbing')).json.duplicate,true);
   assert.equal((await soc('s2','someone.else')).json.routed,false);
   assert.equal((await call('POST','/api/webhooks/social/myspace',null,'{}',{})).status,404);

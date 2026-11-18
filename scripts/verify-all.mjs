@@ -246,29 +246,31 @@ await stage('storage', 'Database migrations, self-healing and persistent-storage
 await stage('suites', 'Contract tests, final validation, quality gate', async () => {
   if (FAST) { console.log('  (skipped with --fast)'); return; }
   const tests = fs.readdirSync('scripts').filter((f) => f.endsWith('.test.mjs')).map((f) => `scripts/${f}`);
-  // Render exposes production environment variables during builds. Never pass live
-  // provider credentials, bucket names, or database paths into contract tests.
-  const testEnv = { ...process.env };
-  for (const key of Object.keys(testEnv)) {
-    if (/^(AWS_|BACKUP_|S3_|STRIPE_|TELNYX_|TWILIO_|SENDGRID_|SMTP_|OPENAI_|ANTHROPIC_|DATABASE_PATH$|UPLOAD_DIR$|REQUIRE_PERSISTENT_DISK$|SUPERPRO_ISOLATED_PREVIEW$)/i.test(key)) delete testEnv[key];
-  }
-  testEnv.SUPERPRO_SKIP_DOTENV = '1';
+  // Render exposes runtime configuration at build time. Pass only host tooling
+  // and the optional local restore-test binary to the verification subprocesses.
+  const testEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
+    /^(PATH|PATHEXT|SYSTEMROOT|WINDIR|TEMP|TMP|TMPDIR|LITESTREAM_BIN)$/i.test(key)));
+  Object.assign(testEnv, { HOME: tempRoot, USERPROFILE: tempRoot, NODE_ENV: 'test', SUPERPRO_SKIP_DOTENV: '1' });
   await check(`${tests.length} contract test files pass`, () => {
     const r = run(process.execPath, ['--test', '--test-concurrency=1', ...tests], { timeout: 600000, env: testEnv });
     if (r.status !== 0) {
-      // Preserve the actual failing assertion, stack and test name. The old
-      // summary printed only generic '# fail 1' lines and hid the root cause.
+      // A file-level failure can print its assertion and stack before its TAP subtest.
       const output = (r.stdout || '') + '\n' + (r.stderr || '');
       const lines = output.split('\n');
       const failures = [];
       for (let i = 0; i < lines.length; i++) {
-        if (/^\s*not ok\s+\d+\s+-/.test(lines[i])) failures.push(lines.slice(i, i + 35).join('\n'));
+        if (!/^\s*not ok\s+\d+\s+-/.test(lines[i])) continue;
+        let start = i;
+        while (start > 0 && i - start < 24 && /^\s*#/.test(lines[start - 1])) start--;
+        let end = i + 1;
+        while (end < lines.length && end - i < 30 && /^\s+/.test(lines[end])) end++;
+        failures.push(lines.slice(start, end).join('\n'));
       }
       throw new Error('Contract tests failed (exit ' + r.status + '):\n' + (failures.length ? failures.join('\n---\n') : output.slice(-12000)));
     }
   });
   for (const [label, script] of [['final validation', 'scripts/validate-release.mjs'], ['quality check', 'scripts/quality-check.mjs'], ['quality ratchet', 'scripts/quality-ratchet.mjs']]) {
-    await check(label, () => { const r = run(process.execPath, [script], { timeout: 300000 }); assert.equal(r.status, 0, (r.stdout + r.stderr).split('\n').slice(-8).join('\n')); });
+    await check(label, () => { const r = run(process.execPath, [script], { timeout: 300000, env: testEnv }); assert.equal(r.status, 0, (r.stdout + r.stderr).split('\n').slice(-8).join('\n')); });
   }
   if (WITH_MANIFEST) await check('file manifest matches', () => { const r = run(process.execPath, ['scripts/verify-manifest.mjs']); assert.equal(r.status, 0, r.stdout + r.stderr); });
 });
