@@ -2385,7 +2385,7 @@ async function verifySmsVerificationCode(phone,code){
   return {ok:null,provider:'local_hash'};
 }
 async function deliverRegistrationCodes(row,emailCode,smsCode){
-  const emailResult=await sendSaasVerificationEmail(env,{to:row.email,code:emailCode,businessName:row.business_name}).catch(err=>({sent:false,reason:err.message}));
+  const emailResult=await sendSaasVerificationEmail(env,{to:row.email,code:emailCode,businessName:row.business_name,registration:true}).catch(err=>({sent:false,reason:err.message}));
   const smsResult=await sendSmsVerification(row.phone,smsCode,row.business_name).catch(err=>({sent:false,reason:err.message}));
   logVerificationDelivery({purpose:'registration',subjectId:row.id,channel:'email',destination:row.email,provider:'resend',messageId:emailResult.email_id||emailResult.message_id,status:emailResult.sent?'sent':'failed',reason:emailResult.reason});
   logVerificationDelivery({purpose:'registration',subjectId:row.id,channel:'sms',destination:row.phone,provider:'telnyx',messageId:smsResult.message_id,status:smsResult.sent?'sent':'failed',reason:smsResult.reason});
@@ -2504,7 +2504,7 @@ app.post('/api/saas/registration/resend',otpResendLimiter,async(req,res)=>{
   const code=otpCode(),hash=otpHash(row.id,code),now=new Date(),expires=new Date(now.getTime()+10*60*1000);
   try{
     const delivery=parsed.data.channel==='email'
-      ?await sendSaasVerificationEmail(env,{to:row.email,code,businessName:row.business_name})
+      ?await sendSaasVerificationEmail(env,{to:row.email,code,businessName:row.business_name,registration:true})
       :await sendSmsVerification(row.phone,code,row.business_name);
     if(!delivery.sent&&!verificationTestMode){
       logVerificationDelivery({purpose:'registration_resend',subjectId:row.id,channel:parsed.data.channel,destination:parsed.data.channel==='email'?row.email:row.phone,provider:parsed.data.channel==='email'?'resend':'telnyx',status:'failed',reason:delivery.reason});

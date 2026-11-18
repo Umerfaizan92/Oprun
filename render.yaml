@@ -61,6 +61,8 @@ services:
         generateValue: true
       - key: SAAS_VERIFICATION_TEST_MODE
         value: "0"
+      - key: SAAS_REGISTRATION_FROM
+        sync: false
       - key: SAAS_VERIFY_FROM
         sync: false
       # Australian business number shown in public structured data (leave blank until registered).
