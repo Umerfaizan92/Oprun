@@ -132,7 +132,7 @@ test('website contact form creates an enquiry and an inbox conversation, records
 
 test('voice: routed per number, assistant with business context, transcript, fallback to transfer, voicemail, apology, duplicates', async (t) => {
   const { s, mock, owner, O, hook, sql, stop } = await setup(); t.after(stop);
-  const rp = await O('PUT', '/api/saas/receptionist-profile', { greeting: 'Thanks for calling Harbour Plumbing, how can I help?', knowledge: 'We clear blocked drains and repair hot water systems in Fremantle and Cottesloe.', hours: 'Mon-Sun 00:00-23:59', timezone: 'Australia/Perth', revision: 0 });
+  const rp = await O('PUT', '/api/saas/receptionist-profile', { greeting: 'Thanks for calling Harbour Plumbing, how can I help?', knowledge: 'We clear blocked drains and repair hot water systems in Fremantle and Cottesloe.', hours: '24/7', timezone: 'Australia/Perth', revision: 0 });
   assert.equal(rp.status, 200, rp.text);
   const cmd = (id, action) => mock.calls.filter((c) => c.path === `/telnyx/calls/${id}/actions/${action}`);
   // 1. Normal call: answered, transcription and assistant start together, transcript saved, call log in the inbox.
