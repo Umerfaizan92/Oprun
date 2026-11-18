@@ -1,11 +1,12 @@
 import {trackCommunication} from './message-delivery.js';
 import fs from 'fs/promises';
 import { Resend } from 'resend';
+import { resendOutboundKey } from './resend-outbound.js';
 import { renderEmail, platformBrand } from './email-templates.js';
 
 function configured(env) {
   return Boolean(
-    env.RESEND_API_KEY && env.NOTIFY_FROM &&
+    resendOutboundKey(env) && env.NOTIFY_FROM &&
     env.NOTIFY_TO
   );
 }
@@ -18,7 +19,7 @@ export async function sendEnquiryNotification(env, enquiry, files = []) {
     };
   }
 
-  const resend = new Resend(env.RESEND_API_KEY);
+  const resend = new Resend(resendOutboundKey(env));
 
   // IMPORTANT:
   // This reference comes directly from server.js.
@@ -139,11 +140,11 @@ function normaliseSender(value, defaultName = 'Oprun Security') {
 }
 
 export async function sendSaasVerificationEmail(env, { to, code, businessName, registration = false }) {
-  if (!usableEnvValue(env.RESEND_API_KEY)) {
+  if (!usableEnvValue(resendOutboundKey(env))) {
     return { sent: false, reason: 'resend_not_configured' };
   }
 
-  const resend = new Resend(env.RESEND_API_KEY);
+  const resend = new Resend(resendOutboundKey(env));
   const registrationSender = registration && String(env.SAAS_REGISTRATION_FROM || '').trim();
   const candidates = registrationSender
     ? [normaliseSender(registrationSender, 'Oprun AI Security')].filter(Boolean)
@@ -177,8 +178,8 @@ export async function sendSaasVerificationEmail(env, { to, code, businessName, r
 
 
 export async function sendWorkerOnboardingInviteEmail(env,{to,workerName,businessName,inviteUrl,expiresAt}){
-  if(!usableEnvValue(env.RESEND_API_KEY)||!to)return {sent:false,reason:'resend_not_configured'};
-  const resend=new Resend(env.RESEND_API_KEY);
+  if(!usableEnvValue(resendOutboundKey(env))||!to)return {sent:false,reason:'resend_not_configured'};
+  const resend=new Resend(resendOutboundKey(env));
   const from=
     normaliseSender(env.WORKFORCE_FROM,'Oprun Workforce')||
     normaliseSender(env.SAAS_VERIFY_FROM,'Oprun Workforce')||
@@ -202,8 +203,8 @@ export async function sendWorkerOnboardingInviteEmail(env,{to,workerName,busines
 }
 
 export async function sendSupportEscalationEmail(env, { to, supportCase }) {
-  if (!env.RESEND_API_KEY || !(env.NOTIFY_FROM||env.SAAS_VERIFY_FROM||env.SUPPORT_FROM) || !to) return { sent: false, reason: 'support_email_not_configured' };
-  const resend = new Resend(env.RESEND_API_KEY);
+  if (!resendOutboundKey(env) || !(env.NOTIFY_FROM||env.SAAS_VERIFY_FROM||env.SUPPORT_FROM) || !to) return { sent: false, reason: 'support_email_not_configured' };
+  const resend = new Resend(resendOutboundKey(env));
   const from = env.SUPPORT_FROM || env.NOTIFY_FROM || env.SAAS_VERIFY_FROM;
   const { data, error } = await resend.emails.send({
     from,
@@ -238,8 +239,8 @@ export async function sendSupportEscalationEmail(env, { to, supportCase }) {
 
 export async function sendVoiceEnquiryNotification(env, { to, enquiry }) {
   const target = to || env.VOICE_ENQUIRY_NOTIFY_TO || env.NOTIFY_TO || env.SUPPORT_ESCALATION_EMAIL;
-  if (!env.RESEND_API_KEY || !target) return { sent: false, reason: 'voice_email_not_configured' };
-  const resend = new Resend(env.RESEND_API_KEY);
+  if (!resendOutboundKey(env) || !target) return { sent: false, reason: 'voice_email_not_configured' };
+  const resend = new Resend(resendOutboundKey(env));
   const from = env.VOICE_ENQUIRY_FROM || env.NOTIFY_FROM || env.SAAS_VERIFY_FROM;
   const subjectName = enquiry.customer_name || 'Business caller';
   const { data, error } = await resend.emails.send({
@@ -273,7 +274,7 @@ export async function sendVoiceEnquiryNotification(env, { to, enquiry }) {
 
 
 export async function sendPlatformAnnouncementEmail(env, { to, announcement, account = null }) {
-  if (!usableEnvValue(env.RESEND_API_KEY) || !to) return { sent:false, reason:'announcement_email_not_configured' };
+  if (!usableEnvValue(resendOutboundKey(env)) || !to) return { sent:false, reason:'announcement_email_not_configured' };
   const base = String(env.PUBLIC_BASE_URL || '').replace(/\/$/, '');
   const when = (v) => (v ? new Date(v).toLocaleString('en-AU', { timeZone: 'Australia/Perth', dateStyle: 'medium', timeStyle: 'short' }) : '');
   const rendered = renderEmail(platformBrand(env), {
@@ -292,14 +293,14 @@ export async function sendPlatformAnnouncementEmail(env, { to, announcement, acc
 // sent for a business use that business's display name on the shared sender address. Never throws; reports why it did not send.
 export async function sendBrandedEmail(env, { to, subject, rendered, kind = 'platform', fromName = 'Oprun', replyTo = null, attachments = [], delivery = null }) {
   const finish=result=>{trackCommunication(delivery?{...delivery,channel:'email',recipient:to}:null,result);return result};
-  if (!usableEnvValue(env.RESEND_API_KEY)) return finish({ sent: false, reason: 'email_not_configured' });
+  if (!usableEnvValue(resendOutboundKey(env))) return finish({ sent: false, reason: 'email_not_configured' });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(to || ''))) return finish({ sent: false, reason: 'no_valid_email_address' });
   const from = kind === 'platform'
     ? normaliseSender(env.PLATFORM_NOTICE_FROM, fromName) || normaliseSender(env.NOTIFY_FROM, fromName) || normaliseSender(env.SAAS_VERIFY_FROM, fromName)
     : normaliseSender(env.NOTIFY_FROM, fromName) || normaliseSender(env.SAAS_VERIFY_FROM, fromName);
   if (!from) return finish({ sent: false, reason: 'sender_not_configured' });
   try {
-    const { data, error } = await new Resend(env.RESEND_API_KEY).emails.send({ from, to: [to], subject: String(subject).slice(0, 200), text: rendered.text, html: rendered.html, ...(attachments.length ? { attachments } : {}), ...(replyTo ? { reply_to: replyTo } : {}) });
+    const { data, error } = await new Resend(resendOutboundKey(env)).emails.send({ from, to: [to], subject: String(subject).slice(0, 200), text: rendered.text, html: rendered.html, ...(attachments.length ? { attachments } : {}), ...(replyTo ? { reply_to: replyTo } : {}) });
     return finish(error ? { sent: false, reason: String(error.message || 'provider_error').slice(0, 200) } : { sent: true, email_id: data?.id || null });
   } catch (err) { return finish({ sent: false, reason: String(err.message || err).slice(0, 200) }); }
 }

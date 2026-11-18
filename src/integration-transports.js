@@ -18,7 +18,7 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
     // An explicitly owned transport never silently falls back to the platform's account.
     if(record.status!=='connected')throw Object.assign(new Error('Reconnect this workspace email/SMS provider.'),{status:409});
     const own=credentials(org);
-    return {...base,RESEND_API_KEY:own?.email?.api_key||'',SAAS_VERIFY_FROM:own?.email?.sender||'',
+    return {...base,RESEND_OUTBOUND_API_KEY:'',RESEND_API_KEY:own?.email?.api_key||'',SAAS_VERIFY_FROM:own?.email?.sender||'',
       PLATFORM_NOTICE_FROM:own?.email?.sender||'',NOTIFY_FROM:own?.email?.sender||'',SUPPORT_FROM:own?.email?.sender||'',
       RESEND_WEBHOOK_SECRET:own?.email?.webhook_secret||'',TELNYX_API_KEY:own?.sms?.api_key||'',
       TELNYX_FROM_NUMBER:own?.sms?.number||'',TELNYX_PHONE_NUMBER:own?.sms?.number||'',

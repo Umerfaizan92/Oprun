@@ -1,4 +1,5 @@
 // One workflow, two ownership domains. No browser-supplied tenant IDs, sender IDs or receipt claims.
+import { resendOutboundKey } from './resend-outbound.js';
 import crypto from "node:crypto";
 import { z } from "zod";
 import { trackCommunication } from "./message-delivery.js";
@@ -448,7 +449,7 @@ export function installMailCentre(
       m.scope === "platform"
         ? env.PLATFORM_NOTICE_FROM || env.SAAS_VERIFY_FROM
         : deliveryEnv.SAAS_VERIFY_FROM;
-    if (!transport && (!deliveryEnv.RESEND_API_KEY || !from))
+    if (!transport && (!resendOutboundKey(deliveryEnv) || !from))
       return {
         ok: false,
         error:
@@ -490,7 +491,7 @@ export function installMailCentre(
           method: "POST",
           signal: AbortSignal.timeout(20000),
           headers: {
-            authorization: "Bearer " + deliveryEnv.RESEND_API_KEY,
+            authorization: "Bearer " + resendOutboundKey(deliveryEnv),
             "content-type": "application/json",
             "Idempotency-Key": "sp-mail-" + m.id + "-" + m.revision,
           },
@@ -649,6 +650,6 @@ export function installMailCentre(
     return m.id;
   }
   const mailStatus = (id, ownerId) => db.prepare("SELECT id,status,scheduled_at,recipient FROM portal_mail WHERE id=? AND owner_id=? AND scope='business'").get(id, ownerId) || null;
-  const providerReady = org => {try{const e=org?transportEnv(org):env;return Boolean(transport || (e.RESEND_API_KEY && (org?e.SAAS_VERIFY_FROM:e.PLATFORM_NOTICE_FROM||e.SAAS_VERIFY_FROM)))}catch{return false}};
+  const providerReady = org => {try{const e=org?transportEnv(org):env;return Boolean(transport || (resendOutboundKey(e) && (org?e.SAAS_VERIFY_FROM:e.PLATFORM_NOTICE_FROM||e.SAAS_VERIFY_FROM)))}catch{return false}};
   return { tick, dispatch, createDraft, queueApproved, mailStatus, providerReady };
 }

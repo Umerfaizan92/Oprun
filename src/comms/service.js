@@ -1,6 +1,7 @@
 // Phase 07: unified communications and campaigns. Every row belongs to one owner: a business (organisation id) or
 // 'platform' (Founder Console). Platform mail and campaigns never touch a business's customer communications, and
 // no business can read platform rows.
+import { resendOutboundKey } from '../resend-outbound.js';
 import crypto from 'node:crypto';
 import { analyseThread, draftReply, duplicates, followUps, CATEGORIES } from './ai.js';
 
@@ -369,7 +370,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   }
   async function sendEmail(owner, b, c, r, text) {
     const deliveryEnv=transportEnv(owner);
-    const key = deliveryEnv.RESEND_API_KEY, from = isPlatform(owner) ? (env.PLATFORM_MAIL_FROM || env.SAAS_VERIFY_FROM) : deliveryEnv.SAAS_VERIFY_FROM;
+    const key = resendOutboundKey(deliveryEnv), from = isPlatform(owner) ? (env.PLATFORM_MAIL_FROM || env.SAAS_VERIFY_FROM) : deliveryEnv.SAAS_VERIFY_FROM;
     if (!key || !from) throw Object.assign(new Error('Email sending is not set up (RESEND_API_KEY and a verified sender).'), { stopAll: true });
     const unsub = `${publicBase()}/u/${r.token}`, link = c.cta_url ? `${publicBase()}/c/${r.token}` : null;
     const esc = (s) => String(s).replace(/[&<>"]/g, (x) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]));

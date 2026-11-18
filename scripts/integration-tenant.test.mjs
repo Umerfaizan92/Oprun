@@ -26,6 +26,8 @@ test('workspace transport keys are encrypted, isolated and never fall back after
  assert.equal(stored.includes('test-owned-email-key'),false);
  assert.equal(transports.environment('a',{RESEND_API_KEY:'test-platform'}).RESEND_API_KEY,'test-owned-email-key');
  assert.equal(transports.environment('b',{RESEND_API_KEY:'test-platform'}).RESEND_API_KEY,'test-platform','legacy platform transport is explicitly separate');
+ assert.equal(transports.environment('a',{RESEND_OUTBOUND_API_KEY:'test-platform-outbound'}).RESEND_OUTBOUND_API_KEY,'','owned transports must not inherit the Oprun sending key');
+ assert.equal(transports.environment('b',{RESEND_OUTBOUND_API_KEY:'test-platform-outbound'}).RESEND_OUTBOUND_API_KEY,'test-platform-outbound');
  assert.equal(transports.credentials('b'),null);
  assert.equal(transports.environment('a',{PLATFORM_NOTICE_FROM:'platform@example.org',NOTIFY_FROM:'platform@example.org'}).PLATFORM_NOTICE_FROM,'hello@business.example','follow-ups keep the owned sender rather than inheriting the platform sender');
  await assert.rejects(()=>transports.save('b','email',{api_key:'test-second-key',sender:'hello@business.example'}),/another workspace/);

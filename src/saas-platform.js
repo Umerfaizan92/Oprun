@@ -1,3 +1,4 @@
+import { resendOutboundKey } from './resend-outbound.js';
 import {renderEmail,tenantBrandFor} from './email-templates.js';
 import {communicationInbound,trackCommunication} from './message-delivery.js';
 // Step 4 platform layer: unified response envelope, data portability, statutory erasure,
@@ -973,10 +974,10 @@ export function installSaasPlatform(app, deps) {
       return data?.messages?.[0]?.id || null;
     }
     if (msg.channel === 'email') {
-      if (!set(deliveryEnv.RESEND_API_KEY) || !set(deliveryEnv.SAAS_VERIFY_FROM)) throw notConfigured('Email');
+      if (!set(resendOutboundKey(deliveryEnv)) || !set(deliveryEnv.SAAS_VERIFY_FROM)) throw notConfigured('Email');
       const brand=tenantBrandFor(db,uploadRoot,msg.organisation_id),rendered=renderEmail(brand,{heading:msg.subject||'Message from '+brand.name,paragraphs:[msg.body]});
       const replyTo=db.prepare("SELECT address FROM comms_channels WHERE organisation_id=? AND channel='email' AND status='active' LIMIT 1").get(msg.organisation_id)?.address;
-      const r = await fetch(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.RESEND_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: deliveryEnv.SAAS_VERIFY_FROM, to: [msg.contact_address], subject: msg.subject ? `Re: ${msg.subject}` : 'Reply from us', text: rendered.text,html:rendered.html,...(replyTo?{reply_to:replyTo}:{}) }) });
+      const r = await fetch(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${resendOutboundKey(deliveryEnv)}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: deliveryEnv.SAAS_VERIFY_FROM, to: [msg.contact_address], subject: msg.subject ? `Re: ${msg.subject}` : 'Reply from us', text: rendered.text,html:rendered.html,...(replyTo?{reply_to:replyTo}:{}) }) });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error('email failed');
       return data?.id || null;

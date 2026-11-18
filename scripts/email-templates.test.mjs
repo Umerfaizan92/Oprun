@@ -40,3 +40,31 @@ test('registration sender stays scoped to registration and never falls back when
   });
   assert.deepEqual(senders, [rejectedSender, env.SAAS_VERIFY_FROM, env.SAAS_VERIFY_FROM, rejectedSender]);
 });
+
+test('verification uses the dedicated outbound key and retains legacy compatibility', async (t) => {
+  const requests = [];
+  t.mock.method(globalThis, 'fetch', async (_url, options) => {
+    requests.push({
+      authorization: new Headers(options.headers).get('authorization'),
+      from: JSON.parse(options.body).from
+    });
+    return Response.json({ id: 'fixture-receipt' });
+  });
+  const from = 'Oprun AI Security <security@oprun.ai>';
+  const env = {
+    RESEND_API_KEY: 'fixture-legacy-key',
+    RESEND_OUTBOUND_API_KEY: 'fixture-outbound-key',
+    SAAS_VERIFY_FROM: from,
+    SAAS_REGISTRATION_FROM: from
+  };
+  const message = { to: 'recipient@example.test', code: '123456', businessName: 'Account recovery' };
+
+  assert.equal((await sendSaasVerificationEmail(env, message)).sent, true);
+  assert.equal((await sendSaasVerificationEmail(env, { ...message, registration: true })).sent, true);
+  assert.equal((await sendSaasVerificationEmail({ ...env, RESEND_OUTBOUND_API_KEY: '' }, message)).sent, true);
+  assert.deepEqual(requests, [
+    { authorization: 'Bearer fixture-outbound-key', from },
+    { authorization: 'Bearer fixture-outbound-key', from },
+    { authorization: 'Bearer fixture-legacy-key', from }
+  ]);
+});
