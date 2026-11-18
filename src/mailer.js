@@ -138,16 +138,16 @@ function normaliseSender(value, defaultName = 'Oprun Security') {
   return `${name} <${email}>`;
 }
 
-export async function sendSaasVerificationEmail(env, { to, code, businessName }) {
+export async function sendSaasVerificationEmail(env, { to, code, businessName, registration = false }) {
   if (!usableEnvValue(env.RESEND_API_KEY)) {
     return { sent: false, reason: 'resend_not_configured' };
   }
 
   const resend = new Resend(env.RESEND_API_KEY);
-  const candidates = [
-    normaliseSender(env.SAAS_VERIFY_FROM),
-    normaliseSender(env.NOTIFY_FROM)
-  ].filter(Boolean).filter((value, index, all) => all.indexOf(value) === index);
+  const registrationSender = registration && String(env.SAAS_REGISTRATION_FROM || '').trim();
+  const candidates = registrationSender
+    ? [normaliseSender(registrationSender, 'Oprun AI Security')].filter(Boolean)
+    : [...new Set([normaliseSender(env.SAAS_VERIFY_FROM), normaliseSender(env.NOTIFY_FROM)].filter(Boolean))];
 
   if(!candidates.length)return {sent:false,reason:'sender_not_configured'};
   const payload = {
