@@ -97,7 +97,7 @@ export async function sendEnquiryNotification(env, enquiry, files = []) {
     subject:
       `[${referenceCode}] New Quote Enquiry — ${enquiry.full_name} — ${enquiry.service_required}`,
 
-    text,
+    ...renderEmail(platformBrand(env), { heading: 'New quote enquiry', paragraphs: [text] }),
 
     attachments
   });
@@ -139,7 +139,7 @@ function normaliseSender(value, defaultName = 'Oprun Security') {
   return `${name} <${email}>`;
 }
 
-export async function sendSaasVerificationEmail(env, { to, code, businessName, registration = false }) {
+export async function sendSaasVerificationEmail(env, { to, code, businessName, registration = false, recovery = false }) {
   if (!usableEnvValue(resendOutboundKey(env))) {
     return { sent: false, reason: 'resend_not_configured' };
   }
@@ -153,12 +153,13 @@ export async function sendSaasVerificationEmail(env, { to, code, businessName, r
   if(!candidates.length)return {sent:false,reason:'sender_not_configured'};
   const payload = {
     to: [to],
-    subject: 'Oprun security verification code',
+    subject: recovery ? 'Your Oprun password recovery code' : 'Your Oprun verification code',
     ...renderEmail(platformBrand(env),{
-      heading:'Verify your email',
-      paragraphs:[`Confirm your identity to continue with ${businessName}.`],
-      facts:[['Verification code',code],['Expires','10 minutes']],
-      notes:['Do not share this code. If you did not request it, ignore this email.']
+      heading: recovery ? 'Recover your account' : 'Verify your email',
+      preheader: recovery ? 'Use this code to continue recovering your Oprun account.' : 'Use this code to verify your email address.',
+      paragraphs: [recovery ? 'Enter this code on the Oprun account recovery page.' : `Enter this code in Oprun to continue with ${businessName}.`],
+      verification: { label: recovery ? 'Recovery code' : 'Verification code', code, expires: 'Expires in 10 minutes' },
+      notes: ['Keep this code private. If you did not request it, you can ignore this email.']
     })
   };
 
