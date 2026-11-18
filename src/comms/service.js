@@ -2,6 +2,7 @@
 // 'platform' (Founder Console). Platform mail and campaigns never touch a business's customer communications, and
 // no business can read platform rows.
 import { resendOutboundKey } from '../resend-outbound.js';
+import { platformBrand, renderEmail } from '../email-templates.js';
 import crypto from 'node:crypto';
 import { analyseThread, draftReply, duplicates, followUps, CATEGORIES } from './ai.js';
 
@@ -373,9 +374,19 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const key = resendOutboundKey(deliveryEnv), from = isPlatform(owner) ? (env.PLATFORM_MAIL_FROM || env.SAAS_VERIFY_FROM) : deliveryEnv.SAAS_VERIFY_FROM;
     if (!key || !from) throw Object.assign(new Error('Email sending is not set up (RESEND_API_KEY and a verified sender).'), { stopAll: true });
     const unsub = `${publicBase()}/u/${r.token}`, link = c.cta_url ? `${publicBase()}/c/${r.token}` : null;
-    const esc = (s) => String(s).replace(/[&<>"]/g, (x) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]));
-    const html = `<div style="font:16px/1.5 sans-serif;max-width:600px">${text.split(/\n{2,}/).map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('')}${link ? `<p><a href="${esc(link)}">${'Find out more'}</a></p>` : ''}<hr><p style="font-size:12px;color:#555">Sent by ${esc(b.name)}${b.abn ? ` · ABN ${esc(b.abn)}` : ''}${b.address ? ` · ${esc(b.address)}` : ''}. You are receiving this because you agreed to hear from us. <a href="${esc(unsub)}">Unsubscribe</a>.</p></div>`;
-    const res = await fetchImpl(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: [r.address], subject: c.subject, html, text: `${text}\n\n${link ? link + '\n\n' : ''}Sent by ${b.name}. Unsubscribe: ${unsub}`, headers: { 'List-Unsubscribe': `<${unsub}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, tags: [{ name: 'category', value: 'marketing' }] }) });
+    const platform = platformBrand(env);
+    const senderDetails = [`Sent by ${b.name}`, b.abn && `ABN ${b.abn}`, b.address].filter(Boolean).join(' · ');
+    const brand = {
+      ...(isPlatform(owner) ? platform : { name: b.name }),
+      footer: [senderDetails, 'You agreed to receive these updates.'],
+      links: [...platform.links, ['Unsubscribe', unsub]]
+    };
+    const rendered = renderEmail(brand, {
+      heading: c.subject,
+      paragraphs: text.split(/\n{2,}/),
+      button: link ? { label: 'Find out more', url: link } : null
+    });
+    const res = await fetchImpl(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: [r.address], subject: c.subject, ...rendered, headers: { 'List-Unsubscribe': `<${unsub}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, tags: [{ name: 'category', value: 'marketing' }] }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw Object.assign(new Error(j?.message || `Email provider answered ${res.status}`), { stopAll: [401, 403].includes(res.status) });
     return j.id || null;

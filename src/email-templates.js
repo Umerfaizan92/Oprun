@@ -7,9 +7,22 @@ const escapeHtml = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 const safeColor = (v, fallback) => (/^#[0-9a-f]{6}$/i.test(String(v || '')) ? v : fallback);
 const safeUrl = (v) => (/^https?:\/\//i.test(String(v || '')) ? v : '');
 
-const communicationLinks=base=>{const url=String(base||'https://super-pro-ai-office-manager.onrender.com').replace(/\/$/,'');return [['Help',url+'/saas/complaints.html'],['Terms',url+'/saas/terms.html'],['Privacy',url+'/saas/privacy.html']]};
+function publicBase(value) {
+  return (safeUrl(value) || 'https://www.oprun.ai').replace(/\/$/, '');
+}
+const communicationLinks = (base) => [
+  ['Help', '/saas/complaints.html'],
+  ['Terms', '/saas/terms.html'],
+  ['Privacy', '/saas/privacy.html']
+].map(([label, route]) => [label, publicBase(base) + route]);
 export const PLATFORM_NAME = 'Oprun';
-export const platformBrand = (env) => ({ name: PLATFORM_NAME, color: '#e2bd72', logoSrc: `${String(env.PUBLIC_BASE_URL || '').replace(/\/$/, '')}/saas/oprun-icon-192.png`, links:communicationLinks(env.PUBLIC_BASE_URL), footer: [`${PLATFORM_NAME}`, 'You receive this because you have an account on the platform.'] });
+export const platformBrand = (env) => ({
+  name: PLATFORM_NAME,
+  color: '#e2bd72',
+  logoSrc: publicBase(env.PUBLIC_BASE_URL) + '/saas/oprun-icon-192.png',
+  links: communicationLinks(env.PUBLIC_BASE_URL),
+  platform: true
+});
 
 // The business logo is attached inline (it is private, so it cannot be linked). Returns null when the business has no logo.
 export function tenantBrandFor(db, uploadRoot, organisationId) {
@@ -24,20 +37,56 @@ export function tenantBrandFor(db, uploadRoot, organisationId) {
   return { name, color: safeColor(o.color, '#b8892f'), logoSrc: attachment ? 'cid:brandlogo' : '', attachments: attachment ? [attachment] : [], links:communicationLinks(),footer: [name + (o.abn ? ` · ABN ${o.abn}` : ''), ...[o.phone,o.website].filter(Boolean),'Please keep this email for your records.'] };
 }
 
-// frame: { heading, paragraphs[], facts:[[label,value]], button:{label,url}, notes[] }
+// frame: { heading, preheader, paragraphs[], verification:{label,code,expires}, facts:[[label,value]], button:{label,url}, notes[] }
 export function renderEmail(brand, frame) {
   const color = safeColor(brand.color, '#b8892f');
-  const rgb=color.slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);
-  const buttonInk=rgb.reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0)>.179?'#17130b':'#ffffff';
-  const p = (frame.paragraphs || []).filter(Boolean), facts = (frame.facts || []).filter((f) => f[1] !== undefined && f[1] !== null && f[1] !== ''), notes = (frame.notes || []).filter(Boolean);
+  const rgb = color.slice(1).match(/../g).map(v => parseInt(v, 16) / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
+  const buttonInk = rgb.reduce((n, v, i) => n + v * [.2126, .7152, .0722][i], 0) > .179 ? '#17130b' : '#ffffff';
+  const paragraphs = (frame.paragraphs || []).filter(Boolean);
+  const facts = (frame.facts || []).filter(([, value]) => value !== undefined && value !== null && value !== '');
+  const notes = (frame.notes || []).filter(Boolean);
   const button = frame.button && safeUrl(frame.button.url) ? frame.button : null;
-  const html = `<!doctype html><html><body style="margin:0;background:#090b10;font-family:Arial,Helvetica,sans-serif;color:#f3f4f7"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#090b10;padding:24px 12px"><tr><td align="center"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#11151c;border-radius:14px;overflow:hidden;border:1px solid #2c3441">
-<tr><td style="background:#0d1117;background-image:linear-gradient(120deg,#0d1117,#252015);padding:18px 24px;border-bottom:4px solid ${color}"><table role="presentation" cellpadding="0" cellspacing="0"><tr>${brand.logoSrc ? `<td style="padding-right:12px"><img src="${escapeHtml(brand.logoSrc)}" alt="" width="40" height="40" style="display:block;border-radius:8px;object-fit:contain;background:#fff"></td>` : ''}<td style="color:#f5efe0;font-size:17px;font-weight:bold">${escapeHtml(brand.name)}</td></tr></table></td></tr>
-<tr><td style="padding:26px 24px 8px"><h1 style="margin:0 0 14px;font-size:21px;line-height:1.3;color:#f3f4f7">${escapeHtml(frame.heading)}</h1>${p.map((t) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.55">${escapeHtml(t).replace(/\n/g, '<br>')}</p>`).join('')}
-${facts.length ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 16px;border:1px solid #2c3441;border-radius:10px">${facts.map(([k, v]) => `<tr><td style="padding:9px 14px;font-size:13px;color:#adb5c3;width:42%;border-bottom:1px solid #2c3441">${escapeHtml(k)}</td><td style="padding:9px 14px;font-size:14px;font-weight:bold;border-bottom:1px solid #2c3441">${escapeHtml(v)}</td></tr>`).join('')}</table>` : ''}
-${button ? `<p style="margin:8px 0 18px"><a href="${escapeHtml(button.url)}" style="display:inline-block;background:${color};color:${buttonInk};text-decoration:none;font-weight:bold;font-size:15px;padding:12px 22px;border-radius:10px">${escapeHtml(button.label)}</a></p>` : ''}
-${notes.map((t) => `<p style="margin:0 0 12px;font-size:13px;line-height:1.5;color:#adb5c3">${escapeHtml(t).replace(/\n/g, '<br>')}</p>`).join('')}</td></tr>
-<tr><td style="padding:16px 24px 22px;border-top:1px solid #2c3441;font-size:12px;line-height:1.5;color:#adb5c3">${(brand.footer || []).map(escapeHtml).join('<br>')}<br>Powered by Oprun<br>${(brand.links||communicationLinks()).filter(([,url])=>safeUrl(url)).map(([label,url])=>`<a href="${escapeHtml(url)}" style="color:#e2bd72;text-decoration:underline">${escapeHtml(label)}</a>`).join(' · ')}<br>Need help? Reply to the sending business or use Help above.</td></tr></table></td></tr></table></body></html>`;
-  const text = [brand.name, '', frame.heading, '', ...p.flatMap((t) => [t, '']), ...facts.map(([k, v]) => `${k}: ${v}`), ...(facts.length ? [''] : []), ...(button ? [`${button.label}: ${button.url}`, ''] : []), ...notes.flatMap((t) => [t, '']), ...(brand.footer || []),'Powered by Oprun',...(brand.links||communicationLinks()).map(([label,url])=>label+': '+url)].join('\n');
+  const verification = frame.verification;
+  const footer = brand.footer || [];
+  const links = (brand.links || communicationLinks()).filter(([, url]) => safeUrl(url));
+  const logo = safeUrl(brand.logoSrc) || (brand.logoSrc === 'cid:brandlogo' ? brand.logoSrc : '');
+  const paragraph = (value) => escapeHtml(value).replace(/\n/g, '<br>');
+
+  const codePanel = verification ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border:1px solid #d9c294;border-radius:12px"><tr><td bgcolor="#faf3e5" style="background:#faf3e5;padding:16px 18px;border-radius:12px">
+    <p style="margin:0 0 5px;color:#5e451c;font-size:13px;font-weight:700">${escapeHtml(verification.label)}</p>
+    <p style="margin:0 0 6px;color:#141923;font:700 34px/1.2 Consolas,Monaco,monospace;letter-spacing:3px">${escapeHtml(verification.code)}</p>
+    <p style="margin:0;color:#414957;font-size:13px">${escapeHtml(verification.expires)}</p>
+  </td></tr></table>` : '';
+  const details = facts.length ? `<table width="100%" cellpadding="0" cellspacing="0" style="margin:14px 0;border-top:1px solid #dde1e8">${facts.map(([label, value]) =>
+    `<tr><th scope="row" align="left" style="width:40%;padding:9px 8px 9px 0;color:#414957;font-size:13px;border-bottom:1px solid #dde1e8">${escapeHtml(label)}</th><td style="padding:9px 0;color:#17202d;font-size:14px;border-bottom:1px solid #dde1e8;word-break:break-word">${escapeHtml(value)}</td></tr>`
+  ).join('')}</table>` : '';
+  const action = button ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td bgcolor="${color}" style="border-radius:8px"><a href="${escapeHtml(button.url)}" style="display:inline-block;background:${color};color:${buttonInk};text-decoration:none;font-weight:bold;font-size:15px;padding:12px 20px;border-radius:8px">${escapeHtml(button.label)}</a></td></tr></table>` : '';
+  const legal = links.map(([label, url]) => `<a href="${escapeHtml(url)}" style="color:#594218;text-decoration:underline">${escapeHtml(label)}</a>`).join(' &nbsp;·&nbsp; ');
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${escapeHtml(frame.heading)}</title></head>
+<body style="margin:0;background:#eef0f4;color:#17202d;font-family:Arial,Helvetica,sans-serif">
+<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all" aria-hidden="true">${escapeHtml(frame.preheader || frame.heading)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#eef0f4"><tr><td align="center" style="padding:20px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;border:1px solid #d7dce4;border-radius:14px">
+<tr><td bgcolor="#090b10" style="background:#090b10;padding:15px 20px;border-radius:13px 13px 0 0;border-bottom:3px solid ${color}">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>${logo ? `<td style="padding-right:10px"><img src="${escapeHtml(logo)}" alt="" width="34" height="34" style="display:block;width:34px;height:34px;object-fit:contain;border-radius:7px"></td>` : ''}
+<td style="color:#ffffff;font-size:20px;font-weight:700;line-height:1.2;word-break:break-word">${escapeHtml(brand.name)}</td></tr></table></td></tr>
+<tr><td bgcolor="#ffffff" style="background:#ffffff;padding:22px 20px;color:#17202d">
+<h1 style="margin:0 0 10px;color:#17202d;font-size:24px;line-height:1.2">${escapeHtml(frame.heading)}</h1>
+${paragraphs.map(t => `<p style="margin:0 0 10px;color:#313a49;font-size:15px;line-height:1.55">${paragraph(t)}</p>`).join('')}
+${codePanel}${details}${action}
+${notes.map(t => `<p style="margin:10px 0 0;color:#4b5565;font-size:13px;line-height:1.5">${paragraph(t)}</p>`).join('')}
+</td></tr>
+<tr><td bgcolor="#f7f8fa" style="background:#f7f8fa;border-top:1px solid #dde1e8;border-radius:0 0 13px 13px;padding:13px 20px;color:#4b5565;font-size:12px;line-height:1.55">
+${footer.length ? footer.map(escapeHtml).join('<br>') + '<br>' : ''}${brand.platform ? '© Oprun' : 'Powered by Oprun'}${legal ? `<br>${legal}` : ''}
+</td></tr></table></td></tr></table></body></html>`;
+  const text = [
+    brand.name, '', frame.heading, '', ...paragraphs.flatMap(t => [t, '']),
+    ...(verification ? [`${verification.label}: ${verification.code}`, verification.expires, ''] : []),
+    ...facts.map(([label, value]) => `${label}: ${value}`),
+    ...(facts.length ? [''] : []), ...(button ? [`${button.label}: ${button.url}`, ''] : []),
+    ...notes.flatMap(t => [t, '']), ...footer, brand.platform ? '© Oprun' : 'Powered by Oprun',
+    ...links.map(([label, url]) => `${label}: ${url}`)
+  ].join('\n');
   return { html, text };
 }

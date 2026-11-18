@@ -29,6 +29,16 @@
     if(document.querySelector('.sp-global-trust-footer'))return;
     const foot=document.createElement('section');foot.className='sp-global-trust-footer';foot.setAttribute('aria-label','Oprun trust and legal notice');
     foot.innerHTML=`<div><b>© 2026 Oprun. All rights reserved.</b><span>AI-assisted software · built with AI-assisted development · human review remains required for consequential decisions.</span></div><div><span>Security controls include authenticated access, role controls, audit logging and encrypted-transport architecture.</span><span class="sp-aws-status">AWS-ready deployment support · AWS certifications/badges are shown only when actually configured and independently verified.</span></div><nav><a href="/saas/terms.html" data-i18n="chrome.terms">Terms</a><a href="/saas/privacy.html" data-i18n="chrome.privacy">Privacy</a><a href="/saas/trust-center.html" data-i18n="chrome.trust">Trust Center</a><a href="/saas/subprocessors.html" data-i18n="chrome.services">Connected services</a></nav>`;
+    if (document.body.matches('.auth-page[data-auth-page]')) {
+      const copyright = document.createElement('small');
+      copyright.textContent = `© ${new Date().getFullYear()} Oprun. All rights reserved.`;
+      const links = foot.querySelector('nav');
+      links.setAttribute('aria-label', 'Legal and trust information');
+      foot.classList.add('auth-trust-footer');
+      foot.replaceChildren(copyright, links);
+      document.body.append(foot);
+      return;
+    }
     const workspaceFooter = document.querySelector('#workspace .app-footer');
     if (workspaceFooter) {
       foot.classList.add('workspace-trust-links');

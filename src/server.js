@@ -2343,7 +2343,7 @@ async function assertTelnyxVerifyReady(){
   return profile;
 }
 
-async function sendSmsVerification(to,code,businessName){
+async function sendSmsVerification(to,code,{recovery=false}={}){
   if(configuredValue(env.TELNYX_API_KEY)&&configuredValue(env.TELNYX_VERIFY_PROFILE_ID)){
     const profile=await assertTelnyxVerifyReady();
     const response=await fetch('https://api.telnyx.com/v2/verifications/sms',{
@@ -2359,7 +2359,8 @@ async function sendSmsVerification(to,code,businessName){
 
   const from=env.TELNYX_FROM_NUMBER||env.TELNYX_PHONE_NUMBER;
   if(!configuredValue(env.TELNYX_API_KEY)||!configuredValue(from))return {sent:false,reason:'telnyx_sms_not_configured'};
-  const body={from,to,text:`Oprun verification code: ${code}. Expires in 10 minutes. Do not share this code. Business: ${businessName}`};
+  const label=recovery?'recovery code':'verification code';
+  const body={from,to,text:`Oprun AI: Your ${label} is ${code}. Expires in 10 minutes. Do not share this code.`};
   let lastError='provider error';
   for(let attempt=1;attempt<=2;attempt++){
     const response=await fetch('https://api.telnyx.com/v2/messages',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -2386,7 +2387,7 @@ async function verifySmsVerificationCode(phone,code){
 }
 async function deliverRegistrationCodes(row,emailCode,smsCode){
   const emailResult=await sendSaasVerificationEmail(env,{to:row.email,code:emailCode,businessName:row.business_name,registration:true}).catch(err=>({sent:false,reason:err.message}));
-  const smsResult=await sendSmsVerification(row.phone,smsCode,row.business_name).catch(err=>({sent:false,reason:err.message}));
+  const smsResult=await sendSmsVerification(row.phone,smsCode).catch(err=>({sent:false,reason:err.message}));
   logVerificationDelivery({purpose:'registration',subjectId:row.id,channel:'email',destination:row.email,provider:'resend',messageId:emailResult.email_id||emailResult.message_id,status:emailResult.sent?'sent':'failed',reason:emailResult.reason});
   logVerificationDelivery({purpose:'registration',subjectId:row.id,channel:'sms',destination:row.phone,provider:'telnyx',messageId:smsResult.message_id,status:smsResult.sent?'sent':'failed',reason:smsResult.reason});
   return {
@@ -2505,7 +2506,7 @@ app.post('/api/saas/registration/resend',otpResendLimiter,async(req,res)=>{
   try{
     const delivery=parsed.data.channel==='email'
       ?await sendSaasVerificationEmail(env,{to:row.email,code,businessName:row.business_name,registration:true})
-      :await sendSmsVerification(row.phone,code,row.business_name);
+      :await sendSmsVerification(row.phone,code);
     if(!delivery.sent&&!verificationTestMode){
       logVerificationDelivery({purpose:'registration_resend',subjectId:row.id,channel:parsed.data.channel,destination:parsed.data.channel==='email'?row.email:row.phone,provider:parsed.data.channel==='email'?'resend':'telnyx',status:'failed',reason:delivery.reason});
       return res.status(503).json({ok:false,error:`${parsed.data.channel==='email'?'Email':'SMS'} verification is not configured or the provider rejected delivery.`});
@@ -2559,8 +2560,8 @@ function recoveryLookup({recovery_type,email,phone,business_identifier_type,busi
 }
 async function deliverRecoveryCode({id,user,recoveryType,channel,code}){
   let delivery={sent:false,reason:'not_configured'};
-  if(channel==='email')delivery=await sendSaasVerificationEmail(env,{to:user.email,code,businessName:'Account recovery'}).catch(err=>({sent:false,reason:err.message}));
-  else delivery=await sendSmsVerification(user.phone,code,'Account recovery').catch(err=>({sent:false,reason:err.message}));
+  if(channel==='email')delivery=await sendSaasVerificationEmail(env,{to:user.email,code,businessName:'Account recovery',recovery:true}).catch(err=>({sent:false,reason:err.message}));
+  else delivery=await sendSmsVerification(user.phone,code,{recovery:true}).catch(err=>({sent:false,reason:err.message}));
   logVerificationDelivery({purpose:`account_recovery_${recoveryType}`,subjectId:id,userId:user.id,channel,destination:channel==='email'?user.email:user.phone,provider:channel==='email'?'resend':'telnyx',messageId:delivery.email_id||delivery.message_id,status:delivery.sent?'sent':'failed',reason:delivery.reason});
   if(delivery.sent){const provider=delivery.provider==='telnyx_verify'?'telnyx_verify':'local';db.prepare('UPDATE account_recovery_challenges SET verification_provider=?,expires_at=? WHERE id=?').run(provider,new Date(Date.now()+(provider==='telnyx_verify'?(delivery.timeout_seconds||300):600)*1000).toISOString(),id)}
   return delivery;

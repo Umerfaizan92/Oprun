@@ -46,7 +46,7 @@ test('verification uses the dedicated outbound key and retains legacy compatibil
   t.mock.method(globalThis, 'fetch', async (_url, options) => {
     requests.push({
       authorization: new Headers(options.headers).get('authorization'),
-      from: JSON.parse(options.body).from
+      message: JSON.parse(options.body)
     });
     return Response.json({ id: 'fixture-receipt' });
   });
@@ -59,12 +59,19 @@ test('verification uses the dedicated outbound key and retains legacy compatibil
   };
   const message = { to: 'recipient@example.test', code: '123456', businessName: 'Account recovery' };
 
-  assert.equal((await sendSaasVerificationEmail(env, message)).sent, true);
+  assert.equal((await sendSaasVerificationEmail(env, { ...message, recovery: true })).sent, true);
   assert.equal((await sendSaasVerificationEmail(env, { ...message, registration: true })).sent, true);
   assert.equal((await sendSaasVerificationEmail({ ...env, RESEND_OUTBOUND_API_KEY: '' }, message)).sent, true);
-  assert.deepEqual(requests, [
-    { authorization: 'Bearer fixture-outbound-key', from },
-    { authorization: 'Bearer fixture-outbound-key', from },
-    { authorization: 'Bearer fixture-legacy-key', from }
+  assert.deepEqual(requests.map(({authorization, message}) => [authorization, message.from]), [
+    ['Bearer fixture-outbound-key', from],
+    ['Bearer fixture-outbound-key', from],
+    ['Bearer fixture-legacy-key', from]
   ]);
+  const recovery = requests[0].message;
+  assert.equal(recovery.subject, 'Your Oprun password recovery code');
+  assert.match(recovery.html, /Recover your account/);
+  assert.match(recovery.text, /Recovery code: 123456/);
+  assert.doesNotMatch(recovery.html.split('<table')[0], /123456/);
+  assert.match(recovery.html, /https:\/\/www.oprun.ai\/saas\/oprun-icon-192.png/);
+  assert.match(requests[1].message.text, /Verification code: 123456/);
 });
