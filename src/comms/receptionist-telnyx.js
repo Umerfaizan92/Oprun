@@ -66,7 +66,15 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
   }
 
   /** Connects (or re-connects) the business's own Telnyx account and number. Returns publicStatus(). */
-  async function connect(org, { api_key, public_key, number, assistant_id }, actor = null) {
+  async function connect(org, input, actor = null) {
+    try { return await connectSteps(org, input, actor); }
+    catch (e) {
+      if (row(org)?.status === 'connecting') save(org, { status: 'needs_attention', last_error: e.status ? e.message : 'Connecting stopped because of an internal error. Please try again.' });
+      if (!e.status) log.error?.('[RECEPTIONIST] Telnyx connect failed:', e.message);
+      throw e;
+    }
+  }
+  async function connectSteps(org, { api_key, public_key, number, assistant_id }, actor = null) {
     if (typeof api_key !== 'string' || api_key.trim().length < 20 || api_key.length > 400 || /\s/.test(api_key.trim())) throw fail(400, 'Paste your Telnyx API key (it starts with KEY).');
     let pk;
     try { pk = Buffer.from(String(public_key || '').trim(), 'base64'); } catch { pk = Buffer.alloc(0); }
@@ -91,7 +99,7 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
     step('ownership', true, 'Number found in your Telnyx account');
 
     // Keys are stored now (encrypted), so a later step can be retried without pasting them again.
-    save(org, { telnyx_number_id: String(num.id), token_bundle: runtime.encryptBundle({ api_key: key, public_key: pk.toString('base64') }), connected_by: actor });
+    save(org, { telnyx_number_id: String(num.id), token_bundle: JSON.stringify(runtime.encryptBundle({ api_key: key, public_key: pk.toString('base64') })), connected_by: actor });
 
     let assistantId = assistant_id || prev.assistant_id || null, applicationId = prev.application_id || null, problem = null;
     // 2. AI assistant in the business's own account.
@@ -172,7 +180,7 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
   function credentialsFor(org) {
     const r = org ? row(org) : null;
     if (!r?.token_bundle || !['connected', 'needs_attention'].includes(r.status)) return null;
-    try { const b = runtime.decryptBundle(r.token_bundle); return { api_key: b.api_key, public_key: b.public_key, assistant_id: r.assistant_id || null, number: r.number_e164 }; }
+    try { const b = runtime.decryptBundle(J(r.token_bundle, r.token_bundle)); return { api_key: b.api_key, public_key: b.public_key, assistant_id: r.assistant_id || null, number: r.number_e164 }; }
     catch (e) { log.warn?.('[RECEPTIONIST] could not decrypt Telnyx keys for', org, e.message); return null; }
   }
 

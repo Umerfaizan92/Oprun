@@ -6185,7 +6185,7 @@ app.post('/api/webhooks/communications/telnyx-voice/:organisationId',(req,res)=>
   if(p.call_control_id)void voiceFlow.handle(event,{tenantOrg:org}).catch(error=>console.error('[TELNYX VOICE TENANT]',error.message));
 });
 const receptionistOwner=[requireSaasUser,requireSaasRole('owner')];
-const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok:true,telnyx:d})).catch(e=>res.status(e.status&&e.status<600?e.status:500).json({ok:false,error:e.status?e.message:'Something went wrong. Please try again.'}));
+const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok:true,telnyx:d})).catch(e=>{if(!e.status)console.error('[RECEPTIONIST] request failed:',e.message);res.status(e.status&&e.status<600?e.status:500).json({ok:false,error:e.status?e.message:'Something went wrong. Please try again.'})});
 app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));
 app.post('/api/saas/receptionist/telnyx/connect',...receptionistOwner,(req,res)=>{
   const b=z.object({api_key:z.string().trim().min(20).max(400),public_key:z.string().trim().min(40).max(100),number:z.string().trim().min(8).max(20),assistant_id:z.string().trim().max(60).optional().or(z.literal(''))}).strict().safeParse(req.body);
