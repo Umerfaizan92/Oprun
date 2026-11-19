@@ -215,26 +215,34 @@ async function callGemini(base,key,model,messages,id,options={}) {
   const contents = all.map(m => ({ role:m.role === 'assistant' ? 'model' : 'user', parts:[{ text:m.content }] }));
   const cleanModel = String(model || '').replace(/^models\//, '');
   const thinkingLevel=String(options.thinking_level||'medium');
-  const response = await nativeFetch(`${geminiRoot(base)}/models/${encodeURIComponent(cleanModel)}:generateContent`, {
-    method:'POST',
-    headers:{ 'x-goog-api-key':key, 'Content-Type':'application/json' },
-    body:JSON.stringify({
-      system_instruction:{ parts:[{ text:instructions }] },
-      contents,
-      generationConfig:{
-        maxOutputTokens:Number(options.max_output_tokens||900),
-        thinkingConfig:{thinkingLevel}
-      }
-    }),
-    signal:providerSignal()
-  });
-  const data = await response.json().catch(()=>({}));
-  const text = outputTextFromGemini(data);
-  if (!response.ok || !text) {
-    const code = data?.error?.status || data?.error?.code || `http_${response.status}`;
-    throw new Error(`Gemini provider failed: ${code}`);
+  const send=async(withThinking)=>{
+    const response = await nativeFetch(`${geminiRoot(base)}/models/${encodeURIComponent(cleanModel)}:generateContent`, {
+      method:'POST',
+      headers:{ 'x-goog-api-key':key, 'Content-Type':'application/json' },
+      body:JSON.stringify({
+        system_instruction:{ parts:[{ text:instructions }] },
+        contents,
+        generationConfig:{
+          // Thinking models spend part of the budget before answering; never send a budget too small to answer.
+          maxOutputTokens:Math.max(1024,Number(options.max_output_tokens||900)),
+          ...(withThinking?{thinkingConfig:{thinkingLevel}}:{})
+        }
+      }),
+      signal:providerSignal()
+    });
+    const data = await response.json().catch(()=>({}));
+    return { response, data, text:outputTextFromGemini(data) };
+  };
+  let r=await send(true);
+  // Some Gemini models (for example the 2.x family, set through GEMINI_MODEL) reject thinkingLevel with
+  // INVALID_ARGUMENT. Retry once without it instead of failing the whole feature.
+  if(!r.response.ok&&(r.data?.error?.status==='INVALID_ARGUMENT'||r.response.status===400))r=await send(false);
+  if (!r.response.ok || !r.text) {
+    const code = r.data?.error?.status || r.data?.error?.code || `http_${r.response.status}`;
+    const detail = String(r.data?.error?.message||'').replace(/key=[^&\s]+/gi,'key=[hidden]').slice(0,160);
+    throw new Error(`Gemini provider failed: ${code}${detail?` (${detail})`:''}`);
   }
-  return text;
+  return r.text;
 }
 async function callGeneric(base,key,model,messages,id,options={}) {
   const history = historyFor(id);

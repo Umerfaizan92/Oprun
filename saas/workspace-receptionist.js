@@ -95,13 +95,24 @@
       const greeting = el('input', { name: 'greeting', required: true, minlength: '4', maxlength: '300', value: p.greeting || '', placeholder: 'Thanks for calling … How can I help?' });
       const knowledge = el('textarea', { name: 'knowledge', rows: '7', maxlength: '20000', placeholder: 'Services you offer, starting prices, areas you cover, address or location, parking, payment options, emergency service, what to ask every caller…' }, p.knowledge || '');
       const hours = el('input', { name: 'hours', maxlength: '1000', value: p.hours || '', placeholder: 'Mon-Fri 8:00-17:00, Sat 9-12' });
+      const questions = el('textarea', { name: 'questions', rows: '4', maxlength: '4000', placeholder: 'One question per line, for example:\nIs the bull bar steel or aluminium?\nIs the vehicle drivable?' }, p.questions || '');
+      const apptType = el('select', { name: 'appointment_type' }, [['on_site', 'We go to the customer (on-site job)'], ['at_business', 'The customer brings it to us'], ['phone', 'Phone appointment'], ['online', 'Online meeting']].map(([v, t]) => el('option', { value: v, text: t, selected: (p.appointment_type || 'on_site') === v || null })));
+      const wa = el('input', { name: 'whatsapp_link', type: 'url', maxlength: '300', value: p.whatsapp_link || '', placeholder: 'https://wa.me/61400000000' });
+      const up = el('input', { name: 'upload_link', type: 'url', maxlength: '300', value: p.upload_link || '', placeholder: 'https://yourwebsite.com.au/contact' });
+      const autoLinks = el('input', { name: 'send_links_after_call', type: 'checkbox', checked: Boolean(p.send_links_after_call) || null });
+      const linksMsg = el('input', { name: 'links_message', maxlength: '600', value: p.links_message || '', placeholder: 'Thanks for calling. Send us photos of the job here:' });
       const tz = el('select', { name: 'timezone' }, ['Australia/Perth', 'Australia/Darwin', 'Australia/Adelaide', 'Australia/Brisbane', 'Australia/Sydney', 'Australia/Melbourne', 'Australia/Hobart'].map((z) => el('option', { value: z, text: z.replace('Australia/', ''), selected: (p.timezone || 'Australia/Perth') === z || null })));
       const f = el('form', { class: 'cx-form', onsubmit: (e) => { e.preventDefault(); busy(s, f.querySelector('[type=submit]'), async () => {
-        await api('/api/saas/receptionist-profile', { method: 'PUT', body: JSON.stringify({ greeting: greeting.value.trim(), knowledge: knowledge.value, hours: hours.value.trim(), timezone: tz.value, revision: p.revision || 0 }) });
+        await api('/api/saas/receptionist-profile', { method: 'PUT', body: JSON.stringify({ greeting: greeting.value.trim(), knowledge: knowledge.value, hours: hours.value.trim(), timezone: tz.value, questions: questions.value, appointment_type: apptType.value, whatsapp_link: wa.value.trim(), upload_link: up.value.trim(), send_links_after_call: autoLinks.checked, links_message: linksMsg.value.trim(), revision: p.revision || 0 }) });
         say(s, 'Saved. The next call uses these details.'); await render();
       }); } },
         field('Greeting', greeting, 'The first thing callers hear.'), field('Services, prices and business facts', knowledge, 'The receptionist only says what is written here. It never invents prices or availability.'),
         field('Opening hours', hours, 'Outside these hours transfers are skipped and messages are taken.'), field('Time zone', tz),
+        field('How your appointments work', apptType, 'Decides whether the receptionist asks for the job address, a drop-off time or a call time.'),
+        field('Extra questions for every caller', questions, 'Always asked as well: full name (spelled), mobile, email (spelled), address, the exact service and item (make, model, year), job details and preferred day and time.'),
+        field('WhatsApp link', wa, 'Optional. Offered to callers who want to send photos or chat.'), field('Photo upload or contact form link', up, 'Optional. For example your website contact page.'),
+        el('div', { class: 'cx-field' }, el('label', {}, autoLinks, ' Text these links to the caller straight after the call when they ask for them'), el('small', { text: 'Sends exactly your words below plus the links, from your connected SMS sender. Every other reply to the caller waits in Approvals.' })),
+        field('Your words for that text', linksMsg),
         el('div', { class: 'pl-actions' }, el('button', { type: 'submit', class: 'portal-button primary', text: 'Save what callers hear' })));
       body.append(card(2, 'What callers hear', f));
     } else body.append(card(2, 'What callers hear', el('p', { class: 'portal-note', text: 'Only the business owner can change the greeting, services and hours.' })));

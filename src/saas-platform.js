@@ -960,9 +960,9 @@ export function installSaasPlatform(app, deps) {
     if (msg.channel === 'sms') {
       const from = deliveryEnv.TELNYX_FROM_NUMBER || deliveryEnv.TELNYX_PHONE_NUMBER;
       if (!set(deliveryEnv.TELNYX_API_KEY) || !set(from)) throw notConfigured('SMS');
-      const r = await fetch(`${String(deliveryEnv.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: msg.contact_address, text: msg.body }) });
+      const r = await fetch(`${String(deliveryEnv.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: msg.contact_address, text: msg.body, ...(set(deliveryEnv.TELNYX_MESSAGING_PROFILE_ID) ? { messaging_profile_id: deliveryEnv.TELNYX_MESSAGING_PROFILE_ID } : {}) }) });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error('sms failed');
+      if (!r.ok) throw new Error(`sms failed: ${String(data?.errors?.[0]?.detail || data?.errors?.[0]?.title || 'http ' + r.status).slice(0, 160)}`);
       return data?.data?.id || null;
     }
     if (msg.channel === 'whatsapp') {
@@ -979,7 +979,7 @@ export function installSaasPlatform(app, deps) {
       const replyTo=db.prepare("SELECT address FROM comms_channels WHERE organisation_id=? AND channel='email' AND status='active' LIMIT 1").get(msg.organisation_id)?.address;
       const r = await fetch(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${resendOutboundKey(deliveryEnv)}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: deliveryEnv.SAAS_VERIFY_FROM, to: [msg.contact_address], subject: msg.subject ? `Re: ${msg.subject}` : 'Reply from us', text: rendered.text,html:rendered.html,...(replyTo?{reply_to:replyTo}:{}) }) });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error('email failed');
+      if (!r.ok) throw new Error(`email failed: ${String(data?.message || data?.name || 'http ' + r.status).slice(0, 160)}`);
       return data?.id || null;
     }
     if (SOCIAL_CHANNELS.includes(msg.channel)) throw notConfigured(`Sending replies directly on ${msg.channel} (the reply is approved and saved; copy it into the ${msg.channel} app for now)`);

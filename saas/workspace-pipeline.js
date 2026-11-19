@@ -104,7 +104,7 @@
       box.replaceChildren(el('div', { class: 'pl-trail-head' }, el('h2', { text: 'History of this work' }), el('button', { type: 'button', class: 'portal-button', text: 'Close', onclick: () => box.remove() })));
       const ol = el('ol', { class: 'pl-chain' });
       for (const c of t.chain) {
-        ol.append(el('li', {}, el('b', { text: { enquiry: 'Enquiry', quote: 'Quote', booking: 'Booking', invoice: 'Invoice' }[c.kind] }), ` ${c.title} · ${STATUS[c.status] || c.status}`,
+        ol.append(el('li', {}, el('b', { text: { enquiry: 'Enquiry', quote: 'Quote', booking: 'Booking', invoice: 'Invoice' }[c.kind] }), ` ${c.reference && !String(c.title).includes(c.reference) ? c.reference + ' · ' : ''}${c.title} · ${STATUS[c.status] || c.status}`,
           c.total_cents ? el('span', { class: 'pl-amt', text: ' · ' + money(c.total_cents) }) : null,
           c.job ? el('small', { text: ` Job: ${JOB_STATUS[c.job.status] || c.job.status}${c.job.completed_at ? ', completed ' + day(c.job.completed_at) : ''}` }) : null));
       }
@@ -120,7 +120,7 @@
     const c = el('article', { class: 'portal-card pl-card', 'data-id': r.id, 'data-status': r.status });
     const who = r.customer ? [r.customer.name, r.customer.phone, r.customer.email].filter(Boolean).join(' · ') : 'No customer linked';
     c.append(
-      el('div', { class: 'pl-card-head' }, el('h2', { text: r.title }), el('span', { class: 'portal-status pl-' + r.status, text: STATUS[r.status] || r.status })),
+      el('div', { class: 'pl-card-head' }, el('h2', { text: r.reference && !String(r.title).includes(r.reference) ? `${r.reference} · ${r.title}` : r.title }), el('span', { class: 'portal-status pl-' + r.status, text: STATUS[r.status] || r.status })),
       el('p', { class: 'pl-who', text: who }),
       r.body ? el('p', { class: 'pl-body', text: r.body }) : null
     );
@@ -286,7 +286,7 @@
       const draw = () => {
         filters[id] = { q: q.value, status: st.value };
         const term = q.value.trim().toLowerCase();
-        const shown = records.filter((r) => (!st.value || r.status === st.value) && (!term || [r.title, r.customer?.name, r.customer?.phone, r.customer?.email].some((x) => String(x || '').toLowerCase().includes(term))));
+        const shown = records.filter((r) => (!st.value || r.status === st.value) && (!term || [r.title, r.reference, r.customer?.name, r.customer?.phone, r.customer?.email].some((x) => String(x || '').toLowerCase().includes(term))));
         grid.replaceChildren(...shown.map((r) => card(s, r)));
         if (!shown.length) grid.append(el('p', { class: 'portal-empty', text: records.length ? 'Nothing matches that search.' : { enquiries: 'No enquiries yet. Add the first one above.', quotes: 'No quotes yet. Create one from an enquiry.', bookings: 'No bookings yet. Book an accepted quote.', businessinvoices: 'No invoices yet. Create one from a completed job in Bookings.' }[id] }));
       };

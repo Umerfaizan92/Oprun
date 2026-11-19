@@ -330,3 +330,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/command-centre-sections.js saas/workspace-bars.css saas/workspace-mobile.js saas/workspace.html
 - Acceptance: Workspace grid grouped with distinct icons; nested tab groups render in one row; no two dock items share an icon on any page; tests pass
 - Evidence: Sweep of 36 bar variations: none with two rows, no duplicate icons, no short codes; Connections Overview shows one bar (outer tab outlined gold, inner gold pill); Call handling: hash/phone/history. mobile-workspace 9/9, test:mobile-readiness, test:navigation-ui, test:redesign-ui, command-centre-loading-ui, npm test 73/73, secrets scan passed (recorded 2026-11-14 on claude/m4-workspace-grid at d967e48)
+
+## T-143 AI receptionist v2: full enquiry, numbered reference, reply for approval, working texts/email
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: receptionist must ask name (spelled), mobile, email, address, exact service and item (make/model/year), job details, preferred time; offer WhatsApp and photo-upload links; save customer email+address and a structured enquiry (not transcript); unique enquiry number shared with the customer; draft reply for approval then email+SMS on approval; fix SMS and email sending; for all subscribers.
+- Files: src/comms/receptionist-intake.js, src/comms/voice.js, src/pipeline.js, src/business-hub.js, src/ai-provider-shim.js, src/integration-transports.js, src/saas-platform.js, src/notify.js, src/notifications.js, src/server.js, saas/workspace-receptionist.js, saas/integration-manager.js, saas/workspace-pipeline.js, scripts/receptionist-intake.test.mjs
+- Acceptance: npm test passes; intake tests cover email/address/reference/approval drafts/dedupe/links; UI test passes
+- Evidence: npm test 73/73, node --test scripts/*.test.mjs 351 pass (15 intake tests incl. email/address/reference/approval drafts/dedupe/links), test:ui 35/35, verify:manifest ok (recorded 2026-11-19 on fix/receptionist-intake-v2 at 32f6d2b)

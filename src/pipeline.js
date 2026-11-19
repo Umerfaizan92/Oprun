@@ -13,11 +13,22 @@ export function gstFor(exCents, applies) { return applies ? Math.round(exCents *
 
 export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAccess, syncJobFinance, events = { emit() {} }, leadSources = { current: null } }) {
   const cols = new Set(db.prepare('PRAGMA table_info(tenant_documents)').all().map((c) => c.name));
-  for (const [name, type] of [['source_id', 'TEXT'], ['work_order_id', 'TEXT'], ['gst_applies', 'INTEGER NOT NULL DEFAULT 1'], ['gst_cents', 'INTEGER NOT NULL DEFAULT 0'], ['issued_at', 'TEXT'], ['due_at', 'TEXT'], ['paid_at', 'TEXT'], ['channel', 'TEXT']]) {
+  for (const [name, type] of [['source_id', 'TEXT'], ['work_order_id', 'TEXT'], ['gst_applies', 'INTEGER NOT NULL DEFAULT 1'], ['gst_cents', 'INTEGER NOT NULL DEFAULT 0'], ['issued_at', 'TEXT'], ['due_at', 'TEXT'], ['paid_at', 'TEXT'], ['channel', 'TEXT'], ['reference', 'TEXT']]) {
     if (!cols.has(name)) db.exec(`ALTER TABLE tenant_documents ADD COLUMN ${name} ${type}`);
   }
   db.exec('CREATE INDEX IF NOT EXISTS tenant_documents_source ON tenant_documents(organisation_id,source_id)');
   db.exec('CREATE INDEX IF NOT EXISTS tenant_documents_job ON tenant_documents(organisation_id,work_order_id)');
+  // T-143: every enquiry has a short reference (ENQ-1001…) unique within its business. The customer sees the same
+  // reference in every message, so both sides quote one number. Existing enquiries are numbered once, oldest first.
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS tenant_documents_reference ON tenant_documents(organisation_id,reference) WHERE reference IS NOT NULL');
+  const nextReference = (org) => {
+    const n = db.prepare("SELECT MAX(CAST(SUBSTR(reference,5) AS INTEGER)) n FROM tenant_documents WHERE organisation_id=? AND kind='enquiry' AND reference LIKE 'ENQ-%'").get(org)?.n;
+    return `ENQ-${Math.max(1000, Number(n) || 1000) + 1}`;
+  };
+  db.transaction(() => {
+    const missing = db.prepare("SELECT id,organisation_id FROM tenant_documents WHERE kind='enquiry' AND reference IS NULL ORDER BY created_at,id").all();
+    for (const r of missing) db.prepare('UPDATE tenant_documents SET reference=? WHERE id=?').run(nextReference(r.organisation_id), r.id);
+  })();
 
   const fail = (res, status, error) => res.status(status).json({ ok: false, error });
   const can = (feature, action) => (req, res, next) => (staffAccess.can(req, feature, action) ? next() : fail(res, 403, 'This business action is not authorised for your account.'));
@@ -55,11 +66,17 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
     return inv;
   }
 
+  /** The enquiry reference a quote, booking or invoice belongs to, so every record in a chain shows the same number. */
+  function enquiryReference(org, d) {
+    let x = d, hops = 0;
+    while (x && x.kind !== 'enquiry' && x.source_id && hops++ < 6) x = doc(org, x.source_id);
+    return x?.kind === 'enquiry' ? x.reference || null : null;
+  }
   function view(org, d) {
     const j = job(org, d.work_order_id);
     const offers = j ? db.prepare(`SELECT status,COUNT(*) n FROM job_offers WHERE work_order_id=? AND organisation_id=? GROUP BY status`).all(j.id, org) : [];
     return {
-      id: d.id, kind: d.kind, title: d.title, body: d.body, status: d.status, revision: d.revision, channel: d.channel || null,
+      id: d.id, kind: d.kind, reference: d.reference || enquiryReference(org, d), title: d.title, body: d.body, status: d.status, revision: d.revision, channel: d.channel || null,
       customer: customer(org, d.customer_id), source_id: d.source_id || null, work_order_id: d.work_order_id || null,
       amount_cents: d.amount_cents, gst_applies: d.gst_applies !== 0, gst_cents: d.gst_cents || 0, total_cents: total(d),
       start_at: d.start_at, issued_at: d.issued_at || null, due_at: d.due_at || null, paid_at: d.paid_at || null,
@@ -121,29 +138,30 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
   // Shared by the enquiry form, website contact forms and inbound messages (Phase 07). The caller checks the customer belongs here.
   function createEnquiry(org, actorId, d) {
     const now = iso(), id = crypto.randomUUID();
-    let customerId = d.customer_id || null;
+    let customerId = d.customer_id || null, reference = null;
     db.transaction(() => {
       if (!customerId) {
         customerId = crypto.randomUUID();
         db.prepare(`INSERT INTO tenant_customers (id,organisation_id,name,email,phone,address,status,source,created_by_user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,'lead','enquiry',?,?,?)`)
           .run(customerId, org, d.customer.name, d.customer.email || null, d.customer.phone || null, d.customer.address || null, /^[0-9a-f-]{36}$/.test(String(actorId)) ? actorId : null, now, now);
       }
-      db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,status,channel,created_by,created_at,updated_at) VALUES (?,?,'enquiry',?,?,?,'open',?,?,?,?)`)
-        .run(id, org, customerId, d.title, d.details || '', d.channel || 'other', actorId, now, now);
+      reference = nextReference(org);
+      db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,status,channel,reference,created_by,created_at,updated_at) VALUES (?,?,'enquiry',?,?,?,'open',?,?,?,?,?)`)
+        .run(id, org, customerId, d.title, d.details || '', d.channel || 'other', reference, actorId, now, now);
     })();
     // T-071: record the source when one is known. Attribution never blocks the enquiry itself.
     if (d.source_code || d.campaign || d.area) { try { leadSources.current?.attribute(org, id, { source_code: d.source_code, campaign: d.campaign, area: d.area, set_by: /^[0-9a-f-]{36}$/.test(String(actorId)) ? actorId : null }); } catch (e) { console.warn('[lead-sources] attribution skipped:', e.message); } }
     events.emit(org, 'enquiry.created', { enquiry_id: id }, { key: id });
-    return { id, customer_id: customerId };
+    return { id, customer_id: customerId, reference };
   }
   app.post('/api/saas/pipeline/enquiries', requireSaasUser, can('customers', 'create'), (req, res) => {
     const p = enquirySchema.safeParse(req.body);
     if (!p.success) return fail(res, 400, p.error.issues[0]?.message === 'Choose a customer or add a new one.' ? p.error.issues[0].message : 'Add a short title and the customer.');
     const org = req.saas.organisation_id, d = p.data;
     if (d.customer_id && !customer(org, d.customer_id)) return fail(res, 400, 'That customer does not belong to this workspace.');
-    const { id, customer_id: customerId } = createEnquiry(org, req.saas.user_id, d);
+    const { id, customer_id: customerId, reference } = createEnquiry(org, req.saas.user_id, d);
     saasAudit(req, 'enquiry.created', 'enquiry', id, { channel: d.channel, new_customer: !d.customer_id });
-    res.status(201).json({ ok: true, id, customer_id: customerId });
+    res.status(201).json({ ok: true, id, customer_id: customerId, reference });
   });
   app.post('/api/saas/pipeline/enquiries/:id/close', requireSaasUser, can('customers', 'edit'), (req, res) => {
     const org = req.saas.organisation_id, e = doc(org, req.params.id, 'enquiry');
@@ -259,5 +277,5 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
     res.json({ ok: true, issued_at: now, due_at: due, total_cents: totalCents });
   });
 
-  return { createJobForBooking, refreshInvoice, gstFor, createQuoteFromEnquiry, createInvoiceFromJob, createEnquiry };
+  return { createJobForBooking, refreshInvoice, gstFor, createQuoteFromEnquiry, createInvoiceFromJob, createEnquiry, enquiryReference: (org, id) => { const d = doc(org, id); return d ? enquiryReference(org, d) : null; } };
 }

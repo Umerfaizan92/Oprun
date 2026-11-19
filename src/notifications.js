@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import {z} from 'zod';
 import { sendTextMessage } from './notify.js';
 
-export function installNotifications(app, { db, env, requireSaasUser, push = null }) {
+export function installNotifications(app, { db, env, requireSaasUser, push = null, smsEnv = null }) {
   db.exec(`CREATE TABLE IF NOT EXISTS notification_preferences(organisation_id TEXT NOT NULL,user_id TEXT NOT NULL,muted INTEGER NOT NULL DEFAULT 0,sound INTEGER NOT NULL DEFAULT 0,browser INTEGER NOT NULL DEFAULT 0,sms INTEGER NOT NULL DEFAULT 1,PRIMARY KEY(organisation_id,user_id));`);
   const preferences=(org,user)=>{const row=db.prepare('SELECT muted,sound,browser,sms FROM notification_preferences WHERE organisation_id=? AND user_id=?').get(org,user)||{muted:0,sound:0,browser:0,sms:1};return Object.fromEntries(Object.entries(row).map(([k,v])=>[k,Boolean(v)]))};
   app.get('/api/saas/notification-preferences',requireSaasUser,(req,res)=>res.json({ok:true,preferences:preferences(req.saas.organisation_id,req.saas.user_id)}));
@@ -25,7 +25,9 @@ export function installNotifications(app, { db, env, requireSaasUser, push = nul
     if (ins.changes && push && !preferences(org,userId).muted) void push.pushToUser(org, userId, { id, kind, title, body, link, urgent }).catch(() => {});
     if (!ins.changes || !urgent || !preferences(org,userId).sms) return ins.changes ? { id } : null;
     const phone = db.prepare(`SELECT phone FROM users WHERE id=?`).get(userId)?.phone;
-    const r = await sendTextMessage(env, { to: phone,delivery:{organisationId:org,userId,category:kind,subject:title}, text: `${orgName(org)}: ${title}${body ? '. ' + body : ''}`.slice(0, 300) });
+    // A business that connected its own SMS sender alerts its team from it; otherwise the platform sender is used.
+    let viaEnv = env; try { const own = smsEnv?.(org); if (own && String(own.TELNYX_API_KEY || '').trim() && String(own.TELNYX_FROM_NUMBER || '').trim()) viaEnv = own; } catch { /* platform sender */ }
+    const r = await sendTextMessage(viaEnv, { to: phone,delivery:{organisationId:org,userId,category:kind,subject:title}, text: `${orgName(org)}: ${title}${body ? '. ' + body : ''}`.slice(0, 300) });
     db.prepare(`UPDATE user_notifications SET sms_status=? WHERE id=?`).run(r.sent ? 'sent' : r.reason, id);
     return { id, sms: r.sent };
   }
