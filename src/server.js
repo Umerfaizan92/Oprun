@@ -45,6 +45,7 @@ import { installSaasPlatform, responseEnvelope, recordInbound, recordTelnyxComms
 import { createCommsService } from './comms/service.js';
 import { createVoice } from './comms/voice.js';
 import { createReceptionistIntake } from './comms/receptionist-intake.js';
+import { createReceptionistTelnyx } from './comms/receptionist-telnyx.js';
 import { installCommsRoutes } from './comms/routes.js';
 import { createOAuthApps, familyOf, APP_FAMILIES } from './oauth-apps.js';
 import { createFinance } from './finance/service.js';
@@ -1048,7 +1049,7 @@ app.use(
 
     // Voice webhooks can generate several events for one call. Provider
     // authenticity is checked with the Telnyx signature instead of this limiter.
-    skip: req => req.path === '/webhooks/telnyx'
+    skip: req => req.path === '/webhooks/telnyx' || req.path.startsWith('/webhooks/communications/telnyx-voice/')
   })
 );
 
@@ -6123,7 +6124,9 @@ inboundHooks.add(m=>commsService.onInbound(m));
 const voiceDigits=v=>String(v||'').replace(/\D/g,'').replace(/^61/,'0');
 // T-141: every finished business call becomes a customer, an enquiry, a linked Unibox thread and an owner alert (push + SMS).
 const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),ai:generateAiText});
-const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
+// D-R12: each business connects its own Telnyx account (it buys/ports and pays Telnyx directly).
+const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime,env});
+const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.credentialsFor(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
   orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
   profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};const p=db.prepare('SELECT * FROM tenant_receptionist_profiles WHERE organisation_id=?').get(org)||{};const o=db.prepare('SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?').get(org);return {...p,business_name:o?.n||'the business'}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
@@ -6168,6 +6171,33 @@ if(process.env.NODE_ENV!=='test')reliability.start();
 installFinanceRoutes(app,{db,finance:subscriberFinance,platformFinance,requireSaasUser,requireSaasRole,platform:platformIdentity});
 if(process.env.NODE_ENV!=='test'){const runFinanceDaily=()=>platformFinance.daily().catch(e=>console.warn('[finance] daily run failed:',e.message));setTimeout(runFinanceDaily,60000).unref?.();setInterval(runFinanceDaily,6*3600000).unref?.();}
 installCommsRoutes(app,{db,comms:commsService,voice:voiceFlow,engine:automationEngine,requireSaasUser,requireSaasRole,platform:platformIdentity,saasAudit,createApproval:createWorkspaceApproval});
+
+// ---------- AI Receptionist: the business's own Telnyx account (D-R12) ----------
+// Calls on a connected business number arrive at this business-specific address, signed with that business's own
+// Telnyx public key. Only that business's calls can be touched by its events.
+app.post('/api/webhooks/communications/telnyx-voice/:organisationId',(req,res)=>{
+  const org=String(req.params.organisationId||'');
+  const creds=receptionistTelnyx.credentialsFor(org);
+  if(!creds?.public_key||!verifyTelnyxWebhook(req,creds.public_key)){console.warn('[TELNYX VOICE TENANT] rejected: unknown business or invalid signature');return res.status(401).json({ok:false,error:'Invalid webhook signature.'})}
+  const event=req.body?.data,p=event?.payload||{};
+  res.status(200).json({ok:true,received:true});
+  console.log('[TELNYX VOICE TENANT]',JSON.stringify({organisation_id:org,eventId:event?.id||null,eventType:event?.event_type||'unknown',callControlId:p.call_control_id||null}));
+  if(p.call_control_id)void voiceFlow.handle(event,{tenantOrg:org}).catch(error=>console.error('[TELNYX VOICE TENANT]',error.message));
+});
+const receptionistOwner=[requireSaasUser,requireSaasRole('owner')];
+const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok:true,telnyx:d})).catch(e=>res.status(e.status&&e.status<600?e.status:500).json({ok:false,error:e.status?e.message:'Something went wrong. Please try again.'}));
+app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));
+app.post('/api/saas/receptionist/telnyx/connect',...receptionistOwner,(req,res)=>{
+  const b=z.object({api_key:z.string().trim().min(20).max(400),public_key:z.string().trim().min(40).max(100),number:z.string().trim().min(8).max(20),assistant_id:z.string().trim().max(60).optional().or(z.literal(''))}).strict().safeParse(req.body);
+  if(!b.success)return res.status(400).json({ok:false,error:'Enter your Telnyx API key, public key and number.'});
+  receptionistSend(res,async()=>{const r=await receptionistTelnyx.connect(req.saas.organisation_id,{...b.data,assistant_id:b.data.assistant_id||undefined},req.saas.user_id);saasAudit(req,'receptionist.telnyx_connected','receptionist',req.saas.organisation_id,{number:r.number,status:r.status,steps:r.steps.map(s=>`${s.step}:${s.ok?'ok':'failed'}`)});return r});
+});
+app.put('/api/saas/receptionist/telnyx/assistant',...receptionistOwner,(req,res)=>{
+  const b=z.object({assistant_id:z.string().trim().max(60)}).strict().safeParse(req.body);
+  if(!b.success)return res.status(400).json({ok:false,error:'Enter the assistant ID.'});
+  receptionistSend(res,()=>{const r=receptionistTelnyx.setAssistant(req.saas.organisation_id,b.data.assistant_id);saasAudit(req,'receptionist.telnyx_assistant_set','receptionist',req.saas.organisation_id,{status:r.status});return r});
+});
+app.post('/api/saas/receptionist/telnyx/disconnect',...receptionistOwner,(req,res)=>receptionistSend(res,()=>{const r=receptionistTelnyx.disconnect(req.saas.organisation_id);saasAudit(req,'receptionist.telnyx_disconnected','receptionist',req.saas.organisation_id,{});return r}));
 installSeoRoutes(app,{db,service:seoService,engine:automationEngine,requireSaasUser,requireSaasRole,platform:platformIdentity,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});

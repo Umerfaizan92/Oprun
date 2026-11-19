@@ -90,6 +90,19 @@ try{
     for(const hash of hashes){await page.evaluate(h=>{location.hash=h},hash);await page.waitForTimeout(80);assert.equal(await page.locator('#workspace .view:visible').count(),1,hash);const expected=views.find(v=>v.path===hash)?.view;if(expected)assert.ok(await page.locator('#'+expected+'-view').isVisible(),hash)}
     console.log('Business routes checked:',hashes.length);
   });
+  await check('AI Receptionist is one self-service section; old phone and calls routes point to it',async()=>{
+    const pageErrors=[];const onError=e=>pageErrors.push(String(e.message||e));page.on('pageerror',onError);
+    await page.evaluate(()=>{location.hash='communications/receptionist'});
+    await page.locator('#receptionist-view .rx-step').nth(4).waitFor({state:'visible'});
+    assert.equal(await page.locator('#receptionist-view .rx-step').count(),5);
+    assert.equal(await page.locator('#receptionist-view h1').first().textContent(),'AI Receptionist');
+    assert.ok(await page.locator('#receptionist-view input[name=api_key][type=password]').isVisible());
+    assert.ok(await page.locator('#receptionist-view a[href^="https://portal.telnyx.com"]').count()>=3);
+    assert.equal(await page.locator('#receptionist-view').getByText('Save isolated draft').count(),0);
+    await screenshot(page,'ai-receptionist-desktop');await page.setViewportSize({width:390,height:844});await page.locator('#receptionist-view .rx-step').first().scrollIntoViewIfNeeded();await screenshot(page,'ai-receptionist-phone');await page.setViewportSize({width:1440,height:900});
+    for(const hash of ['communications/phone','communications/calls']){const known=await page.evaluate(h=>(window.SuperProNav?.DOMAINS||[]).some(d=>d.items.some(i=>i.path===h)),hash);if(!known)continue;await page.evaluate(h=>{location.hash=h},hash);await page.getByRole('link',{name:'Open AI Receptionist'}).first().waitFor({state:'visible'})}
+    page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
+  });
   await check('Jobs uses visible shared depth, heading icons and actual hover feedback',async()=>{
     await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>location.hash='customers/jobs');await page.locator('#jobs-view').waitFor({state:'visible'});
     const card=page.locator('#jobs-view .sp-surface-card:visible').first();await card.waitFor({state:'visible'});assert.ok(await card.locator('.sp-section-icon').count()>0);await card.hover();await page.waitForTimeout(220);assert.notEqual(await card.evaluate(e=>getComputedStyle(e).translate),'none');await screenshot(page,'jobs-shared-layering');await page.mouse.move(0,0);
