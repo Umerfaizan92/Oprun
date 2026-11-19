@@ -212,3 +212,4 @@ Repository finding (not changed by this project): outbound reply approvals use t
 | D-R8 | Calls under 15 s or flagged spam are never billed | Locked |
 | D-R9 | No external human receptionist network; escalation goes to the business's own team | Locked |
 | D-R10 | T-040 is absorbed into this project's tasks | Locked |
+| D-R11 | Test line: Telnyx number **08 6289 1786** (+61 8 6289 1786), owned by Faizan, unused and not live for any customer. Used for R-01/R-02 and staging tests; after the receptionist passes R-02 it becomes Fleet Parlour's primary number (founder workspace, `receptionist_numbers.is_primary=1`) | Locked (owner, 2026-11-19) |
