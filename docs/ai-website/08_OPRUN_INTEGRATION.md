@@ -8,7 +8,7 @@
 | `onboarding_profiles` (services, service area, phone, brand voice) | Service pages, areas, tone | On change → draft |
 | `tenant_receptionist_profiles` (hours, knowledge, appointment type, WhatsApp and photo links) | Hours, FAQ facts, "how it works", contact options | On change → draft |
 | AI Receptionist number (`receptionist_provider.number_e164`) | Click-to-call everywhere; `telephone` in schema | On change → low-risk |
-| `customer_reviews` (Oprun review links) + `seo_reviews` (Google) | Reviews block, `aggregateRating` only when shown reviews are on the page | Nightly → low-risk |
+| `tenant_customer_reviews` (Oprun review links) + `seo_reviews` (Google) | Reviews block, `aggregateRating` only when shown reviews are on the page | Nightly → low-risk |
 | Completed `work_orders` the owner ticks "show on website" (photos, suburb, service; never customer names) | Projects block | On tick |
 | Unibox / receptionist enquiry questions (anonymised) | FAQ suggestions | Monthly → draft |
 

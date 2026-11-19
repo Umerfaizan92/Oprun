@@ -103,6 +103,26 @@ try{
     for(const hash of ['communications/phone','communications/calls']){const known=await page.evaluate(h=>(window.SuperProNav?.DOMAINS||[]).some(d=>d.items.some(i=>i.path===h)),hash);if(!known)continue;await page.evaluate(h=>{location.hash=h},hash);await page.getByRole('link',{name:'Open AI Receptionist'}).first().waitFor({state:'visible'})}
     page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
   });
+  await check('Website is one self-service section; older website, SEO and backlink addresses still open',async()=>{
+    const pageErrors=[];const onError=e=>pageErrors.push(String(e.message||e));page.on('pageerror',onError);
+    await page.setViewportSize({width:1440,height:900});
+    await page.evaluate(()=>{location.hash='website/home'});
+    await page.locator('#websitehub-view .ws-tabs').waitFor({state:'visible'});
+    assert.equal(await page.locator('#websitehub-view h1').first().textContent(),'Website');
+    assert.equal(await page.locator('#websitehub-view .ws-tabs [role=tab]').count(),6);
+    await page.locator('#websitehub-view .rx-checks li').first().waitFor({state:'visible'});
+    await page.locator('#websitehub-view .ws-tabs [role=tab]',{hasText:'Domain'}).click();
+    await page.locator('#websitehub-view a[href^="https://www.spaceship.com/domain-search/"]').waitFor({state:'visible'});
+    await page.locator('#websitehub-view .ws-tabs [role=tab]',{hasText:'Build'}).click();
+    await page.locator('#websitehub-view').getByText('B. Bring in your existing website').waitFor({state:'visible'});
+    await screenshot(page,'website-desktop');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(300);const vis=await page.evaluate(()=>{const v=document.querySelector('#websitehub-view');const t=v?.querySelector('.ws-tabs');return {hidden:v?.hidden,display:v&&getComputedStyle(v).display,tabs:t?getComputedStyle(t).display:null,hash:location.hash,rect:t?.getBoundingClientRect().toJSON()}});if(!vis.rect||vis.hidden)console.log('website view on phone:',JSON.stringify(vis));await page.evaluate(()=>window.scrollTo(0,0));await screenshot(page,'website-phone');
+    const wide=await page.evaluate(()=>document.querySelector('#websitehub-view').scrollWidth>document.documentElement.clientWidth+2);assert.equal(wide,false,'no sideways scrolling on a phone');
+    await page.setViewportSize({width:1440,height:900});
+    const nav=await page.evaluate(()=>{const ds=window.SuperProNav?.DOMAINS||[];const items=ds.flatMap(d=>d.items);const find=h=>items.find(i=>i.path===h||(i.alias||[]).includes(h))?.view;return {group:ds.find(d=>d.id==='growth')?.items.filter(i=>!i.secondary&&['websitehub','seobuilder','seocentre'].includes(i.view)).map(i=>i.view),builder:find('growth/website-builder'),b06:find('b06/builder'),seo:find('growth/seo'),backlinks:find('b06/backlinks'),domain:find('growth/website-domain')}});
+    if(nav.group){assert.deepEqual(nav.group,['websitehub','seocentre','seobuilder']);assert.equal(nav.builder,'seobuilder');assert.equal(nav.b06,'seobuilder');assert.equal(nav.seo,'seocentre');assert.equal(nav.backlinks,'backlinks');assert.equal(nav.domain,'website');}
+    await page.evaluate(()=>{location.hash='website/backlinks'});await page.locator('#backlinks-view a[href="#website/home"]').waitFor({state:'visible'});
+    page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
+  });
   await check('Jobs uses visible shared depth, heading icons and actual hover feedback',async()=>{
     await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>location.hash='customers/jobs');await page.locator('#jobs-view').waitFor({state:'visible'});
     const card=page.locator('#jobs-view .sp-surface-card:visible').first();await card.waitFor({state:'visible'});assert.ok(await card.locator('.sp-section-icon').count()>0);await card.hover();await page.waitForTimeout(220);assert.notEqual(await card.evaluate(e=>getComputedStyle(e).translate),'none');await screenshot(page,'jobs-shared-layering');await page.mouse.move(0,0);
@@ -127,7 +147,7 @@ try{
     await page.setViewportSize({width:1440,height:900});
   });
   await check('seven groups plus Setup preserve nested submenu pages and selected state',async()=>{
-    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),60);
+    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),61); // +1: Website section (T-147)
     await page.locator('.navigation-business-trigger').click();
     await rail.locator('[data-domain=people]').click(); await rail.locator('[data-nav-page=team]').click(); await page.locator('#team-view').waitFor({state:'visible'});
     assert.equal(await rail.locator('[data-nav-page=team]').getAttribute('aria-current'),'page'); assert.equal(await page.locator('.portal-subtabs [data-jump]').count(),0);

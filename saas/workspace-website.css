@@ -1,0 +1,21 @@
+/* T-147 Website section. Fits phone, tablet and laptop; no animation. */
+.ws-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.ws-tabs .portal-button{min-height:44px}
+.ws-panel{margin-bottom:16px}
+.ws-panel h2{margin-top:0}
+.ws-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:8px 0}
+.ws-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.ws-table th,.ws-table td{text-align:left;padding:8px;border-bottom:1px solid var(--line,#d7dde4);vertical-align:top}
+.ws-table code{overflow-wrap:anywhere;white-space:normal}
+.ws-list{margin:8px 0;padding-left:18px;overflow-wrap:anywhere}
+.ws-list li{margin:4px 0}
+.ws-listings{list-style:none;padding:0;margin:8px 0;display:grid;gap:12px}
+.ws-listing{padding:10px;border:1px solid var(--line,#d7dde4);border-radius:8px}
+.ws-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ws-row input{flex:1 1 220px;min-width:0}
+.ws-row select,.ws-row .portal-button{min-height:44px}
+.ws-pages{display:flex;flex-wrap:wrap;gap:6px 16px;border:0;padding:0;margin:8px 0}
+.ws-domain{margin:12px 0}
+.ws-body .rx-checks{list-style:none;padding:0}
+.ws-body .rx-checks li{margin:4px 0}
+@media (max-width:600px){.ws-table{font-size:.85rem}.ws-tabs .portal-button{flex:1 1 45%}}

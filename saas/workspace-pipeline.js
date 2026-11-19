@@ -10,7 +10,7 @@
   const STAGE_VIEW = { enquiries: 'work/enquiries', quotes: 'work/quotes', bookings: 'work/bookings', allocated: 'work/bookings', to_invoice: 'work/bookings', unpaid: 'money/invoices', paid: 'money/invoices' };
   const STATUS = {
     open: 'New', draft: 'Draft', quoted: 'Quoted', lost: 'Closed', approved: 'Approved', accepted: 'Accepted by customer', booked: 'Booked',
-    completed: 'Job complete', invoiced: 'Invoiced', issued: 'Issued, unpaid', part_paid: 'Part paid', paid: 'Paid', cancelled: 'Cancelled'
+    completed: 'Job complete', invoiced: 'Invoiced', issued: 'Issued, unpaid', part_paid: 'Part paid', paid: 'Paid', cancelled: 'Cancelled', declined: 'Declined by customer'
   };
   const JOB_STATUS = { awaiting_allocation: 'Needs workers', offered: 'Offered to workers', allocated: 'Workers allocated', cancelled: 'Cancelled' };
   const CHANNELS = [['phone', 'Phone call'], ['email', 'Email'], ['website', 'Website form'], ['sms', 'SMS'], ['social', 'Social media'], ['walk_in', 'In person'], ['receptionist', 'AI receptionist'], ['referral', 'Referral'], ['other', 'Other']];
@@ -82,6 +82,52 @@
     f.querySelector('input,select,textarea')?.focus();
   }
 
+  // T-145: a send form that always shows the exact text first. Nothing is sent until the person presses "Send now".
+  function sendForm(section, card, title, fields, preview, send, doneText) {
+    card.querySelector('.pl-inline')?.remove();
+    const f = el('form', { class: 'pl-inline portal-form' }, el('b', { text: title }));
+    for (const fd of fields) {
+      if (fd.type === 'checkbox') { f.append(el('label', { class: 'pl-check' }, el('input', { type: 'checkbox', name: fd.name, checked: fd.value !== false, disabled: fd.disabled }), fd.label)); continue; }
+      if (fd.type === 'note') { f.append(el('p', { class: 'portal-note', text: fd.text })); continue; }
+      f.append(el('label', {}, fd.label, el(fd.type === 'textarea' ? 'textarea' : 'input', { name: fd.name, type: fd.type === 'textarea' ? null : fd.type || 'text', min: fd.min, step: fd.step, value: fd.value, placeholder: fd.placeholder, maxlength: fd.max })));
+    }
+    const box = el('div', { class: 'pl-preview', 'aria-live': 'polite' });
+    const show = el('button', { type: 'submit', class: 'portal-button primary', text: 'Preview message' });
+    const go = el('button', { type: 'button', class: 'portal-button primary', text: 'Send now', hidden: true });
+    f.append(box, el('div', { class: 'pl-actions' }, show, go, el('button', { type: 'button', class: 'portal-button', text: 'Cancel', onclick: () => f.remove() })));
+    const values = () => { const v = {}; for (const fd of fields) { if (!fd.name) continue; const i = f.elements[fd.name]; v[fd.name] = fd.type === 'checkbox' ? i.checked && !i.disabled : i.value; } return v; };
+    f.addEventListener('input', () => { go.hidden = true; box.replaceChildren(); });
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault(); show.disabled = true;
+      try {
+        const d = await preview(values());
+        const p = d.preview || {};
+        box.replaceChildren(
+          p.sms && values().sms ? el('div', {}, el('b', { text: 'Text message' }), el('pre', { class: 'pl-body', text: p.sms })) : null,
+          p.email && values().email ? el('div', {}, el('b', { text: 'Email: ' + (p.subject || '') }), el('pre', { class: 'pl-body', text: p.email })) : null,
+          el('p', { class: 'portal-note', text: 'The link in the real message is unique to this customer.' }));
+        go.hidden = false; go.focus();
+      } catch (err) { say(section, err.message, true); }
+      finally { show.disabled = false; }
+    });
+    go.addEventListener('click', async () => {
+      go.disabled = true;
+      try { await send(values()); say(section, doneText); await refresh(section.dataset.plView); }
+      catch (err) { say(section, err.message, true); go.disabled = false; }
+    });
+    card.append(f);
+    f.querySelector('input,select,textarea')?.focus();
+  }
+  const channelsOf = (v) => [v.sms ? 'sms' : null, v.email ? 'email' : null].filter(Boolean);
+  const local = (iso) => { if (!iso) return ''; const d = new Date(iso); const z = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; };
+  const linkLine = (l) => {
+    if (!l) return null;
+    const how = String(l.channels || '').split(',').filter(Boolean).map((c) => (c === 'sms' ? 'text' : 'email')).join(' and ');
+    const out = { accepted: 'customer accepted online', declined: 'customer declined online', reviewed: 'customer left a review', superseded: 'replaced by a newer link' }[l.outcome];
+    const expired = !l.outcome && Date.parse(l.expires_at) < Date.now();
+    return `${l.kind === 'review' ? 'Review link' : 'Quote link'} sent ${day(l.sent_at)}${how ? ' by ' + how : ''} · ${out || (expired ? 'link expired' : 'waiting for the customer')}`;
+  };
+
   // ---------- pipeline strip (shared by all four views) ----------
   async function strip() {
     const host = el('nav', { class: 'pl-strip', 'aria-label': 'Work pipeline' });
@@ -135,6 +181,9 @@
     if (r.start_at) meta.push('Booked for ' + date(r.start_at));
     if (r.job && r.kind === 'booking') meta.push(r.job.completed_at ? 'Job complete ' + day(r.job.completed_at) : JOB_STATUS[r.job.status] || r.job.status, !r.job.completed_at && r.job.offers?.accepted ? `${r.job.offers.accepted} worker${r.job.offers.accepted > 1 ? 's' : ''} accepted` : null, r.job.address);
     if (r.due_at) meta.push('Due ' + day(r.due_at));
+    if (r.links && ['quote', 'booking'].includes(r.kind)) meta.push(linkLine(r.links));
+    if (r.review) meta.push(`Customer rated ${'★'.repeat(r.review.rating)}${'☆'.repeat(5 - r.review.rating)}${r.review.comment ? ': “' + String(r.review.comment).slice(0, 120) + '”' : ''}`);
+    if (r.kind === 'quote' && r.start_at && ['approved', 'accepted'].includes(r.status)) meta.push('Proposed time ' + date(r.start_at));
     if (r.kind === 'invoice' && r.job && ['issued', 'part_paid', 'paid'].includes(r.status)) meta.push(`Paid ${money(r.job.paid_cents)}, owing ${money(r.job.owing_cents)}`);
     if (r.kind === 'invoice' && !r.work_order_id) meta.push('Not linked to a job: payments cannot be tracked. Create invoices from a completed job in Bookings.');
     meta.push('Created ' + day(r.created_at));
@@ -162,12 +211,31 @@
       if (r.status === 'open') a.append(act(S, 'History', async () => { await showTrail(S, r.id); return false; }));
     }
     if (r.kind === 'quote') {
-      if (r.status === 'draft' && can('approvals', 'approve')) a.append(act(S, 'Approve quote', () => post(`/api/saas/business-hub/quote/${r.id}/approve`, { revision: r.revision }), { primary: true, done: 'Quote approved. Send it to the customer, then record their acceptance.' }));
+      if (r.status === 'draft' && can('approvals', 'approve')) a.append(act(S, 'Approve quote', () => post(`/api/saas/business-hub/quote/${r.id}/approve`, { revision: r.revision }), { primary: true, done: 'Quote approved. Press Send to customer to text or email it with an accept link.' }));
+      if (r.status === 'approved' && can('approvals', 'approve')) a.append(act(S, r.links && !r.links.outcome ? 'Send again' : 'Send to customer', async () => {
+        const cu = r.customer || {};
+        sendForm(S, c, 'Send the quote to ' + (cu.name || 'the customer'), [
+          { name: 'start_at', label: 'Proposed date and time (optional: if set, accepting books the job)', type: 'datetime-local', value: local(r.start_at) },
+          { name: 'estimated_hours', label: 'Time required (hours, optional)', type: 'number', min: '0.25', step: '0.25', value: r.estimated_hours ?? '' },
+          { name: 'note', label: 'Short note at the start (optional)', max: 300, placeholder: 'For example: Thanks for your call today.' },
+          { name: 'sms', label: cu.phone ? 'Text message to ' + cu.phone : 'Text message (no mobile number on this customer)', type: 'checkbox', value: Boolean(cu.phone), disabled: !cu.phone },
+          { name: 'email', label: cu.email ? 'Email to ' + cu.email : 'Email (no email address on this customer)', type: 'checkbox', value: Boolean(cu.email), disabled: !cu.email },
+          { type: 'note', text: 'The customer gets a private link to view, accept or decline. Sending a new link replaces the old one.' }
+        ], (v) => post(`/api/saas/pipeline/quotes/${r.id}/send`, sendBody(v, true)), (v) => post(`/api/saas/pipeline/quotes/${r.id}/send`, sendBody(v, false)), 'Quote sent. You will be told when the customer answers.');
+        function sendBody(v, dry) {
+          const b = { revision: r.revision, channels: channelsOf(v), dry_run: dry };
+          b.start_at = v.start_at ? new Date(v.start_at).toISOString() : null;
+          b.estimated_hours = v.estimated_hours ? Number(v.estimated_hours) : null;
+          if (v.note && v.note.trim()) b.note = v.note.trim();
+          return b;
+        }
+        return false;
+      }, { primary: true }));
       if (r.status === 'approved') a.append(act(S, 'Record customer acceptance', async () => {
         inlineForm(S, c, 'How did the customer accept?', [{ name: 'evidence', label: 'Date, channel and reference (for example: accepted by phone 30 Oct, spoke to Sam)', required: true, max: 3000 }],
           'Record acceptance', (v) => { if (v.evidence.trim().length < 12) throw new Error('Add at least a date and how they accepted (12 characters or more).'); return post(`/api/saas/business-hub/quote/${r.id}/accept`, { revision: r.revision, evidence: v.evidence.trim() }); }, 'Acceptance recorded. You can book the job now.');
         return false;
-      }, { primary: true }));
+      }));
       if (r.status === 'accepted' && can('jobs', 'create')) a.append(act(S, 'Book the job', async () => {
         inlineForm(S, c, 'Book the job', [
           { name: 'start_at', label: 'Date and time', type: 'datetime-local', required: true },
@@ -193,6 +261,22 @@
         return d;
       }, { primary: true, done: (d) => `Offered to ${d.offered} eligible worker${d.offered > 1 ? 's' : ''}.` }));
       if (!j.completed_at && can('jobs', 'edit')) a.append(act(S, 'Mark job complete', () => post(`/api/saas/pipeline/jobs/${j.id}/complete`), { done: 'Job marked complete. You can invoice it now.' }));
+      if (j.completed_at && !r.review && can('customers', 'edit')) a.append(act(S, r.links?.kind === 'review' && !r.links.outcome ? 'Ask for a review again' : 'Ask for a review', async () => {
+        const cu = r.customer || {};
+        let settings = { review_url: '' };
+        try { settings = await api('/api/saas/customer-links/settings'); } catch { /* the request still works without the public review link */ }
+        sendForm(S, c, 'Ask ' + (cu.name || 'the customer') + ' how it went', [
+          { name: 'note', label: 'Short note (optional)', max: 300, placeholder: 'For example: It was great working on your ute.' },
+          { name: 'review_url', label: 'Your public review link, shown after they answer (optional, for example your Google review link)', type: 'url', max: 500, value: settings.review_url || '' },
+          { name: 'sms', label: cu.phone ? 'Text message to ' + cu.phone : 'Text message (no mobile number on this customer)', type: 'checkbox', value: Boolean(cu.phone), disabled: !cu.phone },
+          { name: 'email', label: cu.email ? 'Email to ' + cu.email : 'Email (no email address on this customer)', type: 'checkbox', value: Boolean(cu.email), disabled: !cu.email },
+          { type: 'note', text: 'Every customer sees your public review link after giving feedback, whatever their rating.' }
+        ], (v) => post(`/api/saas/pipeline/jobs/${j.id}/review-request`, { channels: channelsOf(v), dry_run: true, ...(v.note.trim() ? { note: v.note.trim() } : {}) }), async (v) => {
+          if ((v.review_url || '').trim() !== (settings.review_url || '')) await api('/api/saas/customer-links/settings', { method: 'PUT', body: JSON.stringify({ review_url: v.review_url.trim() }) });
+          return post(`/api/saas/pipeline/jobs/${j.id}/review-request`, { channels: channelsOf(v), ...(v.note.trim() ? { note: v.note.trim() } : {}) });
+        }, 'Review request sent.');
+        return false;
+      }));
       if (j.completed_at && r.status === 'completed' && can('finance', 'create')) a.append(act(S, 'Create invoice', () => post(`/api/saas/pipeline/jobs/${j.id}/invoice`), { primary: true, done: 'Invoice draft created. Approve and issue it in Invoices.' }));
       a.append(el('a', { class: 'portal-button', href: '#work/jobs', text: 'Open in Jobs' }));
     }

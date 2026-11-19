@@ -16,7 +16,7 @@ Written 2026-11-20 against `main` at `ca0160b` (merge of PR #140). Research sour
 | Modern visibility cluster | SEO, AEO, GEO, AIO, SXO pillars, 5 checks each, weekly re-run, AI drafts saved as drafts only | `src/seo-cluster.js` |
 | Website connection | Connections → Website: owner enters an HTTPS origin, proves ownership with a TXT record `_superpro.<host>`; embeddable contact form `POST /api/public/contact/:slug` creates a **website enquiry + Unibox thread**; privacy-friendly visit counts `POST /api/public/visit/:slug` | `src/integration-transports.js`, `src/comms/routes.js`, `src/comms/service.js`, `src/website-visits.js` |
 | Business facts | `organisations(name, display_name, abn, brand_primary_color, brand_logo_url, timezone)`, `onboarding_profiles(business_type, phone, website, service_area, services[], brand_voice)`, `tenant_receptionist_profiles(greeting, knowledge, hours, timezone, questions, whatsapp_link, upload_link, appointment_type)` | `src/db.js`, `src/business-hub.js` |
-| Reviews | Imported Google reviews `seo_reviews` (real source only). Customer feedback from Oprun review links `customer_reviews` (T-146, in progress on branch `wip/quote-accept-review`) | `src/seo/service.js`, `src/customer-links.js` |
+| Reviews | Imported Google reviews `seo_reviews` (real source only). Customer feedback from Oprun review links `tenant_customer_reviews` (T-146, in progress on branch `wip/quote-accept-review`) | `src/seo/service.js`, `src/customer-links.js` |
 | Email sending | Per-business Resend sender (verified domain) or Oprun's sender; per-business Telnyx SMS | `src/integration-transports.js` |
 | AI | `generateAiText` (OpenAI / Gemini / compatible), claim checker `checkClaims`, `draftText` | `src/ai-provider-shim.js`, `src/seo/content.js` |
 | Approvals | `workspace_approvals`, automation engine runs with `awaiting_approval` | `src/server.js`, `src/automation/*` |
@@ -52,16 +52,16 @@ Written 2026-11-20 against `main` at `ca0160b` (merge of PR #140). Research sour
 | D-W9 | **SEO equity is preserved on transfer:** every old URL gets a 301 redirect map, titles/descriptions/H1s carried over unless improved and approved, and the old sitemap is compared with the new one before switching DNS | Avoid ranking loss |
 | D-W10 | **Approval-first publishing** uses the existing `classifyChange`: first release, design changes, address changes, >20 % word changes, new claims or sensitive wording → owner/manager approval. Small text fixes can publish under the business's "low risk" rule. DNS writes, domain switch-over and every outreach message always need approval | Owner: approval-first, zero mistakes |
 | D-W11 | **Growth is white-hat only.** No buying links, link exchanges, private blog networks, automated comment or forum posting, or reviews written by AI. Oprun finds opportunities, drafts outreach, the owner approves, the message goes from the business's own email. Monitoring uses Search Console (owner uploads the Links export, the Search Console API has no links report) and optionally the business's own DataForSEO key | Google spam policies; owner: no spam |
-| D-W12 | **Real content only.** Reviews only from `seo_reviews` or `customer_reviews`; project photos only from completed jobs the owner ticks; no invented testimonials, numbers, awards or licences. `checkClaims` runs on every generated page | Standing rule: no invented testimonials |
+| D-W12 | **Real content only.** Reviews only from `seo_reviews` or `tenant_customer_reviews`; project photos only from completed jobs the owner ticks; no invented testimonials, numbers, awards or licences. `checkClaims` runs on every generated page | Standing rule: no invented testimonials |
 | D-W13 | **Export = static bundle** (HTML, CSS, images, the 3D island, `sitemap.xml`, `robots.txt`, `_redirects`) to the business's GitHub repo (its own GitHub connection) or a ZIP. Deployable to Cloudflare Pages or any static host. The contact form keeps posting to Oprun | Ownership beyond Framer and Wix (no export) and Webflow (export excludes CMS) |
 | D-W14 | **AI generation is metered** as `usage_events kind='website_generation'` and limited per plan; regeneration of one section costs less than a full site | Cost control |
 
 ## 4. States
 
 - `seo_sites.build_status`: `draft → generating → review → approved → live` (+ `failed`, `archived`).
-- `website_domains.status`: `added → dns_pending → verifying → ssl_pending → active` (+ `error`, `removed`).
-- `website_email_setups.status`: `not_started → records_ready → records_written → verified` (+ `error`).
-- `website_transfers.status`: `ownership_check → crawling → mapped → redesigned → redirects_ready → switched` (+ `failed`).
+- `website_domains.status`: `dns_pending → verified` (built); `hosting_status`: `waiting → ssl_pending → active` once Cloudflare for SaaS is switched on (W-09).
+- `website_email_setups.status`: `records_ready → verified` (built; automatic DNS writes come with W-10).
+- `website_transfers.status`: `crawling → imported` (+ `failed`) (built); redesign and switch-over come with W-14.
 - `growth_opportunities.status`: `found → drafted → awaiting_approval → sent → won | declined | expired`.
 - `website_exports.status`: `queued → building → pushed | downloaded | failed`.
 
@@ -73,14 +73,15 @@ All rows carry `organisation_id` (or `owner_key` for the existing SEO tables) an
 |---|---|
 | `seo_sites` (add columns) | `build_mode` (`new` / `transfer`), `build_status`, `style_json` (palette, fonts, density, cinematic on/off, scene id), `source_url`, `primary_domain`, `generated_at` |
 | `website_generation_runs` | `id, organisation_id, site_id, kind (site/page/section), input_json, status, output_json, model, tokens_in, tokens_out, error, created_by, created_at, finished_at` |
-| `website_domains` | `id, organisation_id, site_id, hostname, is_primary, status, cf_hostname_id, ssl_status, verification_json, last_checked_at, error, created_by, created_at, updated_at` (unique `hostname`) |
+| `website_domains` (built, T-147) | `id, organisation_id, hostname (unique across Oprun), is_primary, status (dns_pending/verified), verify_token, verified_at, hosting_status (waiting until Cloudflare for SaaS is on), last_checked_at, last_result_json, created_by, created_at, updated_at`. Ownership proof: TXT `_oprun.<domain>` = `oprun-verify=<token>` |
 | `website_dns_connections` | `organisation_id, provider (cloudflare/porkbun), zone, token_bundle (encrypted, write-only), status, verified_at` |
 | `website_dns_changes` | `id, organisation_id, domain, records_before_json, records_after_json, approval_id, status, applied_at, error` |
-| `website_email_setups` | `id, organisation_id, domain, provider (google/microsoft/zoho), status, records_json, verified_at` |
-| `website_transfers` | `id, organisation_id, site_id, source_origin, status, pages_found, crawl_json, redirect_count, created_at, switched_at` |
-| `website_redirects` | `site_id, from_path, to_path, code (301), source (transfer/rename/manual)`; primary key `(site_id, from_path)` |
-| `growth_opportunities` | `id, organisation_id, kind (citation/mention/partner/broken_link/pr/listing_fix), target_name, target_url, reason, status, draft_json, approval_id, sent_at, result_url, checked_at` |
-| `growth_link_snapshots` | `id, organisation_id, source (gsc_upload/dataforseo), taken_at, referring_domains, links, new_json, lost_json` |
+| `website_email_setups` (built, T-147) | `organisation_id, domain, provider (google/microsoft/zoho), status (records_ready/verified), checks_json, checked_at` |
+| `website_transfers` (built, T-147) | `id, organisation_id, site_id, source_origin, status (crawling/imported/failed), pages_found, pages_imported, inventory_json, error, created_at, finished_at` |
+| `website_redirects` (built, T-147; served once custom domains are live) | `site_id, organisation_id, from_path, to_path, code (301), source`; primary key `(site_id, from_path)` |
+| `growth_opportunities` (planned, W-15) | `id, organisation_id, kind (citation/mention/partner/broken_link/pr/listing_fix), target_name, target_url, reason, status, draft_json, approval_id, sent_at, result_url, checked_at` |
+| `website_link_snapshots` (built, T-147) | `id, organisation_id, source (gsc_upload), taken_at, referring_domains, links, top_json` |
+| `website_listings` (built, T-147) | `organisation_id, listing, status (not_started/in_progress/listed/needs_fix), url, note`: the citations checklist |
 | `website_exports` | `id, organisation_id, site_id, target (github/zip), status, repo, commit_sha, file_count, bytes, created_by, created_at` |
 
 ## 6. New page blocks (added to `BLOCK_TYPES`)

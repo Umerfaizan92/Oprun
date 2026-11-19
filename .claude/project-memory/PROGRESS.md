@@ -86,3 +86,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-13: E-036 resolved: tilt removed from cards with controls; test-ui default timeout 15s; failure capture kept. Under 2x parallel load test-ui went from about 100% failure to 6/6 pass
 - 2026-11-19: AI Receptionist spec pack written (docs/ai-receptionist/00-11 + resume prompt); tasks R-01..R-20 added; T-040 receptionist half absorbed by R-03/R-07
 - 2026-11-19: T-143 receptionist v2 shipped; lifecycle phase 2 (customer quote accept link, auto booking, allocator approval, day-of reminders to customer/team/worker, invoice approval, review request) is next.
+- 2026-11-19: Shipped quote acceptance + review links (T-145) and the one Website section (T-147: build, transfer, domain, email, growth, activity). Next: custom-domain hosting (needs Cloudflare for SaaS from owner), reminders T-164, allocator T-165, invoice sending T-166.
