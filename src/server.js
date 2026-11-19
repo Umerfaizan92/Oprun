@@ -5710,7 +5710,7 @@ app.get('/api/saas/integrations/self-service/:provider/diagnostics',...connectio
   res.json({ok:true,provider:row.provider,status:state.status,last_test_status:state.last_test_status,diagnostic:state.diagnostic,service_checks:state.service_checks,missing_setup:['website','email_sms'].includes(row.provider)?[]:integrationMissing(row.provider),steps,assistant_mode:'rule_based',can_auto_fix_permissions:false,note:'This assistant explains redacted diagnostics. It cannot approve provider apps, grant permissions, bypass MFA or recover account passwords.'});
 });
 app.post('/api/saas/integrations/self-service/email_sms/credentials',...connectionOwner,connectionLimit,async(req,res)=>{
-  const parsed=z.object({kind:z.enum(['email','sms']),api_key:z.string().trim().min(10).max(1000),sender:z.string().trim().email().max(254).optional(),number:z.string().trim().max(20).optional(),webhook_secret:z.string().trim().max(500).optional(),public_key:z.string().trim().max(500).optional()}).strict().safeParse(req.body);
+  const parsed=z.object({kind:z.enum(['email','sms']),api_key:z.string().trim().min(10).max(1000),sender:z.string().trim().email().max(254).optional(),number:z.string().trim().max(20).optional(),messaging_profile_id:z.string().trim().max(80).optional(),webhook_secret:z.string().trim().max(500).optional(),public_key:z.string().trim().max(500).optional()}).strict().safeParse(req.body);
   if(!parsed.success)return res.status(400).json({ok:false,error:'Check the provider key and sender or phone number.'});
   try{const transport=await withIntegrationOperation(req.saas.organisation_id,'email_sms',()=>tenantTransports.save(req.saas.organisation_id,parsed.data.kind,parsed.data));saasAudit(req,'integration.credentials_saved','integration','email_sms',{channel:parsed.data.kind,secret_values_recorded:false});res.json({ok:true,transport,secret_stored:true,secrets_exposed:false})}catch(error){return connectionFailure(req,res,error,{email:{api_key:parsed.data.api_key},sms:{api_key:parsed.data.api_key}})}
 });
@@ -6000,7 +6000,7 @@ app.get('/api/saas/referrals',requireSaasUser,requireSaasRole('owner','admin','s
 installDiagnosticsRoute(app,{db,env,storage:storagePlan,requireAdmin,startedAt:startedAtMs});
 const webPush=installWebPush(app,{db,env,requireSaasUser});
 installLocalization(app,{db,requireSaasUser});
-const notifications=installNotifications(app,{db,env,requireSaasUser,push:webPush});
+const notifications=installNotifications(app,{db,env,requireSaasUser,push:webPush,smsEnv:org=>tenantTransports.environment(org,{})});
 // T-074: built-in video and voice meetings. Rooms and signalling here; media goes browser to browser.
 installMeetings(app,{db,env,requireSaasUser,saasAudit,notifications});
 // T-070: background connection health. Once a day each connected provider is checked with the workspace's own
@@ -6123,12 +6123,15 @@ commsService.recordInboundRef.current=recordInbound;
 inboundHooks.add(m=>commsService.onInbound(m));
 const voiceDigits=v=>String(v||'').replace(/\D/g,'').replace(/^61/,'0');
 // T-141: every finished business call becomes a customer, an enquiry, a linked Unibox thread and an owner alert (push + SMS).
-const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),ai:generateAiText});
+const receptionistProfileFor=org=>{const p=db.prepare('SELECT * FROM tenant_receptionist_profiles WHERE organisation_id=?').get(org)||{};const o=db.prepare('SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?').get(org);return {...p,business_name:o?.n||'the business'}};
+// T-143: owners and admins also get each call by email (Oprun's own sender), so nothing depends on SMS alone.
+const receptionistEmailOwners=async(org,{subject,text})=>{const people=db.prepare("SELECT DISTINCT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.role IN ('owner','admin') AND m.status='active' AND u.email IS NOT NULL").all(org);const results=[];for(const p of people){const paragraphs=String(text).split('\n\n');results.push(await sendBrandedEmail(env,{to:p.email,subject,rendered:renderEmail(platformBrand(env),{heading:subject,paragraphs}),kind:'platform',delivery:{organisationId:org,category:'receptionist_call',subject}}))}const failed=results.filter(r=>!r.sent);if(failed.length)console.warn('[RECEPTIONIST] owner email not sent:',failed.map(r=>r.reason).join('; '));return results};
+const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),emailOwners:receptionistEmailOwners,createApproval:createWorkspaceApproval,profileFor:receptionistProfileFor,ai:generateAiText});
 // D-R12: each business connects its own Telnyx account (it buys/ports and pays Telnyx directly).
 const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime,env});
 const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.credentialsFor(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
   orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
-  profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};const p=db.prepare('SELECT * FROM tenant_receptionist_profiles WHERE organisation_id=?').get(org)||{};const o=db.prepare('SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?').get(org);return {...p,business_name:o?.n||'the business'}}});
+  profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};return receptionistProfileFor(org)}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();

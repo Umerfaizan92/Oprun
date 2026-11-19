@@ -22,7 +22,7 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
       PLATFORM_NOTICE_FROM:own?.email?.sender||'',NOTIFY_FROM:own?.email?.sender||'',SUPPORT_FROM:own?.email?.sender||'',
       RESEND_WEBHOOK_SECRET:own?.email?.webhook_secret||'',TELNYX_API_KEY:own?.sms?.api_key||'',
       TELNYX_FROM_NUMBER:own?.sms?.number||'',TELNYX_PHONE_NUMBER:own?.sms?.number||'',
-      TELNYX_PUBLIC_KEY:own?.sms?.public_key||'',RESEND_API_BASE_URL:'https://api.resend.com',TELNYX_API_BASE_URL:'https://api.telnyx.com/v2'};
+      TELNYX_PUBLIC_KEY:own?.sms?.public_key||'',TELNYX_MESSAGING_PROFILE_ID:own?.sms?.messaging_profile_id||'',RESEND_API_BASE_URL:'https://api.resend.com',TELNYX_API_BASE_URL:'https://api.telnyx.com/v2'};
   }
   async function verify(kind,value) {
     if(kind==='email') {
@@ -34,11 +34,21 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
       return {sender:value.sender,domain,domain_id:verified.id,status:'verified',tested_at:new Date().toISOString()};
     }
     if(kind==='sms') {
-      if(!/^\+[1-9]\d{7,14}$/.test(value.number||''))throw invalid('Enter your Telnyx number in international format, for example +61412345678.');
+      // Australian landline numbers (02/03/07/08) cannot send texts. A business can send from an SMS-capable mobile
+      // number, or from a sender name (alphanumeric sender ID, e.g. FleetParlour) through a Telnyx messaging profile.
+      const senderName=/^(?=.*[A-Za-z])[A-Za-z0-9 ]{3,11}$/.test(value.number||'');
+      if(!senderName&&!/^\+[1-9]\d{7,14}$/.test(value.number||''))throw invalid('Enter your Telnyx mobile number in international format (for example +61412345678), or a sender name of 3 to 11 letters.');
+      if(/^\+61[2378]\d{8}$/.test(value.number||''))throw invalid('Australian landline numbers cannot send text messages. Use an Australian mobile number from Telnyx, or a sender name with a messaging profile.');
+      if(senderName){
+        if(!/^[0-9a-f-]{20,80}$/i.test(value.messaging_profile_id||''))throw invalid('A sender name needs your Telnyx messaging profile ID (Messaging > Profiles in the Telnyx portal).');
+        const prof=await runtime.requestJson('https://api.telnyx.com/v2/messaging_profiles/'+encodeURIComponent(value.messaging_profile_id),{headers:{authorization:'Bearer '+value.api_key}});
+        if(!prof?.data?.id)throw invalid('This messaging profile was not found in the authorised Telnyx account.');
+        return {number:value.number,sender_type:'name',messaging_profile_id:value.messaging_profile_id,status:'verified',tested_at:new Date().toISOString(),note:'Messaging profile found. Make sure alphanumeric sender ID is enabled for Australia on this profile. Customers cannot reply to a sender name.'};
+      }
       const d=await runtime.requestJson('https://api.telnyx.com/v2/phone_numbers?filter[phone_number]='+encodeURIComponent(value.number),{headers:{authorization:'Bearer '+value.api_key}});
       const number=(d.data||[]).find(x=>x.phone_number===value.number);
       if(!number)throw invalid('This phone number was not found in the authorised Telnyx account.');
-      return {number:value.number,status:'verified',tested_at:new Date().toISOString(),note:'Account ownership checked. Configure a messaging profile and signed webhooks in Telnyx before live delivery.'};
+      return {number:value.number,sender_type:'number',...(value.messaging_profile_id?{messaging_profile_id:value.messaging_profile_id}:{}),status:'verified',tested_at:new Date().toISOString(),note:'Account ownership checked. Configure a messaging profile and signed webhooks in Telnyx before live delivery.'};
     }
     throw invalid('Choose email or SMS.');
   }
@@ -48,7 +58,7 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
     if(value.public_key && Buffer.from(value.public_key,'base64').length!==32)throw invalid('Telnyx public key must be a Base64 Ed25519 public key.');
     if(value.webhook_secret && !/^whsec_[A-Za-z0-9+/=]+$/.test(value.webhook_secret))throw invalid('Use the Resend webhook signing secret starting with whsec_.');
     const checked=await verify(kind,value), old=credentials(org)||{},settings=parse(current.settings_json);
-    const bundle={...old,[kind]:{api_key:value.api_key,...(kind==='email'?{sender:value.sender,webhook_secret:value.webhook_secret||''}:{number:value.number,public_key:value.public_key||''})}};
+    const bundle={...old,[kind]:{api_key:value.api_key,...(kind==='email'?{sender:value.sender,webhook_secret:value.webhook_secret||''}:{number:value.number,public_key:value.public_key||'',messaging_profile_id:value.messaging_profile_id||''})}};
     const transport={...settings.transport,[kind]:checked};
     const next={...settings,tenant_transport:true,transport,token_bundle:runtime.encryptBundle(bundle),last_test_status:'pass',last_tested_at:checked.tested_at,last_test_error:null};
     db.transaction(()=>{

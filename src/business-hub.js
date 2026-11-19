@@ -11,6 +11,12 @@ export function installBusinessHub(
  CREATE TABLE IF NOT EXISTS tenant_service_requests(id TEXT PRIMARY KEY,organisation_id TEXT NOT NULL REFERENCES organisations(id),service TEXT NOT NULL,brief TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'requested',created_by TEXT NOT NULL,created_at TEXT NOT NULL);
  CREATE INDEX IF NOT EXISTS tenant_service_requests_org ON tenant_service_requests(organisation_id,service,created_at);
  CREATE TABLE IF NOT EXISTS tenant_receptionist_profiles(organisation_id TEXT PRIMARY KEY REFERENCES organisations(id),greeting TEXT NOT NULL,knowledge TEXT NOT NULL,hours TEXT NOT NULL,timezone TEXT NOT NULL,transfer_destination TEXT,revision INTEGER NOT NULL DEFAULT 1,status TEXT NOT NULL DEFAULT 'draft',updated_by TEXT NOT NULL,updated_at TEXT NOT NULL);`);
+  // AI Receptionist script and caller links (T-143). Additive columns; every business sets its own.
+  {
+    const have = new Set(db.prepare("PRAGMA table_info(tenant_receptionist_profiles)").all().map((c) => c.name));
+    for (const [name, type] of [["questions", "TEXT"], ["whatsapp_link", "TEXT"], ["upload_link", "TEXT"], ["appointment_type", "TEXT"], ["send_links_after_call", "INTEGER NOT NULL DEFAULT 0"], ["links_message", "TEXT"]])
+      if (!have.has(name)) db.exec(`ALTER TABLE tenant_receptionist_profiles ADD COLUMN ${name} ${type}`);
+  }
   const types = {
     enquiry: "customers",
     quote: "customers",
@@ -326,7 +332,7 @@ export function installBusinessHub(
     (req, res) => {
       const p = db
         .prepare(
-          "SELECT organisation_id,greeting,knowledge,hours,timezone,revision,status,updated_at FROM tenant_receptionist_profiles WHERE organisation_id=?",
+          "SELECT organisation_id,greeting,knowledge,hours,timezone,questions,whatsapp_link,upload_link,appointment_type,send_links_after_call,links_message,revision,status,updated_at FROM tenant_receptionist_profiles WHERE organisation_id=?",
         )
         .get(req.saas.organisation_id);
       res.json({ ok: true, profile: p || null, live: false });
@@ -351,6 +357,13 @@ export function installBusinessHub(
             }
           }),
           revision: z.number().int().min(0),
+          // Optional so older screens keep working; a missing field keeps its saved value.
+          questions: z.string().max(4000).optional(),
+          whatsapp_link: z.string().trim().max(300).refine((v) => !v || /^https:\/\/[^\s]+$/i.test(v), "Use an https:// link.").optional(),
+          upload_link: z.string().trim().max(300).refine((v) => !v || /^https:\/\/[^\s]+$/i.test(v), "Use an https:// link.").optional(),
+          appointment_type: z.enum(["on_site", "at_business", "phone", "online"]).optional(),
+          send_links_after_call: z.boolean().optional(),
+          links_message: z.string().max(600).optional(),
         })
         .strict()
         .safeParse(req.body);
@@ -359,8 +372,9 @@ export function installBusinessHub(
           .status(400)
           .json({
             ok: false,
-            error:
-              "Provide greeting, knowledge, hours, timezone and current revision.",
+            error: p.error.issues.find((i) => /https/.test(i.message))
+              ? "Links must start with https://"
+              : "Provide greeting, knowledge, hours, timezone and current revision.",
           });
       const result = db.transaction(() => {
         const old = db
@@ -369,6 +383,8 @@ export function installBusinessHub(
           )
           .get(req.saas.organisation_id);
         if ((old?.revision || 0) !== p.data.revision) return false;
+        const prev = db.prepare("SELECT questions,whatsapp_link,upload_link,appointment_type,send_links_after_call,links_message FROM tenant_receptionist_profiles WHERE organisation_id=?").get(req.saas.organisation_id) || {};
+        const pick = (k) => (p.data[k] === undefined ? prev[k] ?? null : p.data[k] === "" ? null : p.data[k]);
         db.prepare(
           `INSERT INTO tenant_receptionist_profiles(organisation_id,greeting,knowledge,hours,timezone,revision,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(organisation_id) DO UPDATE SET greeting=excluded.greeting,knowledge=excluded.knowledge,hours=excluded.hours,timezone=excluded.timezone,revision=excluded.revision,status='draft',updated_by=excluded.updated_by,updated_at=excluded.updated_at`,
         ).run(
@@ -381,6 +397,10 @@ export function installBusinessHub(
           req.saas.user_id,
           at(),
         );
+        db.prepare("UPDATE tenant_receptionist_profiles SET questions=?,whatsapp_link=?,upload_link=?,appointment_type=?,send_links_after_call=?,links_message=? WHERE organisation_id=?").run(
+          pick("questions"), pick("whatsapp_link"), pick("upload_link"), pick("appointment_type"),
+          p.data.send_links_after_call === undefined ? prev.send_links_after_call || 0 : p.data.send_links_after_call ? 1 : 0,
+          pick("links_message"), req.saas.organisation_id);
         saasAudit(
           req,
           "receptionist.draft_saved",
