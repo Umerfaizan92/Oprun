@@ -22,17 +22,17 @@ PROGRESS STATE (updated 2026-11-19, Perth)
 - [ ] R-02 (T-122) Sydney latency + naturalness bake-off; close D-R5
 - [ ] R-03 … R-20 (T-123 … T-140, see 10_IMPLEMENTATION_PLAN.md and .claude/project-memory/PENDING_TASKS.md)
 - Current focus: Spec complete; waiting for owner/group audit
-- Next exact action: Faizan reviews the spec pack (or gives it to the audit group). Then: open the PR for branch
-  claude/ai-receptionist-spec (docs only), and start R-01 in a new folder voice/ once Telnyx staging number and
-  Deepgram/ElevenLabs/Cartesia/AWS access are provided.
-- Blockers: Owner must provide: Telnyx staging number + Call Control app; Deepgram, ElevenLabs, Cartesia keys; AWS
-  Sydney access; add-on price and included calls per plan.
+- Next exact action: Start R-01 (T-121) in a new folder voice/ once Deepgram, ElevenLabs, Cartesia and AWS Sydney
+  access are provided. Test line is ready: 08 6289 1786 (D-R11).
+- Blockers: Owner must provide: Deepgram, ElevenLabs, Cartesia keys; AWS Sydney access; a Telnyx Call Control
+  application for the test line (set up in R-01); add-on price and included calls per plan.
 - Decisions made: D-R1 … D-R10 in 00_CONTRACT.md §13 (D-R5 open until the bake-off)
-- Repository: Umerfaizan92/fleet-office-ai, branch claude/ai-receptionist-spec (docs only, not pushed yet)
+- Repository: Umerfaizan92/Oprun, spec merged to main in PR #134 (commit b14a86c), deployed to Render "Oprun AI" 2026-11-19
 ```
 
 ## Change log
 | Date | What changed | By |
 |---|---|---|
 | 2026-11-19 | Full spec pack written (00–11), contract created, merge plan against the real code, tasks R-01…R-20 | Claude |
+| 2026-11-19 | Spec merged (PR #134) and deployed; test line 08 6289 1786 confirmed by Faizan (D-R11) | Claude |
 | 2026-11-19 | Audit: unified tool enums, booking_rules_json shape (contract §5.1), retention/cap/block-list/caller_note names, fixed broken links, stopped the booking event being handled twice; tasks recorded as T-121…T-140 | Claude |
