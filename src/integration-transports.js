@@ -24,10 +24,24 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
       TELNYX_FROM_NUMBER:own?.sms?.number||'',TELNYX_PHONE_NUMBER:own?.sms?.number||'',
       TELNYX_PUBLIC_KEY:own?.sms?.public_key||'',TELNYX_MESSAGING_PROFILE_ID:own?.sms?.messaging_profile_id||'',RESEND_API_BASE_URL:'https://api.resend.com',TELNYX_API_BASE_URL:'https://api.telnyx.com/v2'};
   }
+  // Provider checks use an API key, not a sign-in, so a refused key gets a plain explanation instead of
+  // "authorisation expired" (T-145). Messages never include the key.
+  async function ask(kind,url,key){
+    try{return await runtime.requestJson(url,{headers:{authorization:'Bearer '+key}})}
+    catch(e){
+      const s=Number(e.status||0),m=String(e.message||'');
+      if(kind==='email'&&(/restricted/i.test(m)||((s===401||s===403)&&/only send|sending access/i.test(m))))throw invalid('This Resend key can only send emails, so Oprun cannot confirm your sender domain. In Resend, go to API Keys, create a key with "Full access", and paste that key here.');
+      if(kind==='email'&&(s===401||s===403))throw invalid('Resend did not accept this API key. In Resend, go to API Keys, create a new key with "Full access", copy all of it (it starts with re_) and paste it here.');
+      if(kind==='sms'&&s===401)throw invalid('Telnyx did not accept this API key. In the Telnyx portal go to Account Settings, API Keys, create a key and copy all of it (it starts with KEY and is long, about 60 characters). A key from a different Telnyx account will not work.');
+      if(kind==='sms'&&s===403)throw invalid('This Telnyx key is not allowed to read your numbers or messaging profiles. Use a key from the account that owns the number.');
+      if(kind==='sms'&&s===404)throw invalid('Telnyx could not find that messaging profile in this account. Copy the Profile ID from Messaging, Profiles.');
+      throw e;
+    }
+  }
   async function verify(kind,value) {
     if(kind==='email') {
       if(!/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(value.sender||''))throw invalid('Enter the verified business sender email address.');
-      const d=await runtime.requestJson('https://api.resend.com/domains?limit=100',{headers:{authorization:'Bearer '+value.api_key}});
+      const d=await ask('email','https://api.resend.com/domains?limit=100',value.api_key);
       const domain=value.sender.split('@')[1].toLowerCase();
       const verified=(d.data||[]).find(x=>String(x.name).toLowerCase()===domain && x.status==='verified');
       if(!verified)throw invalid('The sender domain is not verified in this Resend account. Complete its DNS verification first; use a key that can read domains.');
@@ -41,13 +55,15 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
       if(/^\+61[2378]\d{8}$/.test(value.number||''))throw invalid('Australian landline numbers cannot send text messages. Use an Australian mobile number from Telnyx, or a sender name with a messaging profile.');
       if(senderName){
         if(!/^[0-9a-f-]{20,80}$/i.test(value.messaging_profile_id||''))throw invalid('A sender name needs your Telnyx messaging profile ID (Messaging > Profiles in the Telnyx portal).');
-        const prof=await runtime.requestJson('https://api.telnyx.com/v2/messaging_profiles/'+encodeURIComponent(value.messaging_profile_id),{headers:{authorization:'Bearer '+value.api_key}});
+        const prof=await ask('sms','https://api.telnyx.com/v2/messaging_profiles/'+encodeURIComponent(value.messaging_profile_id),value.api_key);
         if(!prof?.data?.id)throw invalid('This messaging profile was not found in the authorised Telnyx account.');
         return {number:value.number,sender_type:'name',messaging_profile_id:value.messaging_profile_id,status:'verified',tested_at:new Date().toISOString(),note:'Messaging profile found. Make sure alphanumeric sender ID is enabled for Australia on this profile. Customers cannot reply to a sender name.'};
       }
-      const d=await runtime.requestJson('https://api.telnyx.com/v2/phone_numbers?filter[phone_number]='+encodeURIComponent(value.number),{headers:{authorization:'Bearer '+value.api_key}});
+      const d=await ask('sms','https://api.telnyx.com/v2/phone_numbers?filter[phone_number]='+encodeURIComponent(value.number),value.api_key);
       const number=(d.data||[]).find(x=>x.phone_number===value.number);
       if(!number)throw invalid('This phone number was not found in the authorised Telnyx account.');
+      if(value.messaging_profile_id){await ask('sms','https://api.telnyx.com/v2/messaging_profiles/'+encodeURIComponent(value.messaging_profile_id),value.api_key);if(number.messaging_profile_id&&number.messaging_profile_id!==value.messaging_profile_id)throw invalid('This number is attached to a different messaging profile in Telnyx. Use that profile\'s ID, or move the number to this profile.');}
+      if(!value.messaging_profile_id&&!number.messaging_profile_id)throw invalid('This number is not attached to a messaging profile in Telnyx, so it cannot send texts yet. In Telnyx open Messaging, Profiles, add the number to a profile, then paste the Profile ID here.');
       return {number:value.number,sender_type:'number',...(value.messaging_profile_id?{messaging_profile_id:value.messaging_profile_id}:{}),status:'verified',tested_at:new Date().toISOString(),note:'Account ownership checked. Configure a messaging profile and signed webhooks in Telnyx before live delivery.'};
     }
     throw invalid('Choose email or SMS.');
