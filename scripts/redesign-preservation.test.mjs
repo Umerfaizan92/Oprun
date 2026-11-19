@@ -7,7 +7,7 @@ function nav(session={}) {const window={GDS_SESSION:session};vm.runInNewContext(
 const baseline=JSON.parse(fs.readFileSync(new URL('../docs/redesign/BASELINE_ROUTES.json',import.meta.url)));
 test('seven daily groups plus Setup retain every view, canonical hash, old alias and bare group',()=>{
  const n=nav(),items=n.DOMAINS.flatMap(g=>g.items);
- assert.equal(n.DOMAINS.length,8);assert.equal(n.DOMAINS.filter(g=>!g.utility).length,7);assert.deepEqual([...n.DOMAINS.map(g=>g.label)],['Today','Work','Customers','People','Communications','Growth','Money','Setup']);assert.equal(items.length,60);assert.equal(new Set(items.map(i=>i.view)).size,60);
+ assert.equal(n.DOMAINS.length,8);assert.equal(n.DOMAINS.filter(g=>!g.utility).length,7);assert.deepEqual([...n.DOMAINS.map(g=>g.label)],['Today','Work','Customers','People','Communications','Growth','Money','Setup']);assert.equal(items.length,61);assert.equal(new Set(items.map(i=>i.view)).size,61); // 61: Website section added (T-147)
  for(const p of baseline.business.flatMap(g=>g.items)) {
   assert.equal(n.resolve(p.path,'owner'),p.view);
   assert.equal(n.resolve(p.view,'owner'),p.view);

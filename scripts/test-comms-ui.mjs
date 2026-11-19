@@ -17,7 +17,7 @@ const mock = http.createServer((req, res) => { let b = ''; req.on('data', (c) =>
 await new Promise((r) => mock.listen(0, '127.0.0.1', r));
 const mbase = `http://127.0.0.1:${mock.address().port}`;
 const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-const s = await startServer({ TELNYX_API_BASE_URL: mbase + '/telnyx', RESEND_API_BASE_URL: mbase + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64'), TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', SAAS_VERIFY_FROM: 'Oprun <noreply@example.test>', PLATFORM_MAIL_FROM: 'Oprun <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
+const s = await startServer({ PLATFORM_SMS_FOR_BUSINESSES: '1', TELNYX_API_BASE_URL: mbase + '/telnyx', RESEND_API_BASE_URL: mbase + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64'), TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', SAAS_VERIFY_FROM: 'Oprun <noreply@example.test>', PLATFORM_MAIL_FROM: 'Oprun <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
 const browser = await chromium.launch();
 const errors = [];
 let passed = 0;

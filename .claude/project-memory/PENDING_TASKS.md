@@ -477,20 +477,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
-## T-145 Customer quote acceptance link + review request link, sent by SMS and email
-- Status: NOT_STARTED
-- Added: 2026-11-19
-- Requirement: Owner 2026-11-20: create an acceptance link for the customer, sent by text and email; add a review/feedback request link for every subscriber's customers by text and email; audit, no mistakes. Backend WIP on branch wip/quote-accept-review (commit 258f4d4); UI, tests and audit still to do.
-- Files: src/customer-links.js, src/comms/outbound.js, src/pipeline.js, src/saas-platform.js, src/comms/receptionist-intake.js, src/server.js, saas/workspace-pipeline.js
-- Acceptance: Quote send (SMS/email) with preview; public accept/decline page books the job when a time was proposed; review link page stores rating and notifies owner; customer texts only via the business's own sender; tests + UI tests pass
-
-## T-147 W-01 AI Website: `saas/workspace-website.js`: **Website** section with 7 tabs that mount the existing SEO v
-- Status: NOT_STARTED
-- Added: 2026-11-19
-- Requirement: `saas/workspace-website.js`: **Website** section with 7 tabs that mount the existing SEO views; B06 shows one item; every old view id and `#b06/...` address opens the right tab; placeholders `website`, `searchconsole`, `backlinks` show what is coming instead of a request form, and existing requests stay listed (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
-- Files: see docs/ai-website/02_ARCHITECTURE.md
-- Acceptance: `test:ui`: every old address resolves; B06 has one item; no element id removed; phone/tablet/laptop screenshots
-
 ## T-148 W-02 AI Website: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy
 - Status: NOT_STARTED
 - Added: 2026-11-19
@@ -602,3 +588,24 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Help article, public page wording, pricing line for the Website add-on, monitoring of generation cost (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: Owner approves wording; no claims beyond what is built
+
+## T-164 Appointment reminders by text, email and in-app: customer, business and assigned worker
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: on the appointment day remind the customer, the business (in Oprun) and the assigned employee; reminders at each step by email, SMS and notification. Today only a day-before customer email automation exists (send_appointment_reminder).
+- Files: src/automation/catalogue.js, src/notifications.js, src/comms/outbound.js
+- Acceptance: Day-before and day-of reminders to customer by SMS+email via the business sender, in-app to owner, SMS/in-app to assigned workers; no duplicates; tests pass
+
+## T-165 Job Allocator: offer to chosen workers or the open pool, confirm when filled
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: booked job appears in the Job Allocator with an approval option; after approval refer it to chosen employees or put it in a pool for an employee to pick; then the job is confirmed. Today 'Offer to workers' offers to all eligible workers only.
+- Files: src/server.js (work-orders offer), saas/workspace-pipeline.js, Job Allocator UI
+- Acceptance: Owner can pick specific eligible workers or the pool; first acceptances fill required_workers; job shows confirmed and the customer confirmation draft goes to Approvals; tests pass
+
+## T-166 Send approved invoice and payment link to the customer by text and email; payment and review reminders
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: after completion, invoice approved by a human, then sent; payment; review; reminders at each step by email, SMS and notification.
+- Files: src/pipeline.js, src/customer-links.js, payments module
+- Acceptance: Issued invoice can be sent with a preview by SMS/email incl. payment link; overdue reminder drafts; review request offered after payment; tests pass

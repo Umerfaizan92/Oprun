@@ -24,22 +24,11 @@
   const types = {
     businesscampaigns: ["Campaigns", "campaign"],
   };
+  // Website, Search Console and Backlinks requests moved to the Website section (workspace-website.js, T-147).
   const services = {
     meetings: [
       "Video Meetings",
       "Call your team or a customer from here. Guests join with a private link and wait until you let them in.",
-    ],
-    website: [
-      "Website & Domain",
-      "Connect a site you own or request an AI-assisted draft. Domain costs, ownership, DNS and publish approval are checked first.",
-    ],
-    searchconsole: [
-      "Search Console",
-      "Connect a verified Google or Bing property. Indexing and performance will show evidence from the provider.",
-    ],
-    backlinks: [
-      "Backlink Suggestions",
-      "Request relevant listings and outreach drafts. Approve every outreach; no ranking guarantees or link schemes.",
     ],
   };
   const msg = (host, text, bad = false) => {

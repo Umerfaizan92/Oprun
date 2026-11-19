@@ -29,7 +29,7 @@ async function fixture(mobile=true) {
   };
   return {dom,w,media,flush,activate,close:()=>{disposed=true;observers.forEach(observer=>observer.disconnect());w.close()}};
 }
-test('all 60 pages keep main navigation in the sidebar and only one sub-section bar below',async()=>{
+test('all 61 pages keep main navigation in the sidebar and only one sub-section bar below',async()=>{
   const f=await fixture();try{
     const nav=f.w.SuperProNav,groups=nav.DOMAINS;let count=0;
     for(const group of groups)for(const item of group.items){
@@ -42,7 +42,7 @@ test('all 60 pages keep main navigation in the sidebar and only one sub-section 
       assert.ok(f.w.document.querySelector(`#business-navigation [data-nav-page="${item.view}"]`),'main page remains in sidebar');
       assert.equal(nav.resolve(item.path,'owner'),item.view);for(const alias of item.alias||[])assert.equal(nav.resolve(alias,'owner'),item.view);count++;
     }
-    assert.equal(count,60);
+    assert.equal(count,61); // Website section added (T-147)
     f.w.GDS_SESSION={user:{role:'employee',id:'test-worker'},organisation:{id:'test-org'},access:{mode:'custom',grants:['dashboard.read']}};
     await f.activate('dashboard');
     f.w.SuperProNav.render(f.w.document.querySelector('.workspace-nav'),'employee');await f.flush();

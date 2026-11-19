@@ -351,3 +351,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: docs/ai-website/*
 - Acceptance: All 11 outputs present, contract consistent with code, sources listed, progress state updated
 - Evidence: docs/ai-website spec pack: 11 outputs + contract + sources + resume prompt; facts checked against code at ca0160b and provider docs 2026-11-20 (recorded 2026-11-19 on claude/ai-website-spec at ca0160b)
+
+## T-145 Customer quote acceptance link + review request link, sent by SMS and email
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-20: create an acceptance link for the customer, sent by text and email; add a review/feedback request link for every subscriber's customers by text and email; audit, no mistakes. Backend WIP on branch wip/quote-accept-review (commit 258f4d4); UI, tests and audit still to do.
+- Files: src/customer-links.js, src/comms/outbound.js, src/pipeline.js, src/saas-platform.js, src/comms/receptionist-intake.js, src/server.js, saas/workspace-pipeline.js
+- Acceptance: Quote send (SMS/email) with preview; public accept/decline page books the job when a time was proposed; review link page stores rating and notifies owner; customer texts only via the business's own sender; tests + UI tests pass
+- Evidence: npm test 73/73; node --test scripts/*.test.mjs 368 pass (customer-links 8 tests: send rules, preview, single private link, accept books proposed time, decline, expiry, review once + no gating); test:ui 36/36 (recorded 2026-11-19 on claude/quote-review-links at b070239)
+
+## T-147 W-01 AI Website: `saas/workspace-website.js`: **Website** section with 7 tabs that mount the existing SEO v
+- Added: 2026-11-19
+- Requirement: `saas/workspace-website.js`: **Website** section with 7 tabs that mount the existing SEO views; B06 shows one item; every old view id and `#b06/...` address opens the right tab; placeholders `website`, `searchconsole`, `backlinks` show what is coming instead of a request form, and existing requests stay listed (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: `test:ui`: every old address resolves; B06 has one item; no element id removed; phone/tablet/laptop screenshots
+- Evidence: npm test 73/73; unit 368 pass (website-hub 8 tests: build from facts, AI fallback, ownership-gated transfer + redirects, domain uniqueness + TXT verify, email SPF merge + checks, listings/links import, activity isolation, DoH); test:ui 36/36 incl. Website section + old routes; phone screenshot no sideways scroll (recorded 2026-11-19 on claude/quote-review-links at b070239)
