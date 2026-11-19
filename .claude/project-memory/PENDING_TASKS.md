@@ -469,3 +469,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-19: test call left no record and no alert. Calls to a business number must create/update the customer, create an enquiry, show in Unibox and alert the owner by push and SMS (R-07/R-08 first slice)
 - Files: src/comms/receptionist-intake.js; src/server.js; scripts/receptionist-intake.test.mjs
 - Acceptance: Unit tests 9/9; npm test 73/73; live call to a business number shows in Unibox with customer and enquiry and alerts the owner
+
+## T-142 AI Receptionist self-service section with the business's own Telnyx account
+- Status: TESTING
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: one AI Receptionist section any subscriber sets up alone; connect own number (buy/port/pay directly in Telnyx via links), greeting, services, hours, transfers/emergency, alerts, test; remove duplicate placeholder screens; secure, logged, no liability for Oprun
+- Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
+- Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox

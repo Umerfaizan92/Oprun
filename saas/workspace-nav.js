@@ -9,7 +9,7 @@
   let DOMAINS=[
     {id:'today',label:'Today',kicker:'TODAY',icon:'i-grid',items:[
       {view:'dashboard',path:'today/home',alias:['operations/command'],label:'Home & AI Command',icon:'i-grid'},
-      {view:'assistant',path:'today/assistant',alias:['operations/receptionist'],label:'AI Assistant & Receptionist',icon:'i-spark',roles:SENIOR_ROLES},
+      {view:'assistant',path:'today/assistant',alias:['operations/receptionist'],label:'AI Assistant',icon:'i-spark',roles:SENIOR_ROLES},
       {view:'approvals',path:'today/approvals',alias:['governance/approvals'],label:'Approvals',icon:'i-check',badge:'nav-approvals'}
     ]},
     {id:'customers',label:'Customers & Work',kicker:'CUSTOMERS & WORK',icon:'i-bell',items:[
@@ -78,11 +78,11 @@
   const WORKFLOWS = [
     {label:'Work pipeline', views:['enquiries','customers','quotes','bookings','jobs','businessinvoices','archive']},
     {label:'Unified Inbox', views:['unifiedinbox','mail','comms','teamchat','consent']},
-    {label:'Communications setup', views:['voiceflow','receptionist','phone','calls','meetings']},
+    {label:'Communications setup', views:['receptionist','voiceflow','meetings']},
     {label:'Growth Hub', views:['growth','campaignstudio','video','consent','businesscampaigns']},
     {label:'SEO Command Centre', views:['seocentre','seoaudit','seoclusters','seogoogle','seostudio','seobuilder','seolocal','seoanalytics','seoreports','visibility','searchconsole','backlinks','website']},
     {label:'Documents & payments', views:['finance','businessinvoices','finsales','finpayments','finreconcile','finreports','fincompliance']},
-    {label:'Connections & setup', views:['integrations','website','phone','receptionist','voiceflow','onboarding']},
+    {label:'Connections & setup', views:['integrations','website','receptionist','voiceflow','onboarding']},
     {label:'Plans', views:['billing','finplan']},
     {label:'People', views:['workforce','team','hiring','offshore']}
   ];

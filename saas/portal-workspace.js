@@ -25,14 +25,6 @@
     businesscampaigns: ["Campaigns", "campaign"],
   };
   const services = {
-    phone: [
-      "Phone Numbers",
-      "Request a new business number, forwarding or a provider-supported port. Ownership checks and price approval come before activation.",
-    ],
-    calls: [
-      "Calls & SMS",
-      "Dedicated business calling and SMS require verified numbers, consent, routing tests and usage caps.",
-    ],
     meetings: [
       "Video Meetings",
       "Call your team or a customer from here. Guests join with a private link and wait until you let them in.",
@@ -48,10 +40,6 @@
     backlinks: [
       "Backlink Suggestions",
       "Request relevant listings and outreach drafts. Approve every outreach; no ranking guarantees or link schemes.",
-    ],
-    receptionist: [
-      "AI Receptionist",
-      "Save an isolated business draft. Live calls require provider routing, agreed pricing, spend caps and a successful test.",
     ],
   };
   const msg = (host, text, bad = false) => {
@@ -294,38 +282,6 @@
           el("small", "", new Date(r.created_at).toLocaleString()),
         );
         host.append(c);
-      }
-      if (id === "receptionist" && window.GDS_SESSION?.user?.role === "owner") {
-        const d = await api("/api/saas/receptionist-profile"),
-          p = d.profile || {},
-          f = el("form", "portal-panel portal-form");
-        f.append(el("h2", "", "Business receptionist draft"));
-        for (const [name, label, def] of [
-          ["greeting", "Greeting", "Thank you for calling. How may we help?"],
-          ["knowledge", "Verified services and business facts", ""],
-          ["hours", "Hours and fallback", ""],
-          ["timezone", "Timezone", "Australia/Perth"],
-        ])
-          input(f, label, name).value = p[name] || def;
-        const b = el("button", "portal-button primary", "Save isolated draft");
-        f.append(b);
-        f.onsubmit = async (e) => {
-          e.preventDefault();
-          try {
-            await api("/api/saas/receptionist-profile", {
-              method: "PUT",
-              body: JSON.stringify({
-                ...Object.fromEntries(new FormData(f)),
-                revision: p.revision || 0,
-              }),
-            });
-            msg(s, "Draft saved. This has not activated live call handling.");
-            await load(id);
-          } catch (e) {
-            msg(s, e.message, true);
-          }
-        };
-        host.append(f);
       }
     } else if (id === "teamchat") {
       host.append(

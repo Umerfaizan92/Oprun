@@ -38,21 +38,33 @@ export function openNow(hoursText, timezone = 'Australia/Perth', at = Date.now()
   return { open: false, parsed: true };
 }
 
-export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbound, notify = () => {}, orgForNumber, profileFor, onCallEnded = () => {}, log = console }) {
+export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbound, notify = () => {}, orgForNumber, profileFor, onCallEnded = () => {}, credentialsFor = () => null, log = console }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS voice_calls (call_control_id TEXT PRIMARY KEY, call_session_id TEXT, organisation_id TEXT, scope TEXT NOT NULL, from_number TEXT, to_number TEXT, stage TEXT NOT NULL, route TEXT, transcript TEXT NOT NULL DEFAULT '', recording_url TEXT, voicemail INTEGER NOT NULL DEFAULT 0, transferred_to_human INTEGER NOT NULL DEFAULT 0, failures_json TEXT NOT NULL DEFAULT '[]', started_at TEXT NOT NULL, answered_at TEXT, ended_at TEXT, hangup_cause TEXT, duration_seconds INTEGER, inbox_message_id TEXT, updated_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS voice_calls_org ON voice_calls(organisation_id, started_at);
     CREATE TABLE IF NOT EXISTS voice_events (event_id TEXT PRIMARY KEY, received_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS voice_settings (owner_key TEXT PRIMARY KEY, mode TEXT NOT NULL DEFAULT 'assistant', transfer_number TEXT, recording_notice INTEGER NOT NULL DEFAULT 1, voicemail_greeting TEXT, transfer_when TEXT NOT NULL DEFAULT 'on_request', updated_by TEXT, updated_at TEXT);
   `);
+  // D-R12: a call that arrived on a business's own Telnyx account (account='tenant') is controlled only with that
+  // business's key and assistant. It never falls back to Oprun's platform key.
+  if (!new Set(db.prepare('PRAGMA table_info(voice_calls)').all().map((c) => c.name)).has('account')) db.exec("ALTER TABLE voice_calls ADD COLUMN account TEXT NOT NULL DEFAULT 'platform'");
   const base = () => String(env.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '');
+  function apiKeyFor(path) {
+    const m = String(path).match(/^\/calls\/([^/]+)\//);
+    const c = m ? db.prepare('SELECT organisation_id,account FROM voice_calls WHERE call_control_id=?').get(decodeURIComponent(m[1])) : null;
+    if (c?.account !== 'tenant') return env.TELNYX_API_KEY;
+    const k = credentialsFor(c.organisation_id)?.api_key;
+    if (!k) throw Object.assign(new Error('This business\'s Telnyx account is not connected.'), { permanent: true });
+    return k;
+  }
   const cmdId = (callId, action) => crypto.createHash('sha256').update(`${callId}:${action}`).digest('hex').slice(0, 32);
   async function telnyx(path, body, { retries = 1 } = {}) {
-    if (!env.TELNYX_API_KEY) throw Object.assign(new Error('TELNYX_API_KEY is not configured.'), { permanent: true });
+    const apiKey = apiKeyFor(path);
+    if (!apiKey) throw Object.assign(new Error('TELNYX_API_KEY is not configured.'), { permanent: true });
     for (let attempt = 0; ; attempt++) {
       const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
       try {
-        const r = await fetchImpl(base() + path, { method: 'POST', signal: ctl.signal, headers: { authorization: `Bearer ${env.TELNYX_API_KEY}`, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(body || {}) });
+        const r = await fetchImpl(base() + path, { method: 'POST', signal: ctl.signal, headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(body || {}) });
         const j = await r.json().catch(() => ({}));
         if (r.ok) return j;
         const err = Object.assign(new Error(j?.errors?.[0]?.detail || `Telnyx answered ${r.status}`), { status: r.status });
@@ -114,7 +126,7 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     const greeting = (p?.greeting ? String(p.greeting).slice(0, 300) : `Thanks for calling ${business}. How can I help?`) + notice;
     const jobs = [];
     if (s.recording_notice) jobs.push(telnyx(`/calls/${encodeURIComponent(id)}/actions/transcription_start`, { language: env.TELNYX_TRANSCRIPTION_LANGUAGE || 'en', transcription_engine: env.TELNYX_TRANSCRIPTION_ENGINE || 'B', transcription_tracks: 'both', command_id: cmdId(id, 'transcription') }).catch((e) => fail(id, 'transcription_start', e)));
-    const assistantId = String(env.TELNYX_AI_ASSISTANT_ID || '').trim();
+    const assistantId = String((c.account === 'tenant' ? credentialsFor(c.organisation_id)?.assistant_id : env.TELNYX_AI_ASSISTANT_ID) || '').trim();
     if (!assistantId) { await Promise.all(jobs); if (!(await transfer(id))) await voicemail(id, 'no_assistant'); return; }
     update(id, { stage: 'assistant', route: 'assistant' });
     jobs.push(telnyx(`/calls/${encodeURIComponent(id)}/actions/ai_assistant_start`, { assistant: { id: assistantId, instructions: instructions(p, business) }, greeting, interruption_settings: { enable: true }, command_id: cmdId(id, 'assistant'), client_state: state({ stage: 'assistant' }) })
@@ -142,15 +154,20 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
   }
 
   // One Telnyx webhook event. Returns what was done (used by tests and logs).
-  async function handle(event) {
+  // tenantOrg is set only by the business's own signed webhook address; its events can touch only that business's calls.
+  async function handle(event, { tenantOrg = null } = {}) {
     const type = event?.event_type, p = event?.payload || {}, id = p.call_control_id;
     if (!type || !id) return { ignored: 'not a call event' };
+    if (tenantOrg && type !== 'call.initiated') { const own = call(id); if (own && (own.account !== 'tenant' || own.organisation_id !== tenantOrg)) return { ignored: 'call belongs to another account' }; }
     if (event.id) { const ins = db.prepare('INSERT OR IGNORE INTO voice_events(event_id,received_at) VALUES (?,?)').run(String(event.id), iso()); if (!ins.changes) return { ignored: 'duplicate event' }; }
     if (type === 'call.initiated') {
       if (p.direction && p.direction !== 'incoming') return { ignored: 'outbound call' };
       const to = typeof p.to === 'string' ? p.to : p.to?.phone_number, from = typeof p.from === 'string' ? p.from : p.from?.phone_number;
-      const org = orgForNumber(to), platform = !org && to && env.TELNYX_PHONE_NUMBER && to.replace(/\D/g, '') === String(env.TELNYX_PHONE_NUMBER).replace(/\D/g, '');
-      db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?)').run(id, p.call_session_id || null, org || null, org ? 'business' : platform ? 'platform' : 'unknown', from || null, to || null, 'ringing', iso(), iso());
+      const matched = orgForNumber(to);
+      // On a business's own account the number must route to that same business; anything else is rejected.
+      const org = tenantOrg ? (matched === tenantOrg ? matched : null) : matched;
+      const platform = !tenantOrg && !org && to && env.TELNYX_PHONE_NUMBER && to.replace(/\D/g, '') === String(env.TELNYX_PHONE_NUMBER).replace(/\D/g, '');
+      db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,account,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)').run(id, p.call_session_id || null, org || (tenantOrg || null), org ? 'business' : platform ? 'platform' : 'unknown', from || null, to || null, 'ringing', tenantOrg ? 'tenant' : 'platform', iso(), iso());
       if (!org && !platform) { try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/reject`, { cause: 'CALL_REJECTED', command_id: cmdId(id, 'reject') }); } catch (e) { fail(id, 'reject', e); } update(id, { stage: 'ended', route: 'rejected' }); return { rejected: true }; }
       try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/answer`, { command_id: cmdId(id, 'answer'), client_state: state({ stage: 'answer' }) }, { retries: 2 }); return { answered: true, organisation_id: org || null }; }
       catch (e) { fail(id, 'answer', e); return { answered: false }; }
