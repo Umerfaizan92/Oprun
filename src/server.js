@@ -44,6 +44,7 @@ import { installSubscribers } from './subscribers.js';
 import { installSaasPlatform, responseEnvelope, recordInbound, recordTelnyxComms, applyApprovalToComms, inboundHooks } from './saas-platform.js';
 import { createCommsService } from './comms/service.js';
 import { createVoice } from './comms/voice.js';
+import { createReceptionistIntake } from './comms/receptionist-intake.js';
 import { installCommsRoutes } from './comms/routes.js';
 import { createOAuthApps, familyOf, APP_FAMILIES } from './oauth-apps.js';
 import { createFinance } from './finance/service.js';
@@ -6120,7 +6121,9 @@ const commsService=createCommsService({db,env,transportEnv:org=>tenantTransports
 commsService.recordInboundRef.current=recordInbound;
 inboundHooks.add(m=>commsService.onInbound(m));
 const voiceDigits=v=>String(v||'').replace(/\D/g,'').replace(/^61/,'0');
-const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),
+// T-141: every finished business call becomes a customer, an enquiry, a linked Unibox thread and an owner alert (push + SMS).
+const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),ai:generateAiText});
+const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
   orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
   profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};const p=db.prepare('SELECT * FROM tenant_receptionist_profiles WHERE organisation_id=?').get(org)||{};const o=db.prepare('SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?').get(org);return {...p,business_name:o?.n||'the business'}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};

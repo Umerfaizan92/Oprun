@@ -462,3 +462,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Public page wording, help article, pricing add-on, monitoring dashboard (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-20)
 - Files: docs/ai-receptionist/
 - Acceptance: Every claim on saas/site/receptionist.html maps to a verified feature
+
+## T-141 Receptionist call intake: every business call becomes customer + enquiry + Unibox link + owner push/SMS
+- Status: TESTING
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: test call left no record and no alert. Calls to a business number must create/update the customer, create an enquiry, show in Unibox and alert the owner by push and SMS (R-07/R-08 first slice)
+- Files: src/comms/receptionist-intake.js; src/server.js; scripts/receptionist-intake.test.mjs
+- Acceptance: Unit tests 9/9; npm test 73/73; live call to a business number shows in Unibox with customer and enquiry and alerts the owner
