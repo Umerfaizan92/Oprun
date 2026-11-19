@@ -477,3 +477,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
+## T-144 Email/SMS connect: clear errors for refused keys; SMS number must have a messaging profile
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-20: connecting Resend and Telnyx in Connections both showed 'Authorisation expired or was revoked' with correct details.
+- Files: src/integration-transports.js, scripts/integration-tenant.test.mjs
+- Acceptance: Refused keys explain the fix without the key; sending-only Resend key explained; number without messaging profile refused; tests pass

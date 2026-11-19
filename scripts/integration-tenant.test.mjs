@@ -136,3 +136,23 @@ test('token refresh keeps using the business own app when the connection was mad
   await runtime.refreshToken('youtube', { refresh_token: 'r' });
   assert.match(bodies[1], /client_id=platform-id/);
 });
+// T-145: a refused provider key gets a plain explanation, and an SMS sender must be able to send texts.
+test('email and SMS keys that the provider refuses get a clear, key-free explanation',async()=>{
+ const db=new Database(':memory:');db.exec(`CREATE TABLE organisation_integrations(organisation_id TEXT,provider TEXT,status TEXT,settings_json TEXT,account_label TEXT,connected_at TEXT,updated_at TEXT,PRIMARY KEY(organisation_id,provider));CREATE TABLE comms_channels(organisation_id TEXT,channel TEXT,address TEXT,status TEXT,activated_at TEXT,created_at TEXT,PRIMARY KEY(organisation_id,channel));`);
+ db.prepare("INSERT INTO organisation_integrations VALUES ('a','email_sms','not_connected','{}',NULL,NULL,NULL)").run();
+ let reply=()=>new Response('{}',{status:200});
+ const runtime=createIntegrationRuntime({env:{INTEGRATION_ENCRYPTION_KEY:'test-encryption-only'},fetchImpl:async(url)=>reply(String(url))});
+ const t=createTenantTransports({db,runtime,lookupTxt:async()=>[]});
+ reply=()=>Response.json({statusCode:401,name:'restricted_api_key',message:'This API key is restricted to only send emails'},{status:401});
+ await assert.rejects(()=>t.save('a','email',{api_key:'re_test_sending_only',sender:'info@fleet.example'}),(e)=>e.status===400&&/Full access/.test(e.message)&&!e.message.includes('re_test'));
+ reply=()=>Response.json({errors:[{code:'10009',title:'Authentication failed'}]},{status:401});
+ await assert.rejects(()=>t.save('a','sms',{api_key:'KEYtest_wrong_key_value',number:'+61411111111'}),(e)=>e.status===400&&/Telnyx did not accept this API key/.test(e.message));
+ reply=()=>Response.json({data:[{phone_number:'+61411111111',messaging_profile_id:null}]});
+ await assert.rejects(()=>t.save('a','sms',{api_key:'KEYtest_right_key_value',number:'+61411111111'}),/not attached to a messaging profile/);
+ await assert.rejects(()=>t.save('a','sms',{api_key:'KEYtest_right_key_value',number:'+61862891786'}),/landline/);
+ reply=(u)=>u.includes('/messaging_profiles/')?Response.json({data:{id:'40017f8e-1111-2222-3333-444455556666'}}):Response.json({data:[{phone_number:'+61411111111',messaging_profile_id:'40017f8e-1111-2222-3333-444455556666'}]});
+ const ok=await t.save('a','sms',{api_key:'KEYtest_right_key_value',number:'+61411111111',messaging_profile_id:'40017f8e-1111-2222-3333-444455556666'});
+ assert.equal(ok.sms.status,'verified');
+ assert.equal(t.environment('a',{}).TELNYX_MESSAGING_PROFILE_ID,'40017f8e-1111-2222-3333-444455556666');
+ db.close();
+});
