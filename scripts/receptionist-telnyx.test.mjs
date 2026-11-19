@@ -8,7 +8,9 @@ import { createVoice } from '../src/comms/voice.js';
 const ORG = 'org-fleet', OTHER = 'org-other', NUM = '+61862891786';
 const PUB = Buffer.alloc(32, 7).toString('base64');
 const KEY = 'KEY0123456789ABCDEF_tenant_secret';
-const runtime = { encryptBundle: (b) => 'enc:' + Buffer.from(JSON.stringify(b)).toString('base64'), decryptBundle: (t) => JSON.parse(Buffer.from(String(t).slice(4), 'base64').toString()) };
+import { createIntegrationRuntime } from '../src/integration-runtime.js';
+// The real encryption runtime (it returns an object, not a string), so storage is tested exactly as in production.
+const runtime = createIntegrationRuntime({ env: { INTEGRATION_ENCRYPTION_KEY: 'test-only-integration-key-0123456789abcdef' }, legacySecrets: [] });
 
 function db() {
   const d = new Database(':memory:');
