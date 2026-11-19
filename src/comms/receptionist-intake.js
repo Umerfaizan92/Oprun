@@ -11,6 +11,7 @@
 // organisation that owns the dialled number; a call with no business is never processed.
 import crypto from 'node:crypto';
 import { summarise } from './ai.js';
+import { createOutbound } from './outbound.js';
 
 const iso = () => new Date().toISOString();
 const clean = (v, max) => (typeof v === 'string' && v.trim() ? v.replace(/\s+/g, ' ').trim().slice(0, max) : null);
@@ -151,7 +152,7 @@ export function customerDrafts(x, { business, reference, profile = {} }) {
   return { sms, email, subject: `Your enquiry ${reference} with ${business}` };
 }
 
-export function createReceptionistIntake({ db, pipeline, comms, notify = async () => {}, emailOwners = async () => {}, createApproval = null, profileFor = () => ({}), ai = null, log = console }) {
+export function createReceptionistIntake({ db, pipeline, comms, notify = async () => {}, emailOwners = async () => {}, createApproval = null, profileFor = () => ({}), smsReady = () => true, ai = null, log = console }) {
   // voice_calls gains the contract columns it needs (docs/ai-receptionist/00_CONTRACT.md §5). Additive only.
   // Runs on the first call, after createVoice() has created voice_calls (it may not exist yet at start-up).
   let migrated = false;
@@ -259,7 +260,7 @@ export function createReceptionistIntake({ db, pipeline, comms, notify = async (
     await notify(org, {
       kind: 'receptionist_call',
       title,
-      body: `${what || x.summary || 'Wants to talk to the business'}${back ? `. Call back: ${back}` : ''}${reply.approvals ? '. Reply waiting in Approvals.' : ''}`.slice(0, 600),
+      body: `${what || x.summary || 'Wants to talk to the business'}${back ? `. Call back: ${back}` : ''}${reply.approvals ? '. Reply waiting in Approvals.' : ''}${reply.sms_ready === false ? ' Connect your SMS sender in Connections to text customers.' : ''}`.slice(0, 600),
       link: reply.approvals ? '#approvals' : '#communications/inbox',
       urgent: true,
       dedupe: `receptionist:${fresh.call_control_id}`
@@ -270,33 +271,19 @@ export function createReceptionistIntake({ db, pipeline, comms, notify = async (
   }
 
   const owner = (org) => db.prepare("SELECT user_id FROM memberships WHERE organisation_id=? AND role='owner' ORDER BY created_at LIMIT 1").get(org)?.user_id || null;
-  /** The thread an outbound message to this address lives in (created when needed). */
-  function threadFor(org, channel, address, name, subject, now) {
-    const t = db.prepare('SELECT id FROM comms_threads WHERE organisation_id=? AND channel=? AND contact_address=?').get(org, channel, address);
-    if (t) { db.prepare('UPDATE comms_threads SET contact_name=COALESCE(contact_name,?),subject=COALESCE(subject,?),updated_at=? WHERE id=?').run(name, subject, now, t.id); return t.id; }
-    const id = crypto.randomUUID();
-    db.prepare("INSERT INTO comms_threads (id,organisation_id,channel,contact_address,contact_name,subject,status,last_message_at,created_at,updated_at) VALUES (?,?,?,?,?,?,'open',?,?,?)").run(id, org, channel, address, name, subject, now, now, now);
-    return id;
-  }
-  /** Outbound message in the inbox, linked to the customer and enquiry. Sent by the scheduler only once its status is approved. */
-  function outbound(org, { channel, address, name, subject, text, status, customerId, enquiryId, by, now }) {
-    const threadId = threadFor(org, channel, address, name, subject, now);
-    const id = crypto.randomUUID();
-    db.prepare("INSERT INTO comms_messages (id,organisation_id,thread_id,direction,kind,body,provider,status,ai_generated,created_by_user_id,occurred_at,created_at) VALUES (?,?,?,'outbound','message',?,'ai_receptionist',?,0,?,?,?)").run(id, org, threadId, text, status, by, now, now);
-    db.prepare("INSERT INTO comms_message_schedule (message_id,organisation_id,send_at,state,created_by,created_at,updated_at) VALUES (?,?,?,'waiting',?,?,?)").run(id, org, now, by, now, now);
-    try { if (customerId || enquiryId) comms.link(org, threadId, { customer_id: customerId || undefined, enquiry_id: enquiryId || undefined }, 'ai_receptionist'); } catch { /* linking is best effort */ }
-    return { id, threadId };
-  }
+  const queue = createOutbound({ db, comms });
+  const outbound = (org, { channel, address, name, subject, text, status, customerId, enquiryId, by, now }) => queue.queue(org, { channel, address, name, subject, text, status, customerId, enquiryId, by, now, provider: 'ai_receptionist' });
 
   /** Reply drafts to the caller by text and email. Each waits in Approvals; the approved (possibly edited) text is sent. */
   function stageReplies({ org, x, callerId, customerId, enquiryId, reference, business, profile, now }) {
-    if (!createApproval) return { approvals: 0 };
-    const by = owner(org); if (!by) return { approvals: 0 };
+    if (!createApproval) return { approvals: 0, sms_ready: true };
+    const by = owner(org); if (!by) return { approvals: 0, sms_ready: true };
     const req = { saas: { organisation_id: org, user_id: by, role: 'owner' }, ip: 'system', headers: {}, get: () => '' };
     const drafts = customerDrafts(x, { business, reference, profile });
     const to = [];
     const mobile = x.callback_number || callerId;
-    if (mobile) to.push({ channel: 'sms', address: mobile, text: drafts.sms });
+    const canText = (() => { try { return smsReady(org); } catch { return false; } })();
+    if (mobile && canText) to.push({ channel: 'sms', address: mobile, text: drafts.sms });
     if (x.email) to.push({ channel: 'email', address: x.email, text: drafts.email });
     let approvals = 0;
     for (const t of to) {
@@ -312,13 +299,13 @@ export function createReceptionistIntake({ db, pipeline, comms, notify = async (
         })();
       } catch (e) { log.warn('[RECEPTIONIST] reply draft failed:', String(e.message || e).slice(0, 160)); }
     }
-    return { approvals };
+    return { approvals, sms_ready: canText };
   }
 
   /** The business's own pre-written link message, sent right after the call only when the owner turned it on. */
   function sendLinks({ org, x, callerId, profile, business, reference, now }) {
     const mobile = x.callback_number || callerId;
-    if (!profile.send_links_after_call || !x.wants_links || !mobile || !/^\+614/.test(mobile) || !(profile.whatsapp_link || profile.upload_link)) return { sent: false };
+    if (!profile.send_links_after_call || !x.wants_links || !mobile || !(() => { try { return smsReady(org); } catch { return false; } })() || !/^\+614/.test(mobile) || !(profile.whatsapp_link || profile.upload_link)) return { sent: false };
     const by = owner(org);
     const text = (String(profile.links_message || '').trim() || `Thanks for calling ${business}.`) + ` Ref ${reference}.` + (profile.upload_link ? ` Send photos: ${profile.upload_link}` : '') + (profile.whatsapp_link ? ` WhatsApp: ${profile.whatsapp_link}` : '');
     try {

@@ -13,7 +13,7 @@ export function gstFor(exCents, applies) { return applies ? Math.round(exCents *
 
 export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAccess, syncJobFinance, events = { emit() {} }, leadSources = { current: null } }) {
   const cols = new Set(db.prepare('PRAGMA table_info(tenant_documents)').all().map((c) => c.name));
-  for (const [name, type] of [['source_id', 'TEXT'], ['work_order_id', 'TEXT'], ['gst_applies', 'INTEGER NOT NULL DEFAULT 1'], ['gst_cents', 'INTEGER NOT NULL DEFAULT 0'], ['issued_at', 'TEXT'], ['due_at', 'TEXT'], ['paid_at', 'TEXT'], ['channel', 'TEXT'], ['reference', 'TEXT']]) {
+  for (const [name, type] of [['source_id', 'TEXT'], ['work_order_id', 'TEXT'], ['gst_applies', 'INTEGER NOT NULL DEFAULT 1'], ['gst_cents', 'INTEGER NOT NULL DEFAULT 0'], ['issued_at', 'TEXT'], ['due_at', 'TEXT'], ['paid_at', 'TEXT'], ['channel', 'TEXT'], ['reference', 'TEXT'], ['estimated_hours', 'REAL']]) {
     if (!cols.has(name)) db.exec(`ALTER TABLE tenant_documents ADD COLUMN ${name} ${type}`);
   }
   db.exec('CREATE INDEX IF NOT EXISTS tenant_documents_source ON tenant_documents(organisation_id,source_id)');
@@ -72,6 +72,9 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
     while (x && x.kind !== 'enquiry' && x.source_id && hops++ < 6) x = doc(org, x.source_id);
     return x?.kind === 'enquiry' ? x.reference || null : null;
   }
+  // T-144: the latest customer link sent for a record and the customer's review, when those tables exist.
+  const linkState = (org, d) => { try { const l = db.prepare("SELECT kind,channels,sent_at,expires_at,used_at,outcome FROM customer_links WHERE organisation_id=? AND document_id=? ORDER BY sent_at DESC LIMIT 1").get(org, d.id); return l || null; } catch { return null; } };
+  const reviewFor = (org, jobId) => { try { return db.prepare('SELECT rating,comment,created_at FROM customer_reviews WHERE organisation_id=? AND work_order_id=? ORDER BY created_at DESC LIMIT 1').get(org, jobId) || null; } catch { return null; } };
   function view(org, d) {
     const j = job(org, d.work_order_id);
     const offers = j ? db.prepare(`SELECT status,COUNT(*) n FROM job_offers WHERE work_order_id=? AND organisation_id=? GROUP BY status`).all(j.id, org) : [];
@@ -80,7 +83,8 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
       customer: customer(org, d.customer_id), source_id: d.source_id || null, work_order_id: d.work_order_id || null,
       amount_cents: d.amount_cents, gst_applies: d.gst_applies !== 0, gst_cents: d.gst_cents || 0, total_cents: total(d),
       start_at: d.start_at, issued_at: d.issued_at || null, due_at: d.due_at || null, paid_at: d.paid_at || null,
-      acceptance_evidence: d.acceptance_evidence || null, created_at: d.created_at, updated_at: d.updated_at,
+      acceptance_evidence: d.acceptance_evidence || null, estimated_hours: d.estimated_hours ?? null, created_at: d.created_at, updated_at: d.updated_at,
+      links: linkState(org, d), review: d.work_order_id && d.kind === 'booking' ? reviewFor(org, d.work_order_id) : null,
       job: j ? { id: j.id, title: j.title, status: j.status, start_at: j.start_at, address: j.address, completed_at: j.completed_at, price_cents: j.price_cents, paid_cents: j.paid_cents, owing_cents: Math.max(0, j.price_cents + (j.late_fee_cents || 0) - j.paid_cents), invoice_issued_at: j.invoice_issued_at, due_at: j.due_at, offers: Object.fromEntries(offers.map((o) => [o.status, o.n])) } : null
     };
   }
@@ -198,23 +202,30 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
 
   // ---------- 3. booking from an accepted quote → job ready for allocation ----------
   const bookSchema = z.object({ start_at: z.iso.datetime({ offset: true }), revision: z.number().int().positive(), address: z.string().trim().max(300).optional(), estimated_hours: z.number().positive().max(1000).optional(), required_workers: z.number().int().min(1).max(50).optional() }).strict();
+  /** Accepted quote → booking + job ready for allocation. Shared by the Bookings screen and the customer's quote link. */
+  function bookQuote(org, actorId, q, opts) {
+    const id = crypto.randomUUID(), now = iso(), start = new Date(opts.start_at).toISOString();
+    let jobId;
+    db.transaction(() => {
+      const moved = db.prepare(`UPDATE tenant_documents SET status='booked',updated_at=? WHERE id=? AND organisation_id=? AND status='accepted'`).run(now, q.id, org).changes;
+      if (moved !== 1) throw Object.assign(new Error('This quote is no longer waiting to be booked.'), { status: 409 });
+      db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,amount_cents,gst_applies,gst_cents,start_at,source_id,status,created_by,created_at,updated_at) VALUES (?,?,'booking',?,?,?,?,?,?,?,?,'booked',?,?,?)`)
+        .run(id, org, q.customer_id, q.title, q.body, q.amount_cents, q.gst_applies, q.gst_cents, start, q.id, actorId, now, now);
+      jobId = createJobForBooking(org, actorId, q, id, { ...opts, start_at: start });
+    })();
+    events.emit(org, 'job.booked', { booking_id: id, work_order_id: jobId }, { key: id });
+    return { id, work_order_id: jobId };
+  }
   app.post('/api/saas/pipeline/quotes/:id/book', requireSaasUser, can('jobs', 'create'), (req, res) => {
     const p = bookSchema.safeParse(req.body);
     if (!p.success) return fail(res, 400, 'Choose the booking date and time.');
     const org = req.saas.organisation_id, q = doc(org, req.params.id, 'quote');
     if (!q) return fail(res, 404, 'Quote not found.');
     if (q.status !== 'accepted' || q.revision !== p.data.revision) return fail(res, 409, 'Only an accepted quote can be booked. Record the customer acceptance first.');
-    const id = crypto.randomUUID(), now = iso();
-    let jobId;
-    db.transaction(() => {
-      db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,amount_cents,gst_applies,gst_cents,start_at,source_id,status,created_by,created_at,updated_at) VALUES (?,?,'booking',?,?,?,?,?,?,?,?,'booked',?,?,?)`)
-        .run(id, org, q.customer_id, q.title, q.body, q.amount_cents, q.gst_applies, q.gst_cents, new Date(p.data.start_at).toISOString(), q.id, req.saas.user_id, now, now);
-      db.prepare(`UPDATE tenant_documents SET status='booked',updated_at=? WHERE id=? AND organisation_id=? AND status='accepted'`).run(now, q.id, org);
-      jobId = createJobForBooking(org, req.saas.user_id, q, id, { ...p.data, start_at: new Date(p.data.start_at).toISOString() });
-    })();
-    saasAudit(req, 'quote.booking_created', 'booking', id, { quote: q.id, work_order: jobId });
-    events.emit(org, 'job.booked', { booking_id: id, work_order_id: jobId }, { key: id });
-    res.status(201).json({ ok: true, id, work_order_id: jobId });
+    let r;
+    try { r = bookQuote(org, req.saas.user_id, q, p.data); } catch (e) { if (e.status) return fail(res, e.status, e.message); throw e; }
+    saasAudit(req, 'quote.booking_created', 'booking', r.id, { quote: q.id, work_order: r.work_order_id });
+    res.status(201).json({ ok: true, id: r.id, work_order_id: r.work_order_id });
   });
 
   // ---------- 5. completion ----------
@@ -277,5 +288,5 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
     res.json({ ok: true, issued_at: now, due_at: due, total_cents: totalCents });
   });
 
-  return { createJobForBooking, refreshInvoice, gstFor, createQuoteFromEnquiry, createInvoiceFromJob, createEnquiry, enquiryReference: (org, id) => { const d = doc(org, id); return d ? enquiryReference(org, d) : null; } };
+  return { createJobForBooking, bookQuote, refreshInvoice, gstFor, createQuoteFromEnquiry, createInvoiceFromJob, createEnquiry, enquiryReference: (org, id) => { const d = doc(org, id); return d ? enquiryReference(org, d) : null; } };
 }

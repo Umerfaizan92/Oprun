@@ -45,6 +45,8 @@ import { installSaasPlatform, responseEnvelope, recordInbound, recordTelnyxComms
 import { createCommsService } from './comms/service.js';
 import { createVoice } from './comms/voice.js';
 import { createReceptionistIntake } from './comms/receptionist-intake.js';
+import { createOutbound } from './comms/outbound.js';
+import { createCustomerLinks } from './customer-links.js';
 import { createReceptionistTelnyx } from './comms/receptionist-telnyx.js';
 import { installCommsRoutes } from './comms/routes.js';
 import { createOAuthApps, familyOf, APP_FAMILIES } from './oauth-apps.js';
@@ -6126,7 +6128,12 @@ const voiceDigits=v=>String(v||'').replace(/\D/g,'').replace(/^61/,'0');
 const receptionistProfileFor=org=>{const p=db.prepare('SELECT * FROM tenant_receptionist_profiles WHERE organisation_id=?').get(org)||{};const o=db.prepare('SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?').get(org);return {...p,business_name:o?.n||'the business'}};
 // T-143: owners and admins also get each call by email (Oprun's own sender), so nothing depends on SMS alone.
 const receptionistEmailOwners=async(org,{subject,text})=>{const people=db.prepare("SELECT DISTINCT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.role IN ('owner','admin') AND m.status='active' AND u.email IS NOT NULL").all(org);const results=[];for(const p of people){const paragraphs=String(text).split('\n\n');results.push(await sendBrandedEmail(env,{to:p.email,subject,rendered:renderEmail(platformBrand(env),{heading:subject,paragraphs}),kind:'platform',delivery:{organisationId:org,category:'receptionist_call',subject}}))}const failed=results.filter(r=>!r.sent);if(failed.length)console.warn('[RECEPTIONIST] owner email not sent:',failed.map(r=>r.reason).join('; '));return results};
-const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),emailOwners:receptionistEmailOwners,createApproval:createWorkspaceApproval,profileFor:receptionistProfileFor,ai:generateAiText});
+// T-144: a business texts its customers only from its own connected SMS sender.
+const smsReadyFor=org=>{try{const e=tenantTransports.environment(org,{});return Boolean(String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim())}catch{return false}};
+const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),emailOwners:receptionistEmailOwners,createApproval:createWorkspaceApproval,profileFor:receptionistProfileFor,smsReady:smsReadyFor,ai:generateAiText});
+// T-144: quote acceptance links and review requests, sent by text and/or email through the business's inbox.
+const customerLinks=createCustomerLinks({db,pipeline:businessHubHooks,outbound:createOutbound({db,comms:commsService}),notify:(org,o)=>notifications.notifyRoles(org,['owner','admin'],o),emit:(...a)=>automationEvents.emit(...a),smsReady:smsReadyFor,publicBase:()=>env.PUBLIC_BASE_URL||'https://www.oprun.ai'});
+customerLinks.install(app,{requireSaasUser,staffAccess,saasAudit});
 // D-R12: each business connects its own Telnyx account (it buys/ports and pays Telnyx directly).
 const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime,env});
 const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.credentialsFor(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
