@@ -337,3 +337,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/comms/receptionist-intake.js, src/comms/voice.js, src/pipeline.js, src/business-hub.js, src/ai-provider-shim.js, src/integration-transports.js, src/saas-platform.js, src/notify.js, src/notifications.js, src/server.js, saas/workspace-receptionist.js, saas/integration-manager.js, saas/workspace-pipeline.js, scripts/receptionist-intake.test.mjs
 - Acceptance: npm test passes; intake tests cover email/address/reference/approval drafts/dedupe/links; UI test passes
 - Evidence: npm test 73/73, node --test scripts/*.test.mjs 351 pass (15 intake tests incl. email/address/reference/approval drafts/dedupe/links), test:ui 35/35, verify:manifest ok (recorded 2026-11-19 on fix/receptionist-intake-v2 at 32f6d2b)
+
+## T-144 Email/SMS connect: clear errors for refused keys; SMS number must have a messaging profile
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-20: connecting Resend and Telnyx in Connections both showed 'Authorisation expired or was revoked' with correct details.
+- Files: src/integration-transports.js, scripts/integration-tenant.test.mjs
+- Acceptance: Refused keys explain the fix without the key; sending-only Resend key explained; number without messaging profile refused; tests pass
+- Evidence: Merged PR #140 (commit ca0160b): npm test 73/73, integration-tenant tests 9/9 incl. refused-key test (recorded 2026-11-19 on claude/ai-website-spec at ca0160b)
+
+## T-146 AI Website spec pack (docs/ai-website)
+- Added: 2026-11-19
+- Requirement: Owner brief 2026-11-20 (docs/ai-website/PROMPT_ORIGINAL.txt): one-section AI website with generation, transfer/redesign, cinematic 3D, domains, business email, SEO and white-hat backlinks, Oprun integration; 11 outputs.
+- Files: docs/ai-website/*
+- Acceptance: All 11 outputs present, contract consistent with code, sources listed, progress state updated
+- Evidence: docs/ai-website spec pack: 11 outputs + contract + sources + resume prompt; facts checked against code at ca0160b and provider docs 2026-11-20 (recorded 2026-11-19 on claude/ai-website-spec at ca0160b)

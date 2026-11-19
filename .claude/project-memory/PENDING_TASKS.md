@@ -477,9 +477,128 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
-## T-144 Email/SMS connect: clear errors for refused keys; SMS number must have a messaging profile
+## T-145 Customer quote acceptance link + review request link, sent by SMS and email
 - Status: NOT_STARTED
 - Added: 2026-11-19
-- Requirement: Owner 2026-11-20: connecting Resend and Telnyx in Connections both showed 'Authorisation expired or was revoked' with correct details.
-- Files: src/integration-transports.js, scripts/integration-tenant.test.mjs
-- Acceptance: Refused keys explain the fix without the key; sending-only Resend key explained; number without messaging profile refused; tests pass
+- Requirement: Owner 2026-11-20: create an acceptance link for the customer, sent by text and email; add a review/feedback request link for every subscriber's customers by text and email; audit, no mistakes. Backend WIP on branch wip/quote-accept-review (commit 258f4d4); UI, tests and audit still to do.
+- Files: src/customer-links.js, src/comms/outbound.js, src/pipeline.js, src/saas-platform.js, src/comms/receptionist-intake.js, src/server.js, saas/workspace-pipeline.js
+- Acceptance: Quote send (SMS/email) with preview; public accept/decline page books the job when a time was proposed; review link page stores rating and notifies owner; customer texts only via the business's own sender; tests + UI tests pass
+
+## T-147 W-01 AI Website: `saas/workspace-website.js`: **Website** section with 7 tabs that mount the existing SEO v
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: `saas/workspace-website.js`: **Website** section with 7 tabs that mount the existing SEO views; B06 shows one item; every old view id and `#b06/...` address opens the right tab; placeholders `website`, `searchconsole`, `backlinks` show what is coming instead of a request form, and existing requests stay listed (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: `test:ui`: every old address resolves; B06 has one item; no element id removed; phone/tablet/laptop screenshots
+
+## T-148 W-02 AI Website: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy and additive (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: `npm test` migration check; no existing row changed
+
+## T-149 W-03 AI Website: Wizard steps 1–4 and 8–9 for **new** sites, pre-filled from Oprun
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Wizard steps 1–4 and 8–9 for **new** sites, pre-filled from Oprun (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: A test business with services and areas reaches Review in under 10 minutes
+
+## T-150 W-04 AI Website: Generation service (`src/website/generate.js`): page plan, per-block JSON, zod validation,
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Generation service (`src/website/generate.js`): page plan, per-block JSON, zod validation, claim checks, metering `website_generation` (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Unit tests: no invented facts with empty inputs; invalid JSON retried once; usage counted
+
+## T-151 W-05 AI Website: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Renderer tests for each block; one H1; axe-clean in `report:a11y-perf`
+
+## T-152 W-06 AI Website: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion and low-power rules (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: LCP is the poster; no animation after 4 s; reduced-motion shows the poster only; budget check passes
+
+## T-153 W-07 AI Website: Live Oprun data sync (nightly diff → drafts / low-risk updates)
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Live Oprun data sync (nightly diff → drafts / low-risk updates) (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: A changed phone number appears after approval; a new review appears automatically when allowed
+
+## T-154 W-08 AI Website: Speed budget check added to `prePublishChecks`
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Speed budget check added to `prePublishChecks` (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Over-budget pages cannot publish without the owner accepting the warning
+
+## T-155 W-09 AI Website: Cloudflare for SaaS: custom hostnames API, host middleware, status polling, cache purge on
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Cloudflare for SaaS: custom hostnames API, host middleware, status polling, cache purge on publish (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: A test domain goes `added → active`; unknown hosts get 404; another business's host never serves this site
+
+## T-156 W-10 AI Website: DNS connections (Cloudflare token, Porkbun key), diff + approval + write + verify
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: DNS connections (Cloudflare token, Porkbun key), diff + approval + write + verify (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Write only after approval; wrong token gives a plain error; records verified by lookup
+
+## T-157 W-11 AI Website: Email set-up for Google, Microsoft and Zoho: record templates, SPF merge, DMARC, verificat
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Email set-up for Google, Microsoft and Zoho: record templates, SPF merge, DMARC, verification (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: SPF never duplicated; MX never removed without approval; verified state reached in a test zone
+
+## T-158 W-12 AI Website: Domain search + registrar deep links + link checker for every external link
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Domain search + registrar deep links + link checker for every external link (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: All links return 200 in CI weekly
+
+## T-159 W-13 AI Website: Ownership gate + crawl inventory + keep/merge/drop screen
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Ownership gate + crawl inventory + keep/merge/drop screen (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Unverified host refused; robots.txt respected
+
+## T-160 W-14 AI Website: Redesign from inventory + redirect map + pre-switch check + 30-day watch
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Redesign from inventory + redirect map + pre-switch check + 30-day watch (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Every old URL → 200 or one 301; no chains; watch report produced
+
+## T-161 W-15 AI Website: Growth: citations checklist + NAP check, mention finder, outreach drafts through approvals
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Growth: citations checklist + NAP check, mention finder, outreach drafts through approvals, Links CSV import, optional DataForSEO key (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: No message sent without approval; daily cap enforced
+
+## T-162 W-16 AI Website: Export to GitHub and ZIP (static bundle, `_redirects`, sitemap)
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Export to GitHub and ZIP (static bundle, `_redirects`, sitemap) (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Exported bundle deploys on Cloudflare Pages and the form still posts to Oprun
+
+## T-163 W-17 AI Website: Help article, public page wording, pricing line for the Website add-on, monitoring of gene
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Help article, public page wording, pricing line for the Website add-on, monitoring of generation cost (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Owner approves wording; no claims beyond what is built
