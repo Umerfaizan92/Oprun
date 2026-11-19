@@ -323,3 +323,142 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/localization.js; saas/workspace-locale.js; saas/workspace.html; docs/platform-blueprint; scripts/localization.test.mjs
 - Acceptance: Authentication and cross-tenant tests, locale validation, preference persistence, fallback and RTL checks, existing regression suite; no production activation claims.
 
+## T-121 R-01 AI Receptionist: oprun-voice skeleton: Pipecat + TelnyxFrameSerializer + Deepgram Flux + ElevenLabs Flash (
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: oprun-voice skeleton: Pipecat + TelnyxFrameSerializer + Deepgram Flux + ElevenLabs Flash (Cartesia fallback) + LLM adapter (bedrock_au, openai); fixed test prompt; no Oprun tools (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-01)
+- Files: docs/ai-receptionist/
+- Acceptance: A test number in Sydney answers; per-turn timings logged
+
+## T-122 R-02 AI Receptionist: Latency and naturalness bake-off from Sydney: 20 scripted calls × both LLM providers, plu
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Latency and naturalness bake-off from Sydney: 20 scripted calls × both LLM providers, plus the Retell benchmark from the voice-stack decision; 5 blind "human or AI?" listeners (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-02)
+- Files: docs/ai-receptionist/
+- Acceptance: p50 ≤ 700 ms and p95 ≤ 1000 ms caller-stop → first audio; barge-in stop ≤ 80 ms (p95 ≤ 120 ms); **D-R5 closed and recorded** with memory:task -- decision
+
+## T-123 R-03 AI Receptionist: Data model: new tables and voice_calls columns from [00_CONTRACT.md §5](00_CONTRACT.md#5-
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Data model: new tables and voice_calls columns from [00_CONTRACT.md §5](00_CONTRACT.md#5-new-and-changed-data-sqlite-oprun-web), migration + backfill dry-run (absorbs the receptionist half of T-040) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-03)
+- Files: docs/ai-receptionist/
+- Acceptance: npm test migration checks pass; dry-run report reviewed by the owner
+
+## T-124 R-04 AI Receptionist: Internal API /api/internal/voice/* with service key + call token; call-context endpoint
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Internal API /api/internal/voice/* with service key + call token; call-context endpoint (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-04)
+- Files: docs/ai-receptionist/
+- Acceptance: Contract tests: wrong org token rejected; expired token rejected; idempotent replays
+
+## T-125 R-05 AI Receptionist: voice.js: route via receptionist_numbers; on answer start streaming to oprun-voice with ca
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: voice.js: route via receptionist_numbers; on answer start streaming to oprun-voice with call token; fallback_assistant → transfer → voicemail → apology chain (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-05)
+- Files: docs/ai-receptionist/
+- Acceptance: Webhook replay test covers every fallback branch; a killed worker still ends in voicemail, never silence
+
+## T-126 R-06 AI Receptionist: Naturalness prompt + barge-in/backchannel rules ([03](03_NATURALNESS_PROMPT.md)) in the wo
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Naturalness prompt + barge-in/backchannel rules ([03](03_NATURALNESS_PROMPT.md)) in the worker (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-06)
+- Files: docs/ai-receptionist/
+- Acceptance: The 10 scenarios pass the robotic-behaviour checklist in staging
+
+## T-127 R-07 AI Receptionist: Tools create_or_update_customer, create_enquiry_lead, take_message, end_call ([04](04_TOOL
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Tools create_or_update_customer, create_enquiry_lead, take_message, end_call ([04](04_TOOLS.md), [06](06_CUSTOMER_MANAGEMENT.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-07)
+- Files: docs/ai-receptionist/
+- Acceptance: New caller → customer lead + enquiry; existing caller matched by phone; no duplicate customer in tests
+
+## T-128 R-08 AI Receptionist: After-call: summary (generateAiText), Unibox call log on the caller's voice thread, comms_
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: After-call: summary (generateAiText), Unibox call log on the caller's voice thread, comms_thread_meta links, owner push + SMS summary (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-08)
+- Files: docs/ai-receptionist/
+- Acceptance: Call appears in Unibox with summary, transcript, recording, linked customer and enquiry within 30 s of hang-up
+
+## T-129 R-09 AI Receptionist: Spam filter and metering: billable, usage_events kind='receptionist_call', spend cap modes
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Spam filter and metering: billable, usage_events kind='receptionist_call', spend cap modes ([08](08_SECURITY_COMPLIANCE_METERING.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-09)
+- Files: docs/ai-receptionist/
+- Acceptance: Spam and < 15 s calls not billed; cap reached → take-message mode, never dropped calls
+
+## T-130 R-10 AI Receptionist: check_availability + receptionist_slot_holds
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: check_availability + receptionist_slot_holds (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-10)
+- Files: docs/ai-receptionist/
+- Acceptance: Two parallel calls never get the same held slot
+
+## T-131 R-11 AI Receptionist: propose_booking + createBookingFromEnquiry + receptionist_booking approval
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: propose_booking + createBookingFromEnquiry + receptionist_booking approval (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-11)
+- Files: docs/ai-receptionist/
+- Acceptance: Approve → booking doc + job; reject → hold released, follow-up returns to AWAITING_CUSTOMER
+
+## T-132 R-12 AI Receptionist: warm_transfer with whisper briefing and return-to-receptionist
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: warm_transfer with whisper briefing and return-to-receptionist (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-12)
+- Files: docs/ai-receptionist/
+- Acceptance: Staff hears the briefing; no answer in 25 s → caller back with the receptionist → message taken
+
+## T-133 R-13 AI Receptionist: receptionist_followups state machine + scheduler ([05](05_LEAD_TO_BOOKING_FLOW.md))
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: receptionist_followups state machine + scheduler ([05](05_LEAD_TO_BOOKING_FLOW.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-13)
+- Files: docs/ai-receptionist/
+- Acceptance: Every transition in the table has a test; scheduler ticks are idempotent
+
+## T-134 R-14 AI Receptionist: draft_followup + message classes + approval levels + consent/opt-out
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: draft_followup + message classes + approval levels + consent/opt-out (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-14)
+- Files: docs/ai-receptionist/
+- Acceptance: Default level sends nothing without approval; STOP → OPTED_OUT + suppression; no sends 8 pm–8 am
+
+## T-135 R-15 AI Receptionist: One AI Receptionist section + aliases for old views ([02](02_SETUP_WIZARD.md))
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: One AI Receptionist section + aliases for old views ([02](02_SETUP_WIZARD.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-15)
+- Files: docs/ai-receptionist/
+- Acceptance: Navigation inventory test: every old route opens the new section; phone/iPad/laptop checks pass
+
+## T-136 R-16 AI Receptionist: Knowledge auto-load + review + approval ([07](07_KNOWLEDGE_AUTOLOAD.md))
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Knowledge auto-load + review + approval ([07](07_KNOWLEDGE_AUTOLOAD.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-16)
+- Files: docs/ai-receptionist/
+- Acceptance: Only approved revisions reach calls; no other customer's personal data in prompt_block (test)
+
+## T-137 R-17 AI Receptionist: Numbers: buy (Requirement Group), forward (carrier steps + test call), port (LOA, document
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Numbers: buy (Requirement Group), forward (carrier steps + test call), port (LOA, documents, approval, status sync) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-17)
+- Files: docs/ai-receptionist/
+- Acceptance: Number bought on a test account and live in < 10 min; forward verified by test call; port order reaches submitted in staging
+
+## T-138 R-18 AI Receptionist: Voice choice, booking rules, approval level, one-tap test call, go-live
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Voice choice, booking rules, approval level, one-tap test call, go-live (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-18)
+- Files: docs/ai-receptionist/
+- Acceptance: A new test business completes the wizard in ≤ 10 minutes on a phone
+
+## T-139 R-19 AI Receptionist: Retire the legacy platform flow and old settings tables (after one stable release, owner a
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Retire the legacy platform flow and old settings tables (after one stable release, owner approval) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-19)
+- Files: docs/ai-receptionist/
+- Acceptance: No code path reads the legacy tables; rollback note written
+
+## T-140 R-20 AI Receptionist: Public page wording, help article, pricing add-on, monitoring dashboard
+- Status: NOT_STARTED
+- Added: 2026-11-19
+- Requirement: Public page wording, help article, pricing add-on, monitoring dashboard (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-20)
+- Files: docs/ai-receptionist/
+- Acceptance: Every claim on saas/site/receptionist.html maps to a verified feature
