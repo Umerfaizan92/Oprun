@@ -589,13 +589,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-180 Video meetings, Zoom, invites and call keypad
-- Status: NOT_STARTED
-- Added: 2026-11-20
-- Requirement: Owner 2026-11-20: make the Video section professional; send meeting invites by message, email or any platform; integrate Zoom so a business adds its own Zoom details and signs in to run meetings; organise the call section, remove what is not needed, add a keypad to dial numbers.
-- Files: TBD
-- Acceptance: TBD after audit
-
 ## T-181 Official social platform logos in Connections
 - Status: NOT_STARTED
 - Added: 2026-11-20

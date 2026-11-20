@@ -121,3 +121,24 @@ test('events for a platform call are ignored when they arrive on a business webh
   const r = await voice.handle({ id: 'e5', event_type: 'call.hangup', payload: { call_control_id: 'cc3' } }, { tenantOrg: ORG });
   assert.equal(r.ignored, 'call belongs to another account');
 });
+
+test('click to call (T-180): rings the member from the business number, connects on answer, never logged as a missed call', async () => {
+  const d = db(); const sent = [], notified = [];
+  const fetchImpl = async (url, opt) => { const path = url.replace('https://api.telnyx.com/v2', ''); sent.push({ path, auth: opt.headers.authorization, body: JSON.parse(opt.body || '{}') }); return { ok: true, status: 200, json: async () => ({ data: path === '/calls' ? { call_control_id: 'out-1', call_session_id: 's1' } : {} }) }; };
+  const creds = { [ORG]: { api_key: KEY, public_key: PUB, number: NUM, application_id: 'app-1' } };
+  const voice = createVoice({ db: d, env: { TELNYX_API_KEY: 'KEY_PLATFORM' }, fetchImpl, recordInbound: () => { throw new Error('outgoing calls are not inbox messages'); }, notify: (o, x) => notified.push(x), orgForNumber: () => ORG, profileFor: () => ({}), credentialsFor: (o) => creds[o] || null });
+  await assert.rejects(voice.clickToCall('other-org', { staff: '+61400000001', customer: '+61861234567' }), /AI Receptionist/);
+  const r = await voice.clickToCall(ORG, { staff: '+61400000001', customer: '+61861234567' });
+  assert.equal(r.call_id, 'out-1');
+  assert.deepEqual([sent[0].path, sent[0].body.to, sent[0].body.from, sent[0].body.connection_id, sent[0].auth], ['/calls', '+61400000001', NUM, 'app-1', 'Bearer ' + KEY]);
+  const cs = sent[0].body.client_state;
+  await voice.handle({ id: 'o1', event_type: 'call.initiated', payload: { call_control_id: 'out-1', direction: 'outgoing', client_state: cs } }, { tenantOrg: ORG });
+  await voice.handle({ id: 'o2', event_type: 'call.answered', payload: { call_control_id: 'out-1', client_state: cs } }, { tenantOrg: ORG });
+  const tr = sent.find((x) => x.path.endsWith('/actions/transfer'));
+  assert.ok(tr, 'connected to the number dialled'); assert.equal(tr.body.to, '+61861234567'); assert.equal(tr.body.from, NUM); assert.equal(tr.auth, 'Bearer ' + KEY);
+  assert.ok(!sent.some((x) => x.path.endsWith('/ai_assistant_start')), 'the AI receptionist does not answer an outgoing call');
+  await voice.handle({ id: 'o3', event_type: 'call.hangup', payload: { call_control_id: 'out-1', hangup_cause: 'normal_clearing' } }, { tenantOrg: ORG });
+  assert.equal(voice.call('out-1').stage, 'ended'); assert.equal(notified.length, 0, 'no missed-call alert');
+  // Another business's webhook cannot touch this call.
+  assert.equal((await voice.handle({ id: 'o4', event_type: 'call.answered', payload: { call_control_id: 'out-1', client_state: cs } }, { tenantOrg: 'someone-else' })).ignored, 'call belongs to another account');
+});

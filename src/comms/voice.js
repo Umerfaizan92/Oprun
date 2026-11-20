@@ -152,6 +152,8 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
 
   async function onHangup(id, payload) {
     const c = call(id); if (!c || c.stage === 'ended') return;
+    // An outgoing click-to-call is not a missed incoming call: record its end only.
+    if (String(c.stage).startsWith('c2c')) { update(id, { stage: 'ended', ended_at: iso(), hangup_cause: payload.hangup_cause || null }); return; }
     const start = Date.parse(payload.start_time || c.answered_at || c.started_at), end = Date.parse(payload.end_time || iso());
     const duration = Number.isFinite(start) && Number.isFinite(end) && end >= start ? Math.round((end - start) / 1000) : null;
     update(id, { stage: 'ended', ended_at: iso(), hangup_cause: payload.hangup_cause || null, duration_seconds: duration });
@@ -190,6 +192,12 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     }
     if (!call(id)) return { ignored: 'unknown call' };
     const cs = readState(p.client_state);
+    // T-180 click to call: the member answered on their own mobile; connect them to the number they dialled.
+    if (type === 'call.answered' && cs?.stage === 'c2c') {
+      const c = call(id); update(id, { stage: 'c2c_connecting', answered_at: iso() });
+      try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/transfer`, { to: cs.to, from: c.to_number, timeout_secs: 30, command_id: cmdId(id, 'c2c') }); } catch (e) { fail(id, 'c2c', e); }
+      return { stage: 'c2c_connecting' };
+    }
     if (type === 'call.answered') { await onAnswered(id); return { stage: call(id).stage }; }
     if (type === 'call.transcription') {
       const d = p.transcription_data || {};
@@ -209,6 +217,18 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     return { ignored: type };
   }
 
-  return { handle, transfer, settings, setSettings: (k, s, by) => db.prepare('INSERT INTO voice_settings(owner_key,mode,transfer_number,recording_notice,voicemail_greeting,transfer_when,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner_key) DO UPDATE SET mode=excluded.mode,transfer_number=COALESCE(excluded.transfer_number,voice_settings.transfer_number),recording_notice=excluded.recording_notice,voicemail_greeting=excluded.voicemail_greeting,transfer_when=excluded.transfer_when,updated_by=excluded.updated_by,updated_at=excluded.updated_at').run(k, s.mode, s.transfer_number || null, s.recording_notice ? 1 : 0, s.voicemail_greeting || null, s.transfer_when || 'on_request', by, iso()),
+  // T-180: ring the member's own mobile from the business number; when answered, connect to the number dialled.
+  function businessNumber(org) { return credentialsFor(org)?.number || null; }
+  async function clickToCall(org, { staff, customer }) {
+    const cr = credentialsFor(org);
+    if (!cr?.api_key || !cr.application_id || !cr.number) throw Object.assign(new Error('Connect your business number in AI Receptionist first, or use "Call from this phone".'), { status: 409 });
+    const r = await fetchImpl(base() + '/calls', { method: 'POST', headers: { authorization: `Bearer ${cr.api_key}`, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ connection_id: cr.application_id, to: staff, from: cr.number, timeout_secs: 30, client_state: state({ stage: 'c2c', to: customer }) }) });
+    const j = await r.json().catch(() => ({}));
+    const id = j?.data?.call_control_id;
+    if (!r.ok || !id) throw Object.assign(new Error(j?.errors?.[0]?.detail ? `Telnyx refused the call: ${j.errors[0].detail}` : 'Telnyx did not start the call.'), { status: 502 });
+    db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,account,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)').run(id, j.data.call_session_id || null, org, 'business', customer, cr.number, 'c2c', 'tenant', iso(), iso());
+    return { call_id: id };
+  }
+  return { handle, transfer, settings, businessNumber, clickToCall, setSettings: (k, s, by) => db.prepare('INSERT INTO voice_settings(owner_key,mode,transfer_number,recording_notice,voicemail_greeting,transfer_when,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner_key) DO UPDATE SET mode=excluded.mode,transfer_number=COALESCE(excluded.transfer_number,voice_settings.transfer_number),recording_notice=excluded.recording_notice,voicemail_greeting=excluded.voicemail_greeting,transfer_when=excluded.transfer_when,updated_by=excluded.updated_by,updated_at=excluded.updated_at').run(k, s.mode, s.transfer_number || null, s.recording_notice ? 1 : 0, s.voicemail_greeting || null, s.transfer_when || 'on_request', by, iso()),
     publicSettings: (k) => { const s = settings(k); return { mode: s.mode, recording_notice: Boolean(s.recording_notice), voicemail_greeting: s.voicemail_greeting || '', transfer_when: s.transfer_when, transfer_number: s.transfer_number ? '••• ' + String(s.transfer_number).slice(-3) : null }; }, calls: (org, limit = 50) => db.prepare('SELECT call_control_id,from_number,to_number,stage,route,voicemail,transferred_to_human,recording_url,transcript,failures_json,started_at,answered_at,ended_at,duration_seconds,hangup_cause FROM voice_calls WHERE organisation_id IS ? ORDER BY started_at DESC LIMIT ?').all(org, limit).map((c) => ({ ...c, failures: JSON.parse(c.failures_json), failures_json: undefined })), call };
 }

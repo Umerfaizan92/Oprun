@@ -64,6 +64,7 @@ import { createSocialStatsService } from './social-stats.js';
 import { INDUSTRY_REGISTRY, GENERAL_REGULATORY_SOURCES, industryByCode, industrySources } from './industry-registry.js';
 import { installGrowth } from './growth.js';
 import { mediaToken, readMediaToken } from './media-link.js';
+import { installMeetingExtras } from './meeting-extras.js';
 import { createEntitlements } from './entitlements.js';
 import { createAddons } from './addons.js';
 import { createBillingOps } from './billing-ops.js';
@@ -6304,6 +6305,7 @@ app.post('/api/webhooks/communications/telnyx-voice/:organisationId',(req,res)=>
 });
 const receptionistOwner=[requireSaasUser,requireSaasRole('owner')];
 const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok:true,telnyx:d})).catch(e=>{if(!e.status)console.error('[RECEPTIONIST] request failed:',e.message);res.status(e.status&&e.status<600?e.status:500).json({ok:false,error:e.status?e.message:'Something went wrong. Please try again.'})});
+installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,dispatch:saasPlatform.dispatch,voice:voiceFlow});
 app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));
 app.post('/api/saas/receptionist/telnyx/connect',...receptionistOwner,(req,res)=>{
   const b=z.object({api_key:z.string().trim().min(20).max(400),public_key:z.string().trim().min(40).max(100),number:z.string().trim().min(8).max(20),assistant_id:z.string().trim().max(60).optional().or(z.literal(''))}).strict().safeParse(req.body);

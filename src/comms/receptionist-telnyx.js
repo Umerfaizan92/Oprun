@@ -180,7 +180,7 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
   function credentialsFor(org) {
     const r = org ? row(org) : null;
     if (!r?.token_bundle || !['connected', 'needs_attention'].includes(r.status)) return null;
-    try { const b = runtime.decryptBundle(J(r.token_bundle, r.token_bundle)); return { api_key: b.api_key, public_key: b.public_key, assistant_id: r.assistant_id || null, number: r.number_e164 }; }
+    try { const b = runtime.decryptBundle(J(r.token_bundle, r.token_bundle)); return { api_key: b.api_key, public_key: b.public_key, assistant_id: r.assistant_id || null, number: r.number_e164, application_id: r.application_id || null }; }
     catch (e) { log.warn?.('[RECEPTIONIST] could not decrypt Telnyx keys for', org, e.message); return null; }
   }
 
