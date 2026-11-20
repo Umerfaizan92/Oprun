@@ -141,7 +141,8 @@
     // Pages without their own tabs show the other pages of the same menu group, so the bar is never empty.
     if (!sources.length) {
       const allowed = new Set(nav.sequence(session.user.role)), domain = (nav.DOMAINS || []).find(d => d.items.some(i => i.view === view));
-      let items = domain ? domain.items.filter(i => allowed.has(i.view)) : [];
+      // Main pages only; an older or specialist page appears in the row only while it is open (T-174).
+      let items = domain ? domain.items.filter(i => allowed.has(i.view) && (!i.secondary || i.view === view)) : [];
       if (items.length < 2) items = [...items, ...(RELATED[view] || []).map(v => (nav.DOMAINS || []).flatMap(d => d.items).find(i => i.view === v)).filter(i => i && allowed.has(i.view) && !items.some(x => x.view === i.view))];
       if (items.length > 1) {
         const row = make('div', 'mobile-workspace-section-group'); row.setAttribute('role', 'group'); row.setAttribute('aria-label', (domain?.label || 'Related') + ' pages');

@@ -84,7 +84,7 @@
           el('div', { class: 'pl-stage' }, el('b', { text: String(c.quotes_open + c.estimates_open) }), el('span', { text: 'Quotes and estimates open' })),
           el('div', { class: 'pl-stage' }, el('b', { text: String(c.credit_notes_waiting + c.refunds_waiting) }), el('span', { text: 'Waiting for approval' }), el('small', { text: 'Credit notes and refunds' }))));
         const detail = el('div', { class: 'fx-detail', 'aria-live': 'polite' });
-        b.append(creator(o, detail), draftFromJob(o, detail));
+        b.append(...[creator(o, detail), draftFromJob(o, detail)].filter(Boolean));
         const kinds = [['', 'All'], ['quote', 'Quotations'], ['estimate', 'Estimates'], ['deposit', 'Deposits'], ['invoice', 'Invoices'], ['credit_note', 'Adjustment notes']];
         const filter = el('select', { id: nid(), onchange: () => draw() }, kinds.map(([k, t]) => el('option', { value: k, text: t })));
         const list = el('div');

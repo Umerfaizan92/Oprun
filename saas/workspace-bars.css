@@ -203,3 +203,12 @@ html[data-theme="light"] body #workspace .cc-group .cc-tile-icon{background:rgba
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child{flex:1 1 auto!important}
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child .mobile-workspace-item[aria-current]{flex:0 1 auto!important;min-width:46px!important}
 }
+@media (max-width:760px){
+  /* Many tabs (for example the seven inbox folders): icons share the width down to a 44px touch target. */
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child{gap:1px!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child .mobile-workspace-item:not([aria-current]){flex:0 1 46px!important;min-width:44px!important}
+}
+@media (max-width:760px){
+  /* Eight or more tabs (for example the email folders) wrap onto a second row instead of scrolling sideways. */
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child:has(> :nth-child(8)){display:flex!important;flex-wrap:wrap!important;row-gap:4px!important}
+}

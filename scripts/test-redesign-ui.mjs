@@ -95,9 +95,10 @@ try {
   await page.goto(server.base+'/saas/workspace.html#b04/unified');
   await page.locator('#unifiedinbox-view').waitFor({state:'visible'});
   if(width<=760){await page.locator('[data-dock-key=menu]').click();await page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page=mail]')}).locator('summary').click();}
-  const link=page.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]');await link.waitFor();
+  if(width<=760){const link=page.locator('#business-navigation a[href="#communications/email"]');await link.waitFor();
   assert.ok(await link.evaluate(e=>e.getBoundingClientRect().height>=44));
-  await link.click();await page.locator('#mail-view').waitFor({state:'visible'});
+  await link.click();}else{assert.equal(await page.locator('#workspace-workflows a[href="#communications/email"]').count(),0,'related row lists main pages only (T-174)');await page.evaluate(()=>{location.hash='communications/email'});}
+  await page.locator('#mail-view').waitFor({state:'visible'});
   assert.equal(await page.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]').getAttribute('aria-current'),'page');
   await page.reload();await page.locator('#mail-view').waitFor({state:'visible'});
   const more=page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page="mail"]')});

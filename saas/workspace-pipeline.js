@@ -359,7 +359,7 @@
       el('label', {}, 'Details', el('textarea', { name: 'details', maxlength: 20000, rows: 2 })),
       el('label', {}, 'Came in by', el('select', { name: 'channel' }, CHANNELS.map(([v, t]) => el('option', { value: v, text: t })))),
       // T-071: optional tracked source, when the customer says which post, flyer or sign they saw.
-      (trackedLinks.length ? el('label', {}, 'Tracked link or QR code (optional)', el('select', { name: 'source_code' }, el('option', { value: '', text: 'Not from a tracked link' }), trackedLinks.map((o) => el('option', { value: o.code, text: o.label })))) : null),
+      ...(trackedLinks.length ? [el('label', {}, 'Tracked link or QR code (optional)', el('select', { name: 'source_code' }, el('option', { value: '', text: 'Not from a tracked link' }), trackedLinks.map((o) => el('option', { value: o.code, text: o.label }))))] : []),
       el('label', {}, 'Customer', pick), newCust);
     const submit = el('button', { type: 'submit', class: 'portal-button primary', text: 'Save enquiry' });
     f.append(submit);

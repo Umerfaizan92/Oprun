@@ -435,3 +435,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-steps.js, saas/workspace-steps.css, saas/workspace.html, saas/workspace-extras.js, scripts/test-ui.mjs
 - Acceptance: UI check passes; npm test and UI suites pass.
 - Evidence: workspace-steps.js/css: Business setup stepper (8 steps, saves via existing handler per step, remembered, ticks, review) and Add worker 3 phone steps; unnamed logo/address controls detached so they cannot block saving; one quiet confirmation per step. Tests: new test:ui check passes (UI CHECKS 38), npm test 73/73, test:navigation-ui 608 checks, test:redesign-ui pass. (recorded 2026-11-20 on claude/sequential-setup at 74c852a)
+
+## T-174 Phase 5 (part 1): page clean-up from a visual audit
+- Added: 2026-11-20
+- Requirement: docs/product-redesign/03: related-page rows and the phone tab bar show main pages only; no stray text; phone tab bars fit 390px; local date format for the trial; the phone-layout regression test passes again.
+- Files: saas/workspace-nav.js, saas/workspace-mobile.js, saas/workspace-bars.css, saas/workspace-pipeline.js, saas/workspace-finance-platform.js, saas/app.js, scripts/test-mobile-workspace-ui.mjs
+- Acceptance: test-mobile-workspace-ui passes for all 61 pages at 390/1440; npm test and UI suites pass.
+- Evidence: Visual audit at 390/1440: secondary pages removed from related rows and phone tab bar (shown only while open); stray null text fixed in new enquiry form and sales documents; phone tab bars fit (shrink to 44px, 8+ wrap); trial date localised; stale mobile test updated for page tabs and the 14 Nov nested-row rule. Tests: test-mobile-workspace-ui 311 checks PASS (61 pages x 2 widths), npm test 73/73, test:ui 38/38, test:navigation-ui 608, test:redesign-ui, test:comms-ui 10, test:finance-ui 11. (recorded 2026-11-20 on claude/page-redesign at c83f4d8)
