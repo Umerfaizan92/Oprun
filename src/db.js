@@ -1042,7 +1042,16 @@ export function createDb(databasePath = resolveDatabasePath()) {
     ['brand_logo_url', `TEXT`],
     ['brand_theme', `TEXT NOT NULL DEFAULT 'system'`],
     ['brand_primary_color', `TEXT`],
-    ['brand_secondary_color', `TEXT`]
+    ['brand_secondary_color', `TEXT`],
+    // Country-based onboarding (T-168). Every existing organisation is Australian and business-verified.
+    ['country', `TEXT NOT NULL DEFAULT 'AU'`],
+    ['verification_level', `TEXT NOT NULL DEFAULT 'business_verified'`],
+    ['address_line1', `TEXT`],
+    ['address_line2', `TEXT`],
+    ['city', `TEXT`],
+    ['region', `TEXT`],
+    ['postal_code', `TEXT`],
+    ['registration_number_unverified', `TEXT`]
   ]) {
     if (!organisationColumns.has(name)) db.exec(`ALTER TABLE organisations ADD COLUMN ${name} ${definition}`);
   }
@@ -1054,7 +1063,15 @@ export function createDb(databasePath = resolveDatabasePath()) {
   const pendingColumns = new Set(db.prepare(`PRAGMA table_info(pending_registrations)`).all().map((column) => column.name));
   for (const [name, definition] of [
     ['business_identifier_type', `TEXT NOT NULL DEFAULT 'ABN'`],
-    ['business_identifier', `TEXT`]
+    ['business_identifier', `TEXT`],
+    ['country', `TEXT NOT NULL DEFAULT 'AU'`],
+    ['address_line1', `TEXT`],
+    ['address_line2', `TEXT`],
+    ['city', `TEXT`],
+    ['region', `TEXT`],
+    ['postal_code', `TEXT`],
+    ['registration_number_unverified', `TEXT`],
+    ['timezone', `TEXT`]
   ]) {
     if (!pendingColumns.has(name)) db.exec(`ALTER TABLE pending_registrations ADD COLUMN ${name} ${definition}`);
   }

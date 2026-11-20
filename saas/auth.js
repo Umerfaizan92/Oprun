@@ -55,10 +55,31 @@
     document.addEventListener('click',e=>{if(suggestions&&!suggestions.contains(e.target)&&e.target!==addressSearch)suggestions.hidden=true});
 
     verifyButton.onclick=async()=>{const business_name=form.elements.business_name.value.trim(),identifier_type=idType.value,business_identifier=idInput.value.trim();if(!business_name||!business_identifier){status.className='identity-status error';status.textContent=`Enter the business name and ${idMeta[identifier_type]?.label||'business identifier'} first.`;return}verifyButton.disabled=true;verifyButton.textContent='Checking…';try{const d=await api('/api/saas/business/verify',{method:'POST',body:JSON.stringify({business_name,identifier_type,business_identifier})});businessVerified=true;verifiedFingerprint=fingerprint();submit.disabled=false;status.className='identity-status verified';const loc=[d.business.state,d.business.postcode].filter(Boolean).join(' '),label=d.business.identifier_type||identifier_type;status.textContent=`${label==='OTHER'?'Captured for authorised review':'Verified'} ${label} ${d.business.identifier||business_identifier}${d.business.legal_name?` · ${d.business.legal_name}`:''}${loc?` · ${loc}`:''}${d.test_mode?' · LOCAL TEST MODE':''}`;if(d.business.state&&!form.elements.state.value)form.elements.state.value=d.business.state;if(d.business.postcode&&!form.elements.postcode.value)form.elements.postcode.value=d.business.postcode;updateAddressPreview()}catch(e){businessVerified=false;verifiedFingerprint='';submit.disabled=true;status.className='identity-status error';status.textContent=e.message}finally{verifyButton.disabled=false;verifyButton.textContent='Check business identity'}};
+    // Country first (T-168). Australia keeps the full business check; elsewhere email + mobile are verified.
+    const countrySel=$('#signup-country'),phoneInput=form.elements.phone,phoneLabel=$('#phone-label');let countries=[{code:'AU',name:'Australia',dial:'+61'}];
+    const isIntl=()=>countrySel&&countrySel.value&&countrySel.value!=='AU';
+    function applyCountry(){
+      const intl=isIntl(),c=countries.find(x=>x.code===countrySel?.value)||countries[0];
+      document.querySelectorAll('[data-country-only]').forEach(card=>{const on=card.dataset.countryOnly===(intl?'INTL':'AU');card.hidden=!on;card.style.display=on?'':'none';card.querySelectorAll('input,select,textarea,button').forEach(x=>{x.disabled=!on})});
+      if(phoneLabel)phoneLabel.textContent=intl?`Mobile (${c.name})`:'Australian mobile';
+      if(phoneInput)phoneInput.placeholder=intl?`${c.dial} …`:'04xx xxx xxx';
+      document.querySelectorAll('.plan-option em').forEach(em=>{em.dataset.au=em.dataset.au||em.textContent;em.textContent=intl?em.dataset.au.replace('+ GST','· billed in AUD'):em.dataset.au});
+      const story=document.querySelector('.auth-story-copy > p:not(.kicker)'),sub=document.querySelector('.auth-title p'),chip=document.querySelector('.security-baseline span');
+      for(const [el,auText,intlText] of [[story,null,`Before a workspace is created, Oprun verifies the owner’s email and mobile. Then you sign in and receive a guided tour of the operating system.`],[sub,null,'Three steps: your business, owner account, then email + mobile verification.'],[chip,null,'Email + mobile verified']]){if(!el)continue;el.dataset.au=el.dataset.au||el.textContent;el.textContent=intl?intlText:el.dataset.au}
+      if(intl){const tz=form.elements.timezone;if(tz)try{tz.value=Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch{}submit.disabled=false;}
+      else submit.disabled=!(businessVerified&&verifiedFingerprint===fingerprint());
+      show('');
+    }
+    if(countrySel){
+      try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';if(tz&&!tz.startsWith('Australia/'))countrySel.dataset.suggest='1'}catch{}
+      api('/api/saas/registration/countries',{method:'GET',headers:{}}).then(d=>{countries=d.countries||countries;const keep=countrySel.value;countrySel.replaceChildren(...countries.map(c=>{const o=document.createElement('option');o.value=c.code;o.textContent=c.name;return o}));countrySel.value=keep||'AU';
+        if(countrySel.dataset.suggest){const lang=(navigator.language||'').split('-')[1];if(lang&&countries.some(c=>c.code===lang.toUpperCase()))countrySel.value=lang.toUpperCase()}applyCountry()}).catch(()=>{});
+      countrySel.addEventListener('change',applyCountry);applyCountry();
+    }
     const pass=form.elements.password,confirm=form.elements.confirm_password,meter=$('#password-meter'),hint=$('#password-hint');
     function updatePassword(){const v=pass.value;let score=0;if(v.length>=14)score++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))score++;if(/\d/.test(v))score++;if(/[^A-Za-z0-9]/.test(v))score++;meter.dataset.score=String(score);if(confirm.value)hint.textContent=pass.value===confirm.value?'Passwords match.':'Passwords do not match.';else hint.textContent='Use at least 14 characters; a passphrase is recommended.';hint.style.color=confirm.value&&pass.value!==confirm.value?'var(--red)':''}
     pass.addEventListener('input',updatePassword);confirm.addEventListener('input',updatePassword);
-    form.onsubmit=async e=>{e.preventDefault();show('');if(!businessVerified||verifiedFingerprint!==fingerprint()){invalidate();show('Verify the current Australian business identity before continuing.',true);status.scrollIntoView({behavior:'smooth',block:'center'});return}if(pass.value!==confirm.value){show('Passwords do not match.',true);confirm.focus();return}if(!form.elements.accept_terms.checked){show('Please accept the Terms of Service and Privacy Notice.',true);return}updateAddressPreview();const b=objectFrom(form);b.accept_terms=true;b.terms_version='terms-2026-10-26';submit.disabled=true;submit.textContent='Creating secure verification…';try{const d=await api('/api/saas/registration/start',{method:'POST',body:JSON.stringify(b)});sessionStorage.setItem('gds-pending-registration',JSON.stringify({pending_id:d.pending_id,email:d.email,phone:d.phone,business:d.business,test_mode:d.test_mode,test_codes:d.delivery?.test_codes||null,delivery:d.delivery||{},raw_email:b.email}));location.href='verify-account.html'}catch(err){if(err.payload?.code==='ACCOUNT_EXISTS'||err.payload?.code==='BUSINESS_EXISTS'){const label=err.payload?.business_name?`Workspace already exists for ${err.payload.business_name}. `:'';show(label+(err.message||'An account already exists.')+' Redirecting to sign in…',true);sessionStorage.setItem('gds-new-email',String(b.email||''));setTimeout(()=>{location.href=err.payload.sign_in_url||'sign-in.html'},1800);return;}show(err.message,true);submit.disabled=false;submit.textContent='Join your AI Office →'}};
+    form.onsubmit=async e=>{e.preventDefault();show('');const intlSignup=typeof isIntl==='function'&&isIntl();if(!intlSignup&&(!businessVerified||verifiedFingerprint!==fingerprint())){invalidate();show('Verify the current Australian business identity before continuing.',true);status.scrollIntoView({behavior:'smooth',block:'center'});return}if(pass.value!==confirm.value){show('Passwords do not match.',true);confirm.focus();return}if(!form.elements.accept_terms.checked){show('Please accept the Terms of Service and Privacy Notice.',true);return}if(!intlSignup)updateAddressPreview();const b=objectFrom(form);if(intlSignup){b.business_name=b.intl_business_name;delete b.intl_business_name}b.accept_terms=true;b.terms_version='terms-2026-10-26';submit.disabled=true;submit.textContent='Creating secure verification…';try{const d=await api('/api/saas/registration/start',{method:'POST',body:JSON.stringify(b)});sessionStorage.setItem('gds-pending-registration',JSON.stringify({pending_id:d.pending_id,email:d.email,phone:d.phone,business:d.business,country:d.country||'AU',voice_available:Boolean(d.voice_available),test_mode:d.test_mode,test_codes:d.delivery?.test_codes||null,delivery:d.delivery||{},raw_email:b.email}));location.href='verify-account.html'}catch(err){if(err.payload?.code==='ACCOUNT_EXISTS'||err.payload?.code==='BUSINESS_EXISTS'){const label=err.payload?.business_name?`Workspace already exists for ${err.payload.business_name}. `:'';show(label+(err.message||'An account already exists.')+' Redirecting to sign in…',true);sessionStorage.setItem('gds-new-email',String(b.email||''));setTimeout(()=>{location.href=err.payload.sign_in_url||'sign-in.html'},1800);return;}show(err.message,true);submit.disabled=false;submit.textContent='Join your AI Office →'}};
   }
 
   if(page==='verify'){
@@ -78,12 +99,12 @@
     api('/api/saas/verification-provider/status',{method:'GET',headers:{}}).then(d=>{
       const sms=d?.sms||{},row=document.querySelector('[data-delivery="sms"]');
       if(!row)return;
-      if(sms.configured&&sms.sms_enabled&&sms.australia_allowed&&sms.app_name_configured&&sms.template_configured){
+      const auOnly=(state.country||'AU')==='AU';if(sms.configured&&sms.sms_enabled&&(sms.australia_allowed||!auOnly)&&sms.app_name_configured&&sms.template_configured){
         row.title='Telnyx Verify profile is configured for Australian SMS verification.';
       }else if(sms.configured){
         const missing=[];
         if(!sms.sms_enabled)missing.push('SMS channel');
-        if(!sms.australia_allowed)missing.push('Australia destination');
+        if(!sms.australia_allowed&&auOnly)missing.push('Australia destination');
         if(!sms.app_name_configured)missing.push('SMS App Name');
         if(!sms.template_configured)missing.push('SMS template');
         row.querySelector('span').textContent='Telnyx Verify needs attention: '+missing.join(', ');
@@ -91,6 +112,7 @@
       }
     }).catch(()=>{});
     if(state.test_mode&&state.test_codes){const box=$('#test-codes');box.hidden=false;box.innerHTML=`<b>LOCAL TEST MODE</b><br>Email code: <strong>${state.test_codes.email}</strong> · SMS code: <strong>${state.test_codes.sms}</strong><br><small>Test codes are exposed only when SAAS_VERIFICATION_TEST_MODE=1 outside production.</small>`}
+    const voiceBtn=$('#voice-code');if(voiceBtn&&state.voice_available)voiceBtn.hidden=false;
     const form=$('#verification-form'),button=$('#verification-submit');
     for(const input of form.querySelectorAll('input[inputmode="numeric"]')){
       input.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,Number(input.maxLength)>0?Number(input.maxLength):8)});
@@ -99,7 +121,7 @@
       if(btn.disabled)return;
       const channel=btn.dataset.resend,original=btn.textContent;
       btn.disabled=true;
-      btn.textContent=channel==='sms'?'Sending SMS…':'Sending email…';
+      btn.textContent=channel==='sms'?'Sending SMS…':channel==='voice'?'Calling…':'Sending email…';
       show(channel==='sms'?'Requesting a fresh SMS verification code from Telnyx…':'Requesting a fresh email verification code…');
       try{
         const d=await api('/api/saas/registration/resend',{method:'POST',body:JSON.stringify({pending_id:state.pending_id,channel})});
@@ -107,7 +129,7 @@
         state.delivery[channel]={sent:true,accepted:Boolean(d.delivery?.accepted),provider:d.delivery?.provider||'',message_id:d.delivery?.message_id||null};
         sessionStorage.setItem('gds-pending-registration',JSON.stringify(state));
         paintDelivery();
-        btn.textContent=channel==='sms'?'SMS requested ✓':'Email sent ✓';
+        btn.textContent=channel==='sms'?'SMS requested ✓':channel==='voice'?'Calling you ✓':'Email sent ✓';
         show(d.message||(channel==='sms'?'Telnyx accepted the SMS request. Check your mobile.':'A new email code was sent.'));
         if(d.test_code){const box=$('#test-codes');box.hidden=false;box.innerHTML+=`<br>New ${channel.toUpperCase()} code: <strong>${d.test_code}</strong>`}
         setTimeout(()=>{btn.textContent=original;btn.disabled=false},2200);

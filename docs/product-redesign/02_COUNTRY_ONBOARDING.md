@@ -5,8 +5,8 @@ countries verify by email and phone only. Existing accounts are not changed.
 
 ## 1. One source of truth: the country profile
 
-Add `src/country-profile.js`, a pure module used by both the server and the browser (served as
-`/saas/country-profile.js`):
+`src/country-profile.js` (built, T-168) is the server's single source. The browser gets the country list from
+`GET /api/saas/registration/countries` and the business's country from `/api/saas/me` (`organisation.country`):
 
 ```js
 countryProfile('AU') → {
