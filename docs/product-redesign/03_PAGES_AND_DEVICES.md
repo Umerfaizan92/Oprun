@@ -8,7 +8,9 @@ Rules for every page:
 - **No looping animation.** Motion plays once, and is turned off by `prefers-reduced-motion`.
 - Device classes and shells are defined in `05_ADAPTIVE_UI_SYSTEM.md` §2.
 
-## 1. Navigation (final: 8 groups including Setup, 28 pages)
+## 1. Navigation (final: 8 groups including Setup, 30 main pages; built in T-171)
+
+As built: group names and page labels were kept (they are translated into Hindi, Urdu and Arabic and used by tests). Duplicates and specialist tools moved into each group's "More" list instead of being removed, and Consent moved to Customers. Main menu: Today 4, Work 5, Customers 2, People 3, Communications 4, Growth 3 (Website, Media Studio, Campaign Studio), Money 4, Setup 5. Notifications now open the Unified Inbox, not the classic channel view.
 
 | Group | Pages (route) |
 |---|---|

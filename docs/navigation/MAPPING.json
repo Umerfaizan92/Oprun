@@ -201,6 +201,23 @@
             "director"
           ],
           "secondary": false
+        },
+        {
+          "view": "consent",
+          "path": "growth/consent",
+          "label": "Consent & Unsubscribes",
+          "icon": "i-shield",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b05/consent"
+          ],
+          "secondary": false
         }
       ]
     },
@@ -266,7 +283,7 @@
           "alias": [
             "b03/offshore"
           ],
-          "secondary": false
+          "secondary": true
         }
       ]
     },
@@ -309,7 +326,7 @@
           "alias": [
             "b04/voice"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "receptionist",
@@ -451,7 +468,7 @@
             "super_admin",
             "director"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "campaignstudio",
@@ -491,10 +508,11 @@
           "secondary": false
         },
         {
-          "view": "consent",
-          "path": "growth/consent",
-          "label": "Consent & Unsubscribes",
-          "icon": "i-shield",
+          "view": "websitehub",
+          "path": "website/home",
+          "alias": [],
+          "label": "Website",
+          "icon": "i-link",
           "roles": [
             "owner",
             "admin",
@@ -502,15 +520,12 @@
             "super_admin",
             "director"
           ],
-          "alias": [
-            "b05/consent"
-          ],
           "secondary": false
         },
         {
           "view": "seocentre",
-          "path": "growth/seo",
-          "label": "SEO Command Centre",
+          "path": "website/search",
+          "label": "Search & AI visibility",
           "icon": "i-link",
           "roles": [
             "owner",
@@ -520,14 +535,15 @@
             "director"
           ],
           "alias": [
-            "b06/seo"
+            "b06/seo",
+            "growth/seo"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "seobuilder",
-          "path": "growth/website-builder",
-          "label": "Website Builder",
+          "path": "website/pages",
+          "label": "Pages & editor",
           "icon": "i-grid",
           "roles": [
             "owner",
@@ -537,13 +553,14 @@
             "director"
           ],
           "alias": [
-            "b06/builder"
+            "b06/builder",
+            "growth/website-builder"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "seoaudit",
-          "path": "growth/seo-audit",
+          "path": "website/seo-audit",
           "label": "SEO · Audit",
           "icon": "i-shield",
           "roles": [
@@ -554,13 +571,14 @@
             "director"
           ],
           "alias": [
-            "b06/audit"
+            "b06/audit",
+            "growth/seo-audit"
           ],
           "secondary": true
         },
         {
           "view": "seoclusters",
-          "path": "growth/seo-keywords",
+          "path": "website/seo-keywords",
           "label": "SEO · Keywords",
           "icon": "i-grid",
           "roles": [
@@ -571,13 +589,14 @@
             "director"
           ],
           "alias": [
-            "b06/keywords"
+            "b06/keywords",
+            "growth/seo-keywords"
           ],
           "secondary": true
         },
         {
           "view": "seogoogle",
-          "path": "growth/seo-google",
+          "path": "website/seo-google",
           "label": "SEO · Google",
           "icon": "i-link",
           "roles": [
@@ -588,13 +607,14 @@
             "director"
           ],
           "alias": [
-            "b06/google"
+            "b06/google",
+            "growth/seo-google"
           ],
           "secondary": true
         },
         {
           "view": "seostudio",
-          "path": "growth/seo-content",
+          "path": "website/seo-content",
           "label": "SEO · Content",
           "icon": "i-doc",
           "roles": [
@@ -605,13 +625,14 @@
             "director"
           ],
           "alias": [
-            "b06/studio"
+            "b06/studio",
+            "growth/seo-content"
           ],
           "secondary": true
         },
         {
           "view": "seolocal",
-          "path": "growth/seo-local",
+          "path": "website/seo-local",
           "label": "SEO · Local",
           "icon": "i-users",
           "roles": [
@@ -622,13 +643,14 @@
             "director"
           ],
           "alias": [
-            "b06/local"
+            "b06/local",
+            "growth/seo-local"
           ],
           "secondary": true
         },
         {
           "view": "seoanalytics",
-          "path": "growth/seo-analytics",
+          "path": "website/seo-analytics",
           "label": "SEO · Analytics",
           "icon": "i-grid",
           "roles": [
@@ -639,13 +661,14 @@
             "director"
           ],
           "alias": [
-            "b06/analytics"
+            "b06/analytics",
+            "growth/seo-analytics"
           ],
           "secondary": true
         },
         {
           "view": "seoreports",
-          "path": "growth/seo-reports",
+          "path": "website/seo-reports",
           "label": "SEO · Reports",
           "icon": "i-doc",
           "roles": [
@@ -656,7 +679,83 @@
             "director"
           ],
           "alias": [
-            "b06/reports"
+            "b06/reports",
+            "growth/seo-reports"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "visibility",
+          "path": "website/search-readiness",
+          "alias": [
+            "b06/search",
+            "marketing/search",
+            "seo",
+            "visibility",
+            "growth/search-readiness"
+          ],
+          "label": "Search readiness (older)",
+          "icon": "i-spark",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "searchconsole",
+          "path": "website/search-connection",
+          "label": "Search connection",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/search-console",
+            "growth/search-connection"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "backlinks",
+          "path": "website/backlinks",
+          "label": "Links & listings",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/backlinks",
+            "growth/backlinks"
+          ],
+          "secondary": true
+        },
+        {
+          "view": "website",
+          "path": "website/domain",
+          "label": "Website & domain (older)",
+          "icon": "i-doc",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "alias": [
+            "b06/website",
+            "growth/website-domain"
           ],
           "secondary": true
         },
@@ -674,77 +773,6 @@
           ],
           "alias": [
             "b05/campaigns"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "visibility",
-          "path": "growth/search-readiness",
-          "alias": [
-            "b06/search",
-            "marketing/search",
-            "seo",
-            "visibility"
-          ],
-          "label": "Search readiness (older)",
-          "icon": "i-spark",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "searchconsole",
-          "path": "growth/search-connection",
-          "label": "Search connection request",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "alias": [
-            "b06/search-console"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "backlinks",
-          "path": "growth/backlinks",
-          "label": "Backlink suggestions",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "alias": [
-            "b06/backlinks"
-          ],
-          "secondary": true
-        },
-        {
-          "view": "website",
-          "path": "growth/website-domain",
-          "label": "Website & domain request",
-          "icon": "i-doc",
-          "roles": [
-            "owner",
-            "admin",
-            "manager",
-            "super_admin",
-            "director"
-          ],
-          "alias": [
-            "b06/website"
           ],
           "secondary": true
         }
@@ -816,7 +844,7 @@
           "alias": [
             "b07/reconcile"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "finreports",
@@ -831,7 +859,7 @@
           "alias": [
             "b07/reports"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "fincompliance",
@@ -953,7 +981,7 @@
           "alias": [
             "b08/automation"
           ],
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "support",
@@ -975,7 +1003,7 @@
           ],
           "label": "User Manual",
           "icon": "i-doc",
-          "secondary": false
+          "secondary": true
         },
         {
           "view": "migration",

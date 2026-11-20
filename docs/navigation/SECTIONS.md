@@ -64,17 +64,17 @@ Every page below was opened through its sidebar link at 1440 px and 390 px. List
 
 | Page / sidebar submenu | Route | Top sections in displayed order | Navigation |
 |---|---|---|---|
-| SEO Command Centre | `growth/seo` | Section: Google → Section: Scheduled SEO jobs → Section: Your sites | PASS, both widths |
+| SEO Command Centre | `website/search` | Section: Google → Section: Scheduled SEO jobs → Section: Your sites | PASS, both widths |
 | Technical Audit | `growth/seo-audit` | Single content view; no additional tablist observed | PASS, both widths |
 | Keyword Clusters | `growth/seo-keywords` | Single content view; no additional tablist observed | PASS, both widths |
 | Google | `growth/seo-google` | Single content view; no additional tablist observed | PASS, both widths |
 | Website Content Studio | `growth/seo-content` | Single content view; no additional tablist observed | PASS, both widths |
 | Website Builder | `growth/website-builder` | Single content view; no additional tablist observed | PASS, both widths |
-| Local SEO | `growth/seo-local` | Section: Checks → Section: Reviews → Section: Service-area and location pages | PASS, both widths |
+| Local SEO | `website/seo-local` | Section: Checks → Section: Reviews → Section: Service-area and location pages | PASS, both widths |
 | SEO Analytics | `growth/seo-analytics` | Single content view; no additional tablist observed | PASS, both widths |
 | SEO Reports | `growth/seo-reports` | Single content view; no additional tablist observed | PASS, both widths |
 | Website & Domain | `growth/website-domain` | Single content view; no additional tablist observed | PASS, both widths |
-| Search & AI Visibility | `growth/search-readiness` | Score → Business facts → Content library → AI answers → Schema & files | PASS, both widths |
+| Search & AI Visibility | `website/search-readiness` | Score → Business facts → Content library → AI answers → Schema & files | PASS, both widths |
 | Search Connection Request | `growth/search-connection` | Single content view; no additional tablist observed | PASS, both widths |
 | Backlink Suggestions | `growth/backlinks` | Single content view; no additional tablist observed | PASS, both widths |
 

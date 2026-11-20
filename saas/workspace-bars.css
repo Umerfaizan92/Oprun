@@ -197,3 +197,9 @@ html[data-theme="light"] body #workspace .cc-group .cc-tile-icon{background:rgba
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important}
 }
 @media (max-width:760px){html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-icon{color:var(--brand,#d9ad59)!important}}
+/* Phone: when a page's own tabs fill the bar, the current tab's label shortens (ellipsis) instead of pushing the
+   last tab past the edge, so nothing needs sideways scrolling at 390px. */
+@media (max-width:760px){
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child{flex:1 1 auto!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child .mobile-workspace-item[aria-current]{flex:0 1 auto!important;min-width:46px!important}
+}
