@@ -589,9 +589,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-181 Official social platform logos in Connections
-- Status: NOT_STARTED
-- Added: 2026-11-20
-- Requirement: Owner 2026-11-20: replace the custom generated social icons in Connections with the platforms' official logos (Facebook, TikTok, Instagram, WhatsApp and all others), sized automatically.
-- Files: TBD
-- Acceptance: TBD

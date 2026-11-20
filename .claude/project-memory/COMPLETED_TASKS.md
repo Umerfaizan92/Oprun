@@ -484,3 +484,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: TBD
 - Acceptance: TBD after audit
 - Evidence: npm test 73/73 (new meetings-zoom test, click-to-call test); test-meetings-ui PASS (3-way WebRTC, axe); test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311; screenshots 390/1440 (recorded 2026-11-20 on claude/meetings-zoom at cb2e494)
+
+## T-181 Official social platform logos in Connections
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: replace the custom generated social icons in Connections with the platforms' official logos (Facebook, TikTok, Instagram, WhatsApp and all others), sized automatically.
+- Files: TBD
+- Acceptance: TBD
+- Evidence: npm test 73/73; test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311; Connections screenshots 390 light and 1440 dark: 10 official icons, 2 Oprun badges (recorded 2026-11-20 on claude/official-logos at 6cc637e)
