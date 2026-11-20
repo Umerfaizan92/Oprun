@@ -421,3 +421,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-nav.js, src/comms/*, src/message-delivery.js, src/business-ops.js, docs/navigation/*
 - Acceptance: Main menu 30 pages; all 61 routes resolve; nav, redesign and UI tests pass.
 - Evidence: Main menu 61 -> 30 pages; 31 duplicates/specialist tools under each group's More list; Consent moved to Customers; notifications and settings links open the Unified Inbox; light-theme contrast fix for Secure account; phone dock tab fits 390px. Tests: npm test 73/73; test:ui 37/37; test:navigation-ui pass (608 checks); test:redesign-ui pass; redesign-preservation + mobile-workspace unit tests pass. test-mobile-workspace-ui still fails at a pre-existing Work-tab aria check (fails on main too). (recorded 2026-11-20 on claude/nav-cleanup at 3d22ba9)
+
+## T-172 Phase 3: adaptive foundation (device/shell detection, layout rules, breakpoint guard, app markers)
+- Added: 2026-11-20
+- Requirement: docs/product-redesign/05 §2,§3,§8 and Phase 3 of 07: data-device/data-shell/data-pointer before first paint on every app page; Android and iOS apps identify themselves; touch rules; no new breakpoints.
+- Files: saas/ds/platform.js, saas/ds/layout.css, saas/*.html, mobile/android/.../AndroidManifest.xml, mobile/ios/Oprun/OprunApp.swift, scripts/platform.test.mjs, scripts/breakpoints.test.mjs, qa/breakpoints-legacy.json
+- Acceptance: Unit tests pass; npm test, test:ui, navigation/redesign/site UI tests pass.
+- Evidence: saas/ds/platform.js + layout.css on all 21 app pages; app markers in AndroidManifest and OprunApp.swift; tests: platform.test 4/4, breakpoints.test 2/2, npm test 73/73, test:ui 37/37, navigation-ui 608 checks, redesign-ui, site-ui 16/16, mobile-readiness pass; browser probe phone/android-app, tablet/ios-app, desktop/browser with no errors or overflow. (recorded 2026-11-20 on claude/adaptive-foundation at 4dec06a)
