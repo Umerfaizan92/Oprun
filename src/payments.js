@@ -1,6 +1,7 @@
 // Customer payments. Each business connects its own Stripe / PayPal account (keys encrypted at rest), so money lands in that
 // business's account and payouts to its bank follow that provider's payout schedule. Payment status is only ever changed by a
 // signed provider webhook, a server-side capture, or a logged action by an owner/admin. Everything is audited per organisation.
+import { currencyFor, toMinorUnits, minorDigits } from './country-rules.js';
 import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
@@ -31,6 +32,14 @@ export function verifyStripeSignature(rawBody, header, secret, nowMs = Date.now(
 export function installPayments(app, { db, env, runtime, requireSaasUser, requireSaasRole, saasAudit, financeRoles, syncJobFinance, uploadRoot, notify, isAuthorised, events = { emit() {} }, fetchImpl = globalThis.fetch, customerSmsEnv = null }) {
   const limiter = rateLimit({ windowMs: 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false, message: { ok: false, error: 'Too many requests.' } });
   const money_roles = [requireSaasUser, requireSaasRole(...financeRoles)];
+  // The business's own currency (T-170): its Money settings, otherwise its country's currency, otherwise AUD.
+  const currencyOf = (org) => {
+    let c = null;
+    try { c = db.prepare('SELECT currency FROM fin_settings WHERE organisation_id=?').get(org)?.currency || null; } catch { /* finance not installed */ }
+    if (!c) { let country = 'AU'; try { country = db.prepare('SELECT country FROM organisations WHERE id=?').get(org)?.country || 'AU'; } catch { /* older schema */ } c = currencyFor(country); }
+    return String(c || 'AUD').toUpperCase();
+  };
+  const majorValue = (cents, cur) => (Number(cents) / 100).toFixed(Math.min(minorDigits(cur), 2));
   const base = () => String(env.PUBLIC_BASE_URL || '').replace(/\/$/, '');
 
   db.exec(`CREATE TABLE IF NOT EXISTS saved_cards (
@@ -200,10 +209,11 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     const j = ensureInvoice(job, s), biz = business(org), contact = contactOf(j), at = iso();
     const recent = db.prepare(`SELECT * FROM job_payments WHERE organisation_id=? AND work_order_id=? AND provider=? AND status='pending' AND amount_cents=? AND created_at>?`).get(org, j.id, input.provider, amount, iso(new Date(Date.now() - 20 * 3600000)));
     let p = recent;
+    const CUR = currencyOf(org);
     if (!p) {
       const id = crypto.randomUUID();
-      db.prepare(`INSERT INTO job_payments (id,organisation_id,work_order_id,customer_id,provider,method,status,amount_cents,currency,reference,created_by_user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,'pending',?,'aud',?,?,?,?)`)
-        .run(id, org, j.id, j.customer_id || null, input.provider, input.provider === 'bank' ? 'bank_transfer' : 'card', amount, input.provider === 'bank' ? `SP-${id.slice(0, 6).toUpperCase()}` : null, user?.user_id || null, at, at);
+      db.prepare(`INSERT INTO job_payments (id,organisation_id,work_order_id,customer_id,provider,method,status,amount_cents,currency,reference,created_by_user_id,created_at,updated_at) VALUES (?,?,?,?,?,?,'pending',?,?,?,?,?,?)`)
+        .run(id, org, j.id, j.customer_id || null, input.provider, input.provider === 'bank' ? 'bank_transfer' : 'card', amount, CUR.toLowerCase(), input.provider === 'bank' ? `SP-${id.slice(0, 6).toUpperCase()}` : null, user?.user_id || null, at, at);
       try {
         if (input.provider === 'stripe') {
           const title = `${biz.name} - ${j.title}`.slice(0, 120);
@@ -213,13 +223,13 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
             mode: 'payment', client_reference_id: id, expires_at: Math.floor(Date.now() / 1000) + 23 * 3600,
             success_url: `${base()}/saas/payment-thanks.html?status=success`, cancel_url: `${base()}/saas/payment-thanks.html?status=cancelled`,
             ...(stripeCustomer ? { customer: stripeCustomer, saved_payment_method_options: { payment_method_save: 'enabled' } } : { customer_email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email) ? contact.email : undefined }),
-            line_items: { 0: { quantity: 1, price_data: { currency: 'aud', unit_amount: amount, product_data: { name: title } } } },
+            line_items: { 0: { quantity: 1, price_data: { currency: CUR.toLowerCase(), unit_amount: toMinorUnits(amount, CUR), product_data: { name: title } } } },
             metadata: { payment_id: id, organisation_id: org, work_order_id: j.id }, payment_intent_data: { description: title, metadata: { payment_id: id, organisation_id: org } }
           }, `sp-${id}`);
           db.prepare(`UPDATE job_payments SET provider_ref=?,checkout_url=?,updated_at=? WHERE id=?`).run(session.id, session.url, iso(), id);
         } else if (input.provider === 'paypal') {
           const order = await paypalCall(raw, 'POST', '/v2/checkout/orders', {
-            intent: 'CAPTURE', purchase_units: [{ reference_id: id, custom_id: id, description: `${biz.name} - ${j.title}`.slice(0, 120), amount: { currency_code: 'AUD', value: (amount / 100).toFixed(2) } }],
+            intent: 'CAPTURE', purchase_units: [{ reference_id: id, custom_id: id, description: `${biz.name} - ${j.title}`.slice(0, 120), amount: { currency_code: CUR, value: majorValue(amount, CUR) } }],
             payment_source: { paypal: { experience_context: { brand_name: biz.name.slice(0, 120), user_action: 'PAY_NOW', return_url: `${base()}/api/payments/paypal/return?payment=${id}`, cancel_url: `${base()}/saas/payment-thanks.html?status=cancelled` } } }
           }, `sp-${id}`);
           const link = (order.links || []).find((l) => ['payer-action', 'approve'].includes(l.rel))?.href;
@@ -508,10 +518,11 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     if (!(amount >= 100 && amount <= owing)) return res.status(400).json({ ok: false, error: `Choose an amount between $1.00 and ${money(owing)}.` });
     if (c.exp_year && (c.exp_year < new Date().getFullYear() || (c.exp_year === new Date().getFullYear() && c.exp_month < new Date().getMonth() + 1))) return res.status(409).json({ ok: false, error: 'This card has expired. Ask the customer to pay with a new link.' });
     const id = crypto.randomUUID(), at = iso(), j = ensureInvoice(job, settingsFor(org));
-    db.prepare(`INSERT INTO job_payments (id,organisation_id,work_order_id,customer_id,provider,method,status,amount_cents,currency,note,created_by_user_id,created_at,updated_at) VALUES (?,?,?,?,'stripe','card','pending',?,'aud',?,?,?,?)`).run(id, org, j.id, j.customer_id || null, amount, `Saved card •••• ${c.last4}`, req.saas.user_id, at, at);
+    const CUR = currencyOf(org);
+    db.prepare(`INSERT INTO job_payments (id,organisation_id,work_order_id,customer_id,provider,method,status,amount_cents,currency,note,created_by_user_id,created_at,updated_at) VALUES (?,?,?,?,'stripe','card','pending',?,?,?,?,?,?)`).run(id, org, j.id, j.customer_id || null, amount, CUR.toLowerCase(), `Saved card •••• ${c.last4}`, req.saas.user_id, at, at);
     try {
-      const pi = await stripeCall(raw, 'POST', 'payment_intents', { amount, currency: 'aud', customer: c.stripe_customer_id, payment_method: c.stripe_payment_method_id, off_session: true, confirm: true, description: `${business(org).name} - ${j.title}`.slice(0, 120), metadata: { payment_id: id, organisation_id: org, work_order_id: j.id } }, `sp-saved-${id}`);
-      if (pi.status !== 'succeeded' || pi.amount_received !== amount || String(pi.currency).toLowerCase() !== 'aud') throw Object.assign(new Error('The bank needs the customer to approve this payment. Send them a payment link instead.'), { status: 402 });
+      const pi = await stripeCall(raw, 'POST', 'payment_intents', { amount: toMinorUnits(amount, CUR), currency: CUR.toLowerCase(), customer: c.stripe_customer_id, payment_method: c.stripe_payment_method_id, off_session: true, confirm: true, description: `${business(org).name} - ${j.title}`.slice(0, 120), metadata: { payment_id: id, organisation_id: org, work_order_id: j.id } }, `sp-saved-${id}`);
+      if (pi.status !== 'succeeded' || pi.amount_received !== toMinorUnits(amount, CUR) || String(pi.currency).toLowerCase() !== CUR.toLowerCase()) throw Object.assign(new Error('The bank needs the customer to approve this payment. Send them a payment link instead.'), { status: 402 });
       db.prepare(`UPDATE job_payments SET provider_ref=?,reference=? WHERE id=?`).run(pi.id, pi.id, id);
       const r = await markPaid(id, { providerRef: pi.id, reference: pi.id });
       saasAudit(req, 'payment.saved_card_charged', 'job_payment', id, { work_order_id: j.id, amount_cents: amount, card_id: c.id });
@@ -537,7 +548,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
         const p = findPayment(org, 'stripe', obj.id);
         if (!p) outcome = 'unmatched';
         else if (obj.payment_status !== 'paid') outcome = 'awaiting_funds';
-        else if (obj.amount_total !== p.amount_cents || String(obj.currency).toLowerCase() !== p.currency) { outcome = 'amount_mismatch'; await flag(org, p, `Stripe reported ${money(obj.amount_total || 0)} but ${money(p.amount_cents)} was requested. Check Stripe before treating this job as paid.`); }
+        else if (obj.amount_total !== toMinorUnits(p.amount_cents, String(p.currency || 'aud').toUpperCase()) || String(obj.currency).toLowerCase() !== String(p.currency || 'aud').toLowerCase()) { outcome = 'amount_mismatch'; await flag(org, p, `Stripe reported ${money(obj.amount_total || 0)} but ${money(p.amount_cents)} was requested. Check Stripe before treating this job as paid.`); }
         else { await markPaid(p.id, { providerRef: obj.id, reference: typeof obj.payment_intent === 'string' ? obj.payment_intent : null }); outcome = 'paid'; try { if (await captureSavedCard(org, p, obj)) outcome = 'paid_card_saved'; } catch (e) { console.warn('[payments] saving the card reference failed:', e.message); } }
       } else if (ev.type === 'checkout.session.async_payment_failed') {
         const p = findPayment(org, 'stripe', obj.id);
@@ -567,7 +578,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     const cap = await paypalCall(raw, 'POST', `/v2/checkout/orders/${encodeURIComponent(p.provider_ref)}/capture`, undefined, `sp-capture-${p.id}`);
     const unit = cap.purchase_units?.[0]?.payments?.captures?.[0];
     if (cap.status !== 'COMPLETED' || !unit || unit.status !== 'COMPLETED') return 'awaiting_funds';
-    if (cents(unit.amount?.value) !== p.amount_cents || unit.amount?.currency_code !== 'AUD') { await flag(org, p, `PayPal reported ${unit.amount?.value} ${unit.amount?.currency_code} but ${money(p.amount_cents)} was requested. Check PayPal before treating this job as paid.`); return 'amount_mismatch'; }
+    if (cents(unit.amount?.value) !== p.amount_cents || unit.amount?.currency_code !== String(p.currency || 'aud').toUpperCase()) { await flag(org, p, `PayPal reported ${unit.amount?.value} ${unit.amount?.currency_code} but ${money(p.amount_cents)} was requested. Check PayPal before treating this job as paid.`); return 'amount_mismatch'; }
     await markPaid(p.id, { providerRef: p.provider_ref, reference: unit.id }); return 'paid';
   }
   app.post('/api/webhooks/payments/paypal/:orgId', limiter, async (req, res) => {
@@ -585,7 +596,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
       else if (ev.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
         const p = r.custom_id ? db.prepare(`SELECT * FROM job_payments WHERE id=? AND organisation_id=? AND provider='paypal'`).get(String(r.custom_id), org) : null;
         if (!p) outcome = 'unmatched';
-        else if (cents(r.amount?.value) !== p.amount_cents || r.amount?.currency_code !== 'AUD') { outcome = 'amount_mismatch'; await flag(org, p, `PayPal reported ${r.amount?.value} but ${money(p.amount_cents)} was requested. Check PayPal before treating this job as paid.`); }
+        else if (cents(r.amount?.value) !== p.amount_cents || r.amount?.currency_code !== String(p.currency || 'aud').toUpperCase()) { outcome = 'amount_mismatch'; await flag(org, p, `PayPal reported ${r.amount?.value} but ${money(p.amount_cents)} was requested. Check PayPal before treating this job as paid.`); }
         else { await markPaid(p.id, { providerRef: p.provider_ref, reference: r.id }); outcome = 'paid'; }
       } else if (['PAYMENT.CAPTURE.DENIED', 'PAYMENT.CAPTURE.DECLINED'].includes(ev.event_type) && r.custom_id) {
         const p = db.prepare(`SELECT * FROM job_payments WHERE id=? AND organisation_id=? AND status='pending'`).get(String(r.custom_id), org);

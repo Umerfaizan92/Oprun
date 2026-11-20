@@ -588,3 +588,4 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Invoices and Money settings use countryProfile tax label and optional tax number for non-AU; Business setup shows the international address fields; per docs/product-redesign/02 §5.
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
+

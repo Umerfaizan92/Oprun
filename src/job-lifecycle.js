@@ -23,8 +23,8 @@ export function localParts(date, tz) {
   const p = Object.fromEntries(f.formatToParts(date).map((x) => [x.type, x.value]));
   return { date: `${p.year}-${p.month}-${p.day}`, hour: Number(p.hour) };
 }
-export const whenText = (at, tz) => { try { return new Date(at).toLocaleString('en-AU', { timeZone: tz || 'Australia/Perth', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }); } catch { return new Date(at).toUTCString(); } };
-export const timeText = (at, tz) => { try { return new Date(at).toLocaleTimeString('en-AU', { timeZone: tz || 'Australia/Perth', hour: 'numeric', minute: '2-digit' }); } catch { return ''; } };
+export const whenText = (at, tz, locale = 'en-AU') => { try { return new Date(at).toLocaleString(locale, { timeZone: tz || 'Australia/Perth', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' }); } catch { return new Date(at).toUTCString(); } };
+export const timeText = (at, tz, locale = 'en-AU') => { try { return new Date(at).toLocaleTimeString(locale, { timeZone: tz || 'Australia/Perth', hour: 'numeric', minute: '2-digit' }); } catch { return ''; } };
 
 export function createJobLifecycle({ db, outbound, notify, createApproval = null, smsReady = () => false, enquiryReference = () => null, log = console, now = () => new Date() }) {
   db.exec(`
@@ -47,7 +47,9 @@ export function createJobLifecycle({ db, outbound, notify, createApproval = null
     return { ok: true, settings: settings(org) };
   }
 
-  const business = (org) => db.prepare('SELECT COALESCE(display_name,name) name, timezone FROM organisations WHERE id=?').get(org) || { name: 'Our business', timezone: 'Australia/Perth' };
+  // T-170: dates in customer messages follow the business's country (for example "Monday, November 23" in the US).
+  const hasCountry = (() => { try { return db.prepare('PRAGMA table_info(organisations)').all().some((c) => c.name === 'country'); } catch { return false; } })();
+  const business = (org) => { const b = db.prepare(`SELECT COALESCE(display_name,name) name, timezone${hasCountry ? ', country' : ''} FROM organisations WHERE id=?`).get(org) || { name: 'Our business', timezone: 'Australia/Perth' }; return { ...b, locale: `en-${/^[A-Z]{2}$/.test(b.country || '') ? b.country : 'AU'}` }; };
   const customerOf = (org, id) => (id ? db.prepare('SELECT id,name,email,phone FROM tenant_customers WHERE id=? AND organisation_id=?').get(id, org) : null);
   const owner = (org) => db.prepare("SELECT user_id FROM memberships WHERE organisation_id=? AND role='owner' ORDER BY created_at LIMIT 1").get(org)?.user_id || null;
   const once = (org, job, kind, target, detail = null) => db.prepare('INSERT OR IGNORE INTO reminder_log (organisation_id,work_order_id,kind,target,created_at,detail) VALUES (?,?,?,?,?,?)').run(org, job, kind, target, iso(now()), detail).changes === 1;
@@ -90,7 +92,7 @@ export function createJobLifecycle({ db, outbound, notify, createApproval = null
 
   function customerTexts(org, j, kind) {
     const b = business(org), c = customerOf(org, j.customer_id), hi = first(c?.name) ? `Hi ${first(c.name)}` : 'Hi', ref = refFor(org, j);
-    const when = whenText(j.start_at, b.timezone), at = timeText(j.start_at, b.timezone);
+    const when = whenText(j.start_at, b.timezone, b.locale), at = timeText(j.start_at, b.timezone, b.locale);
     const where = j.address ? ` at ${j.address}` : '';
     const reply = 'Reply to this message if you need to change it.';
     if (kind === 'confirmation') return { label: 'booking confirmed', subject: `Booking confirmed${ref ? ` (${ref})` : ''}: ${b.name}`, sms: `${hi}, your booking with ${b.name} for ${j.title} is confirmed for ${when}${where}.${ref ? ` Ref ${ref}.` : ''} ${reply}`, email: `${hi},\n\nYour booking with ${b.name} is confirmed.\n\nJob: ${j.title}\nWhen: ${when}${j.address ? `\nWhere: ${j.address}` : ''}${ref ? `\nReference: ${ref}` : ''}\n\n${reply}\n\nKind regards,\n${b.name}` };

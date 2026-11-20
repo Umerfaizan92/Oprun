@@ -28,12 +28,16 @@ export function installFinanceRoutes(app, { db, finance, platformFinance, requir
     const o = org(req);
     res.json({ ok: true, ...finance.overview(o), jobs: db.prepare("SELECT w.id,w.title,w.price_cents,w.paid_cents,w.completed_at,w.customer_id,(SELECT 1 FROM tenant_documents d WHERE d.organisation_id=w.organisation_id AND d.work_order_id=w.id AND d.kind='invoice' AND d.status<>'cancelled') has_invoice FROM work_orders w WHERE w.organisation_id=? ORDER BY w.created_at DESC LIMIT 200").all(o), customers: db.prepare('SELECT id,name,abn FROM tenant_customers WHERE organisation_id=? ORDER BY name LIMIT 500').all(o), tax_codes: TAX_CODES });
   }));
-  app.get('/api/saas/finance/settings', ...read, wrap((req, res) => res.json({ ok: true, settings: finance.settings(org(req)), seller: finance.seller(org(req)) })));
+  app.get('/api/saas/finance/settings', ...read, wrap((req, res) => res.json({ ok: true, settings: finance.settings(org(req)), seller: finance.seller(org(req)), locale: finance.locale(org(req)), rules: finance.orgRules(org(req)) })));
   app.put('/api/saas/finance/settings', limiter, ...money, wrap((req, res) => {
-    const b = P(z.object({ gst_registered: z.boolean(), prices_include_gst: z.boolean(), accounting_basis: z.enum(['cash', 'accrual']), bas_period: z.enum(['monthly', 'quarterly', 'annual']), quote_valid_days: z.number().int().min(1).max(365), deposit_percent: z.number().int().min(0).max(100), footer_note: z.string().max(600).nullable().optional() }).strict(), req.body);
-    res.json({ ok: true, settings: finance.saveSettings(org(req), { ...b, gst_registered: b.gst_registered ? 1 : 0, prices_include_gst: b.prices_include_gst ? 1 : 0, footer_note: b.footer_note || null }, me(req)) });
+    const b = P(z.object({ gst_registered: z.boolean(), prices_include_gst: z.boolean(), accounting_basis: z.enum(['cash', 'accrual']), bas_period: z.enum(['monthly', 'quarterly', 'annual']), quote_valid_days: z.number().int().min(1).max(365), deposit_percent: z.number().int().min(0).max(100), footer_note: z.string().max(600).nullable().optional(), tax_rate_percent: z.number().min(0).max(50).nullable().optional(), tax_number: z.string().trim().max(40).nullable().optional(), currency: z.string().regex(/^[A-Z]{3}$/).nullable().optional() }).strict(), req.body);
+    const { tax_rate_percent, ...rest } = b, extra = {};
+    if (tax_rate_percent !== undefined) extra.tax_rate = tax_rate_percent === null ? null : Math.round(tax_rate_percent * 1000) / 100000;
+    if (b.tax_number !== undefined) extra.tax_number = b.tax_number || null;
+    if (b.currency !== undefined) { try { new Intl.NumberFormat('en', { style: 'currency', currency: b.currency }); extra.currency = b.currency; } catch { return res.status(400).json({ ok: false, error: 'Choose a valid currency code, for example GBP or USD.' }); } }
+    res.json({ ok: true, settings: finance.saveSettings(org(req), { ...rest, ...extra, gst_registered: b.gst_registered ? 1 : 0, prices_include_gst: b.prices_include_gst ? 1 : 0, footer_note: b.footer_note || null }, me(req)) });
   }));
-  app.get('/api/saas/finance/rules', ...read, wrap((req, res) => res.json({ ok: true, current: rulesFor(), all: RULESETS.map((r) => ({ id: r.id, effective_from: r.effective_from, reviewed_at: r.reviewed_at })) })));
+  app.get('/api/saas/finance/rules', ...read, wrap((req, res) => res.json({ ok: true, current: finance.orgRules(org(req)), all: RULESETS.map((r) => ({ id: r.id, effective_from: r.effective_from, reviewed_at: r.reviewed_at })) })));
 
   // ---------------- documents ----------------
   app.get('/api/saas/finance/documents', ...read, wrap((req, res) => res.json({ ok: true, documents: finance.list(org(req), { kind: ['quote', 'estimate', 'invoice', 'deposit', 'credit_note'].includes(req.query.kind) ? req.query.kind : null, status: req.query.status ? String(req.query.status).slice(0, 30) : null, q: String(req.query.q || '').slice(0, 80) }) })));

@@ -1,6 +1,8 @@
 // Phase 07: unified communications and campaigns. Every row belongs to one owner: a business (organisation id) or
 // 'platform' (Founder Console). Platform mail and campaigns never touch a business's customer communications, and
 // no business can read platform rows.
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
+import { nextMarketingWindow } from '../country-rules.js';
 import { resendOutboundKey } from '../resend-outbound.js';
 import { platformBrand, renderEmail } from '../email-templates.js';
 import crypto from 'node:crypto';
@@ -10,8 +12,10 @@ const iso = (t = Date.now()) => new Date(t).toISOString();
 const J = (s, f) => { if (s === null || s === undefined) return f; try { return JSON.parse(s); } catch { return f; } };
 const uid = () => crypto.randomUUID();
 const normEmail = (e) => String(e || '').trim().toLowerCase();
-export const normPhone = (p) => { let d = String(p || '').replace(/[^\d+]/g, ''); if (/^04\d{8}$/.test(d)) d = '+61' + d.slice(1); else if (/^614\d{8}$/.test(d)) d = '+' + d; else if (/^0[2378]\d{8}$/.test(d)) d = '+61' + d.slice(1); return d; };
-const normAddr = (channel, a) => (channel === 'email' ? normEmail(a) : normPhone(a));
+// A customer's phone in international (+) format. Australian numbers keep their rules; other countries use the
+// business's country to read a locally written number (07400 123456 in the UK becomes +447400123456).
+export const normPhone = (p, country = 'AU') => { if (country && country !== 'AU' && !String(p || '').trim().startsWith('+')) { const x = parsePhoneNumberFromString(String(p || ''), country); return x && x.isValid() ? x.number : ''; } let d = String(p || '').replace(/[^\d+]/g, ''); if (/^04\d{8}$/.test(d)) d = '+61' + d.slice(1); else if (/^614\d{8}$/.test(d)) d = '+' + d; else if (/^0[2378]\d{8}$/.test(d)) d = '+61' + d.slice(1); return d; };
+const normAddr = (channel, a, country = 'AU') => (channel === 'email' ? normEmail(a) : normPhone(a, country));
 const SPAM_WORDS = /\b(free!+|100% free|act now|limited time only|winner|cash bonus|guaranteed|risk[- ]free|click here|buy now|\$\$\$)\b/i;
 
 export function migrateComms(db) {
@@ -31,6 +35,8 @@ export function migrateComms(db) {
 export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch, transportEnv = () => env, dispatch, pipeline, profileOf, notify = () => {}, emit = () => {}, aiReply = null, aiAvailable = () => false, engineRef = { current: null }, publicBase = () => '', log = console }) {
   migrateComms(db);
   const isPlatform = (k) => k === 'platform';
+  const countryOfOwner = (owner) => { if (isPlatform(owner)) return 'AU'; try { return db.prepare('SELECT country FROM organisations WHERE id=?').get(owner)?.country || 'AU'; } catch { return 'AU'; } };
+  const timeZoneOf = (owner) => { if (isPlatform(owner)) return 'Australia/Perth'; try { return db.prepare('SELECT timezone FROM organisations WHERE id=?').get(owner)?.timezone || 'Australia/Perth'; } catch { return 'Australia/Perth'; } };
   const secret = () => String(env.SESSION_SECRET || env.SAAS_SESSION_SECRET || 'dev-unsubscribe-secret');
   const business = (org) => (isPlatform(org) ? { name: 'Oprun', abn: env.SUPERPRO_ABN || '', address: env.SUPERPRO_POSTAL_ADDRESS || '' } : (() => { const o = db.prepare('SELECT COALESCE(display_name,name) name, abn, address_formatted FROM organisations WHERE id=?').get(org) || {}; return { name: o.name || 'Our business', abn: o.abn || '', address: o.address_formatted || '' }; })());
 
@@ -206,14 +212,14 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
 
   // ---------------- consent, suppression, unsubscribe ----------------
   function consent(owner, channel, address, { status, source, evidence = '', customer_id = null }, actor) {
-    const a = normAddr(channel, address); if (!a) return false;
+    const a = normAddr(channel, address, countryOfOwner(owner)); if (!a) return false;
     db.prepare(`INSERT INTO marketing_consents(owner_key,channel,address,customer_id,status,source,evidence,recorded_by,granted_at,withdrawn_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(owner_key,channel,address) DO UPDATE SET status=excluded.status,source=excluded.source,evidence=excluded.evidence,recorded_by=excluded.recorded_by,customer_id=COALESCE(excluded.customer_id,marketing_consents.customer_id),granted_at=CASE WHEN excluded.status='granted' THEN excluded.granted_at ELSE marketing_consents.granted_at END,withdrawn_at=CASE WHEN excluded.status='withdrawn' THEN excluded.withdrawn_at ELSE NULL END,updated_at=excluded.updated_at`)
       .run(owner, channel, a, customer_id, status, source, String(evidence).slice(0, 500), actor, status === 'granted' ? iso() : null, status === 'withdrawn' ? iso() : null, iso());
     if (status === 'granted') db.prepare("DELETE FROM marketing_suppressions WHERE owner_key=? AND channel=? AND address=? AND reason IN ('unsubscribe','stop_reply','unsubscribe_reply','manual')").run(owner, channel, a);
     return true;
   }
   function suppress(owner, channel, address, reason, source, actor) {
-    const a = normAddr(channel, address); if (!a) return false;
+    const a = normAddr(channel, address, countryOfOwner(owner)); if (!a) return false;
     db.prepare('INSERT OR IGNORE INTO marketing_suppressions(owner_key,channel,address,reason,source,created_by,created_at) VALUES (?,?,?,?,?,?,?)').run(owner, channel, a, reason, source || null, actor || null, iso());
     db.prepare("UPDATE marketing_consents SET status='withdrawn',withdrawn_at=?,updated_at=? WHERE owner_key=? AND channel=? AND address=?").run(iso(), iso(), owner, channel, a);
     return true;
@@ -246,7 +252,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
         if (segment.last_job_after && !(c.last_job && c.last_job >= segment.last_job_after)) return false;
         if (segment.created_after && c.created_at < segment.created_after) return false;
         return true;
-      }).map((c) => ({ ...c, address: channel === 'email' ? normEmail(c.email) : normPhone(c.phone) }));
+      }).map((c) => ({ ...c, address: channel === 'email' ? normEmail(c.email) : normPhone(c.phone, countryOfOwner(owner)) }));
     const excluded = { no_consent: 0, suppressed: 0, no_address: 0 }, eligible = [], seen = new Set();
     for (const r of rows) {
       const a = isPlatform(owner) ? normEmail(r.address) : r.address;
@@ -348,6 +354,9 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     if (!c || !['approved', 'scheduled', 'sending'].includes(c.status) || c.approved_revision !== c.revision) return { done: true, skipped: 'not approved' };
     if (c.send_at && Date.parse(c.send_at) > Date.now()) return { done: false, wait_until: c.send_at };
     if (isPaused()) return { done: false, paused: true };
+    // T-170: marketing goes out only Mon–Fri 9am–8pm and Sat 9am–5pm in the business's time zone (the strictest common
+    // rules, e.g. US federal and state quiet hours). Outside the window the batch waits for the next opening.
+    if (['email', 'sms'].includes(c.channel) && env.MARKETING_SEND_WINDOW !== 'off') { const next = nextMarketingWindow(timeZoneOf(owner)); if (next) return { done: false, wait_until: next, reason: 'outside_send_window' }; }
     db.prepare("UPDATE comms_campaigns SET status='sending',updated_at=? WHERE id=?").run(iso(), c.id);
     const b = business(owner);
     const rows = db.prepare("SELECT * FROM comms_campaign_recipients WHERE campaign_id=? AND status='queued' LIMIT ?").all(c.id, batch);

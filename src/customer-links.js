@@ -10,6 +10,7 @@
 //  - Reviews are stored for the business. The public review site link (for example Google) is shown to every
 //    customer whatever their rating: no review gating.
 //  - Public pages need no login or script, show only that one record, and never reveal other customers' data.
+import { formatMoney, taxRulesFor, currencyFor } from './country-rules.js';
 import crypto from 'node:crypto';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
@@ -18,7 +19,8 @@ const DAY = 86400000;
 const iso = () => new Date().toISOString();
 const hash = (t) => crypto.createHash('sha256').update(String(t)).digest('hex');
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const money = (c) => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format((Number(c) || 0) / 100);
+// T-170: amounts, dates and the tax word follow the business's country and currency.
+const moneyIn = (b) => (c) => formatMoney(c, b.currency || 'AUD', b.locale || 'en-AU');
 const first = (n) => String(n || '').trim().split(/\s+/)[0] || '';
 const TOKEN = /^[A-Za-z0-9_-]{32}$/;
 
@@ -33,11 +35,17 @@ export function createCustomerLinks({ db, pipeline, outbound, notify = async () 
     CREATE INDEX IF NOT EXISTS tenant_customer_reviews_org ON tenant_customer_reviews(organisation_id,created_at);
     CREATE TABLE IF NOT EXISTS customer_link_settings (organisation_id TEXT PRIMARY KEY, review_url TEXT, updated_by TEXT, updated_at TEXT NOT NULL);`);
 
-  const business = (org) => db.prepare('SELECT COALESCE(display_name,name) name, timezone, brand_primary_color color FROM organisations WHERE id=?').get(org) || { name: 'Our business', timezone: 'Australia/Perth' };
+  const business = (org) => {
+    const hasCountry = db.prepare('PRAGMA table_info(organisations)').all().some((c) => c.name === 'country');
+    const b = db.prepare(`SELECT COALESCE(display_name,name) name, timezone, brand_primary_color color${hasCountry ? ', country' : ", 'AU' country"} FROM organisations WHERE id=?`).get(org) || { name: 'Our business', timezone: 'Australia/Perth', country: 'AU' };
+    let cur = null; try { cur = db.prepare('SELECT currency FROM fin_settings WHERE organisation_id=?').get(org)?.currency || null; } catch { /* finance not installed */ }
+    const t = taxRulesFor(b.country || 'AU');
+    return { ...b, currency: cur || currencyFor(b.country || 'AU') || 'AUD', locale: t.locale, tax_label: t.label };
+  };
   const settings = (org) => db.prepare('SELECT review_url FROM customer_link_settings WHERE organisation_id=?').get(org) || { review_url: null };
   const doc = (org, id, kind) => db.prepare('SELECT * FROM tenant_documents WHERE id=? AND organisation_id=? AND kind=?').get(id, org, kind);
   const customer = (org, id) => (id ? db.prepare('SELECT id,name,email,phone,address FROM tenant_customers WHERE id=? AND organisation_id=?').get(id, org) : null);
-  const when = (at, tz) => { try { return new Date(at).toLocaleString('en-AU', { timeZone: tz || 'Australia/Perth', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); } catch { return new Date(at).toUTCString(); } };
+  const when = (at, tz, locale = 'en-AU') => { try { return new Date(at).toLocaleString(locale, { timeZone: tz || 'Australia/Perth', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); } catch { return new Date(at).toUTCString(); } };
   const reference = (org, d) => pipeline.enquiryReference?.(org, d.id) || null;
   const url = (kind, token) => `${String(publicBase() || 'https://www.oprun.ai').replace(/\/$/, '')}/${kind === 'quote' ? 'q' : 'r'}/${token}`;
   const mobileOk = (p) => /^\+614\d{8}$/.test(String(p || '').replace(/[^\d+]/g, '').replace(/^04/, '+614'));
@@ -45,13 +53,13 @@ export function createCustomerLinks({ db, pipeline, outbound, notify = async () 
 
   // ---------- message text (also used for the preview the person sees before sending) ----------
   function quoteText(org, q, c, link, note = '') {
-    const b = business(org), ref = reference(org, q), total = money(q.amount_cents + (q.gst_cents || 0));
-    const time = q.start_at ? when(q.start_at, b.timezone) : null;
+    const b = business(org), money = moneyIn(b), ref = reference(org, q), total = money(q.amount_cents + (q.gst_cents || 0));
+    const time = q.start_at ? when(q.start_at, b.timezone, b.locale) : null;
     const hi = first(c?.name) ? `Hi ${first(c.name)}` : 'Hi';
     const lead = note ? `${note.trim()} ` : '';
     const sms = `${hi}, ${lead}your quote${ref ? ` ${ref}` : ''} from ${b.name} is ready: ${total}${q.gst_applies === 0 ? '' : ' incl. GST'}${time ? `, proposed for ${time}` : ''}. View and accept: ${link}`;
     const email = [`${hi},`, note ? note.trim() : '', `Here is your quote${ref ? ` ${ref}` : ''} from ${b.name}.`,
-      [`Job: ${q.title}`, q.body ? `Details: ${q.body}` : '', `Price: ${money(q.amount_cents)}`, q.gst_applies === 0 ? 'GST: not applicable' : `GST: ${money(q.gst_cents)}`, `Total: ${total}`,
+      [`Job: ${q.title}`, q.body ? `Details: ${q.body}` : '', `Price: ${money(q.amount_cents)}`, q.gst_applies === 0 ? `${b.tax_label}: not applicable` : `${b.tax_label}: ${money(q.gst_cents)}`, `Total: ${total}`,
         time ? `Proposed time: ${time}` : '', q.estimated_hours ? `Time required: about ${q.estimated_hours} hour${q.estimated_hours === 1 ? '' : 's'}` : ''].filter(Boolean).join('\n'),
       `View, accept or decline your quote here: ${link}`, time ? 'If the time does not suit, reply to this email and we will find another one.' : 'Once you accept, we will confirm a time with you.', `Kind regards,\n${b.name}`].filter(Boolean).join('\n\n');
     return { sms: sms.slice(0, 600), email, subject: `Your quote${ref ? ` ${ref}` : ''} from ${b.name}` };
@@ -220,7 +228,7 @@ export function createCustomerLinks({ db, pipeline, outbound, notify = async () 
   // ---------- public pages (no script; inline styles only) ----------
   function page(title, b, inner) {
     const color = /^#[0-9a-f]{6}$/i.test(b?.color || '') ? b.color : '#1f3a5f';
-    return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${esc(title)}</title>
+    return `<!doctype html><html lang="${esc(b?.locale || 'en-AU')}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${esc(title)}</title>
 <style>body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1b1f24;background:#f4f6f8}main{max-width:620px;margin:0 auto;padding:20px 16px 40px}header{border-top:6px solid ${color};background:#fff;padding:16px 18px;border-radius:10px 10px 0 0}h1{font-size:1.35rem;margin:0}.card{background:#fff;padding:18px;border-radius:0 0 10px 10px;box-shadow:0 1px 3px #0001}dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0}dt{color:#5b6573}dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}.total{font-weight:700;font-size:1.1rem}label{display:block;margin:12px 0 4px;font-weight:600}input[type=text],textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #b9c1cc;border-radius:8px;font:inherit}button,.btn{display:inline-block;margin-top:14px;padding:12px 18px;border:0;border-radius:8px;background:${color};color:#fff;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}.ghost{background:#e7ebf0;color:#1b1f24}.note{color:#5b6573;font-size:.92rem}.err{background:#fdecea;color:#8a1c12;padding:10px;border-radius:8px}.ok{background:#e8f5ec;color:#14532d;padding:10px;border-radius:8px}.stars{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:6px}.stars input{position:absolute;opacity:0}.stars label{font-size:2.2rem;margin:0;color:#c3c9d1;cursor:pointer;font-weight:400}.stars input:checked~label,.stars label:hover,.stars label:hover~label{color:#e0a100}.stars input:focus-visible+label{outline:2px solid ${color}}details{margin-top:18px}</style></head>
 <body><main><header><h1>${esc(b?.name || 'Your business')}</h1></header><div class="card">${inner}</div><p class="note">Sent through Oprun on behalf of ${esc(b?.name || 'the business')}.</p></main></body></html>`;
   }
@@ -229,8 +237,8 @@ export function createCustomerLinks({ db, pipeline, outbound, notify = async () 
     if (error) return { status: 404, html: page('Quote', null, `<p class="err">${esc(error)}</p>`) };
     const org = l.organisation_id, b = business(org), q = doc(org, l.document_id, 'quote');
     if (!q) return { status: 404, html: page('Quote', b, '<p class="err">This quote is no longer available. Please contact the business.</p>') };
-    const ref = reference(org, q), c = customer(org, q.customer_id);
-    const facts = `<dl><dt>Quote for</dt><dd>${esc(c?.name || '')}</dd>${ref ? `<dt>Reference</dt><dd>${esc(ref)}</dd>` : ''}<dt>Job</dt><dd>${esc(q.title)}</dd>${q.body ? `<dt>Details</dt><dd>${esc(q.body)}</dd>` : ''}<dt>Price</dt><dd>${money(q.amount_cents)}</dd><dt>GST</dt><dd>${q.gst_applies === 0 ? 'Not applicable' : money(q.gst_cents)}</dd><dt>Total</dt><dd class="total">${money(q.amount_cents + (q.gst_cents || 0))}</dd>${q.start_at ? `<dt>Proposed time</dt><dd>${esc(when(q.start_at, b.timezone))}</dd>` : ''}${q.estimated_hours ? `<dt>Time required</dt><dd>About ${esc(q.estimated_hours)} hour${q.estimated_hours === 1 ? '' : 's'}</dd>` : ''}</dl>`;
+    const ref = reference(org, q), c = customer(org, q.customer_id), money = moneyIn(b);
+    const facts = `<dl><dt>Quote for</dt><dd>${esc(c?.name || '')}</dd>${ref ? `<dt>Reference</dt><dd>${esc(ref)}</dd>` : ''}<dt>Job</dt><dd>${esc(q.title)}</dd>${q.body ? `<dt>Details</dt><dd>${esc(q.body)}</dd>` : ''}<dt>Price</dt><dd>${money(q.amount_cents)}</dd><dt>${esc(b.tax_label)}</dt><dd>${q.gst_applies === 0 ? 'Not applicable' : money(q.gst_cents)}</dd><dt>Total</dt><dd class="total">${money(q.amount_cents + (q.gst_cents || 0))}</dd>${q.start_at ? `<dt>Proposed time</dt><dd>${esc(when(q.start_at, b.timezone, b.locale))}</dd>` : ''}${q.estimated_hours ? `<dt>Time required</dt><dd>About ${esc(q.estimated_hours)} hour${q.estimated_hours === 1 ? '' : 's'}</dd>` : ''}</dl>`;
     const why = closedReason(l);
     if (why) return { status: 410, html: page('Quote', b, `<p class="err">${esc(why)}</p>`) };
     if (l.outcome === 'accepted') return { status: 200, html: page('Quote accepted', b, `<p class="ok">You accepted this quote. Thank you!</p>${facts}`) };

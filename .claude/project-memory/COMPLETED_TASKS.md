@@ -407,3 +407,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/country-profile.js, src/server.js registration routes, src/db.js, saas/create-account.html, saas/worker-onboarding.html, src/workforce-compliance.js
 - Acceptance: Tests in 02 §6 pass; existing AU registration tests unchanged; npm test and test:ui pass.
 - Evidence: Country sign-up built: src/country-profile.js, registration country branch + voice code resend, org country/verification_level columns, documents-only worker pack, unpaid international trials cannot message customers (INTL_TRIAL_OUTBOUND=allow overrides). Tests: scripts/country-signup.test.mjs 2/2 (AU unchanged, GB/IE flows, duplicates, blocked country, workers, outbound gate); npm test 73/73; test:ui 37/37; test:site-ui 16/16; browser check of create-account GB flow reaching verify-account. (recorded 2026-11-20 on claude/country-signup at c920d94)
+
+## T-170 Country rules: invoices, currency, tax wording, e-invoicing notices, marketing send window
+- Added: 2026-11-20
+- Requirement: Owner 20 Nov 2026: fix everything according to each country's local rules and regulations. Implemented per docs/product-redesign/06 §5.
+- Files: src/country-rules.js, src/finance/rules.js, src/finance/service.js, src/finance/routes.js, src/payments.js, src/customer-links.js, src/job-lifecycle.js, src/comms/service.js, saas/workspace-finance-platform.js
+- Acceptance: scripts/country-rules.test.mjs passes; AU finance tests unchanged; npm test and UI tests pass.
+- Evidence: Country rules in code (src/country-rules.js) for invoices, currency, tax wording/rates, e-invoicing notices, tax summary, record retention, dates, phone normalisation, marketing send window. Tests: scripts/country-rules.test.mjs 4/4 (UK VAT invoice end to end in GBP, US/IT/AU rules, send window, phones); npm test 73/73; test:ui 37/37; test:finance-ui 11/11; customer-links 8/8; job-lifecycle 8/8. (recorded 2026-11-20 on claude/country-rules at 2386889)
