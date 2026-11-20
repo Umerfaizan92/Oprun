@@ -505,3 +505,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-phone.js, src/meeting-extras.js, src/comms/voice.js, saas/workspace-nav.js, saas/locale-catalog.js, saas/workspace-meetings.js, saas/ds/refresh.css
 - Acceptance: Phone page with 3 tabs works on phone and desktop; recents and contacts from data; launchers inside footer band on desktop; all tests pass
 - Evidence: npm test 73/73; test:ui 38, navigation-ui 616, mobile-workspace-ui, redesign-ui, localization-ui, meetings-ui; browser check of keypad match, recents, contacts at 390/1440 (recorded 2026-11-20 on claude/phone-page at 25f8ff7)
+
+## T-184 Video meetings quality, backgrounds, calendar and appointments
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: Oprun video with HD up to 4K/8K where possible and background change; meetings on a calendar; Work > Bookings gets Appointments (customer meetings) on the calendar with AI-assisted automated reminders and notifications; organise Zoom setup.
+- Files: TBD
+- Acceptance: TBD
+- Evidence: npm test 73/73 (new appointments.test: calendar, slots, clash, video link, reminder once, team alert, isolation); test-meetings-ui PASS; test:ui 38, navigation-ui, mobile-workspace-ui, redesign-ui; browser: blur/backdrop effect sends CanvasCapture track, Full HD 1920x1080; appointment form and calendar at 390/1440 (recorded 2026-11-20 on claude/meetings-pro at 3eed0c9)

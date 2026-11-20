@@ -158,9 +158,9 @@
     const open = [...d.meetings.map(card), ...(zoomInfo?.meetings || []).map(zoomCard)];
     body.replaceChildren(...[
       quick,
-      el('h3', { class: 'mt-section-title', text: 'Upcoming and open meetings' }),
-      open.length ? el('ul', { class: 'mt-list' }, open) : el('p', { class: 'portal-empty', text: 'No meetings yet. Start one now or schedule one for later.' }),
       zoomPanel,
+      el('div', { class: 'mt-section-head' }, el('h3', { class: 'mt-section-title', text: 'Upcoming and open meetings' }), el('a', { class: 'mt-cal-link', href: '#work/bookings', text: 'Open the calendar' })),
+      open.length ? el('ul', { class: 'mt-list' }, open) : el('p', { class: 'portal-empty', text: 'No meetings yet. Start one now or schedule one for later. Customer video appointments made in Bookings appear here too.' }),
       d.past.length ? el('details', { class: 'portal-panel mt-past' }, el('summary', { text: `Past meetings (${d.past.length})` }), el('ul', { class: 'mt-list' }, d.past.map((m) => el('li', { class: 'mt-card' }, el('div', { class: 'mt-card-main' }, el('b', { text: m.title }), el('small', { text: `Ended ${when(m.ended_at)} · ${m.joins} join${m.joins === 1 ? '' : 's'}` })))))) : null,
       el('p', { class: 'portal-note mt-foot', text: `Oprun video: up to ${d.max_participants} people, picture and sound go directly between participants and are never recorded or stored.` + (d.relay_configured ? '' : ' On some office or mobile networks a direct call cannot connect; try another network or use Zoom.') })
     ].filter(Boolean));
