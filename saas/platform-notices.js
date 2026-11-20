@@ -97,36 +97,49 @@
   if(P())P().onChange(syncPush);else window.addEventListener('load',()=>P()?.onChange(syncPush));
   function notifyFresh(alert){if(prefs.muted||(alert.kind==='staff_chat_message'&&document.querySelector('#gds-staff-chat')?.dataset.state==='normal'))return;window.GDSLive?.push?.(alert.title,'success');if(!document.hidden)window.OprunPush?.speak(alert.title);if(prefs.sound){try{const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);g.gain.value=.025;o.frequency.value=660;o.start();o.stop(c.currentTime+.12);o.onended=()=>c.close()}catch{}}}
   const deliveryBox=dialog.querySelector('.delivery-activity');let deliveryActive=false;
-  async function loadDelivery(){try{const d=await api('/api/saas/message-delivery');deliveryBox.innerHTML='<h3>Delivery & follow-ups</h3><p>Accepted means the provider queued it. Delivery and email-open signals require signed provider webhooks. Email opens can be blocked; SMS read status is unavailable.</p>'+(!d.receipt_configuration?.email?'<p>Email receipt webhook needs configuration. Accepted emails remain pending until provider evidence arrives.</p>':'')+(window.GDS_SESSION?.user?.role==='owner'?'<label><input type="checkbox" data-followups '+(d.follow_ups?'checked':'')+'> Automatic 24-hour follow-ups for eligible invitations and approved customer emails</label>':'')+(d.deliveries.length?d.deliveries.map(x=>'<article class="platform-notice-item"><b>'+esc(x.subject)+'</b><p>'+esc(x.channel.toUpperCase()+' · '+x.recipient)+'</p><span class="status-pill">'+esc(x.status==='opened'?'Opened (tracking signal)':x.status)+'</span><small>'+esc(fmt(x.created_at))+(x.replied_at?' · Reply received '+esc(fmt(x.replied_at)):'')+'</small>'+(x.follow_up_state?'<small>Follow-up: '+esc(x.follow_up_state.replaceAll('_',' '))+'</small>':'')+(x.detail?'<small>'+esc(x.detail)+'</small>':'')+'</article>').join(''):'<p>No outbound deliveries recorded yet.</p>');deliveryBox.querySelector('[data-followups]')?.addEventListener('change',async e=>{try{await api('/api/saas/message-delivery/settings',{method:'PUT',body:JSON.stringify({follow_ups:e.target.checked})})}catch(err){e.target.checked=!e.target.checked;preferenceStatus.textContent=err.message}})}catch(e){deliveryBox.textContent=e.message}}
+  // T-182: compact, scannable rows. Channel icon, subject, who and when on one line, a coloured status chip.
+  const ICON={email:'<path d="M4 6h16v12H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',sms:'<path d="M5 5h14v10H9l-4 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',whatsapp:'<path d="M5 5h14v10H9l-4 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',call:'<path d="M7 4h3l1.5 4-2 1.3a10 10 0 0 0 5.2 5.2l1.3-2 4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 5 6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',bell:'<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8"/>',info:'<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'};
+  const ico=(k,tone='')=>'<span class="pn-ico '+tone+'" aria-hidden="true"><svg viewBox="0 0 24 24">'+(ICON[k]||ICON.bell)+'</svg></span>';
+  const kindIcon=k=>/sms|text/.test(k)?'sms':/mail/.test(k)?'email':/call|voice/.test(k)?'call':/whatsapp/.test(k)?'whatsapp':'bell';
+  const ago=v=>{const t=Date.parse(v);if(!Number.isFinite(t))return '';const m=Math.round((Date.now()-t)/6e4);return m<1?'now':m<60?m+'m':m<1440?Math.round(m/60)+'h':m<10080?Math.round(m/1440)+'d':fmt(v)};
+  const tone=s=>/fail|bounce|reject|undeliver|error/.test(s)?'bad':/deliver|open|repl|sent/.test(s)?'ok':'wait';
+  async function loadDelivery(){try{const d=await api('/api/saas/message-delivery');
+    const head='<div class="pn-section-head"><h3>Delivery & follow-ups</h3>'+(d.deliveries.length?'<span class="pn-count">'+d.deliveries.length+'</span>':'')+'</div>';
+    const follow=window.GDS_SESSION?.user?.role==='owner'?'<label class="pn-switch pn-follow"><input type="checkbox" data-followups '+(d.follow_ups?'checked':'')+'><span><b>Automatic 24-hour follow-ups for eligible invitations and approved customer emails</b></span></label>':'';
+    const about='<details class="pn-about"><summary>How delivery status works</summary><p>Accepted means the provider queued it. Delivery and email-open signals require signed provider webhooks. Email opens can be blocked; SMS read status is unavailable.</p>'+(!d.receipt_configuration?.email?'<p>Email receipt webhook needs configuration. Accepted emails remain pending until provider evidence arrives.</p>':'')+'</details>';
+    const rows=d.deliveries.length?'<div class="pn-rows">'+d.deliveries.map(x=>{const st=x.status==='opened'?'Opened (tracking signal)':x.status;const extra=[x.replied_at?'Reply received '+fmt(x.replied_at):'',x.follow_up_state?'Follow-up: '+x.follow_up_state.replaceAll('_',' '):'',x.detail||''].filter(Boolean);
+      return '<article class="pn-row pn-delivery" data-tone="'+tone(String(x.status))+'">'+ico(String(x.channel).toLowerCase())+'<div class="pn-main"><div class="pn-line"><b class="pn-title">'+esc(x.subject)+'</b><time title="'+esc(fmt(x.created_at))+'">'+esc(ago(x.created_at))+'</time></div><span class="pn-sub">'+esc(x.channel.toUpperCase()+' · '+x.recipient)+'</span>'+(extra.length?'<small class="pn-detail">'+esc(extra.join(' · '))+'</small>':'')+'</div><span class="pn-chip" data-tone="'+tone(String(x.status))+'">'+esc(st)+'</span></article>'}).join('')+'</div>':'<p class="pn-empty">No outbound deliveries recorded yet.</p>';
+    deliveryBox.innerHTML=head+follow+rows+about;
+    deliveryBox.querySelector('[data-followups]')?.addEventListener('change',async e=>{try{await api('/api/saas/message-delivery/settings',{method:'PUT',body:JSON.stringify({follow_ups:e.target.checked})})}catch(err){e.target.checked=!e.target.checked;preferenceStatus.textContent=err.message}})}catch(e){deliveryBox.textContent=e.message}}
   dialog.querySelector('[data-alert-tab]').onclick=()=>{deliveryActive=false;deliveryBox.hidden=true;list.hidden=false;dialog.querySelector('[data-alert-tab]').setAttribute('aria-selected','true');dialog.querySelector('[data-delivery-tab]').setAttribute('aria-selected','false')};
   dialog.querySelector('[data-delivery-tab]').onclick=()=>{deliveryActive=true;list.hidden=true;deliveryBox.hidden=false;dialog.querySelector('[data-alert-tab]').setAttribute('aria-selected','false');dialog.querySelector('[data-delivery-tab]').setAttribute('aria-selected','true');loadDelivery()};
   list.addEventListener('click',e=>{const b=e.target.closest('[data-alert-open]');if(!b)return;const a=alerts.find(x=>x.id===b.dataset.alertOpen);if(!a)return;if(a.link==='#staff-chat')window.SuperProStaffChat?.open();else if(a.link==='#delivery'){deliveryActive=true;list.hidden=true;deliveryBox.hidden=false;loadDelivery();return}else if(a.link?.startsWith('#'))location.hash=a.link;dialog.close()});
 
-  const alertHtml=()=>alerts.length?'<h3>For you</h3>'+alerts.map(a=>'<article class="platform-notice-item '+(a.read_at?'read':'unread')+'"><div class="platform-notice-meta"><span>'+esc(String(a.kind).replaceAll('_',' '))+'</span><span>'+esc(fmt(a.created_at))+'</span></div><h3>'+esc(a.title)+'</h3>'+(a.link?'<button type="button" class="secondary-button compact" data-alert-open="'+esc(a.id)+'">Open</button>':'')+(a.body?'<p>'+esc(a.body)+'</p>':'')+'</article>').join('')+'<h3>Platform updates</h3>':'';
+  const alertHtml=()=>alerts.length?'<div class="pn-section-head"><h3>For you</h3><span class="pn-count">'+alerts.length+'</span></div><div class="pn-rows">'+alerts.map(a=>'<article class="pn-row pn-alert platform-notice-item '+(a.read_at?'read':'unread')+'">'+ico(kindIcon(String(a.kind)))+'<div class="pn-main"><div class="pn-line"><b class="pn-title">'+esc(a.title)+'</b><time title="'+esc(fmt(a.created_at))+'">'+esc(ago(a.created_at))+'</time></div><span class="pn-sub">'+esc(String(a.kind).replaceAll('_',' '))+'</span>'+(a.body?'<p class="pn-body">'+esc(a.body)+'</p>':'')+'</div>'+(a.link?'<button type="button" class="pn-open" data-alert-open="'+esc(a.id)+'" aria-label="Open: '+esc(a.title)+'">Open</button>':'')+'</article>').join('')+'</div><div class="pn-section-head"><h3>Platform updates</h3></div>':'';
   function render(rows){
     const unread=rows.filter(x=>!x.read).length+alertUnread;
     bell.dataset.unreadCount=String(unread);
     if(dot) dot.hidden=unread===0;
     if(!rows.length){
-      list.innerHTML=alertHtml()+'<div class="gov-empty">No platform notices at the moment.</div>';
+      list.innerHTML=alertHtml()+'<p class="pn-empty">No platform notices at the moment.</p>';
       return;
     }
-    list.innerHTML=alertHtml()+rows.map(row=>{
+    list.innerHTML=alertHtml()+'<div class="pn-rows">'+rows.map(row=>{
       const timing=[
         row.starts_at ? 'Starts '+fmt(row.starts_at) : '',
         row.expected_end_at ? 'Expected '+fmt(row.expected_end_at) : '',
         row.resolved_at ? 'Resolved '+fmt(row.resolved_at) : ''
       ].filter(Boolean).join(' · ');
-      return '<article class="platform-notice-item '+(row.read?'read':'unread')+' '+esc(row.severity||'info')+'">'+
-        '<div class="platform-notice-meta"><span>'+esc(String(row.kind||'notice').replaceAll('_',' '))+'</span><code>'+esc(row.reference_code)+'</code></div>'+
-        '<h3>'+esc(row.title)+'</h3>'+
-        '<p>'+esc(row.message)+'</p>'+
+      return '<article class="pn-row pn-update platform-notice-item '+(row.read?'read':'unread')+' '+esc(row.severity||'info')+'">'+ico('info',esc(row.severity||'info'))+'<div class="pn-main">'+
+        '<div class="pn-line"><b class="pn-title">'+esc(row.title)+'</b><code>'+esc(row.reference_code)+'</code></div>'+
+        '<span class="pn-sub">'+esc(String(row.kind||'notice').replaceAll('_',' '))+'</span>'+
+        '<p class="pn-body">'+esc(row.message)+'</p>'+
         (timing?'<small>'+esc(timing)+'</small>':'')+
         (row.before_summary?'<details><summary>What was happening before</summary><p>'+esc(row.before_summary)+'</p></details>':'')+
         (row.after_summary?'<details><summary>What changed / current state</summary><p>'+esc(row.after_summary)+'</p></details>':'')+
-        (row.read?'':'<button class="secondary-button compact" type="button" data-platform-read="'+esc(row.id)+'">Mark as read</button>')+
-      '</article>';
-    }).join('');
+        (row.read?'':'<button class="pn-open" type="button" data-platform-read="'+esc(row.id)+'">Mark as read</button>')+
+      '</div></article>';
+    }).join('')+'</div>';
     list.querySelectorAll('[data-platform-read]').forEach(btn=>btn.onclick=async()=>{
       try{
         await api('/api/saas/announcements/'+encodeURIComponent(btn.dataset.platformRead)+'/read',{method:'POST',body:'{}'});

@@ -22,7 +22,10 @@
     }
     host.replaceChildren();
     // T-177: one related-pages row only (the page's main group); a page in two groups showed two stacked rows.
-    for (const flow of nav.contexts(view, session.user.role).filter(f => f.items.length >= 2).slice(0, 1)) {
+    // The row shown is the group that best matches this page's own menu section (Invoices: Documents & payments).
+    const groupOf = (v) => (nav.DOMAINS || []).find(g => g.items.some(i => i.view === v))?.id;
+    const home = groupOf(view), score = (f) => f.items.filter(i => groupOf(i.view) === home).length;
+    for (const flow of nav.contexts(view, session.user.role).filter(f => f.items.length >= 2).sort((a, b) => score(b) - score(a)).slice(0, 1)) {
       const row = make('nav', 'workflow-links'); row.setAttribute('aria-label', flow.label);
       row.append(make('span', 'workflow-label', flow.label));
       for (const item of flow.items) {

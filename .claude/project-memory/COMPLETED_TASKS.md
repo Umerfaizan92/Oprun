@@ -491,3 +491,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: TBD
 - Acceptance: TBD
 - Evidence: npm test 73/73; test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311; Connections screenshots 390 light and 1440 dark: 10 official icons, 2 Oprun badges (recorded 2026-11-20 on claude/official-logos at 6cc637e)
+
+## T-182 Notifications panel redesign and footer spacing
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: redesign the Alerts and Delivery activity lists in notifications (smaller, organised, professional); remove the extra space under the footer on every page and anywhere else; make the footer short and professional; push to Render.
+- Files: saas/platform-notices.js, saas/ds/refresh.css, saas/portal-shell.js, saas/workspace.html
+- Acceptance: Compact rows with icon, title, time, status chip; no space below footer on phone (only the tab bar) or laptop; footer compact; all suites pass
+- Evidence: npm test 73/73; test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, localization-ui, meetings-ui; measured gap below footer = tab bar only (phone) and 0 (laptop) (recorded 2026-11-20 on claude/notifications-footer at 9cf8d50)
