@@ -589,9 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-185 Media Studio preview and AI video generation
+## T-186 Video call: full screen, in-call invite, transcription
 - Status: NOT_STARTED
 - Added: 2026-11-20
-- Requirement: Owner 2026-11-20: preview and play generated videos and images inside Media Studio; enhance the AI setup and integrate the best AI video generators so any idea or prompt produces a top-quality video, AI-assisted.
-- Files: TBD
-- Acceptance: TBD
+- Requirement: Owner (21 Nov 2026): in Video Meetings call screen add a full-size (full screen) option; add an Invite button in the call with Email, Message (SMS) and Copy link so the invitation goes straight from the video; add transcription of the video conversation with an option to save it.
+- Files: saas/meet-call.js, saas/meetings.css, src/meetings.js, src/meeting-extras.js
+- Acceptance: Full screen toggles on desktop and phone; invite from call sends email/SMS via business senders and copy link works; transcript captured during call can be saved to the meeting and viewed later; tests and UI checks pass; deployed
