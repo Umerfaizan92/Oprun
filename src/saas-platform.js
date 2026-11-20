@@ -973,7 +973,7 @@ export function installSaasPlatform(app, deps) {
     if (msg.channel === 'sms') {
       // T-144: a business texts its customers only from its own Telnyx sender, so it pays Telnyx directly.
       // Oprun's platform key is used for Oprun's own alerts, never for a subscriber's customer messages.
-      if (deliveryEnv === env && !['platform', 'superpro'].includes(msg.organisation_id) && env.PLATFORM_SMS_FOR_BUSINESSES !== '1') throw notConfigured('Your business SMS sender (Connections, Email & SMS)');
+      if (deliveryEnv === env && !['platform', 'superpro'].includes(msg.organisation_id) && !(env.PLATFORM_SMS_FOR_BUSINESSES === '1' && env.NODE_ENV === 'test')) throw notConfigured('Your business SMS sender (Connections, Email & SMS)');
       const from = deliveryEnv.TELNYX_FROM_NUMBER || deliveryEnv.TELNYX_PHONE_NUMBER;
       if (!set(deliveryEnv.TELNYX_API_KEY) || !set(from)) throw notConfigured('SMS');
       const to = auE164(msg.contact_address);

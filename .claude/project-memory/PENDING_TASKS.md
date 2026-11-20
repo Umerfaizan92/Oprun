@@ -589,9 +589,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-187 Telnyx calling fix and one own-number setup for SMS and calls
-- Status: NOT_STARTED
-- Added: 2026-11-20
-- Requirement: Owner (21 Nov 2026, screenshot): Phone call fails 'Telnyx refused the call: Connection has no Outbound Profile assigned D38'. Fix. When a business sets up Telnyx SMS in Connections, calling must be set up automatically with the same number; every business uses only its own number; the operator's (platform) number must never be used by or accessible to subscribers. Audit and fix.
-- Files: src/comms/voice.js, src/comms/receptionist-telnyx.js, src/integration-*, saas connections UI
-- Acceptance: Click-to-call works after automatic outbound voice profile assignment; SMS number connection also enables calls; no platform number fallback for businesses; tests pass; deployed

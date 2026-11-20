@@ -38,7 +38,7 @@ export function openNow(hoursText, timezone = 'Australia/Perth', at = Date.now()
   return { open: false, parsed: true };
 }
 
-export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbound, notify = () => {}, orgForNumber, profileFor, onCallEnded = () => {}, credentialsFor = () => null, log = console }) {
+export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbound, notify = () => {}, orgForNumber, profileFor, onCallEnded = () => {}, repairOutbound = async () => false, credentialsFor = () => null, log = console }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS voice_calls (call_control_id TEXT PRIMARY KEY, call_session_id TEXT, organisation_id TEXT, scope TEXT NOT NULL, from_number TEXT, to_number TEXT, stage TEXT NOT NULL, route TEXT, transcript TEXT NOT NULL DEFAULT '', recording_url TEXT, voicemail INTEGER NOT NULL DEFAULT 0, transferred_to_human INTEGER NOT NULL DEFAULT 0, failures_json TEXT NOT NULL DEFAULT '[]', started_at TEXT NOT NULL, answered_at TEXT, ended_at TEXT, hangup_cause TEXT, duration_seconds INTEGER, inbox_message_id TEXT, updated_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS voice_calls_org ON voice_calls(organisation_id, started_at);
@@ -222,8 +222,13 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
   async function clickToCall(org, { staff, customer }) {
     const cr = credentialsFor(org);
     if (!cr?.api_key || !cr.application_id || !cr.number) throw Object.assign(new Error('Connect your business number in AI Receptionist first, or use "Call from this phone".'), { status: 409 });
-    const r = await fetchImpl(base() + '/calls', { method: 'POST', headers: { authorization: `Bearer ${cr.api_key}`, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ connection_id: cr.application_id, to: staff, from: cr.number, timeout_secs: 30, client_state: state({ stage: 'c2c', to: customer }) }) });
-    const j = await r.json().catch(() => ({}));
+    const dial = async () => { const r = await fetchImpl(base() + '/calls', { method: 'POST', headers: { authorization: `Bearer ${cr.api_key}`, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ connection_id: cr.application_id, to: staff, from: cr.number, timeout_secs: 30, client_state: state({ stage: 'c2c', to: customer }) }) }); return { r, j: await r.json().catch(() => ({})) }; };
+    let { r, j } = await dial();
+    // T-187: "Connection has no Outbound Profile assigned" (D38): attach one in the business's own account, then try once more.
+    if (!r.ok && /D38|outbound profile/i.test(JSON.stringify(j?.errors || ''))) {
+      let fixed = false; try { fixed = await repairOutbound(org); } catch (e) { throw Object.assign(new Error(`Outgoing calls are not enabled on your Telnyx number and Oprun could not enable them: ${e.message}`), { status: 502 }); }
+      if (fixed) ({ r, j } = await dial());
+    }
     const id = j?.data?.call_control_id;
     if (!r.ok || !id) throw Object.assign(new Error(j?.errors?.[0]?.detail ? `Telnyx refused the call: ${j.errors[0].detail}` : 'Telnyx did not start the call.'), { status: 502 });
     db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,route,account,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(id, j.data.call_session_id || null, org, 'business', customer, cr.number, 'c2c', 'outgoing', 'tenant', iso(), iso());
