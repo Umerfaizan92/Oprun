@@ -400,3 +400,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: docs/product-redesign/*
 - Acceptance: Eight required outputs written, grounded in the current code with file references, decisions needing the owner listed, progress state updated, committed and pushed.
 - Evidence: Specification written in docs/product-redesign/ (00-07 + PROMPT_ORIGINAL.txt), grounded in code at 4f60bcc with file references; npm run manifest/memory checks passed. Implementation is phased in 07_IMPLEMENTATION_PLAN.md; Phase 1 next. (recorded 2026-11-20 on claude/product-redesign-spec at 4f60bcc)
+
+## T-168 Phase 1: country-based sign-up and worker documents pack
+- Added: 2026-11-20
+- Requirement: Implement docs/product-redesign/02_COUNTRY_ONBOARDING.md and Phase 1 of 07_IMPLEMENTATION_PLAN.md; Australian sign-up unchanged.
+- Files: src/country-profile.js, src/server.js registration routes, src/db.js, saas/create-account.html, saas/worker-onboarding.html, src/workforce-compliance.js
+- Acceptance: Tests in 02 §6 pass; existing AU registration tests unchanged; npm test and test:ui pass.
+- Evidence: Country sign-up built: src/country-profile.js, registration country branch + voice code resend, org country/verification_level columns, documents-only worker pack, unpaid international trials cannot message customers (INTL_TRIAL_OUTBOUND=allow overrides). Tests: scripts/country-signup.test.mjs 2/2 (AU unchanged, GB/IE flows, duplicates, blocked country, workers, outbound gate); npm test 73/73; test:ui 37/37; test:site-ui 16/16; browser check of create-account GB flow reaching verify-account. (recorded 2026-11-20 on claude/country-signup at c920d94)

@@ -963,6 +963,13 @@ export function installSaasPlatform(app, deps) {
     const deliveryEnv=['email','sms'].includes(msg.channel)?transportEnv(msg.organisation_id):env;
     const notConfigured = (what) => Object.assign(new Error(`${what} is not configured, so the approved message could not be sent.`), { code: 'NOT_CONFIGURED' });
     const set = (v) => Boolean(String(v || '').trim());
+    // T-168: a business outside Australia is checked by email and phone only, so it can message customers once a
+    // payment method is on file (paid subscription). Inbound, the receptionist and drafting all work before that.
+    if (['email', 'sms'].includes(msg.channel) && env.INTL_TRIAL_OUTBOUND !== 'allow') {
+      const o = db.prepare(`SELECT o.country,o.verification_level,s.status,s.payment_status,s.external_subscription_id FROM organisations o LEFT JOIN organisation_subscriptions s ON s.organisation_id=o.id WHERE o.id=?`).get(msg.organisation_id);
+      if (o && o.country && o.country !== 'AU' && o.verification_level === 'contact_verified' && !(o.external_subscription_id || ['paid', 'active', 'succeeded'].includes(o.payment_status) || o.status === 'active'))
+        throw Object.assign(new Error('Add a payment method in Setup → Plans & billing to send messages to customers. This protects new accounts from misuse. Your message stays approved'), { code: 'NOT_CONFIGURED' });
+    }
     if (msg.channel === 'sms') {
       // T-144: a business texts its customers only from its own Telnyx sender, so it pays Telnyx directly.
       // Oprun's platform key is used for Oprun's own alerts, never for a subscriber's customer messages.

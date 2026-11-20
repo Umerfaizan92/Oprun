@@ -98,6 +98,7 @@ async function boot(){
   window.dispatchEvent(new CustomEvent('superpro:workspace-ready'));
   loadBusinessSwitcher().catch(err=>note(err.message,true));
   document.documentElement.dataset.userRole=String(d.user.role||'user').toLowerCase();
+  document.documentElement.dataset.country=String(d.organisation?.country||'AU').toUpperCase();try{updateWorkStatusHelp()}catch{}
   const role=String(d.user.role||'').toLowerCase();
   viewSequence=NAV.sequence(role);NAV.render($('.workspace-nav'),role);NAV.setRoleBadge($('#org-role-side'),role);
   $('#org-name-side').textContent=d.organisation.name;$('#workspace-member-name').textContent=d.user.full_name;const designation=$('#workspace-member-designation');designation.textContent=d.user.role_title||'';designation.hidden=!d.user.role_title;$('#workspace-operator-link').hidden=!(d.user.role==='owner'&&d.user.platform_owner===true);const workspaceAvatar=$('#org-avatar-side');if(workspaceAvatar)workspaceAvatar.textContent=initials(d.organisation.name);$('#user-line').textContent=d.user.full_name+' · '+d.user.role+' · '+d.user.email;$('#mfa-status-side').textContent=d.user.mfa_enabled?'Two-step sign-in is on':'Two-step sign-in is off';$('#profile-name').textContent=d.user.full_name;$('#profile-role').textContent=d.user.role;$('#profile-avatar').textContent=initials(d.user.full_name);$('#first-name').textContent=d.user.full_name.split(/\s+/)[0]||'there';
@@ -486,6 +487,9 @@ document.addEventListener('submit',e=>{const form=e.target.closest('[data-staff-
 
 function updateWorkStatusHelp(){
   const select=$('#worker-form [name="work_status"]');if(!select)return;
+  // Outside Australia there is no declared work status, visa or VEVO step (T-168): the business reviews documents.
+  const intl=(document.documentElement.dataset.country||'AU')!=='AU',lab=select.closest('label');
+  if(lab)lab.style.display=intl?'none':'';if(intl){select.value='requires_review';$('#work-status-help')?.remove();return}
   let box=$('#work-status-help');if(!box){box=document.createElement('div');box.id='work-status-help';box.className='notice-banner full';select.closest('label').after(box)}
   const map={
     australian_citizen:['Declaration only — evidence review required','Citizenship is not verified by selecting this option. Appropriate identity/citizenship evidence must be reviewed.','https://immi.homeaffairs.gov.au/visas/already-have-a-visa/check-visa-details-and-conditions/check-conditions-online/'],

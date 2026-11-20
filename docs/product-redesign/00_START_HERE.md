@@ -21,7 +21,7 @@ Related earlier work: `docs/ai-website/` (Website section), `docs/ai-receptionis
 ## PROGRESS STATE (updated 20 Nov 2026)
 
 - [x] AI Receptionist section completed (T-143/T-144; send-failure reasons and retry added in PR #144)
-- [x] Country-based account creation logic **designed** (doc 02). Code: not started.
+- [x] Country-based account creation logic designed (doc 02) and **built in Phase 1 (T-168)**: country choice, international sign-up by email + mobile (voice-call code fallback), documents-only worker pack, outbound messages for unpaid international trials held until a payment method is added. Still to do in Phase 1b: invoice tax labels per country and the Business setup country fields.
 - [x] Full product audit completed (doc 01, against commit `4f60bcc`)
 - [x] Page-by-page redesign plan, including device adaptation (doc 03)
 - [x] Business Setup + Worker Compliance reorganisation **designed** (doc 03 §4–5, doc 02 §4)
@@ -31,8 +31,8 @@ Related earlier work: `docs/ai-website/` (Website section), `docs/ai-receptionis
 - [x] Legal, security, billing audit (doc 06). Adviser review pending.
 - [x] Tool / plugin / agent recommendations (doc 04 §5)
 - [x] Final implementation plan + GitHub-ready specs (doc 07)
-- **Current focus:** Phase 1 (country-based sign-up and worker documents)
-- **Next:** build Phase 1 on a branch, test, push for live testing, then Phase 2 (navigation clean-up)
+- **Current focus:** Phase 1b (invoice tax labels per country) and Phase 2 (navigation clean-up)
+- **Next:** Phase 3 (adaptive foundation)
 
 What is true today: the specification is complete and in the repository. The product is **not yet** adaptive to
 the five device classes or open to other countries. Those are built in Phases 1–5. This file is updated at the

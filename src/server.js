@@ -97,6 +97,7 @@ import { publicProductAnswer } from './product-guide-knowledge.js';
 import { installMobileAssociations } from './mobile-association.js';
 import { createObjectStorage } from './object-storage.js';
 import { operatorMfaEnforced, passwordCandidates as policyPasswordCandidates, strictPasswordMatch, sessionTooOld } from './security-policy.js';
+import { listCountries, countryProfile, normalisePhone, isDisposableEmail, isCountryCode, blockedCountries, validTimeZone } from './country-profile.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -2200,7 +2201,7 @@ function requireSaasUser(req,res,next){
   const requestedOrg=String(req.get('X-Organisation-Id')||'').trim();
   if(requestedOrg&&!/^[a-f0-9-]{36}$/i.test(requestedOrg))return res.status(400).json({ok:false,error:'Invalid organisation selection.'});
   const now=new Date().toISOString(),hash=sha256(raw);
-  const row=db.prepare(`SELECT s.id session_id,s.user_id,u.email,u.phone,u.full_name,u.mfa_enabled,u.email_verified,u.phone_verified,m.organisation_id,m.role,o.name organisation_name,o.slug,o.abn,o.business_identifier_type,o.business_identifier,o.legal_name,o.abn_status,o.address_unit,o.address_street_number,o.address_street_name,o.address_suburb,o.address_state,o.address_postcode,o.address_formatted,o.address_source FROM user_sessions s JOIN users u ON u.id=s.user_id JOIN memberships m ON m.user_id=u.id JOIN organisations o ON o.id=m.organisation_id WHERE s.token_hash=? AND s.expires_at>? AND u.status='active' AND m.status='active' AND (?='' OR m.organisation_id=?) ORDER BY m.created_at LIMIT 1`).get(hash,now,requestedOrg,requestedOrg);
+  const row=db.prepare(`SELECT s.id session_id,s.user_id,u.email,u.phone,u.full_name,u.mfa_enabled,u.email_verified,u.phone_verified,m.organisation_id,m.role,o.name organisation_name,o.slug,o.abn,o.business_identifier_type,o.business_identifier,o.legal_name,o.abn_status,o.address_unit,o.address_street_number,o.address_street_name,o.address_suburb,o.address_state,o.address_postcode,o.address_formatted,o.address_source,o.country,o.verification_level FROM user_sessions s JOIN users u ON u.id=s.user_id JOIN memberships m ON m.user_id=u.id JOIN organisations o ON o.id=m.organisation_id WHERE s.token_hash=? AND s.expires_at>? AND u.status='active' AND m.status='active' AND (?='' OR m.organisation_id=?) ORDER BY m.created_at LIMIT 1`).get(hash,now,requestedOrg,requestedOrg);
   if(!row){
     if(requestedOrg&&db.prepare(`SELECT 1 FROM user_sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.status='active'`).get(hash,now))
       return res.status(403).json({ok:false,error:'You do not have access to that organisation.'});
@@ -2397,6 +2398,14 @@ async function verifySmsVerificationCode(phone,code){
   }
   return {ok:null,provider:'local_hash'};
 }
+const voiceCodesAvailable=()=>Boolean(configuredValue(env.TELNYX_API_KEY)&&configuredValue(env.TELNYX_VERIFY_PROFILE_ID));
+async function sendVoiceVerification(to){
+  await assertTelnyxVerifyReady();
+  const response=await fetch('https://api.telnyx.com/v2/verifications/call',{method:'POST',headers:{authorization:`Bearer ${env.TELNYX_API_KEY}`,'content-type':'application/json','accept':'application/json'},body:JSON.stringify({phone_number:to,verify_profile_id:env.TELNYX_VERIFY_PROFILE_ID})});
+  const data=await response.json().catch(()=>({}));
+  if(response.ok)return {sent:true,message_id:data?.data?.id||null};
+  throw new Error(`Voice verification failed: ${data?.errors?.[0]?.detail||data?.errors?.[0]?.title||`HTTP ${response.status}`}`);
+}
 async function deliverRegistrationCodes(row,emailCode,smsCode){
   const emailResult=await sendSaasVerificationEmail(env,{to:row.email,code:emailCode,businessName:row.business_name,registration:true}).catch(err=>({sent:false,reason:err.message}));
   const smsResult=await sendSmsVerification(row.phone,smsCode).catch(err=>({sent:false,reason:err.message}));
@@ -2485,7 +2494,39 @@ app.post('/api/saas/abn/verify',businessVerificationLimiter,async(req,res)=>{
 
 function referralLineage(code){let current=String(code||'').trim().toUpperCase(),root=current,level=1,seen=new Set();for(let i=0;i<12&&current&&!seen.has(current);i++){seen.add(current);const c=db.prepare(`SELECT organisation_id FROM referral_codes WHERE code=? AND status='active'`).get(current);if(!c)break;const org=db.prepare(`SELECT referrer_code FROM organisations WHERE id=?`).get(c.organisation_id);if(!org?.referrer_code)break;root=String(org.referrer_code).trim().toUpperCase();current=root;level++}return {root_code:root||String(code||'').trim().toUpperCase(),direct_code:String(code||'').trim().toUpperCase(),level}}
 
+// Country-based sign-up (T-168, docs/product-redesign/02_COUNTRY_ONBOARDING.md). Countries a business can choose.
+app.get('/api/saas/registration/countries',(req,res)=>{res.set('Cache-Control','public, max-age=3600');res.json({ok:true,countries:listCountries(env),default:'AU'})});
+
+// Any country except Australia: no business registry check; the owner's email and phone are verified instead.
+async function startInternationalRegistration(req,res,country){
+  const opt=(n)=>z.string().trim().max(n).optional().or(z.literal(''));
+  const parsed=z.object({country:z.string(),business_name:z.string().trim().min(2).max(150),registration_number:opt(80),address_line1:z.string().trim().min(2).max(180),address_line2:opt(180),city:z.string().trim().min(1).max(120),region:opt(120),postal_code:opt(20),timezone:opt(80),full_name:z.string().trim().min(2).max(150),email:z.string().trim().email().max(200),phone:z.string().trim().min(6).max(30),password:z.string().min(14).max(200),confirm_password:z.string().min(14).max(200),plan_id:z.enum(['starter','operations','scale']).default('starter'),accept_terms:z.literal(true),terms_version:z.string().trim().min(3).max(80),referral_code:opt(40)}).refine(v=>v.password===v.confirm_password,{message:'Passwords do not match.',path:['confirm_password']}).safeParse(req.body);
+  if(!parsed.success)return res.status(400).json({ok:false,error:'Enter your business name and address, your name, email and mobile, matching passwords of at least 14 characters, and accept the legal notices.'});
+  const d=parsed.data,email=d.email.toLowerCase(),phone=normalisePhone(d.phone,country),referralCode=String(d.referral_code||'').trim().toUpperCase(),profile=countryProfile(country);
+  if(!phone)return res.status(400).json({ok:false,error:`Enter a mobile number for ${profile.name}, for example with ${profile.dial} at the start.`});
+  if(isDisposableEmail(email))return res.status(400).json({ok:false,error:'Use a business or personal email address you keep. Temporary email addresses cannot be used.'});
+  const existingUser=db.prepare(`SELECT id,email,phone FROM users WHERE email=? OR phone=?`).get(email,phone);
+  if(existingUser)return res.status(409).json({ok:false,code:'ACCOUNT_EXISTS',sign_in_url:'/saas/sign-in.html',error:existingUser.email===email?'An account already exists with this email address. Sign in to your existing Oprun workspace.':'An account already exists with this mobile number. Sign in to your existing Oprun workspace.'});
+  const existingBusiness=db.prepare(`SELECT id,name FROM organisations WHERE lower(trim(name))=lower(trim(?)) AND country=?`).get(d.business_name,country);
+  if(existingBusiness)return res.status(409).json({ok:false,code:'BUSINESS_EXISTS',sign_in_url:'/saas/sign-in.html',business_name:existingBusiness.name,error:`An Oprun workspace already exists for ${existingBusiness.name}. Sign in instead of creating another account.`});
+  if(referralCode&&!db.prepare(`SELECT code FROM referral_codes WHERE code=? AND status='active'`).get(referralCode))return res.status(400).json({ok:false,error:'The referral code was not recognised. Check it or leave the field blank.'});
+  db.prepare(`DELETE FROM pending_registrations WHERE expires_at<=? OR email=? OR phone=?`).run(new Date().toISOString(),email,phone);
+  const id=crypto.randomUUID(),salt=crypto.randomBytes(16).toString('hex'),emailCode=otpCode(),smsCode=otpCode(),now=new Date(),expires=new Date(now.getTime()+10*60*1000);
+  const addressFormatted=[d.address_line1,d.address_line2,d.city,d.region,d.postal_code,profile.name].filter(Boolean).join(', ');
+  db.prepare(`INSERT INTO pending_registrations (id,business_name,legal_name,abn,business_identifier_type,business_identifier,abn_status,abn_payload_json,state,postcode,address_formatted,address_source,full_name,email,phone,password_hash,password_salt,plan_id,terms_version,referral_code,email_code_hash,sms_code_hash,expires_at,created_at,updated_at,country,address_line1,address_line2,city,region,postal_code,registration_number_unverified,timezone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+    .run(id,d.business_name,d.business_name,'','NONE',null,'not_applicable','{}',d.region||'',d.postal_code||'',addressFormatted,'manual',d.full_name,email,phone,passwordHash(d.password,salt),salt,d.plan_id,d.terms_version,referralCode||null,otpHash(id,emailCode),otpHash(id,smsCode),expires.toISOString(),now.toISOString(),now.toISOString(),country,d.address_line1,d.address_line2||null,d.city,d.region||null,d.postal_code||null,d.registration_number||null,validTimeZone(d.timezone)||null);
+  const delivery=await deliverRegistrationCodes({id,business_name:d.business_name,email,phone},emailCode,smsCode);
+  res.status(202).json({ok:true,pending_id:id,expires_at:expires.toISOString(),email:maskEmail(email),phone:maskPhone(phone),country,business:{identifier_type:'NONE',identifier:'',status:'not_verified',legal_name:d.business_name,abn:'',source:'self_declared',address:addressFormatted},delivery,voice_available:voiceCodesAvailable(),test_mode:verificationTestMode,message:delivery.all_sent?'Enter the security codes sent to your email and mobile.':'Your verification session is saved. One or more codes could not be delivered yet; use the resend buttons, or ask for a voice call.'});
+}
+
 app.post('/api/saas/registration/start',registrationStartLimiter,async(req,res)=>{
+  const signupCountry=String(req.body?.country||'AU').trim().toUpperCase();
+  if(signupCountry!=='AU'){
+    if(!isCountryCode(signupCountry))return res.status(400).json({ok:false,error:'Choose the country where your business operates.'});
+    if(blockedCountries(env).has(signupCountry))return res.status(403).json({ok:false,code:'COUNTRY_NOT_AVAILABLE',error:'Oprun is not available for businesses in this country.'});
+    try{return await startInternationalRegistration(req,res,signupCountry)}catch(err){return res.status(err.statusCode||400).json({ok:false,error:err.message})}
+  }
+  if(isDisposableEmail(req.body?.email))return res.status(400).json({ok:false,error:'Use a business or personal email address you keep. Temporary email addresses cannot be used.'});
   const schema=z.object({business_name:z.string().trim().min(2).max(150),identifier_type:z.enum(['ABN','ACN','OTHER']).default('ABN'),business_identifier:z.string().min(1).max(80),state:z.enum(['ACT','NSW','NT','QLD','SA','TAS','VIC','WA']),postcode:z.string().regex(/^\d{4}$/),address_unit:z.string().trim().max(40).optional().or(z.literal('')),address_street_number:z.string().trim().max(30).optional().or(z.literal('')),address_street_name:z.string().trim().max(180).optional().or(z.literal('')),address_suburb:z.string().trim().max(120).optional().or(z.literal('')),address_formatted:z.string().trim().max(500).optional().or(z.literal('')),address_source:z.string().trim().max(80).optional().or(z.literal('')),full_name:z.string().trim().min(2).max(150),email:z.string().trim().email().max(200),phone:z.string().trim().min(8).max(30),password:z.string().min(14).max(200),confirm_password:z.string().min(14).max(200),plan_id:z.enum(['starter','operations','scale']).default('starter'),accept_terms:z.literal(true),terms_version:z.string().trim().min(3).max(80),referral_code:z.string().trim().max(40).optional().or(z.literal(''))}).refine(v=>v.password===v.confirm_password,{message:'Passwords do not match.',path:['confirm_password']});
   const parsed=schema.safeParse(req.body);
   if(!parsed.success)return res.status(400).json({ok:false,error:'Use valid business and account details, an Australian mobile number, matching passwords of at least 14 characters, and accept the legal notices.'});
@@ -2512,8 +2553,21 @@ app.post('/api/saas/registration/start',registrationStartLimiter,async(req,res)=
 });
 
 app.post('/api/saas/registration/resend',otpResendLimiter,async(req,res)=>{
-  const parsed=z.object({pending_id:z.string().uuid(),channel:z.enum(['email','sms'])}).safeParse(req.body);if(!parsed.success)return res.status(400).json({ok:false,error:'Invalid verification request.'});
+  const parsed=z.object({pending_id:z.string().uuid(),channel:z.enum(['email','sms','voice'])}).safeParse(req.body);if(!parsed.success)return res.status(400).json({ok:false,error:'Invalid verification request.'});
   const row=db.prepare(`SELECT * FROM pending_registrations WHERE id=? AND expires_at>?`).get(parsed.data.pending_id,new Date().toISOString());if(!row)return res.status(410).json({ok:false,error:'This verification request expired. Start registration again.'});
+  if(parsed.data.channel==='voice'){
+    // A voice call reads out the code through Telnyx Verify; it replaces the SMS code for this session.
+    if(!voiceCodesAvailable())return res.status(503).json({ok:false,error:'Voice call codes are not available. Use the SMS code, or contact support.'});
+    try{
+      const call=await sendVoiceVerification(row.phone);
+      db.prepare(`UPDATE pending_registrations SET expires_at=?,updated_at=? WHERE id=?`).run(new Date(Date.now()+10*60*1000).toISOString(),new Date().toISOString(),row.id);
+      logVerificationDelivery({purpose:'registration_resend',subjectId:row.id,channel:'voice',destination:row.phone,provider:'telnyx',messageId:call.message_id,status:'sent'});
+      return res.json({ok:true,channel:'voice',message:'We are calling your mobile now. Enter the code you hear in the SMS code box.',delivery:{sent:true,accepted:true,provider:'telnyx_verify_call',message_id:call.message_id||null}});
+    }catch(err){
+      logVerificationDelivery({purpose:'registration_resend',subjectId:row.id,channel:'voice',destination:row.phone,provider:'telnyx',status:'failed',reason:err.message});
+      return res.status(503).json({ok:false,error:err.message});
+    }
+  }
   const code=otpCode(),hash=otpHash(row.id,code),now=new Date(),expires=new Date(now.getTime()+10*60*1000);
   try{
     const delivery=parsed.data.channel==='email'
@@ -2546,12 +2600,12 @@ app.post('/api/saas/registration/verify',otpVerifyLimiter,async(req,res)=>{
   if(!emailOk||!smsOk){db.prepare(`UPDATE pending_registrations SET verification_attempts=verification_attempts+1,updated_at=? WHERE id=?`).run(new Date().toISOString(),row.id);return res.status(401).json({ok:false,error:smsReason?`SMS verification was not accepted: ${smsReason}`:'One or both verification codes are incorrect.'});}
   const duplicateUser=db.prepare(`SELECT id,email,phone FROM users WHERE email=? OR phone=?`).get(row.email,row.phone);
   if(duplicateUser)return res.status(409).json({ok:false,code:'ACCOUNT_EXISTS',sign_in_url:'/saas/sign-in.html',error:duplicateUser.email===row.email?'This email address already belongs to an Oprun account. Sign in instead.':'This mobile number already belongs to an Oprun account. Sign in instead.'});
-  const duplicateBusiness=db.prepare(`SELECT id,name FROM organisations WHERE business_identifier_type=? AND business_identifier=?`).get(row.business_identifier_type,row.business_identifier)||db.prepare(`SELECT id,name FROM organisations WHERE lower(trim(name))=lower(trim(?))`).get(row.business_name);
+  const duplicateBusiness=(row.country||'AU')!=='AU'?db.prepare(`SELECT id,name FROM organisations WHERE lower(trim(name))=lower(trim(?)) AND country=?`).get(row.business_name,row.country):(db.prepare(`SELECT id,name FROM organisations WHERE business_identifier_type=? AND business_identifier=?`).get(row.business_identifier_type,row.business_identifier)||db.prepare(`SELECT id,name FROM organisations WHERE lower(trim(name))=lower(trim(?))`).get(row.business_name));
   if(duplicateBusiness)return res.status(409).json({ok:false,code:'BUSINESS_EXISTS',sign_in_url:'/saas/sign-in.html',business_name:duplicateBusiness.name,error:`An Oprun workspace already exists for ${duplicateBusiness.name}. Sign in instead of creating another account.`});
   let slug=row.business_name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,45)||'business';while(db.prepare(`SELECT id FROM organisations WHERE slug=?`).get(slug))slug=`${slug}-${crypto.randomBytes(2).toString('hex')}`;
   const userId=crypto.randomUUID(),orgId=crypto.randomUUID(),now=new Date().toISOString(),trialEnds=new Date(Date.now()+14*86400000).toISOString();
-  db.transaction(()=>{db.prepare(`INSERT INTO users (id,email,phone,full_name,password_hash,password_salt,email_verified,phone_verified,created_at,updated_at) VALUES (?,?,?,?,?,?,1,1,?,?)`).run(userId,row.email,row.phone,row.full_name,row.password_hash,row.password_salt,now,now);db.prepare(`INSERT INTO organisations (id,name,slug,abn,business_identifier_type,business_identifier,legal_name,abn_status,abn_verified_at,state,postcode,address_unit,address_street_number,address_street_name,address_suburb,address_state,address_postcode,address_formatted,address_source,referrer_code,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(orgId,row.business_name,slug,row.abn||null,row.business_identifier_type||'ABN',row.business_identifier||row.abn,row.legal_name,row.abn_status,now,row.state,row.postcode,row.address_unit||null,row.address_street_number||null,row.address_street_name||null,row.address_suburb||null,row.address_state||row.state,row.address_postcode||row.postcode,row.address_formatted||null,row.address_source||'manual',row.referral_code||null,now,now);db.prepare(`INSERT INTO memberships (organisation_id,user_id,role,created_at) VALUES (?,?,'owner',?)`).run(orgId,userId,now);db.prepare(`INSERT INTO onboarding_profiles (organisation_id,phone,updated_at) VALUES (?,?,?)`).run(orgId,row.phone,now);db.prepare(`INSERT INTO organisation_subscriptions (id,organisation_id,plan_id,status,trial_ends_at,created_at,updated_at) VALUES (?,?,?,'trialing',?,?,?)`).run(crypto.randomUUID(),orgId,row.plan_id,trialEnds,now,now);db.prepare(`INSERT INTO workers (id,organisation_id,user_id,full_name,email,phone,role_title,employment_type,worker_level,status,work_rights_status,onboarding_progress,approved_for_scheduling,created_at,updated_at) VALUES (?,?,?,?,?,?,'Owner / Administrator','owner',7,'active','verified',100,1,?,?)`).run(crypto.randomUUID(),orgId,userId,row.full_name,row.email,row.phone,now,now);const ownCode=`SP-${orgId.replace(/-/g,'').slice(0,8).toUpperCase()}`;db.prepare(`INSERT OR IGNORE INTO referral_codes (id,organisation_id,owner_user_id,code,status,created_at,updated_at) VALUES (?,?,?,?, 'active',?,?)`).run(crypto.randomUUID(),orgId,userId,ownCode,now,now);if(row.referral_code){const lineage=referralLineage(row.referral_code);db.prepare(`INSERT INTO referral_events (id,referrer_code,direct_referrer_code,referred_email,referred_user_id,referred_organisation_id,level,status,reward_cents,created_at) VALUES (?,?,?,?,?,?,?,'registered',0,?)`).run(crypto.randomUUID(),lineage.root_code,lineage.direct_code,row.email,userId,orgId,lineage.level,now)}db.prepare(`DELETE FROM pending_registrations WHERE id=?`).run(row.id);})();
-  saasAudit({saas:{organisation_id:orgId,user_id:userId},ip:req.ip,get:(name)=>req.get(name)},'account.registered_verified','user',userId,{organisation_slug:slug,plan_id:row.plan_id,terms_version:row.terms_version,terms_accepted_at:row.created_at,business_identifier_type:row.business_identifier_type,business_identifier:row.business_identifier,abn:row.abn,email_verified:true,phone_verified:true,business_verified:true});
+  db.transaction(()=>{db.prepare(`INSERT INTO users (id,email,phone,full_name,password_hash,password_salt,email_verified,phone_verified,created_at,updated_at) VALUES (?,?,?,?,?,?,1,1,?,?)`).run(userId,row.email,row.phone,row.full_name,row.password_hash,row.password_salt,now,now);const intl=(row.country||'AU')!=='AU';db.prepare(`INSERT INTO organisations (id,name,slug,abn,business_identifier_type,business_identifier,legal_name,abn_status,abn_verified_at,state,postcode,address_unit,address_street_number,address_street_name,address_suburb,address_state,address_postcode,address_formatted,address_source,referrer_code,created_at,updated_at,country,verification_level,address_line1,address_line2,city,region,postal_code,registration_number_unverified,timezone) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(orgId,row.business_name,slug,row.abn||null,row.business_identifier_type||'ABN',intl?null:(row.business_identifier||row.abn),row.legal_name,row.abn_status,intl?null:now,row.state||null,row.postcode||null,row.address_unit||null,row.address_street_number||null,row.address_street_name||null,row.address_suburb||null,intl?(row.region||null):(row.address_state||row.state),intl?(row.postal_code||null):(row.address_postcode||row.postcode),row.address_formatted||null,row.address_source||'manual',row.referral_code||null,now,now,row.country||'AU',intl?'contact_verified':'business_verified',row.address_line1||null,row.address_line2||null,row.city||null,row.region||null,row.postal_code||null,row.registration_number_unverified||null,row.timezone||'Australia/Perth');db.prepare(`INSERT INTO memberships (organisation_id,user_id,role,created_at) VALUES (?,?,'owner',?)`).run(orgId,userId,now);db.prepare(`INSERT INTO onboarding_profiles (organisation_id,phone,updated_at) VALUES (?,?,?)`).run(orgId,row.phone,now);db.prepare(`INSERT INTO organisation_subscriptions (id,organisation_id,plan_id,status,trial_ends_at,created_at,updated_at) VALUES (?,?,?,'trialing',?,?,?)`).run(crypto.randomUUID(),orgId,row.plan_id,trialEnds,now,now);db.prepare(`INSERT INTO workers (id,organisation_id,user_id,full_name,email,phone,role_title,employment_type,worker_level,status,work_rights_status,onboarding_progress,approved_for_scheduling,created_at,updated_at) VALUES (?,?,?,?,?,?,'Owner / Administrator','owner',7,'active','verified',100,1,?,?)`).run(crypto.randomUUID(),orgId,userId,row.full_name,row.email,row.phone,now,now);const ownCode=`SP-${orgId.replace(/-/g,'').slice(0,8).toUpperCase()}`;db.prepare(`INSERT OR IGNORE INTO referral_codes (id,organisation_id,owner_user_id,code,status,created_at,updated_at) VALUES (?,?,?,?, 'active',?,?)`).run(crypto.randomUUID(),orgId,userId,ownCode,now,now);if(row.referral_code){const lineage=referralLineage(row.referral_code);db.prepare(`INSERT INTO referral_events (id,referrer_code,direct_referrer_code,referred_email,referred_user_id,referred_organisation_id,level,status,reward_cents,created_at) VALUES (?,?,?,?,?,?,?,'registered',0,?)`).run(crypto.randomUUID(),lineage.root_code,lineage.direct_code,row.email,userId,orgId,lineage.level,now)}db.prepare(`DELETE FROM pending_registrations WHERE id=?`).run(row.id);})();
+  saasAudit({saas:{organisation_id:orgId,user_id:userId},ip:req.ip,get:(name)=>req.get(name)},'account.registered_verified','user',userId,{organisation_slug:slug,plan_id:row.plan_id,terms_version:row.terms_version,terms_accepted_at:row.created_at,business_identifier_type:row.business_identifier_type,business_identifier:row.business_identifier,abn:row.abn,country:row.country||'AU',email_verified:true,phone_verified:true,business_verified:(row.country||'AU')==='AU'});
   try{db.prepare(`INSERT OR IGNORE INTO legal_acceptances (id,user_id,organisation_id,version,role,ip,accepted_at) VALUES (?,?,?,?,'owner',?,?)`).run(crypto.randomUUID(),userId,orgId,row.terms_version,req.ip||null,new Date().toISOString())}catch{}
   lifecycle.sendWelcome(orgId).catch(err=>console.error('[lifecycle] welcome email failed:',err.message));
   res.status(201).json({ok:true,organisation_slug:slug,trial_ends_at:trialEnds,sign_in_required:true,message:'Verification complete. Your secure workspace has been created. Sign in to continue.'});
@@ -2756,7 +2810,7 @@ app.get('/api/saas/staff-chat',requireSaasUser,(req,res)=>{
 app.post('/api/saas/staff-chat',requireSaasUser,(req,res)=>{const parsed=z.object({message:z.string().trim().min(1).max(4000)}).safeParse(req.body);if(!parsed.success)return res.status(400).json({ok:false,error:'Enter a staff message.'});const row={id:crypto.randomUUID(),organisation_id:req.saas.organisation_id,sender_user_id:req.saas.user_id,sender_name:req.saas.full_name||db.prepare('SELECT full_name FROM users WHERE id=?').get(req.saas.user_id)?.full_name||'Team member',sender_role:req.saas.role,message:parsed.data.message,created_at:new Date().toISOString()};db.prepare(`INSERT INTO staff_chat_messages (id,organisation_id,sender_user_id,sender_name,sender_role,message,created_at) VALUES (@id,@organisation_id,@sender_user_id,@sender_name,@sender_role,@message,@created_at)`).run(row);saasAudit(req,'staff_chat.message','staff_chat',row.id,{length:row.message.length});res.status(201).json({ok:true,message:{id:row.id,sender_name:row.sender_name,sender_role:row.sender_role,message:row.message,created_at:row.created_at,mine:true}})});
 app.get('/api/saas/live-activity',requireSaasUser,(req,res)=>{const rows=db.prepare(`SELECT id,action event_type,entity_type,created_at FROM audit_logs WHERE organisation_id=? AND (?='owner' OR user_id=?) ORDER BY created_at DESC LIMIT 30`).all(req.saas.organisation_id,req.saas.role,req.saas.user_id);res.json({ok:true,events:rows})});
 
-app.get('/api/saas/me',requireSaasUser,(req,res)=>res.json({ok:true,access:staffAccess.snapshot(req),channel_access:channelOperations.memberAccess(req),user:{platform_owner:founderIdentity.isFounder(req),role_title:db.prepare("SELECT role_title FROM workers WHERE organisation_id=? AND user_id=? AND status!='archived' ORDER BY updated_at DESC LIMIT 1").get(req.saas.organisation_id,req.saas.user_id)?.role_title||'',email:req.saas.email,phone:req.saas.phone,full_name:req.saas.full_name,role:req.saas.role,mfa_enabled:Boolean(req.saas.mfa_enabled),email_verified:Boolean(req.saas.email_verified),phone_verified:Boolean(req.saas.phone_verified)},organisation:{id:req.saas.organisation_id,name:req.saas.organisation_name,slug:req.saas.slug,abn:req.saas.abn,business_identifier_type:req.saas.business_identifier_type,business_identifier:req.saas.business_identifier,legal_name:req.saas.legal_name,abn_status:req.saas.abn_status,address:{unit:req.saas.address_unit||'',street_number:req.saas.address_street_number||'',street_name:req.saas.address_street_name||'',suburb:req.saas.address_suburb||'',state:req.saas.address_state||'',postcode:req.saas.address_postcode||'',formatted:req.saas.address_formatted||'',source:req.saas.address_source||''}},subscription_lifecycle:req.subscription_lifecycle}));
+app.get('/api/saas/me',requireSaasUser,(req,res)=>res.json({ok:true,access:staffAccess.snapshot(req),channel_access:channelOperations.memberAccess(req),user:{platform_owner:founderIdentity.isFounder(req),role_title:db.prepare("SELECT role_title FROM workers WHERE organisation_id=? AND user_id=? AND status!='archived' ORDER BY updated_at DESC LIMIT 1").get(req.saas.organisation_id,req.saas.user_id)?.role_title||'',email:req.saas.email,phone:req.saas.phone,full_name:req.saas.full_name,role:req.saas.role,mfa_enabled:Boolean(req.saas.mfa_enabled),email_verified:Boolean(req.saas.email_verified),phone_verified:Boolean(req.saas.phone_verified)},organisation:{id:req.saas.organisation_id,name:req.saas.organisation_name,slug:req.saas.slug,abn:req.saas.abn,business_identifier_type:req.saas.business_identifier_type,business_identifier:req.saas.business_identifier,legal_name:req.saas.legal_name,abn_status:req.saas.abn_status,country:req.saas.country||'AU',verification_level:req.saas.verification_level||'business_verified',address:{unit:req.saas.address_unit||'',street_number:req.saas.address_street_number||'',street_name:req.saas.address_street_name||'',suburb:req.saas.address_suburb||'',state:req.saas.address_state||'',postcode:req.saas.address_postcode||'',formatted:req.saas.address_formatted||'',source:req.saas.address_source||''}},subscription_lifecycle:req.subscription_lifecycle}));
 // System branding is public; tenant branding is visible only to a signed-in member.
 const defaultSaasBranding=Object.freeze({
   display_name:'Oprun',
@@ -3719,13 +3773,24 @@ function workforceProfile(orgId){
     custom_sections:safeJson(p.custom_sections_json,[])
   };
 }
+// Worker compliance pack follows the business's country (T-168): Australia keeps work rights/VEVO and Australian
+// register suggestions; elsewhere the business reviews identity and right-to-work documents itself.
+const orgCountry=(orgId)=>db.prepare(`SELECT country FROM organisations WHERE id=?`).get(orgId)?.country||'AU';
+const documentsPackRequirements=()=>[
+  {code:'identity_document',category:'identity',label:'Identity document reviewed',verification_method:'authorised_review',source:null,note:'Check the identity document the worker uploaded.'},
+  {code:'work_rights_business_review',category:'work_rights',label:'Right to work confirmed by the business',verification_method:'authorised_review',source:null,note:'Confirm the worker can legally work for you under your local rules before scheduling.'}
+];
 function seedWorkerComplianceRequirements(orgId,worker){
-  const profile=workforceProfile(orgId),now=new Date().toISOString();
-  const rows=[
+  const profile=workforceProfile(orgId),now=new Date().toISOString(),auPack=orgCountry(orgId)==='AU';
+  const rows=auPack?[
     ...workStatusRequirements(worker.declared_work_status||'requires_review'),
     {code:'worker_terms_acceptance',category:'declaration',label:'Workforce terms / declaration accepted',verification_method:'authorised_review',source:null,note:'The worker must accept the applicable onboarding declaration/terms or provide equivalent signed evidence.'},
     {code:'worker_privacy_acknowledgement',category:'declaration',label:'Workforce privacy notice acknowledged',verification_method:'authorised_review',source:null,note:'Record the worker acknowledgement/consent required for workforce onboarding and compliance records.'},
     ...industryComplianceSuggestions(profile.industry_code,worker.role_title||'')
+  ]:[
+    ...documentsPackRequirements(),
+    {code:'worker_terms_acceptance',category:'declaration',label:'Workforce terms / declaration accepted',verification_method:'authorised_review',source:null,note:'The worker must accept the onboarding declaration.'},
+    {code:'worker_privacy_acknowledgement',category:'declaration',label:'Workforce privacy notice acknowledged',verification_method:'authorised_review',source:null,note:'Record the worker acknowledgement of the privacy notice.'}
   ];
   const ins=db.prepare(`INSERT OR IGNORE INTO worker_compliance_requirements
     (id,organisation_id,worker_id,requirement_code,category,label,required,status,verification_method,official_source_name,official_source_url,condition_note,metadata_json,created_at,updated_at)
@@ -3753,7 +3818,7 @@ function workerComplianceState(orgId,workerId){
   const workRightsDocs=workRights.length>0&&workRights.every(x=>x.status==='verified'&&(!x.expiry_date||x.expiry_date>=now));
   // Visa holders (and anyone still under review) also need a recorded, unexpired VEVO result.
   const vevoRow=db.prepare(`SELECT declared_work_status,vevo_status,vevo_work_rights_expiry,vevo_conditions FROM workers WHERE id=? AND organisation_id=?`).get(workerId,orgId)||{};
-  const vevoRequired=!['australian_citizen','permanent_resident'].includes(vevoRow.declared_work_status);
+  const vevoRequired=orgCountry(orgId)==='AU'&&!['australian_citizen','permanent_resident'].includes(vevoRow.declared_work_status);
   const vevoOk=['verified','verified_with_conditions'].includes(vevoRow.vevo_status)&&(!vevoRow.vevo_work_rights_expiry||vevoRow.vevo_work_rights_expiry>=now);
   const workRightsVerified=workRightsDocs&&(!vevoRequired||vevoOk);
   const total=required.length+requiredDocuments.length;
@@ -3817,7 +3882,7 @@ function publicWorkerOnboarding(invite){
   const requirements=db.prepare(`SELECT id,requirement_code,category,label,required,status,verification_method,official_source_name,official_source_url,condition_note,evidence_reference,issue_date,expiry_date FROM worker_compliance_requirements WHERE worker_id=? AND organisation_id=? ORDER BY required DESC,category,label`).all(invite.worker_id,invite.organisation_id);
   const skills=db.prepare(`SELECT id,skill_name,competency,verification_status,evidence_type,evidence_reference,expiry_date,official_source_url,requirement_note FROM worker_skills WHERE worker_id=? ORDER BY skill_name`).all(invite.worker_id);
   const docs=db.prepare(`SELECT id,document_type,document_name,required,verification_status,issue_date,expiry_date,notes,evidence_reference,official_source_url FROM worker_documents WHERE worker_id=? ORDER BY required DESC,document_type`).all(invite.worker_id);
-  return {organisation_name:invite.organisation_name,worker,requirements,skills,documents:docs,expires_at:invite.expires_at};
+  return {organisation_name:invite.organisation_name,compliance_pack:orgCountry(invite.organisation_id)==='AU'?'au':'documents',worker,requirements,skills,documents:docs,expires_at:invite.expires_at};
 }
 function addWorkerOnboardingEvent(invite,eventType,detail={}){
   db.prepare(`INSERT INTO worker_onboarding_events (id,invite_id,worker_id,organisation_id,event_type,detail_json,created_at) VALUES (?,?,?,?,?,?,?)`)
@@ -3834,9 +3899,10 @@ function createWorkerWithCompliance(orgId,d){
   const id=crypto.randomUUID(),now=new Date().toISOString();
   db.prepare(`INSERT INTO workers (id,organisation_id,full_name,email,phone,role_title,employment_type,worker_level,status,work_rights_status,declared_work_status,onboarding_progress,approved_for_scheduling,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,'review_required',?,0,0,?,?)`)
     .run(id,orgId,d.full_name,d.email||null,d.phone||null,d.role_title,d.employment_type,d.worker_level,'onboarding',d.work_status,now,now);
-  const docs=[['photo_id',1],['employment_contract',1],['emergency_contact',1]];
-  if(['australian_citizen','permanent_resident','visa_holder'].includes(d.work_status))docs.push(['identity_work_rights_evidence',1]);
-  if(['contractor','subcontractor'].includes(d.employment_type)){docs.push(['abn_details',1],['insurance',1])}
+  const auPack=orgCountry(orgId)==='AU';
+  const docs=auPack?[['photo_id',1],['employment_contract',1],['emergency_contact',1]]:[['photo_id',1],['licence_or_certificate',0],['other_document',0]];
+  if(auPack&&['australian_citizen','permanent_resident','visa_holder'].includes(d.work_status))docs.push(['identity_work_rights_evidence',1]);
+  if(auPack&&['contractor','subcontractor'].includes(d.employment_type)){docs.push(['abn_details',1],['insurance',1])}
   const ins=db.prepare(`INSERT INTO worker_documents (id,worker_id,document_type,required,created_at,updated_at) VALUES (?,?,?,?,?,?)`);
   db.transaction(()=>{for(const [t,r] of docs)ins.run(crypto.randomUUID(),id,t,r,now,now)})();
   const worker=db.prepare(`SELECT * FROM workers WHERE id=?`).get(id);

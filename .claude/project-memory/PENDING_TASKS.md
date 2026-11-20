@@ -582,9 +582,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: Owner approves wording; no claims beyond what is built
 
-## T-168 Phase 1: country-based sign-up and worker documents pack
+## T-169 Phase 1b: invoice tax labels and Business setup fields per country
 - Status: NOT_STARTED
 - Added: 2026-11-20
-- Requirement: Implement docs/product-redesign/02_COUNTRY_ONBOARDING.md and Phase 1 of 07_IMPLEMENTATION_PLAN.md; Australian sign-up unchanged.
-- Files: src/country-profile.js, src/server.js registration routes, src/db.js, saas/create-account.html, saas/worker-onboarding.html, src/workforce-compliance.js
-- Acceptance: Tests in 02 §6 pass; existing AU registration tests unchanged; npm test and test:ui pass.
+- Requirement: Invoices and Money settings use countryProfile tax label and optional tax number for non-AU; Business setup shows the international address fields; per docs/product-redesign/02 §5.
+- Files: src/finance/*, saas/workspace-*.js
+- Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
