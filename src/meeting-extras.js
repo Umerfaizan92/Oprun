@@ -119,6 +119,24 @@ export function installMeetingExtras(app, { db, env = {}, requireSaasUser, requi
     } catch (e) { fail(res, e.code === 'NOT_CONFIGURED' ? 409 : 502, String(e.message).replace('the approved message', 'the invitation')); }
   });
 
+  // ---------- Phone page: contacts and recent calls (T-183) ----------
+  const digits = (v) => String(v || '').replace(/\D/g, '').slice(-9);
+  app.get('/api/saas/comms/phonebook', ...host, (req, res) => {
+    const o = org(req), country = countryOf(o);
+    const fmtNum = (v) => { const n = dialable(v, country); return n || null; };
+    const customers = db.prepare("SELECT id,name,phone,email,status FROM tenant_customers WHERE organisation_id=? AND phone IS NOT NULL AND trim(phone)<>'' ORDER BY name COLLATE NOCASE LIMIT 2000").all(o)
+      .map((c) => ({ id: c.id, name: c.name, number: fmtNum(c.phone) || c.phone, email: c.email || null, kind: c.status === 'lead' ? 'Lead' : 'Customer' }));
+    const team = db.prepare("SELECT u.id,u.full_name name,u.phone,m.role FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND u.phone IS NOT NULL AND trim(u.phone)<>'' ORDER BY u.full_name COLLATE NOCASE").all(o)
+      .filter((u) => u.id !== req.saas.user_id).map((u) => ({ id: u.id, name: u.name || 'Team member', number: fmtNum(u.phone) || u.phone, kind: 'Team' }));
+    const byDigits = new Map([...customers, ...team].map((c) => [digits(c.number), c.name]));
+    const recents = db.prepare("SELECT call_control_id id,from_number,to_number,stage,route,answered_at,voicemail,duration_seconds,started_at FROM voice_calls WHERE organisation_id=? ORDER BY started_at DESC LIMIT 60").all(o).map((c) => {
+      const outgoing = c.route === 'outgoing', number = c.from_number;
+      return { id: c.id, number, name: byDigits.get(digits(number)) || null, direction: outgoing ? 'outgoing' : 'incoming',
+        result: c.voicemail ? 'voicemail' : c.answered_at ? 'answered' : (String(c.stage).startsWith('c2c') && c.stage !== 'ended' ? 'calling' : outgoing ? 'not answered' : 'missed'), duration: c.duration_seconds || null, at: c.started_at };
+    });
+    res.json({ ok: true, customers, team, recents });
+  });
+
   // ---------- Click to call ----------
   app.get('/api/saas/comms/dial', ...host, (req, res) => {
     const me = db.prepare('SELECT phone FROM users WHERE id=?').get(req.saas.user_id)?.phone || null;

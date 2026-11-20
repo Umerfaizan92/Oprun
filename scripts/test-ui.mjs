@@ -105,7 +105,7 @@ try{
     assert.ok(await page.locator('#receptionist-view a[href^="https://portal.telnyx.com"]').count()>=3);
     assert.equal(await page.locator('#receptionist-view').getByText('Save isolated draft').count(),0);
     await screenshot(page,'ai-receptionist-desktop');await page.setViewportSize({width:390,height:844});await page.locator('#receptionist-view .rx-step').first().scrollIntoViewIfNeeded();await screenshot(page,'ai-receptionist-phone');await page.setViewportSize({width:1440,height:900});
-    for(const hash of ['communications/phone','communications/calls']){const known=await page.evaluate(h=>(window.SuperProNav?.DOMAINS||[]).some(d=>d.items.some(i=>i.path===h)),hash);if(!known)continue;await page.evaluate(h=>{location.hash=h},hash);await page.getByRole('link',{name:'Open AI Receptionist'}).first().waitFor({state:'visible'})}
+    for(const hash of ['communications/numbers','communications/calls-sms']){const known=await page.evaluate(h=>(window.SuperProNav?.DOMAINS||[]).some(d=>d.items.some(i=>i.path===h)),hash);if(!known)continue;await page.evaluate(h=>{location.hash=h},hash);await page.getByRole('link',{name:'Open AI Receptionist'}).first().waitFor({state:'visible'})}
     page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
   });
   await check('Website is one self-service section; older website, SEO and backlink addresses still open',async()=>{
@@ -188,7 +188,7 @@ try{
     await page.setViewportSize({width:1440,height:900});
   });
   await check('seven groups plus Setup preserve nested submenu pages and selected state',async()=>{
-    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),61); // +1: Website section (T-147)
+    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),62); // +1: Website section (T-147), +1 Phone (T-183)
     await page.locator('.navigation-business-trigger').click();
     await rail.locator('[data-domain=people]').click(); await rail.locator('[data-nav-page=team]').click(); await page.locator('#team-view').waitFor({state:'visible'});
     assert.equal(await rail.locator('[data-nav-page=team]').getAttribute('aria-current'),'page'); assert.equal(await page.locator('.portal-subtabs [data-jump]').count(),0);

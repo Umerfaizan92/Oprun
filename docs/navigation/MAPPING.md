@@ -23,6 +23,7 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Business | People | Hiring | /saas/workspace.html#people/hiring | owner, admin | Existing view and API preserved; contextual sections enhanced in place |
 | Business | People | Offshore Staff | /saas/workspace.html#people/offshore | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Unified Inbox | /saas/workspace.html#communications/inbox | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
+| Business | Communications | Phone | /saas/workspace.html#communications/phone | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | Call Handling | /saas/workspace.html#communications/call-handling | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
 | Business | Communications | AI Receptionist | /saas/workspace.html#communications/receptionist | owner, admin, manager, super_admin, director | Service request/profile draft; activation separate |
 | Business | Communications | Video Meetings | /saas/workspace.html#communications/meetings | owner, admin, manager, super_admin, director | Existing view and API preserved; contextual sections enhanced in place |
