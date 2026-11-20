@@ -95,14 +95,109 @@
       radios('b', BG, background, (k) => { if (k === 'image') { if (picture) applyBackground('image'); else fileIn.click(); } else applyBackground(k); }),
       fileIn,
       el('p', { class: 'mc-fx-note', text: 'Your picture stays on this device. 8K is not offered: webcams and browsers cannot capture it. Higher quality uses more data; on a slow connection the browser lowers it automatically.' }));
-    const fxBtn = voiceOnly ? null : el('button', { type: 'button', class: 'mc-btn', 'aria-expanded': 'false', text: 'Quality & background', onclick: () => { const open = fxPanel.hidden; if (open) drawFx(); fxPanel.hidden = !open; fxBtn.setAttribute('aria-expanded', String(open)); } });
+    const fxBtn = voiceOnly ? null : el('button', { type: 'button', class: 'mc-btn', 'aria-expanded': 'false', text: 'Quality & background', onclick: () => { if (fxPanel.hidden) drawFx(); openOnly(fxPanel, fxBtn); } });
     const endBtn = host ? el('button', { type: 'button', class: 'mc-btn mc-end', text: 'End for everyone', onclick: async () => { if (!confirm('End this meeting for everyone?')) return; endBtn.disabled = true; try { await host.end(); } catch (e) { say(e.message, true); endBtn.disabled = false; } } }) : null;
-    const copyBtn = host?.guestLink ? el('button', { type: 'button', class: 'mc-btn', text: 'Copy guest link', onclick: async () => { try { await navigator.clipboard.writeText(host.guestLink); say('Guest link copied. Guests wait until you let them in.'); } catch { say('Copy is blocked in this browser. Use Video Meetings to copy the link.', true); } } }) : null;
+    // ---- T-186: full screen ----
+    const fsTarget = mount;
+    const canFs = Boolean(fsTarget.requestFullscreen || fsTarget.webkitRequestFullscreen);
+    const inFs = () => Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+    const fsBtn = el('button', { type: 'button', class: 'mc-btn', 'aria-pressed': 'false', text: 'Full screen', onclick: async () => {
+      try {
+        if (inFs()) { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+        if (canFs) { await (fsTarget.requestFullscreen || fsTarget.webkitRequestFullscreen).call(fsTarget, { navigationUI: 'hide' }); return; }
+        // iPhone Safari has no full screen for a page section: open the main video in the phone's own player instead.
+        const v = grid.querySelector('.mc-tile:not(.mc-novideo) video:not(.mc-self)') || grid.querySelector('video');
+        if (v?.webkitEnterFullscreen) v.webkitEnterFullscreen(); else say('This browser does not allow full screen. Turn your phone sideways for a bigger picture.', true);
+      } catch { say('Full screen was blocked by the browser.', true); }
+    } });
+    const onFs = () => { const on = inFs(); fsBtn.textContent = on ? 'Exit full screen' : 'Full screen'; fsBtn.setAttribute('aria-pressed', String(on)); mount.classList.toggle('mc-fullscreen', on); };
+    document.addEventListener('fullscreenchange', onFs); document.addEventListener('webkitfullscreenchange', onFs);
+
+    // ---- T-186: invite from inside the call (organisers) ----
+    let guestLink = host?.guestLink || null;
+    const invitePanel = el('section', { class: 'mc-invite', hidden: true, 'aria-label': 'Invite people' });
+    const copyLink = async () => { if (!guestLink) return; try { await navigator.clipboard.writeText(guestLink); say('Guest link copied. Guests wait until you let them in.'); } catch { say('Copy is blocked in this browser. Select the link and copy it.', true); } };
+    function drawInvite() {
+      if (!guestLink) {
+        invitePanel.replaceChildren(el('p', { text: 'Guests are not allowed in this meeting yet.' }),
+          host.allowGuests ? el('button', { type: 'button', class: 'mc-btn mc-primary', text: 'Allow guests and make a link', onclick: async (e) => { e.currentTarget.disabled = true; try { guestLink = await host.allowGuests(); drawInvite(); } catch (x) { say(x.message, true); e.currentTarget.disabled = false; } } }) : null);
+        return;
+      }
+      let channel = 'email';
+      const to = el('input', { class: 'mc-input', type: 'email', inputmode: 'email', autocomplete: 'off', 'aria-label': 'Email address', placeholder: 'name@example.com' });
+      const note = el('input', { class: 'mc-input', maxlength: 300, 'aria-label': 'Short note (optional)', placeholder: 'Short note (optional)' });
+      const tabs = el('div', { class: 'mc-seg', role: 'radiogroup', 'aria-label': 'Send by' }, ...[['email', 'Email'], ['sms', 'Message (SMS)'], ['whatsapp', 'WhatsApp']].map(([k, label]) => el('button', { type: 'button', role: 'radio', 'aria-checked': String(k === channel), 'data-ch': k, text: label, onclick: () => {
+        channel = k; tabs.querySelectorAll('[data-ch]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.ch === k)));
+        to.type = k === 'email' ? 'email' : 'tel'; to.inputMode = k === 'email' ? 'email' : 'tel'; to.placeholder = k === 'email' ? 'name@example.com' : '0412 345 678'; to.setAttribute('aria-label', k === 'email' ? 'Email address' : 'Mobile number'); to.focus();
+      } })));
+      const sendBtn = el('button', { type: 'submit', class: 'mc-btn mc-primary', text: 'Send invitation' });
+      const form = el('form', { class: 'mc-invite-form', onsubmit: async (e) => {
+        e.preventDefault(); if (!to.value.trim()) { to.focus(); return; }
+        sendBtn.disabled = true;
+        try { const msg = await host.invite({ channel, to: to.value.trim(), message: note.value.trim() || undefined }); say(msg || 'Invitation sent.'); to.value = ''; note.value = ''; }
+        catch (x) { say(x.message, true); } finally { sendBtn.disabled = false; }
+      } }, tabs, el('div', { class: 'mc-invite-row' }, to, sendBtn), note);
+      const share = navigator.share ? el('button', { type: 'button', class: 'mc-btn', text: 'Share…', onclick: () => navigator.share({ title: join.meeting.title, text: `Join "${join.meeting.title}"`, url: guestLink }).catch(() => {}) }) : null;
+      invitePanel.replaceChildren(form,
+        el('div', { class: 'mc-invite-row' }, el('input', { class: 'mc-input mc-link', readonly: true, value: guestLink, 'aria-label': 'Guest link', onfocus: (e) => e.target.select() }),
+          el('button', { type: 'button', class: 'mc-btn', text: 'Copy guest link', onclick: copyLink }), share),
+        el('p', { class: 'mc-fx-note', text: 'Invitations go from your business email and number. Guests wait until you let them in.' }));
+    }
+    const panels = () => [fxPanel, invitePanel, transcriptPanel];
+    const openOnly = (panel, btn) => { const open = panel.hidden; for (const x of panels()) x.hidden = true; for (const b of [fxBtn, inviteBtn, transcriptBtn]) b?.setAttribute('aria-expanded', 'false'); panel.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+    const inviteBtn = host?.invite ? el('button', { type: 'button', class: 'mc-btn', 'aria-expanded': 'false', text: 'Invite', onclick: () => { if (invitePanel.hidden) drawInvite(); openOnly(invitePanel, inviteBtn); if (!invitePanel.hidden) invitePanel.querySelector('input')?.focus(); } }) : null;
+
+    // ---- T-186: transcription. Each browser writes down its own person's speech; everyone sees captions. ----
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let transcribing = Boolean(join.transcribing), recog = null, recogWanted = false, lines = [];
+    const captions = el('div', { class: 'mc-captions', 'aria-live': 'polite', hidden: true });
+    const transcriptPanel = el('section', { class: 'mc-transcript', hidden: true, 'aria-label': 'Transcript' });
+    const banner = el('p', { class: 'mc-rec', hidden: true });
+    function drawTranscript() {
+      const list = el('ol', { class: 'mc-lines' }, ...lines.map((l) => el('li', {}, el('b', { text: l.speaker + ': ' }), l.text)));
+      transcriptPanel.replaceChildren(
+        lines.length ? list : el('p', { text: transcribing ? 'Nothing said yet. Lines appear here as people speak.' : 'Transcription is off.' }),
+        host?.transcriptUrl ? el('a', { class: 'mc-btn', href: host.transcriptUrl, download: '', text: 'Download transcript' }) : null,
+        el('p', { class: 'mc-fx-note', text: 'Saved automatically to this meeting. Each person\'s browser turns their own speech into text' + (SR ? '.' : '; this browser cannot, so your words are not written down. Chrome, Edge and Safari can.') }));
+      list.lastElementChild?.scrollIntoView?.({ block: 'nearest' });
+    }
+    const transcriptBtn = el('button', { type: 'button', class: 'mc-btn', 'aria-expanded': 'false', text: 'Transcript', onclick: () => { drawTranscript(); openOnly(transcriptPanel, transcriptBtn); } });
+    const recBtn = host ? el('button', { type: 'button', class: 'mc-btn', 'aria-pressed': String(transcribing), text: transcribing ? 'Stop transcribing' : 'Transcribe', onclick: async () => {
+      if (!transcribing && !confirm('Turn on transcription? Everyone in the call will be told, and what people say will be saved as text in this meeting.')) return;
+      recBtn.disabled = true;
+      try { const r = await call('transcription', { method: 'POST', body: JSON.stringify({ on: !transcribing }) }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Could not change transcription.'); setTranscribing(j.on, null); }
+      catch (e) { say(e.message, true); } finally { recBtn.disabled = false; }
+    } }) : null;
+    function setTranscribing(on, by) {
+      transcribing = on;
+      if (recBtn) { recBtn.textContent = on ? 'Stop transcribing' : 'Transcribe'; recBtn.setAttribute('aria-pressed', String(on)); }
+      banner.hidden = !on; banner.textContent = on ? 'Transcribing: what people say is being saved as text.' + (SR ? '' : ' Your browser cannot write down your speech.') : '';
+      captions.hidden = !on;
+      if (by) say(on ? `${by} turned on transcription.` : `${by} turned off transcription.`);
+      syncRecognition(); if (!transcriptPanel.hidden) drawTranscript();
+    }
+    function syncRecognition() {
+      const want = transcribing && state.audio && !closed && Boolean(SR);
+      recogWanted = want;
+      if (want && !recog) {
+        recog = new SR(); recog.continuous = true; recog.interimResults = false; recog.lang = document.documentElement.lang && document.documentElement.lang !== 'en' ? document.documentElement.lang : (navigator.language || 'en-AU');
+        recog.onresult = (e) => { for (let i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) { const text = e.results[i][0].transcript.trim(); if (text) call('transcript', { method: 'POST', body: JSON.stringify({ text: text.slice(0, 1000) }) }).catch(() => {}); } };
+        recog.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { recogWanted = false; say('Speech-to-text is blocked in this browser, so your words are not being written down.', true); } };
+        // Browsers stop listening after a pause; start again while transcription is still wanted.
+        recog.onend = () => { const r = recog; recog = null; if (recogWanted) setTimeout(() => { if (recogWanted && !recog) syncRecognition(); }, 400); else r?.abort?.(); };
+        try { recog.start(); } catch { recog = null; }
+      } else if (!want && recog) { const r = recog; recog = null; try { r.stop(); } catch { /* already stopped */ } }
+    }
+    function addLine(l) {
+      lines.push(l); if (lines.length > 500) lines.shift();
+      captions.replaceChildren(...lines.slice(-2).map((x) => el('p', {}, el('b', { text: x.speaker + ': ' }), x.text)));
+      if (!transcriptPanel.hidden) drawTranscript();
+    }
     const root = el('div', { class: 'mc-root', role: 'group', 'aria-label': 'Call: ' + join.meeting.title },
       el('header', { class: 'mc-head' }, el('h2', { text: join.meeting.title }), count),
-      status, waitBox, grid,
-      fxPanel,
-      el('div', { class: 'mc-controls', role: 'toolbar', 'aria-label': 'Call controls' }, micBtn, camBtn, fxBtn, shareBtn, copyBtn, endBtn, leaveBtn),
+      status, banner, waitBox, grid, captions,
+      fxPanel, invitePanel, transcriptPanel,
+      el('div', { class: 'mc-controls', role: 'toolbar', 'aria-label': 'Call controls' }, micBtn, camBtn, fxBtn, shareBtn, inviteBtn, recBtn, transcriptBtn, fsBtn, endBtn, leaveBtn),
       !join.relay_configured ? el('p', { class: 'mc-note', text: 'If someone cannot be seen or heard, their network may block direct calls. Ask them to try another network, such as mobile data.' }) : null);
     mount.replaceChildren(root);
 
@@ -160,7 +255,7 @@
         catch { say('The microphone is not available. Allow it in your browser settings, then try again.', true); return; }
       }
       if (micTrack) micTrack.enabled = on;
-      state.audio = Boolean(on && micTrack); showLocal(); refresh(); publish();
+      state.audio = Boolean(on && micTrack); showLocal(); refresh(); publish(); syncRecognition();
     }
     async function setCamera(on) {
       if (on && !cameraTrack) {
@@ -266,6 +361,8 @@
       else if (m.type === 'signal') onSignal(m.from, m.data);
       else if (m.type === 'waiting') { waitingNow = m.waiting || []; drawWaiting(); }
       else if (m.type === 'ended') close('ended');
+      else if (m.type === 'transcription') setTranscribing(Boolean(m.on), m.by);
+      else if (m.type === 'caption' && m.line) addLine(m.line);
     }
     async function poll() {
       while (!closed) {
@@ -289,6 +386,9 @@
       for (const id of [...peers.keys()]) drop(id);
       for (const t of [micTrack, cameraTrack, screenTrack]) t?.stop(); effect?.stop();
       window.removeEventListener('pagehide', onHide);
+      recogWanted = false; if (recog) { try { recog.abort(); } catch { /* stopped */ } recog = null; }
+      document.removeEventListener('fullscreenchange', onFs); document.removeEventListener('webkitfullscreenchange', onFs);
+      if (inFs()) (document.exitFullscreen || document.webkitExitFullscreen)?.call(document)?.catch?.(() => {});
       const text = { left: 'You left the call.', ended: 'The organiser ended this meeting.', gone: 'You are no longer in this call. Join again to continue.', lost: 'The connection to the server was lost. Join again to continue.' }[reason] || 'The call has ended.';
       mount.replaceChildren(el('div', { class: 'mc-root mc-finished' }, el('p', { class: 'mc-status', role: 'status', text })));
       onClose(reason, text);
@@ -297,7 +397,7 @@
     window.addEventListener('pagehide', onHide);
 
     (async () => {
-      refresh(); drawWaiting();
+      refresh(); drawWaiting(); if (transcribing) setTranscribing(true, null);
       if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) { say('This browser cannot make calls. Use a current version of Chrome, Edge, Safari or Firefox.', true); return; }
       say('Asking for your microphone' + (voiceOnly ? '.' : ' and camera.'));
       await setMic(true);
