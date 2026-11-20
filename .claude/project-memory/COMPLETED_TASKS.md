@@ -393,3 +393,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: A test domain goes `added → active`; unknown hosts get 404; another business's host never serves this site
 - Evidence: Custom-domain hosting wired (edge.js, hub hosting status/poll, seo mount, contact form on business domains). Tests: website-edge 6/6, website-hub 8/8, seo-platform end-to-end edge checks, comms send-failure reason + retry; npm test 73/73, test:ui 37/37. Switched on only when CLOUDFLARE_SAAS_* env vars are set. (recorded 2026-11-20 on claude/custom-domains at 9568f69)
+
+## T-167 Product-wide audit and adaptive redesign specification (country onboarding, page redesign, devices, advanced AI features, legal/billing)
+- Added: 2026-11-20
+- Requirement: Owner prompt of 20 Nov 2026, kept verbatim in docs/product-redesign/PROMPT_ORIGINAL.txt: audit every page, country-based onboarding (Australia keeps full verification; other countries email+phone only; non-AU workers upload documents only), page-by-page redesign with sequential mobile-first screens, automatic adaptation for desktop/tablet/mobile browser/Android app/iOS app, advanced AI features (website, domain, migration, social studio, campaigns), legal/security/billing checklist, phased implementation plan, progress state.
+- Files: docs/product-redesign/*
+- Acceptance: Eight required outputs written, grounded in the current code with file references, decisions needing the owner listed, progress state updated, committed and pushed.
+- Evidence: Specification written in docs/product-redesign/ (00-07 + PROMPT_ORIGINAL.txt), grounded in code at 4f60bcc with file references; npm run manifest/memory checks passed. Implementation is phased in 07_IMPLEMENTATION_PLAN.md; Phase 1 next. (recorded 2026-11-20 on claude/product-redesign-spec at 4f60bcc)
