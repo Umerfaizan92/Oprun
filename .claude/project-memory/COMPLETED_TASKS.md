@@ -477,3 +477,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/comms/service.js, src/growth.js, saas/workspace-comms-platform.js
 - Acceptance: Campaign holds up to 10 library photos/videos; social posts carry them; Facebook posts photos/video; email shows photos; tests pass
 - Evidence: npm test 73/73 (new comms media test, growth-media-publish test); test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, comms-ui 10; browser: upload 2 photos, library pick/remove, saved and reloaded (recorded 2026-11-20 on claude/campaign-media at c0fd610)
+
+## T-180 Video meetings, Zoom, invites and call keypad
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: make the Video section professional; send meeting invites by message, email or any platform; integrate Zoom so a business adds its own Zoom details and signs in to run meetings; organise the call section, remove what is not needed, add a keypad to dial numbers.
+- Files: TBD
+- Acceptance: TBD after audit
+- Evidence: npm test 73/73 (new meetings-zoom test, click-to-call test); test-meetings-ui PASS (3-way WebRTC, axe); test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311; screenshots 390/1440 (recorded 2026-11-20 on claude/meetings-zoom at cb2e494)

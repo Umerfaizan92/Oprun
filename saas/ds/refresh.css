@@ -218,3 +218,44 @@ html body .media-picker .mp-pick[aria-pressed="true"] .mp-thumb::after{content:"
 html body .media-picker .mp-status{margin:6px 0 0;color:var(--sp-fg-muted,#a9b2c3);font-size:.88rem}
 html body .gr-media{display:flex;gap:6px;margin:6px 0}
 html body .gr-media img,html body .gr-media span{width:56px;height:56px;border-radius:10px;object-fit:cover;display:grid;place-items:center;background:rgba(237,241,248,.06);font-size:.72rem;font-weight:800}
+
+/* ---------- Video Meetings (T-180): start, keypad, invites, Zoom ---------- */
+html body #meetings-view .mt-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:16px;align-items:start}
+@media (width < 1024px){html body #meetings-view .mt-grid{grid-template-columns:1fr}}
+html body #meetings-view .mt-quick{margin:0}
+html body #meetings-view .mt-quick h3,html body #meetings-view .mt-dialer h3{font-size:1.15rem;font-weight:800;margin:0 0 6px}
+html body #meetings-view .mt-lead{color:var(--sp-fg-muted);margin:0 0 14px}
+html body #meetings-view .mt-new{margin-top:14px;border-top:1px solid var(--rf-edge);padding-top:12px}
+html body #meetings-view .mt-new summary,html body #meetings-view .mt-zoom summary,html body #meetings-view .mt-past summary{cursor:pointer;font-weight:800;min-height:44px;display:flex;align-items:center}
+html body #meetings-view .mt-section-title{margin:22px 0 10px;font-size:1.05rem;font-weight:800}
+html body #meetings-view .mt-card{background:var(--rf-card);border:1px solid var(--rf-edge);border-radius:16px;padding:14px;align-items:center}
+html body #meetings-view .mt-card.mt-live{border-color:rgba(53,211,154,.5)}
+html body #meetings-view .mt-card-main{display:grid;gap:3px;min-width:0;flex:1 1 240px}
+html body #meetings-view .mt-badge{justify-self:start;padding:2px 10px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;background:var(--sp-gold-soft);color:var(--sp-fg)}
+html body #meetings-view .mt-live .mt-badge{background:rgba(53,211,154,.18)}
+html body #meetings-view .mt-badge-zoom{background:rgba(67,140,255,.2)}
+html body #meetings-view .mt-more{position:relative}
+html body #meetings-view .mt-more summary{list-style:none;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid var(--rf-edge);border-radius:12px;font-weight:700}
+html body #meetings-view .mt-more summary::-webkit-details-marker{display:none}
+html body #meetings-view .mt-more-menu{display:grid;gap:6px;margin-top:6px}
+html body #meetings-view .mt-invite{flex:1 1 100%;display:grid;gap:8px;margin-top:4px;padding:12px;border-radius:14px;border:1px solid var(--rf-edge);background:rgba(237,241,248,.03)}
+html body #meetings-view .mt-invite-row{display:grid;grid-template-columns:minmax(110px,160px) minmax(0,1fr);gap:8px}
+html body #meetings-view .mt-hint{color:var(--sp-fg-muted);font-size:.82rem;line-height:1.45}
+html body #meetings-view .mt-steps{margin:0 0 6px;padding-left:20px;display:grid;gap:4px;color:var(--sp-fg-2)}
+html body #meetings-view .mt-foot{margin-top:18px}
+/* Keypad */
+html body #meetings-view .mt-dialer{margin:0}
+html body #meetings-view .mt-dial-top{display:flex;gap:8px;align-items:center;margin:4px 0 12px}
+html body #meetings-view .mt-dial-number{flex:1;min-width:0;font-size:1.5rem;font-weight:700;letter-spacing:.06em;text-align:center;min-height:56px}
+html body #meetings-view .mt-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:340px;margin:0 auto 12px}
+html body #meetings-view .mt-key{min-height:60px;border-radius:18px;border:1px solid var(--rf-edge);background:rgba(237,241,248,.05);color:var(--sp-fg);display:grid;place-items:center;align-content:center;gap:0;cursor:pointer;font:inherit}
+html[data-theme="light"] body #meetings-view .mt-key{background:#FFFFFF}
+html body #meetings-view .mt-key b{font-size:1.45rem;font-weight:700;line-height:1}
+html body #meetings-view .mt-key small{font-size:.62rem;letter-spacing:.14em;color:var(--sp-fg-muted);min-height:.8em}
+html body #meetings-view .mt-key:active{background:var(--sp-gold-soft)}
+html body #meetings-view .mt-key:focus-visible{outline:3px solid var(--sp-focus);outline-offset:2px}
+html body #meetings-view .mt-back{width:52px;min-height:52px;font-size:1.2rem}
+html body #meetings-view .mt-plus{width:52px;min-height:48px;font-size:1.3rem;font-weight:800}
+html body #meetings-view .mt-dial-actions{justify-content:center;align-items:center}
+html body #meetings-view .mt-call{flex:1 1 auto;max-width:260px}
+@media (width < 700px){html body #meetings-view .mt-invite-row{grid-template-columns:1fr}}

@@ -26,7 +26,7 @@ try {
   page.on('pageerror', (e) => errors.push('owner: ' + e.message)); page.setDefaultTimeout(15000);
   await ctx.grantPermissions(['camera', 'microphone', 'clipboard-read', 'clipboard-write'], { origin: server.base });
   await page.goto(server.base + '/saas/workspace.html#b04/meetings');
-  const view = page.locator('#meetings-view'); await view.getByRole('heading', { name: 'Call now' }).waitFor();
+  const view = page.locator('#meetings-view'); await view.getByRole('heading', { name: 'Start a meeting' }).waitFor();
   assert.equal(await view.getByText('Provider setup required').count(), 0, 'the old request form is gone');
   await shot(page, 'meetings-page.png');
   for (const width of [390, 768, 1440]) { await page.setViewportSize({ width, height: 900 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Meetings page fits at ' + width); }
@@ -98,7 +98,7 @@ try {
   await g1.getByText('The organiser ended this meeting.', { exact: false }).waitFor();
   await view.getByText('The organiser ended this meeting.', { exact: false }).waitFor();
   assert.equal(await page.locator('#meeting-call-overlay').isVisible(), false);
-  await view.getByText('Ended meetings (1)').waitFor();
+  await view.getByText('Past meetings (1)').waitFor();
   const late = await guestCtx.newPage(); await late.goto(link); await late.getByText('This meeting has ended.').waitFor();
   assert.deepEqual(errors, []);
   console.log('PASS Video meetings: start from workspace, guest link, waiting room, three-way picture and sound, mute and camera states, leave, end for everyone, three viewport sizes, accessibility.');
