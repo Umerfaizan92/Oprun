@@ -28,7 +28,7 @@ export function verifyStripeSignature(rawBody, header, secret, nowMs = Date.now(
   return signatures.some((s) => safeEqual(s, expected));
 }
 
-export function installPayments(app, { db, env, runtime, requireSaasUser, requireSaasRole, saasAudit, financeRoles, syncJobFinance, uploadRoot, notify, isAuthorised, events = { emit() {} }, fetchImpl = globalThis.fetch }) {
+export function installPayments(app, { db, env, runtime, requireSaasUser, requireSaasRole, saasAudit, financeRoles, syncJobFinance, uploadRoot, notify, isAuthorised, events = { emit() {} }, fetchImpl = globalThis.fetch, customerSmsEnv = null }) {
   const limiter = rateLimit({ windowMs: 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false, message: { ok: false, error: 'Too many requests.' } });
   const money_roles = [requireSaasUser, requireSaasRole(...financeRoles)];
   const base = () => String(env.PUBLIC_BASE_URL || '').replace(/\/$/, '');
@@ -91,7 +91,10 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
       .run(id, org, job?.id || null, payment?.id || null, kind, channel, recipient || null, subject || null, body, dedupe || null, iso());
     if (!ins.changes) return null;
     if (channel === 'in_app') return { id, status: 'recorded' };
-    const res = channel === 'email' ? await sendEmailNotice(org, { recipient, subject, body, category:kind, internal: INTERNAL_KINDS.has(kind) }) : await sendTextMessage(env, { to: recipient, text: body,delivery:{organisationId:org,category:kind,subject} }, fetchImpl);
+    const res = channel === 'email' ? await sendEmailNotice(org, { recipient, subject, body, category:kind, internal: INTERNAL_KINDS.has(kind) }) : await (() => { // T-166: texts to a customer go only through the business's own SMS sender; Oprun's sender is for internal alerts.
+      const via = INTERNAL_KINDS.has(kind) || !customerSmsEnv ? env : customerSmsEnv(org);
+      return via ? sendTextMessage(via, { to: recipient, text: body, delivery: { organisationId: org, category: kind, subject } }, fetchImpl) : { sent: false, reason: 'not_configured: connect your business SMS sender in Connections' };
+    })();
     const status = res.sent ? 'sent' : /not_configured/.test(res.reason || '') ? 'not_configured' : 'failed';
     db.prepare(`UPDATE payment_notices SET status=?,detail=? WHERE id=?`).run(status, res.sent ? null : res.reason, id);
     return { id, status, reason: res.reason };

@@ -365,3 +365,24 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: `test:ui`: every old address resolves; B06 has one item; no element id removed; phone/tablet/laptop screenshots
 - Evidence: npm test 73/73; unit 368 pass (website-hub 8 tests: build from facts, AI fallback, ownership-gated transfer + redirects, domain uniqueness + TXT verify, email SPF merge + checks, listings/links import, activity isolation, DoH); test:ui 36/36 incl. Website section + old routes; phone screenshot no sideways scroll (recorded 2026-11-19 on claude/quote-review-links at b070239)
+
+## T-164 Appointment reminders by text, email and in-app: customer, business and assigned worker
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: on the appointment day remind the customer, the business (in Oprun) and the assigned employee; reminders at each step by email, SMS and notification. Today only a day-before customer email automation exists (send_appointment_reminder).
+- Files: src/automation/catalogue.js, src/notifications.js, src/comms/outbound.js
+- Acceptance: Day-before and day-of reminders to customer by SMS+email via the business sender, in-app to owner, SMS/in-app to assigned workers; no duplicates; tests pass
+- Evidence: job-lifecycle tests 8/8 (day-before in 8am-8pm local window, day-of, approve/auto/off modes, SMS only via business sender, no duplicates, workers + owner summary); npm test 73/73; test:ui 37/37 (recorded 2026-11-20 on claude/reminders-allocator-invoice at 4e1fe05)
+
+## T-165 Job Allocator: offer to chosen workers or the open pool, confirm when filled
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: booked job appears in the Job Allocator with an approval option; after approval refer it to chosen employees or put it in a pool for an employee to pick; then the job is confirmed. Today 'Offer to workers' offers to all eligible workers only.
+- Files: src/server.js (work-orders offer), saas/workspace-pipeline.js, Job Allocator UI
+- Acceptance: Owner can pick specific eligible workers or the pool; first acceptances fill required_workers; job shows confirmed and the customer confirmation draft goes to Approvals; tests pass
+- Evidence: offer to chosen eligible workers or the pool (eligible preview endpoint, ineligible choice refused 409); allocation triggers team alert + customer confirmation (approval by default); tests above + npm test 73/73 (recorded 2026-11-20 on claude/reminders-allocator-invoice at 4e1fe05)
+
+## T-166 Send approved invoice and payment link to the customer by text and email; payment and review reminders
+- Added: 2026-11-19
+- Requirement: Owner 2026-11-19: after completion, invoice approved by a human, then sent; payment; review; reminders at each step by email, SMS and notification.
+- Files: src/pipeline.js, src/customer-links.js, payments module
+- Acceptance: Issued invoice can be sent with a preview by SMS/email incl. payment link; overdue reminder drafts; review request offered after payment; tests pass
+- Evidence: Send invoice & payment link on issued invoices (existing payments request with send_to_customer, delivery problems shown); customer payment texts only via the business sender; pipeline/finance tests pass; npm test 73/73 (recorded 2026-11-20 on claude/reminders-allocator-invoice at 4e1fe05)
