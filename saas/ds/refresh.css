@@ -145,7 +145,7 @@ html body.portal-workspace .view :is(section,article,form,div)[id]{scroll-margin
 
 /* ---------- Duplicates removed (T-176) ---------- */
 /* The related-pages row already names itself to screen readers; the visible label repeated the current page. */
-html body.portal-workspace .workflow-label{display:none}
+html body.portal-workspace .workflow-label{display:block!important;position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;margin:0!important;padding:0!important}
 html body.portal-workspace .workflow-links{margin-bottom:18px;gap:6px;padding:4px;border-radius:14px;border:1px solid var(--rf-edge);background:rgba(237,241,248,.03);width:max-content;max-width:100%}
 html[data-theme="light"] body.portal-workspace .workflow-links{background:#FFFFFF}
 html body.portal-workspace .workflow-links a{border-color:transparent;background:transparent;border-radius:10px;font-weight:700}
@@ -269,3 +269,86 @@ html body #workspace .brand-logo-pair{gap:4px}
 html body #workspace .brand-logo-pair .brand-tile{--tile:34px}
 html body #workspace .brand-logo .brand-tile{flex:none}
 html body #workspace .connection-card-heading > .brand-logo{flex:none;min-width:max-content}
+
+/* ---------- Notifications panel (T-182): compact, organised rows ---------- */
+html body .platform-notice-dialog{width:min(560px,calc(100vw - 20px));max-height:min(86dvh,760px);padding:0;border:1px solid var(--rf-edge,rgba(237,241,248,.09));border-radius:22px;background:linear-gradient(180deg,#111827,#0B111D);box-shadow:0 30px 80px -20px rgba(0,0,0,.75);overflow:hidden}
+html[data-theme="light"] body .platform-notice-dialog{background:#FFFFFF}
+html body .platform-notice-dialog::backdrop{background:rgba(5,8,14,.6);backdrop-filter:blur(6px)}
+html body .platform-notice-card{display:flex;flex-direction:column;max-height:inherit;padding:16px 16px 12px;gap:10px}
+html body .platform-notice-dialog .pn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0}
+html body .platform-notice-dialog .pn-head h2{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;margin:2px 0 0}
+html body .platform-notice-dialog .pn-head .panel-kicker{font-size:.68rem;letter-spacing:.16em;color:var(--sp-gold)}
+html body .platform-notice-dialog :is(.pn-gear,.pn-close){width:38px;height:38px;min-height:38px;padding:0;border-radius:12px;font-size:0;display:grid;place-items:center;border:1px solid var(--rf-edge,rgba(237,241,248,.09));background:rgba(237,241,248,.04);color:var(--sp-fg)}
+html body .platform-notice-dialog :is(.pn-gear,.pn-close) > span,html body .platform-notice-dialog .pn-close{font-size:18px;line-height:1}
+html body .platform-notice-dialog .notification-tabs{display:flex;gap:4px;padding:3px;border-radius:12px;border:1px solid var(--rf-edge,rgba(237,241,248,.09));background:rgba(237,241,248,.03);width:max-content;max-width:100%}
+html body .platform-notice-dialog .notification-tabs [role="tab"]{min-height:34px;padding:0 14px;border-radius:9px;border:0;background:transparent;color:var(--sp-fg-muted);font-weight:700;font-size:.88rem}
+html body .platform-notice-dialog .notification-tabs [role="tab"][aria-selected="true"]{background:var(--sp-gold-soft);color:var(--sp-fg);box-shadow:inset 0 0 0 1px var(--rf-edge-strong,rgba(230,180,85,.32))}
+html body .platform-notice-dialog :is(.platform-notice-list,.delivery-activity){max-height:none;flex:1 1 auto;overflow:auto;display:block;margin:0 -4px;padding:0 4px 4px;scrollbar-width:thin}
+html body .platform-notice-dialog .pn-section-head{display:flex;align-items:center;gap:8px;margin:10px 0 6px}
+html body .platform-notice-dialog .pn-section-head:first-child{margin-top:2px}
+html body .platform-notice-dialog .pn-section-head h3{margin:0;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--sp-fg-muted)}
+html body .platform-notice-dialog .pn-count{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;font-size:.7rem;font-weight:800;background:rgba(237,241,248,.08);color:var(--sp-fg-2)}
+html body .platform-notice-dialog .pn-rows{display:grid;gap:6px}
+html body .platform-notice-dialog .pn-row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 10px 10px 8px;margin:0;border-radius:14px;border:1px solid var(--rf-edge,rgba(237,241,248,.09));background:rgba(237,241,248,.025);box-shadow:none;position:relative}
+html[data-theme="light"] body .platform-notice-dialog .pn-row{background:#F8FAFC}
+html body .platform-notice-dialog .pn-row.unread::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--sp-gold)}
+html body .platform-notice-dialog .pn-ico{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:rgba(237,241,248,.06);color:var(--sp-fg-2)}
+html body .platform-notice-dialog .pn-ico svg{width:17px;height:17px}
+html body .platform-notice-dialog .pn-row[data-tone="bad"] .pn-ico,html body .platform-notice-dialog .pn-ico.critical,html body .platform-notice-dialog .pn-ico.high{background:rgba(255,107,107,.14);color:#FF8A8A}
+html body .platform-notice-dialog .pn-row[data-tone="ok"] .pn-ico{background:rgba(53,211,154,.14);color:#4BE0AA}
+html body .platform-notice-dialog .pn-alert.unread .pn-ico{background:var(--sp-gold-soft);color:var(--sp-gold)}
+html body .platform-notice-dialog .pn-main{min-width:0;display:grid;gap:2px}
+html body .platform-notice-dialog .pn-line{display:flex;align-items:baseline;gap:8px;min-width:0}
+html body .platform-notice-dialog .pn-title{flex:1;min-width:0;font-size:.9rem;font-weight:700;line-height:1.3;color:var(--sp-fg);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+html body .platform-notice-dialog .pn-line :is(time,code){flex:none;font-size:.72rem;color:var(--sp-fg-muted);font-family:inherit;background:none;padding:0}
+html body .platform-notice-dialog .pn-sub{font-size:.76rem;color:var(--sp-fg-muted);text-transform:capitalize;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .platform-notice-dialog .pn-delivery .pn-sub{text-transform:none}
+html body .platform-notice-dialog .pn-body,html body .platform-notice-dialog .pn-detail{margin:2px 0 0;font-size:.8rem;line-height:1.45;color:var(--sp-fg-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html body .platform-notice-dialog .pn-row details{font-size:.78rem;color:var(--sp-fg-2);margin-top:2px}
+html body .platform-notice-dialog .pn-row details summary{cursor:pointer;color:var(--sp-fg-muted)}
+html body .platform-notice-dialog .pn-row small{font-size:.74rem;color:var(--sp-fg-muted)}
+html body .platform-notice-dialog .pn-chip{align-self:center;padding:3px 9px;border-radius:999px;font-size:.7rem;font-weight:800;text-transform:capitalize;white-space:nowrap;background:rgba(237,241,248,.08);color:var(--sp-fg-2)}
+html body .platform-notice-dialog .pn-chip[data-tone="bad"]{background:rgba(255,107,107,.15);color:#FF9A9A}
+html body .platform-notice-dialog .pn-chip[data-tone="ok"]{background:rgba(53,211,154,.15);color:#5BE6B4}
+html body .platform-notice-dialog .pn-chip[data-tone="wait"]{background:rgba(230,180,85,.14);color:#F0C772}
+html[data-theme="light"] body .platform-notice-dialog .pn-chip[data-tone="bad"]{color:#B42318}
+html[data-theme="light"] body .platform-notice-dialog .pn-chip[data-tone="ok"]{color:#067647}
+html[data-theme="light"] body .platform-notice-dialog .pn-chip[data-tone="wait"]{color:#8A6408}
+html body .platform-notice-dialog .pn-open{align-self:center;min-height:30px;padding:0 10px;border-radius:9px;border:1px solid var(--rf-edge,rgba(237,241,248,.09));background:transparent;color:var(--sp-fg);font-size:.76rem;font-weight:700;cursor:pointer;white-space:nowrap}
+html body .platform-notice-dialog .pn-update .pn-open{justify-self:start;margin-top:4px}
+html body .platform-notice-dialog .pn-open:hover{border-color:var(--rf-edge-strong,rgba(230,180,85,.32))}
+html body .platform-notice-dialog .pn-empty{margin:4px 0;padding:14px;border-radius:12px;border:1px dashed var(--rf-edge,rgba(237,241,248,.09));text-align:center;font-size:.85rem;color:var(--sp-fg-muted)}
+html body .platform-notice-dialog .pn-follow{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;padding:10px;border-radius:12px;border:1px solid var(--rf-edge,rgba(237,241,248,.09))}
+html body .platform-notice-dialog .pn-follow b{font-size:.82rem;font-weight:600;line-height:1.4}
+html body .platform-notice-dialog .pn-about{margin-top:10px;font-size:.78rem;color:var(--sp-fg-muted)}
+html body .platform-notice-dialog .pn-about summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
+html body .platform-notice-dialog .pn-about p{margin:4px 0;line-height:1.5}
+html body .platform-notice-dialog :is(.pn-gear,.pn-close,.pn-open,[role="tab"],summary):focus-visible{outline:3px solid var(--sp-focus);outline-offset:2px}
+
+/* ---------- Footer and the space below it (T-182) ---------- */
+/* Room under the page is exactly the phone tab bar's height (it was the bar plus 64px of empty space). */
+html body.portal-workspace:has(> #mobile-workspace-dock:not([hidden])) #workspace:not([hidden]){padding-bottom:calc(var(--mobile-workspace-dock-height,64px) + 4px)!important}
+html body.portal-workspace:has(> #mobile-workspace-dock[hidden]) #workspace:not([hidden]),html body.portal-workspace:not(:has(> #mobile-workspace-dock)) #workspace:not([hidden]){padding-bottom:0!important}
+html body.portal-workspace .app-main{padding-bottom:0!important;margin-bottom:0!important}
+/* One compact, quiet footer: brand and links on one line; copyright and plan status on a single small line. */
+html body.portal-workspace .app-footer.oprun-footer{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;gap:4px 16px!important;margin:24px 0 0!important;padding:12px clamp(12px,3vw,24px) 10px!important;border-top:1px solid var(--rf-edge)!important;background:none!important;min-height:0!important}
+html body.portal-workspace .app-footer.oprun-footer .workspace-platform-brand{order:1;min-height:28px!important;gap:8px;font-size:.88rem!important;font-weight:800}
+html body.portal-workspace .app-footer.oprun-footer .portal-mark{width:22px!important;height:22px!important}
+html body.portal-workspace .app-footer.oprun-footer .workspace-trust-links{order:2;flex:0 1 auto!important;display:flex!important;flex-wrap:wrap;gap:2px 14px!important;margin:0!important}
+html body.portal-workspace .app-footer.oprun-footer .workspace-trust-links a{font-size:.78rem!important;color:var(--sp-fg-muted)!important;min-height:28px;display:inline-flex;align-items:center;text-decoration:none}
+html body.portal-workspace .app-footer.oprun-footer .workspace-trust-links a:hover{color:var(--sp-fg)!important}
+html body.portal-workspace .app-footer.oprun-footer > small,html body.portal-workspace .app-footer.oprun-footer > #subscription-footer{order:3;flex:0 1 auto!important;flex-basis:auto!important;font-size:.7rem!important;line-height:1.4!important;color:var(--sp-fg-muted)!important;opacity:.85;margin:0!important}
+html body.portal-workspace .app-footer.oprun-footer > #subscription-footer{order:4}
+html body.portal-workspace .app-footer.oprun-footer > small + #subscription-footer::before{content:"·";margin-right:6px}
+@media (width < 700px){
+  html body.portal-workspace .app-footer.oprun-footer{justify-content:flex-start!important;gap:2px 12px!important;margin-top:18px!important;padding:10px 12px 8px!important}
+  html body.portal-workspace .app-footer.oprun-footer .workspace-trust-links{flex-basis:100%!important;gap:0 12px!important}
+  html body.portal-workspace .app-footer.oprun-footer .workspace-trust-links a{min-height:24px}
+  html body.portal-workspace .app-footer.oprun-footer > small{order:1;margin-left:auto!important}
+  html body.portal-workspace .app-footer.oprun-footer > small + #subscription-footer::before{content:none}
+}
+/* Short pages: the footer sits at the bottom of the screen, with no empty band under it. */
+html body.portal-workspace #workspace:not([hidden]) > .app-main{min-height:calc(100dvh - var(--mobile-workspace-dock-height,0px) - 4px)!important;display:flex;flex-direction:column}
+html body.portal-workspace:has(> #mobile-workspace-dock[hidden]) #workspace:not([hidden]) > .app-main{min-height:100dvh!important}
+html body.portal-workspace #workspace:not([hidden]) > .app-main > .app-footer{margin-top:auto!important}
+html body.portal-workspace #workspace:not([hidden]) > .app-main > .content-wrap{flex:0 0 auto;width:100%}
