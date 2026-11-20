@@ -29,6 +29,10 @@ function telnyxFake({ owns = true, assistantFails = false } = {}) {
     if (path === '/ai/assistants') return assistantFails ? { ok: false, status: 422, json: async () => ({ errors: [{ detail: 'model required' }] }) } : ok({ id: 'assistant-11111111-2222-3333-4444-555555555555' });
     if (path === '/call_control_applications') return ok({ id: 'app-9' });
     if (path === '/phone_numbers/pn-1') return ok({ id: 'pn-1', connection_id: body.connection_id });
+    // T-187: outbound voice profile (none yet, so Oprun creates one and attaches it).
+    if (/^\/call_control_applications\/app-\d+$/.test(path)) return ok({ id: path.split('/').pop(), outbound: opt.method === 'PATCH' ? body.outbound : {} });
+    if (path.startsWith('/outbound_voice_profiles?')) return ok([]);
+    if (path === '/outbound_voice_profiles') return ok({ id: 'ovp-1' });
     return { ok: false, status: 404, json: async () => ({}) };
   };
   return { fetchImpl, calls };
@@ -44,6 +48,10 @@ test('connect checks ownership, creates assistant and app in the business accoun
   const app = t.calls.find((c) => c.path === '/call_control_applications');
   assert.equal(app.body.webhook_event_url, `https://www.oprun.ai/api/webhooks/communications/telnyx-voice/${ORG}`); assert.equal(app.body.webhook_api_version, '2');
   assert.equal(t.calls.find((c) => c.path === '/phone_numbers/pn-1').body.connection_id, 'app-9');
+  // T-187: outgoing calls enabled in the business's own account (fixes Telnyx error D38).
+  const ovp = t.calls.find((c) => c.path === '/outbound_voice_profiles');
+  assert.equal(ovp.body.name, 'Oprun outbound calls'); assert.ok(ovp.body.whitelisted_destinations.includes('AU'));
+  assert.deepEqual(t.calls.find((c) => c.method === 'PATCH' && c.path === '/call_control_applications/app-9' && c.body.outbound).body.outbound, { outbound_voice_profile_id: 'ovp-1' });
   assert.deepEqual(d.prepare("SELECT organisation_id,status FROM comms_channels WHERE channel='voice' AND address=?").get(NUM), { organisation_id: ORG, status: 'active' });
   assert.equal(JSON.stringify(s).includes(KEY), false, 'the key never reaches the browser');
   assert.equal(rx.credentialsFor(ORG).api_key, KEY); assert.equal(rx.credentialsFor(OTHER), null);
@@ -141,4 +149,36 @@ test('click to call (T-180): rings the member from the business number, connects
   assert.equal(voice.call('out-1').stage, 'ended'); assert.equal(notified.length, 0, 'no missed-call alert');
   // Another business's webhook cannot touch this call.
   assert.equal((await voice.handle({ id: 'o4', event_type: 'call.answered', payload: { call_control_id: 'out-1', client_state: cs } }, { tenantOrg: 'someone-else' })).ignored, 'call belongs to another account');
+});
+
+test('T-187: a D38 refusal attaches an outbound profile and the call is tried once more', async () => {
+  const d = db(); const sent = []; let first = true, repaired = 0;
+  const fetchImpl = async (url, opt) => { sent.push(url); if (first) { first = false; return { ok: false, status: 422, json: async () => ({ errors: [{ code: 'D38', detail: 'Connection has no Outbound Profile assigned' }] }) }; } return { ok: true, status: 200, json: async () => ({ data: { call_control_id: 'out-2' } }) }; };
+  const creds = { [ORG]: { api_key: KEY, public_key: PUB, number: NUM, application_id: 'app-1' } };
+  const voice = createVoice({ db: d, env: {}, fetchImpl, recordInbound: () => ({}), orgForNumber: () => ORG, profileFor: () => ({}), credentialsFor: (o) => creds[o] || null, repairOutbound: async () => { repaired += 1; return true; } });
+  assert.equal((await voice.clickToCall(ORG, { staff: '+61400000001', customer: '+61861234567' })).call_id, 'out-2');
+  assert.equal(repaired, 1); assert.equal(sent.length, 2);
+  // Any other refusal is reported, not retried.
+  first = true; const v2 = createVoice({ db: d, env: {}, fetchImpl: async () => ({ ok: false, status: 422, json: async () => ({ errors: [{ detail: 'Insufficient balance' }] }) }), recordInbound: () => ({}), orgForNumber: () => ORG, profileFor: () => ({}), credentialsFor: (o) => creds[o] || null, repairOutbound: async () => { throw new Error('must not be called'); } });
+  await assert.rejects(v2.clickToCall(ORG, { staff: '+61400000001', customer: '+61861234567' }), /Insufficient balance/);
+});
+
+test('T-187: an SMS number in Connections becomes the calling number, in the business account only', async () => {
+  const d = db(), t = telnyxFake();
+  const rx = createReceptionistTelnyx({ db: d, runtime, env: { PUBLIC_BASE_URL: 'https://www.oprun.ai' }, fetchImpl: t.fetchImpl, log: quiet });
+  // Without the public key Oprun cannot verify call events, so it says what to add and stores nothing.
+  const none = await rx.setupCalling(ORG, { api_key: KEY, number: NUM });
+  assert.equal(none.ok, false); assert.match(none.message, /public key/); assert.equal(rx.callCredentials(ORG), null);
+  const r = await rx.setupCalling(ORG, { api_key: KEY, public_key: PUB, number: NUM });
+  assert.deepEqual(r, { ok: true, via: 'sms', number: NUM });
+  const app = t.calls.find((c) => c.method === 'POST' && c.path === '/call_control_applications');
+  assert.equal(app.body.application_name, 'Oprun outgoing calls'); assert.equal(app.body.webhook_event_url, `https://www.oprun.ai/api/webhooks/communications/telnyx-voice/${ORG}`);
+  assert.ok(!t.calls.some((c) => c.path === '/phone_numbers/pn-1'), 'incoming-call routing of the number is left alone');
+  assert.ok(t.calls.every((c) => c.auth === 'Bearer ' + KEY), 'only the business key is used');
+  const c = rx.callCredentials(ORG); assert.equal(c.number, NUM); assert.equal(c.application_id, 'app-9'); assert.equal(c.public_key, PUB);
+  assert.equal(rx.callCredentials(OTHER), null, 'another business gets nothing');
+  assert.ok(!JSON.stringify(d.prepare('SELECT token_bundle FROM calling_provider').get()).includes(KEY), 'stored encrypted');
+  // Once the AI Receptionist is connected, its application is used instead.
+  await rx.connect(ORG, { api_key: KEY, public_key: PUB, number: NUM }, 'user-1');
+  assert.equal(rx.callCredentials(ORG).source, undefined);
 });

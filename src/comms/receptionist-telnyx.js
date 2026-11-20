@@ -32,6 +32,11 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
     assistant_id TEXT, application_id TEXT, token_bundle TEXT,
     status TEXT NOT NULL DEFAULT 'not_connected' CHECK(status IN ('not_connected','connecting','needs_attention','connected','disconnected')),
     steps_json TEXT NOT NULL DEFAULT '[]', last_error TEXT, connected_by TEXT, connected_at TEXT, updated_at TEXT NOT NULL)`);
+  // T-187: outgoing calls from the business's own number when only SMS was connected (no AI Receptionist yet).
+  // A separate voice application is used, so the number's incoming-call routing is never changed by this.
+  db.exec(`CREATE TABLE IF NOT EXISTS calling_provider (
+    organisation_id TEXT PRIMARY KEY, number_e164 TEXT NOT NULL, application_id TEXT, token_bundle TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'connected', last_error TEXT, updated_at TEXT NOT NULL)`);
   const base = () => String(env.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '');
   const publicBase = () => String(env.PUBLIC_BASE_URL || 'https://www.oprun.ai').replace(/\/$/, '');
   const webhookUrl = (org) => `${publicBase()}/api/webhooks/communications/telnyx-voice/${encodeURIComponent(org)}`;
@@ -63,6 +68,23 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
     db.prepare('INSERT INTO receptionist_provider (organisation_id,updated_at) VALUES (?,?) ON CONFLICT(organisation_id) DO NOTHING').run(org, now);
     const keys = Object.keys(fields);
     if (keys.length) db.prepare(`UPDATE receptionist_provider SET ${keys.map((k) => `${k}=@${k}`).join(',')},updated_at=@u WHERE organisation_id=@org`).run({ ...fields, u: now, org });
+  }
+
+  // T-187: Telnyx refuses outgoing calls (error D38) unless the voice application has an Outbound Voice Profile.
+  // Use the one already attached, else reuse "Oprun outbound calls" in the business's own account, else create it.
+  async function ensureOutbound(key, applicationId, org) {
+    const app = await telnyx(key, 'GET', `/call_control_applications/${encodeURIComponent(applicationId)}`);
+    if (app?.data?.outbound?.outbound_voice_profile_id) return { profile: String(app.data.outbound.outbound_voice_profile_id), created: false };
+    let country = 'AU'; try { country = String(db.prepare('SELECT country FROM organisations WHERE id=?').get(org)?.country || 'AU').toUpperCase().slice(0, 2); } catch { /* older schema: Australia */ }
+    const list = await telnyx(key, 'GET', `/outbound_voice_profiles?filter[name][contains]=${encodeURIComponent('Oprun outbound calls')}&page[size]=20`);
+    let profile = (list.data || []).find((x) => x.name === 'Oprun outbound calls')?.id || null, created = false;
+    if (!profile) {
+      const made = await telnyx(key, 'POST', '/outbound_voice_profiles', { name: 'Oprun outbound calls', traffic_type: 'conversational', service_plan: 'global', enabled: true, whitelisted_destinations: [...new Set([country, 'AU'])] });
+      profile = made?.data?.id || null; created = true;
+      if (!profile) throw fail(502, 'Telnyx did not return an outbound voice profile.');
+    }
+    await telnyx(key, 'PATCH', `/call_control_applications/${encodeURIComponent(applicationId)}`, { outbound: { outbound_voice_profile_id: String(profile) } });
+    return { profile: String(profile), created };
   }
 
   /** Connects (or re-connects) the business's own Telnyx account and number. Returns publicStatus(). */
@@ -134,6 +156,12 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
       } catch (e) { problem ||= `The number could not be assigned automatically (${e.message}). In Telnyx, open the number and choose the "Oprun AI Receptionist" application.`; step('assign_number', false, e.message); }
     }
 
+    // 4b. Outgoing calls need an Outbound Voice Profile on the application (Telnyx error D38 otherwise).
+    if (applicationId) {
+      try { const o = await ensureOutbound(key, applicationId, org); step('outbound', true, o.created ? 'Outgoing calls enabled (outbound profile created)' : 'Outgoing calls enabled'); }
+      catch (e) { problem ||= `Outgoing calls could not be enabled automatically (${e.message}). In Telnyx, open Voice > Outbound Voice Profiles, create one, and add it to the "Oprun AI Receptionist" application.`; step('outbound', false, e.message); }
+    }
+
     // 5. Route this number to this business only.
     const now = iso();
     db.transaction(() => {
@@ -184,5 +212,41 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
     catch (e) { log.warn?.('[RECEPTIONIST] could not decrypt Telnyx keys for', org, e.message); return null; }
   }
 
-  return { connect, setAssistant, disconnect, publicStatus, credentialsFor, webhookUrl };
+  // ---------- T-187: calling with the business's own SMS number ----------
+  const callingRow = (org) => db.prepare('SELECT * FROM calling_provider WHERE organisation_id=?').get(org);
+  /** Credentials for outgoing calls and their webhooks: the AI Receptionist connection first, else the SMS-number setup. */
+  function callCredentials(org) {
+    const rc = credentialsFor(org); if (rc?.application_id) return rc;
+    const c = org ? callingRow(org) : null; if (!c?.application_id || c.status !== 'connected') return rc;
+    try { const b = runtime.decryptBundle(J(c.token_bundle, c.token_bundle)); return { api_key: b.api_key, public_key: b.public_key, assistant_id: null, number: c.number_e164, application_id: c.application_id, source: 'sms' }; }
+    catch { return rc; }
+  }
+  /** Called when a business saves Telnyx SMS in Connections: the same number can make calls straight away. */
+  async function setupCalling(org, { api_key, public_key, number }) {
+    const rc = credentialsFor(org);
+    if (rc?.application_id) { await ensureOutbound(rc.api_key, rc.application_id, org); return { ok: true, via: 'receptionist', number: rc.number }; }
+    let pk; try { pk = Buffer.from(String(public_key || ''), 'base64'); } catch { pk = Buffer.alloc(0); }
+    if (pk.length !== 32) return { ok: false, reason: 'public_key', message: 'Add your Telnyx public key to the SMS connection to make calls from this number.' };
+    const e164 = normaliseNumber(number), prev = callingRow(org);
+    let appId = prev?.application_id || null;
+    try {
+      if (appId) await telnyx(api_key, 'PATCH', `/call_control_applications/${encodeURIComponent(appId)}`, { webhook_event_url: webhookUrl(org), webhook_api_version: '2' }).catch((e) => { if (/404|not found/i.test(e.message)) appId = null; else throw e; });
+      if (!appId) { const a = await telnyx(api_key, 'POST', '/call_control_applications', { application_name: 'Oprun outgoing calls', webhook_event_url: webhookUrl(org), webhook_api_version: '2' }); appId = a?.data?.id ? String(a.data.id) : null; if (!appId) throw fail(502, 'Telnyx did not return an application ID.'); }
+      await ensureOutbound(api_key, appId, org);
+      db.prepare(`INSERT INTO calling_provider(organisation_id,number_e164,application_id,token_bundle,status,last_error,updated_at) VALUES (?,?,?,?,'connected',NULL,?)
+        ON CONFLICT(organisation_id) DO UPDATE SET number_e164=excluded.number_e164,application_id=excluded.application_id,token_bundle=excluded.token_bundle,status='connected',last_error=NULL,updated_at=excluded.updated_at`)
+        .run(org, e164, appId, JSON.stringify(runtime.encryptBundle({ api_key, public_key: pk.toString('base64') })), iso());
+      return { ok: true, via: 'sms', number: e164 };
+    } catch (e) {
+      db.prepare(`INSERT INTO calling_provider(organisation_id,number_e164,application_id,token_bundle,status,last_error,updated_at) VALUES (?,?,?,?,'needs_attention',?,?)
+        ON CONFLICT(organisation_id) DO UPDATE SET status='needs_attention',last_error=excluded.last_error,updated_at=excluded.updated_at`)
+        .run(org, e164, appId, JSON.stringify(runtime.encryptBundle({ api_key, public_key: pk.toString('base64') })), String(e.message).slice(0, 300), iso());
+      return { ok: false, reason: 'telnyx', message: `Calls could not be set up automatically: ${e.message}` };
+    }
+  }
+  /** Fixes a missing outbound profile on the application in use, then the call can be tried again. */
+  async function repairOutbound(org) { const c = callCredentials(org); if (!c?.application_id) return false; await ensureOutbound(c.api_key, c.application_id, org); return true; }
+  function disconnectCalling(org) { db.prepare("UPDATE calling_provider SET status='disconnected',updated_at=? WHERE organisation_id=?").run(iso(), org); }
+
+  return { connect, setAssistant, disconnect, publicStatus, credentialsFor, callCredentials, setupCalling, repairOutbound, disconnectCalling, webhookUrl };
 }

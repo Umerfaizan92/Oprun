@@ -5822,7 +5822,10 @@ app.get('/api/saas/integrations/self-service/:provider/diagnostics',...connectio
 app.post('/api/saas/integrations/self-service/email_sms/credentials',...connectionOwner,connectionLimit,async(req,res)=>{
   const parsed=z.object({kind:z.enum(['email','sms']),api_key:z.string().trim().min(10).max(1000),sender:z.string().trim().email().max(254).optional(),number:z.string().trim().max(20).optional(),messaging_profile_id:z.string().trim().max(80).optional(),webhook_secret:z.string().trim().max(500).optional(),public_key:z.string().trim().max(500).optional()}).strict().safeParse(req.body);
   if(!parsed.success)return res.status(400).json({ok:false,error:'Check the provider key and sender or phone number.'});
-  try{const transport=await withIntegrationOperation(req.saas.organisation_id,'email_sms',()=>tenantTransports.save(req.saas.organisation_id,parsed.data.kind,parsed.data));saasAudit(req,'integration.credentials_saved','integration','email_sms',{channel:parsed.data.kind,secret_values_recorded:false});res.json({ok:true,transport,secret_stored:true,secrets_exposed:false})}catch(error){return connectionFailure(req,res,error,{email:{api_key:parsed.data.api_key},sms:{api_key:parsed.data.api_key}})}
+  try{const transport=await withIntegrationOperation(req.saas.organisation_id,'email_sms',()=>tenantTransports.save(req.saas.organisation_id,parsed.data.kind,parsed.data));saasAudit(req,'integration.credentials_saved','integration','email_sms',{channel:parsed.data.kind,secret_values_recorded:false});
+    /* T-187: the same Telnyx number makes calls too (Phone page), set up in the business's own account. */
+    let calling=null;if(parsed.data.kind==='sms'&&transport?.sms?.sender_type==='number'){try{calling=await receptionistTelnyx.setupCalling(req.saas.organisation_id,parsed.data);if(calling.ok)saasAudit(req,'phone.calling_enabled','integration','email_sms',{via:calling.via})}catch(e){calling={ok:false,message:e.message}}}
+    res.json({ok:true,transport,calling,secret_stored:true,secrets_exposed:false})}catch(error){return connectionFailure(req,res,error,{email:{api_key:parsed.data.api_key},sms:{api_key:parsed.data.api_key}})}
 });
 app.post('/api/saas/integrations/self-service/website/configure',...connectionOwner,(req,res)=>{
   if(integrationOperations.has(req.saas.organisation_id+':website'))return res.status(409).json({ok:false,error:'Wait for website verification to finish.'});
@@ -6182,7 +6185,7 @@ installHiring(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,g
 const billingSetup=createBillingSetup({db});billingSetup.install(app,{requireSaasUser,requireSaasRole,saasAudit});
 // Phase 05: business events reach the automation engine through this object once the engine is created below.
 const automationEvents={emit(){return []}};
-const paymentsApi=installPayments(app,{db,env,runtime:integrationRuntime,customerSmsEnv:org=>{if(env.PLATFORM_SMS_FOR_BUSINESSES==='1')return env;try{const e=tenantTransports.environment(org,{});return String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim()?e:null}catch{return null}},requireSaasUser,requireSaasRole,saasAudit,financeRoles,syncJobFinance:saasPlatform.syncJobFinance,uploadRoot,notify:notifications,isAuthorised:billingSetup.isAuthorised,events:automationEvents});
+const paymentsApi=installPayments(app,{db,env,runtime:integrationRuntime,customerSmsEnv:org=>{if((env.PLATFORM_SMS_FOR_BUSINESSES==='1'&&env.NODE_ENV==='test'))return env;try{const e=tenantTransports.environment(org,{});return String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim()?e:null}catch{return null}},requireSaasUser,requireSaasRole,saasAudit,financeRoles,syncJobFinance:saasPlatform.syncJobFinance,uploadRoot,notify:notifications,isAuthorised:billingSetup.isAuthorised,events:automationEvents});
 
 // Team accounts: owner-managed staff invitations, member revocation and invitation acceptance.
 staffAccess.install(app,{requireSaasUser,requireSaasRole,channelAccess:req=>channelOperations.memberAccess(req)});
@@ -6237,7 +6240,7 @@ const receptionistProfileFor=org=>{const p=db.prepare('SELECT * FROM tenant_rece
 // T-143: owners and admins also get each call by email (Oprun's own sender), so nothing depends on SMS alone.
 const receptionistEmailOwners=async(org,{subject,text})=>{const people=db.prepare("SELECT DISTINCT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.role IN ('owner','admin') AND m.status='active' AND u.email IS NOT NULL").all(org);const results=[];for(const p of people){const paragraphs=String(text).split('\n\n');results.push(await sendBrandedEmail(env,{to:p.email,subject,rendered:renderEmail(platformBrand(env),{heading:subject,paragraphs}),kind:'platform',delivery:{organisationId:org,category:'receptionist_call',subject}}))}const failed=results.filter(r=>!r.sent);if(failed.length)console.warn('[RECEPTIONIST] owner email not sent:',failed.map(r=>r.reason).join('; '));return results};
 // T-144: a business texts its customers only from its own connected SMS sender.
-const smsReadyFor=org=>{try{if(env.PLATFORM_SMS_FOR_BUSINESSES==='1')return Boolean(String(env.TELNYX_API_KEY||'').trim());const e=tenantTransports.environment(org,{});return Boolean(String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim())}catch{return false}};
+const smsReadyFor=org=>{try{if((env.PLATFORM_SMS_FOR_BUSINESSES==='1'&&env.NODE_ENV==='test'))return Boolean(String(env.TELNYX_API_KEY||'').trim());const e=tenantTransports.environment(org,{});return Boolean(String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim())}catch{return false}};
 const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),emailOwners:receptionistEmailOwners,createApproval:createWorkspaceApproval,profileFor:receptionistProfileFor,smsReady:smsReadyFor,ai:generateAiText});
 // T-144: quote acceptance links and review requests, sent by text and/or email through the business's inbox.
 const customerLinks=createCustomerLinks({db,pipeline:businessHubHooks,outbound:createOutbound({db,comms:commsService}),notify:(org,o)=>notifications.notifyRoles(org,['owner','admin'],o),emit:(...a)=>automationEvents.emit(...a),smsReady:smsReadyFor,publicBase:()=>env.PUBLIC_BASE_URL||'https://www.oprun.ai'});
@@ -6249,7 +6252,7 @@ jobLifecycle.install(app,{requireSaasUser,requireSaasRole,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{jobLifecycle.runReminders().catch(e=>console.warn('[REMINDERS]',String(e.message||e).slice(0,160)))},10*60000).unref();
 // D-R12: each business connects its own Telnyx account (it buys/ports and pays Telnyx directly).
 const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime,env});
-const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.credentialsFor(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
+const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.callCredentials(org),repairOutbound:org=>receptionistTelnyx.repairOutbound(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
   orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
   profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};return receptionistProfileFor(org)}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
@@ -6300,7 +6303,7 @@ installCommsRoutes(app,{db,comms:commsService,voice:voiceFlow,engine:automationE
 // Telnyx public key. Only that business's calls can be touched by its events.
 app.post('/api/webhooks/communications/telnyx-voice/:organisationId',(req,res)=>{
   const org=String(req.params.organisationId||'');
-  const creds=receptionistTelnyx.credentialsFor(org);
+  const creds=receptionistTelnyx.callCredentials(org);
   if(!creds?.public_key||!verifyTelnyxWebhook(req,creds.public_key)){console.warn('[TELNYX VOICE TENANT] rejected: unknown business or invalid signature');return res.status(401).json({ok:false,error:'Invalid webhook signature.'})}
   const event=req.body?.data,p=event?.payload||{};
   res.status(200).json({ok:true,received:true});
