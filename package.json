@@ -76,7 +76,8 @@
     "test:mobile-workspace-ui": "node scripts/test-mobile-workspace-ui.mjs",
     "test:command-centre-loading-ui": "node scripts/test-command-centre-loading-ui.mjs",
     "build:brand-icons": "node scripts/build-brand-icons.mjs",
-    "build:vendor": "node scripts/build-vendor.mjs"
+    "build:vendor": "node scripts/build-vendor.mjs",
+    "test:ai-video-ui": "node scripts/test-ai-video-ui.mjs"
   },
   "engines": {
     "node": "22.x"

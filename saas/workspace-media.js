@@ -21,9 +21,13 @@
     if(!list.length){grid.replaceChildren(el('div',{class:'empty-state'},el('b',{text:items.length?'Nothing matches':'No media yet'}),el('span',{text:items.length?'Try a different search or filter.':'Drop photos, videos or audio above to start your library.'})));return}
     grid.replaceChildren(...list.map(m=>el('article',{class:'media-card'+(m.id===selected?' selected':''),'data-id':m.id},
       el('button',{type:'button',class:'media-pick','aria-label':`Use ${m.original_name} as the source`,onclick:()=>pick(m)},thumb(m)),
+      el('button',{type:'button',class:'media-preview','aria-label':`Preview ${m.original_name}`,title:'Preview',onclick:()=>preview(list,m)},el('span',{'aria-hidden':'true',text:m.kind==='photo'?'⤢':'▶'})),
+      m.source==='ai-video'?el('span',{class:'media-ai-badge',text:'AI'}):null,
       el('div',{class:'media-meta'},el('b',{text:m.original_name}),el('small',{text:`${m.kind}, ${size(m.size_bytes)}`})),
       canDelete()?el('button',{type:'button',class:'media-del',text:'Remove','aria-label':`Remove ${m.original_name}`,onclick:()=>remove(m)}):null)));
   }
+  // T-185: full-size preview with player controls, next/previous, download and "use as source".
+  function preview(list,m){window.OprunMediaViewer?.open(list,list.indexOf(m),{onUse:pick})}
   function pick(m){
     selected=m.id;const f=$('#video-form');if(f?.elements.media_id)f.elements.media_id.value=m.id;
     const s=$('#library-selection');if(s)s.replaceChildren(el('span',{text:`Source: ${m.original_name}`}),el('small',{text:'This file will be used in the render brief below.'}));
@@ -53,5 +57,7 @@
   $('#add-demo-assets')?.addEventListener('click',()=>{note('Importing straight from a social account needs that platform to approve this app. For now, save the clip from the platform and upload it here. Connect accounts under Setup > Connections.');});
   document.querySelectorAll('[data-source-mode]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.sourceMode;document.querySelectorAll('[data-source-mode]').forEach(x=>x.classList.toggle('active',x===b));draw()}));
   $('#media-library-search')?.addEventListener('input',draw);$('#media-library-sort')?.addEventListener('change',draw);
+  window.addEventListener('oprun:media-changed',()=>{load()});
+  window.addEventListener('oprun:media-pick',async e=>{const id=e.detail?.id;if(!items.some(x=>x.id===id))await load();const m=items.find(x=>x.id===id);if(m)pick(m)});
   onView('video',{enter:load});
 })();

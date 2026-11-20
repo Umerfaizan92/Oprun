@@ -512,3 +512,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: TBD
 - Acceptance: TBD
 - Evidence: npm test 73/73 (new appointments.test: calendar, slots, clash, video link, reminder once, team alert, isolation); test-meetings-ui PASS; test:ui 38, navigation-ui, mobile-workspace-ui, redesign-ui; browser: blur/backdrop effect sends CanvasCapture track, Full HD 1920x1080; appointment form and calendar at 390/1440 (recorded 2026-11-20 on claude/meetings-pro at 3eed0c9)
+
+## T-185 Media Studio preview and AI video generation
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: preview and play generated videos and images inside Media Studio; enhance the AI setup and integrate the best AI video generators so any idea or prompt produces a top-quality video, AI-assisted.
+- Files: TBD
+- Acceptance: TBD
+- Evidence: src/ai-video.js (own Google Gemini Omni 1.2 / Runway Gen-4.5, Veo 3.1, Kling 4.0, Seedance 2.5 keys, encrypted; AI prompt director; background generate+poll; MP4 saved to tenant_media), saas/media-viewer.js lightbox, saas/workspace-ai-video.js panel, library preview buttons. scripts/ai-video.test.mjs pass; test-ai-video-ui.mjs pass (real H.264 plays, preview, 390/768/1440 fit, axe clean); npm test 73/73; test:ui 38, navigation, redesign, localization, mobile workspace pass. (recorded 2026-11-20 on claude/media-studio-ai at 0804f19)
