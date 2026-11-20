@@ -589,9 +589,16 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-179 Multiple photos and videos for campaigns and posts
+## T-180 Video meetings, Zoom, invites and call keypad
 - Status: NOT_STARTED
 - Added: 2026-11-20
-- Requirement: Owner 2026-11-20: add multiple photos and videos to campaigns and posts.
-- Files: src/comms/service.js, src/growth.js, saas/workspace-comms-platform.js
-- Acceptance: Campaign holds up to 10 library photos/videos; social posts carry them; Facebook posts photos/video; email shows photos; tests pass
+- Requirement: Owner 2026-11-20: make the Video section professional; send meeting invites by message, email or any platform; integrate Zoom so a business adds its own Zoom details and signs in to run meetings; organise the call section, remove what is not needed, add a keypad to dial numbers.
+- Files: TBD
+- Acceptance: TBD after audit
+
+## T-181 Official social platform logos in Connections
+- Status: NOT_STARTED
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: replace the custom generated social icons in Connections with the platforms' official logos (Facebook, TikTok, Instagram, WhatsApp and all others), sized automatically.
+- Files: TBD
+- Acceptance: TBD

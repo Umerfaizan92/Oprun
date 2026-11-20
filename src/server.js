@@ -63,6 +63,7 @@ import { sendEnquiryNotification, sendSaasVerificationEmail, sendSupportEscalati
 import { createSocialStatsService } from './social-stats.js';
 import { INDUSTRY_REGISTRY, GENERAL_REGULATORY_SOURCES, industryByCode, industrySources } from './industry-registry.js';
 import { installGrowth } from './growth.js';
+import { mediaToken, readMediaToken } from './media-link.js';
 import { createEntitlements } from './entitlements.js';
 import { createAddons } from './addons.js';
 import { createBillingOps } from './billing-ops.js';
@@ -4745,6 +4746,16 @@ app.post('/api/saas/media',requireSaasUser,requireSaasRole(...studioRoles),(req,
     res.status(201).json({ok:true,saved:ids.length,ids});
   });
 });
+// T-179: public, signed link for campaign photos and videos (emails and social platforms load these).
+app.get('/m/:token',(req,res)=>{
+  const t=readMediaToken(env,req.params.token);
+  const m=t&&db.prepare(`SELECT * FROM tenant_media WHERE id=? AND organisation_id=? AND kind IN ('photo','video')`).get(t.id,t.org);
+  if(!m)return res.status(404).type('text/plain').send('Not found');
+  const file=path.join(uploadRoot,'studio',String(m.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);
+  if(!fs.existsSync(file))return res.status(404).type('text/plain').send('Not found');
+  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'public, max-age=86400','x-robots-tag':'noindex'});
+  res.sendFile(file);
+});
 app.get('/api/saas/media/:id/file',requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{
   const m=db.prepare(`SELECT * FROM tenant_media WHERE id=? AND organisation_id=?`).get(req.params.id,req.saas.organisation_id);
   if(!m)return res.status(404).json({ok:false,error:'Media not found.'});
@@ -6159,7 +6170,7 @@ const integrationConnections={
   load:(orgId,provider)=>{const row=db.prepare(`SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?`).get(orgId,provider);return row?{row,settings:integrationSettings(row)}:null},
   fresh:async(c,provider)=>withIntegrationOperation(c.row.organisation_id,provider,async()=>{const row=db.prepare('SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider=?').get(c.row.organisation_id,provider);if(row?.status!=='connected')throw new Error('Reconnect '+provider+'.');const bundle=loadIntegrationBundle(row);if(!bundle)throw new Error('Reconnect '+provider+'.');const f=await integrationRuntime.ensureFreshToken(provider,bundle);if(f.refreshed)persistIntegrationBundle(row,f.bundle);return f.bundle})
 };
-installGrowth(app,{db,env,entitlements,requireSaasUser,requireSaasRole,saasAudit,generateAiText,notify:notifications,connections:integrationConnections,channelAuthority:(organisation_id,user_id,provider,action='approve')=>channelOperations.canEveryResource({saas:{organisation_id,user_id}},provider,action)});
+installGrowth(app,{db,env,mediaFile:(org,id)=>{const m=db.prepare(`SELECT * FROM tenant_media WHERE id=? AND organisation_id=? AND kind IN ('photo','video')`).get(id,org);if(!m)return null;const file=path.join(uploadRoot,'studio',String(org).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);return fs.existsSync(file)?{path:file,mime:m.mime_type,kind:m.kind,name:m.original_name}:null},entitlements,requireSaasUser,requireSaasRole,saasAudit,generateAiText,notify:notifications,connections:integrationConnections,channelAuthority:(organisation_id,user_id,provider,action='approve')=>channelOperations.canEveryResource({saas:{organisation_id,user_id}},provider,action)});
 createAutomation({db,runtime:integrationRuntime,notify:notifications,decrypt:loadIntegrationBundle,persist:persistIntegrationBundle});
 const seoCluster=installSeoCluster(app,{db,env,requireSaasUser,requireSaasRole,requireAdmin,saasAudit,generateAiText,notify:notifications,entitlements,timers:process.env.NODE_ENV!=='test'||process.env.SEO_TIMERS==='1'});
 installHiring(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,generateAiText,notify:notifications});

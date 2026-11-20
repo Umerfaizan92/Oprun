@@ -5,6 +5,7 @@
 // Everything is scoped to one organisation. AI text is used when a provider is configured, otherwise plain templates.
 import { z } from 'zod';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import { appendAuditLog } from './db.js';
 
 const SENIOR = ['owner', 'admin', 'manager', 'super_admin', 'director'];
@@ -14,6 +15,11 @@ const clip = (s, n) => String(s || '').slice(0, n);
 const PILLARS = ['Authority', 'Story', 'Audience', 'Sale'];
 const POST_TYPES = ['text', 'image', 'carousel', 'reel', 'color_bg'];
 const AUTO_PUBLISH = { facebook: ['text', 'color_bg'], x: ['text', 'color_bg'] };
+// T-179: Facebook Pages also take photo, multi-photo and video posts, but only once real photos or videos are attached
+// (a planned "image" post is a brief until then). Other platforms get them as ready to post.
+const MEDIA_TYPES = ['image', 'carousel', 'reel'], MEDIA_AUTO = ['facebook'];
+const hasMedia = (r) => { try { return JSON.parse(r.media_json || '[]').length > 0; } catch { return false; } };
+const canAuto = (r) => (AUTO_PUBLISH[r.platform] || []).includes(r.post_type) || (MEDIA_AUTO.includes(r.platform) && MEDIA_TYPES.includes(r.post_type) && hasMedia(r));
 const KINDS = ['competitor_study', 'patterns', 'pillars', 'formats', 'engagement', 'repurpose'];
 
 const KIND_TITLE = {
@@ -106,7 +112,7 @@ const HOOKS = {
 const fill = (s, p) => s.replaceAll('{product}', p.product || 'our service').replaceAll('{audience}', p.audience || 'you');
 
 /* ---- install ---------------------------------------------------------------------------------------------------- */
-export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasRole, saasAudit, generateAiText, notify, connections, entitlements, channelAuthority, fetchImpl = globalThis.fetch }) {
+export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasRole, saasAudit, generateAiText, notify, connections, entitlements, channelAuthority, fetchImpl = globalThis.fetch, mediaFile = () => null }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS growth_profiles (
       organisation_id TEXT PRIMARY KEY, niche TEXT, audience TEXT, product TEXT, voice TEXT, story TEXT,
@@ -128,6 +134,10 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     CREATE INDEX IF NOT EXISTS idx_growth_calendar_org ON growth_calendar(organisation_id, scheduled_at);
     CREATE INDEX IF NOT EXISTS idx_growth_calendar_due ON growth_calendar(status, scheduled_at);
   `);
+  // T-179: photos and videos attached to a post (ids in the business's media library).
+  if (!db.prepare('PRAGMA table_info(growth_calendar)').all().some((c) => c.name === 'media_json')) db.exec("ALTER TABLE growth_calendar ADD COLUMN media_json TEXT NOT NULL DEFAULT '[]'");
+  const mediaList = (o, ids) => { if (!ids?.length) return []; const rows = db.prepare(`SELECT id,kind,original_name FROM tenant_media WHERE organisation_id=? AND id IN (${ids.map(() => '?').join(',')})`).all(o, ...ids); return ids.map((i) => rows.find((r) => r.id === i)).filter(Boolean); };
+  const typeFor = (media, current) => (media.some((m) => m.kind === 'video') ? 'reel' : media.length > 1 ? 'carousel' : media.length ? 'image' : (['image', 'carousel', 'reel'].includes(current) ? 'text' : current));
 
   const gate = [requireSaasUser, requireSaasRole(...SENIOR)];
   const gateApprove = [requireSaasUser, requireSaasRole(...APPROVERS)];
@@ -148,7 +158,7 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     const r = db.prepare(`SELECT * FROM growth_plans WHERE organisation_id=? AND kind=? ORDER BY created_at DESC, rowid DESC LIMIT 1`).get(o, kind);
     return r ? { id: r.id, kind: r.kind, title: r.title, source: r.source, created_at: r.created_at, content: json(r.content_json, {}) } : null;
   };
-  const publicItem = (r) => ({ id: r.id, plan_day: r.plan_day, scheduled_at: r.scheduled_at, platform: r.platform, pillar: r.pillar, post_type: r.post_type, hook: r.hook, body: r.body, status: r.status, error: r.error, published_at: r.published_at, auto_publish: (AUTO_PUBLISH[r.platform] || []).includes(r.post_type) && entitlements.rules(r.organisation_id).growth_auto_publish });
+  const publicItem = (r) => ({ id: r.id, plan_day: r.plan_day, scheduled_at: r.scheduled_at, platform: r.platform, pillar: r.pillar, post_type: r.post_type, hook: r.hook, body: r.body, status: r.status, error: r.error, published_at: r.published_at, media: mediaList(r.organisation_id, json(r.media_json || '[]', [])).map((m) => ({ id: m.id, kind: m.kind, name: m.original_name })), auto_publish: canAuto(r) && entitlements.rules(r.organisation_id).growth_auto_publish });
 
   async function aiPlan(kind, profile, extra) {
     try {
@@ -251,16 +261,22 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
   });
 
   app.patch('/api/saas/growth/calendar/:id', ...gate, (req, res) => {
-    const p = z.object({ hook: z.string().trim().min(1).max(300).optional(), body: z.string().max(3000).optional(), scheduled_at: z.string().datetime().optional(), platform: z.enum(['facebook', 'instagram', 'x', 'youtube', 'tiktok', 'snapchat', 'whatsapp']).optional(), post_type: z.enum(POST_TYPES).optional(), action: z.enum(['skip', 'restore']).optional() }).safeParse(req.body);
+    const p = z.object({ hook: z.string().trim().min(1).max(300).optional(), body: z.string().max(3000).optional(), scheduled_at: z.string().datetime().optional(), platform: z.enum(['facebook', 'instagram', 'x', 'youtube', 'tiktok', 'snapchat', 'whatsapp']).optional(), post_type: z.enum(POST_TYPES).optional(), media_ids: z.array(z.string().uuid()).max(10).optional(), action: z.enum(['skip', 'restore']).optional() }).safeParse(req.body);
     if (!p.success) return res.status(400).json({ ok: false, error: 'Check the post details.' });
     const row = db.prepare(`SELECT * FROM growth_calendar WHERE id=? AND organisation_id=?`).get(req.params.id, org(req));
     if (!row) return res.status(404).json({ ok: false, error: 'Post not found.' });
     if (['published', 'publishing', 'uncertain'].includes(row.status)) return res.status(409).json({ ok: false, error: 'This post has been sent or delivery needs checking. It cannot be edited or retried.' });
-    const d = p.data, edited = d.hook !== undefined || d.body !== undefined || d.scheduled_at || d.platform || d.post_type;
+    const d = p.data, edited = d.hook !== undefined || d.body !== undefined || d.scheduled_at || d.platform || d.post_type || d.media_ids !== undefined;
+    let mediaJson = row.media_json || '[]', postType = d.post_type ?? row.post_type;
+    if (d.media_ids !== undefined) {
+      const ids = [...new Set(d.media_ids)], found = mediaList(org(req), ids);
+      if (found.length !== ids.length) return res.status(400).json({ ok: false, error: 'One of the photos or videos is not in your media library. Upload it again.' });
+      mediaJson = JSON.stringify(ids); if (!d.post_type) postType = typeFor(found, row.post_type);
+    }
     let status = row.status;
     if (d.action === 'skip') status = 'skipped'; else if (d.action === 'restore' || (edited && row.status !== 'draft')) status = 'draft';
-    db.prepare(`UPDATE growth_calendar SET hook=?,body=?,scheduled_at=?,platform=?,post_type=?,status=?,error=NULL,approved_by=CASE WHEN ?='draft' THEN NULL ELSE approved_by END,updated_at=? WHERE id=?`)
-      .run(d.hook ?? row.hook, d.body ?? row.body, d.scheduled_at ?? row.scheduled_at, d.platform ?? row.platform, d.post_type ?? row.post_type, status, status, iso(), row.id);
+    db.prepare(`UPDATE growth_calendar SET hook=?,body=?,scheduled_at=?,platform=?,post_type=?,media_json=?,status=?,error=NULL,approved_by=CASE WHEN ?='draft' THEN NULL ELSE approved_by END,updated_at=? WHERE id=?`)
+      .run(d.hook ?? row.hook, d.body ?? row.body, d.scheduled_at ?? row.scheduled_at, d.platform ?? row.platform, postType, mediaJson, status, status, iso(), row.id);
     saasAudit(req, 'growth.post_edited', 'growth_post', row.id, { fields: Object.keys(d) });
     res.json({ ok: true, item: publicItem(db.prepare(`SELECT * FROM growth_calendar WHERE id=?`).get(row.id)) });
   });
@@ -296,13 +312,43 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     const tokenRes = await fetchImpl(`https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}?fields=access_token`, { headers: { authorization: 'Bearer ' + bundle.access_token } });
     const tokenJson = await tokenRes.json().catch(() => ({}));
     if (!tokenRes.ok || !tokenJson.access_token) throw new Error(tokenJson?.error?.message || 'Facebook did not give page access. Reconnect and allow posting.');
-    const body = new URLSearchParams({ message: `${item.hook}\n\n${item.body}`.trim(), access_token: tokenJson.access_token });
+    const message = `${item.hook}\n\n${item.body}`.trim();
+    const files = json(item.media_json || '[]', []).map((mid) => mediaFile(o, mid)).filter(Boolean);
+    if (files.length) return sendFacebookMedia(o, page, version, tokenJson.access_token, message, files, authorize);
+    const body = new URLSearchParams({ message, access_token: tokenJson.access_token });
     authorize();
     if (!connections.load(o,'meta')?.settings.selected_resources?.some(r => r.id === page.id && r.type === 'facebook_page')) throw accessChanged();
     const r = await sendRequest(`https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/feed`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.id) throw Object.assign(new Error(j?.error?.message || 'Facebook did not confirm delivery. Check the provider before retrying.'), {deliveryUncertain:r.ok || r.status >= 500});
     return String(j.id);
+  }
+  // Photos are uploaded unpublished and attached to one post; each video becomes its own video post (the first carries
+  // the words). Uploads are not retried automatically: a lost answer may still have posted.
+  async function sendFacebookMedia(o, page, version, pageToken, message, files, authorize) {
+    authorize();
+    if (!connections.load(o,'meta')?.settings.selected_resources?.some(r => r.id === page.id && r.type === 'facebook_page')) throw accessChanged();
+    const upload = async (edge, f, extra) => {
+      const form = new FormData();
+      for (const [k, v] of Object.entries({ access_token: pageToken, ...extra })) form.append(k, v);
+      form.append('source', new Blob([fs.readFileSync(f.path)], { type: f.mime }), f.name || 'upload');
+      const r = await sendRequest(`https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/${edge}`, { method: 'POST', body: form });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.id) throw Object.assign(new Error(j?.error?.message || 'Facebook did not accept a photo or video. Check the provider before retrying.'), { deliveryUncertain: r.ok || r.status >= 500 });
+      return String(j.id);
+    };
+    const photos = files.filter((f) => f.kind === 'photo'), videos = files.filter((f) => f.kind === 'video'), ids = [];
+    if (photos.length) {
+      const fbids = []; for (const f of photos) fbids.push(await upload('photos', f, { published: 'false' }));
+      const body = new URLSearchParams({ message, access_token: pageToken });
+      fbids.forEach((id, i) => body.append(`attached_media[${i}]`, JSON.stringify({ media_fbid: id })));
+      const r = await sendRequest(`https://graph.facebook.com/${version}/${encodeURIComponent(page.id)}/feed`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.id) throw Object.assign(new Error(j?.error?.message || 'Facebook did not confirm delivery. Check the provider before retrying.'), { deliveryUncertain: r.ok || r.status >= 500 });
+      ids.push(String(j.id));
+    }
+    for (const [i, f] of videos.entries()) ids.push(await upload('videos', f, { description: !photos.length && i === 0 ? message : '' }));
+    return ids.join(',');
   }
   async function sendX(o, item, authorize) {
     const c = connections.load(o, 'x');
@@ -337,7 +383,7 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
       set('draft',{error:'Channel approval authority changed. The business owner must review this post again.'});
       audit('growth.post_held_for_access',{platform:item.platform});return {ok:false,status:'draft',error:'Channel approval authority changed. Review again.'};
     }
-    if (!(AUTO_PUBLISH[item.platform] || []).includes(item.post_type) || !entitlements.rules(item.organisation_id).growth_auto_publish) {
+    if (!canAuto(item) || !entitlements.rules(item.organisation_id).growth_auto_publish) {
       set('due');
       audit('growth.post_ready_to_post', { platform: item.platform, type: item.post_type });
       ownerAlert('Post ready to share', `${item.platform} ${item.post_type.replace('_', ' ')} post: "${clip(item.hook, 80)}". Open Growth to copy it.`);

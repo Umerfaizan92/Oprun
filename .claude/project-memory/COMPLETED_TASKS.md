@@ -470,3 +470,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/ds/refresh.css, src/comms/service.js, src/comms/routes.js, src/server.js, saas/workspace-comms-platform.js, saas/app.js, saas/workspace.html, saas/workspace-extras.js, scripts/comms.test.mjs
 - Acceptance: Heading left on phone; theme toggle visible on phone; initials circle hidden; GET channels, POST bundle, POST bundle submit work with per-channel approval; Media Studio saves one render per platform; tests pass
 - Evidence: npm test 73/73; comms.test new bundle and multi-platform render tests pass; test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, comms-ui 10; browser check: select all -> drafts -> submit all (recorded 2026-11-20 on claude/topbar-mobile at 93ad7bd)
+
+## T-179 Multiple photos and videos for campaigns and posts
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: add multiple photos and videos to campaigns and posts.
+- Files: src/comms/service.js, src/growth.js, saas/workspace-comms-platform.js
+- Acceptance: Campaign holds up to 10 library photos/videos; social posts carry them; Facebook posts photos/video; email shows photos; tests pass
+- Evidence: npm test 73/73 (new comms media test, growth-media-publish test); test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, comms-ui 10; browser: upload 2 photos, library pick/remove, saved and reloaded (recorded 2026-11-20 on claude/campaign-media at c0fd610)

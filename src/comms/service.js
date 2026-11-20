@@ -4,6 +4,7 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
 import { nextMarketingWindow } from '../country-rules.js';
 import { resendOutboundKey } from '../resend-outbound.js';
+import { mediaToken } from '../media-link.js';
 import { platformBrand, renderEmail } from '../email-templates.js';
 import crypto from 'node:crypto';
 import { analyseThread, draftReply, duplicates, followUps, CATEGORIES } from './ai.js';
@@ -36,6 +37,11 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   migrateComms(db);
   // T-178: a campaign sent to several channels at once is one draft per channel sharing a group id.
   try { if (!db.prepare('PRAGMA table_info(comms_campaigns)').all().some((c) => c.name === 'group_id')) db.exec('ALTER TABLE comms_campaigns ADD COLUMN group_id TEXT'); } catch { /* table created by migrateComms */ }
+  // T-179: up to 10 photos and videos from the business's media library travel with a campaign.
+  try { if (!db.prepare('PRAGMA table_info(comms_campaigns)').all().some((c) => c.name === 'media_json')) db.exec("ALTER TABLE comms_campaigns ADD COLUMN media_json TEXT NOT NULL DEFAULT '[]'"); } catch { /* table created by migrateComms */ }
+  const mediaRows = (owner, ids) => { if (!ids?.length || isPlatform(owner)) return []; try { const rows = db.prepare(`SELECT id,kind,original_name,mime_type FROM tenant_media WHERE organisation_id=? AND id IN (${ids.map(() => '?').join(',')})`).all(owner, ...ids); return ids.map((id) => rows.find((r) => r.id === id)).filter(Boolean); } catch { return []; } };
+  const mediaLink = (owner, id) => `${publicBase()}/m/${mediaToken(env, owner, id)}`;
+  const mediaOf = (c) => mediaRows(c.owner_key, J(c.media_json, []));
   const isPlatform = (k) => k === 'platform';
   const countryOfOwner = (owner) => { if (isPlatform(owner)) return 'AU'; try { return db.prepare('SELECT country FROM organisations WHERE id=?').get(owner)?.country || 'AU'; } catch { return 'AU'; } };
   const timeZoneOf = (owner) => { if (isPlatform(owner)) return 'Australia/Perth'; try { return db.prepare('SELECT timezone FROM organisations WHERE id=?').get(owner)?.timezone || 'Australia/Perth'; } catch { return 'Australia/Perth'; } };
@@ -268,7 +274,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   }
 
   // ---------------- campaigns ----------------
-  function campaignOut(c) { if (!c) return null; const aud = audience(c.owner_key, c.channel, J(c.segment_json, {})); return { ...c, segment: J(c.segment_json, {}), social_targets: J(c.social_targets_json, []), segment_json: undefined, social_targets_json: undefined, audience: { eligible: aud.eligible.length, excluded: aud.excluded, total: aud.total, sample: aud.eligible.slice(0, 5).map((r) => r.name || r.address) }, stats: counts(c.id), recommendations: recommend(c), compliance: compliance(c) }; }
+  function campaignOut(c) { if (!c) return null; const aud = audience(c.owner_key, c.channel, J(c.segment_json, {})); return { ...c, media: mediaOf(c).map((m) => ({ id: m.id, kind: m.kind, name: m.original_name })), segment: J(c.segment_json, {}), social_targets: J(c.social_targets_json, []), segment_json: undefined, social_targets_json: undefined, audience: { eligible: aud.eligible.length, excluded: aud.excluded, total: aud.total, sample: aud.eligible.slice(0, 5).map((r) => r.name || r.address) }, stats: counts(c.id), recommendations: recommend(c), compliance: compliance(c) }; }
   function counts(id) {
     const r = db.prepare("SELECT COUNT(*) recipients, SUM(status='sent') sent, SUM(status='failed') failed, SUM(clicked_at IS NOT NULL) clicked, SUM(unsubscribed_at IS NOT NULL) unsubscribed FROM comms_campaign_recipients WHERE campaign_id=?").get(id);
     const delivered = db.prepare("SELECT COUNT(*) n FROM comms_campaign_recipients r JOIN communication_deliveries d ON d.provider_id=r.provider_id WHERE r.campaign_id=? AND d.status IN ('delivered','opened')").get(id).n;
@@ -302,14 +308,16 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   }
   function saveCampaign(owner, d, actor, id = null) {
     const now = iso();
+    const media = [...new Set(d.media_ids || [])];
+    if (media.length && mediaRows(owner, media).length !== media.length) return { ok: false, status: 400, error: 'One of the photos or videos is not in your media library. Upload it again.' };
     if (id) {
       const c = db.prepare('SELECT * FROM comms_campaigns WHERE id=? AND owner_key=?').get(id, owner); if (!c) return { ok: false, status: 404, error: 'Campaign not found.' };
       if (!['draft', 'rejected', 'approved', 'pending_approval'].includes(c.status)) return { ok: false, status: 409, error: 'This campaign has already been sent or scheduled.' };
-      db.prepare("UPDATE comms_campaigns SET name=?,subject=?,body=?,cta_url=?,segment_json=?,social_targets_json=?,send_at=?,revision=revision+1,status='draft',approved_revision=NULL,updated_at=? WHERE id=?").run(d.name, d.subject || null, d.body, d.cta_url || null, JSON.stringify(d.segment || {}), JSON.stringify(d.social_targets || []), d.send_at || null, now, id);
+      db.prepare("UPDATE comms_campaigns SET name=?,subject=?,body=?,cta_url=?,segment_json=?,social_targets_json=?,send_at=?,media_json=?,revision=revision+1,status='draft',approved_revision=NULL,updated_at=? WHERE id=?").run(d.name, d.subject || null, d.body, d.cta_url || null, JSON.stringify(d.segment || {}), JSON.stringify(d.social_targets || []), d.send_at || null, JSON.stringify(media), now, id);
       return { ok: true, campaign: campaignOut(db.prepare('SELECT * FROM comms_campaigns WHERE id=?').get(id)) };
     }
     const nid = uid();
-    db.prepare("INSERT INTO comms_campaigns(id,owner_key,name,channel,status,subject,body,cta_url,segment_json,social_targets_json,send_at,created_by,created_at,updated_at) VALUES (?,?,?,?,'draft',?,?,?,?,?,?,?,?,?)").run(nid, owner, d.name, d.channel, d.subject || null, d.body, d.cta_url || null, JSON.stringify(d.segment || {}), JSON.stringify(d.social_targets || []), d.send_at || null, actor, now, now);
+    db.prepare("INSERT INTO comms_campaigns(id,owner_key,name,channel,status,subject,body,cta_url,segment_json,social_targets_json,send_at,media_json,created_by,created_at,updated_at) VALUES (?,?,?,?,'draft',?,?,?,?,?,?,?,?,?,?)").run(nid, owner, d.name, d.channel, d.subject || null, d.body, d.cta_url || null, JSON.stringify(d.segment || {}), JSON.stringify(d.social_targets || []), d.send_at || null, JSON.stringify(media), actor, now, now);
     return { ok: true, campaign: campaignOut(db.prepare('SELECT * FROM comms_campaigns WHERE id=?').get(nid)) };
   }
   // Request approval: every bulk send is Level 3 in the automation engine (send_campaign), with its numbers shown.
@@ -347,7 +355,8 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const targets = J(c.social_targets_json, []); const ids = [];
     // Social posts join the content calendar already approved (this approval is the sign-off). The calendar publishes
     // them on time through the connected accounts, or shows them as failed if an account is not connected.
-    for (const t of targets) { const id = uid(); db.prepare("INSERT INTO growth_calendar(id,organisation_id,plan_day,scheduled_at,platform,pillar,post_type,hook,body,status,approved_by,approved_at,created_at,updated_at) VALUES (?,?,0,?,?,'campaign','post',?,?,'approved',?,?,?,?)").run(id, owner, c.send_at || iso(), t, String(c.name).slice(0, 300), String(c.body).slice(0, 3000), approver || null, iso(), iso(), iso()); ids.push(id); }
+    const media = J(c.media_json, []), m = mediaOf(c), postType = m.some((x) => x.kind === 'video') ? 'reel' : m.length > 1 ? 'carousel' : m.length ? 'image' : 'text';
+    for (const t of targets) { const id = uid(); db.prepare("INSERT INTO growth_calendar(id,organisation_id,plan_day,scheduled_at,platform,pillar,post_type,hook,body,status,approved_by,approved_at,created_at,updated_at,media_json) VALUES (?,?,0,?,?,'campaign',?,?,?,'approved',?,?,?,?,?)").run(id, owner, c.send_at || iso(), t, postType, String(c.name).slice(0, 300), String(c.body).slice(0, 3000), approver || null, iso(), iso(), iso(), JSON.stringify(media)); ids.push(id); }
     db.prepare("UPDATE comms_campaigns SET status='scheduled',social_targets_json=?,updated_at=? WHERE id=?").run(JSON.stringify(targets.map((t, i) => ({ platform: t, calendar_id: ids[i] }))), iso(), c.id);
     return { calendar_items: ids.length };
   }
@@ -395,7 +404,8 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const rendered = renderEmail(brand, {
       heading: c.subject,
       paragraphs: text.split(/\n{2,}/),
-      button: link ? { label: 'Find out more', url: link } : null
+      button: link ? { label: 'Find out more', url: link } : null,
+      images: mediaOf(c).map((m) => (m.kind === 'photo' ? { src: mediaLink(owner, m.id), alt: '' } : { href: mediaLink(owner, m.id), alt: 'Watch the video' }))
     });
     const res = await fetchImpl(`${String(deliveryEnv.RESEND_API_BASE_URL || 'https://api.resend.com').replace(/\/$/, '')}/emails`, { method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: [r.address], subject: c.subject, ...rendered, headers: { 'List-Unsubscribe': `<${unsub}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, tags: [{ name: 'category', value: 'marketing' }] }) });
     const j = await res.json().catch(() => ({}));
@@ -430,13 +440,14 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const channels = [...new Set(d.channels)];
     if (channels.includes('social') && !(d.social_targets || []).length) return { ok: false, status: 400, error: 'Choose at least one social platform, or untick Social post.' };
     const gid = uid(); const out = [];
-    db.transaction(() => {
+    try { db.transaction(() => {
       for (const ch of channels) {
         const r = saveCampaign(owner, { ...d, channel: ch, subject: ch === 'email' ? d.subject : undefined, cta_url: ch === 'social' ? undefined : d.cta_url, social_targets: ch === 'social' ? d.social_targets : [], segment: ch === 'social' ? {} : d.segment }, actor);
+        if (!r.ok) throw Object.assign(new Error(r.error), { status: r.status });
         db.prepare('UPDATE comms_campaigns SET group_id=? WHERE id=?').run(gid, r.campaign.id);
         out.push(campaignOut(db.prepare('SELECT * FROM comms_campaigns WHERE id=?').get(r.campaign.id)));
       }
-    })();
+    })(); } catch (e) { if (e.status) return { ok: false, status: e.status, error: e.message }; throw e; }
     return { ok: true, group_id: gid, campaigns: out };
   }
   // Each channel still goes through its own Level 3 approval with its own numbers; one tap submits them all and the
