@@ -414,3 +414,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/country-rules.js, src/finance/rules.js, src/finance/service.js, src/finance/routes.js, src/payments.js, src/customer-links.js, src/job-lifecycle.js, src/comms/service.js, saas/workspace-finance-platform.js
 - Acceptance: scripts/country-rules.test.mjs passes; AU finance tests unchanged; npm test and UI tests pass.
 - Evidence: Country rules in code (src/country-rules.js) for invoices, currency, tax wording/rates, e-invoicing notices, tax summary, record retention, dates, phone normalisation, marketing send window. Tests: scripts/country-rules.test.mjs 4/4 (UK VAT invoice end to end in GBP, US/IT/AU rules, send window, phones); npm test 73/73; test:ui 37/37; test:finance-ui 11/11; customer-links 8/8; job-lifecycle 8/8. (recorded 2026-11-20 on claude/country-rules at 2386889)
+
+## T-171 Phase 2: navigation clean-up
+- Added: 2026-11-20
+- Requirement: docs/product-redesign/03 §1: shorter main menu, duplicates under More, every route kept; notifications open the Unified Inbox.
+- Files: saas/workspace-nav.js, src/comms/*, src/message-delivery.js, src/business-ops.js, docs/navigation/*
+- Acceptance: Main menu 30 pages; all 61 routes resolve; nav, redesign and UI tests pass.
+- Evidence: Main menu 61 -> 30 pages; 31 duplicates/specialist tools under each group's More list; Consent moved to Customers; notifications and settings links open the Unified Inbox; light-theme contrast fix for Secure account; phone dock tab fits 390px. Tests: npm test 73/73; test:ui 37/37; test:navigation-ui pass (608 checks); test:redesign-ui pass; redesign-preservation + mobile-workspace unit tests pass. test-mobile-workspace-ui still fails at a pre-existing Work-tab aria check (fails on main too). (recorded 2026-11-20 on claude/nav-cleanup at 3d22ba9)

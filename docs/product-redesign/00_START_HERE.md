@@ -31,8 +31,9 @@ Related earlier work: `docs/ai-website/` (Website section), `docs/ai-receptionis
 - [x] Legal, security, billing audit (doc 06). Adviser review pending.
 - [x] Tool / plugin / agent recommendations (doc 04 §5)
 - [x] Final implementation plan + GitHub-ready specs (doc 07)
-- **Current focus:** Phase 1b (invoice tax labels per country) and Phase 2 (navigation clean-up)
-- **Next:** Phase 3 (adaptive foundation)
+- [x] Phase 1b country rules (T-170) and Phase 2 navigation clean-up (T-171): the main menu shows 30 pages; 31 specialist or duplicate pages sit under each group's "More" list with every route kept.
+- **Current focus:** Phase 3 (adaptive foundation)
+- **Next:** Phase 4 (sequential Business setup and Workers screens)
 
 What is true today: the specification is complete and in the repository. The product is **not yet** adaptive to
 the five device classes or open to other countries. Those are built in Phases 1–5. This file is updated at the
