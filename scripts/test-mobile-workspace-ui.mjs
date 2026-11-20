@@ -48,7 +48,8 @@ try {
         assert.equal(await p.locator('#mobile-workspace-dock a,.mobile-workspace-pages').count(),0);
         assert.equal(await p.locator('#business-navigation [data-nav-page="'+item.view+'"]').getAttribute('aria-current'),'page');
         // Owner 2026-11-12: one compact bar, sub-sections fit the width (wrap instead of sideways scrolling).
-        const fit=await p.locator('#mobile-workspace-dock').evaluate(e=>{const s=e.querySelector('.mobile-workspace-sections'),b=[...e.querySelectorAll('button')].map(x=>x.getBoundingClientRect());return {noSideways:!s||s.hidden||s.scrollWidth<=s.clientWidth+1,inside:b.every(r=>r.left>=-1&&r.right<=innerWidth+1),tall:b.every(r=>r.height>=44),dock:e.getBoundingClientRect().height}});
+        // Owner 2026-11-14 (workspace-bars.css): nested tabs (a page's tabs plus a section's tabs) share one row that scrolls sideways.
+        const fit=await p.locator('#mobile-workspace-dock').evaluate(e=>{const s=e.querySelector('.mobile-workspace-sections'),b=[...e.querySelectorAll('button')].map(x=>x.getBoundingClientRect());const nested=e.querySelectorAll('.mobile-workspace-section-group').length>1;return {noSideways:!s||s.hidden||nested||s.scrollWidth<=s.clientWidth+1,inside:nested||b.every(r=>r.left>=-1&&r.right<=innerWidth+1),tall:b.every(r=>r.height>=44),dock:e.getBoundingClientRect().height}});
         assert.ok(fit.noSideways&&fit.inside,item.path+' sub-sections must fit without sideways scrolling');assert.ok(fit.tall,item.path+' touch targets');assert.ok(fit.dock<=130,item.path+' compact dock height '+fit.dock);
         assert.equal(await p.locator('.view:not([hidden]) .mobile-workspace-source:visible').count(),0);
         const sets=await p.locator('.mobile-workspace-section-group').count();
@@ -58,9 +59,15 @@ try {
           for(const label of labels){
             const b=p.locator('.mobile-workspace-section-group').nth(i).getByRole('button',{name:label,exact:true});
             if(!await b.count() || !await b.isEnabled())continue;
+            const hashBefore=await p.evaluate(()=>location.hash);
             await b.click();await settle(p);
+            if(await p.evaluate(()=>location.hash)!==hashBefore){report(item.path,width,'Page tab: '+label);break;}
             const selected=p.locator('.mobile-workspace-section-group').nth(i).getByRole('button',{name:label,exact:true});
-            assert.equal(await selected.getAttribute('aria-current'),'location',item.path+' '+label+' active');
+            const cur=await selected.getAttribute('aria-current').catch(()=>null);
+            // Rows of sibling pages (the Work pipeline stages) mark the open page with aria-current="page" and
+            // navigate away; section tabs mark the open section with "location".
+            if(cur==='page'){report(item.path,width,'Page tab: '+label);break;}
+            assert.equal(cur,'location',item.path+' '+label+' active');
             const state=await selected.evaluate(e=>{const [_,i,j]=e.dataset.dockKey.split('-');const source=document.getElementById('mobile-workspace-dock')._sources[+i]?.buttons[+j];return {selected:source?.getAttribute('aria-selected'),current:source?.getAttribute('aria-current'),connected:source?.isConnected}});
             assert.ok(state.connected && (state.selected==='true'||state.current),item.path+' '+label+' real handler');
             report(item.path,width,'Section: '+label);

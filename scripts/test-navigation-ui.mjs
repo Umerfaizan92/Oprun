@@ -120,7 +120,8 @@ try {
     await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
     if(width>760) await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
     if(width<=760){await p.locator('[data-dock-key=menu]').click();await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page=mail]')}).locator('summary').click();}
-    await p.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]').click();
+    // T-174: the related-pages row lists main pages only, so on wider screens the older email folder opens by its address.
+    if(width<=760) await p.locator('#business-navigation a[href="#communications/email"]').click(); else { assert.equal(await p.locator('#workspace-workflows a[href="#communications/email"]').count(),0,'older pages are not in the related row'); await p.evaluate(()=>{location.hash='communications/email'}); }
     await p.locator('#mail-view').waitFor({state:'visible'});
     if(width>760) assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
     checked('Business','b04/unified','Inbox context opens the Email folder without forcing More open',width);

@@ -93,7 +93,8 @@
     {label:'Plans', views:['billing','finplan']},
     {label:'People', views:['workforce','team','hiring','offshore']}
   ];
-  const contexts = (view, role) => WORKFLOWS.filter(w => w.views.includes(view)).map(w => ({label:w.label,items:visibleItems(role).filter(i => w.views.includes(i.view)).sort((a,b) => w.views.indexOf(a.view)-w.views.indexOf(b.view))}));
+  // The related-pages row shows main pages only (T-174); an older or specialist page appears there only while open.
+  const contexts = (view, role) => WORKFLOWS.filter(w => w.views.includes(view)).map(w => ({label:w.label,items:visibleItems(role).filter(i => w.views.includes(i.view) && (!i.secondary || i.view === view)).sort((a,b) => w.views.indexOf(a.view)-w.views.indexOf(b.view))}));
   // Bare legacy group links remain valid after re-grouping.
   for(const [old,view] of Object.entries({today:'dashboard',work:'enquiries',customers:'customers',people:'workforce',communications:'unifiedinbox',marketing:'video',growth:'growth',money:'finance',setup:'onboarding'})){const item=DOMAINS.flatMap(d=>d.items).find(i=>i.view===view);if(!item.alias.includes(old))item.alias.push(old)}
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
