@@ -259,3 +259,13 @@ html body #meetings-view .mt-plus{width:52px;min-height:48px;font-size:1.3rem;fo
 html body #meetings-view .mt-dial-actions{justify-content:center;align-items:center}
 html body #meetings-view .mt-call{flex:1 1 auto;max-width:260px}
 @media (width < 700px){html body #meetings-view .mt-invite-row{grid-template-columns:1fr}}
+
+/* ---------- Official platform icons on Connections cards (T-181) ---------- */
+/* One tile per platform in its brand colour; the icon scales with the tile, so it fits every card size. */
+html body #workspace .integration-logo.brand-logo{display:inline-flex;align-items:center;flex:none;padding:0;border:0;background:none;box-shadow:none;animation:none!important;--tile:clamp(40px,4.2vw,48px)}
+html body #workspace .brand-logo .brand-tile{display:grid;place-items:center;width:var(--tile);height:var(--tile);border-radius:calc(var(--tile) * .28);box-shadow:0 6px 16px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.08)}
+html body #workspace .brand-logo .brand-tile svg{width:58%;height:58%;display:block}
+html body #workspace .brand-logo-pair{gap:4px}
+html body #workspace .brand-logo-pair .brand-tile{--tile:34px}
+html body #workspace .brand-logo .brand-tile{flex:none}
+html body #workspace .connection-card-heading > .brand-logo{flex:none;min-width:max-content}
