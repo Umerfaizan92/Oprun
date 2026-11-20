@@ -519,3 +519,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: TBD
 - Acceptance: TBD
 - Evidence: src/ai-video.js (own Google Gemini Omni 1.2 / Runway Gen-4.5, Veo 3.1, Kling 4.0, Seedance 2.5 keys, encrypted; AI prompt director; background generate+poll; MP4 saved to tenant_media), saas/media-viewer.js lightbox, saas/workspace-ai-video.js panel, library preview buttons. scripts/ai-video.test.mjs pass; test-ai-video-ui.mjs pass (real H.264 plays, preview, 390/768/1440 fit, axe clean); npm test 73/73; test:ui 38, navigation, redesign, localization, mobile workspace pass. (recorded 2026-11-20 on claude/media-studio-ai at 0804f19)
+
+## T-186 Video call: full screen, in-call invite, transcription
+- Added: 2026-11-20
+- Requirement: Owner (21 Nov 2026): in Video Meetings call screen add a full-size (full screen) option; add an Invite button in the call with Email, Message (SMS) and Copy link so the invitation goes straight from the video; add transcription of the video conversation with an option to save it.
+- Files: saas/meet-call.js, saas/meetings.css, src/meetings.js, src/meeting-extras.js
+- Acceptance: Full screen toggles on desktop and phone; invite from call sends email/SMS via business senders and copy link works; transcript captured during call can be saved to the meeting and viewed later; tests and UI checks pass; deployed
+- Evidence: meet-call.js: Full screen (iPhone falls back to native video player), in-call Invite (Email/SMS/WhatsApp via business senders, copy link, share, allow guests), host Transcribe with consent prompt, live captions for all, transcript panel and download; src/meetings.js transcript table + endpoints (host-only toggle, saved only while on, access organiser/managers/attendees, txt download, delete). meetings-transcript.test.mjs + meetings.test.mjs pass; test-meetings-ui.mjs pass (fullscreen, invite tabs, copy link, captions to guest, transcript panel, 390/1440 fit, axe); npm test 73/73. (recorded 2026-11-20 on claude/call-tools at 4ecf81a)

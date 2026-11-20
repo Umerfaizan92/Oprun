@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit';
 
 export const MAX_PARTICIPANTS = 6;      // browser-to-browser calls stay reliable up to about this size
 const MAX_WAITING = 10, MAX_QUEUE = 400, MAX_SIGNAL_BYTES = 48 * 1024;
+const MAX_TRANSCRIPT_LINES = 5000;
 const POLL_HOLD_MS = 25000, PEER_TIMEOUT_MS = 45000, WAITING_TIMEOUT_MS = 60000, OPEN_MEETING_LIMIT = 25;
 const HOST_ROLES = ['owner', 'admin', 'manager', 'super_admin', 'director'];
 
@@ -24,7 +25,14 @@ export function installMeetings(app, { db, env = {}, requireSaasUser, saasAudit,
     CREATE TABLE IF NOT EXISTS meeting_attendance (
       id TEXT PRIMARY KEY, meeting_id TEXT NOT NULL, organisation_id TEXT NOT NULL, kind TEXT NOT NULL, user_id TEXT, display_name TEXT NOT NULL,
       joined_at TEXT NOT NULL, left_at TEXT);
-    CREATE INDEX IF NOT EXISTS meeting_attendance_meeting ON meeting_attendance(meeting_id);`);
+    CREATE INDEX IF NOT EXISTS meeting_attendance_meeting ON meeting_attendance(meeting_id);
+    CREATE TABLE IF NOT EXISTS meeting_transcript (
+      seq INTEGER PRIMARY KEY AUTOINCREMENT, meeting_id TEXT NOT NULL, organisation_id TEXT NOT NULL, speaker TEXT NOT NULL, speaker_kind TEXT NOT NULL,
+      text TEXT NOT NULL, spoken_at TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS meeting_transcript_meeting ON meeting_transcript(meeting_id, seq);`);
+  // T-186: a host can turn transcription on during a call. Each person's own browser turns their own speech into
+  // text (so nobody's audio is sent to Oprun), the lines are saved here and everyone in the call sees captions.
+  if (!db.prepare('PRAGMA table_info(meetings)').all().some((c) => c.name === 'transcribing')) db.exec('ALTER TABLE meetings ADD COLUMN transcribing INTEGER NOT NULL DEFAULT 0');
 
   const iso = () => new Date(now()).toISOString();
   const fail = (res, status, error, code) => res.status(status).json({ ok: false, error, ...(code ? { code } : {}) });
@@ -94,7 +102,7 @@ export function installMeetings(app, { db, env = {}, requireSaasUser, saasAudit,
     r.peers.set(id, p); peerBySecret.set(p.secretHash, { meetingId: m.id, peerId: id });
     db.prepare('INSERT INTO meeting_attendance (id,meeting_id,organisation_id,kind,user_id,display_name,joined_at) VALUES (?,?,?,?,?,?,?)').run(attendanceId, m.id, m.organisation_id, kind, userId, name, iso());
     broadcast(r, { type: 'peer-joined', peer: publicPeer(p) }, id);
-    return { peer_id: id, peer_secret: secret, peers: others, self: publicPeer(p), ice_servers: iceServers(), relay_configured: relayConfigured(), max_participants: MAX_PARTICIPANTS, meeting: { id: m.id, title: m.title, mode: m.mode } };
+    return { peer_id: id, peer_secret: secret, peers: others, self: publicPeer(p), ice_servers: iceServers(), relay_configured: relayConfigured(), max_participants: MAX_PARTICIPANTS, meeting: { id: m.id, title: m.title, mode: m.mode }, transcribing: Boolean(db.prepare('SELECT transcribing FROM meetings WHERE id=?').get(m.id)?.transcribing) };
   }
 
   // ---- workspace (signed-in) --------------------------------------------------------------------------------
@@ -104,7 +112,7 @@ export function installMeetings(app, { db, env = {}, requireSaasUser, saasAudit,
     const r = rooms.get(m.id), token = m.guests_allowed ? guestToken(m) : null;
     return { id: m.id, title: m.title, mode: m.mode, starts_at: m.starts_at, status: m.status, guests_allowed: Boolean(m.guests_allowed), created_at: m.created_at, ended_at: m.ended_at,
       live: m.status === 'open' ? [...(r?.peers.values() || [])].map((p) => ({ name: p.name, kind: p.kind })) : [], waiting: m.status === 'open' ? (r ? waitingList(r).length : 0) : 0,
-      can_manage: isHost(req, m), guest_link: m.status === 'open' && token && isHost(req, m) ? `${base(req)}/saas/meet.html?m=${m.id}#t=${token}` : null };
+      can_manage: isHost(req, m), transcribing: Boolean(m.transcribing), transcript_lines: db.prepare('SELECT COUNT(*) n FROM meeting_transcript WHERE meeting_id=?').get(m.id).n, guest_link: m.status === 'open' && token && isHost(req, m) ? `${base(req)}/saas/meet.html?m=${m.id}#t=${token}` : null };
   };
   const displayName = (req) => cleanName(db.prepare('SELECT full_name FROM users WHERE id=?').get(req.saas.user_id)?.full_name, 'Team member');
 
@@ -179,7 +187,7 @@ export function installMeetings(app, { db, env = {}, requireSaasUser, saasAudit,
     if (!m) return fail(res, 404, 'Meeting not found.');
     if (!isHost(req, m)) return fail(res, 403, 'Only the meeting organiser or a manager can end the meeting for everyone.');
     if (m.status === 'open') {
-      db.prepare("UPDATE meetings SET status='ended',ended_at=?,ended_by=? WHERE id=?").run(iso(), req.saas.user_id, m.id);
+      db.prepare("UPDATE meetings SET status='ended',ended_at=?,ended_by=?,transcribing=0 WHERE id=?").run(iso(), req.saas.user_id, m.id);
       closeRoom(m.id, 'ended_by_host');
       saasAudit(req, 'meeting.ended', 'meeting', m.id, {});
     }
@@ -231,6 +239,51 @@ export function installMeetings(app, { db, env = {}, requireSaasUser, saasAudit,
     const ctx = peerOf(req); if (!ctx) return gone(res);
     removePeer(ctx.meetingId, ctx.p.id, 'left');
     res.json({ ok: true });
+  });
+
+  // ---- transcription (T-186) ----
+  app.post('/api/meetings/call/transcription', callLimiter, (req, res) => {
+    const ctx = peerOf(req); if (!ctx) return gone(res);
+    if (!ctx.p.host) return fail(res, 403, 'Only the meeting organiser or a manager can turn transcription on or off.');
+    const p = z.object({ on: z.boolean() }).strict().safeParse(req.body); if (!p.success) return fail(res, 400, 'Choose on or off.');
+    const m = db.prepare("SELECT * FROM meetings WHERE id=? AND status='open'").get(ctx.meetingId); if (!m) return fail(res, 409, 'This meeting has ended.', 'ended');
+    db.prepare('UPDATE meetings SET transcribing=? WHERE id=?').run(p.data.on ? 1 : 0, m.id);
+    broadcast(ctx.r, { type: 'transcription', on: p.data.on, by: ctx.p.name });
+    res.json({ ok: true, on: p.data.on });
+  });
+  app.post('/api/meetings/call/transcript', callLimiter, (req, res) => {
+    const ctx = peerOf(req); if (!ctx) return gone(res);
+    const p = z.object({ text: z.string().trim().min(1).max(1000) }).strict().safeParse(req.body); if (!p.success) return fail(res, 400, 'Transcript line not accepted.');
+    const m = db.prepare("SELECT id,organisation_id,transcribing FROM meetings WHERE id=? AND status='open'").get(ctx.meetingId);
+    if (!m?.transcribing) return fail(res, 409, 'Transcription is off.', 'off');
+    const n = db.prepare('SELECT COUNT(*) n FROM meeting_transcript WHERE meeting_id=?').get(m.id).n; if (n >= MAX_TRANSCRIPT_LINES) return fail(res, 409, 'This meeting\'s transcript is full.', 'full');
+    const text = p.data.text.replace(/[\u0000-\u001f]/g, ' ').replace(/\s+/g, ' '), at = iso();
+    const seq = db.prepare('INSERT INTO meeting_transcript (meeting_id,organisation_id,speaker,speaker_kind,text,spoken_at) VALUES (?,?,?,?,?,?)').run(m.id, m.organisation_id, ctx.p.name, ctx.p.kind, text, at).lastInsertRowid;
+    broadcast(ctx.r, { type: 'caption', line: { seq: Number(seq), speaker: ctx.p.name, text, at } });
+    res.json({ ok: true });
+  });
+  // The transcript is for the organiser, managers and the staff who attended; never for guests or other staff.
+  const transcriptAllowed = (req, m) => isHost(req, m) || Boolean(db.prepare('SELECT 1 FROM meeting_attendance WHERE meeting_id=? AND user_id=?').get(m.id, req.saas.user_id));
+  app.get('/api/saas/meetings/:id/transcript', requireSaasUser, (req, res) => {
+    const m = meetingFor(req, req.params.id); if (!m) return fail(res, 404, 'Meeting not found.');
+    if (!transcriptAllowed(req, m)) return fail(res, 403, 'Only the organiser, managers and people who attended can read this transcript.');
+    const lines = db.prepare('SELECT seq,speaker,speaker_kind,text,spoken_at FROM meeting_transcript WHERE meeting_id=? ORDER BY seq').all(m.id);
+    saasAudit(req, 'meeting.transcript_viewed', 'meeting', m.id, { format: req.query.format === 'txt' ? 'txt' : 'json' });
+    if (req.query.format === 'txt') {
+      const tz = db.prepare('SELECT timezone FROM organisations WHERE id=?').get(m.organisation_id)?.timezone || 'Australia/Perth';
+      const t = (v) => new Date(v).toLocaleTimeString('en-AU', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const head = `${m.title}\nTranscript${m.starts_at || m.created_at ? ` · ${new Date(m.starts_at || m.created_at).toLocaleDateString('en-AU', { timeZone: tz, dateStyle: 'medium' })}` : ''}\nMade by each participant's browser speech recognition. Check important details before relying on them.\n\n`;
+      res.set({ 'content-type': 'text/plain; charset=utf-8', 'content-disposition': `attachment; filename="transcript-${m.title.replace(/[^a-zA-Z0-9 -]/g, '').trim().replace(/\s+/g, '-').slice(0, 60) || 'meeting'}.txt"`, 'cache-control': 'no-store' });
+      return res.send(head + lines.map((l) => `[${t(l.spoken_at)}] ${l.speaker}${l.speaker_kind === 'guest' ? ' (guest)' : ''}: ${l.text}`).join('\n') + '\n');
+    }
+    res.set('Cache-Control', 'no-store').json({ ok: true, title: m.title, transcribing: Boolean(m.transcribing), lines });
+  });
+  app.delete('/api/saas/meetings/:id/transcript', requireSaasUser, (req, res) => {
+    const m = meetingFor(req, req.params.id); if (!m) return fail(res, 404, 'Meeting not found.');
+    if (!isHost(req, m)) return fail(res, 403, 'Only the meeting organiser or a manager can delete the transcript.');
+    const n = db.prepare('DELETE FROM meeting_transcript WHERE meeting_id=?').run(m.id).changes;
+    saasAudit(req, 'meeting.transcript_deleted', 'meeting', m.id, { lines: n });
+    res.json({ ok: true, deleted: n });
   });
 
   // ---- guests (no account) ----------------------------------------------------------------------------------

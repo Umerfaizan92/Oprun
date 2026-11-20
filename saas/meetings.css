@@ -68,3 +68,27 @@ html.mc-open{overflow:hidden}
 .mc-fx-opt input{width:18px;height:18px;accent-color:#e6b455}
 .mc-fx-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .mc-fx-note{grid-column:1/-1;margin:0;font-size:.78rem;opacity:.8;line-height:1.45}
+/* T-186: full screen, invite from the call, transcription */
+.mc-fullscreen{background:#000}
+.mc-fullscreen .mc-root{min-height:100vh;min-height:100dvh}
+.mc-overlay:fullscreen,.mc-overlay:-webkit-full-screen{overflow:auto;width:100%;height:100%}
+.mc-btn[aria-pressed="true"]{border-color:#e6b455;color:#f5d58f}
+.mc-primary{background:#e6b455;border-color:#e6b455;color:#16120a}
+.mc-invite,.mc-transcript{margin:8px 0;padding:12px;border:1px solid var(--line,#2a3140);border-radius:14px;background:rgba(10,14,22,.9);display:grid;gap:10px}
+.mc-invite p,.mc-transcript p{margin:0}
+.mc-invite-form{display:grid;gap:8px}
+.mc-invite-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mc-input{flex:1 1 14rem;min-width:0;min-height:46px;padding:0 12px;border-radius:10px;border:1px solid #39424f;background:#121720;color:#f2f4f7;font:inherit}
+.mc-input:focus-visible{outline:2px solid #e6b455;outline-offset:1px}
+.mc-link{font-size:.82rem;color:#cfd5de}
+.mc-seg{display:flex;gap:6px;flex-wrap:wrap}
+.mc-seg button{flex:1 1 auto;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid #39424f;background:transparent;color:#f2f4f7;font:inherit;font-weight:600;cursor:pointer}
+.mc-seg button[aria-checked="true"]{background:rgba(230,180,85,.18);border-color:#e6b455;color:#f5d58f}
+.mc-rec{margin:0;padding:6px 12px;border-radius:999px;background:rgba(255,92,92,.14);border:1px solid rgba(255,120,120,.4);color:#ffd0c8;font-size:.85rem;width:max-content;max-width:100%}
+.mc-captions{display:grid;gap:2px;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.6);font-size:.95rem;line-height:1.4}
+.mc-captions p{margin:0}
+.mc-lines{margin:0;padding:0 0 0 18px;max-height:40vh;overflow:auto;display:grid;gap:4px;font-size:.9rem}
+.mc-transcript a.mc-btn{display:inline-flex;align-items:center;text-decoration:none;width:max-content}
+.mt-transcript-box{margin-top:8px}
+.mt-transcript-box summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center}
+.mt-transcript-box .mt-lines{margin:6px 0 10px;padding-left:18px;display:grid;gap:4px;max-height:320px;overflow:auto;font-size:.88rem}

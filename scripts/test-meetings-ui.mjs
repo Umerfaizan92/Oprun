@@ -25,6 +25,8 @@ try {
   const ctx = await ownerContext(browser, server, owner), page = await ctx.newPage(), errors = [];
   page.on('pageerror', (e) => errors.push('owner: ' + e.message)); page.setDefaultTimeout(15000);
   await ctx.grantPermissions(['camera', 'microphone', 'clipboard-read', 'clipboard-write'], { origin: server.base });
+  // The owner's browser "hears" one sentence once transcription starts (real speech recognition needs a person).
+  await ctx.addInitScript(() => { window.SpeechRecognition = class { start() { if (!window.__said) { window.__said = 1; setTimeout(() => this.onresult?.({ resultIndex: 0, results: [Object.assign([{ transcript: 'Hello from the owner' }], { isFinal: true })] }), 300); } } stop() { setTimeout(() => this.onend?.(), 0); } abort() {} }; });
   await page.goto(server.base + '/saas/workspace.html#b04/meetings');
   const view = page.locator('#meetings-view'); await view.getByRole('heading', { name: 'Start a meeting' }).waitFor();
   assert.equal(await view.getByText('Provider setup required').count(), 0, 'the old request form is gone');
@@ -38,6 +40,11 @@ try {
   await view.getByRole('button', { name: 'Start video call', exact: true }).click();
   const call = page.locator('#meeting-call-overlay'); await call.getByText('Only you are here').waitFor();
   await page.waitForFunction(() => { const v = document.querySelector('.mc-tile video.mc-self'); return v && v.videoWidth > 0; });
+  // T-186: invite from inside the call: email, message or copy link.
+  await call.getByRole('button', { name: 'Invite', exact: true }).click();
+  for (const name of ['Email', 'Message (SMS)', 'WhatsApp']) await call.getByRole('radio', { name, exact: true }).waitFor();
+  await call.getByRole('radio', { name: 'Message (SMS)', exact: true }).click();
+  assert.equal(await call.getByLabel('Mobile number').getAttribute('type'), 'tel');
   await call.getByRole('button', { name: 'Copy guest link', exact: true }).click();
   const link = await page.evaluate(() => navigator.clipboard.readText());
   assert.match(link, /\/saas\/meet\.html\?m=[0-9a-f-]{36}#t=[A-Za-z0-9_-]{32}$/);
@@ -78,6 +85,20 @@ try {
   assert.ok(await framesAdvance(g2), 'the second guest sees both others');
   assert.ok(await framesAdvance(g1), 'the first guest sees both others');
   await shot(page, 'meetings-call-desktop.png'); await shot(g1, 'meetings-call-phone.png');
+
+  // T-186: full screen, and transcription that everyone is told about and sees as captions.
+  await call.getByRole('button', { name: 'Full screen', exact: true }).click();
+  await call.getByRole('button', { name: 'Exit full screen', exact: true }).waitFor();
+  await call.getByRole('button', { name: 'Exit full screen', exact: true }).click();
+  await call.getByRole('button', { name: 'Full screen', exact: true }).waitFor();
+  assert.equal(await g1.getByRole('button', { name: 'Transcribe', exact: true }).count(), 0, 'guests cannot start transcription');
+  page.once('dialog', (d) => d.accept());
+  await call.getByRole('button', { name: 'Transcribe', exact: true }).click();
+  await g1.getByText('Transcribing: what people say is being saved as text.', { exact: false }).waitFor();
+  await g1.locator('.mc-captions', { hasText: 'Hello from the owner' }).waitFor();
+  await call.getByRole('button', { name: 'Transcript', exact: true }).click();
+  await call.locator('.mc-transcript', { hasText: 'Hello from the owner' }).waitFor();
+  await shot(page, 'meetings-transcript.png');
 
   // Controls: muting and turning the camera off are shown to the others in words.
   await g1.getByRole('button', { name: 'Mute microphone', exact: true }).click();

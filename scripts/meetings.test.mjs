@@ -116,7 +116,7 @@ test('meetings: room size limit, rejoin replaces the earlier place, silent parti
   db.prepare("INSERT INTO organisations VALUES ('org','Harbour Plumbing')").run();
   const routes = new Map(); let clock = Date.parse('2026-11-10T00:00:00Z'), current = null;
   const reg = (method) => (path, ...handlers) => routes.set(method + ' ' + path, handlers);
-  const app = { get: reg('GET'), post: reg('POST') };
+  const app = { get: reg('GET'), post: reg('POST'), delete: reg('DELETE') };
   const meetings = installMeetings(app, { db, env: { SAAS_SESSION_SECRET: 'unit-test-secret', MEETING_STUN_URLS: '', MEETING_TURN_URLS: 'turn:relay.example.test:3478', MEETING_TURN_USERNAME: 'u', MEETING_TURN_CREDENTIAL: 'c' }, requireSaasUser: (req, res, next) => { req.saas = current; next(); }, saasAudit() {}, now: () => clock });
   const run = async (key, { params = {}, body = {}, headers = {} } = {}) => {
     const handlers = routes.get(key).filter((h) => !/Limit/i.test(h.name || '') && h.length !== 0 && !h.resetKey);

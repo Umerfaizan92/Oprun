@@ -35,12 +35,29 @@
       mount: o, join: j, waiting: j.waiting || [],
       host: m.can_manage ? {
         guestLink: m.guest_link,
+        // T-186: invite and transcript from inside the call.
+        invite: async ({ channel, to, message }) => (await api('/api/saas/meetings/invite', { method: 'POST', body: JSON.stringify({ meeting_id: m.id, channel, to, ...(message ? { message } : {}) }) })).message,
+        allowGuests: async () => (await api(`/api/saas/meetings/${m.id}/guest-link`, { method: 'POST', body: JSON.stringify({ guests_allowed: true }) })).meeting.guest_link,
+        transcriptUrl: `/api/saas/meetings/${m.id}/transcript?format=txt`,
         admit: async (waiting_id, allow) => (await api(`/api/saas/meetings/${m.id}/admit`, { method: 'POST', body: JSON.stringify({ waiting_id, allow }) })).waiting,
         end: async () => { await api(`/api/saas/meetings/${m.id}/end`, { method: 'POST', body: '{}' }); }
       } : null,
       onClose: (reason, text) => { o.hidden = true; o.replaceChildren(); document.documentElement.classList.remove('mc-open'); active = null; say(text); draw(host); }
     });
     say('');
+  }
+
+  // T-186: read or download a saved meeting transcript.
+  function transcriptBox(m) {
+    const body = el('div', { class: 'mt-transcript' });
+    const box = el('details', { class: 'mt-transcript-box' }, el('summary', { text: 'Read transcript' }), body,
+      el('a', { class: 'portal-button', href: `/api/saas/meetings/${m.id}/transcript?format=txt`, download: '', text: 'Download as text' }));
+    box.addEventListener('toggle', async () => {
+      if (!box.open || body.childElementCount) return;
+      try { const d = await api(`/api/saas/meetings/${m.id}/transcript`); body.replaceChildren(el('ol', { class: 'mt-lines' }, d.lines.map((l) => el('li', {}, el('small', { text: new Date(l.spoken_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' }), el('b', { text: `${l.speaker}${l.speaker_kind === 'guest' ? ' (guest)' : ''}: ` }), l.text)))); }
+      catch (e) { body.replaceChildren(el('p', { text: e.message })); }
+    });
+    return box;
   }
 
   // ---------- invite: email, SMS, WhatsApp (sent from the business's own senders), share sheet, copy ----------
@@ -161,7 +178,7 @@
       zoomPanel,
       el('div', { class: 'mt-section-head' }, el('h3', { class: 'mt-section-title', text: 'Upcoming and open meetings' }), el('a', { class: 'mt-cal-link', href: '#work/bookings', text: 'Open the calendar' })),
       open.length ? el('ul', { class: 'mt-list' }, open) : el('p', { class: 'portal-empty', text: 'No meetings yet. Start one now or schedule one for later. Customer video appointments made in Bookings appear here too.' }),
-      d.past.length ? el('details', { class: 'portal-panel mt-past' }, el('summary', { text: `Past meetings (${d.past.length})` }), el('ul', { class: 'mt-list' }, d.past.map((m) => el('li', { class: 'mt-card' }, el('div', { class: 'mt-card-main' }, el('b', { text: m.title }), el('small', { text: `Ended ${when(m.ended_at)} · ${m.joins} join${m.joins === 1 ? '' : 's'}` })))))) : null,
+      d.past.length ? el('details', { class: 'portal-panel mt-past' }, el('summary', { text: `Past meetings (${d.past.length})` }), el('ul', { class: 'mt-list' }, d.past.map((m) => el('li', { class: 'mt-card' }, el('div', { class: 'mt-card-main' }, el('b', { text: m.title }), el('small', { text: `Ended ${when(m.ended_at)} · ${m.joins} join${m.joins === 1 ? '' : 's'}${m.transcript_lines ? ` · transcript ${m.transcript_lines} line${m.transcript_lines === 1 ? '' : 's'}` : ''}` })), m.transcript_lines ? transcriptBox(m) : null)))) : null,
       el('p', { class: 'portal-note mt-foot', text: `Oprun video: up to ${d.max_participants} people, picture and sound go directly between participants and are never recorded or stored.` + (d.relay_configured ? '' : ' On some office or mobile networks a direct call cannot connect; try another network or use Zoom.') })
     ].filter(Boolean));
   }
