@@ -19,6 +19,10 @@ final class WorkspaceBrowser: NSObject, ObservableObject, WKNavigationDelegate, 
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .default()
         configuration.allowsInlineMediaPlayback = true
+        // Tells the page it runs inside the iOS app so the layout adapts (saas/ds/platform.js). Layout only:
+        // the server never uses it for permissions.
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1"
+        configuration.applicationNameForUserAgent = "OprunApp-iOS/\(version)"
         webView = WKWebView(frame: .zero, configuration: configuration)
         super.init()
         webView.navigationDelegate = self

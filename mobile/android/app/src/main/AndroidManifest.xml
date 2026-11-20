@@ -5,7 +5,7 @@
       android:supportsRtl="true" android:usesCleartextTraffic="false" android:theme="@android:style/Theme.Translucent.NoTitleBar">
     <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
     <activity android:name="com.google.androidbrowserhelper.trusted.LauncherActivity" android:exported="true" android:label="Oprun">
-      <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL" android:value="https://www.oprun.ai/saas/workspace.html" />
+      <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL" android:value="https://www.oprun.ai/saas/workspace.html?shell=android-app" />
       <meta-data android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR" android:resource="@color/background" />
       <meta-data android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR" android:resource="@color/background" />
       <meta-data android:name="android.support.customtabs.trusted.DISPLAY_MODE" android:value="default" />

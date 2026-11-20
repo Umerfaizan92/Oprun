@@ -32,8 +32,9 @@ Related earlier work: `docs/ai-website/` (Website section), `docs/ai-receptionis
 - [x] Tool / plugin / agent recommendations (doc 04 §5)
 - [x] Final implementation plan + GitHub-ready specs (doc 07)
 - [x] Phase 1b country rules (T-170) and Phase 2 navigation clean-up (T-171): the main menu shows 30 pages; 31 specialist or duplicate pages sit under each group's "More" list with every route kept.
-- **Current focus:** Phase 3 (adaptive foundation)
-- **Next:** Phase 4 (sequential Business setup and Workers screens)
+- [x] Phase 3 adaptive foundation (T-172): every app page sets data-device (phone/tablet/desktop), data-shell (browser/pwa/android-app/ios-app) and data-pointer before the first paint; the Android and iOS apps identify themselves (needs a new app build to take effect); touch, safe-area and app-shell rules in saas/ds/layout.css; a test blocks new CSS breakpoints (100 legacy widths listed in qa/breakpoints-legacy.json, to be removed page by page).
+- **Current focus:** Phase 4 (sequential Business setup and Workers screens)
+- **Next:** Phase 5 (page redesigns, removing legacy stylesheets)
 
 What is true today: the specification is complete and in the repository. The product is **not yet** adaptive to
 the five device classes or open to other countries. Those are built in Phases 1–5. This file is updated at the
