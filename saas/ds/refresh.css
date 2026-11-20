@@ -544,3 +544,29 @@ html body .aiv-wait{margin:0;font-size:.82rem}
   html body .mv-stage img,html body .mv-stage video{max-height:calc(100dvh - 140px)}
   html body .mv-nav{width:38px;height:38px}
 }
+/* T-188: live call screen (web phone) */
+html body #dialer-view .ph-callscreen{display:grid;gap:18px;justify-items:center;padding:28px 18px 24px;border-radius:24px;border:1px solid var(--rf-edge);background:linear-gradient(180deg,rgba(53,211,154,.08),rgba(237,241,248,.02))}
+html body #dialer-view .ph-callscreen[hidden]{display:none!important}
+html body #dialer-view .ph-cs-top{display:grid;gap:4px;justify-items:center;text-align:center}
+html body #dialer-view .ph-cs-avatar{width:76px;height:76px;font-size:1.5rem;margin-bottom:6px}
+html body #dialer-view .ph-cs-name{font-size:1.45rem;font-weight:800;word-break:break-word}
+html body #dialer-view .ph-cs-num{color:var(--sp-fg-muted);font-size:.95rem;letter-spacing:.04em;min-height:1.2em}
+html body #dialer-view .ph-cs-state{margin:4px 0 0;font-size:1.05rem;font-weight:700;color:var(--sp-gold);font-variant-numeric:tabular-nums}
+html body #dialer-view .ph-cs-rec{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:rgba(255,92,92,.14);color:#ff8a8a;font-size:.78rem;font-weight:800}
+html body #dialer-view .ph-cs-rec::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff5c5c}
+html body #dialer-view .ph-cs-rec[hidden]{display:none}
+html body #dialer-view .ph-cs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,92px));gap:16px 18px;justify-content:center}
+html body #dialer-view .ph-cs-btn{display:grid;justify-items:center;gap:6px;background:none;border:0;color:var(--sp-fg);cursor:pointer;padding:0;font:inherit}
+html body #dialer-view .ph-cs-btn[hidden]{display:none}
+html body #dialer-view .ph-cs-ico{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--rf-edge-strong);background:rgba(237,241,248,.06)}
+html body #dialer-view .ph-cs-ico svg{width:26px;height:26px}
+html body #dialer-view .ph-cs-btn[aria-pressed="true"] .ph-cs-ico{background:var(--sp-fg);color:var(--sp-bg,#0b0e13);border-color:var(--sp-fg)}
+html body #dialer-view .ph-cs-label{font-size:.8rem;font-weight:700}
+html body #dialer-view .ph-cs-endrow{display:flex;justify-content:center}
+html body #dialer-view .ph-cs-end{width:72px;height:72px;border-radius:50%;border:0;background:#e5484d;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 24px rgba(229,72,77,.35)}
+html body #dialer-view .ph-cs-end svg{width:30px;height:30px;transform:rotate(135deg)}
+html body #dialer-view .ph-cs-end:focus-visible,html body #dialer-view .ph-cs-btn:focus-visible .ph-cs-ico{outline:3px solid var(--sp-gold);outline-offset:3px}
+html body #dialer-view .ph-dtmf{max-width:300px}
+html body #dialer-view .ph-dtmf[hidden]{display:none}
+html body #dialer-view .ph-alt{margin-left:auto}
+html body #dialer-view .ph-rec-play{grid-column:1/-1;width:100%;height:36px;margin-top:4px}

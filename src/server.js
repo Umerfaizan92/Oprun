@@ -975,7 +975,10 @@ app.use(
 
         // Phase 02: the old Fleet Parlour API origin was removed; no Oprun page calls it.
         connectSrc: [
-          "'self'"
+          "'self'",
+          // T-188: the web phone talks to Telnyx's call server from the browser.
+          'wss://rtc.telnyx.com',
+          'https://rtc.telnyx.com'
         ],
 
         upgradeInsecureRequests:
@@ -6312,7 +6315,7 @@ app.post('/api/webhooks/communications/telnyx-voice/:organisationId',(req,res)=>
 });
 const receptionistOwner=[requireSaasUser,requireSaasRole('owner')];
 const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok:true,telnyx:d})).catch(e=>{if(!e.status)console.error('[RECEPTIONIST] request failed:',e.message);res.status(e.status&&e.status<600?e.status:500).json({ok:false,error:e.status?e.message:'Something went wrong. Please try again.'})});
-installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,dispatch:saasPlatform.dispatch,voice:voiceFlow});
+installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,dispatch:saasPlatform.dispatch,voice:voiceFlow,webphone:receptionistTelnyx,uploadRoot});
 installAppointments(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,dispatch:saasPlatform.dispatch,notifications});
 installAiVideo(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,generateAiText,notify:notifications});
 app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));

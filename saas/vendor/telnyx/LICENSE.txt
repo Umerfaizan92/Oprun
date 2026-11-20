@@ -1,0 +1,1 @@
+Telnyx WebRTC JS SDK (@telnyx/webrtc 2.28.2), Copyright Telnyx LLC. MIT License: https://github.com/team-telnyx/webrtc/blob/main/LICENSE

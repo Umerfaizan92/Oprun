@@ -9,6 +9,9 @@
 import { z } from 'zod';
 import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
+import fs from 'node:fs';
+import path from 'node:path';
+import multer from 'multer';
 import { normalisePhone } from './country-profile.js';
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
 // Any valid number (mobile or landline) in the business's country, or a full international number.
@@ -16,7 +19,7 @@ const dialable = (raw, country) => { const p = parsePhoneNumberFromString(String
 
 const HOSTS = ['owner', 'admin', 'manager', 'super_admin', 'director'];
 
-export function installMeetingExtras(app, { db, env = {}, requireSaasUser, requireSaasRole, saasAudit, runtime, dispatch, voice, fetchImpl = globalThis.fetch }) {
+export function installMeetingExtras(app, { db, env = {}, requireSaasUser, requireSaasRole, saasAudit, runtime, dispatch, voice, webphone = null, uploadRoot = null, fetchImpl = globalThis.fetch }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS zoom_accounts (organisation_id TEXT PRIMARY KEY, account_id TEXT NOT NULL, client_id TEXT NOT NULL, secret_bundle TEXT NOT NULL,
       user_email TEXT, status TEXT NOT NULL DEFAULT 'connected', last_error TEXT, connected_by TEXT, connected_at TEXT NOT NULL, updated_at TEXT NOT NULL);
@@ -129,18 +132,70 @@ export function installMeetingExtras(app, { db, env = {}, requireSaasUser, requi
     const team = db.prepare("SELECT u.id,u.full_name name,u.phone,m.role FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND u.phone IS NOT NULL AND trim(u.phone)<>'' ORDER BY u.full_name COLLATE NOCASE").all(o)
       .filter((u) => u.id !== req.saas.user_id).map((u) => ({ id: u.id, name: u.name || 'Team member', number: fmtNum(u.phone) || u.phone, kind: 'Team' }));
     const byDigits = new Map([...customers, ...team].map((c) => [digits(c.number), c.name]));
-    const recents = db.prepare("SELECT call_control_id id,from_number,to_number,stage,route,answered_at,voicemail,duration_seconds,started_at FROM voice_calls WHERE organisation_id=? ORDER BY started_at DESC LIMIT 60").all(o).map((c) => {
+    const recents = db.prepare("SELECT call_control_id id,from_number,to_number,stage,route,answered_at,voicemail,duration_seconds,started_at,recording_url FROM voice_calls WHERE organisation_id=? ORDER BY started_at DESC LIMIT 60").all(o).map((c) => {
       const outgoing = c.route === 'outgoing', number = c.from_number;
       return { id: c.id, number, name: byDigits.get(digits(number)) || null, direction: outgoing ? 'outgoing' : 'incoming',
-        result: c.voicemail ? 'voicemail' : c.answered_at ? 'answered' : (String(c.stage).startsWith('c2c') && c.stage !== 'ended' ? 'calling' : outgoing ? 'not answered' : 'missed'), duration: c.duration_seconds || null, at: c.started_at };
+        result: c.voicemail ? 'voicemail' : c.answered_at ? 'answered' : (String(c.stage).startsWith('c2c') && c.stage !== 'ended' ? 'calling' : outgoing ? 'not answered' : 'missed'), duration: c.duration_seconds || null, at: c.started_at, recording: String(c.recording_url || '').startsWith('/api/saas/comms/recordings/') ? c.recording_url : null };
     });
     res.json({ ok: true, customers, team, recents });
+  });
+
+  // ---------- T-188: web phone (calls straight from the browser, from the business number) ----------
+  app.post('/api/saas/comms/webphone/token', limiter, ...host, async (req, res) => {
+    if (!webphone) return fail(res, 503, 'The web phone is not available.');
+    try {
+      const name = db.prepare('SELECT full_name FROM users WHERE id=?').get(req.saas.user_id)?.full_name || 'Team member';
+      const t = await webphone.webphoneToken(org(req), req.saas.user_id, name);
+      res.set('Cache-Control', 'no-store').json({ ok: true, ...t, country: countryOf(org(req)) });
+    } catch (e) { fail(res, e.status && e.status < 600 ? e.status : 502, e.message); }
+  });
+  app.post('/api/saas/comms/webphone/calls', limiter, ...host, (req, res) => {
+    const d = parse(z.object({ to: z.string().trim().min(3).max(40) }).strict(), req.body, res); if (!d) return;
+    const n = dialable(d.to, countryOf(org(req))); if (!n) return fail(res, 400, 'Enter a full phone number, including the area code.');
+    const from = voice.businessNumber(org(req)); if (!from) return fail(res, 409, 'Connect your business number first.');
+    const id = 'web-' + crypto.randomUUID(), now = iso();
+    db.prepare("INSERT INTO voice_calls(call_control_id,organisation_id,scope,from_number,to_number,stage,route,account,started_at,updated_at) VALUES (?,?,'business',?,?,'web','outgoing','tenant',?,?)").run(id, org(req), n, from, now, now);
+    saasAudit(req, 'call.web_phone', 'voice_call', id, { to_last4: n.slice(-4) });
+    res.status(201).json({ ok: true, id, to: n, from });
+  });
+  app.patch('/api/saas/comms/webphone/calls/:id', ...host, (req, res) => {
+    const d = parse(z.object({ state: z.enum(['answered', 'ended']), duration: z.number().int().min(0).max(86400).optional(), cause: z.string().max(80).optional() }).strict(), req.body, res); if (!d) return;
+    const c = db.prepare("SELECT * FROM voice_calls WHERE call_control_id=? AND organisation_id=? AND route='outgoing' AND stage IN ('web','web-live')").get(req.params.id, org(req)); if (!c) return fail(res, 404, 'Call not found.');
+    if (d.state === 'answered') db.prepare("UPDATE voice_calls SET stage='web-live',answered_at=COALESCE(answered_at,?),updated_at=? WHERE call_control_id=?").run(iso(), iso(), c.call_control_id);
+    else db.prepare("UPDATE voice_calls SET stage='ended',ended_at=?,duration_seconds=?,hangup_cause=?,updated_at=? WHERE call_control_id=?").run(iso(), c.answered_at ? (d.duration ?? null) : null, d.cause || null, iso(), c.call_control_id);
+    res.json({ ok: true });
+  });
+  // Recordings: made in the browser only after the caller confirms the other person was told; private to the business.
+  const recDir = (o) => path.join(uploadRoot || '/tmp', 'call-recordings', String(o).replace(/[^a-zA-Z0-9-]/g, ''));
+  const recUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: Number(env.CALL_RECORDING_MAX_MB || 60) * 1048576, files: 1 }, fileFilter: (q, f, cb) => cb(/^audio\/(webm|ogg|mp4|mpeg)/.test(f.mimetype) ? null : Object.assign(new Error('Recordings must be audio.'), { status: 400 }), true) });
+  app.post('/api/saas/comms/webphone/calls/:id/recording', ...host, (req, res) => {
+    recUpload.single('audio')(req, res, (err) => {
+      if (err) return fail(res, err.status || 400, err.code === 'LIMIT_FILE_SIZE' ? 'The recording is too large.' : err.message);
+      const c = db.prepare("SELECT * FROM voice_calls WHERE call_control_id=? AND organisation_id=? AND route='outgoing' AND stage IN ('web','web-live','ended')").get(req.params.id, org(req));
+      if (!c || !String(c.call_control_id).startsWith('web-')) return fail(res, 404, 'Call not found.');
+      if (!req.file?.buffer?.length) return fail(res, 400, 'The recording is empty.');
+      const ext = /mp4/.test(req.file.mimetype) ? '.m4a' : /ogg/.test(req.file.mimetype) ? '.ogg' : /mpeg/.test(req.file.mimetype) ? '.mp3' : '.webm';
+      fs.mkdirSync(recDir(org(req)), { recursive: true });
+      const file = c.call_control_id + ext; fs.writeFileSync(path.join(recDir(org(req)), file), req.file.buffer);
+      db.prepare('UPDATE voice_calls SET recording_url=?,updated_at=? WHERE call_control_id=?').run(`/api/saas/comms/recordings/${c.call_control_id}`, iso(), c.call_control_id);
+      saasAudit(req, 'call.recording_saved', 'voice_call', c.call_control_id, { bytes: req.file.size });
+      res.status(201).json({ ok: true, recording: `/api/saas/comms/recordings/${c.call_control_id}` });
+    });
+  });
+  app.get('/api/saas/comms/recordings/:id', ...host, (req, res) => {
+    const c = db.prepare("SELECT call_control_id FROM voice_calls WHERE call_control_id=? AND organisation_id=? AND recording_url IS NOT NULL").get(req.params.id, org(req));
+    if (!c || !/^web-[0-9a-f-]{36}$/.test(c.call_control_id)) return fail(res, 404, 'Recording not found.');
+    const dir = recDir(org(req)), f = ['.webm', '.ogg', '.m4a', '.mp3'].map((x) => c.call_control_id + x).find((x) => fs.existsSync(path.join(dir, x)));
+    if (!f) return fail(res, 404, 'Recording not found.');
+    saasAudit(req, 'call.recording_played', 'voice_call', c.call_control_id, {});
+    res.set({ 'content-type': { '.webm': 'audio/webm', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4', '.mp3': 'audio/mpeg' }[path.extname(f)], 'x-content-type-options': 'nosniff', 'cache-control': 'private, no-store', 'content-security-policy': "default-src 'none'; sandbox" });
+    res.sendFile(path.join(dir, f));
   });
 
   // ---------- Click to call ----------
   app.get('/api/saas/comms/dial', ...host, (req, res) => {
     const me = db.prepare('SELECT phone FROM users WHERE id=?').get(req.saas.user_id)?.phone || null;
-    res.json({ ok: true, business_number: voice.businessNumber(org(req)), your_mobile: me ? `••• ${String(me).slice(-3)}` : null, ready: Boolean(voice.businessNumber(org(req)) && me) });
+    res.json({ ok: true, business_number: voice.businessNumber(org(req)), your_mobile: me ? `••• ${String(me).slice(-3)}` : null, ready: Boolean(voice.businessNumber(org(req)) && me), web_phone: Boolean(webphone && voice.businessNumber(org(req))) });
   });
   app.post('/api/saas/comms/dial', limiter, ...host, async (req, res) => {
     const d = parse(z.object({ to: z.string().trim().min(3).max(40) }).strict(), req.body, res); if (!d) return;
