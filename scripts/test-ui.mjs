@@ -93,8 +93,13 @@ try{
   await check('AI Receptionist is one self-service section; old phone and calls routes point to it',async()=>{
     const pageErrors=[];const onError=e=>pageErrors.push(String(e.message||e));page.on('pageerror',onError);
     await page.evaluate(()=>{location.hash='communications/receptionist'});
-    await page.locator('#receptionist-view .rx-step').nth(4).waitFor({state:'visible'});
+    // T-177: the five cards are steps; the step list opens each one.
+    await page.locator('#receptionist-view .rx-steps [data-rx-step="1"]').click();
+    await page.locator('#receptionist-view .rx-step').first().waitFor({state:'visible'});
     assert.equal(await page.locator('#receptionist-view .rx-step').count(),5);
+    await page.locator('#receptionist-view .rx-steps [data-rx-step="5"]').click();assert.ok(await page.locator('#receptionist-view .rx-step').nth(4).isVisible());
+    assert.equal(await page.locator('#receptionist-view .rx-step:visible').count(),1);
+    await page.locator('#receptionist-view .rx-steps [data-rx-step="1"]').click();
     assert.equal(await page.locator('#receptionist-view h1').first().textContent(),'AI Receptionist');
     assert.ok(await page.locator('#receptionist-view input[name=api_key][type=password]').isVisible());
     assert.ok(await page.locator('#receptionist-view a[href^="https://portal.telnyx.com"]').count()>=3);

@@ -456,3 +456,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/ds/refresh.css, saas/workspace-tidy.js, saas/app.js, saas/workspace.html
 - Acceptance: No repeated label/tab/heading triples; tooltips no longer echo visible labels; Work stage counters and new-customer fields fit a phone; Money cards have no empty blocks; setup checklist readable; all suites pass
 - Evidence: npm test 73/73, test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, breakpoints pass; duplicate audit and phone screenshots checked (recorded 2026-11-20 on claude/page-organisation at 02607e8)
+
+## T-177 AI Receptionist in steps
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20 'Continue next': split the longest pages into clear steps so the owner doesn't scroll one long form.
+- Files: saas/workspace-receptionist.js, saas/ds/refresh.css, saas/portal-shell.js, scripts/test-ui.mjs
+- Acceptance: Receptionist shows one of 5 steps at a time with a step list, Back/Next and save-and-continue for the greeting form; one related-pages row per page; checkbox beside its label; all suites pass
+- Evidence: npm test 73/73, test:ui 38 (receptionist steps check added), navigation-ui 608, redesign-ui, mobile-workspace-ui 311, breakpoints pass; phone and desktop screenshots checked (recorded 2026-11-20 on claude/receptionist-steps at 9538192)
