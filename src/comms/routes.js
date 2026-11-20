@@ -50,8 +50,19 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
 
   // ---------------- campaigns (business and platform) ----------------
   const campaignSchema = z.object({ name: z.string().trim().min(2).max(160), channel: z.enum(['email', 'sms', 'social']), subject: z.string().trim().max(160).optional(), body: z.string().trim().min(2).max(10000), cta_url: z.string().url().regex(/^https:\/\//, 'Links must use https.').max(500).optional(), send_at: z.iso.datetime().nullable().optional(), social_targets: z.array(z.enum(['facebook', 'instagram', 'x', 'youtube', 'tiktok', 'snapchat', 'linkedin'])).max(7).optional(), segment: z.object({ statuses: z.array(z.string().max(40)).max(10).optional(), sources: z.array(z.string().max(40)).max(10).optional(), area: z.string().max(80).optional(), service: z.string().max(80).optional(), last_job_before: z.string().max(30).optional(), last_job_after: z.string().max(30).optional(), created_after: z.string().max(30).optional() }).strict().default({}) }).strict();
+  const bundleSchema = campaignSchema.omit({ channel: true }).extend({ channels: z.array(z.enum(['email', 'sms', 'social'])).min(1).max(3) });
   function campaignRoutes(prefix, guards, owner, actor, scope) {
     app.get(`${prefix}`, ...guards.read, wrap((req, res) => res.json({ ok: true, campaigns: db.prepare('SELECT * FROM comms_campaigns WHERE owner_key=? ORDER BY created_at DESC LIMIT 200').all(owner(req)).map(comms.campaignOut) })));
+    // T-178: "Select all" sends one campaign to every ready channel. Businesses only (platform campaigns are email).
+    app.get(`${prefix}/channels`, ...guards.read, wrap((req, res) => res.json({ ok: true, ...comms.channelsReady(owner(req)) })));
+    app.post(`${prefix}/bundle`, limiter, ...guards.write, wrap((req, res) => {
+      if (scope === 'platform') return res.status(400).json({ ok: false, error: 'Platform campaigns are email only, to newsletter subscribers.' });
+      const b = P(bundleSchema, req.body); const r = comms.saveBundle(owner(req), b, actor(req)); if (!r.ok) return res.status(r.status).json(r); res.status(201).json(r);
+    }));
+    app.post(`${prefix}/bundle/:gid/submit`, limiter, ...guards.write, wrap(async (req, res) => {
+      const r = await comms.submitBundle(owner(req), req.params.gid, actor(req)); if (!r.ok) return res.status(r.status).json(r);
+      res.status(201).json({ ok: true, results: r.results, message: 'Sent for approval. Nothing goes out until an authorised person approves each channel.' });
+    }));
     app.post(`${prefix}`, limiter, ...guards.write, wrap((req, res) => { const b = P(campaignSchema, req.body); if (scope === 'platform' && b.channel !== 'email') return res.status(400).json({ ok: false, error: 'Platform campaigns are email only, to newsletter subscribers.' }); const r = comms.saveCampaign(owner(req), b, actor(req)); res.status(201).json(r); }));
     app.put(`${prefix}/:id`, limiter, ...guards.write, wrap((req, res) => { const b = P(campaignSchema, req.body); const r = comms.saveCampaign(owner(req), b, actor(req), req.params.id); if (!r.ok) return res.status(r.status).json(r); res.json(r); }));
     app.get(`${prefix}/audience/preview`, ...guards.read, wrap((req, res) => { const ch = ['email', 'sms'].includes(req.query.channel) ? req.query.channel : 'email'; let seg = {}; try { seg = JSON.parse(String(req.query.segment || '{}')); } catch { /* default */ } const a = comms.audience(owner(req), ch, seg); res.json({ ok: true, eligible: a.eligible.length, excluded: a.excluded, total: a.total, sample: a.eligible.slice(0, 8).map((x) => x.name || x.address) }); }));

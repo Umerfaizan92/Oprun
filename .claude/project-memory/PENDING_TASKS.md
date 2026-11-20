@@ -589,3 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
+## T-179 Multiple photos and videos for campaigns and posts
+- Status: NOT_STARTED
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: add multiple photos and videos to campaigns and posts.
+- Files: src/comms/service.js, src/growth.js, saas/workspace-comms-platform.js
+- Acceptance: Campaign holds up to 10 library photos/videos; social posts carry them; Facebook posts photos/video; email shows photos; tests pass
