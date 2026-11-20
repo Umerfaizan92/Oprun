@@ -386,3 +386,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/pipeline.js, src/customer-links.js, payments module
 - Acceptance: Issued invoice can be sent with a preview by SMS/email incl. payment link; overdue reminder drafts; review request offered after payment; tests pass
 - Evidence: Send invoice & payment link on issued invoices (existing payments request with send_to_customer, delivery problems shown); customer payment texts only via the business sender; pipeline/finance tests pass; npm test 73/73 (recorded 2026-11-20 on claude/reminders-allocator-invoice at 4e1fe05)
+
+## T-155 W-09 AI Website: Cloudflare for SaaS: custom hostnames API, host middleware, status polling, cache purge on
+- Added: 2026-11-19
+- Requirement: Cloudflare for SaaS: custom hostnames API, host middleware, status polling, cache purge on publish (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: A test domain goes `added → active`; unknown hosts get 404; another business's host never serves this site
+- Evidence: Custom-domain hosting wired (edge.js, hub hosting status/poll, seo mount, contact form on business domains). Tests: website-edge 6/6, website-hub 8/8, seo-platform end-to-end edge checks, comms send-failure reason + retry; npm test 73/73, test:ui 37/37. Switched on only when CLOUDFLARE_SAAS_* env vars are set. (recorded 2026-11-20 on claude/custom-domains at 9568f69)

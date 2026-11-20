@@ -302,22 +302,26 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
     if (!saved.ok) return saved;
     return { ...requestPublish(ownerKey, pageId, {}, actor), rolled_back_to: v };
   }
-  function renderPublic(siteSlug, pageSlug, previewTok, formStatus = null) {
+  // mount: a business's own domain shows the site at its root ({ base: 'https://www.business.com.au', prefix: '' }).
+  function renderPublic(siteSlug, pageSlug, previewTok, formStatus = null, mount = null) {
     publishDue();
+    const base = mount ? mount.base : ownBase(), at = (sl, x) => (mount ? `${mount.prefix || ''}/${x === 'home' ? '' : x}` : `/sites/${sl}/${x === 'home' ? '' : x}`);
+    if (mount) previewTok = null;
     const s = db.prepare('SELECT * FROM seo_sites WHERE slug=?').get(siteSlug); if (!s) return null;
     const p = db.prepare('SELECT * FROM seo_site_pages WHERE site_id=? AND slug=?').get(s.id, pageSlug || 'home'); if (!p) return null;
     let v = p.published_version, preview = false;
     if (previewTok) { const t = readPreview(previewTok); if (!t || t.pageId !== p.id) return { status: 403 }; v = t.version; preview = true; }
     if (!v) return null;
     const c = version(p.id, v), brand = J(s.brand_json, {});
-    const nav = db.prepare("SELECT slug,title FROM seo_site_pages WHERE site_id=? AND published_version IS NOT NULL ORDER BY created_at").all(s.id).map((x) => ({ href: `/sites/${s.slug}/${x.slug === 'home' ? '' : x.slug}`, label: x.title, current: x.slug === p.slug }));
-    const html = renderPage({ ...c, slug: p.slug }, { formStatus: ['sent', 'error'].includes(formStatus) ? formStatus : null, site: { name: s.name, slug: s.slug, lang: s.lang, brand, abn: facts(s.owner_key).abn }, canonical: `${ownBase()}/sites/${s.slug}/${p.slug === 'home' ? '' : p.slug}`, nav, preview, reviews: c.blocks?.some((b) => b.type === 'reviews') ? approvedReviews(s.owner_key) : [] });
+    const nav = db.prepare("SELECT slug,title FROM seo_site_pages WHERE site_id=? AND published_version IS NOT NULL ORDER BY created_at").all(s.id).map((x) => ({ href: at(s.slug, x.slug), label: x.title, current: x.slug === p.slug }));
+    const html = renderPage({ ...c, slug: p.slug }, { formStatus: ['sent', 'error'].includes(formStatus) ? formStatus : null, site: { name: s.name, slug: s.slug, lang: s.lang, brand, abn: facts(s.owner_key).abn, mounted: Boolean(mount) }, canonical: `${base}${at(s.slug, p.slug)}`, nav, preview, reviews: c.blocks?.some((b) => b.type === 'reviews') ? approvedReviews(s.owner_key) : [] });
     return { status: 200, html, preview };
   }
-  function siteSitemap(siteSlug) {
+  function siteSitemap(siteSlug, mount = null) {
     const s = db.prepare('SELECT * FROM seo_sites WHERE slug=?').get(siteSlug); if (!s) return null;
     const pages = db.prepare('SELECT slug,published_at FROM seo_site_pages WHERE site_id=? AND published_version IS NOT NULL').all(s.id);
-    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map((p) => `<url><loc>${ownBase()}/sites/${s.slug}/${p.slug === 'home' ? '' : p.slug}</loc><lastmod>${String(p.published_at).slice(0, 10)}</lastmod></url>`).join('')}</urlset>`;
+    const loc = (x) => (mount ? `${mount.base}/${x === 'home' ? '' : x}` : `${ownBase()}/sites/${s.slug}/${x === 'home' ? '' : x}`);
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map((p) => `<url><loc>${loc(p.slug)}</loc><lastmod>${String(p.published_at).slice(0, 10)}</lastmod></url>`).join('')}</urlset>`;
   }
   // Freshness: published pages not changed for six months, and audit pages that look stale.
   function freshness(ownerKey) {

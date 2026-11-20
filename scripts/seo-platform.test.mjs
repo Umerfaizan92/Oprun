@@ -7,6 +7,11 @@ import Database from 'better-sqlite3';
 import { randomUUID, randomBytes, createHash } from 'node:crypto';
 import { startServer } from './test-server.mjs';
 import { seedOwner } from './visual/session.mjs';
+import { edgeKeyFrom } from '../src/website/edge.js';
+
+// W-09: custom-domain hosting is switched on with test values; NODE_ENV=test never calls Cloudflare at start-up.
+const EDGE_SECRET = 'e'.repeat(64);
+const EDGE_ENV = { INTEGRATION_ENCRYPTION_KEY: EDGE_SECRET, CLOUDFLARE_SAAS_TOKEN: 'test-token', CLOUDFLARE_SAAS_ZONE_ID: 'a'.repeat(32), CLOUDFLARE_ACCOUNT_ID: 'b'.repeat(32), CLOUDFLARE_SAAS_DOMAIN: 'oprunsites.example' };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function member(server, org, role) {
@@ -20,7 +25,7 @@ function member(server, org, role) {
 const sql = (s, q, ...a) => { const db = new Database(s.dbPath); try { return /^\s*select/i.test(q) ? db.prepare(q).all(...a) : db.prepare(q).run(...a); } finally { db.close(); } };
 
 async function setup() {
-  const s = await startServer();
+  const s = await startServer(EDGE_ENV);
   const owner = await seedOwner(s, { business: 'Harbour Plumbing Pty Ltd' });
   const O = (m, u, b) => s.call(m, u, { cookie: owner.cookie, body: b });
   const r = await O('PUT', '/api/saas/seo/profile', { business_name: 'Harbour Plumbing', services: ['Blocked drains', 'Hot water repairs'], areas: ['Fremantle', 'Cottesloe'], phone: '0400 111 222', website_url: '' });
@@ -59,6 +64,20 @@ test('website builder: first release needs approval; low-risk edits follow the o
   assert.match(html, /<h1>Blocked drains and hot water in Fremantle<\/h1>/); assert.match(html, /<link rel="canonical"/); assert.ok(!/noindex/.test(html));
   assert.match(live.headers.get('content-security-policy'), /default-src 'none'/, 'published pages run no scripts');
   assert.match(await (await fetch(s.base + '/sites/harbour-plumbing/sitemap.xml')).text(), /<loc>[^<]*\/sites\/harbour-plumbing\/<\/loc>/);
+  // W-09: the same live page on the business's own domain, through the Worker headers.
+  const edgeHdr = { 'x-oprun-site-host': 'www.harbourplumbing.com.au', 'x-oprun-edge-key': edgeKeyFrom(EDGE_SECRET) };
+  assert.equal((await fetch(s.base + '/', { headers: edgeHdr })).status, 404, 'a domain not verified by the business shows nothing');
+  sql(s, "INSERT INTO website_domains (id,organisation_id,hostname,is_primary,status,verify_token,verified_at,hosting_status,created_at,updated_at) VALUES (?,?,?,1,'verified','t',?, 'active',?,?)", randomUUID(), owner.org, 'www.harbourplumbing.com.au', new Date().toISOString(), new Date().toISOString(), new Date().toISOString());
+  const onDomain = await fetch(s.base + '/', { headers: edgeHdr });
+  assert.equal(onDomain.status, 200); const dHtml = await onDomain.text();
+  assert.match(dHtml, /<h1>Blocked drains and hot water in Fremantle<\/h1>/); assert.match(dHtml, /rel="canonical" href="https:\/\/www\.harbourplumbing\.com\.au\/"/);
+  assert.equal((await fetch(s.base + '/', { headers: { ...edgeHdr, 'x-oprun-edge-key': 'f'.repeat(64) } })).status, 403, 'a forged edge key is refused');
+  assert.equal((await fetch(s.base + '/api/saas/website/overview', { headers: edgeHdr })).status, 404, 'the app is never reachable through a business domain');
+  assert.match(await (await fetch(s.base + '/sitemap.xml', { headers: edgeHdr })).text(), /<loc>https:\/\/www\.harbourplumbing\.com\.au\/<\/loc>/);
+  const old = await fetch(s.base + '/sites/harbour-plumbing/', { headers: edgeHdr, redirect: 'manual' }); assert.equal(old.status, 301); assert.equal(old.headers.get('location'), '/');
+  const contact = await fetch(s.base + '/api/public/contact/harbour-plumbing', { method: 'POST', redirect: 'manual', headers: { ...edgeHdr, origin: 'https://www.harbourplumbing.com.au', 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ name: 'Edge Visitor', email: 'visitor@example.test', message: 'Please call me back about a leak.', return_to: '/' }) });
+  assert.equal(contact.status, 303, 'the contact form on the business domain is accepted and returns to the page');
+  assert.equal(contact.headers.get('location'), '/?form=sent#contact');
 
   // Low-risk wording fix: waits while the rule is off, publishes alone when the owner switches it on.
   const fix = content('Blocked drains and hot water in Fremantle'); fix.blocks[1].text = fix.blocks[1].text.replace('leave the site clean', 'leave the site tidy');

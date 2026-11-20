@@ -48,6 +48,7 @@ import { createReceptionistIntake } from './comms/receptionist-intake.js';
 import { createOutbound } from './comms/outbound.js';
 import { createCustomerLinks } from './customer-links.js';
 import { createWebsiteHub } from './website/hub.js';
+import { createEdge, edgeHandler } from './website/edge.js';
 import { createJobLifecycle } from './job-lifecycle.js';
 import { createReceptionistTelnyx } from './comms/receptionist-telnyx.js';
 import { installCommsRoutes } from './comms/routes.js';
@@ -1002,6 +1003,11 @@ const globalCors =
       'OPTIONS'
     ]
   });
+// W-09: business websites on their own domains arrive through the Cloudflare Worker. Only those requests are
+// handled here (published pages, robots, sitemap, the contact form); everything else is untouched.
+const siteEdge=createEdge({env});
+const websiteHubRef={current:null},seoServiceRef={current:null};
+app.use(edgeHandler({edge:siteEdge,hub:()=>websiteHubRef.current,seo:{renderPublic:(...a)=>seoServiceRef.current.renderPublic(...a),siteSitemap:(...a)=>seoServiceRef.current.siteSitemap(...a)}}));
 // S5: a business's verified website may post its contact form here. Origins not on the platform
 // list skip the global check only for this path; the route itself admits only the verified site.
 app.use((req, res, next) => {
@@ -6234,7 +6240,13 @@ app.put('/api/saas/receptionist/telnyx/assistant',...receptionistOwner,(req,res)
 app.post('/api/saas/receptionist/telnyx/disconnect',...receptionistOwner,(req,res)=>receptionistSend(res,()=>{const r=receptionistTelnyx.disconnect(req.saas.organisation_id);saasAudit(req,'receptionist.telnyx_disconnected','receptionist',req.saas.organisation_id,{});return r}));
 installSeoRoutes(app,{db,service:seoService,engine:automationEngine,requireSaasUser,requireSaasRole,platform:platformIdentity,saasAudit});
 // T-147: the one Website section (build, transfer, domain, business email, growth, activity) on top of the SEO platform.
-const websiteHub=createWebsiteHub({db,seo:seoService,ai:generateAiText,publicBase:()=>env.PUBLIC_BASE_URL||'https://www.oprun.ai'});
+seoServiceRef.current=seoService;
+const websiteHub=createWebsiteHub({db,seo:seoService,ai:generateAiText,edge:siteEdge,publicBase:()=>env.PUBLIC_BASE_URL||'https://www.oprun.ai'});
+websiteHubRef.current=websiteHub;
+if(siteEdge.ready&&env.NODE_ENV!=='test'){
+  siteEdge.setup().then(r=>console.log('[WEBSITE] custom-domain hosting ready:',r.ok?r.target:'not set up')).catch(e=>console.warn('[WEBSITE] custom-domain hosting setup failed:',String(e.message||e).slice(0,200)));
+  setInterval(()=>{websiteHub.pollHosting().catch(e=>console.warn('[WEBSITE]',String(e.message||e).slice(0,160)))},10*60000).unref();
+}
 websiteHub.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});

@@ -186,3 +186,11 @@ test('customer drafts use only the facts given', () => {
   assert.doesNotMatch(d.sms + d.email, /\$\d/);
   assert.equal(d.subject, 'Your enquiry ENQ-1001 with Fleet Parlour');
 });
+
+test('customer text never repeats raw transcript words as the service', async () => {
+  const { customerDrafts } = await import('../src/comms/receptionist-intake.js');
+  const junk = customerDrafts({ caller_name: 'Sam', service: 'created by долетс a blocker and black Thanks for calling Fleet Parlor, your mobile truck and metal polishing specialist in Perth.' }, { business: 'Fleet Parlour', reference: 'ENQ-1001' });
+  assert.equal(junk.sms.startsWith('Hi Sam, thanks for calling Fleet Parlour. Your enquiry number is ENQ-1001. We will'), true, junk.sms);
+  const good = customerDrafts({ caller_name: 'Sam', service: 'Bull bar polishing', item: 'Kenworth T610' }, { business: 'Fleet Parlour', reference: 'ENQ-1002' });
+  assert.match(good.sms, /ENQ-1002 \(Bull bar polishing for your Kenworth T610\)/);
+});

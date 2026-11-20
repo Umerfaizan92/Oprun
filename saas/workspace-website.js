@@ -136,6 +136,7 @@
       const c = d.check || {};
       return el('article', { class: 'portal-panel ws-domain' }, el('h3', { text: d.hostname + (d.is_primary ? ' (main)' : '') }),
         el('p', {}, el('b', { text: d.status === 'verified' ? 'Verified as yours' : 'Waiting for the DNS record' }), d.last_checked_at ? ` · checked ${when(d.last_checked_at)}` : ''),
+        o.hosting_ready && d.status === 'verified' ? el('p', { class: 'pl-meta' }, d.live_url ? el('a', { href: d.live_url, target: '_blank', rel: 'noopener', text: `Live: ${d.live_url}` }) : (d.hosting_status === 'ssl_pending' ? 'Website: waiting for the security certificate (usually under 30 minutes after the records are added)' : 'Website: waiting for the CNAME record'), d.hosting_errors?.length ? ` · ${d.hosting_errors.join('; ')}` : '') : null,
         records(d.records), c.checked_at ? el('p', { class: 'pl-meta', text: [`Points to a server: ${c.resolves ? 'yes' : 'no'}`, `Email set up: ${c.has_email ? 'yes' : 'no'}`, c.nameservers?.length ? `DNS host: ${c.nameservers.join(', ')}` : null, c.error ? `Check problem: ${c.error}` : null].filter(Boolean).join(' · ') }) : null,
         el('div', { class: 'pl-actions' }, check, remove));
     });

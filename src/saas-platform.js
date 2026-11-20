@@ -931,8 +931,8 @@ export function installSaasPlatform(app, deps) {
     const msg = db.prepare(`SELECT m.*,t.contact_address,t.channel,t.subject FROM comms_messages m JOIN comms_threads t ON t.id=m.thread_id WHERE m.id=? AND m.organisation_id=? AND m.direction='outbound'`).get(req.params.id, org);
     if (!msg) return fail(res, 404, 'Message not found.');
     const approval = msg.approval_id ? db.prepare(`SELECT status FROM workspace_approvals WHERE id=? AND organisation_id=?`).get(msg.approval_id, org) : null;
-    if (!approval || approval.status !== 'approved' || msg.status !== 'approved') return fail(res, 409, 'This message has not been approved by an authorised person.');
-    const claimed = db.prepare(`UPDATE comms_messages SET status='sending' WHERE id=? AND organisation_id=? AND status='approved'`).run(msg.id, org).changes;
+    if (!approval || approval.status !== 'approved' || !['approved', 'failed'].includes(msg.status)) return fail(res, 409, 'This message has not been approved by an authorised person.');
+    const claimed = db.prepare(`UPDATE comms_messages SET status='sending' WHERE id=? AND organisation_id=? AND status IN ('approved','failed')`).run(msg.id, org).changes;
     if (!claimed) return fail(res, 409, 'This message is already being sent.');
     let externalId = null;
     try {
@@ -940,7 +940,10 @@ export function installSaasPlatform(app, deps) {
     } catch (error) {
       if(['email','sms'].includes(msg.channel))trackCommunication({organisationId:org,userId:req.saas.user_id,channel:msg.channel,recipient:msg.contact_address,category:'customer_reply',subject:msg.subject||'Customer message'},{sent:false,reason:error.code==='NOT_CONFIGURED'?'provider_not_configured':'provider_rejected'});
       db.prepare(`UPDATE comms_messages SET status='approved' WHERE id=? AND organisation_id=?`).run(msg.id, org);
-      return fail(res, error.code === 'NOT_CONFIGURED' ? 409 : 502, error.code === 'NOT_CONFIGURED' ? error.message : 'The provider rejected the message. It stays approved so you can retry.');
+      const reason = String(error.message || '').replace(/^(sms|email) failed: /, '').slice(0, 200);
+      console.warn('[COMMS] approved message not sent:', msg.channel, reason);
+      db.prepare(`UPDATE comms_message_schedule SET error=?,updated_at=? WHERE message_id=?`).run(reason, new Date().toISOString(), msg.id);
+      return fail(res, error.code === 'NOT_CONFIGURED' ? 409 : 502, error.code === 'NOT_CONFIGURED' ? error.message : `${msg.channel === 'sms' ? 'Telnyx' : msg.channel === 'email' ? 'The email provider' : 'The provider'} refused the message: ${reason || 'no reason given'}. It stays approved so you can fix this and try again.`);
     }
     if(['email','sms'].includes(msg.channel)){
       const brand=tenantBrandFor(db,uploadRoot,org),replyTo=db.prepare("SELECT address FROM comms_channels WHERE organisation_id=? AND channel='email' AND status='active' LIMIT 1").get(org)?.address;
@@ -948,11 +951,14 @@ export function installSaasPlatform(app, deps) {
     }
     db.transaction(() => {
       db.prepare(`UPDATE comms_messages SET status='sent',external_message_id=COALESCE(?,external_message_id) WHERE id=? AND organisation_id=?`).run(externalId, msg.id, org);
+      db.prepare(`UPDATE comms_message_schedule SET state='sent',error=NULL,updated_at=? WHERE message_id=? AND state IN ('failed','waiting')`).run(new Date().toISOString(), msg.id);
       saasAudit(req, 'comms.message_sent', 'comms_message', msg.id, { channel: msg.channel });
     })();
     ok(res, { status: 'sent' });
   });
 
+  // Australian numbers written locally (0404 946 656, 61404946656) become +61404946656 for the SMS provider.
+  const auE164 = (v) => { const raw = String(v || '').trim(), d = raw.replace(/[^\d]/g, ''); if (raw.startsWith('+')) return '+' + d; if (/^0[2-578]\d{8}$/.test(d)) return '+61' + d.slice(1); if (/^61[2-578]\d{8}$/.test(d)) return '+' + d; return raw.replace(/[\s()-]/g, ''); };
   async function dispatch(msg) {
     const deliveryEnv=['email','sms'].includes(msg.channel)?transportEnv(msg.organisation_id):env;
     const notConfigured = (what) => Object.assign(new Error(`${what} is not configured, so the approved message could not be sent.`), { code: 'NOT_CONFIGURED' });
@@ -963,9 +969,11 @@ export function installSaasPlatform(app, deps) {
       if (deliveryEnv === env && !['platform', 'superpro'].includes(msg.organisation_id) && env.PLATFORM_SMS_FOR_BUSINESSES !== '1') throw notConfigured('Your business SMS sender (Connections, Email & SMS)');
       const from = deliveryEnv.TELNYX_FROM_NUMBER || deliveryEnv.TELNYX_PHONE_NUMBER;
       if (!set(deliveryEnv.TELNYX_API_KEY) || !set(from)) throw notConfigured('SMS');
-      const r = await fetch(`${String(deliveryEnv.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from, to: msg.contact_address, text: msg.body, ...(set(deliveryEnv.TELNYX_MESSAGING_PROFILE_ID) ? { messaging_profile_id: deliveryEnv.TELNYX_MESSAGING_PROFILE_ID } : {}) }) });
+      const to = auE164(msg.contact_address);
+      if (!/^\+[1-9]\d{7,14}$/.test(to)) throw new Error(`sms failed: ${msg.contact_address || 'the customer'} is not a mobile number SMS can be sent to`);
+      const r = await fetch(`${String(deliveryEnv.TELNYX_API_BASE_URL || 'https://api.telnyx.com/v2').replace(/\/$/, '')}/messages`, { method: 'POST', headers: { authorization: `Bearer ${deliveryEnv.TELNYX_API_KEY}`, 'content-type': 'application/json' }, body: JSON.stringify({ from: auE164(from), to, text: msg.body, ...(set(deliveryEnv.TELNYX_MESSAGING_PROFILE_ID) ? { messaging_profile_id: deliveryEnv.TELNYX_MESSAGING_PROFILE_ID } : {}) }) });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(`sms failed: ${String(data?.errors?.[0]?.detail || data?.errors?.[0]?.title || 'http ' + r.status).slice(0, 160)}`);
+      if (!r.ok) { const e0 = data?.errors?.[0] || {}; const why = String(e0.detail || e0.title || 'http ' + r.status); throw new Error(`sms failed: ${(e0.code ? `${why} (Telnyx code ${e0.code})` : why).slice(0, 200)}${/not.*(sms|messag).*(enabled|capable)|messaging profile|unable to send from|40305|40013|40310/i.test(why + e0.code) ? '. Check in Telnyx that this number can send SMS and is attached to a messaging profile (Australian landline numbers usually cannot send SMS).' : ''}`); }
       return data?.data?.id || null;
     }
     if (msg.channel === 'whatsapp') {

@@ -88,9 +88,16 @@ test('unified inbox: inbound SMS is categorised, scored, linked and escalated; S
   assert.equal((await O('POST', `/api/saas/comms/messages/${r.json.message_id}/send`, {})).status, 409, 'not before approval');
   await O('POST', `/api/saas/approvals/${r.json.approval_id}/decision`, { decision: 'approve' });
   const before = mock.calls.filter((c) => c.path === '/telnyx/messages').length;
+  // A refusal says why and the message stays ready to try again.
+  mock.failFor.add('/telnyx/messages');
+  const refused = await O('POST', `/api/saas/comms/messages/${r.json.message_id}/send`, {});
+  assert.equal(refused.status, 502); assert.match(refused.json.error, /Telnyx refused the message: Mock provider refused this request/);
+  mock.failFor.delete('/telnyx/messages');
+  const before2 = mock.calls.filter((c) => c.path === '/telnyx/messages').length;
   assert.equal((await O('POST', `/api/saas/comms/messages/${r.json.message_id}/send`, {})).status, 200);
+  assert.equal(before2, before + 1);
   const sent = mock.calls.filter((c) => c.path === '/telnyx/messages');
-  assert.equal(sent.length, before + 1); assert.equal(sent.at(-1).body.to, '+61412345678');
+  assert.equal(sent.length, before + 2); assert.equal(sent.at(-1).body.to, '+61412345678');
   assert.ok((await O('GET', '/api/saas/comms/unified?folder=sent')).json.items.some((i) => i.id === r.json.message_id));
   // Scheduled reply: appears in Scheduled, goes out after approval once due; a failure lands in Failed.
   const at = new Date(Date.now() + 1200).toISOString();

@@ -142,7 +142,10 @@ const firstName = (n) => String(n || '').trim().split(/\s+/)[0] || '';
 /** Customer reply drafts (text and email). Plain templates from facts only; a person approves before anything is sent. */
 export function customerDrafts(x, { business, reference, profile = {} }) {
   const hi = firstName(x.caller_name) ? `Hi ${firstName(x.caller_name)}` : 'Hi';
-  const what = [x.service || x.need, x.item ? `for your ${x.item}` : ''].filter(Boolean).join(' ');
+  // The service words come from a phone transcript. Only a short, clean phrase goes to the customer; anything
+  // that looks like raw transcript (very long, another script, or the greeting itself) is left out.
+  const tidy = (v) => { const t = String(v || '').replace(/\s+/g, ' ').trim(); return t && t.length <= 60 && !/[^\x20-\x7E\u00C0-\u024F’'–]/.test(t) && !/thanks for calling|enquiry number|created by/i.test(t) && (!business || !t.toLowerCase().includes(String(business).toLowerCase())) ? t : ''; };
+  const what = [tidy(x.service || x.need), tidy(x.item) ? `for your ${tidy(x.item)}` : ''].filter(Boolean).join(' ');
   const links = [profile.upload_link ? `Send photos: ${profile.upload_link}` : '', profile.whatsapp_link ? `WhatsApp us: ${profile.whatsapp_link}` : ''].filter(Boolean);
   const sms = `${hi}, thanks for calling ${business}. Your enquiry number is ${reference}${what ? ` (${what})` : ''}. We will confirm the price and a time shortly.${links.length ? ' ' + links.join(' ') : ''}`.slice(0, 600);
   const facts = [x.caller_name && `Name: ${x.caller_name}`, x.address && `Address: ${x.address}`, what && `Job: ${what}`, x.job_details && `Details: ${x.job_details}`, x.preferred_time && `Preferred time: ${x.preferred_time}`].filter(Boolean);
