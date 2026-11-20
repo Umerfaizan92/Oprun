@@ -121,6 +121,13 @@ html body.portal-workspace .view :is(section,article,form,div)[id]{scroll-margin
   html body.portal-workspace #unifiedinbox-view [id^="unifiedinbox-view-panel-"] > .cx-split{order:2}
   html body.portal-workspace #unifiedinbox-view [id^="unifiedinbox-view-panel-"] > .cx-panel{order:3}
   html body.portal-workspace #unifiedinbox-view [id^="unifiedinbox-view-panel-"] > *{margin-top:0}
+  /* Work: the four stage counters sit in a 2 x 2 grid instead of running off the edge. */
+  html body.portal-workspace .pl-strip{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;overflow:visible!important;gap:8px}
+  html body.portal-workspace .pl-strip .pl-stage{min-width:0}
+  /* New customer details: one field per line on a phone. */
+  html body.portal-workspace .pl-newcust{grid-template-columns:1fr!important}
+  /* Money: cards are as tall as their content (no empty blocks under a chart or a short list). */
+  html body.portal-workspace .fin-pane :is(.list-panel,.sp-surface-card){min-height:0!important;height:auto!important}
 }
 
 /* ---------- Phone tab bar: glass, the current tab always shows its name (the dock only exists on phones) ---------- */
@@ -135,3 +142,16 @@ html body.portal-workspace .view :is(section,article,form,div)[id]{scroll-margin
   html body.portal-workspace .mobile-dock-announce.is-shown{opacity:1;transform:translate(-50%,0)}
 }
 @media (prefers-reduced-motion:reduce){html body.portal-workspace .mobile-dock-announce{transition:none}}
+
+/* ---------- Duplicates removed (T-176) ---------- */
+/* The related-pages row already names itself to screen readers; the visible label repeated the current page. */
+html body.portal-workspace .workflow-label{display:none}
+html body.portal-workspace .workflow-links{margin-bottom:18px;gap:6px;padding:4px;border-radius:14px;border:1px solid var(--rf-edge);background:rgba(237,241,248,.03);width:max-content;max-width:100%}
+html[data-theme="light"] body.portal-workspace .workflow-links{background:#FFFFFF}
+html body.portal-workspace .workflow-links a{border-color:transparent;background:transparent;border-radius:10px;font-weight:700}
+html body.portal-workspace .workflow-links a[aria-current=page]{background:var(--sp-gold-soft);border-color:var(--rf-edge-strong)}
+/* A panel heading that only repeats the selected tab stays for screen readers but is not shown twice. */
+html body.portal-workspace .rf-repeat-heading{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;margin:0!important;padding:0!important}
+/* Setup checklist cards get enough width to read. */
+html body.portal-workspace .setup-list{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+@media (width < 700px){html body.portal-workspace .setup-list{grid-template-columns:1fr}}

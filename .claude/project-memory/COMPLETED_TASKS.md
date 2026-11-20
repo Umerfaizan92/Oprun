@@ -449,3 +449,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/ds/refresh.css, saas/workspace-mobile.js, saas/workspace-extras.js, saas/workspace.html
 - Acceptance: Tapping a bottom tab scrolls to its content and names it; one consistent card/button/field/tab style in dark and light; inbox list first on phones; no 'Access used' toast; all UI suites and npm test pass
 - Evidence: npm test 73/73, test:ui 38/38, navigation-ui 608, redesign-ui phone/tablet/desktop, mobile-workspace-ui 311, breakpoints 2/2 passed; screenshots checked at 390 and 1440 (recorded 2026-11-20 on claude/visual-redesign at 2ae40db)
+
+## T-176 Remove duplicates and fix phone layouts
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20 'Continue next' after T-175: organise sections and remove duplicates across the app.
+- Files: saas/ds/refresh.css, saas/workspace-tidy.js, saas/app.js, saas/workspace.html
+- Acceptance: No repeated label/tab/heading triples; tooltips no longer echo visible labels; Work stage counters and new-customer fields fit a phone; Money cards have no empty blocks; setup checklist readable; all suites pass
+- Evidence: npm test 73/73, test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, breakpoints pass; duplicate audit and phone screenshots checked (recorded 2026-11-20 on claude/page-organisation at 02607e8)
