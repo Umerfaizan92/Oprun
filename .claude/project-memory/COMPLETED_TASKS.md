@@ -428,3 +428,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/ds/platform.js, saas/ds/layout.css, saas/*.html, mobile/android/.../AndroidManifest.xml, mobile/ios/Oprun/OprunApp.swift, scripts/platform.test.mjs, scripts/breakpoints.test.mjs, qa/breakpoints-legacy.json
 - Acceptance: Unit tests pass; npm test, test:ui, navigation/redesign/site UI tests pass.
 - Evidence: saas/ds/platform.js + layout.css on all 21 app pages; app markers in AndroidManifest and OprunApp.swift; tests: platform.test 4/4, breakpoints.test 2/2, npm test 73/73, test:ui 37/37, navigation-ui 608 checks, redesign-ui, site-ui 16/16, mobile-readiness pass; browser probe phone/android-app, tablet/ios-app, desktop/browser with no errors or overflow. (recorded 2026-11-20 on claude/adaptive-foundation at 4dec06a)
+
+## T-173 Phase 4: sequential Business setup and Add worker
+- Added: 2026-11-20
+- Requirement: docs/product-redesign/03 §4-§5: Business setup one section per step with Back / Save and continue, saved per step, step remembered, ticks and review; Add worker in three steps on phones.
+- Files: saas/workspace-steps.js, saas/workspace-steps.css, saas/workspace.html, saas/workspace-extras.js, scripts/test-ui.mjs
+- Acceptance: UI check passes; npm test and UI suites pass.
+- Evidence: workspace-steps.js/css: Business setup stepper (8 steps, saves via existing handler per step, remembered, ticks, review) and Add worker 3 phone steps; unnamed logo/address controls detached so they cannot block saving; one quiet confirmation per step. Tests: new test:ui check passes (UI CHECKS 38), npm test 73/73, test:navigation-ui 608 checks, test:redesign-ui pass. (recorded 2026-11-20 on claude/sequential-setup at 74c852a)

@@ -123,6 +123,33 @@ try{
     await page.evaluate(()=>{location.hash='website/backlinks'});await page.locator('#backlinks-view a[href="#website/home"]').waitFor({state:'visible'});
     page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
   });
+  await check('Business setup is step by step and saved per step; Add worker is three steps on a phone',async()=>{
+    const touch=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844},storageState:await context.storageState()});
+    try{
+      const p=await touch.newPage();await p.goto(base+'/saas/workspace.html#setup/settings');
+      const label=p.locator('.setup-stepper-label').first();await label.waitFor({state:'visible'});
+      await p.evaluate(()=>{const e=document.getElementById('business-type');if(!e.value)e.value='Plumbing services'});
+      const start=Number((await label.textContent()).match(/Step (\d+)/)[1]);
+      assert.match(await label.textContent(),/of 8/);
+      const saved=p.waitForResponse(r=>r.url().endsWith('/api/saas/onboarding')&&r.request().method()==='PUT');
+      await p.locator('#setup-step-next').click();const res=await saved;assert.equal(res.status(),200,'each step saves');
+      assert.match(await label.textContent(),new RegExp('Step '+Math.min(start+1,8)+' of 8'));
+      assert.equal(await p.locator('#onboarding-form .settings-content > article:not([hidden])').count(),1,'one section per screen');
+      await p.reload();await label.waitFor({state:'visible'});assert.match(await label.textContent(),new RegExp('Step '+Math.min(start+1,8)+' of 8'),'the step is remembered');
+      while(await p.locator('#setup-step-next').isVisible()){await p.locator('#setup-step-next').click();if(await p.locator('#setup-review').isVisible())break;}
+      assert.equal(await p.locator('#setup-review li').count(),8,'review lists every section');
+      await p.locator('#setup-review li').nth(1).getByRole('button',{name:'Edit'}).click();assert.match(await label.textContent(),/Step 2 of 8/);
+      await p.evaluate(()=>{location.hash='people/workers'});await p.locator('#worker-form').waitFor({state:'attached'});
+      await p.evaluate(()=>{const b=[...document.querySelectorAll('[aria-controls="workforce-view-section-0"]')].find(x=>x.getClientRects().length);b&&b.click()});
+      const step=p.locator('.worker-step-label');await step.waitFor({state:'visible'});assert.match(await step.textContent(),/Step 1 of 3/);
+      assert.equal(await p.locator('#worker-form [name=role_title]').isVisible(),false,'role comes on the next screen');
+      await p.locator('.worker-step-actions .primary-button').click();assert.match(await step.textContent(),/Step 1 of 3/,'an empty name stops the step');
+      await p.fill('#worker-form [name=full_name]','Step Test Worker');await p.locator('.worker-step-actions .primary-button').click();assert.match(await step.textContent(),/Step 2 of 3/);
+      await p.fill('#worker-form [name=role_title]','Technician');await p.locator('.worker-step-actions .primary-button').click();assert.match(await step.textContent(),/Step 3 of 3/);
+      assert.equal(await p.locator('#worker-form button[type=submit]').isVisible(),true);
+      assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no sideways scrolling');
+    }finally{await touch.close()}
+  });
   await check('Bookings has reminder and confirmation settings that save',async()=>{
     await page.setViewportSize({width:1440,height:900});
     await page.evaluate(()=>{location.hash='work/bookings'});
