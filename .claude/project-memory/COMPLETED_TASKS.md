@@ -442,3 +442,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-nav.js, saas/workspace-mobile.js, saas/workspace-bars.css, saas/workspace-pipeline.js, saas/workspace-finance-platform.js, saas/app.js, scripts/test-mobile-workspace-ui.mjs
 - Acceptance: test-mobile-workspace-ui passes for all 61 pages at 390/1440; npm test and UI suites pass.
 - Evidence: Visual audit at 390/1440: secondary pages removed from related rows and phone tab bar (shown only while open); stray null text fixed in new enquiry form and sales documents; phone tab bars fit (shrink to 44px, 8+ wrap); trial date localised; stale mobile test updated for page tabs and the 14 Nov nested-row rule. Tests: test-mobile-workspace-ui 311 checks PASS (61 pages x 2 widths), npm test 73/73, test:ui 38/38, test:navigation-ui 608, test:redesign-ui, test:comms-ui 10, test:finance-ui 11. (recorded 2026-11-20 on claude/page-redesign at c83f4d8)
+
+## T-175 Visual refresh and working phone tabs
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: bottom tabs looked like they did nothing; redesign the whole app with a better colour scheme, spacing, organised sections, duplicates removed, professional and cinematic.
+- Files: saas/ds/refresh.css, saas/workspace-mobile.js, saas/workspace-extras.js, saas/workspace.html
+- Acceptance: Tapping a bottom tab scrolls to its content and names it; one consistent card/button/field/tab style in dark and light; inbox list first on phones; no 'Access used' toast; all UI suites and npm test pass
+- Evidence: npm test 73/73, test:ui 38/38, navigation-ui 608, redesign-ui phone/tablet/desktop, mobile-workspace-ui 311, breakpoints 2/2 passed; screenshots checked at 390 and 1440 (recorded 2026-11-20 on claude/visual-redesign at 2ae40db)

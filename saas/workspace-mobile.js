@@ -131,7 +131,7 @@
       const row = make('div', 'mobile-workspace-section-group'); row.setAttribute('role','group'); row.setAttribute('aria-label', list.getAttribute('aria-label') || 'Page sections');
       buttons.forEach((b, j) => {
         const label = b.textContent.trim(), selected = b.getAttribute('aria-selected') === 'true' || !!b.getAttribute('aria-current');
-        const proxy = control(label, dockIcons[iconAt++], () => { b.click(); queue(); }, selected ? 'location' : null, `section-${i}-${j}`);
+        const proxy = control(label, dockIcons[iconAt++], () => { b.click(); queue(); reveal(list, b, label); }, selected ? 'location' : null, `section-${i}-${j}`);
         proxy.disabled = b.disabled;
         if (b.hasAttribute('aria-controls')) proxy.setAttribute('aria-controls', b.getAttribute('aria-controls'));
         row.append(proxy);
@@ -156,6 +156,29 @@
     if (focused) { const selector = `[data-dock-key="${CSS.escape(focused)}"]`; (dock.querySelector(selector) || actions?.querySelector(selector) || (rail?.dataset.drawer === 'true' ? rail.querySelector('.business-navigation-close') : menu))?.focus({preventScroll:true}); }
     else sections.querySelector('[aria-current]')?.scrollIntoView({block:'nearest',inline:'nearest'});
   }
+  // T-175: a tap on a bottom-bar tab shows its result. The page scrolls to the content that tab controls (or the
+  // first visible block after the hidden tab list) and the tab's name is announced briefly above the bar.
+  function reveal(list, button, label) {
+    requestAnimationFrame(() => {
+      let target = button.getAttribute('aria-controls') ? document.getElementById(button.getAttribute('aria-controls')) : null;
+      if (!target || target.hidden || !target.getClientRects().length) {
+        for (let n = list; n && !n.matches?.('.view'); n = n.parentElement) {
+          let sib = n.nextElementSibling;
+          while (sib && (sib.hidden || !sib.getClientRects().length)) sib = sib.nextElementSibling;
+          if (sib) { target = sib; break; }
+        }
+      }
+      target?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      let chip = document.getElementById('mobile-dock-announce');
+      if (!chip) { chip = make('div', 'mobile-dock-announce'); chip.id = 'mobile-dock-announce'; chip.setAttribute('role', 'status'); document.body.append(chip); }
+      chip.textContent = label; chip.classList.remove('is-shown'); void chip.offsetWidth; chip.classList.add('is-shown');
+      clearTimeout(reveal.t); reveal.t = setTimeout(() => chip.classList.remove('is-shown'), 1600);
+    });
+  }
+  document.addEventListener('click', (event) => {
+    let intro = event.target.closest?.('.view > .page-heading p:not(.kicker)');
+    if (intro && matchMedia('(width < 700px)').matches) intro.classList.toggle('is-open');
+  });
   function queue() { if (!frame) frame = requestAnimationFrame(refresh); }
   function boot() {
     const root = document.querySelector('.content-wrap');

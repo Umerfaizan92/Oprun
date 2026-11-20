@@ -92,3 +92,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-20: Product redesign specification complete (T-167, docs/product-redesign/). Next: Phase 1 country-based sign-up.
 - 2026-11-20: Phase 1 (T-168) country-based sign-up live: any country can sign up by email + mobile; Australia unchanged.
 - 2026-11-20: Country rules live (T-170): currency, tax wording, invoice checks, e-invoicing notices and marketing send window follow each business's country; Australia unchanged.
+- 2026-11-20: T-175: global visual refresh (ds/refresh.css), bottom tabs reveal their content with a name chip, inbox list first on phones, internal audit events no longer shown as toasts.
