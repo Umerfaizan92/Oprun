@@ -290,7 +290,7 @@ await stage('live', 'RBAC matrix and the end-to-end pipeline on a real server', 
   const child = spawn(process.execPath, ['src/server.js'], {
     cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'],
     env: { // explicit, minimal environment: nothing from the developer's shell or .env leaks in or out
-      PATH: process.env.PATH, HOME: tempRoot, SUPERPRO_SKIP_DOTENV: '1', PORT: String(port), NODE_ENV: 'test', PUBLIC_BASE_URL: base, ALLOWED_ORIGINS: base,
+      PATH: process.env.PATH, HOME: tempRoot, SUPERPRO_SKIP_DOTENV: '1', MARKETING_SEND_WINDOW: 'off', PORT: String(port), NODE_ENV: 'test', PUBLIC_BASE_URL: base, ALLOWED_ORIGINS: base,
       DATABASE_PATH: dbPath, UPLOAD_DIR: path.join(tempRoot, 'live', 'uploads'), SAAS_VERIFICATION_TEST_MODE: '1',
       ADMIN_API_KEY: ADMIN_KEY, SESSION_SECRET: randomBytes(24).toString('hex'), SAAS_SESSION_SECRET: randomBytes(24).toString('hex'),
       ADMIN_SESSION_SECRET: randomBytes(24).toString('hex'), INTEGRATION_ENCRYPTION_KEY: randomBytes(32).toString('hex'),

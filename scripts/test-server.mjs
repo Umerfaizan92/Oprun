@@ -20,7 +20,7 @@ export async function startServer(extraEnv = {}) {
       PATH: process.env.PATH, HOME: temp, SUPERPRO_SKIP_DOTENV: '1', PORT: String(port), NODE_ENV: 'test', PUBLIC_BASE_URL: base, ALLOWED_ORIGINS: base,
       DATABASE_PATH: dbPath, UPLOAD_DIR: path.join(temp, 'uploads'), ADMIN_API_KEY: adminKey,
       SESSION_SECRET: randomBytes(24).toString('hex'), SAAS_SESSION_SECRET: randomBytes(24).toString('hex'), ADMIN_SESSION_SECRET: randomBytes(24).toString('hex'),
-      INTEGRATION_ENCRYPTION_KEY: randomBytes(32).toString('hex'), FREE_AI_MODE: '0', ...extraEnv
+      INTEGRATION_ENCRYPTION_KEY: randomBytes(32).toString('hex'), FREE_AI_MODE: '0', MARKETING_SEND_WINDOW: 'off', ...extraEnv
     }
   });
   let log = ''; child.stdout.on('data', (b) => { log += b; }); child.stderr.on('data', (b) => { log += b; });

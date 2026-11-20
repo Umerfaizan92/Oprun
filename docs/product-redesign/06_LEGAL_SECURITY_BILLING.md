@@ -59,3 +59,27 @@ before launch outside Australia.
 - AI drafts: "Written by Oprun AI. Check it before you send it."
 - Campaign footer (SMS): "<Business name>: Reply STOP to opt out." Email: sender name, postal address,
   unsubscribe link.
+
+## 5. Country rules built (T-170, 20 Nov 2026)
+
+The rules below are in code (`src/country-rules.js`, `src/finance/rules.js`), reviewed on 20 Nov 2026 from official
+and professional sources (European Commission VAT rates, PwC Worldwide Tax Summaries, HMRC VAT Notice 700/21, Inland
+Revenue NZ, and the national e-invoicing pages for each mandate). They are general rules applied mechanically. The
+business confirms its own registration, number and rate, and every screen says Oprun is not a tax adviser.
+
+| Area | What happens now |
+|---|---|
+| Currency | Invoices, quote links, receipts and payment links use the business's currency: its country's by default (GBP, EUR, USD, NZD, PKR, …), or the one chosen in Money settings. Stripe gets the currency's smallest unit (JPY 0 decimals, KWD 3 decimals). PayPal uses the same currency. |
+| Tax wording | VAT, GST, sales tax, SST, consumption tax by country. Titles: "Tax invoice" (AU, NZ, SG, IN, AE, SA, ZA), "VAT invoice" (UK, Ireland), "Qualified invoice" (Japan), "Invoice" elsewhere, and "Invoice" whenever the business is not registered. |
+| Tax rate | Standard rate filled in where confirmed: EU 27, UK 20%, Norway 25%, Switzerland 8.1%, NZ 15%, Singapore 9%, UAE 5%, Saudi Arabia 15%, South Africa 15%, Japan 10% and others. US, Canada, India, Malaysia and Pakistan: the business enters its rate, because it depends on the state, province, or goods. |
+| Required details | Registered businesses must save their tax number before a registered invoice can be issued. UK, Ireland, the EU, UAE and Saudi Arabia also require the customer's name, and the address is asked for. Australia's ABN, $82.50 and $1,000 rules are unchanged. |
+| E-invoicing | Where a national system is mandatory (Italy, Romania, Poland, Belgium, Croatia, France, Greece, Hungary, Saudi Arabia, India, Malaysia, Mexico, Kenya, China), the invoice check and the printed copy say an Oprun invoice is a record copy and the legal invoice goes through the national system. Upcoming dates are shown for Germany, Slovakia, Norway (2027), UAE (2027), Spain (Oct 2027), Singapore (2028), Ireland (Nov 2028) and the UK (Apr 2029). Not blocked, because scope depends on business size. |
+| Tax report | Australia: BAS draft unchanged. Elsewhere: a tax summary of tax on sales and on purchases for the local return. Oprun does not prepare or lodge it. |
+| Records | Retention shown where confirmed: AU 5 years, NZ 7, UK 6, Ireland 6, Canada 6, Singapore 5. Elsewhere: "check your local rule". Issued documents cannot be deleted. |
+| Dates and phone numbers | Dates in invoices, quote pages and reminders use the business's country format. Customer numbers written locally are read with the business's country (07400 123456 in the UK becomes +447400123456). |
+| Marketing | Marketing only goes to customers with recorded consent (already the case everywhere). Every SMS includes the sender name and "Reply STOP to opt out". Emails include the sender details and an unsubscribe link. New: campaigns send only Mon–Fri 9am–8pm and Sat 9am–5pm in the business's time zone, never on Sunday. This meets the strictest common rules, such as US federal and state quiet hours. |
+| Workers | Outside Australia: documents only. No visa or VEVO checks (T-168). |
+
+Still needs the owner and an adviser (not published): regional sections of the Privacy Notice and Terms (GDPR/UK
+GDPR, US state privacy laws), a Data Processing Agreement, and non-Australian bank-transfer details (the bank-transfer
+option still uses Australian BSB fields; card and PayPal work in every currency).

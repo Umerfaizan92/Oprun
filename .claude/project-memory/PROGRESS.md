@@ -91,3 +91,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-20: SMS send failures now show the Telnyx reason, failed messages can be retried, AU numbers normalised to +61, raw transcript text kept out of customer texts.
 - 2026-11-20: Product redesign specification complete (T-167, docs/product-redesign/). Next: Phase 1 country-based sign-up.
 - 2026-11-20: Phase 1 (T-168) country-based sign-up live: any country can sign up by email + mobile; Australia unchanged.
+- 2026-11-20: Country rules live (T-170): currency, tax wording, invoice checks, e-invoicing notices and marketing send window follow each business's country; Australia unchanged.

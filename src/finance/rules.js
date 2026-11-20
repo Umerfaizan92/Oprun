@@ -4,9 +4,12 @@
 // To change a rule, add a new ruleset with a later effective date. Never edit a published one: issued documents record
 // the ruleset id they were checked against.
 
+import { taxRulesFor, RULES_REVIEWED_AT, einvoicingWarning } from '../country-rules.js';
+
 export const RULESETS = Object.freeze([
   Object.freeze({
     id: 'AU-2026.10',
+    country: 'AU',
     effective_from: '2000-07-01',
     reviewed_at: '2026-10-30',
     reviewed_by: 'Oprun engineering (not a tax agent). Owner review required before relying on it.',
@@ -34,13 +37,29 @@ export const RULESETS = Object.freeze([
   })
 ]);
 
-export function rulesFor(date = new Date().toISOString()) {
+// Every country except Australia (T-170): a ruleset built from src/country-rules.js. The business's own registration
+// status, tax number and rate (Money settings) decide what the invoice shows; Oprun only checks it mechanically.
+function countryRuleset(country, s = {}) {
+  const t = taxRulesFor(country);
+  const rate = s.tax_rate !== null && s.tax_rate !== undefined && s.tax_rate !== '' ? Number(s.tax_rate) : t.standard_rate;
+  return {
+    id: `${t.country}-${RULES_REVIEWED_AT}`, country: t.country, effective_from: '2000-01-01', reviewed_at: RULES_REVIEWED_AT,
+    reviewed_by: 'Oprun engineering (not a tax adviser). Owner review required before relying on it.',
+    gst: { rate: Number.isFinite(rate) ? rate : null, registration_turnover_cents: null },
+    tax: t, tax_invoice: { no_invoice_needed_up_to_cents: 0, buyer_identity_from_cents: t.buyer_name_and_address ? 0 : Infinity, provide_within_days: null, fields: t.notes },
+    adjustment_note: { not_required_up_to_gst_cents: 0, fields: [] }, records: { retain_years: t.retain_years },
+    sources: [{ topic: 'Country rules reviewed ' + RULES_REVIEWED_AT, url: 'https://europa.eu/youreurope/business/finance-and-tax/vat/vat-rules-rates/index_en.htm' }]
+  };
+}
+
+export function rulesFor(date = new Date().toISOString(), country = 'AU', settings = null) {
+  if (country && String(country).toUpperCase() !== 'AU') return countryRuleset(String(country).toUpperCase(), settings || {});
   const d = String(date).slice(0, 10);
   const r = [...RULESETS].filter((x) => x.effective_from <= d).sort((a, b) => b.effective_from.localeCompare(a.effective_from))[0];
   if (!r) throw new Error('No tax ruleset covers ' + d);
   return r;
 }
-export const rulesetById = (id) => RULESETS.find((r) => r.id === id) || null;
+export const rulesetById = (id) => RULESETS.find((r) => r.id === id) || (/^[A-Z]{2}-\d{4}-\d{2}-\d{2}$/.test(String(id)) ? countryRuleset(String(id).slice(0, 2)) : null);
 
 // Tax codes on a line. GST: 10% GST. FRE: GST-free sale. INP: input-taxed. NT: not reportable (outside GST).
 export const TAX_CODES = Object.freeze({ GST: 'Taxable (GST)', FRE: 'GST-free', INP: 'Input-taxed', NT: 'Not reportable' });
@@ -61,8 +80,10 @@ export function lineAmounts({ quantity = 1, unit_cents = 0, tax_code = 'GST', di
   const gross = Math.round(Number(quantity) * Number(unit_cents)) - Math.round(Number(discount_cents) || 0);
   const taxable = registered && tax_code === 'GST';
   if (!taxable) return { ex_cents: gross, gst_cents: 0, inc_cents: gross };
-  if (includesGst) { const gst = Math.round(gross / 11); return { ex_cents: gross - gst, gst_cents: gst, inc_cents: gross }; }
-  const gst = Math.round(gross * rules.gst.rate);
+  const rate = Number(rules.gst.rate) || 0;
+  if (!rate) return { ex_cents: gross, gst_cents: 0, inc_cents: gross };
+  if (includesGst) { const gst = rate === 0.1 ? Math.round(gross / 11) : Math.round((gross * rate) / (1 + rate)); return { ex_cents: gross - gst, gst_cents: gst, inc_cents: gross }; }
+  const gst = Math.round(gross * rate);
   return { ex_cents: gross, gst_cents: gst, inc_cents: gross + gst };
 }
 export function documentTotals(lines, opts = {}) {
@@ -90,7 +111,19 @@ export function checkDocument({ kind, seller = {}, buyer = {}, lines = [], issue
     if (!(Number(l.quantity) > 0)) issues.push(`Item ${i + 1} needs a quantity above zero.`);
     if (!TAX_CODES[l.tax_code || 'GST']) issues.push(`Item ${i + 1} has an unknown tax code.`);
   }
-  if (['invoice', 'credit_note', 'receipt'].includes(kind)) {
+  const au = (rules.country || 'AU') === 'AU', tax = rules.tax;
+  if (!au && ['invoice', 'credit_note', 'receipt'].includes(kind)) {
+    if (registered) {
+      if (!seller.tax_number) issues.push(`A ${title(kind, true, rules).toLowerCase()} must show your ${tax.id_label}. Add it in Money > Finance settings.`);
+      if (!(Number(rules.gst.rate) > 0)) issues.push(`Enter the ${tax.label} rate you charge in Money > Finance settings.`);
+      if (tax.buyer_name_and_address && kind === 'invoice' && !buyer.name) issues.push(`A ${tax.label} invoice in this country must show the customer's name and address. Add a customer.`);
+      else if (tax.buyer_name_and_address && kind === 'invoice' && !buyer.address) notes.push("Add the customer's address: it is required on a full invoice in this country.");
+    } else notes.push(`You are not registered for ${tax.label}, so this invoice shows no ${tax.label}. Check your local registration threshold.`);
+    for (const n of tax.notes || []) notes.push(n);
+    const e = einvoicingWarning(rules.country, String(issued_at).slice(0, 10));
+    if (e) notes.push(e.text);
+  }
+  if (au && ['invoice', 'credit_note', 'receipt'].includes(kind)) {
     if (registered) {
       if (!seller.abn) issues.push('A tax invoice must show your ABN. Add it in Setup & Trust > Settings.');
       else if (!abnValid(seller.abn)) issues.push('Your ABN fails the Australian Business Register check digit test. Check the number.');
@@ -102,16 +135,24 @@ export function checkDocument({ kind, seller = {}, buyer = {}, lines = [], issue
       if (lines.some((l) => (l.tax_code || 'GST') === 'GST' && Number(l.unit_cents) > 0)) notes.push('No GST is charged because the business is not registered for GST.');
     }
   }
-  if (kind === 'credit_note') {
+  if (kind === 'credit_note' && !au) {
+    if (!original) issues.push('A credit note must refer to the original invoice.');
+    if (String(reason || '').trim().length < 5) issues.push('Explain briefly why the credit is being made.');
+  }
+  if (kind === 'credit_note' && au) {
     if (!original) issues.push('An adjustment note must refer to the original invoice.');
     if (String(reason || '').trim().length < 5) issues.push('Explain briefly why the adjustment is being made.');
     if (original && original.inc_cents >= rules.tax_invoice.buyer_identity_from_cents && !(buyer.name || buyer.abn)) issues.push("The original sale was $1,000 or more, so the adjustment note must show the buyer's identity or ABN.");
     if (registered && totals.gst_cents <= rules.adjustment_note.not_required_up_to_gst_cents) notes.push(`A GST adjustment of $${(rules.adjustment_note.not_required_up_to_gst_cents / 100).toFixed(2)} or less does not need an adjustment note, but issuing one keeps the record clear.`);
   }
-  if (kind === 'invoice' && registered && totals.inc_cents <= rules.tax_invoice.no_invoice_needed_up_to_cents) notes.push(`At $${(rules.tax_invoice.no_invoice_needed_up_to_cents / 100).toFixed(2)} or less you do not have to give a tax invoice on request, but you may.`);
-  return { ok: !issues.length, issues, notes, totals, ruleset: rules.id, title: title(kind, registered) };
+  if (au && kind === 'invoice' && registered && totals.inc_cents <= rules.tax_invoice.no_invoice_needed_up_to_cents) notes.push(`At $${(rules.tax_invoice.no_invoice_needed_up_to_cents / 100).toFixed(2)} or less you do not have to give a tax invoice on request, but you may.`);
+  return { ok: !issues.length, issues, notes, totals, ruleset: rules.id, title: title(kind, registered, rules) };
 }
-export function title(kind, registered) {
+export function title(kind, registered, rules = null) {
+  if (rules && rules.country && rules.country !== 'AU') {
+    const t = registered ? rules.tax.registered_title : 'Invoice';
+    return { invoice: t, credit_note: 'Credit note', quote: 'Quotation', estimate: 'Estimate', receipt: 'Receipt', deposit: `${t} (deposit)` }[kind] || kind;
+  }
   return { invoice: registered ? 'Tax invoice' : 'Invoice', credit_note: registered ? 'Adjustment note (credit note)' : 'Credit note', quote: 'Quotation', estimate: 'Estimate', receipt: 'Receipt', deposit: registered ? 'Tax invoice (deposit)' : 'Invoice (deposit)' }[kind] || kind;
 }
 

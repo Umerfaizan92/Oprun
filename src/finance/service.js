@@ -9,6 +9,7 @@
 // financial adjustments run through the automation engine as Level 3 actions, so a named person approves each one.
 import crypto from 'node:crypto';
 import { appendAuditLog } from '../db.js';
+import { taxRulesFor, formatMoney, formatDate, currencyFor, einvoicingWarning } from '../country-rules.js';
 import { rulesFor, rulesetById, documentTotals, lineAmounts, checkDocument, title as docTitle, abnValid, formatAbn, basDraft, TAX_CODES } from './rules.js';
 
 const DAY = 86400000;
@@ -90,6 +91,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     CREATE INDEX IF NOT EXISTS fin_bank_lines_org ON fin_bank_lines(organisation_id, status, posted_on);
     CREATE TABLE IF NOT EXISTS fin_category_memory (organisation_id TEXT NOT NULL, pattern TEXT NOT NULL, category TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (organisation_id, pattern));
     CREATE TABLE IF NOT EXISTS fin_flags (id TEXT PRIMARY KEY, organisation_id TEXT NOT NULL, kind TEXT NOT NULL, severity TEXT NOT NULL, entity_type TEXT, entity_id TEXT, message TEXT NOT NULL, dedupe TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL, resolved_by TEXT, resolved_at TEXT, resolution_note TEXT, UNIQUE (organisation_id, dedupe));`);
+  add('fin_settings', [['tax_rate', 'REAL'], ['tax_number', 'TEXT'], ['currency', 'TEXT']]);
   add('tenant_documents', [['number', 'TEXT'], ['parent_id', 'TEXT'], ['ruleset_id', 'TEXT'], ['prices_include_gst', 'INTEGER'], ['valid_until', 'TEXT'], ['reason', 'TEXT'], ['compliance_json', 'TEXT'], ['seller_json', 'TEXT'], ['buyer_json', 'TEXT'], ['run_id', 'TEXT'], ['ai_prepared', 'INTEGER NOT NULL DEFAULT 0']]);
   add('tenant_customers', [['abn', 'TEXT']]);
   add('job_payments', [['refunded_cents', 'INTEGER NOT NULL DEFAULT 0']]);
@@ -100,19 +102,25 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   const E = (status, error, extra = {}) => ({ ok: false, status, error, ...extra });
 
   // ---------------- settings, seller and buyer ----------------
-  function settings(org) { return db.prepare('SELECT * FROM fin_settings WHERE organisation_id=?').get(org) || { organisation_id: org, gst_registered: null, prices_include_gst: 0, accounting_basis: 'cash', bas_period: 'quarterly', quote_valid_days: 30, deposit_percent: 0, footer_note: null }; }
+  function settings(org) { return db.prepare('SELECT * FROM fin_settings WHERE organisation_id=?').get(org) || { organisation_id: org, gst_registered: null, prices_include_gst: 0, accounting_basis: 'cash', bas_period: 'quarterly', quote_valid_days: 30, deposit_percent: 0, footer_note: null, tax_rate: null, tax_number: null, currency: null }; }
   function saveSettings(org, d, actor) {
     const s = { ...settings(org), ...d, updated_by: actor, updated_at: now() };
     const prev = settings(org);
-    db.prepare(`INSERT INTO fin_settings (organisation_id,gst_registered,prices_include_gst,accounting_basis,bas_period,quote_valid_days,deposit_percent,footer_note,updated_by,updated_at) VALUES (@organisation_id,@gst_registered,@prices_include_gst,@accounting_basis,@bas_period,@quote_valid_days,@deposit_percent,@footer_note,@updated_by,@updated_at)
-      ON CONFLICT(organisation_id) DO UPDATE SET gst_registered=excluded.gst_registered,prices_include_gst=excluded.prices_include_gst,accounting_basis=excluded.accounting_basis,bas_period=excluded.bas_period,quote_valid_days=excluded.quote_valid_days,deposit_percent=excluded.deposit_percent,footer_note=excluded.footer_note,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).run({ ...s, organisation_id: org });
+    db.prepare(`INSERT INTO fin_settings (organisation_id,gst_registered,prices_include_gst,accounting_basis,bas_period,quote_valid_days,deposit_percent,footer_note,tax_rate,tax_number,currency,updated_by,updated_at) VALUES (@organisation_id,@gst_registered,@prices_include_gst,@accounting_basis,@bas_period,@quote_valid_days,@deposit_percent,@footer_note,@tax_rate,@tax_number,@currency,@updated_by,@updated_at)
+      ON CONFLICT(organisation_id) DO UPDATE SET gst_registered=excluded.gst_registered,prices_include_gst=excluded.prices_include_gst,accounting_basis=excluded.accounting_basis,bas_period=excluded.bas_period,quote_valid_days=excluded.quote_valid_days,deposit_percent=excluded.deposit_percent,footer_note=excluded.footer_note,tax_rate=excluded.tax_rate,tax_number=excluded.tax_number,currency=excluded.currency,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).run({ tax_rate: null, tax_number: null, currency: null, ...s, organisation_id: org });
     audit(org, actor, 'finance.settings_changed', 'fin_settings', org, { changed: Object.keys(d).filter((k) => prev[k] !== d[k]) });
     return settings(org);
   }
+  // The business's country decides currency, formats, tax wording and invoice rules (T-170).
+  const countryOf = (org) => { try { return db.prepare('SELECT country FROM organisations WHERE id=?').get(org)?.country || 'AU'; } catch { return 'AU'; } };
+  const orgRules = (org, date = now()) => rulesFor(date, countryOf(org), settings(org));
+  function locale(org) { const c = countryOf(org), t = taxRulesFor(c), s = settings(org); return { country: c, currency: s.currency || t.currency || 'AUD', locale: t.locale, currency_set: Boolean(s.currency || t.currency) }; }
+  const moneyOf = (org) => { const l = locale(org); return (c) => formatMoney(c, l.currency, l.locale); };
   function seller(org) {
-    const o = db.prepare("SELECT COALESCE(o.display_name,o.name) name, o.abn, o.address_formatted address, (SELECT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=o.id AND m.role='owner' AND m.status='active' ORDER BY m.rowid LIMIT 1) email FROM organisations o WHERE o.id=?").get(org) || {};
+    const o = db.prepare("SELECT COALESCE(o.display_name,o.name) name, o.abn, o.country, o.registration_number_unverified reg_no, o.address_formatted address, (SELECT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=o.id AND m.role='owner' AND m.status='active' ORDER BY m.rowid LIMIT 1) email FROM organisations o WHERE o.id=?").get(org) || {};
     const s = settings(org);
-    return { name: o.name || '', abn: o.abn ? String(o.abn).replace(/\s/g, '') : '', address: o.address || '', email: o.email || '', phone: '', gst_registered: s.gst_registered === 1, gst_status_set: s.gst_registered !== null && s.gst_registered !== undefined, prices_include_gst: s.prices_include_gst === 1 };
+    const c = o.country || 'AU', t = taxRulesFor(c), l = locale(org);
+    return { name: o.name || '', abn: c === 'AU' && o.abn ? String(o.abn).replace(/\s/g, '') : '', country: c, tax_label: t.label, tax_id_label: t.id_label, tax_number: c === 'AU' ? null : (s.tax_number || o.reg_no || null), currency: l.currency, locale: l.locale, address: o.address || '', email: o.email || '', phone: '', gst_registered: s.gst_registered === 1, gst_status_set: s.gst_registered !== null && s.gst_registered !== undefined, prices_include_gst: s.prices_include_gst === 1 };
   }
   const buyer = (org, cid) => (cid ? db.prepare('SELECT id,name,email,phone,address,abn FROM tenant_customers WHERE id=? AND organisation_id=?').get(cid, org) || {} : {});
   const job = (org, id) => (id ? db.prepare('SELECT * FROM work_orders WHERE id=? AND organisation_id=?').get(id, org) : null);
@@ -146,7 +154,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     db.prepare('UPDATE tenant_documents SET amount_cents=?,gst_cents=?,gst_applies=?,updated_at=? WHERE id=? AND organisation_id=?').run(t.ex_cents, t.gst_cents, t.gst_cents > 0 ? 1 : 0, now(), docId, org);
     return t;
   }
-  const lineOpts = (org, d = null) => { const s = seller(org); return { registered: s.gst_registered, includesGst: d?.prices_include_gst === null || d?.prices_include_gst === undefined ? s.prices_include_gst : d.prices_include_gst === 1 }; };
+  const lineOpts = (org, d = null) => { const s = seller(org); return { rules: orgRules(org), registered: s.gst_registered, includesGst: d?.prices_include_gst === null || d?.prices_include_gst === undefined ? s.prices_include_gst : d.prices_include_gst === 1 }; };
 
   // ---------------- payments on a job ----------------
   const credits = (org, invoiceId) => db.prepare("SELECT COALESCE(SUM(amount_cents+gst_cents),0) n FROM tenant_documents WHERE organisation_id=? AND kind='credit_note' AND parent_id=? AND status='issued'").get(org, invoiceId).n;
@@ -171,15 +179,15 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
 
   function view(org, d, full = false) {
     const lines = linesOf(d), s = seller(org);
-    const out = { id: d.id, kind: d.kind, number: d.number, title: d.title, status: statusOf(org, d), stored_status: d.status, customer_id: d.customer_id, customer: d.customer_id ? buyer(org, d.customer_id).name || null : null, work_order_id: d.work_order_id, parent_id: d.parent_id, revision: d.revision, ex_cents: d.amount_cents, gst_cents: d.gst_cents || 0, total_cents: d.amount_cents + (d.gst_cents || 0), issued_at: d.issued_at, due_at: d.due_at, valid_until: d.valid_until, created_at: d.created_at, ai_prepared: Boolean(d.ai_prepared), reason: d.reason, heading: docTitle(d.kind === 'deposit' ? 'deposit' : d.kind, d.seller_json ? J(d.seller_json, {}).gst_registered : s.gst_registered) };
+    const out = { id: d.id, kind: d.kind, number: d.number, title: d.title, status: statusOf(org, d), stored_status: d.status, customer_id: d.customer_id, customer: d.customer_id ? buyer(org, d.customer_id).name || null : null, work_order_id: d.work_order_id, parent_id: d.parent_id, revision: d.revision, ex_cents: d.amount_cents, gst_cents: d.gst_cents || 0, total_cents: d.amount_cents + (d.gst_cents || 0), issued_at: d.issued_at, due_at: d.due_at, valid_until: d.valid_until, created_at: d.created_at, ai_prepared: Boolean(d.ai_prepared), reason: d.reason, heading: docTitle(d.kind === 'deposit' ? 'deposit' : d.kind, d.seller_json ? J(d.seller_json, {}).gst_registered : s.gst_registered, d.ruleset_id ? (rulesetById(d.ruleset_id) || orgRules(org)) : orgRules(org)) };
     if (['invoice', 'deposit'].includes(d.kind)) Object.assign(out, { money: moneyOn(org, d) });
-    if (full) Object.assign(out, { lines, body: d.body, prices_include_gst: d.prices_include_gst === null ? s.prices_include_gst : d.prices_include_gst === 1, seller: d.seller_json ? J(d.seller_json, {}) : s, buyer: d.buyer_json ? J(d.buyer_json, {}) : buyer(org, d.customer_id), compliance: d.compliance_json ? J(d.compliance_json, null) : precheck(org, d), ruleset: d.ruleset_id || rulesFor().id, credit_notes: d.kind === 'invoice' ? db.prepare("SELECT id,number,status,amount_cents+gst_cents total_cents,reason,issued_at FROM tenant_documents WHERE organisation_id=? AND kind='credit_note' AND parent_id=? ORDER BY created_at").all(org, d.id) : [], refunds: d.work_order_id ? db.prepare('SELECT id,amount_cents,status,provider,reason,created_at,completed_reference FROM fin_refunds WHERE organisation_id=? AND work_order_id=? ORDER BY created_at').all(org, d.work_order_id) : [], parent: d.parent_id ? (() => { const p = doc(org, d.parent_id); return p ? { id: p.id, number: p.number, kind: p.kind, title: p.title } : null; })() : null });
+    if (full) Object.assign(out, { lines, body: d.body, prices_include_gst: d.prices_include_gst === null ? s.prices_include_gst : d.prices_include_gst === 1, seller: d.seller_json ? J(d.seller_json, {}) : s, buyer: d.buyer_json ? J(d.buyer_json, {}) : buyer(org, d.customer_id), compliance: d.compliance_json ? J(d.compliance_json, null) : precheck(org, d), ruleset: d.ruleset_id || orgRules(org).id, credit_notes: d.kind === 'invoice' ? db.prepare("SELECT id,number,status,amount_cents+gst_cents total_cents,reason,issued_at FROM tenant_documents WHERE organisation_id=? AND kind='credit_note' AND parent_id=? ORDER BY created_at").all(org, d.id) : [], refunds: d.work_order_id ? db.prepare('SELECT id,amount_cents,status,provider,reason,created_at,completed_reference FROM fin_refunds WHERE organisation_id=? AND work_order_id=? ORDER BY created_at').all(org, d.work_order_id) : [], parent: d.parent_id ? (() => { const p = doc(org, d.parent_id); return p ? { id: p.id, number: p.number, kind: p.kind, title: p.title } : null; })() : null });
     return out;
   }
   function precheck(org, d) {
     const kind = d.kind === 'deposit' ? 'invoice' : d.kind;
     const original = d.parent_id ? (() => { const p = doc(org, d.parent_id); return p ? { inc_cents: p.amount_cents + (p.gst_cents || 0) } : null; })() : null;
-    return checkDocument({ kind, seller: { ...seller(org), prices_include_gst: lineOpts(org, d).includesGst }, buyer: buyer(org, d.customer_id), lines: linesOf(d), original, reason: d.reason });
+    return checkDocument({ kind, seller: { ...seller(org), prices_include_gst: lineOpts(org, d).includesGst }, buyer: buyer(org, d.customer_id), lines: linesOf(d), original, reason: d.reason }, orgRules(org));
   }
 
   // ---------------- documents ----------------
@@ -234,7 +242,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     const d = doc(org, id); if (!d || !['invoice', 'deposit', 'quote', 'estimate'].includes(d.kind)) return E(404, 'Document not found.');
     if (d.status !== 'approved') return E(409, 'Approve the document before issuing it.');
     const s = seller(org);
-    if (['invoice', 'deposit'].includes(d.kind) && !s.gst_status_set) return E(409, 'Say whether your business is registered for GST (Money > Finance settings) before issuing invoices.');
+    if (['invoice', 'deposit'].includes(d.kind) && !s.gst_status_set) return E(409, `Say whether your business is registered for ${s.tax_label || 'GST'} (Money > Finance settings) before issuing invoices.`);
     const check = precheck(org, d);
     if (!check.ok) return E(409, 'Fix these before issuing: ' + check.issues.join(' '), { issues: check.issues });
     const j = job(org, d.work_order_id), total = d.amount_cents + (d.gst_cents || 0), at = now();
@@ -304,7 +312,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     const ls = lines || [{ description: `Adjustment to ${inv.number}: ${String(reason).slice(0, 200)}`, quantity: 1, unit_cents: opts.includesGst || !opts.registered || code !== 'GST' ? amount_cents : Math.round(amount_cents / 1.1), tax_code: code }];
     const t = documentTotals(ls, opts);
     if (t.inc_cents <= 0) return E(400, 'Enter the amount to credit.');
-    if (t.inc_cents + already > total) return E(400, `Credits cannot exceed the invoice total of ${money(total)} (${money(already)} already credited or waiting).`);
+    if (t.inc_cents + already > total) return E(400, `Credits cannot exceed the invoice total of ${moneyOf(org)(total)} (${moneyOf(org)(already)} already credited or waiting).`);
     const id = uid(), at = now();
     db.transaction(() => {
       db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,amount_cents,status,created_by,created_at,updated_at,work_order_id,parent_id,reason,prices_include_gst) VALUES (?,?,'credit_note',?,?,'',0,'pending_approval',?,?,?,?,?,?,?)`).run(id, org, inv.customer_id, `Adjustment to ${inv.number}`, actor, at, at, inv.work_order_id, inv.id, String(reason).trim().slice(0, 500), inv.prices_include_gst);
@@ -339,7 +347,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     if (p.status !== 'paid') return E(409, 'Only a received payment can be refunded.');
     const waiting = db.prepare("SELECT COALESCE(SUM(amount_cents),0) n FROM fin_refunds WHERE payment_id=? AND status IN ('pending_approval','approved','submitted','awaiting_manual')").get(p.id).n;
     const max = p.amount_cents - (p.refunded_cents || 0) - waiting;
-    if (!(amount_cents >= 1 && amount_cents <= max)) return E(400, max > 0 ? `Refund between $0.01 and ${money(max)}.` : 'This payment is already fully refunded or has a refund waiting.');
+    if (!(amount_cents >= 1 && amount_cents <= max)) return E(400, max > 0 ? `Refund between $0.01 and ${moneyOf(org)(max)}.` : 'This payment is already fully refunded or has a refund waiting.');
     const id = uid(), at = now(), provider = p.provider === 'stripe' && p.reference ? 'stripe' : p.provider;
     db.prepare("INSERT INTO fin_refunds (id,organisation_id,payment_id,work_order_id,amount_cents,reason,status,provider,requested_by,created_at,updated_at) VALUES (?,?,?,?,?,?,'pending_approval',?,?,?,?)").run(id, org, p.id, p.work_order_id, amount_cents, String(reason).trim().slice(0, 500), provider, actor, at, at);
     const r = startLevel3(org, 'issue_refund', `refund:${id}`, { refund_id: id }, actor);
@@ -358,7 +366,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       const p = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(paymentId, org); if (!p) return 0;
       const total = Math.min(p.amount_cents, Math.max(p.refunded_cents || 0, refundedTotal)), delta = total - (p.refunded_cents || 0);
       if (delta <= 0) return 0;
-      db.prepare(`UPDATE job_payments SET refunded_cents=?,status=CASE WHEN ?>=amount_cents THEN 'refunded' ELSE status END,note=?,updated_at=? WHERE id=?`).run(total, total, `${money(total)} refunded (${source})`, now(), p.id);
+      db.prepare(`UPDATE job_payments SET refunded_cents=?,status=CASE WHEN ?>=amount_cents THEN 'refunded' ELSE status END,note=?,updated_at=? WHERE id=?`).run(total, total, `${moneyOf(org)(total)} refunded (${source})`, now(), p.id);
       db.prepare('UPDATE work_orders SET paid_cents=MAX(0,paid_cents-?),updated_at=? WHERE id=? AND organisation_id=?').run(delta, now(), p.work_order_id, org);
       return delta;
     })();
@@ -374,11 +382,11 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       db.prepare("UPDATE fin_refunds SET status=?,provider_ref=?,updated_at=? WHERE id=?").run(out.status === 'succeeded' ? 'completed' : 'submitted', out.id, now(), r.id);
       if (out.status === 'succeeded') { applyRefundTotal(org, pay.id, (pay.refunded_cents || 0) + r.amount_cents, 'Stripe'); syncJobFinance(org, r.work_order_id, approver); }
       audit(org, approver, 'finance.refund_submitted', 'fin_refund', r.id, { provider: 'stripe', provider_ref: out.id, status: out.status, amount_cents: r.amount_cents });
-      return { ref: out.id, summary: `${money(r.amount_cents)} refund ${out.status === 'succeeded' ? 'completed' : 'submitted'} in Stripe (${out.id}).` };
+      return { ref: out.id, summary: `${moneyOf(org)(r.amount_cents)} refund ${out.status === 'succeeded' ? 'completed' : 'submitted'} in Stripe (${out.id}).` };
     }
     db.prepare("UPDATE fin_refunds SET status='awaiting_manual',updated_at=? WHERE id=?").run(now(), r.id);
     audit(org, approver, 'finance.refund_approved_manual', 'fin_refund', r.id, { provider: r.provider, amount_cents: r.amount_cents });
-    return { ref: r.id, summary: `Approved. Pay ${money(r.amount_cents)} back from your ${r.provider === 'paypal' ? 'PayPal' : 'bank'} account, then mark the refund done with its reference.`, manual: true };
+    return { ref: r.id, summary: `Approved. Pay ${moneyOf(org)(r.amount_cents)} back from your ${r.provider === 'paypal' ? 'PayPal' : 'bank'} account, then mark the refund done with its reference.`, manual: true };
   }
   function completeManualRefund(org, id, actor, reference) {
     const r = db.prepare('SELECT * FROM fin_refunds WHERE id=? AND organisation_id=?').get(id, org); if (!r) return E(404, 'Refund not found.');
@@ -455,7 +463,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     if (ignore) { db.prepare("UPDATE fin_bank_lines SET status='ignored',note=?,matched_by=?,matched_at=? WHERE id=?").run(note || 'Ignored', actor, at, l.id); audit(org, actor, 'finance.bank_line_ignored', 'fin_bank_line', l.id, { note }); return { ok: true }; }
     if (payment_id) {
       const p = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(payment_id, org); if (!p) return E(404, 'Payment not found.');
-      if (p.amount_cents !== l.amount_cents) return E(400, `The bank shows ${money(l.amount_cents)} but the payment is ${money(p.amount_cents)}. Record the difference instead of forcing a match.`);
+      if (p.amount_cents !== l.amount_cents) return E(400, `The bank shows ${moneyOf(org)(l.amount_cents)} but the payment is ${moneyOf(org)(p.amount_cents)}. Record the difference instead of forcing a match.`);
       if (db.prepare('SELECT 1 FROM fin_bank_lines WHERE organisation_id=? AND payment_id=?').get(org, p.id)) return E(409, 'That payment is already matched to another bank line.');
       db.prepare("UPDATE fin_bank_lines SET status='matched',payment_id=?,matched_by=?,matched_at=?,note=? WHERE id=?").run(p.id, actor, at, note, l.id);
       audit(org, actor, 'finance.bank_line_matched', 'fin_bank_line', l.id, { payment_id: p.id, amount_cents: l.amount_cents });
@@ -496,17 +504,17 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   function discrepancies(org) {
     const out = [];
     for (const j of db.prepare("SELECT w.id,w.title,w.paid_cents,w.price_cents,(SELECT COALESCE(SUM(amount_cents-refunded_cents),0) FROM job_payments p WHERE p.work_order_id=w.id AND p.organisation_id=w.organisation_id AND p.status IN ('paid','refunded')) received FROM work_orders w WHERE w.organisation_id=?").all(org)) {
-      if (j.received !== j.paid_cents) out.push({ kind: 'job_paid_mismatch', severity: 'high', entity_type: 'job', entity_id: j.id, message: `"${j.title}": the job shows ${money(j.paid_cents)} paid but its payments add up to ${money(j.received)}.` });
-      if (j.paid_cents > j.price_cents + 0 && j.price_cents > 0) out.push({ kind: 'overpaid', severity: 'medium', entity_type: 'job', entity_id: j.id, message: `"${j.title}" has been paid ${money(j.paid_cents - j.price_cents)} more than its price. A refund or credit may be due.` });
+      if (j.received !== j.paid_cents) out.push({ kind: 'job_paid_mismatch', severity: 'high', entity_type: 'job', entity_id: j.id, message: `"${j.title}": the job shows ${moneyOf(org)(j.paid_cents)} paid but its payments add up to ${moneyOf(org)(j.received)}.` });
+      if (j.paid_cents > j.price_cents + 0 && j.price_cents > 0) out.push({ kind: 'overpaid', severity: 'medium', entity_type: 'job', entity_id: j.id, message: `"${j.title}" has been paid ${moneyOf(org)(j.paid_cents - j.price_cents)} more than its price. A refund or credit may be due.` });
     }
     for (const d of db.prepare("SELECT * FROM tenant_documents WHERE organisation_id=? AND kind='invoice' AND status IN ('issued','part_paid','paid') AND work_order_id IS NOT NULL").all(org)) {
       const j = job(org, d.work_order_id); if (!j) continue;
       const expect = d.amount_cents + (d.gst_cents || 0) - credits(org, d.id);
-      if (j.price_cents !== expect) out.push({ kind: 'invoice_job_mismatch', severity: 'high', entity_type: 'invoice', entity_id: d.id, message: `Invoice ${d.number || d.title} totals ${money(expect)} after credits, but the job price is ${money(j.price_cents)}.` });
+      if (j.price_cents !== expect) out.push({ kind: 'invoice_job_mismatch', severity: 'high', entity_type: 'invoice', entity_id: d.id, message: `Invoice ${d.number || d.title} totals ${moneyOf(org)(expect)} after credits, but the job price is ${moneyOf(org)(j.price_cents)}.` });
     }
     for (const e of db.prepare("SELECT p.id,p.amount_cents,e.outcome FROM payment_events e JOIN job_payments p ON p.provider_ref IS NOT NULL AND p.organisation_id=e.organisation_id WHERE e.organisation_id=? AND e.outcome='amount_mismatch' LIMIT 20").all(org)) out.push({ kind: 'provider_amount_mismatch', severity: 'high', entity_type: 'job_payment', entity_id: e.id, message: 'A payment provider reported a different amount from the one requested. Check the provider before treating the invoice as paid.' });
     const dups = db.prepare("SELECT a.id a_id,b.id b_id,a.amount_cents,w.title FROM job_payments a JOIN job_payments b ON b.work_order_id=a.work_order_id AND b.id>a.id AND b.amount_cents=a.amount_cents AND b.status='paid' AND ABS(julianday(b.paid_at)-julianday(a.paid_at))<2 JOIN work_orders w ON w.id=a.work_order_id WHERE a.organisation_id=? AND a.status='paid' LIMIT 20").all(org);
-    for (const x of dups) out.push({ kind: 'possible_duplicate_payment', severity: 'medium', entity_type: 'job_payment', entity_id: x.b_id, message: `Two payments of ${money(x.amount_cents)} for "${x.title}" within two days. Check it was not paid twice.` });
+    for (const x of dups) out.push({ kind: 'possible_duplicate_payment', severity: 'medium', entity_type: 'job_payment', entity_id: x.b_id, message: `Two payments of ${moneyOf(org)(x.amount_cents)} for "${x.title}" within two days. Check it was not paid twice.` });
     return out;
   }
   function followUps(org) {
@@ -526,9 +534,9 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     const found = [];
     const big = db.prepare("SELECT f.id,f.amount_cents,f.requested_by FROM fin_refunds f WHERE f.organisation_id=? AND f.created_at>?").all(org, iso(clock() - 30 * DAY));
     const avg = db.prepare("SELECT AVG(amount_cents) a FROM job_payments WHERE organisation_id=? AND status='paid'").get(org).a || 0;
-    for (const r of big) if (avg && r.amount_cents > 3 * avg && r.amount_cents >= 50000) found.push({ kind: 'large_refund', severity: 'high', entity_type: 'fin_refund', entity_id: r.id, message: `A refund of ${money(r.amount_cents)} is more than three times your average payment.` });
+    for (const r of big) if (avg && r.amount_cents > 3 * avg && r.amount_cents >= 50000) found.push({ kind: 'large_refund', severity: 'high', entity_type: 'fin_refund', entity_id: r.id, message: `A refund of ${moneyOf(org)(r.amount_cents)} is more than three times your average payment.` });
     const manual = db.prepare("SELECT created_by_user_id u,COUNT(*) n,SUM(amount_cents) s FROM job_payments WHERE organisation_id=? AND provider='manual' AND created_at>? GROUP BY created_by_user_id HAVING n>=10").all(org, iso(clock() - 7 * DAY));
-    for (const m of manual) found.push({ kind: 'many_manual_payments', severity: 'medium', entity_type: 'user', entity_id: m.u, message: `${m.n} payments (${money(m.s)}) were recorded by hand by one person this week. Check they match the bank.` });
+    for (const m of manual) found.push({ kind: 'many_manual_payments', severity: 'medium', entity_type: 'user', entity_id: m.u, message: `${m.n} payments (${moneyOf(org)(m.s)}) were recorded by hand by one person this week. Check they match the bank.` });
     const offHours = db.prepare("SELECT COUNT(*) n FROM audit_logs WHERE organisation_id=? AND module='finance' AND action IN ('finance.refund_requested','finance.credit_note_requested','finance.settings_changed') AND created_at>? AND CAST(strftime('%H',created_at,'+8 hours') AS INTEGER) BETWEEN 0 AND 4").get(org, iso(clock() - 7 * DAY)).n;
     if (offHours) found.push({ kind: 'after_hours_changes', severity: 'low', entity_type: 'audit', entity_id: null, message: `${offHours} refund, credit or settings change(s) were made between midnight and 5 am (Perth time) this week.` });
     for (const x of discrepancies(org)) found.push(x);
@@ -554,6 +562,16 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   }
   function gstReport(org, from, to) {
     const p = periodOf(from, to), s = settings(org), reg = seller(org).gst_registered;
+    if (countryOf(org) !== 'AU') {
+      // Outside Australia: a plain summary of tax charged and paid for the period, for the local return. Not a BAS.
+      const rules = orgRules(org, p.to), label = rules.tax.label, rate = Number(rules.gst.rate) || 0;
+      if (!reg) return { period: p, registered: false, tax_label: label, note: `Your business is not registered for ${label}, so there is no ${label} to report. Check your local registration threshold.` };
+      const sales = db.prepare("SELECT COALESCE(SUM(amount_cents+gst_cents),0) inc, COALESCE(SUM(gst_cents),0) tax FROM tenant_documents WHERE organisation_id=? AND kind IN ('invoice','deposit') AND issued_at IS NOT NULL AND substr(issued_at,1,10) BETWEEN ? AND ?").get(org, p.from, p.to);
+      const credits = db.prepare("SELECT COALESCE(SUM(amount_cents+gst_cents),0) inc, COALESCE(SUM(gst_cents),0) tax FROM tenant_documents WHERE organisation_id=? AND kind='credit_note' AND status='issued' AND substr(issued_at,1,10) BETWEEN ? AND ?").get(org, p.from, p.to);
+      const purchases = db.prepare("SELECT COALESCE(SUM(tax_cents),0) tax FROM organisation_finance_entries WHERE organisation_id=? AND entry_type='expense' AND occurred_on BETWEEN ? AND ?").get(org, p.from, p.to);
+      const out = { total_sales_cents: sales.inc - credits.inc, tax_on_sales_cents: sales.tax - credits.tax, tax_on_purchases_cents: purchases.tax };
+      return { period: p, registered: true, basis: 'accrual (issued invoices)', tax_label: label, rate, ...out, net_tax_cents: out.tax_on_sales_cents - out.tax_on_purchases_cents, note: `A summary of ${label} on issued invoices and recorded expenses for your local return. Oprun does not prepare or lodge the return; check it with your accountant.`, ruleset: rules.id };
+    }
     if (!reg) return { period: p, registered: false, note: 'Your business is not registered for GST, so there is no GST to report. Check your GST turnover against the registration threshold.', threshold_cents: rulesFor().gst.registration_turnover_cents };
     let sales;
     if (s.accounting_basis === 'accrual') sales = db.prepare("SELECT amount_cents+gst_cents inc_cents,gst_cents FROM tenant_documents WHERE organisation_id=? AND kind IN ('invoice','deposit') AND issued_at IS NOT NULL AND substr(issued_at,1,10) BETWEEN ? AND ?").all(org, p.from, p.to);
@@ -574,11 +592,11 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   }
   function summary(org, from, to) {
     const pl = profitAndLoss(org, from, to), ag = aged(org), fu = followUps(org), rc = reconciliation(org), fl = db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n;
-    const points = [`Income ${money(pl.total_income_cents)}, expenses ${money(pl.total_expenses_cents)}, ${pl.profit_cents >= 0 ? 'profit' : 'loss'} ${money(Math.abs(pl.profit_cents))} between ${pl.period.from} and ${pl.period.to}.`, `${money(ag.total_cents)} is owed to you${ag.buckets.d31_60 + ag.buckets.d61_90 + ag.buckets.d90_plus ? `, ${money(ag.buckets.d31_60 + ag.buckets.d61_90 + ag.buckets.d90_plus)} of it more than 30 days overdue` : ''}.`];
+    const points = [`Income ${moneyOf(org)(pl.total_income_cents)}, expenses ${moneyOf(org)(pl.total_expenses_cents)}, ${pl.profit_cents >= 0 ? 'profit' : 'loss'} ${moneyOf(org)(Math.abs(pl.profit_cents))} between ${pl.period.from} and ${pl.period.to}.`, `${moneyOf(org)(ag.total_cents)} is owed to you${ag.buckets.d31_60 + ag.buckets.d61_90 + ag.buckets.d90_plus ? `, ${moneyOf(org)(ag.buckets.d31_60 + ag.buckets.d61_90 + ag.buckets.d90_plus)} of it more than 30 days overdue` : ''}.`];
     if (fu.length) points.push(`${fu.length} invoice(s) are overdue; the oldest is ${fu[0].days_overdue} days past due (${fu[0].customer || fu[0].number}).`);
     if (rc.counts.unmatched) points.push(`${rc.counts.unmatched} bank line(s) still need reconciling.`);
     if (fl) points.push(`${fl} item(s) are flagged for checking.`);
-    const top = [...pl.expenses].sort((a, b) => b.amount_cents - a.amount_cents)[0]; if (top) points.push(`Your largest expense category was ${top.category} (${money(top.amount_cents)}).`);
+    const top = [...pl.expenses].sort((a, b) => b.amount_cents - a.amount_cents)[0]; if (top) points.push(`Your largest expense category was ${top.category} (${moneyOf(org)(top.amount_cents)}).`);
     return { points, generated_at: now(), basis: 'Summary of your Oprun records, written by Oprun. It is not financial, tax or legal advice.' };
   }
   function csv(rows, cols) { const esc = (v) => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; return [cols.map(([, h]) => h).join(','), ...rows.map((r) => cols.map(([k, , f]) => esc(f ? f(r[k], r) : r[k])).join(','))].join('\n'); }
@@ -610,6 +628,19 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   function complianceReview(org) {
     const s = seller(org), items = [];
     const add = (status, area, text, fix = null) => items.push({ status, area, text, fix });
+    if (s.country !== 'AU') {
+      const r = orgRules(org), T = r.tax.label, L = locale(org);
+      if (!L.currency_set) add('action', 'Currency', 'Choose the currency you invoice in.', 'Set it in Money > Finance settings.');
+      if (!s.gst_status_set) add('action', T, `You have not said whether the business is registered for ${T}.`, 'Set it in Money > Finance settings.');
+      else if (s.gst_registered && !s.tax_number) add('action', T, `Registered for ${T}, but no ${r.tax.id_label} is saved. Invoices must show it.`, 'Add it in Money > Finance settings.');
+      else if (s.gst_registered && !(Number(r.gst.rate) > 0)) add('action', T, `Enter the ${T} rate you charge.`, 'Set it in Money > Finance settings.');
+      else add('ok', T, s.gst_registered ? `Registered for ${T} at ${Math.round(Number(r.gst.rate) * 1000) / 10}%: invoices show your ${r.tax.id_label} and the ${T}.` : `Not registered for ${T}: invoices show no ${T}.`);
+      const e = einvoicingWarning(s.country); if (e) add(e.live ? 'action' : 'review', 'E-invoicing', e.text);
+      for (const n of r.tax.notes || []) add('review', 'Invoice rules', n);
+      add('ok', 'Records', r.records.retain_years ? `Keep business records for at least ${r.records.retain_years} years. Issued invoices and payments cannot be deleted here.` : 'Issued invoices and payments cannot be deleted here. Check how long your country requires you to keep business records.');
+      add('review', 'Privacy', 'Customer contact details and payment records are personal information. Your privacy notice should say how you collect, use and store them under your local privacy law.');
+      return { items, ruleset: r, disclaimer: `Oprun checks your records against the general rules listed here for ${s.country}. It is not tax or legal advice: rates, thresholds and invoice rules change. Confirm them with your tax authority or an accountant.` };
+    }
     if (!s.abn) add('action', 'ABN', 'No ABN is saved. Tax invoices must show your ABN.', 'Add it in Setup & Trust > Settings.');
     else if (!abnValid(s.abn)) add('action', 'ABN', `The saved ABN (${formatAbn(s.abn)}) fails the ABR check digit test.`, 'Check the number.');
     else add('ok', 'ABN', `ABN ${formatAbn(s.abn)} passes the check digit test. This does not confirm it is active; look it up on ABN Lookup.`);
@@ -617,7 +648,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     else add('ok', 'GST', s.gst_registered ? 'Registered for GST: invoices are tax invoices with GST shown.' : 'Not registered for GST: invoices show no GST. Register if your GST turnover reaches the threshold.');
     const bad = db.prepare("SELECT number,compliance_json FROM tenant_documents WHERE organisation_id=? AND kind IN ('invoice','deposit','credit_note') AND status IN ('issued','part_paid','paid') AND (compliance_json IS NULL)").all(org);
     if (bad.length) add('review', 'Invoices', `${bad.length} invoice(s) were issued before Phase 08 checks existed. Review them against the tax invoice rules.`);
-    const missingBuyer = list(org, { kind: 'invoice' }).filter((d) => d.total_cents >= rulesFor().tax_invoice.buyer_identity_from_cents && !d.customer_id && ['draft', 'approved'].includes(d.status));
+    const missingBuyer = list(org, { kind: 'invoice' }).filter((d) => d.total_cents >= orgRules(org).tax_invoice.buyer_identity_from_cents && !d.customer_id && ['draft', 'approved'].includes(d.status));
     if (missingBuyer.length) add('action', 'Invoices', `${missingBuyer.length} draft invoice(s) of $1,000 or more have no customer, so they cannot show the buyer's identity.`);
     const rc = reconciliation(org);
     if (!rc.last_import) add('review', 'Reconciliation', 'No bank statement has been imported yet.', 'Import a CSV from your bank in Money > Reconciliation.');
@@ -625,11 +656,11 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     else add('ok', 'Reconciliation', 'Every imported bank line is reconciled.');
     const pay = (() => { try { return db.prepare('SELECT stripe_secret_enc IS NOT NULL stripe, paypal_client_id IS NOT NULL paypal, bank_bsb IS NOT NULL bank FROM payment_settings WHERE organisation_id=?').get(org) || {}; } catch { return {}; } })();
     add('ok', 'Payments', `Card payments go straight to your own ${pay.stripe ? 'Stripe' : ''}${pay.stripe && pay.paypal ? ' and ' : ''}${pay.paypal ? 'PayPal' : ''}${!pay.stripe && !pay.paypal ? 'payment provider (none connected yet)' : ''} account. Oprun never holds your customers' money and keeps no stored balance.`);
-    add('ok', 'Records', `Issued invoices, adjustment notes and payment records cannot be deleted here. Keep business records for at least ${rulesFor().records.retain_years} years.`);
+    add('ok', 'Records', `Issued invoices, adjustment notes and payment records cannot be deleted here. Keep business records for at least ${(orgRules(org).records.retain_years || 'the number of')} years.`);
     add('review', 'Privacy', "Customer contact details and payment records are personal information. Your privacy policy should say how you collect, use and store them. Card numbers are never stored by Oprun (Stripe holds them).");
     const open = db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n;
     if (open) add('review', 'Unusual activity', `${open} flagged item(s) are open.`, 'Review them in Money > Compliance & Audit.');
-    return { items, ruleset: rulesFor(), disclaimer: 'Oprun checks your records against the published rules listed here. It is not tax or legal advice. Confirm anything you are unsure about with the ATO or a registered tax agent.' };
+    return { items, ruleset: orgRules(org), disclaimer: 'Oprun checks your records against the published rules listed here. It is not tax or legal advice. Confirm anything you are unsure about with the ATO or a registered tax agent.' };
   }
   function auditTrail(org, { limit = 200 } = {}) {
     return db.prepare("SELECT created_at,user_id,user_name,action,entity_type,entity_id,metadata_json metadata FROM audit_logs WHERE organisation_id=? AND (module IN ('finance','payments') OR action LIKE 'payment.%' OR action LIKE 'invoice.%' OR action LIKE 'finance.%') ORDER BY created_at DESC, rowid DESC LIMIT ?").all(org, Math.min(1000, limit)).map((r) => ({ ...r, metadata: J(r.metadata, {}) }));
@@ -639,24 +670,26 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   function render(org, id) {
     const d = get(org, id); if (!d) return null;
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const s = d.seller, b = d.buyer || {}, reg = s.gst_registered, m = d.money;
-    const rows = d.lines.map((l) => `<tr><td>${esc(l.description)}${reg && l.tax_code !== 'GST' ? ` <small>(${esc(TAX_CODES[l.tax_code])})</small>` : ''}</td><td class="n">${esc(l.quantity)}</td><td class="n">${money(l.unit_cents)}</td><td class="n">${money(d.prices_include_gst ? l.inc_cents : l.ex_cents)}</td></tr>`).join('');
-    const gstLine = !reg ? '' : d.compliance?.totals?.gst_is_one_eleventh && d.prices_include_gst ? `<tr><td colspan="3">Total price includes GST of</td><td class="n">${money(d.gst_cents)}</td></tr>` : `<tr><td colspan="3">GST</td><td class="n">${money(d.gst_cents)}</td></tr>`;
-    const paid = m && m.paid_cents ? `<tr><td colspan="3">Paid to date</td><td class="n">${money(Math.min(m.paid_cents, d.total_cents))}</td></tr><tr class="t"><td colspan="3">Amount owing</td><td class="n">${money(m.owing_cents)}</td></tr>` : '';
+    const s = d.seller, b = d.buyer || {}, reg = s.gst_registered, m = d.money, L = locale(org), au = L.country === 'AU', TX = au ? 'GST' : (s.tax_label || taxRulesFor(L.country).label), day = (x) => esc(formatDate(x, L.locale));
+    const idLine = au ? (s.abn ? 'ABN ' + esc(formatAbn(s.abn)) + '<br>' : '') : (s.tax_number ? esc(s.tax_id_label || taxRulesFor(L.country).id_label) + ' ' + esc(s.tax_number) + '<br>' : '');
+    const ein = !au && ['invoice', 'deposit', 'credit_note'].includes(d.kind) ? einvoicingWarning(L.country) : null;
+    const rows = d.lines.map((l) => `<tr><td>${esc(l.description)}${reg && l.tax_code !== 'GST' ? ` <small>(${esc(TAX_CODES[l.tax_code])})</small>` : ''}</td><td class="n">${esc(l.quantity)}</td><td class="n">${moneyOf(org)(l.unit_cents)}</td><td class="n">${moneyOf(org)(d.prices_include_gst ? l.inc_cents : l.ex_cents)}</td></tr>`).join('');
+    const gstLine = !reg ? '' : d.compliance?.totals?.gst_is_one_eleventh && d.prices_include_gst ? `<tr><td colspan="3">Total price includes ${TX} of</td><td class="n">${moneyOf(org)(d.gst_cents)}</td></tr>` : `<tr><td colspan="3">${TX}</td><td class="n">${moneyOf(org)(d.gst_cents)}</td></tr>`;
+    const paid = m && m.paid_cents ? `<tr><td colspan="3">Paid to date</td><td class="n">${moneyOf(org)(Math.min(m.paid_cents, d.total_cents))}</td></tr><tr class="t"><td colspan="3">Amount owing</td><td class="n">${moneyOf(org)(m.owing_cents)}</td></tr>` : '';
     const draft = !['issued', 'part_paid', 'paid', 'overdue', 'sent'].includes(d.status);
-    return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(d.heading)} ${esc(d.number || '')}</title><style>body{font:15px/1.5 system-ui,sans-serif;color:#1b1f24;max-width:820px;margin:24px auto;padding:0 16px}h1{margin:0 0 4px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:8px;border-bottom:1px solid #d5d9e0;text-align:left;vertical-align:top}.n{text-align:right;white-space:nowrap}.t td{font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.draft{border:2px dashed #b42318;color:#b42318;padding:8px 12px;font-weight:700}small{color:#555}@media print{.noprint{display:none}}</style></head><body>
+    return `<!doctype html><html lang="${esc(L.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(d.heading)} ${esc(d.number || '')}</title><style>body{font:15px/1.5 system-ui,sans-serif;color:#1b1f24;max-width:820px;margin:24px auto;padding:0 16px}h1{margin:0 0 4px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{padding:8px;border-bottom:1px solid #d5d9e0;text-align:left;vertical-align:top}.n{text-align:right;white-space:nowrap}.t td{font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.draft{border:2px dashed #b42318;color:#b42318;padding:8px 12px;font-weight:700}small{color:#555}@media print{.noprint{display:none}}</style></head><body>
 ${draft ? '<p class="draft">Draft: not issued. This is not a valid ' + esc(d.heading.toLowerCase()) + ' yet.</p>' : ''}
-<h1>${esc(d.heading)}</h1><p>${d.number ? 'Number ' + esc(d.number) + ' · ' : ''}${d.issued_at ? 'Issued ' + esc(new Date(d.issued_at).toLocaleDateString('en-AU')) : ''}${d.due_at ? ' · Due ' + esc(new Date(d.due_at).toLocaleDateString('en-AU')) : ''}${d.valid_until ? ' · Valid until ' + esc(new Date(d.valid_until).toLocaleDateString('en-AU')) : ''}</p>
-<div class="grid"><div><b>${esc(s.name)}</b><br>${s.abn ? 'ABN ' + esc(formatAbn(s.abn)) + '<br>' : ''}${esc(s.address)}<br>${esc(s.email)} ${esc(s.phone)}</div><div><b>${d.kind === 'credit_note' ? 'Customer' : 'Bill to'}</b><br>${esc(b.name || '')}${b.abn ? '<br>ABN ' + esc(formatAbn(b.abn)) : ''}<br>${esc(b.address || '')}</div></div>
-${d.parent ? `<p>Adjusts ${esc(d.parent.kind === 'invoice' ? 'tax invoice' : d.parent.kind)} ${esc(d.parent.number || d.parent.title)}.${d.reason ? ' Reason: ' + esc(d.reason) : ''}</p>` : ''}
-<table><thead><tr><th>Description</th><th class="n">Qty</th><th class="n">Unit price${reg ? (d.prices_include_gst ? ' (inc GST)' : ' (ex GST)') : ''}</th><th class="n">Amount</th></tr></thead><tbody>${rows}</tbody><tfoot>${reg && !d.prices_include_gst ? `<tr><td colspan="3">Subtotal (ex GST)</td><td class="n">${money(d.ex_cents)}</td></tr>` : ''}${gstLine}<tr class="t"><td colspan="3">${d.kind === 'credit_note' ? 'Total credit' : 'Total'}${reg ? ' (inc GST)' : ''}</td><td class="n">${money(d.total_cents)}</td></tr>${paid}</tfoot></table>
+<h1>${esc(d.heading)}</h1><p>${d.number ? 'Number ' + esc(d.number) + ' · ' : ''}${d.issued_at ? 'Issued ' + day(d.issued_at) : ''}${d.due_at ? ' · Due ' + day(d.due_at) : ''}${d.valid_until ? ' · Valid until ' + day(d.valid_until) : ''}</p>
+<div class="grid"><div><b>${esc(s.name)}</b><br>${idLine}${esc(s.address)}<br>${esc(s.email)} ${esc(s.phone)}</div><div><b>${d.kind === 'credit_note' ? 'Customer' : 'Bill to'}</b><br>${esc(b.name || '')}${au && b.abn ? '<br>ABN ' + esc(formatAbn(b.abn)) : ''}<br>${esc(b.address || '')}</div></div>
+${d.parent ? `<p>Adjusts ${esc(d.parent.kind === 'invoice' ? (au ? 'tax invoice' : 'invoice') : d.parent.kind)} ${esc(d.parent.number || d.parent.title)}.${d.reason ? ' Reason: ' + esc(d.reason) : ''}</p>` : ''}
+<table><thead><tr><th>Description</th><th class="n">Qty</th><th class="n">Unit price${reg ? (d.prices_include_gst ? ` (inc ${TX})` : ` (ex ${TX})`) : ''}</th><th class="n">Amount</th></tr></thead><tbody>${rows}</tbody><tfoot>${reg && !d.prices_include_gst ? `<tr><td colspan="3">Subtotal (ex ${TX})</td><td class="n">${moneyOf(org)(d.ex_cents)}</td></tr>` : ''}${gstLine}<tr class="t"><td colspan="3">${d.kind === 'credit_note' ? 'Total credit' : 'Total'}${reg ? ` (inc ${TX})` : ''}</td><td class="n">${moneyOf(org)(d.total_cents)}</td></tr>${paid}</tfoot></table>
 ${d.body ? `<p>${esc(d.body)}</p>` : ''}${settings(org).footer_note ? `<p>${esc(settings(org).footer_note)}</p>` : ''}
-<p><small>Checked against ruleset ${esc(d.ruleset)}.${d.kind === 'estimate' ? ' An estimate is a guide, not a fixed price.' : ''}</small></p><p class="noprint"><button onclick="print()">Print or save as PDF</button></p></body></html>`;
+${ein && !draft ? `<p><small>${esc(ein.text)}</small></p>` : ''}<p><small>Amounts in ${esc(L.currency)}. Checked against ruleset ${esc(d.ruleset)}.${d.kind === 'estimate' ? ' An estimate is a guide, not a fixed price.' : ''}</small></p><p class="noprint"><button onclick="print()">Print or save as PDF</button></p></body></html>`;
   }
   function renderReceipt(org, paymentId) {
     const r = receipts(org).find((x) => x.id === paymentId); if (!r) return null;
-    const s = seller(org), esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Receipt ${esc(r.receipt_no)}</title><style>body{font:15px/1.5 system-ui,sans-serif;max-width:640px;margin:24px auto;padding:0 16px;color:#1b1f24}td{padding:6px 8px;border-bottom:1px solid #d5d9e0}@media print{.noprint{display:none}}</style></head><body><h1>Receipt</h1><p><b>${esc(s.name)}</b>${s.abn ? ' · ABN ' + esc(formatAbn(s.abn)) : ''}</p><table><tr><td>Receipt number</td><td>${esc(r.receipt_no)}</td></tr><tr><td>Date paid</td><td>${esc(new Date(r.paid_at).toLocaleDateString('en-AU'))}</td></tr><tr><td>Received from</td><td>${esc(r.customer || '')}</td></tr><tr><td>For</td><td>${esc(r.job)}${r.invoice_number ? ' (invoice ' + esc(r.invoice_number) + ')' : ''}</td></tr><tr><td>Amount</td><td>${money(r.amount_cents)}</td></tr>${r.gst_included_cents ? `<tr><td>Includes GST of</td><td>${money(r.gst_included_cents)}</td></tr>` : ''}${r.refunded_cents ? `<tr><td>Refunded</td><td>${money(r.refunded_cents)}</td></tr>` : ''}<tr><td>Paid by</td><td>${esc(r.method || r.provider)}</td></tr></table><p class="noprint"><button onclick="print()">Print or save as PDF</button></p></body></html>`;
+    const s = seller(org), L = locale(org), esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    return `<!doctype html><html lang="${esc(L.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Receipt ${esc(r.receipt_no)}</title><style>body{font:15px/1.5 system-ui,sans-serif;max-width:640px;margin:24px auto;padding:0 16px;color:#1b1f24}td{padding:6px 8px;border-bottom:1px solid #d5d9e0}@media print{.noprint{display:none}}</style></head><body><h1>Receipt</h1><p><b>${esc(s.name)}</b>${s.abn ? ' · ABN ' + esc(formatAbn(s.abn)) : s.tax_number ? ' · ' + esc(s.tax_id_label) + ' ' + esc(s.tax_number) : ''}</p><table><tr><td>Receipt number</td><td>${esc(r.receipt_no)}</td></tr><tr><td>Date paid</td><td>${esc(formatDate(r.paid_at, L.locale))}</td></tr><tr><td>Received from</td><td>${esc(r.customer || '')}</td></tr><tr><td>For</td><td>${esc(r.job)}${r.invoice_number ? ' (invoice ' + esc(r.invoice_number) + ')' : ''}</td></tr><tr><td>Amount</td><td>${moneyOf(org)(r.amount_cents)}</td></tr>${r.gst_included_cents ? `<tr><td>Includes GST of</td><td>${moneyOf(org)(r.gst_included_cents)}</td></tr>` : ''}${r.refunded_cents ? `<tr><td>Refunded</td><td>${moneyOf(org)(r.refunded_cents)}</td></tr>` : ''}<tr><td>Paid by</td><td>${esc(r.method || r.provider)}</td></tr></table><p class="noprint"><button onclick="print()">Print or save as PDF</button></p></body></html>`;
   }
 
   function overview(org) {
@@ -665,5 +698,5 @@ ${d.body ? `<p>${esc(d.body)}</p>` : ''}${settings(org).footer_note ? `<p>${esc(
     return { settings: settings(org), seller: seller(org), counts: { quotes_open: by('quote', ['draft', 'approved', 'sent']).length, estimates_open: by('estimate', ['draft', 'approved', 'sent']).length, invoices_draft: by('invoice', ['draft', 'approved']).length, invoices_unpaid: by('invoice', ['issued', 'part_paid', 'overdue']).length, overdue: [...by('invoice', ['overdue']), ...by('deposit', ['overdue'])].length, refunds_waiting: db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE organisation_id=? AND status IN ('pending_approval','awaiting_manual')").get(org).n, credit_notes_waiting: by('credit_note', ['pending_approval']).length, bank_unmatched: db.prepare("SELECT COUNT(*) n FROM fin_bank_lines WHERE organisation_id=? AND status='unmatched'").get(org).n, flags_open: db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n }, aged: aged(org).buckets, ruleset: rulesFor().id };
   }
 
-  return { settings, saveSettings, seller, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
+  return { settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
 }
