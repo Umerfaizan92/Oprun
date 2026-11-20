@@ -21,8 +21,8 @@
       });
     }
     host.replaceChildren();
-    for (const flow of nav.contexts(view, session.user.role)) {
-      if (flow.items.length < 2) continue;
+    // T-177: one related-pages row only (the page's main group); a page in two groups showed two stacked rows.
+    for (const flow of nav.contexts(view, session.user.role).filter(f => f.items.length >= 2).slice(0, 1)) {
       const row = make('nav', 'workflow-links'); row.setAttribute('aria-label', flow.label);
       row.append(make('span', 'workflow-label', flow.label));
       for (const item of flow.items) {

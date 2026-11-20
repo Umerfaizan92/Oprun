@@ -137,6 +137,47 @@
       el('p', { text: tx.status === 'connected' && tx.number ? `Call ${tx.number} from your mobile. Ask a question, give your name and number, and hang up. Within a minute the call appears below and in the Unified Inbox, and you get an alert.` : 'Connect your number first (step 1), then call it from your mobile.' }),
       calls.length ? el('ul', { class: 'rx-calls' }, calls.slice(0, 5).map((c) => el('li', {}, `${when(c.started_at)} · ${c.from_number || 'Unknown caller'} · ${c.voicemail ? 'Voicemail' : c.transferred_to_human ? 'Transferred' : c.answered_at ? 'Answered' : 'Missed'}${c.failures?.length ? ' · problem: ' + c.failures.map((f) => f.step).join(', ') : ''}`))) : el('p', { class: 'portal-empty', text: 'No calls yet.' }),
       el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Refresh', onclick: (e) => busy(s, e.target, render) }))));
+    stepper(body, tx);
+  }
+
+  // T-177 (docs/product-redesign/03 §7): one step at a time instead of one long page. The five cards, their forms,
+  // IDs and save buttons are unchanged; the step list lets the owner jump to any step, and the step is remembered.
+  function stepper(body, tx) {
+    const cards = [...body.querySelectorAll(':scope > .rx-step')];
+    if (cards.length < 2) return;
+    const key = 'oprun-rx-step:' + (window.GDS_SESSION?.organisation?.id || 'workspace');
+    const read = () => { try { return Number(localStorage.getItem(key)); } catch { return NaN; } };
+    const write = (v) => { try { localStorage.setItem(key, String(v)); } catch { /* private mode */ } };
+    const connected = tx.status === 'connected';
+    let at = Number.isInteger(read()) && read() >= 0 && read() < cards.length ? read() : (connected ? 1 : 0);
+    const titles = cards.map((c) => c.querySelector('h2')?.textContent.replace(/^\s*\d+\s*/, '').trim() || '');
+    const nav = el('nav', { class: 'rx-steps', 'aria-label': 'Receptionist set-up steps' });
+    const list = el('ol', {});
+    const buttons = titles.map((t, i) => el('button', { type: 'button', 'data-rx-step': String(i + 1), onclick: () => go(i) },
+      el('span', { class: 'rx-steps-num', 'aria-hidden': 'true', text: i === 0 && connected ? '✓' : String(i + 1) }), el('span', { class: 'rx-steps-name', text: t })));
+    buttons.forEach((b) => list.append(el('li', {}, b)));
+    nav.append(list);
+    const back = el('button', { type: 'button', class: 'secondary-button', id: 'rx-step-back', text: 'Back', onclick: () => go(at - 1) });
+    const next = el('button', { type: 'button', class: 'primary-button', id: 'rx-step-next', onclick: () => {
+      // Unsaved changes are saved on the way (not the Telnyx keys: connecting is its own, explicit button).
+      const form = cards[at].querySelector('form[data-rx-dirty]:not(:has(input[type=password]))');
+      if (form) { form.removeAttribute('data-rx-dirty'); form.requestSubmit(); }
+      go(at + 1);
+    } });
+    const foot = el('div', { class: 'rx-steps-actions' }, back, next);
+    const label = () => { next.textContent = cards[at]?.querySelector('form[data-rx-dirty]:not(:has(input[type=password]))') ? 'Save and continue' : 'Next: ' + (titles[at + 1] || ''); };
+    cards.forEach((c) => c.addEventListener('input', (e) => { e.target.form?.setAttribute('data-rx-dirty', ''); label(); }));
+    body.prepend(nav); body.append(foot);
+    function go(i, scroll = true) {
+      at = Math.max(0, Math.min(cards.length - 1, i)); write(at);
+      cards.forEach((c, n) => { c.hidden = n !== at; });
+      buttons.forEach((b, n) => { if (n === at) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+      back.hidden = at === 0;
+      next.hidden = at === cards.length - 1;
+      label();
+      if (scroll) nav.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+    go(at, false);
   }
 
   function pointer(id, title) {

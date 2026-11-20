@@ -155,3 +155,28 @@ html body.portal-workspace .rf-repeat-heading{position:absolute!important;width:
 /* Setup checklist cards get enough width to read. */
 html body.portal-workspace .setup-list{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
 @media (width < 700px){html body.portal-workspace .setup-list{grid-template-columns:1fr}}
+
+/* ---------- Step list for long set-up pages (T-177: AI Receptionist) ---------- */
+html body.portal-workspace .rx-steps ol{list-style:none;margin:0 0 16px;padding:4px;display:flex;gap:6px;flex-wrap:wrap;border:1px solid var(--rf-edge);border-radius:14px;background:rgba(237,241,248,.03)}
+html[data-theme="light"] body.portal-workspace .rx-steps ol{background:#FFFFFF}
+html body.portal-workspace .rx-steps li{flex:1 1 0;min-width:0}
+html body.portal-workspace .rx-steps button{width:100%;min-height:48px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--sp-fg-muted);font:inherit;font-weight:700;text-align:left;cursor:pointer}
+html body.portal-workspace .rx-steps button[aria-current="step"]{background:var(--sp-gold-soft);border-color:var(--rf-edge-strong);color:var(--sp-fg)}
+html body.portal-workspace .rx-steps button:focus-visible{outline:3px solid var(--sp-focus);outline-offset:2px}
+html body.portal-workspace .rx-steps-num{flex:0 0 26px;height:26px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--rf-edge);font-size:.8rem}
+html body.portal-workspace .rx-steps button[aria-current="step"] .rx-steps-num{background:var(--rf-gold);color:var(--sp-on-gold,#17120A);border-color:transparent}
+html body.portal-workspace .rx-steps-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body.portal-workspace .rx-steps-actions{display:flex;justify-content:space-between;gap:12px;margin-top:16px}
+html body.portal-workspace .rx-steps-actions .primary-button{margin-left:auto}
+html body.portal-workspace .rx-body > .rx-step[hidden]{display:none}
+/* Phones: numbered circles only, the open step shows its name. */
+@media (width < 700px){
+  html body.portal-workspace .rx-steps li{flex:0 0 auto}
+  html body.portal-workspace .rx-steps li:has([aria-current="step"]){flex:1 1 auto}
+  html body.portal-workspace .rx-steps button:not([aria-current="step"]) .rx-steps-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  html body.portal-workspace .rx-steps ol{flex-wrap:nowrap}
+  html body.portal-workspace .rx-steps li:has([aria-current="step"]){min-width:0}
+}
+/* A checkbox sits beside its words, at a normal size (it was drawn as a large empty box above the label). */
+html body.portal-workspace .view label:has(> input[type="checkbox"]){display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+html body.portal-workspace .view label > input[type="checkbox"]{flex:0 0 22px;width:22px;height:22px;min-height:0;margin:1px 0 0;padding:0;accent-color:var(--sp-gold)}
