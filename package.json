@@ -75,7 +75,8 @@
     "test:redesign-ui": "node scripts/test-redesign-ui.mjs",
     "test:mobile-workspace-ui": "node scripts/test-mobile-workspace-ui.mjs",
     "test:command-centre-loading-ui": "node scripts/test-command-centre-loading-ui.mjs",
-    "build:brand-icons": "node scripts/build-brand-icons.mjs"
+    "build:brand-icons": "node scripts/build-brand-icons.mjs",
+    "build:vendor": "node scripts/build-vendor.mjs"
   },
   "engines": {
     "node": "22.x"
@@ -102,6 +103,7 @@
     "qs": "^6.16.1"
   },
   "devDependencies": {
+    "@mediapipe/selfie_segmentation": "^0.1.1675465747",
     "axe-core": "4.14.0",
     "esbuild": "0.25.12",
     "jsdom": "26.1.0",

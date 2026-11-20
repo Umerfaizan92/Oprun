@@ -60,3 +60,11 @@ html.mc-open{overflow:hidden}
 .mg-form input{min-height:46px;border-radius:10px;border:1px solid #39424f;background:#151a22;color:#fff;padding:0 12px;font:inherit}
 .mg-form input:focus-visible{outline:3px solid #e8c77a;outline-offset:2px}
 .mg-help{margin:0;color:#b7bec9;font-size:14px}
+/* T-184: video quality and background panel */
+.mc-fx{align-items:start;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:8px 0;padding:12px;border:1px solid var(--line,#2a3140);border-radius:14px;background:rgba(10,14,22,.9)}
+.mc-fx-group{border:0;margin:0;padding:0;display:grid;gap:2px;align-content:start}
+.mc-fx-group legend{font-weight:800;font-size:.85rem;margin-bottom:4px}
+.mc-fx-opt{display:flex;align-items:center;gap:8px;min-height:36px;font-size:.88rem;cursor:pointer}
+.mc-fx-opt input{width:18px;height:18px;accent-color:#e6b455}
+.mc-fx-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.mc-fx-note{grid-column:1/-1;margin:0;font-size:.78rem;opacity:.8;line-height:1.45}

@@ -17,10 +17,55 @@
    * Starts a call inside `mount`.
    * join: the server's join answer. host: { admit(id, allow), end(), guestLink } for organisers, else null.
    */
+  // ---- T-184: video quality and backgrounds ----
+  // Quality is what the camera is asked for; the browser sends the best the camera and the connection allow.
+  const QUALITY = { sd: ['Standard (360p)', 640, 360, 800e3], hd: ['HD (720p)', 1280, 720, 2.5e6], fhd: ['Full HD (1080p)', 1920, 1080, 4.5e6], uhd: ['4K Ultra HD (if your camera supports it)', 3840, 2160, 12e6] };
+  const store = { get: (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
+  const BG = { none: 'No effect', blur: 'Blur background', office: 'Office', studio: 'Studio', midnight: 'Midnight', image: 'My own picture' };
+  const PRESET = { office: ['#d9d4c7', '#a89f8b', '#5c574c'], studio: ['#1d2b3a', '#3b5470', '#0d1520'], midnight: ['#0b0f1a', '#3a2a55', '#c99436'] };
+  function presetImage(name, w = 1280, h = 720) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); const [a, b2, d] = PRESET[name];
+    const lg = g.createLinearGradient(0, 0, w, h); lg.addColorStop(0, a); lg.addColorStop(.6, b2); lg.addColorStop(1, d); g.fillStyle = lg; g.fillRect(0, 0, w, h);
+    const rg = g.createRadialGradient(w * .75, h * .25, 10, w * .75, h * .25, w * .6); rg.addColorStop(0, 'rgba(255,255,255,.28)'); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.fillRect(0, 0, w, h);
+    return c;
+  }
+  let segLoad = null;
+  function loadSegmenter() {
+    if (window.SelfieSegmentation) return Promise.resolve();
+    return segLoad ||= new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = '/saas/vendor/mediapipe/selfie_segmentation/selfie_segmentation.js'; sc.onload = res; sc.onerror = () => { segLoad = null; rej(new Error('Background effects could not load.')); }; document.head.append(sc); });
+  }
+  // Returns a new video track with the background blurred or replaced; stop() releases it.
+  async function backgroundTrack(camera, mode, picture) {
+    await loadSegmenter();
+    const s = camera.getSettings(), w = s.width || 1280, h = s.height || 720;
+    const video = document.createElement('video'); video.muted = true; video.playsInline = true; video.srcObject = new MediaStream([camera]); await video.play().catch(() => {});
+    const out = document.createElement('canvas'); out.width = w; out.height = h; const g = out.getContext('2d');
+    const backdrop = mode === 'image' ? picture : mode === 'blur' ? null : presetImage(mode, w, h);
+    const seg = new window.SelfieSegmentation({ locateFile: (f) => '/saas/vendor/mediapipe/selfie_segmentation/' + f });
+    seg.setOptions({ modelSelection: 1, selfieMode: false });
+    seg.onResults((r) => {
+      g.save(); g.clearRect(0, 0, w, h);
+      g.drawImage(r.segmentationMask, 0, 0, w, h);
+      g.globalCompositeOperation = 'source-in'; g.drawImage(r.image, 0, 0, w, h);
+      g.globalCompositeOperation = 'destination-over';
+      if (backdrop) { const iw = backdrop.width || backdrop.naturalWidth, ih = backdrop.height || backdrop.naturalHeight, k = Math.max(w / iw, h / ih); g.drawImage(backdrop, (w - iw * k) / 2, (h - ih * k) / 2, iw * k, ih * k); }
+      else { g.filter = 'blur(16px)'; g.drawImage(r.image, 0, 0, w, h); g.filter = 'none'; }
+      g.restore();
+    });
+    let running = true;
+    const tick = async () => { if (!running) return; if (video.readyState >= 2) { try { await seg.send({ image: video }); } catch { /* frame skipped */ } } if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(tick); else setTimeout(tick, 33); };
+    tick();
+    const track = out.captureStream(30).getVideoTracks()[0];
+    return { track, stop: () => { running = false; track.stop(); seg.close?.(); video.srcObject = null; } };
+  }
+
   function start({ mount, join, host = null, waiting = [], onClose = () => {} }) {
     const secret = join.peer_secret, selfId = join.peer_id, voiceOnly = join.meeting.mode === 'voice';
     const peers = new Map(); // id -> { info, pc, tile, pending: [], initiator, restarted }
     let localStream = new MediaStream(), cameraTrack = null, micTrack = null, screenTrack = null, closed = false, pollFailures = 0, waitingNow = waiting;
+    let quality = store.get('oprun-call-quality', 'hd'), background = store.get('oprun-call-background', 'none'), effect = null, picture = null;
+    if (!QUALITY[quality]) quality = 'hd'; if (!BG[background] || background === 'image') background = 'none';
+    const camOut = () => (effect?.track || cameraTrack);
     const state = { audio: false, video: false, sharing: false };
 
     const call = (path, opt = {}) => fetch('/api/meetings/call/' + path, { ...opt, headers: { 'Content-Type': 'application/json', 'X-Meeting-Peer': secret, ...(opt.headers || {}) } });
@@ -38,12 +83,26 @@
     const camBtn = toggle('Camera off', false, () => setCamera(!state.video));
     const shareBtn = navigator.mediaDevices?.getDisplayMedia ? toggle('Share screen', false, () => (state.sharing ? stopShare() : startShare())) : null;
     const leaveBtn = el('button', { type: 'button', class: 'mc-btn mc-leave', text: 'Leave call', onclick: () => close('left') });
+    // Quality and background panel (video calls only).
+    const fxPanel = el('section', { class: 'mc-fx', hidden: true, 'aria-label': 'Video quality and background' });
+    const radios = (name, opts, current, onpick) => el('fieldset', { class: 'mc-fx-group' }, el('legend', { text: name === 'q' ? 'Video quality' : 'Background' }),
+      ...Object.entries(opts).map(([k, v]) => el('label', { class: 'mc-fx-opt' }, el('input', { type: 'radio', name: 'mc-' + name, value: k, checked: k === current || null, onchange: () => onpick(k) }), ' ', Array.isArray(v) ? v[0] : v)));
+    const fileIn = el('input', { type: 'file', accept: 'image/*', class: 'mc-fx-file', 'aria-label': 'Choose a background picture', onchange: async () => {
+      const f = fileIn.files?.[0]; if (!f) return; const img = new Image(); img.src = URL.createObjectURL(f); await img.decode().catch(() => {}); picture = img; await applyBackground('image');
+      fxPanel.querySelector('input[name=mc-b][value=image]').checked = true; } });
+    const drawFx = () => fxPanel.replaceChildren(
+      radios('q', QUALITY, quality, (k) => setQuality(k)),
+      radios('b', BG, background, (k) => { if (k === 'image') { if (picture) applyBackground('image'); else fileIn.click(); } else applyBackground(k); }),
+      fileIn,
+      el('p', { class: 'mc-fx-note', text: 'Your picture stays on this device. 8K is not offered: webcams and browsers cannot capture it. Higher quality uses more data; on a slow connection the browser lowers it automatically.' }));
+    const fxBtn = voiceOnly ? null : el('button', { type: 'button', class: 'mc-btn', 'aria-expanded': 'false', text: 'Quality & background', onclick: () => { const open = fxPanel.hidden; if (open) drawFx(); fxPanel.hidden = !open; fxBtn.setAttribute('aria-expanded', String(open)); } });
     const endBtn = host ? el('button', { type: 'button', class: 'mc-btn mc-end', text: 'End for everyone', onclick: async () => { if (!confirm('End this meeting for everyone?')) return; endBtn.disabled = true; try { await host.end(); } catch (e) { say(e.message, true); endBtn.disabled = false; } } }) : null;
     const copyBtn = host?.guestLink ? el('button', { type: 'button', class: 'mc-btn', text: 'Copy guest link', onclick: async () => { try { await navigator.clipboard.writeText(host.guestLink); say('Guest link copied. Guests wait until you let them in.'); } catch { say('Copy is blocked in this browser. Use Video Meetings to copy the link.', true); } } }) : null;
     const root = el('div', { class: 'mc-root', role: 'group', 'aria-label': 'Call: ' + join.meeting.title },
       el('header', { class: 'mc-head' }, el('h2', { text: join.meeting.title }), count),
       status, waitBox, grid,
-      el('div', { class: 'mc-controls', role: 'toolbar', 'aria-label': 'Call controls' }, micBtn, camBtn, shareBtn, copyBtn, endBtn, leaveBtn),
+      fxPanel,
+      el('div', { class: 'mc-controls', role: 'toolbar', 'aria-label': 'Call controls' }, micBtn, camBtn, fxBtn, shareBtn, copyBtn, endBtn, leaveBtn),
       !join.relay_configured ? el('p', { class: 'mc-note', text: 'If someone cannot be seen or heard, their network may block direct calls. Ask them to try another network, such as mobile data.' }) : null);
     mount.replaceChildren(root);
 
@@ -86,7 +145,7 @@
     }
 
     // ---- media ----
-    const videoOut = () => screenTrack || (state.video ? cameraTrack : null);
+    const videoOut = () => screenTrack || (state.video ? camOut() : null);
     function showLocal() {
       localStream = new MediaStream([micTrack, videoOut()].filter(Boolean));
       selfTile.video.srcObject = localStream;
@@ -105,13 +164,35 @@
     }
     async function setCamera(on) {
       if (on && !cameraTrack) {
-        try { cameraTrack = (await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 960 }, height: { ideal: 540 } } })).getVideoTracks()[0]; }
+        try { const [, qw, qh] = QUALITY[quality]; cameraTrack = (await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: qw }, height: { ideal: qh }, frameRate: { ideal: 30 } } })).getVideoTracks()[0]; if (background !== 'none') await applyBackground(background, true); }
         catch { say('The camera is not available. Allow it in your browser settings, then try again.', true); return; }
       }
       if (cameraTrack) cameraTrack.enabled = on;
       state.video = Boolean(on && cameraTrack);
-      if (!screenTrack) await replaceAll('video', state.video ? cameraTrack : null);
-      showLocal(); refresh(); publish();
+      if (!screenTrack) await replaceAll('video', state.video ? camOut() : null);
+      showLocal(); refresh(); publish(); limitBitrate();
+    }
+    // Quality: ask the camera for the new size and let the connection carry it.
+    async function limitBitrate() {
+      const max = QUALITY[quality][3];
+      for (const p of peers.values()) for (const sd of p.pc.getSenders()) if (sd.track?.kind === 'video') { const pr = sd.getParameters(); if (!pr.encodings?.length) pr.encodings = [{}]; pr.encodings[0].maxBitrate = max; await sd.setParameters(pr).catch(() => {}); }
+    }
+    async function setQuality(q) {
+      quality = q; store.set('oprun-call-quality', q);
+      if (cameraTrack) { const [, qw, qh] = QUALITY[q]; await cameraTrack.applyConstraints({ width: { ideal: qw }, height: { ideal: qh }, frameRate: { ideal: 30 } }).catch(() => {}); if (effect) await applyBackground(background, true); }
+      await limitBitrate(); const st = cameraTrack?.getSettings?.() || {};
+      say(st.width ? `Your camera is sending ${st.width} × ${st.height}${st.height < QUALITY[q][2] ? ' (the most it supports)' : ''}.` : 'Quality saved for your next call.');
+    }
+    async function applyBackground(mode, quiet = false) {
+      const old = effect; effect = null;
+      if (mode !== 'none' && cameraTrack) {
+        try { if (!quiet) say('Preparing your background…'); effect = await backgroundTrack(cameraTrack, mode, picture); }
+        catch (e) { say(e.message + ' Your normal camera is used.', true); mode = 'none'; }
+      }
+      background = mode; if (mode !== 'image') store.set('oprun-call-background', mode);
+      if (state.video && !screenTrack) await replaceAll('video', camOut());
+      old?.stop(); showLocal(); limitBitrate();
+      if (!quiet && mode !== 'none' && effect) say(`${BG[mode]} is on. Only you see this panel; others see the result.`);
     }
     async function startShare() {
       try { screenTrack = (await navigator.mediaDevices.getDisplayMedia({ video: true })).getVideoTracks()[0]; } catch { return; }
@@ -121,7 +202,7 @@
     async function stopShare() {
       if (!screenTrack) return;
       screenTrack.removeEventListener('ended', stopShare); screenTrack.stop(); screenTrack = null; state.sharing = false;
-      await replaceAll('video', state.video ? cameraTrack : null); showLocal(); refresh(); publish();
+      await replaceAll('video', state.video ? camOut() : null); showLocal(); refresh(); publish();
     }
 
     // ---- connections ----
@@ -206,7 +287,7 @@
       if (closed) return; closed = true;
       if (reason === 'left') call('leave', { method: 'POST', body: '{}', keepalive: true }).catch(() => {});
       for (const id of [...peers.keys()]) drop(id);
-      for (const t of [micTrack, cameraTrack, screenTrack]) t?.stop();
+      for (const t of [micTrack, cameraTrack, screenTrack]) t?.stop(); effect?.stop();
       window.removeEventListener('pagehide', onHide);
       const text = { left: 'You left the call.', ended: 'The organiser ended this meeting.', gone: 'You are no longer in this call. Join again to continue.', lost: 'The connection to the server was lost. Join again to continue.' }[reason] || 'The call has ended.';
       mount.replaceChildren(el('div', { class: 'mc-root mc-finished' }, el('p', { class: 'mc-status', role: 'status', text })));

@@ -408,7 +408,7 @@
       body.replaceChildren(stripEl);
       if (id === 'enquiries' && can('customers', 'create')) { const w = await enquiryForm(s); w.open = !records.length; body.append(w); }
       if (id === 'enquiries') window.SuperProLeadSources?.mount(body);
-      if (id === 'bookings' && ['owner', 'admin', 'super_admin', 'manager', 'director'].includes(window.GDS_SESSION?.user?.role || window.GDS_SESSION?.membership?.role || '')) body.append(remindersPanel(s));
+      if (id === 'bookings' && ['owner', 'admin', 'super_admin', 'manager', 'director'].includes(window.GDS_SESSION?.user?.role || window.GDS_SESSION?.membership?.role || '')) { window.OprunAppointments?.mount(body); body.append(remindersPanel(s)); }
       const q = el('input', { type: 'search', class: 'portal-search', placeholder: `Search ${v.title.toLowerCase()} by title or customer`, 'aria-label': `Search ${v.title.toLowerCase()}`, value: filters[id]?.q || '' });
       const statuses = [...new Set(records.map((r) => r.status))];
       const st = el('select', { class: 'portal-search pl-filter', 'aria-label': 'Filter by status' }, el('option', { value: '', text: 'All statuses' }), statuses.map((x) => el('option', { value: x, text: STATUS[x] || x, selected: filters[id]?.status === x })));
