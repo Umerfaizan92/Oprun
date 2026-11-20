@@ -34,6 +34,8 @@ export function migrateComms(db) {
 
 export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch, transportEnv = () => env, dispatch, pipeline, profileOf, notify = () => {}, emit = () => {}, aiReply = null, aiAvailable = () => false, engineRef = { current: null }, publicBase = () => '', log = console }) {
   migrateComms(db);
+  // T-178: a campaign sent to several channels at once is one draft per channel sharing a group id.
+  try { if (!db.prepare('PRAGMA table_info(comms_campaigns)').all().some((c) => c.name === 'group_id')) db.exec('ALTER TABLE comms_campaigns ADD COLUMN group_id TEXT'); } catch { /* table created by migrateComms */ }
   const isPlatform = (k) => k === 'platform';
   const countryOfOwner = (owner) => { if (isPlatform(owner)) return 'AU'; try { return db.prepare('SELECT country FROM organisations WHERE id=?').get(owner)?.country || 'AU'; } catch { return 'AU'; } };
   const timeZoneOf = (owner) => { if (isPlatform(owner)) return 'Australia/Perth'; try { return db.prepare('SELECT timezone FROM organisations WHERE id=?').get(owner)?.timezone || 'Australia/Perth'; } catch { return 'Australia/Perth'; } };
@@ -413,5 +415,38 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   // Provider bounces and complaints suppress the address for its owner (Resend webhooks / Telnyx failures).
   function providerEvent(providerId, kind) { const r = db.prepare('SELECT r.*, c.channel FROM comms_campaign_recipients r JOIN comms_campaigns c ON c.id=r.campaign_id WHERE r.provider_id=?').get(providerId); if (!r) return false; suppress(r.owner_key, r.channel, r.address, kind, `provider ${kind}`, null); return true; }
 
-  return { analyse, onInbound, inbox, folderCounts, thread, move, link, reply, sendDue, suggestions, contactForm, recordInboundRef, consent, suppress, unsubscribe, click, audience, campaignOut, saveCampaign, requestSend, campaignProposal, approveCampaign, sendBatch, providerEvent, counts, business, normAddr };
+  // ---------------- send to every ready channel at once (T-178) ----------------
+  const SOCIAL = [['facebook', 'meta', 'Facebook'], ['instagram', 'meta', 'Instagram'], ['linkedin', 'linkedin', 'LinkedIn'], ['x', 'x', 'X'], ['tiktok', 'tiktok', 'TikTok'], ['youtube', 'youtube', 'YouTube'], ['snapchat', 'snapchat', 'Snapchat']];
+  function channelsReady(owner) {
+    const e = transportEnv(owner);
+    const email = Boolean(resendOutboundKey(e) && (isPlatform(owner) ? (env.PLATFORM_MAIL_FROM || env.SAAS_VERIFY_FROM) : e.SAAS_VERIFY_FROM));
+    const sms = !isPlatform(owner) && Boolean(e.TELNYX_API_KEY && (e.TELNYX_FROM_NUMBER || e.TELNYX_PHONE_NUMBER));
+    let conns = [];
+    if (!isPlatform(owner)) { try { conns = db.prepare('SELECT provider,status,account_label FROM organisation_integrations WHERE organisation_id=?').all(owner); } catch { conns = []; } }
+    const social = SOCIAL.map(([id, provider, label]) => { const c = conns.find((x) => x.provider === provider); return { id, label, connected: c?.status === 'connected', account: c?.account_label || null }; });
+    return { email, sms, social };
+  }
+  function saveBundle(owner, d, actor) {
+    const channels = [...new Set(d.channels)];
+    if (channels.includes('social') && !(d.social_targets || []).length) return { ok: false, status: 400, error: 'Choose at least one social platform, or untick Social post.' };
+    const gid = uid(); const out = [];
+    db.transaction(() => {
+      for (const ch of channels) {
+        const r = saveCampaign(owner, { ...d, channel: ch, subject: ch === 'email' ? d.subject : undefined, cta_url: ch === 'social' ? undefined : d.cta_url, social_targets: ch === 'social' ? d.social_targets : [], segment: ch === 'social' ? {} : d.segment }, actor);
+        db.prepare('UPDATE comms_campaigns SET group_id=? WHERE id=?').run(gid, r.campaign.id);
+        out.push(campaignOut(db.prepare('SELECT * FROM comms_campaigns WHERE id=?').get(r.campaign.id)));
+      }
+    })();
+    return { ok: true, group_id: gid, campaigns: out };
+  }
+  // Each channel still goes through its own Level 3 approval with its own numbers; one tap submits them all and the
+  // answer says which ones could not be submitted and why (for example nobody agreed to SMS marketing).
+  async function submitBundle(owner, gid, actor) {
+    const rows = db.prepare("SELECT id,channel FROM comms_campaigns WHERE owner_key=? AND group_id=? ORDER BY created_at").all(owner, gid);
+    if (!rows.length) return { ok: false, status: 404, error: 'Campaign not found.' };
+    const results = [];
+    for (const r of rows) { const x = await requestSend(owner, r.id, actor); results.push({ campaign_id: r.id, channel: r.channel, ok: x.ok, error: x.ok ? null : x.error }); }
+    return { ok: results.some((x) => x.ok), status: 409, results, error: results.some((x) => x.ok) ? null : results.map((x) => `${x.channel}: ${x.error}`).join(' ') };
+  }
+  return { channelsReady, saveBundle, submitBundle, analyse, onInbound, inbox, folderCounts, thread, move, link, reply, sendDue, suggestions, contactForm, recordInboundRef, consent, suppress, unsubscribe, click, audience, campaignOut, saveCampaign, requestSend, campaignProposal, approveCampaign, sendBatch, providerEvent, counts, business, normAddr };
 }

@@ -463,3 +463,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-receptionist.js, saas/ds/refresh.css, saas/portal-shell.js, scripts/test-ui.mjs
 - Acceptance: Receptionist shows one of 5 steps at a time with a step list, Back/Next and save-and-continue for the greeting form; one related-pages row per page; checkbox beside its label; all suites pass
 - Evidence: npm test 73/73, test:ui 38 (receptionist steps check added), navigation-ui 608, redesign-ui, mobile-workspace-ui 311, breakpoints pass; phone and desktop screenshots checked (recorded 2026-11-20 on claude/receptionist-steps at 9538192)
+
+## T-178 Top bar on phones and Select all channels/platforms
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: Command Centre heading left-aligned on phones; theme switch in the phone top bar; remove the 'F' circle if it has no purpose. Campaign Studio and Media Studio need 'Select all' so one campaign goes to every connected channel/platform at once, linked to the backend.
+- Files: saas/ds/refresh.css, src/comms/service.js, src/comms/routes.js, src/server.js, saas/workspace-comms-platform.js, saas/app.js, saas/workspace.html, saas/workspace-extras.js, scripts/comms.test.mjs
+- Acceptance: Heading left on phone; theme toggle visible on phone; initials circle hidden; GET channels, POST bundle, POST bundle submit work with per-channel approval; Media Studio saves one render per platform; tests pass
+- Evidence: npm test 73/73; comms.test new bundle and multi-platform render tests pass; test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, comms-ui 10; browser check: select all -> drafts -> submit all (recorded 2026-11-20 on claude/topbar-mobile at 93ad7bd)

@@ -364,3 +364,53 @@ test('website visit counts: verified site only, no personal data, bots and do-no
   const other = await seedOwner(s, { business: 'Other Co', email: 'other2@other.example.test' });
   assert.equal((await s.call('GET', '/api/saas/website/visits', { cookie: other.cookie })).json.total, 0, 'counts are per business');
 });
+
+test('campaigns: "Select all" sends one campaign to every ready channel, each with its own approval (T-178)', async (t) => {
+  const { s, mock, owner, O, sql, stop } = await setup(); t.after(stop);
+  const now = new Date().toISOString();
+  // Before any social account is connected only email and SMS are ready.
+  let r = await O('GET', '/api/saas/growth/campaigns/channels');
+  assert.equal(r.status, 200, r.text); assert.equal(r.json.email, true); assert.equal(r.json.sms, true);
+  assert.equal(r.json.social.filter((x) => x.connected).length, 0);
+  sql("INSERT OR REPLACE INTO organisation_integrations(organisation_id,provider,display_name,status,account_label,updated_at) VALUES (?,?,?,?,?,?)", owner.org, 'meta', 'Meta', 'connected', 'Harbour Plumbing Page', now);
+  r = await O('GET', '/api/saas/growth/campaigns/channels');
+  assert.deepEqual(r.json.social.filter((x) => x.connected).map((x) => x.id).sort(), ['facebook', 'instagram']);
+  const cust = crypto.randomUUID();
+  sql("INSERT INTO tenant_customers(id,organisation_id,name,email,phone,status,source,created_at,updated_at) VALUES (?,?,?,?,?,'current','manual',?,?)", cust, owner.org, 'Ana Ruiz', 'ana@ruiz.example.test', '0400 100 100', now, now);
+  for (const [ch, a] of [['email', 'ana@ruiz.example.test'], ['sms', '0400 100 100']]) assert.equal((await O('POST', '/api/saas/comms/consents', { channel: ch, address: a, status: 'granted', evidence: 'Signed up at the counter' })).status, 201);
+  const base = { name: 'Winter special', subject: 'Winter hot water check', body: 'Hi {first_name}, book a winter hot water check this month.', segment: {} };
+  // Social needs at least one platform.
+  assert.equal((await O('POST', '/api/saas/growth/campaigns/bundle', { ...base, channels: ['email', 'social'] })).status, 400);
+  r = await O('POST', '/api/saas/growth/campaigns/bundle', { ...base, channels: ['email', 'sms', 'social'], social_targets: ['facebook', 'instagram'] });
+  assert.equal(r.status, 201, r.text);
+  assert.deepEqual(r.json.campaigns.map((c) => c.channel), ['email', 'sms', 'social']);
+  assert.equal(new Set(r.json.campaigns.map((c) => c.group_id)).size, 1);
+  assert.equal(r.json.campaigns.find((c) => c.channel === 'sms').subject, null, 'only email keeps the subject');
+  const gid = r.json.group_id;
+  // Another business cannot submit this group.
+  const other = await seedOwner(s, { business: 'Other Co', email: 'other-bundle@other.example.test' });
+  assert.equal((await s.call('POST', `/api/saas/growth/campaigns/bundle/${gid}/submit`, { cookie: other.cookie, body: {} })).status, 404);
+  r = await O('POST', `/api/saas/growth/campaigns/bundle/${gid}/submit`, {});
+  assert.equal(r.status, 201, r.text);
+  assert.deepEqual(r.json.results.map((x) => [x.channel, x.ok]), [['email', true], ['sms', true], ['social', true]], JSON.stringify(r.json.results));
+  const rows = sql('SELECT channel,status FROM comms_campaigns WHERE group_id=? ORDER BY channel', gid);
+  assert.ok(rows.every((x) => x.status === 'pending_approval'), JSON.stringify(rows));
+  assert.equal(mock.calls.filter((c) => ['/resend/emails', '/telnyx/messages'].includes(c.path)).length, 0, 'nothing is sent before approval');
+  const pending = (await O('GET', '/api/saas/approvals')).json.approvals.filter((a) => rows.length && a.status !== 'decided');
+  assert.ok(pending.length >= 3, 'one approval per channel');
+});
+
+test('media studio: "Select all platforms" saves one render per platform in that platform\'s shape (T-178)', async (t) => {
+  const s = await startServer(); t.after(() => s.stop());
+  const owner = await seedOwner(s, { business: 'Render Co', email: 'render@render.example.test' });
+  const O = (m, u, b) => s.call(m, u, { cookie: owner.cookie, body: b });
+  const spec = { platform: 'Multi-platform', goal: 'More views', aspect_ratio: '9:16', clips: [{ media_id: 'm1', start_seconds: 0, end_seconds: 15, transition: 'auto' }], style_prompt: 'Before and after' };
+  let r = await O('POST', '/api/saas/video-renders', { quality: '1080p', edit_spec: spec, platforms: ['TikTok', 'YouTube', 'LinkedIn', 'TikTok'] });
+  assert.equal(r.status, 201, r.text); assert.equal(r.json.ids.length, 3, 'duplicates are made once');
+  const jobs = (await O('GET', '/api/saas/video-renders')).json.jobs.map((j) => (typeof j.edit_spec === 'string' ? JSON.parse(j.edit_spec) : j.edit_spec));
+  const shape = Object.fromEntries(jobs.map((j) => [j.platform, j.aspect_ratio]));
+  assert.deepEqual(shape, { TikTok: '9:16', YouTube: '16:9', LinkedIn: '1:1' });
+  assert.equal((await O('POST', '/api/saas/video-renders', { quality: '1080p', edit_spec: spec, platforms: ['Myspace'] })).status, 400);
+  r = await O('POST', '/api/saas/video-renders', { quality: '1080p', edit_spec: { ...spec, platform: 'TikTok' } });
+  assert.equal(r.status, 201); assert.equal(r.json.ids.length, 1, 'one platform still works as before');
+});

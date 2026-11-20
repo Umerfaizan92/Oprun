@@ -116,9 +116,13 @@
       async campaignstudio(b, editId) {
         const d = await api(campBase);
         if (founder) { try { const o = await api('/api/operator/comms/overview'); b.append(section('Communications overview', el('p', { class: 'sx-source', text: o.note }), table([['k', 'Measure'], ['v', 'Count']], [{ k: 'Businesses using the inbox', v: o.businesses_with_inbox }, { k: 'Messages, last 30 days (all businesses)', v: o.messages_30d }, { k: 'Calls, last 30 days', v: o.calls_30d }, { k: 'Calls with a failed step', v: o.call_failures_30d }, { k: 'Newsletter subscribers', v: o.newsletter?.subscribed || 0 }, { k: 'Newsletter unsubscribes', v: o.newsletter?.unsubscribed || 0 }, { k: 'Platform suppressions', v: o.platform_suppressions }]))); } catch (e) { b.append(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); } }
+        const openId = editId && typeof editId === 'object' ? editId.open : null; if (openId) editId = null;
         const editing = editId ? d.campaigns.find((c) => c.id === editId) : null;
-        b.append(builder(editing));
+        // T-178: which channels can send now (email sender, SMS number, connected social accounts) for "Select all".
+        const ready = founder ? null : await api(`${campBase}/channels`).catch(() => null);
+        b.append(builder(editing, ready));
         b.append(section(founder ? 'Oprun newsletter campaigns' : 'Campaigns', table([['name', 'Campaign'], ['channel', 'Channel', (v) => CH[v] || v], ['status', 'Status', (v) => chip(v)], ['audience', 'Audience', (v, c) => (c.channel === 'social' ? (c.social_targets || []).join(', ') || '—' : `${v.eligible} eligible`)], ['stats', 'Results', (v, c) => (c.channel === 'social' ? 'See content calendar' : `${v.sent} sent · ${v.clicked} clicked · ${v.unsubscribed} unsubscribed${v.failed ? ` · ${v.failed} failed` : ''}`)], ['id', '', (cid, c) => el('span', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Open', onclick: () => openCampaign(cid, b) }), ['draft', 'rejected', 'pending_approval', 'approved'].includes(c.status) ? el('button', { type: 'button', class: 'portal-button', text: 'Edit', onclick: () => render('campaignstudio', cid) }) : null)]], d.campaigns, 'No campaigns yet. Write one above.')));
+        if (openId) await openCampaign(openId, b);
       },
       // ---------------- Consent ----------------
       async consent(b) {
@@ -193,8 +197,9 @@
       box.querySelector('h2')?.setAttribute('tabindex', '-1');
     }
 
-    function builder(c) {
+    function builder(c, ready = null) {
       const f = {};
+      const multi = !founder && !c; // a new business campaign can go to several channels at once
       f.name = el('input', { id: id('cx'), required: true, minlength: '2', maxlength: '160', value: c?.name || '' });
       f.channel = el('select', { id: id('cx'), disabled: founder || null }, (founder ? [['email', 'Email']] : [['email', 'Email'], ['sms', 'SMS'], ['social', 'Social post']]).map(([k, t]) => el('option', { value: k, text: t, selected: (c?.channel || 'email') === k || null })));
       f.subject = el('input', { id: id('cx'), maxlength: '160', value: c?.subject || '' });
@@ -205,18 +210,35 @@
       f.statuses = el('div', { class: 'cx-checks', role: 'group', 'aria-label': 'Customer status' }, [['lead', 'Leads'], ['current', 'Current customers'], ['past', 'Past customers']].map(([k, t]) => check(t, { value: k, checked: (seg.statuses || []).includes(k) })));
       f.area = el('input', { id: id('cx'), maxlength: '80', value: seg.area || '', placeholder: 'Suburb or postcode' });
       f.service = el('input', { id: id('cx'), maxlength: '80', value: seg.service || '', placeholder: 'For example: tyres' });
-      f.targets = el('div', { class: 'cx-checks', role: 'group', 'aria-label': 'Platforms' }, ['facebook', 'instagram', 'linkedin', 'x', 'tiktok', 'youtube'].map((k) => check(CH[k] || k[0].toUpperCase() + k.slice(1), { value: k, checked: (c?.social_targets || []).includes(k) })));
+      const soc = ready?.social || ['facebook', 'instagram', 'linkedin', 'x', 'tiktok', 'youtube', 'snapchat'].map((k) => ({ id: k, label: CH[k] || k[0].toUpperCase() + k.slice(1), connected: null }));
+      const savedTargets = (c?.social_targets || []).map((t) => (typeof t === 'string' ? t : t.platform));
+      f.targets = el('div', { class: 'cx-checks', role: 'group', 'aria-label': 'Platforms' }, soc.map((x) => check(x.connected === false ? `${x.label} (not connected)` : x.label, { value: x.id, checked: savedTargets.includes(x.id) || null, 'data-connected': x.connected ? '1' : null })));
+      const connectedTargets = soc.filter((x) => x.connected).map((x) => x.id);
+      f.allTargets = check(connectedTargets.length ? `Select all connected platforms (${connectedTargets.length})` : 'Select all platforms', { 'data-select-all': 'platforms' });
+      // Channels for a new campaign: tick several, or "Select all" for every channel that is set up.
+      const CHS = [['email', 'Email', ready?.email], ['sms', 'SMS', ready?.sms], ['social', 'Social post', ready ? connectedTargets.length > 0 : null]];
+      f.channels = el('div', { class: 'cx-checks', role: 'group', 'aria-label': 'Channels' }, CHS.map(([k, t, ok]) => check(ok === false ? `${t} (not set up)` : t, { value: k, checked: k === 'email' || null, 'data-ready': ok ? '1' : null })));
+      f.allChannels = check('Select all ready channels', { 'data-select-all': 'channels' });
+      const boxes = (g) => [...g.querySelectorAll('input[type=checkbox]')];
+      const chosen = () => (multi ? boxes(f.channels).filter((i) => i.checked).map((i) => i.value) : [founder ? 'email' : f.channel.value]);
+      const tie = (all, group, pick) => {
+        all.querySelector('input').addEventListener('change', (e) => { boxes(group).forEach((i) => { i.checked = e.target.checked ? pick(i) : false; }); if (group === f.channels && e.target.checked && !f.allTargets.querySelector('input').checked) f.allTargets.querySelector('input').click(); sync(); });
+        group.addEventListener('change', () => { const want = boxes(group).filter(pick); all.querySelector('input').checked = want.length > 0 && want.every((i) => i.checked); sync(); });
+      };
       const preview = el('p', { class: 'sx-source', 'aria-live': 'polite' });
       const segment = () => { const s = {}; const st = [...f.statuses.querySelectorAll('input:checked')].map((i) => i.value); if (st.length) s.statuses = st; if (f.area.value.trim()) s.area = f.area.value.trim(); if (f.service.value.trim()) s.service = f.service.value.trim(); return s; };
-      const payload = () => { const ch = founder ? 'email' : f.channel.value; const p = { name: f.name.value.trim(), channel: ch, body: f.body.value.trim(), send_at: toIso(f.at.value), segment: founder ? {} : segment() }; if (ch === 'email' && f.subject.value.trim()) p.subject = f.subject.value.trim(); if (ch !== 'social' && f.cta.value.trim()) p.cta_url = f.cta.value.trim(); if (ch === 'social') p.social_targets = [...f.targets.querySelectorAll('input:checked')].map((i) => i.value); return p; };
-      const sync = () => { const ch = founder ? 'email' : f.channel.value; wrapS.hidden = ch !== 'email'; wrapC.hidden = ch === 'social'; wrapT.hidden = ch !== 'social'; wrapSeg.hidden = founder || ch === 'social'; };
-      const wrapS = field('Subject', f.subject, '20 to 60 characters reads best on phones.'), wrapC = field('Link (optional)', f.cta, 'Clicks on this link are counted.'), wrapT = el('div', { class: 'cx-field' }, el('span', { class: 'cx-label', text: 'Platforms' }), f.targets);
+      const payload = () => { const ch = chosen()[0] || 'email'; const p = { name: f.name.value.trim(), channel: ch, body: f.body.value.trim(), send_at: toIso(f.at.value), segment: founder ? {} : segment() }; const all = chosen(); if (all.includes('email') && f.subject.value.trim()) p.subject = f.subject.value.trim(); if (all.some((x) => x !== 'social') && f.cta.value.trim()) p.cta_url = f.cta.value.trim(); if (all.includes('social')) p.social_targets = [...f.targets.querySelectorAll('input:checked')].map((i) => i.value); if (all.length > 1) { delete p.channel; p.channels = all; } return p; };
+      const sync = () => { const all = chosen(); wrapS.hidden = !all.includes('email'); wrapC.hidden = !all.some((x) => x !== 'social'); wrapT.hidden = !all.includes('social'); wrapSeg.hidden = founder || !all.some((x) => x !== 'social'); };
+      const wrapS = field('Subject', f.subject, '20 to 60 characters reads best on phones.'), wrapC = field('Link (optional)', f.cta, 'Clicks on this link are counted.'), wrapT = el('div', { class: 'cx-field' }, el('span', { class: 'cx-label', text: 'Platforms' }), f.allTargets, f.targets, ready && !connectedTargets.length ? el('p', { class: 'sx-source' }, 'No social account is connected yet. Approved posts wait in the content calendar as ready to post. ', el('a', { href: '#setup/connections', text: 'Connect accounts' })) : null);
+      const wrapCh = el('div', { class: 'cx-field' }, el('span', { class: 'cx-label', text: 'Channels' }), f.allChannels, f.channels, el('p', { class: 'sx-source', text: 'One draft is made for each channel you tick. Each one still needs approval before anything is sent.' }));
+      tie(f.allChannels, f.channels, (i) => (ready ? i.dataset.ready === '1' : true));
+      tie(f.allTargets, f.targets, (i) => (connectedTargets.length ? i.dataset.connected === '1' : true));
       const wrapSeg = el('fieldset', { class: 'cx-fieldset' }, el('legend', { text: 'Who receives it' }), f.statuses, field('Area', f.area), field('Service', f.service), el('p', { class: 'sx-source', text: 'Only people who agreed to marketing on this channel are included. Unsubscribed addresses are always left out.' }));
       f.channel.addEventListener('change', sync);
       const saved = { id: c?.id || null };
-      const save = async () => { const r = saved.id ? await post(`${campBase}/${encodeURIComponent(saved.id)}`, payload(), 'PUT') : await post(campBase, payload()); saved.id = r.campaign?.id || saved.id; return r; };
-      const form = el('form', { class: 'cx-form', onsubmit: (e) => { e.preventDefault(); busy(e.submitter || form.querySelector('[type=submit]'), async () => { const r = await save(); say(c ? 'Campaign updated.' + (r.campaign?.status === 'draft' && c.status !== 'draft' ? ' It went back to draft; submit it again for approval.' : '') : 'Draft saved.'); render('campaignstudio', saved.id); }); } },
-        field('Campaign name', f.name), founder ? el('p', { class: 'sx-source', text: 'Platform campaigns are email only and go to Oprun newsletter subscribers. Business customers are never included.' }) : field('Channel', f.channel), wrapS, field('Message', f.body, 'Use {first_name} to personalise. Your business name, address and an unsubscribe link (or "Reply STOP") are added automatically.'), wrapC, wrapT, field('Send at (optional)', f.at, 'Leave blank to send as soon as it is approved.'), wrapSeg,
+      const save = async () => { const p = payload(); if (p.channels) { if (!p.channels.length) throw new Error('Tick at least one channel.'); const r = await post(`${campBase}/bundle`, p); saved.id = r.campaigns?.[0]?.id || saved.id; r.bundle = true; return r; } if (multi && !chosen().length) throw new Error('Tick at least one channel.'); const r = saved.id ? await post(`${campBase}/${encodeURIComponent(saved.id)}`, p, 'PUT') : await post(campBase, p); saved.id = r.campaign?.id || saved.id; return r; };
+      const form = el('form', { class: 'cx-form', onsubmit: (e) => { e.preventDefault(); busy(e.submitter || form.querySelector('[type=submit]'), async () => { const r = await save(); if (r.bundle) { say(`Drafts saved for ${r.campaigns.map((x) => CH[x.channel] || x.channel).join(', ')}. Submit them all for approval below.`); render('campaignstudio', { open: saved.id }); return; } say(c ? 'Campaign updated.' + (r.campaign?.status === 'draft' && c.status !== 'draft' ? ' It went back to draft; submit it again for approval.' : '') : 'Draft saved.'); render('campaignstudio', saved.id); }); } },
+        field('Campaign name', f.name), founder ? el('p', { class: 'sx-source', text: 'Platform campaigns are email only and go to Oprun newsletter subscribers. Business customers are never included.' }) : multi ? wrapCh : field('Channel', f.channel), wrapS, field('Message', f.body, 'Use {first_name} to personalise. Your business name, address and an unsubscribe link (or "Reply STOP") are added automatically.'), wrapC, wrapT, field('Send at (optional)', f.at, 'Leave blank to send as soon as it is approved.'), wrapSeg,
         el('div', { class: 'pl-actions' },
           el('button', { type: 'submit', class: 'portal-button primary', text: c ? 'Save changes' : 'Save draft' }),
           el('button', { type: 'button', class: 'portal-button', text: 'Preview audience', onclick: (e) => busy(e.target, async () => { const p = payload(); if (p.channel === 'social') { preview.textContent = 'Social posts go to your connected accounts, not to a list of people.'; return; } const r = await api(`${campBase}/audience/preview?` + new URLSearchParams({ channel: p.channel, segment: JSON.stringify(p.segment) })); preview.textContent = `${r.eligible} of ${r.total} would receive it. Left out: ${r.excluded.no_consent} without consent, ${r.excluded.suppressed} unsubscribed, ${r.excluded.no_address} without an address.${r.sample.length ? ' For example: ' + r.sample.join(', ') + '.' : ''}`; }) }),
@@ -228,9 +250,12 @@
 
     async function openCampaign(cid, b) {
       const d = await api(`${campBase}/${encodeURIComponent(cid)}`); const c = d.campaign;
+      // T-178: drafts made together with "Select all" share a group; they can be submitted in one tap.
+      const group = c.group_id ? (await api(campBase)).campaigns.filter((x) => x.group_id === c.group_id) : [];
       const box = el('div');
       const can = ['draft', 'rejected'].includes(c.status), cancellable = ['draft', 'pending_approval', 'approved', 'scheduled'].includes(c.status);
       box.append(section(c.name, el('p', { class: 'pl-meta' }, `${CH[c.channel]} · `, chip(c.status), c.send_at ? ` · sends ${when(c.send_at)}` : ''),
+        group.length > 1 ? el('p', { class: 'sx-source' }, 'Sent together on: ', ...group.map((x, i) => [i ? ', ' : '', x.id === c.id ? el('strong', { text: CH[x.channel] || x.channel }) : el('button', { type: 'button', class: 'text-button', text: `${CH[x.channel] || x.channel} (${x.status.replace(/_/g, ' ')})`, onclick: () => openCampaign(x.id, b) })]).flat()) : null,
         c.channel !== 'social' ? el('p', { text: `Audience: ${c.audience.eligible} eligible of ${c.audience.total}. Left out: ${c.audience.excluded.no_consent} without consent, ${c.audience.excluded.suppressed} unsubscribed.` }) : el('p', { text: `Platforms: ${(c.social_targets || []).join(', ') || 'none chosen'}. Approved posts go into the content calendar.` }),
         c.channel !== 'social' ? el('p', { text: `Results: ${c.stats.sent} sent, ${c.stats.delivered} delivered, ${c.stats.opened} opened, ${c.stats.clicked} clicked, ${c.stats.replies} replied, ${c.stats.unsubscribed} unsubscribed, ${c.stats.failed} failed. Enquiries in the 30 days after: ${c.stats.enquiries_30d}.` }) : null,
         c.channel !== 'social' ? el('p', { class: 'sx-source', text: c.stats.note }) : null,
@@ -238,7 +263,8 @@
         el('ul', { class: 'sx-list' }, c.compliance.rules.map((x) => el('li', { text: x }))),
         el('h3', { text: 'Suggestions' }), el('ul', { class: 'sx-list' }, c.recommendations.map((x) => el('li', { text: x }))),
         el('div', { class: 'pl-actions' },
-          can ? el('button', { type: 'button', class: 'portal-button primary', text: 'Submit for approval', disabled: c.compliance.issues.length ? true : null, onclick: (e) => busy(e.target, async () => { const r = await post(`${campBase}/${encodeURIComponent(cid)}/submit`); say(r.message); render('campaignstudio'); }) }) : null,
+          group.length > 1 && group.some((x) => ['draft', 'rejected'].includes(x.status)) ? el('button', { type: 'button', class: 'portal-button primary', text: `Submit all ${group.length} channels for approval`, onclick: (e) => busy(e.target, async () => { const r = await post(`${campBase}/bundle/${encodeURIComponent(c.group_id)}/submit`); const bad = (r.results || []).filter((x) => !x.ok); say(r.message + (bad.length ? ' Not submitted: ' + bad.map((x) => `${CH[x.channel] || x.channel} (${x.error})`).join('; ') : '')); render('campaignstudio'); }) }) : null,
+          can ? el('button', { type: 'button', class: group.length > 1 ? 'portal-button' : 'portal-button primary', text: group.length > 1 ? `Submit ${CH[c.channel] || c.channel} only` : 'Submit for approval', disabled: c.compliance.issues.length ? true : null, onclick: (e) => busy(e.target, async () => { const r = await post(`${campBase}/${encodeURIComponent(cid)}/submit`); say(r.message); render('campaignstudio'); }) }) : null,
           c.status === 'pending_approval' ? (founder ? el('p', { text: 'Waiting for approval under Operations > AI automations.' }) : el('a', { class: 'cx-linkbtn', href: '#today/approvals', text: 'Waiting for approval: open approvals' })) : null,
           cancellable ? el('button', { type: 'button', class: 'portal-button', text: 'Cancel campaign', onclick: (e) => busy(e.target, async () => { await post(`${campBase}/${encodeURIComponent(cid)}/cancel`); say('Campaign cancelled. Nothing more will be sent.'); render('campaignstudio'); }) }) : null),
         d.recipients.length ? [el('h3', { text: 'Recipients' }), table([['address', 'Address'], ['name', 'Name'], ['status', 'Status', (v) => chip(v)], ['sent_at', 'Sent', when], ['clicked_at', 'Clicked', when], ['error', 'Problem']], d.recipients)] : null));
