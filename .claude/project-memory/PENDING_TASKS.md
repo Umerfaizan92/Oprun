@@ -526,13 +526,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: Over-budget pages cannot publish without the owner accepting the warning
 
-## T-155 W-09 AI Website: Cloudflare for SaaS: custom hostnames API, host middleware, status polling, cache purge on
-- Status: NOT_STARTED
-- Added: 2026-11-19
-- Requirement: Cloudflare for SaaS: custom hostnames API, host middleware, status polling, cache purge on publish (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
-- Files: see docs/ai-website/02_ARCHITECTURE.md
-- Acceptance: A test domain goes `added → active`; unknown hosts get 404; another business's host never serves this site
-
 ## T-156 W-10 AI Website: DNS connections (Cloudflare token, Porkbun key), diff + approval + write + verify
 - Status: NOT_STARTED
 - Added: 2026-11-19

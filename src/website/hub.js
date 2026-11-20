@@ -59,7 +59,7 @@ export function createDnsLookup({ fetchImpl = globalThis.fetch, timeoutMs = 6000
   };
 }
 
-export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(), fetchImpl = globalThis.fetch, crawl = crawlSite, publicBase = () => 'https://www.oprun.ai', log = console }) {
+export function createWebsiteHub({ db, seo, ai = null, edge = null, lookup = createDnsLookup(), fetchImpl = globalThis.fetch, crawl = crawlSite, publicBase = () => 'https://www.oprun.ai', log = console }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS website_domains (id TEXT PRIMARY KEY, organisation_id TEXT NOT NULL, hostname TEXT NOT NULL UNIQUE, is_primary INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'added', verify_token TEXT NOT NULL, verified_at TEXT, hosting_status TEXT NOT NULL DEFAULT 'waiting', last_checked_at TEXT, last_result_json TEXT, created_by TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
@@ -70,6 +70,10 @@ export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(
     CREATE TABLE IF NOT EXISTS website_listings (organisation_id TEXT NOT NULL, listing TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'not_started', url TEXT, note TEXT, updated_by TEXT, updated_at TEXT NOT NULL, PRIMARY KEY (organisation_id, listing));
     CREATE TABLE IF NOT EXISTS website_link_snapshots (id TEXT PRIMARY KEY, organisation_id TEXT NOT NULL, source TEXT NOT NULL, taken_at TEXT NOT NULL, referring_domains INTEGER NOT NULL, links INTEGER NOT NULL, top_json TEXT NOT NULL, created_by TEXT);
     CREATE INDEX IF NOT EXISTS website_link_snapshots_org ON website_link_snapshots(organisation_id, taken_at);`);
+
+  { const have = new Set(db.prepare('PRAGMA table_info(website_domains)').all().map((c) => c.name));
+    for (const [n, t] of [['cf_hostname_id', 'TEXT'], ['hosting_json', 'TEXT']]) if (!have.has(n)) db.exec(`ALTER TABLE website_domains ADD COLUMN ${n} ${t}`); }
+  const edgeOn = () => Boolean(edge?.ready);
 
   const org = (o) => db.prepare('SELECT id, COALESCE(display_name,name) name, abn, brand_primary_color color FROM organisations WHERE id=?').get(o) || {};
   const profile = (o) => db.prepare('SELECT * FROM onboarding_profiles WHERE organisation_id=?').get(o) || {};
@@ -104,7 +108,7 @@ export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(
       { key: 'search', label: 'Google Search Console connected', done: google.includes('search_console') },
       { key: 'listings', label: 'Business listed on at least 3 directories', done: listings >= 3 }
     ];
-    return { facts: f, site: siteInfo, published_pages: published, domains, email, website_connection: conn, audit, listings_done: listings, checklist, links: { spaceship: DOMAIN_LINKS.spaceship_search(''), ventraip: DOMAIN_LINKS.ventraip_search, cloudflare: DOMAIN_LINKS.cloudflare_register, auda: DOMAIN_LINKS.auda_eligibility }, hosting_note: 'Custom domains are served once Oprun switches on secure hosting for business domains. Until then your site is live at its free oprun.ai address and your domain checks are saved.' };
+    return { facts: f, site: siteInfo, published_pages: published, domains, email, website_connection: conn, audit, listings_done: listings, checklist, links: { spaceship: DOMAIN_LINKS.spaceship_search(''), ventraip: DOMAIN_LINKS.ventraip_search, cloudflare: DOMAIN_LINKS.cloudflare_register, auda: DOMAIN_LINKS.auda_eligibility }, hosting_note: edgeOn() ? 'Add both records at your DNS host, then press Check now. When the domain shows Live, your published pages appear on it with a free security certificate. Your site also stays at its free oprun.ai address.' : 'Custom domains are served once Oprun switches on secure hosting for business domains. Until then your site is live at its free oprun.ai address and your domain checks are saved.', hosting_ready: edgeOn() };
   }
 
   // ---------- 1. Build: a new site from Oprun facts ----------
@@ -213,7 +217,45 @@ export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(
   }
 
   // ---------- 3. Domains ----------
-  const domainOut = (d) => ({ id: d.id, hostname: d.hostname, is_primary: Boolean(d.is_primary), status: d.status, hosting_status: d.hosting_status, verified_at: d.verified_at, last_checked_at: d.last_checked_at, check: J(d.last_result_json, null), records: [{ type: 'TXT', name: `_oprun.${d.hostname.replace(/^www\./, '')}`, value: `oprun-verify=${d.verify_token}`, purpose: 'Proves this domain is yours' }] });
+  const domainOut = (d) => {
+    const hosting = J(d.hosting_json, null);
+    const records = [{ type: 'TXT', name: `_oprun.${d.hostname.replace(/^www\./, '')}`, value: `oprun-verify=${d.verify_token}`, purpose: 'Proves this domain is yours' }];
+    if (edgeOn()) records.push({ type: 'CNAME', name: d.hostname, value: edge.config.target, purpose: d.hostname.startsWith('www.') ? 'Shows your Oprun website on this address' : 'Shows your Oprun website here. Many DNS hosts do not allow CNAME on the main domain: use www. and forward the main domain to it' });
+    for (const r of hosting?.records || []) records.push(r);
+    return { id: d.id, hostname: d.hostname, is_primary: Boolean(d.is_primary), status: d.status, hosting_status: d.hosting_status, hosting_errors: hosting?.errors || [], verified_at: d.verified_at, last_checked_at: d.last_checked_at, check: J(d.last_result_json, null), records, live_url: d.hosting_status === 'active' ? `https://${d.hostname}/` : null };
+  };
+  /** Creates or refreshes the Cloudflare custom hostname for a verified domain. Never throws. */
+  async function refreshHosting(d) {
+    if (!edgeOn() || d.status !== 'verified') return d;
+    try {
+      let h;
+      if (!d.cf_hostname_id) { h = await edge.addHostname(d.hostname); db.prepare('UPDATE website_domains SET cf_hostname_id=? WHERE id=?').run(h.id, d.id); }
+      else h = await edge.getHostname(d.cf_hostname_id);
+      const sum = edge.summarise(h);
+      db.prepare('UPDATE website_domains SET hosting_status=?,hosting_json=?,updated_at=? WHERE id=?').run(sum.status, JSON.stringify(sum), iso(), d.id);
+    } catch (e) {
+      db.prepare('UPDATE website_domains SET hosting_json=?,updated_at=? WHERE id=?').run(JSON.stringify({ errors: [clip(e.message, 200)], records: J(d.hosting_json, {})?.records || [] }), iso(), d.id);
+      log.warn('[WEBSITE] hosting check failed for a domain:', clip(e.message, 160));
+    }
+    return db.prepare('SELECT * FROM website_domains WHERE id=?').get(d.id);
+  }
+  /** Background: domains waiting for their certificate are re-checked (up to 14 days after being added). */
+  async function pollHosting() {
+    if (!edgeOn()) return 0;
+    const due = db.prepare("SELECT * FROM website_domains WHERE status='verified' AND hosting_status IN ('waiting','pending','ssl_pending') AND created_at > ? ORDER BY updated_at LIMIT 20").all(new Date(Date.now() - 14 * 86400000).toISOString());
+    for (const d of due) await refreshHosting(d);
+    return due.length;
+  }
+  /** The site a verified, live custom hostname shows. Null for anything else. */
+  function hostSite(host) {
+    const h = String(host || '').toLowerCase().replace(/\.$/, '');
+    if (!edgeOn() || !HOST.test(h)) return null;
+    const d = db.prepare("SELECT organisation_id FROM website_domains WHERE hostname=? AND status='verified' AND hosting_status IN ('active','ssl_pending','pending')").get(h);
+    if (!d) return null;
+    const s = firstSite(d.organisation_id);
+    return s ? { organisation_id: d.organisation_id, site_id: s.id, slug: s.slug, hostname: h } : null;
+  }
+  const redirectFor = (siteId, path) => db.prepare('SELECT to_path,code FROM website_redirects WHERE site_id=? AND from_path=?').get(siteId, path) || null;
   function addDomain(o, actor, input) {
     const p = z.object({ hostname: z.string().trim().toLowerCase().max(253) }).strict().safeParse(input);
     const host = p.success ? p.data.hostname.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\.$/, '') : '';
@@ -237,11 +279,13 @@ export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(
     } catch (e) { result.error = clip(e.message, 160); }
     const status = result.ownership ? 'verified' : result.error ? d.status : 'dns_pending';
     db.prepare('UPDATE website_domains SET status=?,verified_at=COALESCE(verified_at,CASE WHEN ?=\'verified\' THEN ? END),last_checked_at=?,last_result_json=?,updated_at=? WHERE id=?').run(status, status, result.checked_at, result.checked_at, JSON.stringify(result), result.checked_at, d.id);
-    return { ok: true, domain: domainOut(db.prepare('SELECT * FROM website_domains WHERE id=?').get(d.id)) };
+    const fresh = await refreshHosting(db.prepare('SELECT * FROM website_domains WHERE id=?').get(d.id));
+    return { ok: true, domain: domainOut(fresh) };
   }
-  function removeDomain(o, id) {
+  async function removeDomain(o, id) {
     const d = db.prepare('SELECT * FROM website_domains WHERE id=? AND organisation_id=?').get(id, o);
     if (!d) return { ok: false, status: 404, error: 'Domain not found.' };
+    if (d.cf_hostname_id && edgeOn()) { try { await edge.deleteHostname(d.cf_hostname_id); } catch (e) { log.warn('[WEBSITE] could not remove the hosting entry:', clip(e.message, 160)); } }
     db.prepare('DELETE FROM website_domains WHERE id=?').run(d.id);
     return { ok: true, hostname: d.hostname };
   }
@@ -347,7 +391,7 @@ export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(
     app.get('/api/saas/website/redirects', requireSaasUser, can('visibility', 'read'), wrap((req, res) => res.json({ ok: true, redirects: db.prepare('SELECT from_path,to_path,code,source,created_at FROM website_redirects WHERE organisation_id=? ORDER BY from_path LIMIT 500').all(O(req)) })));
     app.post('/api/saas/website/domains', requireSaasUser, ownerOnly, checks, wrap((req, res) => { const r = addDomain(O(req), U(req), req.body || {}); if (r.ok) saasAudit(req, 'website.domain_added', 'website_domain', r.domain.id, { hostname: r.domain.hostname }); send(res, r, 201); }));
     app.post('/api/saas/website/domains/:id/check', requireSaasUser, can('visibility', 'read'), checks, wrap(async (req, res) => { const r = await checkDomain(O(req), req.params.id); if (r.ok && r.domain.status === 'verified') saasAudit(req, 'website.domain_checked', 'website_domain', r.domain.id, { hostname: r.domain.hostname, verified: true }); send(res, r); }));
-    app.delete('/api/saas/website/domains/:id', requireSaasUser, ownerOnly, wrap((req, res) => { const r = removeDomain(O(req), req.params.id); if (r.ok) saasAudit(req, 'website.domain_removed', 'website_domain', req.params.id, { hostname: r.hostname }); send(res, r); }));
+    app.delete('/api/saas/website/domains/:id', requireSaasUser, ownerOnly, wrap(async (req, res) => { const r = await removeDomain(O(req), req.params.id); if (r.ok) saasAudit(req, 'website.domain_removed', 'website_domain', req.params.id, { hostname: r.hostname }); send(res, r); }));
     app.post('/api/saas/website/email', requireSaasUser, ownerOnly, checks, wrap(async (req, res) => { const r = await emailSetup(O(req), U(req), req.body || {}); if (r.ok) saasAudit(req, 'website.email_setup', 'website_email', r.email.domain, { provider: r.email.provider }); send(res, r); }));
     app.post('/api/saas/website/email/check', requireSaasUser, can('visibility', 'read'), checks, wrap(async (req, res) => send(res, await emailCheck(O(req), req.body?.domain))));
     app.get('/api/saas/website/growth', requireSaasUser, can('visibility', 'read'), wrap((req, res) => res.json({ ok: true, ...growth(O(req)) })));
@@ -356,5 +400,5 @@ export function createWebsiteHub({ db, seo, ai = null, lookup = createDnsLookup(
     app.get('/api/saas/website/activity', requireSaasUser, can('visibility', 'read'), wrap((req, res) => res.json({ ok: true, activity: activity(O(req)) })));
   }
 
-  return { install, overview, buildNew, transfer, addDomain, checkDomain, removeDomain, emailSetup, emailCheck, emailRecords, listings, saveListing, importLinks, growth, activity, facts };
+  return { install, overview, buildNew, transfer, addDomain, checkDomain, removeDomain, refreshHosting, pollHosting, hostSite, redirectFor, emailSetup, emailCheck, emailRecords, listings, saveListing, importLinks, growth, activity, facts };
 }

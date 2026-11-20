@@ -157,7 +157,8 @@
         el('p', { text: x.body }),
         x.direction === 'outbound' ? el('span', { class: 'cx-row' }, chip(x.sched_state === 'failed' ? 'failed' : x.status), x.send_at ? el('small', { text: 'Scheduled for ' + when(x.send_at) }) : null,
           x.status === 'pending_approval' ? el('a', { href: '#today/approvals', class: 'cx-linkbtn', text: 'Open approvals' }) : null,
-          x.status === 'approved' && !x.send_at ? el('button', { type: 'button', class: 'portal-button primary', text: 'Send', onclick: (e) => busy(e.target, async () => { await post(`/api/saas/comms/messages/${encodeURIComponent(x.id)}/send`); say('Sent.'); refresh(); }) }) : null) : null)));
+          (x.status === 'approved' && !x.send_at) || x.status === 'failed' ? el('button', { type: 'button', class: 'portal-button primary', text: x.status === 'failed' ? 'Try again' : 'Send', onclick: (e) => busy(e.target, async () => { await post(`/api/saas/comms/messages/${encodeURIComponent(x.id)}/send`); say('Sent.'); refresh(); }) }) : null) : null,
+        x.direction === 'outbound' && x.sched_error && ['failed', 'approved'].includes(x.status) ? el('p', { class: 'portal-note', 'data-tone': 'bad', text: 'Not sent: ' + x.sched_error.replace(/^(sms|email) failed: /, '') }) : null)));
       const esc = m.escalation;
       const ai = section('AI summary', el('dl', { class: 'cx-dl' },
         el('dt', { text: 'Type' }), el('dd', { text: m.category ? (m.category_label || m.category[0].toUpperCase() + m.category.slice(1).replace(/_/g, ' ')) : 'Not analysed' }),

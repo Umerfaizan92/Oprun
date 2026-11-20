@@ -104,7 +104,7 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
     const isForm = !req.is('application/json');
     const b = formSchema.safeParse(req.body);
     const ownBack = () => { try { const u = new URL(String(req.body?.return_to || '')), own = siteOrigin(req.params.slug); return own && u.origin.toLowerCase() === own && !u.username && !u.password ? own + u.pathname : null; } catch { return null; } };
-    const back = (q) => { const local = String(req.body?.return_to || '').startsWith('/sites/') ? String(req.body.return_to).split('?')[0] : null, to = local || ownBack(); if (!to) return false; res.redirect(303, `${to}?${q}#contact`); return true; };
+    const back = (q) => { const rt = String(req.body?.return_to || ''), local = rt.startsWith('/sites/') || (req.edgeSite && /^\/(?![/\\])/.test(rt)) ? rt.split('?')[0].split('#')[0] : null, to = local || ownBack(); if (!to) return false; res.redirect(303, `${to}?${q}#contact`); return true; };
     if (!b.success || (!b.data.email && !b.data.phone)) { if (isForm && back('form=error')) return; return res.status(400).json({ ok: false, error: 'Add your name, a message, and an email or phone number.' }); }
     if (b.data.website) { if (isForm && back('form=sent')) return; return res.status(201).json({ ok: true }); }
     // T-071: a visitor who arrived through a tracked link carries its code in the form or in the page address.

@@ -98,8 +98,8 @@ test('domains: validated, unique across businesses, verified only by the exact D
   const ok2 = createWebsiteHub({ db: ok.db, seo: {}, lookup: async (n, t) => dns[`${t} ${n}`] || [], log: { warn() {}, error() {} } });
   c = await ok2.checkDomain(A, d.id);
   assert.equal(c.domain.status, 'verified'); assert.equal(c.domain.check.resolves, true); assert.equal(c.domain.check.has_email, true);
-  assert.equal(ok2.removeDomain(B, d.id).status, 404);
-  assert.ok(ok2.removeDomain(A, d.id).ok);
+  assert.equal((await ok2.removeDomain(B, d.id)).status, 404);
+  assert.ok((await ok2.removeDomain(A, d.id)).ok);
 });
 
 test('email: needs an added domain, merges SPF into one record, and verifies MX, SPF and DMARC', async () => {

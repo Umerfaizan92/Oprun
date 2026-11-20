@@ -88,3 +88,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-19: T-143 receptionist v2 shipped; lifecycle phase 2 (customer quote accept link, auto booking, allocator approval, day-of reminders to customer/team/worker, invoice approval, review request) is next.
 - 2026-11-19: Shipped quote acceptance + review links (T-145) and the one Website section (T-147: build, transfer, domain, email, growth, activity). Next: custom-domain hosting (needs Cloudflare for SaaS from owner), reminders T-164, allocator T-165, invoice sending T-166.
 - 2026-11-20: T-164 reminders, T-165 allocator choice + confirmations, T-166 invoice + payment link sending shipped.
+- 2026-11-20: SMS send failures now show the Telnyx reason, failed messages can be retried, AU numbers normalised to +61, raw transcript text kept out of customer texts.
