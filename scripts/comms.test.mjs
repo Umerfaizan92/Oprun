@@ -414,3 +414,42 @@ test('media studio: "Select all platforms" saves one render per platform in that
   r = await O('POST', '/api/saas/video-renders', { quality: '1080p', edit_spec: { ...spec, platform: 'TikTok' } });
   assert.equal(r.status, 201); assert.equal(r.json.ids.length, 1, 'one platform still works as before');
 });
+
+test('campaigns and posts: several photos and a video travel with a campaign, appear in the email and the calendar (T-179)', async (t) => {
+  const { s, mock, owner, O, sql, stop } = await setup(); t.after(stop);
+  const now = new Date().toISOString();
+  const upload = async (cookie, files) => { const form = new FormData(); for (const [name, type] of files) form.append('files', new Blob([Buffer.from('fake-bytes-' + name)], { type }), name); const r = await fetch(s.base + '/api/saas/media', { method: 'POST', headers: { cookie }, body: form }); return { status: r.status, json: await r.json() }; };
+  const up = await upload(owner.cookie, [['before.jpg', 'image/jpeg'], ['after.jpg', 'image/jpeg'], ['walkthrough.mp4', 'video/mp4']]);
+  assert.equal(up.status, 201, JSON.stringify(up.json)); const [p1, p2, v1] = up.json.ids;
+  const other = await seedOwner(s, { business: 'Other Media Co', email: 'other-media@other.example.test' });
+  const foreign = (await upload(other.cookie, [['x.jpg', 'image/jpeg']])).json.ids[0];
+  sql("INSERT INTO tenant_customers(id,organisation_id,name,email,status,source,created_at,updated_at) VALUES (?,?,?,?,'current','manual',?,?)", crypto.randomUUID(), owner.org, 'Ana Ruiz', 'ana@ruiz.example.test', now, now);
+  assert.equal((await O('POST', '/api/saas/comms/consents', { channel: 'email', address: 'ana@ruiz.example.test', status: 'granted', evidence: 'Counter sign-up' })).status, 201);
+  const base = { name: 'Before and after', subject: 'See the difference', body: 'Hi {first_name}, here is a recent job.', segment: {} };
+  // Another business's photo can never be attached.
+  assert.equal((await O('POST', '/api/saas/growth/campaigns', { ...base, channel: 'email', media_ids: [p1, foreign] })).status, 400);
+  let r = await O('POST', '/api/saas/growth/campaigns/bundle', { ...base, channels: ['email', 'social'], social_targets: ['facebook', 'instagram'], media_ids: [p1, p2, v1] });
+  assert.equal(r.status, 201, r.text);
+  assert.deepEqual(r.json.campaigns[0].media.map((m) => m.kind), ['photo', 'photo', 'video']);
+  r = await O('POST', `/api/saas/growth/campaigns/bundle/${r.json.group_id}/submit`, {});
+  assert.equal(r.status, 201, r.text);
+  for (const ap of (await O('GET', '/api/saas/approvals')).json.approvals.filter((a) => a.status === 'pending')) assert.ok([200, 201].includes((await O('POST', `/api/saas/approvals/${ap.id}/decision`, { decision: 'approve' })).status));
+  await sleep(1200);
+  const email = mock.calls.find((c) => c.path === '/resend/emails');
+  assert.ok(email, 'email sent after approval');
+  const links = [...email.body.html.matchAll(/(?:src|href)="([^"]*\/m\/[^"]+)"/g)].map((m) => m[1]);
+  assert.equal(links.filter((l, i) => links.indexOf(l) === i).length, 3, 'two photos shown and a link to the video');
+  assert.match(email.body.html, /Watch the video/);
+  const pic = await fetch(links[0].replace(/^https?:\/\/[^/]+/, s.base));
+  assert.equal(pic.status, 200); assert.equal(pic.headers.get('content-type'), 'image/jpeg');
+  assert.equal((await fetch(links[0].replace(/^https?:\/\/[^/]+/, s.base).replace(/.$/, (ch) => (ch === 'A' ? 'B' : 'A')))).status, 404, 'a changed link reaches nothing');
+  const posts = sql("SELECT platform,post_type,media_json FROM growth_calendar WHERE organisation_id=? AND pillar='campaign' ORDER BY platform", owner.org);
+  assert.deepEqual(posts.map((p) => [p.platform, p.post_type, JSON.parse(p.media_json).length]), [['facebook', 'reel', 3], ['instagram', 'reel', 3]]);
+  // A calendar post's photos can be changed; the post goes back to draft for approval.
+  const item = sql("SELECT id FROM growth_calendar WHERE organisation_id=? AND platform='instagram'", owner.org)[0];
+  sql("UPDATE growth_calendar SET status='approved' WHERE id=?", item.id);
+  r = await O('PATCH', `/api/saas/growth/calendar/${item.id}`, { media_ids: [p2, p1] });
+  assert.equal(r.status, 200, r.text); assert.equal(r.json.item.post_type, 'carousel'); assert.equal(r.json.item.status, 'draft');
+  assert.deepEqual(r.json.item.media.map((m) => m.id), [p2, p1]);
+  assert.equal((await O('PATCH', `/api/saas/growth/calendar/${item.id}`, { media_ids: [foreign] })).status, 400);
+});

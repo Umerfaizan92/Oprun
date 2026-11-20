@@ -80,15 +80,16 @@
     if(canApprove()&&['approved','failed','due'].includes(i.status)&&i.auto_publish)acts.push(el('button',{class:'primary-button compact',type:'button',text:'Post now',onclick:async()=>{try{const r=await api(`/api/saas/growth/calendar/${i.id}/publish`,{method:'POST',body:'{}'});note(r.status==='published'?'Posted.':'Marked ready to post.');await loadCalendar()}catch(e){note(e.message,true);await loadCalendar()}}}));
     if(canApprove()&&i.status==='draft')acts.push(el('button',{class:'primary-button compact',type:'button',text:'Approve',onclick:async()=>{try{await api('/api/saas/growth/calendar/approve',{method:'POST',body:JSON.stringify({ids:[i.id]})});await loadCalendar()}catch(e){note(e.message,true)}}}));
     return el('article',{class:'row-card gr-item'},el('header',{},el('b',{text:i.hook}),el('div',{class:'gr-meta'},badge(st,tone),badge(i.pillar,'neutral'))),
-      ...(i.body?[el('p',{text:i.body})]:[]),el('div',{class:'muted',text:`${time} · ${PLATFORMS.find(p=>p[0]===i.platform)?.[1]||i.platform} · ${TYPE[i.post_type]||i.post_type}${i.error?' · '+i.error:''}`}),el('div',{class:'gr-actions'},...acts));
+      ...(i.body?[el('p',{text:i.body})]:[]),...((i.media||[]).length?[el('div',{class:'gr-media'},...i.media.slice(0,4).map(m=>m.kind==='video'?el('span',{class:'gr-media-video',text:'Video'}):el('img',{src:`/api/saas/media/${encodeURIComponent(m.id)}/file`,alt:'',loading:'lazy'})),...(i.media.length>4?[el('span',{class:'gr-media-more',text:`+${i.media.length-4}`})]:[]))]:[]),el('div',{class:'muted',text:`${time} · ${PLATFORMS.find(p=>p[0]===i.platform)?.[1]||i.platform} · ${TYPE[i.post_type]||i.post_type}${i.error?' · '+i.error:''}`}),el('div',{class:'gr-actions'},...acts));
   }
   async function patch(i,body){try{await api(`/api/saas/growth/calendar/${i.id}`,{method:'PATCH',body:JSON.stringify(body)});await loadCalendar()}catch(e){note(e.message,true)}}
   function edit(i){
-    const f=el('form',{method:'dialog',class:'cust-form'},el('h2',{text:'Edit post'}),field('First line','hook',{value:i.hook,required:true,maxlength:'300'}),area('Post text','body',i.body),
+    const picker=window.OprunMediaPicker?.create({selected:i.media||[],hint:'Up to 10. Facebook Pages get them posted automatically; other platforms show them ready to post.'});
+    const f=el('form',{method:'dialog',class:'cust-form'},el('h2',{text:'Edit post'}),field('First line','hook',{value:i.hook,required:true,maxlength:'300'}),area('Post text','body',i.body),...(picker?[picker.element]:[]),
       el('p',{class:'muted',text:'Editing an approved post sends it back to draft so you can approve it again.'}),
       el('div',{class:'gr-actions'},el('button',{class:'primary-button compact',value:'save',text:'Save'}),el('button',{class:'secondary-button compact',type:'button',text:'Cancel',onclick:ev=>ev.target.closest('dialog').close()})));
     const d=el('dialog',{class:'modal'},f);document.body.append(d);d.addEventListener('close',()=>d.remove());
-    f.addEventListener('submit',async e=>{if(e.submitter?.value!=='save')return;e.preventDefault();await patch(i,{hook:f.elements.hook.value,body:f.elements.body.value});d.close()});
+    f.addEventListener('submit',async e=>{if(e.submitter?.value!=='save')return;e.preventDefault();const body={hook:f.elements.hook.value,body:f.elements.body.value};if(picker){const ids=picker.value(),was=(i.media||[]).map(m=>m.id);if(ids.join()!==was.join())body.media_ids=ids}await patch(i,body);d.close()});
     d.showModal();
   }
   function renderReuse(){

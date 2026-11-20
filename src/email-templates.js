@@ -51,6 +51,11 @@ export function renderEmail(brand, frame) {
   const links = (brand.links || communicationLinks()).filter(([, url]) => safeUrl(url));
   const logo = safeUrl(brand.logoSrc) || (brand.logoSrc === 'cid:brandlogo' ? brand.logoSrc : '');
   const paragraph = (value) => escapeHtml(value).replace(/\n/g, '<br>');
+  // T-179: campaign photos (and a link for each video), shown one under the other at full message width.
+  const images = (frame.images || []).filter((m) => safeUrl(m.src) || safeUrl(m.href)).slice(0, 10);
+  const gallery = images.map((m) => m.src && safeUrl(m.src)
+    ? `<p style="margin:12px 0"><a href="${escapeHtml(safeUrl(m.href) || m.src)}"><img src="${escapeHtml(m.src)}" alt="${escapeHtml(m.alt || '')}" width="520" style="display:block;width:100%;max-width:520px;height:auto;border-radius:10px;border:0"></a></p>`
+    : `<p style="margin:12px 0"><a href="${escapeHtml(m.href)}" style="color:#594218;font-weight:700;text-decoration:underline">${escapeHtml(m.alt || 'Watch the video')}</a></p>`).join('');
 
   const codePanel = verification ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border:1px solid #d9c294;border-radius:12px"><tr><td bgcolor="#faf3e5" style="background:#faf3e5;padding:16px 18px;border-radius:12px">
     <p style="margin:0 0 5px;color:#5e451c;font-size:13px;font-weight:700">${escapeHtml(verification.label)}</p>
@@ -74,7 +79,7 @@ export function renderEmail(brand, frame) {
 <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:22px 20px;color:#17202d">
 <h1 style="margin:0 0 10px;color:#17202d;font-size:24px;line-height:1.2">${escapeHtml(frame.heading)}</h1>
 ${paragraphs.map(t => `<p style="margin:0 0 10px;color:#313a49;font-size:15px;line-height:1.55">${paragraph(t)}</p>`).join('')}
-${codePanel}${details}${action}
+${gallery}${codePanel}${details}${action}
 ${notes.map(t => `<p style="margin:10px 0 0;color:#4b5565;font-size:13px;line-height:1.5">${paragraph(t)}</p>`).join('')}
 </td></tr>
 <tr><td bgcolor="#f7f8fa" style="background:#f7f8fa;border-top:1px solid #dde1e8;border-radius:0 0 13px 13px;padding:13px 20px;color:#4b5565;font-size:12px;line-height:1.55">
