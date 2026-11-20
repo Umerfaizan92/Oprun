@@ -589,3 +589,16 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
+## T-184 Video meetings quality, backgrounds, calendar and appointments
+- Status: NOT_STARTED
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: Oprun video with HD up to 4K/8K where possible and background change; meetings on a calendar; Work > Bookings gets Appointments (customer meetings) on the calendar with AI-assisted automated reminders and notifications; organise Zoom setup.
+- Files: TBD
+- Acceptance: TBD
+
+## T-185 Media Studio preview and AI video generation
+- Status: NOT_STARTED
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: preview and play generated videos and images inside Media Studio; enhance the AI setup and integrate the best AI video generators so any idea or prompt produces a top-quality video, AI-assisted.
+- Files: TBD
+- Acceptance: TBD

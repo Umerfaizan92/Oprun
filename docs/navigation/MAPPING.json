@@ -312,6 +312,20 @@
           "secondary": false
         },
         {
+          "view": "dialer",
+          "path": "communications/phone",
+          "label": "Phone",
+          "icon": "i-phone",
+          "roles": [
+            "owner",
+            "admin",
+            "manager",
+            "super_admin",
+            "director"
+          ],
+          "secondary": false
+        },
+        {
           "view": "voiceflow",
           "path": "communications/call-handling",
           "label": "Call Handling",

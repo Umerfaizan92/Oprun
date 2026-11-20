@@ -84,7 +84,7 @@ try {
     const p = await ctx.newPage(); p.setDefaultTimeout(10000); p.on('pageerror', e => errors.push(e.message));
     p.on('response', r => { if (r.url().includes('/api/') && r.status() >= 500) errors.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     await p.goto(s.base + '/saas/workspace.html'); await p.locator('#business-navigation .navigation-page').first().waitFor({ state: 'attached' });
-    assert.equal(await p.locator('#business-navigation .navigation-page').count(), 61);
+    assert.equal(await p.locator('#business-navigation .navigation-page').count(), 62);
     assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 8);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
     await p.locator('.topbar-actions .search-button').waitFor();

@@ -65,30 +65,6 @@
     return { toggle, box };
   }
 
-  // ---------- keypad: call a phone number ----------
-  function keypad(dial, say) {
-    const input = el('input', { class: 'mt-dial-number', type: 'tel', inputmode: 'tel', autocomplete: 'tel', 'aria-label': 'Phone number', placeholder: 'Enter a number' });
-    const press = (k) => { input.value += k; input.focus(); };
-    const keys = [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']];
-    const pad = el('div', { class: 'mt-pad', role: 'group', 'aria-label': 'Keypad' }, keys.map(([k, sub]) => el('button', { type: 'button', class: 'mt-key', 'aria-label': k === '0' ? '0, hold for plus' : k, onclick: () => press(k), oncontextmenu: (e) => { if (k === '0') { e.preventDefault(); press('+'); } } }, el('b', { text: k }), el('small', { text: sub }))));
-    const back = el('button', { type: 'button', class: 'mt-key mt-back', 'aria-label': 'Delete last digit', text: '⌫', onclick: () => { input.value = input.value.slice(0, -1); input.focus(); } });
-    const plus = el('button', { type: 'button', class: 'mt-key mt-plus', 'aria-label': 'Plus sign for international numbers', text: '+', onclick: () => press('+') });
-    const business = el('button', { type: 'button', class: 'portal-button primary mt-call', text: dial?.ready ? 'Call from business number' : 'Call', onclick: async (e) => {
-      const n = input.value.trim(); if (!n) { say('Enter a number first.', true); input.focus(); return; }
-      if (!dial?.ready) { location.href = 'tel:' + n.replace(/[^\d+*#]/g, ''); return; }
-      const b = e.currentTarget; b.disabled = true;
-      try { const r = await api('/api/saas/comms/dial', { method: 'POST', body: JSON.stringify({ to: n }) }); say(r.message); } catch (err) { say(err.message, true); } finally { b.disabled = false; }
-    } });
-    const phone = dial?.ready ? el('a', { class: 'portal-button', href: '#', text: 'Call from this phone', onclick: (e) => { e.preventDefault(); const n = input.value.trim(); if (n) location.href = 'tel:' + n.replace(/[^\d+*#]/g, ''); else say('Enter a number first.', true); } }) : null;
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') business.click(); });
-    const how = dial?.ready ? `Your mobile (${dial.your_mobile}) rings first; answer and you are connected. The other person sees ${dial.business_number}.`
-      : dial?.business_number ? 'Add your mobile number to your profile to call from the business number. Until then, calls go from this phone.'
-        : 'Calls go from this phone. Connect a business number in AI Receptionist to call from it instead.';
-    return el('article', { class: 'portal-panel mt-dialer', 'aria-labelledby': 'mt-dial-title' },
-      el('h3', { id: 'mt-dial-title', text: 'Phone call' }),
-      el('div', { class: 'mt-dial-top' }, input, back), pad, el('div', { class: 'mt-actions mt-dial-actions' }, plus, business, phone), el('small', { class: 'mt-hint', text: how }));
-  }
-
   async function draw(host) {
     const body = host.querySelector('[data-mt-body]'); if (!body) return;
     const status = host.querySelector('[data-mt-status]');
@@ -96,7 +72,7 @@
     const run = (fn) => async (e) => { const b = e.currentTarget; b.disabled = true; try { await fn(); } catch (err) { say(err.message, true); } finally { b.disabled = false; } };
     let d;
     try { d = await api('/api/saas/meetings'); } catch (e) { body.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); return; }
-    const [zoomInfo, dial] = await Promise.all([api('/api/saas/zoom').catch(() => null), api('/api/saas/comms/dial').catch(() => null)]);
+    const zoomInfo = await api('/api/saas/zoom').catch(() => null);
     const name = window.GDS_SESSION?.user?.full_name || window.GDS_SESSION?.user?.name || 'Team';
     const startNow = run(async () => {
       const made = await api('/api/saas/meetings', { method: 'POST', body: JSON.stringify({ title: `Meeting with ${name}`.slice(0, 120), mode: 'video', guests_allowed: true, notify_team: true }) });
@@ -181,7 +157,7 @@
     }
     const open = [...d.meetings.map(card), ...(zoomInfo?.meetings || []).map(zoomCard)];
     body.replaceChildren(...[
-      el('div', { class: 'mt-grid' }, quick, keypad(dial, say)),
+      quick,
       el('h3', { class: 'mt-section-title', text: 'Upcoming and open meetings' }),
       open.length ? el('ul', { class: 'mt-list' }, open) : el('p', { class: 'portal-empty', text: 'No meetings yet. Start one now or schedule one for later.' }),
       zoomPanel,

@@ -498,3 +498,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/platform-notices.js, saas/ds/refresh.css, saas/portal-shell.js, saas/workspace.html
 - Acceptance: Compact rows with icon, title, time, status chip; no space below footer on phone (only the tab bar) or laptop; footer compact; all suites pass
 - Evidence: npm test 73/73; test:ui 38, navigation-ui 608, redesign-ui, mobile-workspace-ui 311, localization-ui, meetings-ui; measured gap below footer = tab bar only (phone) and 0 (laptop) (recorded 2026-11-20 on claude/notifications-footer at 9cf8d50)
+
+## T-183 Phone page and desktop launcher overlap
+- Added: 2026-11-20
+- Requirement: Owner 2026-11-20: Office chat and Ask Oprun overlap the footer on desktop; move the keypad out of Video Meetings into its own Phone section in Communications with Keypad, Recents and Contacts (all customers' numbers), calling from the business number.
+- Files: saas/workspace-phone.js, src/meeting-extras.js, src/comms/voice.js, saas/workspace-nav.js, saas/locale-catalog.js, saas/workspace-meetings.js, saas/ds/refresh.css
+- Acceptance: Phone page with 3 tabs works on phone and desktop; recents and contacts from data; launchers inside footer band on desktop; all tests pass
+- Evidence: npm test 73/73; test:ui 38, navigation-ui 616, mobile-workspace-ui, redesign-ui, localization-ui, meetings-ui; browser check of keypad match, recents, contacts at 390/1440 (recorded 2026-11-20 on claude/phone-page at 25f8ff7)

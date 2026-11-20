@@ -226,7 +226,7 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     const j = await r.json().catch(() => ({}));
     const id = j?.data?.call_control_id;
     if (!r.ok || !id) throw Object.assign(new Error(j?.errors?.[0]?.detail ? `Telnyx refused the call: ${j.errors[0].detail}` : 'Telnyx did not start the call.'), { status: 502 });
-    db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,account,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)').run(id, j.data.call_session_id || null, org, 'business', customer, cr.number, 'c2c', 'tenant', iso(), iso());
+    db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,route,account,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(id, j.data.call_session_id || null, org, 'business', customer, cr.number, 'c2c', 'outgoing', 'tenant', iso(), iso());
     return { call_id: id };
   }
   return { handle, transfer, settings, businessNumber, clickToCall, setSettings: (k, s, by) => db.prepare('INSERT INTO voice_settings(owner_key,mode,transfer_number,recording_notice,voicemail_greeting,transfer_when,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner_key) DO UPDATE SET mode=excluded.mode,transfer_number=COALESCE(excluded.transfer_number,voice_settings.transfer_number),recording_notice=excluded.recording_notice,voicemail_greeting=excluded.voicemail_greeting,transfer_when=excluded.transfer_when,updated_by=excluded.updated_by,updated_at=excluded.updated_at').run(k, s.mode, s.transfer_number || null, s.recording_notice ? 1 : 0, s.voicemail_greeting || null, s.transfer_when || 'on_request', by, iso()),
