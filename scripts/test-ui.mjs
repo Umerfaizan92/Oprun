@@ -123,6 +123,15 @@ try{
     await page.evaluate(()=>{location.hash='website/backlinks'});await page.locator('#backlinks-view a[href="#website/home"]').waitFor({state:'visible'});
     page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
   });
+  await check('Bookings has reminder and confirmation settings that save',async()=>{
+    await page.setViewportSize({width:1440,height:900});
+    await page.evaluate(()=>{location.hash='work/bookings'});
+    const box=page.locator('#bookings-view details.pl-reminders');await box.waitFor({state:'visible'});
+    await box.locator('summary').click();await box.locator('select[name=customer_mode]').waitFor({state:'visible'});
+    assert.equal(await box.locator('select[name=customer_mode]').inputValue(),'approve','customer messages wait for approval by default');
+    await box.locator('select[name=customer_mode]').selectOption('off');await box.getByRole('button',{name:'Save'}).click();
+    await page.locator('#bookings-view [data-pl-status]',{hasText:'Reminder settings saved.'}).waitFor();
+  });
   await check('Jobs uses visible shared depth, heading icons and actual hover feedback',async()=>{
     await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>location.hash='customers/jobs');await page.locator('#jobs-view').waitFor({state:'visible'});
     const card=page.locator('#jobs-view .sp-surface-card:visible').first();await card.waitFor({state:'visible'});assert.ok(await card.locator('.sp-section-icon').count()>0);await card.hover();await page.waitForTimeout(220);assert.notEqual(await card.evaluate(e=>getComputedStyle(e).translate),'none');await screenshot(page,'jobs-shared-layering');await page.mouse.move(0,0);

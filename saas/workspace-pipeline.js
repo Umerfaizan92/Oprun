@@ -128,6 +128,48 @@
     return `${l.kind === 'review' ? 'Review link' : 'Quote link'} sent ${day(l.sent_at)}${how ? ' by ' + how : ''} · ${out || (expired ? 'link expired' : 'waiting for the customer')}`;
   };
 
+  // T-165: offer a booked job to chosen workers, or to every eligible worker (the open pool). The first acceptances fill it.
+  async function offerChooser(section, card, j) {
+    card.querySelector('.pl-inline')?.remove();
+    const d = await api(`/api/saas/work-orders/${j.id}/eligible`);
+    const f = el('form', { class: 'pl-inline portal-form' }, el('b', { text: `Who should get this job? It needs ${d.required_workers} worker${d.required_workers > 1 ? 's' : ''}.` }));
+    const eligible = d.workers.filter((w) => w.eligible);
+    const boxes = eligible.map((w) => el('label', { class: 'pl-check' }, el('input', { type: 'checkbox', value: w.id }), ` ${w.full_name}${w.offer_status ? ` (${w.offer_status})` : ''}`));
+    const blocked = d.workers.filter((w) => !w.eligible);
+    f.append(eligible.length ? el('fieldset', { class: 'pl-workers' }, el('legend', { text: 'Eligible workers' }), boxes) : el('p', { class: 'portal-note', text: 'No worker is eligible yet: check availability, skills and compliance in People > Workers.' }),
+      blocked.length ? el('p', { class: 'pl-meta', text: 'Not eligible: ' + blocked.map((w) => `${w.full_name} (${w.missing_skills?.length ? 'skills' : w.blocking_compliance ? 'compliance' : 'availability'})`).join(', ') }) : null);
+    const chosen = el('button', { type: 'button', class: 'portal-button primary', text: 'Offer to the workers I chose', disabled: !eligible.length || null });
+    const pool = el('button', { type: 'button', class: 'portal-button', text: 'Offer to everyone eligible', disabled: !eligible.length || null });
+    const go = async (btn, body) => { btn.disabled = true; try { const r = await post(`/api/saas/work-orders/${j.id}/offer`, body); say(section, `Offered to ${r.offered} worker${r.offered === 1 ? '' : 's'}. The job is confirmed when enough accept, and you will be told.`); await refresh(section.dataset.plView); } catch (e) { say(section, e.message, true); btn.disabled = false; } };
+    chosen.addEventListener('click', () => { const ids = boxes.map((b) => b.querySelector('input')).filter((i) => i.checked).map((i) => i.value); if (!ids.length) return say(section, 'Tick at least one worker, or offer it to everyone eligible.', true); go(chosen, { worker_ids: ids }); });
+    pool.addEventListener('click', () => go(pool, {}));
+    f.append(el('div', { class: 'pl-actions' }, chosen, pool, el('button', { type: 'button', class: 'portal-button', text: 'Cancel', onclick: () => f.remove() })));
+    card.append(f);
+  }
+
+  // T-164: how appointment reminders and booking confirmations reach customers, workers and the owner.
+  function remindersPanel(section) {
+    const box = el('details', { class: 'portal-panel pl-reminders' }, el('summary', { text: 'Reminders and confirmations' }));
+    box.addEventListener('toggle', async () => {
+      if (!box.open || box.dataset.loaded) return; box.dataset.loaded = '1';
+      try {
+        const { settings: st, sms_ready } = await api('/api/saas/reminders/settings');
+        const mode = el('select', { name: 'customer_mode' }, [['approve', 'Wait in Approvals (you check each one)'], ['auto', 'Send automatically (fixed wording)'], ['off', 'Do not message customers']].map(([v, t]) => el('option', { value: v, text: t, selected: st.customer_mode === v || null })));
+        const tick = (name, label) => el('label', { class: 'pl-check' }, el('input', { type: 'checkbox', name, checked: Boolean(st[name]) || null }), ' ' + label);
+        const f = el('form', { class: 'portal-form' },
+          el('p', { class: 'portal-note', text: sms_ready ? 'Customers get a text and an email when they have both.' : 'Customers get emails. Connect your business SMS sender in Connections to text them too.' }),
+          el('label', {}, 'Messages to customers', mode),
+          tick('confirmations', 'Confirm the booking when workers have accepted'), tick('day_before', 'Remind the customer the day before (8 am to 8 pm)'), tick('day_of', 'Remind the customer on the morning of the job'),
+          tick('workers', 'Alert assigned workers on the day (app and text)'), tick('owner_summary', "Send owners and admins a morning summary of today's jobs"));
+        const save = el('button', { type: 'submit', class: 'portal-button primary', text: 'Save' });
+        f.append(el('div', { class: 'pl-actions' }, save));
+        f.addEventListener('submit', async (e) => { e.preventDefault(); save.disabled = true; try { const v = (n) => f.elements[n].checked; await api('/api/saas/reminders/settings', { method: 'PUT', body: JSON.stringify({ customer_mode: mode.value, confirmations: v('confirmations'), day_before: v('day_before'), day_of: v('day_of'), workers: v('workers'), owner_summary: v('owner_summary') }) }); say(section, 'Reminder settings saved.'); } catch (err) { say(section, err.message, true); } finally { save.disabled = false; } });
+        box.append(f);
+      } catch (err) { box.append(el('p', { class: 'portal-note', text: err.message })); }
+    });
+    return box;
+  }
+
   // ---------- pipeline strip (shared by all four views) ----------
   async function strip() {
     const host = el('nav', { class: 'pl-strip', 'aria-label': 'Work pipeline' });
@@ -255,11 +297,7 @@
     }
     if (r.kind === 'booking' && r.job) {
       const j = r.job;
-      if (!j.completed_at && j.status !== 'allocated' && can('jobs', 'approve')) a.append(act(S, j.status === 'offered' ? 'Offer again' : 'Offer to workers', async () => {
-        const d = await post(`/api/saas/work-orders/${j.id}/offer`);
-        if (!d.offered) throw new Error('No worker is eligible yet: check availability, skills and compliance in People > Workers.');
-        return d;
-      }, { primary: true, done: (d) => `Offered to ${d.offered} eligible worker${d.offered > 1 ? 's' : ''}.` }));
+      if (!j.completed_at && j.status !== 'allocated' && can('jobs', 'approve')) a.append(act(S, j.status === 'offered' ? 'Offer again' : 'Offer to workers', async () => { await offerChooser(S, c, j); return false; }, { primary: true }));
       if (!j.completed_at && can('jobs', 'edit')) a.append(act(S, 'Mark job complete', () => post(`/api/saas/pipeline/jobs/${j.id}/complete`), { done: 'Job marked complete. You can invoice it now.' }));
       if (j.completed_at && !r.review && can('customers', 'edit')) a.append(act(S, r.links?.kind === 'review' && !r.links.outcome ? 'Ask for a review again' : 'Ask for a review', async () => {
         const cu = r.customer || {};
@@ -291,7 +329,14 @@
           ], 'Record payment', (v) => post('/api/saas/payments/record', { work_order_id: r.work_order_id, amount: Number(v.amount), method: v.method }), 'Payment recorded against the job.');
           return false;
         }, { primary: true }));
-        a.append(el('a', { class: 'portal-button', href: '#money/ledger', text: 'Send a payment link' }));
+        if (can('finance', 'approve')) a.append(act(S, 'Send invoice & payment link', async () => {
+          const cu = r.customer || {};
+          inlineForm(S, c, `Send the invoice for ${money(r.job.owing_cents)} to ${cu.name || 'the customer'} (${[cu.email, cu.phone].filter(Boolean).join(' and ') || 'no email or mobile saved'}). Texts go from your business SMS sender.`, [
+            { name: 'provider', label: 'How they pay', type: 'select', options: [['stripe', 'Card (Stripe link)'], ['paypal', 'PayPal link'], ['bank', 'Bank transfer details']] }
+          ], 'Send now', (v) => { if (!cu.email && !cu.phone) throw new Error('Add an email or mobile number to this customer first.'); return post('/api/saas/payments/requests', { work_order_id: r.work_order_id, provider: v.provider, send_to_customer: true }).then((d) => { const bad = (d.sent || []).filter((x) => !['sent', 'already_sent'].includes(x.status)); if (bad.length) throw new Error('Created, but not delivered by ' + bad.map((x) => `${x.channel} (${x.reason || x.status})`).join(', ') + '. The payment request is saved in Money.'); return d; }); }, 'Invoice and payment link sent.');
+          return false;
+        }, { primary: true }));
+        a.append(el('a', { class: 'portal-button', href: '#money/ledger', text: 'Payments in Money' }));
       }
     }
   }
@@ -363,6 +408,7 @@
       body.replaceChildren(stripEl);
       if (id === 'enquiries' && can('customers', 'create')) { const w = await enquiryForm(s); w.open = !records.length; body.append(w); }
       if (id === 'enquiries') window.SuperProLeadSources?.mount(body);
+      if (id === 'bookings' && ['owner', 'admin', 'super_admin', 'manager', 'director'].includes(window.GDS_SESSION?.user?.role || window.GDS_SESSION?.membership?.role || '')) body.append(remindersPanel(s));
       const q = el('input', { type: 'search', class: 'portal-search', placeholder: `Search ${v.title.toLowerCase()} by title or customer`, 'aria-label': `Search ${v.title.toLowerCase()}`, value: filters[id]?.q || '' });
       const statuses = [...new Set(records.map((r) => r.status))];
       const st = el('select', { class: 'portal-search pl-filter', 'aria-label': 'Filter by status' }, el('option', { value: '', text: 'All statuses' }), statuses.map((x) => el('option', { value: x, text: STATUS[x] || x, selected: filters[id]?.status === x })));

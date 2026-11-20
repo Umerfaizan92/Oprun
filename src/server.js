@@ -48,6 +48,7 @@ import { createReceptionistIntake } from './comms/receptionist-intake.js';
 import { createOutbound } from './comms/outbound.js';
 import { createCustomerLinks } from './customer-links.js';
 import { createWebsiteHub } from './website/hub.js';
+import { createJobLifecycle } from './job-lifecycle.js';
 import { createReceptionistTelnyx } from './comms/receptionist-telnyx.js';
 import { installCommsRoutes } from './comms/routes.js';
 import { createOAuthApps, familyOf, APP_FAMILIES } from './oauth-apps.js';
@@ -4014,18 +4015,33 @@ function evaluateWorkOrder(org,job){
   });
   return {skills,evaluated,eligible:evaluated.filter(x=>x.eligible).map(x=>x.worker)};
 }
-function offerWorkOrder(org,actorId,job){
-  const {skills,evaluated,eligible}=evaluateWorkOrder(org,job),now=new Date().toISOString();
+// T-165: set once the job lifecycle module exists (it confirms allocated jobs and sends reminders).
+const jobLifecycleRef={current:null};
+// T-165: offer to every eligible worker (the open pool) or only to the workers the business chose (each must be eligible).
+function offerWorkOrder(org,actorId,job,{workerIds=null}={}){
+  const evaluation=evaluateWorkOrder(org,job),{skills,evaluated}=evaluation,now=new Date().toISOString();
+  let eligible=evaluation.eligible;
+  if(workerIds){const chosen=new Set(workerIds);eligible=eligible.filter(w=>chosen.has(w.id));}
   const ins=db.prepare(`INSERT OR IGNORE INTO job_offers (id,organisation_id,work_order_id,worker_id,status,offered_at,offered_by_user_id,work_rights_status_at_offer,vevo_status_at_offer) VALUES (?,?,?,?, 'offered',?,?,?,?)`);
   db.transaction(()=>{for(const w of eligible)ins.run(crypto.randomUUID(),org,job.id,w.id,now,actorId,w.work_rights_status||null,w.vevo_status||null);db.prepare(`UPDATE work_orders SET status=?,updated_at=? WHERE id=?`).run(eligible.length?'offered':'awaiting_allocation',now,job.id)})();
   for(const w of eligible){const workerUser=db.prepare(`SELECT user_id FROM workers WHERE id=? AND organisation_id=?`).get(w.id,org)?.user_id;if(workerUser)notifications.notifyUser(org,workerUser,{kind:'job_offered',title:`New job offered: ${job.title}`,body:'Open Oprun to accept or decline.',link:'#jobs',urgent:true,dedupe:`offer:${job.id}:${w.id}`}).catch(()=>{})}
   return {skills,evaluated,eligible};
 }
+app.get('/api/saas/work-orders/:id/eligible',requireSaasUser,requireSaasRole('owner', 'admin', 'manager', 'super_admin'),(req,res)=>{
+  const job=db.prepare(`SELECT * FROM work_orders WHERE id=? AND organisation_id=?`).get(req.params.id,req.saas.organisation_id);
+  if(!job)return res.status(404).json({ok:false,error:'Work order not found'});
+  const {evaluated}=evaluateWorkOrder(req.saas.organisation_id,job);
+  const offered=new Map(db.prepare(`SELECT worker_id,status FROM job_offers WHERE work_order_id=? AND organisation_id=?`).all(job.id,req.saas.organisation_id).map(o=>[o.worker_id,o.status]));
+  res.json({ok:true,required_workers:job.required_workers,workers:evaluated.map(x=>({id:x.worker.id,full_name:x.worker.full_name,level:x.worker.worker_level,eligible:x.eligible,missing_skills:x.missing_skills,blocking_compliance:x.compliance.blocking_count,offer_status:offered.get(x.worker.id)||null}))});
+});
 app.post('/api/saas/work-orders/:id/offer',requireSaasUser,requireSaasRole('owner', 'admin', 'manager', 'super_admin'),(req,res)=>{
   const job=db.prepare(`SELECT * FROM work_orders WHERE id=? AND organisation_id=?`).get(req.params.id,req.saas.organisation_id);
   if(!job)return res.status(404).json({ok:false,error:'Work order not found'});
-  const {skills,evaluated,eligible}=offerWorkOrder(req.saas.organisation_id,req.saas.user_id,job);
-  saasAudit(req,'work_order.offered','work_order',job.id,{eligible_workers:eligible.length,required_skills:skills});
+  const body=z.object({worker_ids:z.array(z.string().min(1).max(64)).min(1).max(50).optional()}).strict().safeParse(req.body||{});
+  if(!body.success)return res.status(400).json({ok:false,error:'Choose the workers to offer this job to, or offer it to everyone eligible.'});
+  if(body.data.worker_ids){const ok=new Set(evaluateWorkOrder(req.saas.organisation_id,job).eligible.map(w=>w.id));const bad=body.data.worker_ids.filter(id=>!ok.has(id));if(bad.length)return res.status(409).json({ok:false,error:'Some chosen workers are not eligible for this job (skills, availability or compliance). Refresh and choose again.'});}
+  const {skills,evaluated,eligible}=offerWorkOrder(req.saas.organisation_id,req.saas.user_id,job,{workerIds:body.data.worker_ids||null});
+  saasAudit(req,'work_order.offered','work_order',job.id,{eligible_workers:eligible.length,required_skills:skills,mode:body.data.worker_ids?'chosen':'pool'});
   res.json({
     ok:true,eligible_workers:eligible.map(w=>({id:w.id,full_name:w.full_name,level:w.worker_level})),offered:eligible.length,
     evaluated:evaluated.map(x=>({id:x.worker.id,full_name:x.worker.full_name,eligible:x.eligible,missing_skills:x.missing_skills,blocking_compliance:x.compliance.blocking_count,work_rights_verified:x.compliance.work_rights_verified}))
@@ -4191,6 +4207,8 @@ app.post('/api/saas/job-offers/:id/respond',requireSaasUser,(req,res)=>{
   if(accepted===-1)return res.status(409).json({ok:false,error:'This job already has all the workers it needs.'});
   if(accepted===null)return res.status(409).json({ok:false,error:'Offer has already been answered.'});
   saasAudit(req,'job_offer.responded','job_offer',offer.id,{status:parsed.data.status});
+  // T-165: the last required worker accepted: the job is confirmed, the team is told and the customer confirmation is staged.
+  if(parsed.data.status==='accepted'&&accepted>=offer.required_workers)void Promise.resolve(jobLifecycleRef.current?.onAllocated(req.saas.organisation_id,offer.work_order_id)).catch(e=>console.warn('[JOBS] confirmation:',String(e.message||e).slice(0,160)));
   if(offer.offered_by_user_id)notifications.notifyUser(req.saas.organisation_id,offer.offered_by_user_id,{kind:'offer_response',title:`${req.saas.full_name} ${parsed.data.status} a job`,body:db.prepare(`SELECT title FROM work_orders WHERE id=?`).get(offer.work_order_id)?.title||'',link:'#jobs',dedupe:`response:${offer.id}`}).catch(()=>{});
   res.json({ok:true,accepted_workers:accepted});
 });
@@ -6075,7 +6093,7 @@ installHiring(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,g
 const billingSetup=createBillingSetup({db});billingSetup.install(app,{requireSaasUser,requireSaasRole,saasAudit});
 // Phase 05: business events reach the automation engine through this object once the engine is created below.
 const automationEvents={emit(){return []}};
-const paymentsApi=installPayments(app,{db,env,runtime:integrationRuntime,requireSaasUser,requireSaasRole,saasAudit,financeRoles,syncJobFinance:saasPlatform.syncJobFinance,uploadRoot,notify:notifications,isAuthorised:billingSetup.isAuthorised,events:automationEvents});
+const paymentsApi=installPayments(app,{db,env,runtime:integrationRuntime,customerSmsEnv:org=>{if(env.PLATFORM_SMS_FOR_BUSINESSES==='1')return env;try{const e=tenantTransports.environment(org,{});return String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim()?e:null}catch{return null}},requireSaasUser,requireSaasRole,saasAudit,financeRoles,syncJobFinance:saasPlatform.syncJobFinance,uploadRoot,notify:notifications,isAuthorised:billingSetup.isAuthorised,events:automationEvents});
 
 // Team accounts: owner-managed staff invitations, member revocation and invitation acceptance.
 staffAccess.install(app,{requireSaasUser,requireSaasRole,channelAccess:req=>channelOperations.memberAccess(req)});
@@ -6135,6 +6153,11 @@ const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,
 // T-144: quote acceptance links and review requests, sent by text and/or email through the business's inbox.
 const customerLinks=createCustomerLinks({db,pipeline:businessHubHooks,outbound:createOutbound({db,comms:commsService}),notify:(org,o)=>notifications.notifyRoles(org,['owner','admin'],o),emit:(...a)=>automationEvents.emit(...a),smsReady:smsReadyFor,publicBase:()=>env.PUBLIC_BASE_URL||'https://www.oprun.ai'});
 customerLinks.install(app,{requireSaasUser,staffAccess,saasAudit});
+// T-164/T-165: appointment reminders (customer, workers, owner summary) and booking confirmations.
+const jobLifecycle=createJobLifecycle({db,outbound:createOutbound({db,comms:commsService}),notify:notifications,createApproval:createWorkspaceApproval,smsReady:smsReadyFor,enquiryReference:(org,id)=>businessHubHooks.enquiryReference?.(org,id)||null});
+jobLifecycleRef.current=jobLifecycle;
+jobLifecycle.install(app,{requireSaasUser,requireSaasRole,saasAudit});
+if(env.NODE_ENV!=='test')setInterval(()=>{jobLifecycle.runReminders().catch(e=>console.warn('[REMINDERS]',String(e.message||e).slice(0,160)))},10*60000).unref();
 // D-R12: each business connects its own Telnyx account (it buys/ports and pays Telnyx directly).
 const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime,env});
 const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.credentialsFor(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
