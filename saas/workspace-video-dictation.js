@@ -64,6 +64,8 @@
       if(capture.id!==run)return;
       run++;reset();
       if(error?.name==='NotAllowedError'||error==='not-allowed'||error==='service-not-allowed')say('Microphone access was denied. Allow it in your browser settings, then try again.');
+      else if(error?.code==='SPEECH_BILLING_REQUIRED'||error?.code==='SPEECH_QUOTA_EXCEEDED')say(error.message+' No video generation was started.');
+      else if(error==='network')say('Browser dictation could not connect. Check your connection, try Automatic with an available AI speech service, or type your text.');
       else if(error==='language-not-supported')say('This browser does not support that language. Try Automatic or another language.');
       else if(error==='no-speech')say('No speech was understood. Try again in a quiet place.');
       else say('Speech could not be transcribed. Try again, choose a language for browser dictation, or type your text. Automatic mode needs an available AI speech service.');
@@ -73,6 +75,7 @@
         if(active.field!==field){say('Finish or cancel the current dictation first.');return}
         if(active.recognition){active.recognition.stop();say('Finishing speech…')}
         else if(window.SuperProAIClient?.isListening()){window.SuperProAIClient.stopListening();say('Transcribing speech…')}
+        else cancel('Dictation cancelled. Your existing text was preserved.');
         return;
       }
       if(pending){say('Insert or discard the reviewed speech before recording again.');return}
@@ -113,7 +116,7 @@
       field.button=el('button',{type:'button',class:'secondary-button aiv-dictate','aria-pressed':'false','aria-controls':target.id,onclick:()=>start(field)},micIcon(),field.label);
       field.cancel=el('button',{type:'button',class:'secondary-button',hidden:true,text:'Cancel dictation',onclick:()=>cancel('Dictation cancelled. Your existing text was preserved.')});
       const toolbar=el('div',{class:'aiv-full aiv-dictation-tools'},field.button,field.cancel);
-      target.closest('label').after(toolbar);fields.push(field);
+      const label=target.closest('label');label.before(toolbar);fields.push(field);
     }
     window.addEventListener('pagehide',()=>cancel());
     window.addEventListener('superpro:workspace-ready',()=>cancel('Workspace changed. Dictation cancelled.'));

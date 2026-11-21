@@ -3250,17 +3250,16 @@ async function transcribeWithGemini(file,requested='auto'){
   let lastError=null;
   for(let attempt=0;attempt<2;attempt++){
     try{
-      const response=await fetch('https://generativelanguage.googleapis.com/v1beta/interactions',{
-        method:'POST',
+      const response=await fetch(String(env.GEMINI_API_BASE_URL||'https://generativelanguage.googleapis.com').replace(/\/$/,'')+'/v1beta/interactions',{
+        method:'POST',signal:AbortSignal.timeout(45000),
         headers:{'x-goog-api-key':key,'content-type':'application/json'},
         body:JSON.stringify({model,input,...(Object.keys(generationConfig).length?{generation_config:generationConfig}:{})})
       });
       const data=await response.json().catch(()=>({}));
       if(!response.ok){
-        const detail=data?.error?.message||data?.error?.status||('HTTP '+response.status);
-        console.warn('[VOICE STT GEMINI] provider error',response.status,String(detail).slice(0,400));
-        lastError=new Error('Gemini transcription provider failed: '+detail);
-        if((response.status===429||response.status>=500)&&attempt===0){await new Promise(r=>setTimeout(r,450));continue}
+        console.warn('[VOICE STT GEMINI] provider request rejected',response.status);
+        lastError=Object.assign(new Error('Speech provider rejected the request.'),{upstreamStatus:response.status});
+        if(response.status===429&&attempt===0){await new Promise(r=>setTimeout(r,450));continue}
         throw lastError;
       }
       const text=(data?.steps||[])
@@ -3274,7 +3273,7 @@ async function transcribeWithGemini(file,requested='auto'){
       return {text,language:requested==='auto'?detectGuideLanguage(text):requested,source:'gemini-3.5-transcribe',no_speech:false};
     }catch(err){
       lastError=err;
-      if(attempt===0){await new Promise(r=>setTimeout(r,450));continue}
+      throw err; // A lost response may have been billed. Do not submit speech twice.
     }
   }
   throw lastError||new Error('Gemini transcription could not be completed.');
@@ -3282,8 +3281,8 @@ async function transcribeWithGemini(file,requested='auto'){
 async function transcribeWithOpenAi(file,requested='auto'){
   const cfg=openAiSpeechConfig();if(!cfg)throw new Error('OpenAI transcription is not configured.');
   const form=new FormData();const mime=file.mimetype||'audio/webm';form.append('file',new Blob([file.buffer],{type:mime}),file.originalname||'microphone.webm');form.append('model',meaningfulConfigValue(env.AI_STT_MODEL)?String(env.AI_STT_MODEL).trim():'gpt-4o-mini-transcribe');if(requested&&requested!=='auto')form.append('language',requested);
-  const response=await fetch(cfg.base+'/audio/transcriptions',{method:'POST',headers:{authorization:'Bearer '+cfg.key},body:form});const data=await response.json().catch(()=>({}));const text=String(data.text||'').trim();
-  if(!response.ok||!text){console.warn('[VOICE STT OPENAI] provider error',response.status,JSON.stringify(data).slice(0,400));throw new Error('OpenAI transcription could not be completed.');}
+  const response=await fetch(cfg.base+'/audio/transcriptions',{method:'POST',signal:AbortSignal.timeout(45000),headers:{authorization:'Bearer '+cfg.key},body:form});const data=await response.json().catch(()=>({}));const text=String(data.text||'').trim();
+  if(!response.ok||!text){console.warn('[VOICE STT OPENAI] provider request rejected',response.status);throw Object.assign(new Error('Speech transcription could not be completed.'),{upstreamStatus:response.ok?502:response.status});}
   return {text,language:requested==='auto'?detectGuideLanguage(text):requested,source:'openai-transcription'};
 }
 async function transcribeVoice(req,res){
@@ -3295,12 +3294,16 @@ async function transcribeVoice(req,res){
       if(geminiApiKey())result=await transcribeWithGemini(req.file,requested);
       else return res.status(503).json({ok:false,error:'Free automatic transcription needs a Gemini API key. Choose a language for browser recognition or type your question.',fallback:'browser'});
     }else{
-      if(openAiSpeechConfig()){try{result=await transcribeWithOpenAi(req.file,requested)}catch(err){console.warn('[VOICE STT] OpenAI fallback failed:',err.message)}}
+      if(openAiSpeechConfig())result=await transcribeWithOpenAi(req.file,requested);
       if(!result&&geminiApiKey())result=await transcribeWithGemini(req.file,requested);
     }
     if(!result)return res.status(503).json({ok:false,error:'Server speech recognition is unavailable.',fallback:'none'});
     return res.json({ok:true,...result});
-  }catch(err){console.warn('[VOICE STT] failed:',err.message);return res.status(502).json({ok:false,error:'Voice transcription could not be completed. Please try the microphone again.',fallback:'none'});}
+  }catch(err){
+    const upstream=Number(err.upstreamStatus||0),billing=upstream===402,quota=upstream===429;
+    console.warn('[VOICE STT] request could not complete',upstream||'unavailable');
+    return res.status(billing?402:quota?429:502).json({ok:false,error:billing?'Automatic speech needs billing attention. Your typed text is kept. Choose a language for browser dictation or type your instructions.':quota?'Automatic speech has reached its usage limit. Try later, choose browser dictation, or type your instructions.':'Voice transcription could not be completed. Choose a language for browser dictation, try again, or type your instructions.',error_code:billing?'SPEECH_BILLING_REQUIRED':quota?'SPEECH_QUOTA_EXCEEDED':'SPEECH_UNAVAILABLE',fallback:'browser'});
+  }
 }
 app.post('/api/product-guide/transcribe',productGuideLimiter,voiceInputUpload.single('audio'),transcribeVoice);
 app.post('/api/saas/voice/transcribe',requireSaasUser,voiceReplyLimiter,voiceInputUpload.single('audio'),transcribeVoice);
@@ -4769,7 +4772,7 @@ app.get('/api/saas/media/:id/file',requireSaasUser,requireSaasRole(...studioRole
   if(!m)return res.status(404).json({ok:false,error:'Media not found.'});
   const file=path.join(uploadRoot,'studio',String(req.saas.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);
   if(!fs.existsSync(file))return res.status(404).json({ok:false,error:'The stored file is missing.'});
-  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, max-age=300'});
+  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, no-store'});
   res.sendFile(file);
 });
 app.delete('/api/saas/media/:id',requireSaasUser,requireSaasRole('owner','admin','super_admin'),(req,res)=>{
@@ -4860,7 +4863,7 @@ app.get('/api/saas/job-media/:id/file',requireSaasUser,(req,res)=>{
   }
   const file=path.join(uploadRoot,'job-evidence',String(req.saas.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);
   if(!fs.existsSync(file))return res.status(404).json({ok:false,error:'The stored file is missing.'});
-  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, max-age=300'});
+  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, no-store'});
   res.sendFile(file);
 });
 app.delete('/api/saas/job-media/:id',requireSaasUser,requireSaasRole(...SENIOR_JOB_ROLES),(req,res)=>{

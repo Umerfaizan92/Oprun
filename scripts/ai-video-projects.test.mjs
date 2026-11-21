@@ -33,7 +33,7 @@ async function mock() {
       calls.push({ method: req.method, path: req.url, body, headers: req.headers });
       const send = (s, o) => { res.writeHead(s, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
       if (req.url.startsWith('/g/v1beta/models')) return send(200, { models: [] });
-      if (req.url === '/g/v1beta/interactions') { n += 1; if(failNext){failNext=false;return send(400,{error:{message:'Quota exceeded'}})}tasks.set(`int-${n}`,clipFor(parseInt(body.response_format.duration,10)));return send(200,{id:`int-${n}`,status:'in_progress'}); }
+      if (req.url === '/g/v1beta/interactions') { n += 1; if(failNext){failNext=false;return send(429,{error:{message:'Quota exceeded'}})}tasks.set(`int-${n}`,clipFor(parseInt(body.response_format.duration,10)));return send(200,{id:`int-${n}`,status:'in_progress'}); }
       if (/^\/g\/v1beta\/interactions\/int-\d+$/.test(req.url)) return send(200, { status: 'completed', steps: [{ type: 'model_output', content: [{ type: 'video', mime_type: 'video/mp4', data: tasks.get(req.url.split('/').at(-1)).toString('base64') }] }] });
       if (req.url === '/e/v1/user') return req.headers['xi-api-key'] === 'el_key_1234567890abcdef' ? send(200, { user_id: 'u' }) : send(401, { detail: { message: 'Invalid API key' } });
       if (req.url === '/e/v1/voices/add') return send(200, { voice_id: 'voice-abc' });
@@ -114,7 +114,7 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
   // A clip that fails stops the video; Continue makes only the missing clips.
   m.failOnce();
   r = await O('POST', '/api/saas/ai-video/projects', { engine: 'google:gemini-omni-1.2-flash', idea: 'A short product reveal of our polish kit', aspect_ratio: '16:9', resolution: '720p', total_seconds: 6, clip_seconds: 3 });
-  assert.equal(r.status, 502); assert.match(r.json.error, /Quota exceeded/);
+  assert.equal(r.status,429);assert.equal(r.json.error_code,'QUOTA_EXCEEDED');assert.match(r.json.error,/rate or usage limit/);
   const stopped = (await O('GET', '/api/saas/ai-video')).json.projects.find((x) => x.status === 'failed');
   assert.ok(stopped);
   r = await O('POST', `/api/saas/ai-video/projects/${stopped.id}/continue`); assert.equal(r.status, 200, r.text);

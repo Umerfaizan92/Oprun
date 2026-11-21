@@ -2,7 +2,7 @@
 (()=>{
   const {el,api,onView,role,note}=window.SuperProUI;
   const $=s=>document.querySelector(s);
-  let items=[],mode='all',selected='';
+  let items=[],mode='all',selected='',epoch=0;
   const size=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
   const canDelete=()=>['owner','admin','super_admin'].includes(role());
 
@@ -31,18 +31,18 @@
   function pick(m){
     selected=m.id;const f=$('#video-form');if(f?.elements.media_id)f.elements.media_id.value=m.id;
     const s=$('#library-selection');if(s)s.replaceChildren(el('span',{text:`Source: ${m.original_name}`}),el('small',{text:'This file will be used in the render brief below.'}));
-    draw();$('#video-form')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    draw();if($('#video-view')?.classList.contains('ms-unified'))window.dispatchEvent(new CustomEvent('oprun:studio-guide',{detail:{id:m.id}}));else $('#video-form')?.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   async function remove(m){
     if(!confirm(`Remove ${m.original_name} from your library?`))return;
     try{await api('/api/saas/media/'+m.id,{method:'DELETE'});if(selected===m.id)selected='';note('Removed.');await load()}catch(e){note(e.message,true)}
   }
-  async function load(){try{items=(await api('/api/saas/media')).media||[]}catch{items=[]}draw()}
+  async function load(){const run=epoch;try{const d=await api('/api/saas/media');if(run!==epoch)return;items=d.media||[]}catch{if(run!==epoch)return;items=[]}draw()}
   async function upload(files){
-    const list=[...files];if(!list.length)return;
+    const run=epoch,list=[...files];if(!list.length)return;
     const fd=new FormData();list.slice(0,10).forEach(f=>fd.append('files',f));
     const drop=$('#media-drop');drop?.classList.add('busy');
-    try{const r=await api('/api/saas/media',{method:'POST',body:fd});note(`${r.saved} ${r.saved===1?'file':'files'} added to your library.`);await load()}
+    try{const r=await api('/api/saas/media',{method:'POST',body:fd});if(run!==epoch)return;note(`${r.saved} ${r.saved===1?'file':'files'} added to your library.`);await load()}
     catch(e){note(e.message,true)}finally{drop?.classList.remove('busy')}
   }
   const drop=$('#media-drop'),input=$('#media-file');
@@ -59,5 +59,8 @@
   $('#media-library-search')?.addEventListener('input',draw);$('#media-library-sort')?.addEventListener('change',draw);
   window.addEventListener('oprun:media-changed',()=>{load()});
   window.addEventListener('oprun:media-pick',async e=>{const id=e.detail?.id;if(!items.some(x=>x.id===id))await load();const m=items.find(x=>x.id===id);if(m)pick(m)});
-  onView('video',{enter:load});
+  const reset=()=>{epoch++;items=[];selected='';mode='all';$('#media-library-search')&&($('#media-library-search').value='');$('#library-selection')?.replaceChildren(el('span',{text:'No source selected'}));draw()};
+  window.addEventListener('superpro:workspace-ready',()=>{reset();if($('#video-view')&&!$('#video-view').hidden)load()});
+  window.addEventListener('pagehide',reset);document.getElementById('logout')?.addEventListener('click',reset,true);
+  window.addEventListener('gds:viewchange',e=>{if(e.detail?.view==='video')load()});
 })();
