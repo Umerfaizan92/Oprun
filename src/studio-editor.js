@@ -3,12 +3,11 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {z} from 'zod';
-import {sniff} from './file-safety.js';
+import {verifyStudioMedia as safeContent} from './studio-media-safety.js';
 import {probe,concat,runMediaTool,writePrivateFile,copyPrivateFile,ffmpegPath} from './media-tools.js';
 const clip=z.object({media_id:z.string().uuid(),start:z.number().min(0).max(86400),end:z.number().positive().max(86400),text:z.string().max(300).default(''),volume:z.number().min(0).max(1).default(1),transition:z.enum(['cut','fade']).default('cut')}).strict().refine(c=>c.end>c.start,'Clip end must follow its start.');
 const caption=z.object({start:z.number().min(0),end:z.number().positive(),text:z.string().max(300)}).strict().refine(c=>c.end>c.start);
 export const compositionSchema=z.object({title:z.string().trim().min(1).max(160),clips:z.array(clip).min(1).max(40),aspect_ratio:z.enum(['9:16','16:9','1:1','4:5']),resolution:z.enum(['720p','1080p']).default('720p'),logo_media_id:z.string().uuid().nullable().default(null),captions:z.array(caption).max(500).default([]),audio:z.object({media_id:z.string().uuid(),start:z.number().min(0).max(86400).default(0),volume:z.number().min(0).max(1).default(0.6),keep_original:z.boolean().default(true)}).strict().nullable().default(null)}).strict().refine(c=>c.clips.reduce((n,x)=>n+x.end-x.start,0)<=3600,'Edit exports support up to one hour.');
-function safeContent(file,mime){const fd=fs.openSync(file,'r');const header=Buffer.alloc(4096);let n;try{n=fs.readSync(fd,header,0,header.length,0)}finally{fs.closeSync(fd)}const b=header.subarray(0,n),family=sniff(b),expected={'image/jpeg':'jpeg','image/png':'png','image/webp':'webp','image/heic':'isobmff','image/heif':'isobmff','video/mp4':'isobmff','video/quicktime':'isobmff','video/webm':'webm','audio/webm':'webm','audio/mp4':'isobmff'}[mime];if(expected&&family===expected)return;if(mime==='audio/wav'&&b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WAVE')return;if(mime==='audio/mpeg'&&(b.toString('ascii',0,3)==='ID3'||(b[0]===255&&(b[1]&224)===224)))return;throw Error('Source does not match its media type.');}
 const uuid=()=>crypto.randomUUID(),iso=()=>new Date().toISOString();
 const safeStored=(root,o,name)=>{if(path.basename(name)!==name)throw Error('Invalid media path');return path.join(root,'studio',o.replace(/[^a-zA-Z0-9-]/g,''),name)};
 export function installStudioEditor(app,{db,env={},uploadRoot,queue,requireSaasUser,requireSaasRole,saasAudit}){

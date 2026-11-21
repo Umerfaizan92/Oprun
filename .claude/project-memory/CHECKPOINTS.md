@@ -2299,3 +2299,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T164332Z (2ec47c2)
 - Known errors: none
 - Next exact action: Publish library/voice batch and run final hosted acceptance;continue remaining caption/audio gaps
+
+## CP-165 2026-11-22T00:50:08+08:00 T-194 TESTING
+- Phase: Explicit caption transcription translation and waveform
+- Task: T-194 (TESTING)
+- Completed steps: Idempotent consented STT; estimated editable caption timing; translation; actual waveform; late-response protections; shared media safety helper
+- Incomplete steps: Full and hosted final acceptance; advanced campaign/analytics adapters; real provider/device and restore gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; saas/workspace-studio-editor.js; saas/workspace.html; scripts/studio-draft-ui.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/server.js; src/studio-editor.js; saas/workspace-studio-audio.js; scripts/studio-captions.test.mjs; src/studio-captions.js; src/studio-media-safety.js
+- Tests executed: caption audio privacy/library tests
+- Test results: 4/4 focused PASS; actual extracted audio and waveform; mocked STT only
+- Git branch: codex/t194-studio-completion
+- Commit: 4d1b9c1 (Organize private Studio assets, expire sharing and harden voice recording); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T165008Z (8db521b)
+- Known errors: none
+- Next exact action: Publish caption/audio candidate;run full hosted checks and repair issues;no deployment claim

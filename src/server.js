@@ -70,6 +70,7 @@ import { installAiVideo } from './ai-video.js';
 import { installStudioProjects } from './studio-projects.js';
 import { installStudioEditor } from './studio-editor.js';
 import { installStudioLibrary } from './studio-library.js';
+import { installStudioCaptions } from './studio-captions.js';
 import { createEntitlements } from './entitlements.js';
 import { createAddons } from './addons.js';
 import { createBillingOps } from './billing-ops.js';
@@ -6337,6 +6338,7 @@ installAppointments(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,dispat
 installAiVideo(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,generateAiText,notify:notifications});
 installStudioProjects(app,{db,requireSaasUser,requireSaasRole,saasAudit,generateAiText});
 installStudioLibrary(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit});
+installStudioCaptions(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,generateAiText,transcribe:async(file,language)=>{if(!freeAiModeEnabled()&&openAiSpeechConfig())return transcribeWithOpenAi(file,language);if(geminiApiKey())return transcribeWithGemini(file,language);throw Object.assign(new Error('Speech unavailable'),{upstreamStatus:503})}});
 const studioEditQueue=createJobQueue({db,workerId:'studio-'+process.pid});
 installStudioEditor(app,{db,env,uploadRoot,queue:studioEditQueue,requireSaasUser,requireSaasRole,saasAudit});
 if(!/^(1|true|yes)$/i.test(String(env.JOBS_DISABLED||'')))studioEditQueue.start();
