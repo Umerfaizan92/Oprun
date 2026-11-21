@@ -1,5 +1,14 @@
 # ChatGPT coordination
 
+## 21 November 2026 — T-193 unified Media Studio specification
+
+- Owner expanded scope to audit/merge/redesign and requested all nine implementation-ready outputs. No redesign or account-billing fix is claimed. Complete specification: `docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md`; implementation backlog T-194, next batch T-194A.
+- Production reverified on Render at `cfcae59`, deploy `dep-dc0ghqbrjlhs739ukbt0` LIVE. PR166 `6dd2a0ec594662299e990fda3721a57746928dd5` remains UNMERGED; all six check runs now PASS, CI44870894755 and Security44870894658. Hosted verify job136744943466 confirms73/73 including82 contract files; UI job136744943252 passes new feature and broad interface suites. Local candidate42c7ed3 and remote6dd2a0e have identical tree834275b. No deploy occurred for T-191/T-192; hold release while accounting for expanded scope.
+- Found actual duplicate: old `#video-form`/video_render_jobs stores draft specifications only (`rendered:false`), while `#ai-video-panel` creates real videos. Old stepper only scrolls, duplicate prompts/settings/queues confuse users. Preserve source records, import drafts idempotently and remove competing UI only after unified replacement.
+- Google402 is documented depleted prepaid credit; exact tenant/project balance not inspected. Confirmed code gaps: key validation can accept402/429; generic502 hides typed billing recovery. Platform speech/text and tenant video keys are separate. Never buy credits implicitly or claim voice caused billing failure.
+- Growth calendar has narrow Facebook/X direct dispatch while channel-providers has broader adapters. Specification consolidates orchestration, keeps approvals/receipts, honestly gates account/scopes/manual channels, and attaches final media IDs without reupload.
+- Preservation: this task branch includes prior tested candidate and documentation only. No customer records, credentials or production settings changed. Environment restart removed transient logs; hosted evidence is durable. Next model must read handover/spec, implement T-194A typed billing recovery first, then T-194B single composer. Do not redo T-191/T-192, blindly merge PR166, or promise universal recognition/zero external failures.
+
 ## 21 November 2026 — T-192 full-length video candidate
 
 - T-191 is verified: 18 focused tests, full suite 73/73 and hosted feature UI pass at `261281c`. T-192 followed that acceptance; both will release together under owner authorization.
