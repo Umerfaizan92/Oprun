@@ -1,5 +1,14 @@
 # ChatGPT coordination
 
+## 21 November 2026 — T-191/T-192 released for live testing
+
+- Owner explicitly requested Render deployment after the T-193 audit/specification. Scope disclosed before action: release the tested voice-input and full/custom/continuous-duration code; unified redesign and typed402 recovery remain T-194, not implemented.
+- PR166 squash-merged as main `58fc72b597666c637a7fefb19af5962bb1980a80`. GitHub merge tree `834275b22a1dba8587325bde67b7f6434284c906` exactly matches candidate `6dd2a0e`, with all six CI/Security checks successful, full73/73 including82 contract files and hosted feature/broad UI acceptance.
+- Render service `srv-dbuq98ojo6nc73aro66g`, deploy `dep-dc0nunmc6qcc73bonn2g`, exact commit58fc72b verified LIVE at2026-11-21T11:31:50.583738Z (19:31:50 Perth). No infrastructure, billing, credentials or production records were manually changed.
+- Read-only `node scripts/post-deploy-check.mjs https://oprun-ai.onrender.com`: six/six PASS (health, DB/queue readiness, security headers, business/founder signed-out refusal, sign-in/public pages). Live workspace-ai-video and workspace-video-dictation assets return200 and contain expected custom/Unlimited/Finish and microphone controller features.
+- No real customer messages, calls, social posts or paid generation were initiated by smoke checks. Google's account402 limitation is not fixed by this release. User can now live-test the controls with their authorized workspace and funded provider.
+- CP151 preserves release evidence and continuation. The T-193 specification and all release notes remain on `codex/t193-unified-media-studio-audit`; this documentation update is kept off main to avoid another production deploy. Historical audit text below describes pre-release state; this entry supersedes its release hold. Next is T-194A typed provider billing recovery, then T-194B one unified composer. Do not re-merge PR166 or redo T-191/T-192.
+
 ## 21 November 2026 — T-193 unified Media Studio specification
 
 - Owner expanded scope to audit/merge/redesign and requested all nine implementation-ready outputs. No redesign or account-billing fix is claimed. Complete specification: `docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md`; implementation backlog T-194, next batch T-194A.

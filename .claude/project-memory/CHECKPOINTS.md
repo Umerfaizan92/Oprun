@@ -2089,3 +2089,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Implement T-194A typed402/key-check readiness recovery, then T-194B unified composer; read docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md; PR166 remains unmerged and production cfcae59
+
+## CP-150 2026-11-21T19:24:28+08:00 T-194 NOT_STARTED
+- Phase: T191/T192 authorized Render release in progress; T194 implementation pending
+- Task: T-194 (NOT_STARTED)
+- Completed steps: PR166 merged at58fc72b; Render build triggered dep-dc0nunmc6qcc73bonn2g; exact green candidate tree verified
+- Incomplete steps: Wait for exact-commit Render LIVE; run read-only post-deploy checks; preserve final handover
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t193-unified-media-studio-audit
+- Commit: 65d07d4 (Specify one unified Media Studio and billing recovery (T-193, CP-149)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t193-unified-media-studio-audit/20261121T112428Z (c7fe336)
+- Known errors: none
+- Next exact action: Poll Render dep-dc0nunmc6qcc73bonn2g for main58fc72b then run scripts/post-deploy-check.mjs https://oprun-ai.onrender.com
+
+## CP-151 2026-11-21T19:33:16+08:00 T-194 NOT_STARTED
+- Phase: T191/T192 released and live; T194 implementation next
+- Task: T-194 (NOT_STARTED)
+- Completed steps: PR166 merged main58fc72b; Render dep-dc0nunmc6qcc73bonn2g LIVE19:31:50 Perth; live health/access/feature checks pass
+- Incomplete steps: T194A typed402 recovery; T194B unified composer; funded real-provider acceptance
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; docs/coordination/chatgpt.md; docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md
+- Tests executed: Hosted CI44870894755 and Security44870894658; post-deploy-check; live feature assets
+- Test results: All six checks PASS and73/73 including82 contract files; 6/6 PASS; 2/2 PASS
+- Git branch: codex/t193-unified-media-studio-audit
+- Commit: 65d07d4 (Specify one unified Media Studio and billing recovery (T-193, CP-149)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md and coordination log;branch T194 from current main58fc72b;implement typed402/readiness recovery before unified composer;do not redo or remerge T191/T192

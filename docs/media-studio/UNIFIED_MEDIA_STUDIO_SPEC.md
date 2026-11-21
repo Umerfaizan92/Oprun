@@ -3,6 +3,8 @@
 Date: 21 November 2026 (Perth). Specification task T-193; implementation task T-194.
 Status: implementation-ready design. The redesign and billing recovery below are NOT implemented or deployed by this document.
 
+Release addendum (19:31 Perth): owner subsequently authorized deployment of the existing tested T-191/T-192 code. PR166 is merged as main `58fc72b597666c637a7fefb19af5962bb1980a80`; Render `dep-dc0nunmc6qcc73bonn2g` is LIVE. Six read-only deploy checks and both live feature-asset checks pass. The audit sections below retain their original pre-release snapshot; their release hold/unmerged statements are historical and superseded by this addendum. T-194 redesign and typed402 recovery remain unimplemented; continue T-194A from the current main release.
+
 ## 1. Audit report
 
 ### Verified release state
