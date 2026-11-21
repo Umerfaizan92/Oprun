@@ -69,3 +69,17 @@ MS-04A billing/speech critical fixes; MS-04B security/isolation tests; MS-05A un
 - Files: video/provider/server/error helper; guided controller; shared media library/picker/viewer; runtime/dictation; CSS/HTML; contracts/DOM/browser tests and CI screenshot preservation; project memory/manifest. No other agent file, production setting, customer record or credential changed.
 - Remaining: hosted final browser/full/security acceptance; native-device recognition and funded vendor acceptance; fresh backup/rollback proof before production; MS05B/MS05C/MS06 onward NOT_STARTED.
 - Next: publish follow-up PR167, inspect hosted guided Library/preview/screenshots/accessibility, repair any defect and preserve final evidence; never merge/deploy without owner approval.
+
+## MS-04A / MS-04B / MS-05A final hosted acceptance — 21 November 2026
+
+Status: TESTED first implementation batch; T194 remains PARTIAL. Owner: Codex. Candidate branch codex/t194-media-studio; draft PR167 https://github.com/Umerfaizan92/Oprun/pull/167. Remote candidate b67d3dcaaa407d53386fd00ca4d92f1387f91e55 equals local7a28df0c07b43e5c2761c8bdb507efede91eace1 tree d0646d306fb07fa2175ccb2d8bfd072539172345.
+
+Verified: CI44906994554 and Security44906994542 completed SUCCESS; all six checks successful. Hosted npm test73/73,84 contract files; recovered-release-ui136854599798 passes legacy AI video, guided creator,60-second actual assembled playback, shared Library/source reuse, mobile layouts and accessibility; broader UI/navigation/comms suites pass. Local follow-up27/27 and final focused8/8 pass. These are synthetic-provider tests, not funded vendor generation or native microphone acceptance.
+
+Screenshots from artifact14708302312 (oprun-redesign-visual-evidence), archive SHA256 b64aed609f7ed8e27d0f405334f3f152b53764b56f704580da6188c31b834b6c, visually inspected and preserved in docs/media-studio/previews: guided-brief-phone.png, guided-production-phone.png, guided-output-phone.png. Synthetic model names/color-bar video are test fixtures. Mobile tabs/steps scroll horizontally; toast overlays are transient. No signed artifact URL is retained.
+
+Production remains main58fc72b597666c637a7fefb19af5962bb1980a80 / Render dep-dc0nunmc6qcc73bonn2g. No merge, deployment, settings change, paid provider call or external publication performed. Default-off STUDIO_UNIFIED_UI / STUDIO_UNIFIED_WORKSPACES must be explicitly activated during an approved rollout for redesign visibility.
+
+Remaining: native Android/iOS microphone/language acceptance; exact funded account billing recovery and cost-controlled real generation; fresh backup/isolated restore evidence; wider tenant/security acceptance. MS05B script/storyboard/autosave/versioning, MS05C timeline/audio editing, MS06 campaign/publishing/analytics remain NOT_STARTED. No blanket isolation or end-to-end production completion claim.
+
+Exact next action: review PR167's green candidate and preserved mobile evidence; continue approved next implementation batch in a separate branch after checking concurrent ownership. Production deployment requires separate owner approval and release gates. Resume from this handover, not historical WAIT FOR APPROVAL text above. CP158 was inadvertently created by the checkpoint CLI accepting --help as an ordinary invocation; the following explicit checkpoint supersedes it without removing history.

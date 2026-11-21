@@ -2201,3 +2201,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T130239Z (626cbd9)
 - Known errors: none
 - Next exact action: Commit and push follow-up to PR167;require full hosted CI/security and guided UI success;do not merge/deploy
+
+## CP-158 2026-11-21T21:19:04+08:00 no task
+- Phase: MS04A/MS04B/MS05A candidate follow-up
+- Task: not set
+- Completed steps: none
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): docs/media-studio/previews/guided-brief-phone.png; docs/media-studio/previews/guided-output-phone.png; docs/media-studio/previews/guided-production-phone.png
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: 7a28df0 (Fix guided Library navigation and clear media across workspace changes); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: not set
+
+## CP-159 2026-11-21T21:19:26+08:00 T-194 TESTING
+- Phase: Direction A first batch hosted acceptance
+- Task: T-194 (TESTING)
+- Completed steps: All six hosted checks pass on b67d3dc; mobile screenshots preserved; first batch implementation tested
+- Incomplete steps: Native microphone and funded provider acceptance; backup restore; later storyboard editing publishing modules
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/SESSION_HANDOVER.md; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/previews/guided-brief-phone.png; docs/media-studio/previews/guided-output-phone.png; docs/media-studio/previews/guided-production-phone.png
+- Tests executed: CI44906994554; Security44906994542
+- Test results: 6/6 checks PASS; 73/73 checks and84 contract files; guided playback mobile accessibility PASS
+- Git branch: codex/t194-first-batch-handover
+- Commit: 7a28df0 (Fix guided Library navigation and clear media across workspace changes); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Review green PR167; continue next approved implementation batch on separate branch; no merge or deploy
