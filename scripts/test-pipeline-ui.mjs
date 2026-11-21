@@ -87,8 +87,13 @@ try {
     await b.waitFor();
     assert.match(await b.textContent(), /Needs workers/);
     await b.getByRole('button', { name: 'Offer to workers' }).click();
-    await page.waitForFunction(() => document.querySelector('#bookings-view [data-pl-status]').dataset.tone === 'bad');
-    assert.match(await status('bookings').textContent(), /No worker is eligible/);
+    // T-165 opens a chooser before sending any offers. With no eligible
+    // workers it explains why and disables both sending actions.
+    await b.locator('.pl-inline').getByText(/No worker is eligible/).waitFor();
+    assert.equal(await b.getByRole('button', { name: 'Offer to the workers I chose' }).isDisabled(), true);
+    assert.equal(await b.getByRole('button', { name: 'Offer to everyone eligible' }).isDisabled(), true);
+    assert.ok(!/Offered to \d+ worker/.test(await status('bookings').textContent()));
+    await b.getByRole('button', { name: 'Cancel', exact: true }).click();
     const res = await s.call('GET', '/api/saas/work-orders', { cookie: owner.cookie });
     assert.ok(JSON.stringify(res.json).includes('Blocked kitchen drain'), 'the job exists in Jobs');
   });
@@ -98,8 +103,7 @@ try {
     const response = page.waitForResponse((r) => /\/api\/saas\/pipeline\/jobs\/[^/]+\/complete$/.test(new URL(r.url()).pathname) && r.request().method() === 'POST');
     await card('bookings', 'Blocked kitchen drain').getByRole('button', { name: 'Mark job complete' }).click();
     assert.equal((await response).status(), 500);
-    // The previous worker-eligibility message is already bad. Wait for this
-    // request's error, rather than accidentally inspecting that stale message.
+    // Wait for this request's error rather than inspecting a stale message.
     await page.waitForFunction(() => /Simulated server failure/.test(document.querySelector('#bookings-view [data-pl-status]').textContent));
     assert.equal(await status('bookings').getAttribute('data-tone'), 'bad');
     assert.match(await status('bookings').textContent(), /Simulated server failure/);
