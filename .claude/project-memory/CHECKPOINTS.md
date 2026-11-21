@@ -2019,3 +2019,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Resume next owner-assigned task. T-188/T-189/T-190 are live at main cfcae59; do not re-merge PR165. Latest final handover is on codex/t190-release-handover.
+
+## CP-145 2026-11-21T12:53:12+08:00 T-191 IN_PROGRESS
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-191 (IN_PROGRESS)
+- Completed steps: Verified main cfcae59 and Render live; reconciled CP-144; existing authenticated multilingual voice runtime available
+- Incomplete steps: Implement scoped dictation controls and lifecycle protection; tests; publish reviewable candidate
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: 38ddb66 (Preserve completed T-190 release and live deployment handover); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Add video dictation controller using existing voice runtime and explicit-language browser fallback
+
+## CP-146 2026-11-21T13:00:17+08:00 T-191 TESTING
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-191 (TESTING)
+- Completed steps: Implemented idea and prompt dictation; 18 focused tests pass; full suite running; existing voice/runtime reused
+- Incomplete steps: Hosted browser acceptance for dictation; then T-192 custom/continuous duration; combined deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-runtime.js; saas/workspace-ai-video.js; saas/workspace.html; scripts/test-ai-video-ui.mjs; saas/workspace-video-dictation.js; scripts/video-dictation.test.mjs
+- Tests executed: node --test scripts/video-dictation.test.mjs scripts/voice-runtime.test.mjs
+- Test results: 18/18 pass
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: 38ddb66 (Preserve completed T-190 release and live deployment handover); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T050017Z (0696bbf)
+- Known errors: none
+- Next exact action: Publish T-191 candidate for hosted UI checks; complete voice task before implementing T-192

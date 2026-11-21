@@ -1,5 +1,14 @@
 # ChatGPT coordination
 
+## 21 November 2026 — T-191 speech input; T-192 queued next
+
+- Current main/Render verified at `cfcae59`; CP-144 reconciled from `codex/t190-release-handover`. T-190 is already released and must not be redone. New work is isolated on `codex/t191-video-prompt-dictation`.
+- T-191 adds microphone controls for the idea and director prompt, automatic server transcription through the existing authenticated voice service, and explicit-language browser recognition as an alternative. The existing language catalogue supplies choices; availability stays provider/browser-dependent. Original scripts and RTL text stay editable; dictation does not start AI writing or paid rendering.
+- Existing text, selections and field limits are protected. Concurrent edits and oversized speech go into an editable review panel. Navigation, workspace changes, sign-out, cancellation and timeouts invalidate stale results and stop capture. AI generation is blocked while dictating, and dictation is blocked during AI/narration actions.
+- Focused dictation/runtime tests: 18/18 PASS, including Urdu/Hindi/Arabic/Spanish/English text, selection insertion, edits, length limits, permissions, browser language, late events and cancellation. Full npm suite is running. Local Chromium is blocked by Unix socket policy; hosted UI acceptance is required. Browser regression exercises real fake-device audio capture into a mocked transcription response, prompt enhancement and selected-language dictation.
+- T-192 is recorded NOT_STARTED: owner wants custom full-video duration and an unlimited/continue-until-stopped option, with one final video and provider clips handled internally. Complete T-191 first, then implement T-192. Owner explicitly authorizes combined Render deployment after both tasks pass their tests. No main merge or deployment has occurred for this batch.
+- Automatic speech requires an available funded configured provider; reported platform Gemini-credit exhaustion has not been changed. No universal-language or zero-error recognition claim is made; explicit browser language and editable review remain available.
+
 ## 21 November 2026 — T-188/T-189/T-190 release (PR #165)
 
 - Recovered `claude/t190-wip` at `0768ccb` on separate Codex branches. Preserved T-188 `fa7f1a6` and T-189 `0073830`. Canonical published branch: `codex/t190-video-creator`; local integration branch: `codex/t190-integration`.

@@ -36,6 +36,14 @@ try {
   const owner = await seedOwner(server);
   browser = await chromium.launch({ headless: true, ...(process.env.UI_CHROMIUM_PATH ? { executablePath: process.env.UI_CHROMIUM_PATH } : {}), args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--autoplay-policy=no-user-gesture-required'] });
   const ctx = await ownerContext(browser, server, owner), page = await ctx.newPage(), errors = [];
+  await page.addInitScript(()=>{
+    window.SpeechRecognition=class{
+      constructor(){window.__videoDictationRecognition=this}
+      start(){this.onstart?.()}
+      stop(){this.onend?.()}
+      abort(){this.aborted=true}
+    };
+  });
   await ctx.grantPermissions(['camera', 'microphone'], { origin: server.base });
   page.on('pageerror', (e) => errors.push(e.message)); page.setDefaultTimeout(20000);
   await page.setViewportSize({ width: 1440, height: 950 });
@@ -53,10 +61,36 @@ try {
   await panel.getByText('Connected · key …0000').waitFor();
   assert.ok(!(await page.content()).includes('AIza-ui-test-key'), 'the key is not shown anywhere after saving');
 
-  // Idea -> AI prompt -> generate.
-  await page.locator('#aiv-idea').fill('Before and after of a leaking kitchen tap we fixed');
+  // T-191: real browser microphone capture -> authenticated transcription ->
+  // original-language editable idea. Recording never starts a paid render.
+  let dictationBody='',enhanceCalls=0,renderCalls=0;
+  page.on('request',r=>{if(r.url().endsWith('/ai-video/enhance'))enhanceCalls++;if(r.url().endsWith('/ai-video/projects')&&r.method()==='POST')renderCalls++});
+  await page.route('**/api/saas/voice/transcribe',async route=>{
+    dictationBody=route.request().postDataBuffer().toString('utf8');
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,text:'ہمارے ٹرک کی پالش پہلے اور بعد میں دکھائیں',language:'ur'})});
+  });
+  await panel.getByRole('button',{name:'Speak idea',exact:true}).click();
+  await panel.getByRole('status').filter({hasText:/Listening… speak naturally/}).waitFor();
+  await page.waitForTimeout(1300);
+  await panel.getByRole('button',{name:'Stop dictation',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('#aiv-idea').value.includes('ہمارے ٹرک'));
+  assert.match(dictationBody,/name="language"\r\n\r\nauto/);
+  assert.equal(enhanceCalls,0,'dictation does not automatically call the prompt writer');
+  assert.equal(renderCalls,0,'dictation does not automatically start a paid render');
+  assert.equal(await page.locator('#aiv-idea').getAttribute('dir'),'auto');
+  await page.unroute('**/api/saas/voice/transcribe');
+
+  // Idea -> AI prompt, then add detail by explicit-language browser dictation.
   await page.getByRole('button', { name: 'Write the prompt with AI' }).click();
   await page.waitForFunction(() => document.querySelector('#aiv-prompt').value.length > 60);
+  const writtenPrompt=await page.locator('#aiv-prompt').inputValue();
+  await page.locator('#aiv-prompt').evaluate(t=>t.setSelectionRange(t.value.length,t.value.length));
+  await page.locator('#aiv-dictation-language').selectOption('hi-IN');
+  await panel.getByRole('button',{name:'Speak prompt',exact:true}).click();
+  assert.equal(await page.evaluate(()=>window.__videoDictationRecognition.lang),'hi-IN');
+  await page.evaluate(()=>window.__videoDictationRecognition.onresult({results:[Object.assign([{transcript:'धीमी कैमरा गति रखें'}],{isFinal:true})]}));
+  await panel.getByRole('button',{name:'Stop dictation',exact:true}).click();
+  assert.equal(await page.locator('#aiv-prompt').inputValue(),writtenPrompt+' धीमी कैमरा गति रखें');
   await panel.getByRole('radio', { name: 'Vertical 9:16' }).click();
   assert.deepEqual(await page.locator('#aiv-resolution option').allTextContents(), ['720p HD', '1080p Full HD', '4K Ultra HD']);
   await page.locator('#aiv-resolution').selectOption('4k');

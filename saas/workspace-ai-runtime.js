@@ -161,7 +161,7 @@
     return false;
   }
 
-  async function listen({language='auto',onStatus,onListening}={}){
+  async function listen({language='auto',onStatus,onListening,manual=false}={}){
     if(isListening()){stopListening();return {text:'',stopped:true}}
     // A stopped recorder can still own an in-flight transcription. Cancel it
     // before replacing its capture so an older result cannot update this view.
@@ -192,7 +192,7 @@
         onListening?.(true);onStatus?.('Listening… speak naturally. Normal pauses will not cut you off.','listening');
         try{
           const AC=window.AudioContext||window.webkitAudioContext;
-          if(AC){
+          if(AC&&!manual){
             audioContext=new AC();sourceNode=audioContext.createMediaStreamSource(stream);analyser=audioContext.createAnalyser();analyser.fftSize=1024;sourceNode.connect(analyser);
             const samples=new Uint8Array(analyser.fftSize);
             monitorTimer=setInterval(()=>{
@@ -212,7 +212,7 @@
             },80);
           }
         }catch{}
-        noSpeechTimer=setTimeout(()=>{if(recorder.state==='recording'&&!speechStarted)recorder.stop()},7000);
+        if(!manual)noSpeechTimer=setTimeout(()=>{if(recorder.state==='recording'&&!speechStarted)recorder.stop()},7000);
         hardStopTimer=setTimeout(()=>{if(recorder.state==='recording')recorder.stop()},45000);
       };
 
@@ -223,7 +223,7 @@
           if(blob.size<700){onStatus?.('No speech detected. Microphone stopped.','ready');return resolve({text:'',noSpeech:true})}
           onStatus?.('Understanding what you said…','transcribing');
           const fd=new FormData();fd.append('audio',blob,'speech.webm');fd.append('language',language);
-          const response=await fetch('/api/saas/voice/transcribe',{method:'POST',credentials:'same-origin',signal:state.controller.signal,body:fd});
+          const response=await fetch('/api/saas/voice/transcribe',{method:'POST',credentials:'same-origin',headers:window.SuperProWorkspaceContext?.headers?.()||{},signal:state.controller.signal,body:fd});
           const d=await response.json().catch(()=>({}));
           if(!response.ok)throw new Error(d.error||'Voice transcription failed.');
           if(state.cancelled||run!==captureRun)return resolve({text:'',cancelled:true});

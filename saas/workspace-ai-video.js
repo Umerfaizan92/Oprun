@@ -9,7 +9,7 @@
   const $=s=>document.querySelector(s);
   const OWNERS=['owner','admin','super_admin'];
   let loaded=false,state={providers:{},engines:[],jobs:[],projects:[],voices:[]},library=[],timer=null,shape='9:16',mounted=false,busy=false;
-  let picker=null,voiceMode='none',narrationId=null;
+  let picker=null,voiceMode='none',narrationId=null,dictation=null;
   const ago=iso=>{const s=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000));return s<60?`${s}s`:`${Math.floor(s/60)} min ${s%60}s`};
   const secs=n=>n<60?`${n} seconds`:n%60?`${Math.floor(n/60)} min ${n%60}s`:`${n/60} minute${n===60?'':'s'}`;
   const engine=()=>state.engines.find(e=>e.id===$('#aiv-engine')?.value)||state.engines[0];
@@ -33,6 +33,7 @@
       el('div',{class:'aiv-providers',id:'aiv-providers'}),
       el('div',{class:'aiv-connect',id:'aiv-connect',hidden:true}),
       el('form',{class:'aiv-form',id:'aiv-form',novalidate:true},
+        el('div',{class:'aiv-full aiv-dictation',id:'aiv-dictation'}),
         el('label',{class:'aiv-full'},el('span',{text:'1. Your idea'}),el('textarea',{id:'aiv-idea',rows:'2',maxlength:'2000',placeholder:'Example: me explaining how we polish a bull bar, then a close-up of the mirror finish.'})),
         el('div',{class:'aiv-full aiv-row'},el('button',{type:'button',class:'secondary-button',id:'aiv-enhance',text:'Write the prompt with AI'}),el('small',{class:'muted',id:'aiv-enhance-note',text:'AI adds camera, lighting, pacing and mood. You can edit the result.'})),
         el('label',{class:'aiv-full'},el('span',{text:'2. Director’s prompt'}),el('textarea',{id:'aiv-prompt',rows:'5',maxlength:'4000',placeholder:'The full prompt sent to the video model. Write it yourself or let AI write it from your idea. Long videos are split into shots automatically.'})),
@@ -57,6 +58,8 @@
     $('#aiv-engine').addEventListener('change',fit);$('#aiv-duration').addEventListener('change',plan);
     $('#aiv-enhance').addEventListener('click',enhance);$('#aiv-camera').addEventListener('click',openCamera);
     $('#aiv-form').addEventListener('submit',e=>{e.preventDefault();generate()});
+    dictation=window.OprunVideoDictation?.create($('#aiv-dictation'),{canStart:()=>!busy&&!$('#aiv-enhance').disabled&&!rec});
+    dictation?.attach($('#aiv-idea'),'idea');dictation?.attach($('#aiv-prompt'),'prompt');
     setGuides([]);drawVoice();
     mounted=true;return true;
   }
@@ -142,6 +145,7 @@
         el('button',{type:'button',class:'secondary-button',text:'Create my voice',onclick:()=>cloneForm(host)})));
   }
   async function recordAudio(status,btn,host){
+    dictation?.cancel();
     try{
       const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
       const type=pickType(['audio/webm;codecs=opus','audio/webm','audio/mp4']);const r=new MediaRecorder(stream,type?{mimeType:type}:undefined),chunks=[],started=Date.now();
@@ -174,6 +178,7 @@
 
   // ---------- camera ----------
   async function openCamera(){
+    dictation?.cancel();
     if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){note('This browser cannot record video. Upload a video instead.',true);return}
     let facing='user',stream=null,recorder=null,chunks=[],blob=null,started=0,tick=null;
     const live=el('video',{class:'aiv-cam-video',playsinline:true,autoplay:true,muted:true,'aria-label':'Camera preview'});live.muted=true;
@@ -243,6 +248,7 @@
   }
 
   async function enhance(){
+    if(dictation?.isBusy()){note('Finish or cancel dictation before writing the AI prompt.',true);return}
     const idea=$('#aiv-idea').value.trim();if(idea.length<3){note('Write your idea first, in a few words.',true);$('#aiv-idea').focus();return}
     const b=$('#aiv-enhance');b.disabled=true;b.textContent='Writing…';
     const v=$('#aiv-duration').value,e=engine();
@@ -251,6 +257,7 @@
     catch(x){note(x.message,true)}finally{b.disabled=false;b.textContent='Write the prompt with AI'}
   }
   async function generate(){
+    if(dictation?.isBusy()){note('Finish or cancel dictation before generating a video.',true);return}
     const e=engine();if(!e?.ready){note('Connect a video provider first.',true);return}
     let prompt=$('#aiv-prompt').value.trim();const idea=$('#aiv-idea').value.trim();
     if(prompt.length<10&&idea.length>=10)prompt=idea;
@@ -290,5 +297,5 @@
       await load();
     },8000);
   }
-  onView('video',{enter:load,leave:()=>{clearTimeout(timer);timer=null;stopAudio()}});
+  onView('video',{enter:load,leave:()=>{clearTimeout(timer);timer=null;stopAudio();dictation?.cancel()}});
 })();
