@@ -56,9 +56,9 @@ test('shared library drops stale tenant responses and routes unified picks into 
   const root=w.document.getElementById('video-view');root.insertAdjacentHTML('beforeend','<span id="library-count"></span><div id="media-library-grid"></div><input id="media-library-search"><select id="media-library-sort"><option value="recent">Recent</option></select><div id="library-selection"></div>');root.classList.add('ms-unified');
   const pending=[];let picked='';w.SuperProUI.api=()=>new Promise(resolve=>pending.push(resolve));w.addEventListener('oprun:studio-guide',e=>picked=e.detail.id);
   w.eval(fs.readFileSync(new URL('../saas/workspace-media.js',import.meta.url),'utf8'));
-  w.dispatchEvent(new w.CustomEvent('gds:viewchange',{detail:{view:'video'}}));w.dispatchEvent(new w.Event('superpro:workspace-ready'));assert.equal(pending.length,2);
-  pending[0]({media:[{id:'tenant-a',original_name:'TENANT A PRIVATE',kind:'photo',size_bytes:1,created_at:'2026-01-01'}]});await tick();assert.ok(!w.document.body.textContent.includes('TENANT A PRIVATE'));
-  pending[1]({media:[{id:'tenant-b',original_name:'Tenant B photo',kind:'photo',size_bytes:1,created_at:'2026-01-01'}]});await tick();w.document.querySelector('.media-pick').click();assert.equal(picked,'tenant-b');assert.ok(!w.document.body.textContent.includes('TENANT A PRIVATE'));
+  w.dispatchEvent(new w.CustomEvent('gds:viewchange',{detail:{view:'video'}}));w.dispatchEvent(new w.Event('superpro:workspace-ready'));assert.equal(pending.length,4);
+  pending[1]({metadata:[{media_id:'tenant-a',folder:'TENANT A PRIVATE FOLDER'}],usage:{files:1,bytes:1}});pending[0]({media:[{id:'tenant-a',original_name:'TENANT A PRIVATE',kind:'photo',size_bytes:1,created_at:'2026-01-01'}]});await tick();assert.ok(!w.document.body.textContent.includes('TENANT A PRIVATE'));
+  pending[3]({metadata:[],usage:{files:1,bytes:1}});pending[2]({media:[{id:'tenant-b',original_name:'Tenant B photo',kind:'photo',size_bytes:1,created_at:'2026-01-01'}]});await tick();w.document.querySelector('.media-pick').click();assert.equal(picked,'tenant-b');assert.ok(!w.document.body.textContent.includes('TENANT A PRIVATE'));
  }finally{f.close()}
 });
 

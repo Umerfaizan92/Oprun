@@ -69,6 +69,7 @@ import { installAppointments } from './appointments.js';
 import { installAiVideo } from './ai-video.js';
 import { installStudioProjects } from './studio-projects.js';
 import { installStudioEditor } from './studio-editor.js';
+import { installStudioLibrary } from './studio-library.js';
 import { createEntitlements } from './entitlements.js';
 import { createAddons } from './addons.js';
 import { createBillingOps } from './billing-ops.js';
@@ -6335,6 +6336,7 @@ installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runti
 installAppointments(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,dispatch:saasPlatform.dispatch,notifications});
 installAiVideo(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,generateAiText,notify:notifications});
 installStudioProjects(app,{db,requireSaasUser,requireSaasRole,saasAudit,generateAiText});
+installStudioLibrary(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit});
 const studioEditQueue=createJobQueue({db,workerId:'studio-'+process.pid});
 installStudioEditor(app,{db,env,uploadRoot,queue:studioEditQueue,requireSaasUser,requireSaasRole,saasAudit});
 if(!/^(1|true|yes)$/i.test(String(env.JOBS_DISABLED||'')))studioEditQueue.start();

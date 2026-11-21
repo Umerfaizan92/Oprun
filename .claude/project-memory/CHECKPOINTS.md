@@ -2285,3 +2285,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T163640Z (7acd52f)
 - Known errors: none
 - Next exact action: Publish branding/playback batch then continue remaining library and release gates
+
+## CP-164 2026-11-22T00:43:32+08:00 T-194 TESTING
+- Phase: Private library organization and expiring sharing
+- Task: T-194 (TESTING)
+- Completed steps: Folders labels notes usage version links retention review dates; owner-only expiring revocable shares; voice pause/cancel and cleanup guards
+- Incomplete steps: Hosted new library/voice UI and full regression; automatic captions advanced audio extra adapters and live release gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; saas/workspace-ai-video.js; saas/workspace-media.js; saas/workspace.html; scripts/media-guided.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/server.js; scripts/studio-library.test.mjs; src/studio-library.js
+- Tests executed: library and guided/dictation contracts
+- Test results: 17/17 PASS; share expiry revocation foreign tenant verified
+- Git branch: codex/t194-studio-completion
+- Commit: 931e4d2 (Add branded exports, fade transitions and stable video previews); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T164332Z (2ec47c2)
+- Known errors: none
+- Next exact action: Publish library/voice batch and run final hosted acceptance;continue remaining caption/audio gaps

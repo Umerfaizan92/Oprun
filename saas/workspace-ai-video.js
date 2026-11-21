@@ -9,7 +9,7 @@
   const $=s=>document.querySelector(s);
   const OWNERS=['owner','admin','super_admin'];
   let loaded=false,state={providers:{},engines:[],jobs:[],projects:[],voices:[]},library=[],timer=null,shape='9:16',mounted=false,busy=false;
-  let picker=null,voiceMode='none',narrationId=null,dictation=null,guided=null,workspaceEpoch=0,captureEpoch=0;
+  let picker=null,voiceMode='none',narrationId=null,dictation=null,guided=null,workspaceEpoch=0,captureEpoch=0,audioPending=false;
   const ago=iso=>{const s=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000));return s<60?`${s}s`:`${Math.floor(s/60)} min ${s%60}s`};
   const secs=n=>{n=Math.max(0,Math.round(Number(n)||0));return n<60?`${n} seconds`:n%60?`${Math.floor(n/60)} min ${n%60}s`:`${n/60} minute${n===60?'':'s'}`};
   const engine=()=>state.engines.find(e=>e.id===$('#aiv-engine')?.value)||state.engines[0];
@@ -53,7 +53,7 @@
         el('label',{},el('span',{text:'Quality'}),el('select',{id:'aiv-resolution'})),
         el('label',{class:'aiv-full aiv-check',id:'aiv-continuous-consent-row',hidden:true},el('input',{type:'checkbox',id:'aiv-continuous-consent'}),el('span',{text:'I understand Unlimited keeps generating and charging my provider account until I press Finish video, or provider credits or storage limits stop it.'})),
         el('fieldset',{class:'aiv-full aiv-voice'},el('legend',{text:'4. Voice-over (optional)'}),
-          seg('Voice-over',[['none','None'],['record','Record my voice'],['library','From my library'],['script','Script in my voice']],'none',v=>{voiceMode=v;drawVoice()}),
+          seg('Voice-over',[['none','None'],['record','Record my voice'],['library','From my library'],['script','Script in my voice']],'none',v=>{stopAudio(true);voiceMode=v;drawVoice()}),
           el('div',{id:'aiv-voice-body'}),
           el('label',{class:'aiv-check'},el('input',{type:'checkbox',id:'aiv-keep'}),el('span',{text:'Keep the video’s own sound quietly under my voice'}))),
         el('p',{class:'aiv-full aiv-plan',id:'aiv-plan',role:'status'}),
@@ -66,7 +66,7 @@
     $('#aiv-custom-duration').addEventListener('input',plan);$('#aiv-duration-unit').addEventListener('change',plan);
     $('#aiv-enhance').addEventListener('click',enhance);$('#aiv-camera').addEventListener('click',openCamera);
     $('#aiv-form').addEventListener('submit',e=>{e.preventDefault();generate()});
-    dictation=window.OprunVideoDictation?.create($('#aiv-dictation'),{canStart:()=>!busy&&!$('#aiv-enhance').disabled&&!rec});
+    dictation=window.OprunVideoDictation?.create($('#aiv-dictation'),{canStart:()=>!busy&&!$('#aiv-enhance').disabled&&!rec&&!audioPending});
     dictation?.attach($('#aiv-idea'),'idea');dictation?.attach($('#aiv-prompt'),'prompt');
     setGuides([]);drawVoice();
     mounted=true;return true;
@@ -163,22 +163,22 @@
         el('button',{type:'button',class:'secondary-button',text:'Create my voice',onclick:()=>cloneForm(host)})));
   }
   async function recordAudio(status,btn,host){
-    dictation?.cancel();const epoch=workspaceEpoch,capture=++captureEpoch;
+    dictation?.cancel();const epoch=workspaceEpoch,capture=++captureEpoch;audioPending=true;let stream=null,tick=null;btn.disabled=true;const cancel=el('button',{type:'button',class:'secondary-button',text:'Cancel recording',onclick:()=>{stopAudio(true);btn.disabled=false;status.textContent='Recording cancelled. Your earlier voice-over is preserved.';cancel.remove()}});host.querySelector('.aiv-row')?.append(cancel);
     try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
-      if(epoch!==workspaceEpoch||capture!==captureEpoch){stream.getTracks().forEach(t=>t.stop());return}
+      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+      if(epoch!==workspaceEpoch||capture!==captureEpoch){cancel.remove();stream.getTracks().forEach(t=>t.stop());return}
       const type=pickType(['audio/webm;codecs=opus','audio/webm','audio/mp4']);const r=new MediaRecorder(stream,type?{mimeType:type}:undefined),chunks=[],started=Date.now();
-      const current={r,stream,chunks,cancelled:false};rec=current;btn.textContent='Stop';
-      const tick=setInterval(()=>{status.textContent=`Recording… ${secs(Math.round((Date.now()-started)/1000))}`},500);
+      const current={r,stream,chunks,cancelled:false};rec=current;btn.disabled=false;btn.textContent='Stop';let pausedAt=0,pausedMs=0;const pause=el('button',{type:'button',class:'secondary-button',text:'Pause recording',hidden:typeof r.pause!=='function',onclick:()=>{try{if(r.state==='paused'){pausedMs+=Date.now()-pausedAt;pausedAt=0;r.resume();pause.textContent='Pause recording'}else if(r.state==='recording'){pausedAt=Date.now();r.pause();pause.textContent='Resume recording'}}catch{note('Pause is unavailable. Stop and save or cancel this recording.',true)}}});host.querySelector('.aiv-row')?.append(pause);
+      tick=setInterval(()=>{status.textContent=r.state==='paused'?'Recording paused. Resume, stop or cancel.':`Recording… ${secs(Math.round((Date.now()-started-pausedMs)/1000))}`},500);
       r.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-      r.onstop=async()=>{clearInterval(tick);stream.getTracks().forEach(t=>t.stop());if(rec===current)rec=null;btn.textContent='Record';if(current.cancelled||epoch!==workspaceEpoch||capture!==captureEpoch)return;
+      r.onstop=async()=>{clearInterval(tick);pause.remove();cancel.remove();stream.getTracks().forEach(t=>t.stop());if(rec===current)rec=null;btn.textContent='Record';if(current.cancelled||epoch!==workspaceEpoch||capture!==captureEpoch)return;
         const blob=new Blob(chunks,{type:(r.mimeType||type||'audio/webm').split(';')[0]});if(blob.size<2000){status.textContent='That recording was too short. Try again.';return}
         status.textContent='Saving your recording…';
         try{const id=await uploadBlob(blob,`Voice recording ${stamp()}.${blob.type.includes('mp4')?'m4a':'weba'}`,epoch);if(epoch!==workspaceEpoch)return;narrationId=id;$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;drawVoice();window.dispatchEvent(new Event('oprun:media-changed'))}catch(x){status.textContent=x.message}};
       r.start(1000);
-    }catch{note('Allow the microphone for this site to record your voice.',true)}
+    }catch{clearInterval(tick);stream?.getTracks().forEach(t=>t.stop());if(rec?.stream===stream)rec=null;cancel.remove();if(epoch===workspaceEpoch&&capture===captureEpoch)note('Allow the microphone for this site to record your voice.',true)}finally{if(capture===captureEpoch)audioPending=false;btn.disabled=false}
   }
-  function stopAudio(cancel=false){if(cancel){captureEpoch++;if(rec)rec.cancelled=true}try{rec?.r.stop()}catch{rec=null}}
+  function stopAudio(cancel=false){if(cancel){audioPending=false;captureEpoch++;if(rec)rec.cancelled=true}try{rec?.r.stop()}catch{rec=null}}
   function cloneForm(host){
     const audio=library.filter(m=>m.kind==='audio'||m.kind==='video');
     const box=el('div',{class:'aiv-clone'},
@@ -287,6 +287,7 @@
     catch(x){note(x.message,true)}finally{b.disabled=false;b.textContent='Write the prompt with AI'}
   }
   async function generate(){
+    if(rec||audioPending){note('Stop and save, or cancel, your voice recording before generating.',true);return}
     if(dictation?.isBusy()){note('Finish or cancel dictation before generating a video.',true);return}
     const e=engine();if(!e?.ready){note('Connect a video provider first.',true);return}
     let prompt=$('#aiv-prompt').value.trim();const idea=$('#aiv-idea').value.trim();
@@ -326,7 +327,7 @@
     const before=new Set([...(state.projects||[]),...(state.jobs||[])].filter(x=>x.status==='succeeded').map(x=>x.id));
     const epoch=workspaceEpoch;let incoming;try{incoming=await api('/api/saas/ai-video')}catch{return}
     if(epoch!==workspaceEpoch)return;state=incoming;await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;if(!picker)setGuides([]);
-    if(state.unified_ui&&!guided)guided=window.OprunMediaGuided?.create({panel:$('#ai-video-panel'),library:$('#video-view .source-library-panel'),canNavigate:()=>!rec&&!dictation?.isBusy(),capture:()=>({reference_media_ids:guides(),narration_media_id:narrationId,voice_mode:voiceMode,shape,voice_id:$('#aiv-voice')?.value||''}),restore:d=>{setGuides((d.reference_media_ids||[]).slice(0,3));shape=['9:16','16:9'].includes(d.shape)?d.shape:'9:16';voiceMode=['none','record','library','script'].includes(d.voice_mode)?d.voice_mode:'none';narrationId=d.narration_media_id||null;drawVoice();if($('#aiv-voice')&&d.voice_id)$('#aiv-voice').value=d.voice_id;$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));}});
+    if(state.unified_ui&&!guided)guided=window.OprunMediaGuided?.create({panel:$('#ai-video-panel'),library:$('#video-view .source-library-panel'),canNavigate:()=>!rec&&!audioPending&&!dictation?.isBusy(),capture:()=>({reference_media_ids:guides(),narration_media_id:narrationId,voice_mode:voiceMode,shape,voice_id:$('#aiv-voice')?.value||''}),restore:d=>{setGuides((d.reference_media_ids||[]).slice(0,3));shape=['9:16','16:9'].includes(d.shape)?d.shape:'9:16';voiceMode=['none','record','library','script'].includes(d.voice_mode)?d.voice_mode:'none';narrationId=d.narration_media_id||null;drawVoice();if($('#aiv-voice')&&d.voice_id)$('#aiv-voice').value=d.voice_id;$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));}});
     else if(!state.unified_ui&&guided){guided.destroy();guided=null}
     drawProviders();drawEngines();drawJobs();if(!loaded&&voiceMode!=='record')drawVoice();
     if(loaded&&[...state.projects,...state.jobs].some(x=>x.status==='succeeded'&&!before.has(x.id)))window.dispatchEvent(new Event('oprun:media-changed'));loaded=true;
