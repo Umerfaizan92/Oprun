@@ -2327,3 +2327,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T165906Z (a3f10c7)
 - Known errors: none
 - Next exact action: Publish final candidate;inspect full CI and expanded browser results;fix any failures before rollout
+
+## CP-167 2026-11-22T01:10:47+08:00 T-194 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-194 (TESTING)
+- Completed steps: Concurrent request replay; original full prompt; save-before-generate; cancelled first-shot terminal state; workspace async request guards
+- Incomplete steps: Final hosted exact-SHA acceptance and screenshots; restore/provider/device gates; remaining advanced product scope
+- Files modified (uncommitted at checkpoint): saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace-studio-projects.js; scripts/ai-video-projects.test.mjs; src/ai-video.js; scripts/ai-video-idempotency.test.mjs
+- Tests executed: submission/project/idempotency/recovery/draft tests
+- Test results: 12/12 PASS; concurrent and billing replay create no duplicate provider submission
+- Git branch: codex/t194-studio-completion
+- Commit: 030b47c (Stop unsubmitted video continuations and validate all media processing inputs); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T171047Z (5ceba77)
+- Known errors: none
+- Next exact action: Publish last tested submission batch and finish CI before authorized live-test rollout

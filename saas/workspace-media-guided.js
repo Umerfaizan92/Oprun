@@ -60,7 +60,7 @@
       legacyAria.forEach(([n,attrs])=>Object.entries(attrs).forEach(([a,v])=>{if(v===null)n.removeAttribute(a);else n.setAttribute(a,v)}));delete view.dataset.sectionInstalled;if(legacyPanels.length>1)window.SuperProPageSections?.install(view,legacyPanels,{labels:legacyLabels,preferred:legacySelected});
       if(oldNext?.parentNode===oldParent)oldParent.insertBefore(panel,oldNext);else oldParent.append(panel);
     }
-    const modeEvent=e=>show(e.detail?.mode||'create');window.addEventListener('oprun:studio-mode',modeEvent);const cleanup=destroy;enable();return {show,destroy(){window.removeEventListener('oprun:studio-mode',modeEvent);cleanup()}};
+    const modeEvent=e=>show(e.detail?.mode||'create');window.addEventListener('oprun:studio-mode',modeEvent);const cleanup=destroy;enable();return {show,save:()=>creative?.save()??true,destroy(){window.removeEventListener('oprun:studio-mode',modeEvent);cleanup()}};
   }
   window.OprunMediaGuided={create};
 })();
