@@ -589,3 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
+## T-190 AI video creator: camera recording, longer videos, own photos/videos, own voice
+- Status: TESTING
+- Added: 2026-11-20
+- Requirement: Owner (21 Nov 2026): in Media Studio add recording a short video from the live camera to generate from; length not limited to 15 seconds; upload own photos or videos from gallery/mobile/laptop and generate from them (e.g. a face photo + prompt); record own voice so the video speaks in the person's own voice; fully AI assisted.
+- Files: src/ai-video.js, saas/workspace-ai-video.js
+- Acceptance: Camera capture to library; reference photos/videos used in generation; long videos via extension/chaining; own-voice narration; tests pass

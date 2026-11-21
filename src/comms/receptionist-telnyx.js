@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 // AI Receptionist: each business connects its OWN Telnyx account (owner decision D-R12, 2026-11-19).
 // The business buys, ports and pays for numbers directly with Telnyx; Oprun never holds a number, card or balance for it.
 // What this module does, using the business's own API key:
@@ -72,19 +73,21 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
 
   // T-187: Telnyx refuses outgoing calls (error D38) unless the voice application has an Outbound Voice Profile.
   // Use the one already attached, else reuse "Oprun outbound calls" in the business's own account, else create it.
+  async function outboundProfile(key, org) {
+    let country = 'AU'; try { country = String(db.prepare('SELECT country FROM organisations WHERE id=?').get(org)?.country || 'AU').toUpperCase().slice(0, 2); } catch { /* older schema: Australia */ }
+    const list = await telnyx(key, 'GET', `/outbound_voice_profiles?filter[name][contains]=${encodeURIComponent('Oprun outbound calls')}&page[size]=20`);
+    const found = (list.data || []).find((x) => x.name === 'Oprun outbound calls')?.id;
+    if (found) return { profile: String(found), created: false };
+    const made = await telnyx(key, 'POST', '/outbound_voice_profiles', { name: 'Oprun outbound calls', traffic_type: 'conversational', service_plan: 'global', enabled: true, whitelisted_destinations: [...new Set([country, 'AU'])] });
+    if (!made?.data?.id) throw fail(502, 'Telnyx did not return an outbound voice profile.');
+    return { profile: String(made.data.id), created: true };
+  }
   async function ensureOutbound(key, applicationId, org) {
     const app = await telnyx(key, 'GET', `/call_control_applications/${encodeURIComponent(applicationId)}`);
     if (app?.data?.outbound?.outbound_voice_profile_id) return { profile: String(app.data.outbound.outbound_voice_profile_id), created: false };
-    let country = 'AU'; try { country = String(db.prepare('SELECT country FROM organisations WHERE id=?').get(org)?.country || 'AU').toUpperCase().slice(0, 2); } catch { /* older schema: Australia */ }
-    const list = await telnyx(key, 'GET', `/outbound_voice_profiles?filter[name][contains]=${encodeURIComponent('Oprun outbound calls')}&page[size]=20`);
-    let profile = (list.data || []).find((x) => x.name === 'Oprun outbound calls')?.id || null, created = false;
-    if (!profile) {
-      const made = await telnyx(key, 'POST', '/outbound_voice_profiles', { name: 'Oprun outbound calls', traffic_type: 'conversational', service_plan: 'global', enabled: true, whitelisted_destinations: [...new Set([country, 'AU'])] });
-      profile = made?.data?.id || null; created = true;
-      if (!profile) throw fail(502, 'Telnyx did not return an outbound voice profile.');
-    }
-    await telnyx(key, 'PATCH', `/call_control_applications/${encodeURIComponent(applicationId)}`, { outbound: { outbound_voice_profile_id: String(profile) } });
-    return { profile: String(profile), created };
+    const o = await outboundProfile(key, org);
+    await telnyx(key, 'PATCH', `/call_control_applications/${encodeURIComponent(applicationId)}`, { outbound: { outbound_voice_profile_id: o.profile } });
+    return o;
   }
 
   /** Connects (or re-connects) the business's own Telnyx account and number. Returns publicStatus(). */
@@ -246,7 +249,56 @@ export function createReceptionistTelnyx({ db, runtime, env = {}, fetchImpl = gl
   }
   /** Fixes a missing outbound profile on the application in use, then the call can be tried again. */
   async function repairOutbound(org) { const c = callCredentials(org); if (!c?.application_id) return false; await ensureOutbound(c.api_key, c.application_id, org); return true; }
+  // ---------- T-188: web phone. Calls go straight from the browser to the number dialled, from the business number. ----------
+  // In the business's own Telnyx account: one SIP credential connection "Oprun web phone" (its caller ID is always the
+  // business number) and one telephony credential per team member; the browser gets a 24-hour token, never a password.
+  db.exec(`CREATE TABLE IF NOT EXISTS webphone_accounts (organisation_id TEXT PRIMARY KEY, connection_id TEXT NOT NULL, number_e164 TEXT NOT NULL, created_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS webphone_users (organisation_id TEXT NOT NULL, user_id TEXT NOT NULL, credential_id TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (organisation_id, user_id));`);
+  const rand = (n, set) => Array.from(crypto.randomBytes(n), (b) => set[b % set.length]).join('');
+  async function webphoneConnection(org, c, fresh = false) {
+    let w = db.prepare('SELECT * FROM webphone_accounts WHERE organisation_id=?').get(org);
+    if (w && !fresh && w.number_e164 === c.number) return w.connection_id;
+    const o = await outboundProfile(c.api_key, org);
+    const outbound = { outbound_voice_profile_id: o.profile, ani_override: c.number, ani_override_type: 'always' };
+    if (w && !fresh) { try { await telnyx(c.api_key, 'PATCH', `/credential_connections/${encodeURIComponent(w.connection_id)}`, { outbound }); db.prepare('UPDATE webphone_accounts SET number_e164=? WHERE organisation_id=?').run(c.number, org); return w.connection_id; } catch (e) { if (!/not found|404/i.test(e.message)) throw e; } }
+    const made = await telnyx(c.api_key, 'POST', '/credential_connections', { connection_name: 'Oprun web phone', active: true, user_name: 'oprun' + rand(14, 'abcdefghijklmnopqrstuvwxyz0123456789'), password: rand(28, 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'), outbound });
+    const id = made?.data?.id ? String(made.data.id) : null; if (!id) throw fail(502, 'Telnyx did not return the web phone connection.');
+    db.prepare('INSERT INTO webphone_accounts(organisation_id,connection_id,number_e164,created_at) VALUES (?,?,?,?) ON CONFLICT(organisation_id) DO UPDATE SET connection_id=excluded.connection_id,number_e164=excluded.number_e164,created_at=excluded.created_at').run(org, id, c.number, iso());
+    db.prepare('DELETE FROM webphone_users WHERE organisation_id=?').run(org);
+    return id;
+  }
+  async function tokenFor(c, credentialId) {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 12000);
+    try {
+      const r = await fetchImpl(`${base()}/telephony_credentials/${encodeURIComponent(credentialId)}/token`, { method: 'POST', signal: ctl.signal, headers: { authorization: `Bearer ${c.api_key}`, accept: 'text/plain, application/json' } });
+      const text = await r.text();
+      if (!r.ok) { let d = {}; try { d = JSON.parse(text); } catch { /* text */ } throw fail(r.status === 404 ? 404 : 502, `Telnyx answered: ${String(d?.errors?.[0]?.detail || 'HTTP ' + r.status).slice(0, 200)}`); }
+      let tok = text.trim(); try { const j = JSON.parse(tok); tok = j?.data?.token || j?.token || tok; } catch { /* plain JWT */ }
+      if (!/^[\w-]+\.[\w-]+\.[\w-]+$/.test(tok)) throw fail(502, 'Telnyx did not return a web phone token.');
+      return tok;
+    } catch (e) { if (e.status) throw e; throw fail(502, e.name === 'AbortError' ? 'Telnyx did not answer in time. Try again.' : 'Could not reach Telnyx. Try again.'); }
+    finally { clearTimeout(t); }
+  }
+  /** A 24-hour login token for this team member's browser, plus the number people will see. */
+  async function webphoneToken(org, userId, userName = 'Team member') {
+    const c = callCredentials(org);
+    if (!c?.api_key || !c.number) throw fail(409, 'Connect your business number first: AI Receptionist, or Telnyx SMS in Connections.');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const connectionId = await webphoneConnection(org, c, attempt > 0);
+      let u = db.prepare('SELECT credential_id FROM webphone_users WHERE organisation_id=? AND user_id=?').get(org, userId)?.credential_id;
+      if (!u) {
+        try { const m = await telnyx(c.api_key, 'POST', '/telephony_credentials', { connection_id: connectionId, name: `Oprun - ${String(userName).slice(0, 60)}` }); u = m?.data?.id ? String(m.data.id) : null; }
+        catch (e) { if (attempt === 0 && /not found|404|connection/i.test(e.message)) continue; throw e; }
+        if (!u) throw fail(502, 'Telnyx did not return a web phone credential.');
+        db.prepare('INSERT OR REPLACE INTO webphone_users(organisation_id,user_id,credential_id,created_at) VALUES (?,?,?,?)').run(org, userId, u, iso());
+      }
+      try { return { login_token: await tokenFor(c, u), caller_number: c.number }; }
+      catch (e) { if (e.status === 404) { db.prepare('DELETE FROM webphone_users WHERE organisation_id=? AND user_id=?').run(org, userId); if (attempt === 0) continue; } throw e; }
+    }
+    throw fail(502, 'The web phone could not be set up. Try again.');
+  }
+
   function disconnectCalling(org) { db.prepare("UPDATE calling_provider SET status='disconnected',updated_at=? WHERE organisation_id=?").run(iso(), org); }
 
-  return { connect, setAssistant, disconnect, publicStatus, credentialsFor, callCredentials, setupCalling, repairOutbound, disconnectCalling, webhookUrl };
+  return { connect, setAssistant, disconnect, publicStatus, credentialsFor, callCredentials, setupCalling, repairOutbound, disconnectCalling, webphoneToken, webhookUrl };
 }

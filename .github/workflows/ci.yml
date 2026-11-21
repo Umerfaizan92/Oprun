@@ -65,6 +65,13 @@ jobs:
           npm run memory:validate
           npm run check:site
           npm run release:audit
+      - name: Verify video creator, phone, meetings and localized mobile interfaces
+        run: |
+          npm run test:ai-video-ui
+          node scripts/test-webphone-ui.mjs
+          npm run test:meetings-ui
+          node scripts/test-localization-ui.mjs
+          npm run test:mobile-workspace-ui
       - name: Verify recovered public website and phase interfaces
         run: |
           npm run test:redesign-ui

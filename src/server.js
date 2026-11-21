@@ -975,7 +975,10 @@ app.use(
 
         // Phase 02: the old Fleet Parlour API origin was removed; no Oprun page calls it.
         connectSrc: [
-          "'self'"
+          "'self'",
+          // T-188: the web phone talks to Telnyx's call server from the browser.
+          'wss://rtc.telnyx.com',
+          'https://rtc.telnyx.com'
         ],
 
         upgradeInsecureRequests:
@@ -6238,7 +6241,18 @@ const voiceDigits=v=>String(v||'').replace(/\D/g,'').replace(/^61/,'0');
 // T-141: every finished business call becomes a customer, an enquiry, a linked Unibox thread and an owner alert (push + SMS).
 const receptionistProfileFor=org=>{const p=db.prepare('SELECT * FROM tenant_receptionist_profiles WHERE organisation_id=?').get(org)||{};const o=db.prepare('SELECT COALESCE(display_name,name) n FROM organisations WHERE id=?').get(org);return {...p,business_name:o?.n||'the business'}};
 // T-143: owners and admins also get each call by email (Oprun's own sender), so nothing depends on SMS alone.
-const receptionistEmailOwners=async(org,{subject,text})=>{const people=db.prepare("SELECT DISTINCT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.role IN ('owner','admin') AND m.status='active' AND u.email IS NOT NULL").all(org);const results=[];for(const p of people){const paragraphs=String(text).split('\n\n');results.push(await sendBrandedEmail(env,{to:p.email,subject,rendered:renderEmail(platformBrand(env),{heading:subject,paragraphs}),kind:'platform',delivery:{organisationId:org,category:'receptionist_call',subject}}))}const failed=results.filter(r=>!r.sent);if(failed.length)console.warn('[RECEPTIONIST] owner email not sent:',failed.map(r=>r.reason).join('; '));return results};
+const receptionistEmailOwners=async(org,{subject,text,facts=null,business='',urgent=false,approvals=0,reference='',link='#communications/inbox'})=>{
+  // T-189: enquiry alerts come from the enquiries address (not security@), in the professional layout, marked confidential.
+  const people=db.prepare("SELECT DISTINCT u.email FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=? AND m.role IN ('owner','admin') AND m.status='active' AND u.email IS NOT NULL").all(org);
+  const base=String(env.PUBLIC_BASE_URL||'https://www.oprun.ai').replace(/\/$/,'');
+  const rendered=facts?renderEmail(platformBrand(env),{eyebrow:urgent?'Urgent enquiry':'New enquiry',preheader:`${reference} · ${facts.find(f=>f[0]==='Summary')?.[1]||'A caller left an enquiry'}`.slice(0,140),heading:subject,
+      paragraphs:[`${business&&business!=='our business'?business+"'s":'Your'} AI receptionist took this enquiry on a phone call. The details below are as the caller gave them; check anything important before you rely on it.`],
+      facts,callout:approvals?{tone:'warning',text:'A reply to the customer is waiting for your approval in Oprun (Approvals). Nothing is sent to the customer until you approve it.'}:{tone:'info',text:'Open Oprun to reply to the customer.'},
+      button:{label:approvals?'Review and approve the reply':'Open the enquiry',url:`${base}/saas/workspace.html${link}`},confidential:true,
+      audience:'You are receiving this because you are an owner or admin of this business on Oprun. You can change which alerts you get in Oprun, Notifications, Settings.'})
+    :renderEmail(platformBrand(env),{heading:subject,paragraphs:String(text).split('\n\n'),confidential:true});
+  const results=[];for(const p of people)results.push(await sendBrandedEmail(env,{to:p.email,subject,rendered,kind:'enquiry',delivery:{organisationId:org,category:'receptionist_call',subject}}));
+  const failed=results.filter(r=>!r.sent);if(failed.length)console.warn('[RECEPTIONIST] owner email not sent:',failed.map(r=>r.reason).join('; '));return results};
 // T-144: a business texts its customers only from its own connected SMS sender.
 const smsReadyFor=org=>{try{if((env.PLATFORM_SMS_FOR_BUSINESSES==='1'&&env.NODE_ENV==='test'))return Boolean(String(env.TELNYX_API_KEY||'').trim());const e=tenantTransports.environment(org,{});return Boolean(String(e.TELNYX_API_KEY||'').trim()&&String(e.TELNYX_FROM_NUMBER||e.TELNYX_PHONE_NUMBER||'').trim())}catch{return false}};
 const receptionistIntake=createReceptionistIntake({db,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),emailOwners:receptionistEmailOwners,createApproval:createWorkspaceApproval,profileFor:receptionistProfileFor,smsReady:smsReadyFor,ai:generateAiText});
@@ -6312,7 +6326,7 @@ app.post('/api/webhooks/communications/telnyx-voice/:organisationId',(req,res)=>
 });
 const receptionistOwner=[requireSaasUser,requireSaasRole('owner')];
 const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok:true,telnyx:d})).catch(e=>{if(!e.status)console.error('[RECEPTIONIST] request failed:',e.message);res.status(e.status&&e.status<600?e.status:500).json({ok:false,error:e.status?e.message:'Something went wrong. Please try again.'})});
-installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,dispatch:saasPlatform.dispatch,voice:voiceFlow});
+installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,dispatch:saasPlatform.dispatch,voice:voiceFlow,webphone:receptionistTelnyx,uploadRoot});
 installAppointments(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,dispatch:saasPlatform.dispatch,notifications});
 installAiVideo(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,generateAiText,notify:notifications});
 app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));

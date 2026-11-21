@@ -1935,3 +1935,73 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/v1-meta-video/20261113T153408Z (37ee2e9)
 - Known errors: none
 - Next exact action: Run channel UI test and npm test for V1, then start the Connections rework
+
+## CP-139 2026-11-21T01:36:15+00:00 T-190 IN_PROGRESS
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (IN_PROGRESS)
+- Completed steps: T-188 web phone and T-189 enquiry email committed on branch claude/web-phone (pushed to GitHub, not merged).
+- Incomplete steps: T-190: add ffmpeg-static 5.2.0; src/media-tools.js (frameAt, lastFrame, duration, concat re-encode with scale/pad and silent audio, mux narration, toMp3); ai-video projects (multi-segment up to 10 min, AI shot plan, continuity via last frame, reference photos/videos, narration own recording or ElevenLabs voice clone with consent); UI: record from camera, record voice, references, length up to 10 min, narration; tests; then merge branch to main, verify Render deploy, live checks.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/web-phone
+- Commit: 0073830 (Enquiry alerts from inquiry@, professional email layout, SMS alert fix (T-189)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Implement src/media-tools.js and project flow in src/ai-video.js; then merge PR for claude/web-phone after T-190 tests pass; owner asleep, finish and deploy autonomously.
+
+## CP-140 2026-11-21T10:18:15+08:00 T-190 IN_PROGRESS
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (IN_PROGRESS)
+- Completed steps: Recovered GitHub snapshot 0768ccb on separate Codex branch; handover branch mismatch is stale and resolved
+- Incomplete steps: Reproduce recorded voice Generate failure; full regression suite; publish PR and verify deployment
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t190-video-creator
+- Commit: 0768ccb (recovery snapshot (checkpoint) T-190 on claude/web-phone at 0073830); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Install dependencies and reproduce scripts/test-ai-video-ui.mjs
+
+## CP-141 2026-11-21T10:21:13+08:00 T-190 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (TESTING)
+- Completed steps: Fixed metadata-free WebM duration; two-shot recorded-voice backend regression passes; DEBUG removed; build:ds and memory validation pass
+- Incomplete steps: Complete npm test; run UI suites on GitHub runner; PR merge and Render live verification
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; SHA256SUMS.txt; scripts/ai-video-projects.test.mjs; scripts/test-ai-video-ui.mjs; src/media-tools.js
+- Tests executed: node --test scripts/ai-video-projects.test.mjs
+- Test results: 1 test passes including recorded-voice two-shot completion
+- Git branch: codex/t190-video-creator
+- Commit: 0768ccb (recovery snapshot (checkpoint) T-190 on claude/web-phone at 0073830); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t190-video-creator/20261121T022113Z (5bbb8b1)
+- Known errors: none
+- Next exact action: Complete npm test, publish separate Codex branch and PR, verify hosted UI checks before merge
+
+## CP-142 2026-11-21T10:32:35+08:00 T-190 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (TESTING)
+- Completed steps: Streaming voice regression and web phone backend pass; hardened guide reads and atomic private media writes; symlink/permissions regression passes
+- Incomplete steps: Publish security fixes; full stable npm test; hosted UI and CodeQL; merge PR165 then verify Render live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; src/ai-video.js; src/media-tools.js; src/meeting-extras.js; scripts/media-tools.test.mjs
+- Tests executed: node --test scripts/ai-video-projects.test.mjs scripts/webphone.test.mjs
+- Test results: 2/2 pass
+- Git branch: codex/t190-integration
+- Commit: c8e4f61 (Update pipeline regression for the worker offer chooser); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t190-integration/20261121T023235Z (e80dca0)
+- Known errors: none
+- Next exact action: Publish hardening to codex/t190-video-creator after focused checks, then inspect PR165 hosted CI and security alerts
+
+## CP-143 2026-11-21T10:45:51+08:00 T-190 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (TESTING)
+- Completed steps: Stable npm test 73/73; hosted localization, 317 mobile layout checks, meetings and web phone pass; CodeQL reviewed green; corrected AI-video test FFmpeg path
+- Incomplete steps: Run AI-video UI with bundled FFmpeg; final CI; squash merge PR165; verify Render live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; .github/workflows/ci.yml; scripts/test-ai-video-ui.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t190-integration
+- Commit: e7e63d7 (Harden video and call recording file access (T-190)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t190-integration/20261121T024551Z (f04b033)
+- Known errors: none
+- Next exact action: Publish fixture-only correction and inspect AI-video-first CI run

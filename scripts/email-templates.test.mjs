@@ -4,7 +4,7 @@ import {renderEmail,platformBrand} from '../src/email-templates.js';
 import {sendSaasVerificationEmail} from '../src/mailer.js';
 test('email frame preserves branded actions, plain text and escaped private values',()=>{
  const result=renderEmail(platformBrand({PUBLIC_BASE_URL:'https://example.test'}),{heading:'Join <team>',paragraphs:['Welcome & verify'],facts:[['Code','123456']],button:{label:'Continue',url:'https://example.test/invite#private'},notes:['Expires in 10 minutes']});
- assert.match(result.html,/Join &lt;team&gt;/);assert.match(result.html,/background:#090b10/);assert.match(result.html,/https:\/\/example.test\/invite#private/);
+ assert.match(result.html,/Join &lt;team&gt;/);assert.match(result.html,/border-top:4px solid #e2bd72/);assert.match(result.html,/>O<\/td>/,'the mark is drawn in HTML, visible with images blocked');assert.match(result.html,/https:\/\/example.test\/invite#private/);
  assert.match(result.text,/Code: 123456/);assert.match(result.text,/Continue: https:\/\/example.test\/invite#private/);
  assert.doesNotMatch(renderEmail({name:'Business',color:'#000000'},{heading:'Review',button:{label:'Open',url:'javascript:alert(1)'}}).html,/javascript:/);
  assert.match(renderEmail({name:'Business',color:'#000000'},{heading:'Review',button:{label:'Open',url:'https://example.test'}}).html,/color:#ffffff;text-decoration:none/);
@@ -72,6 +72,20 @@ test('verification uses the dedicated outbound key and retains legacy compatibil
   assert.match(recovery.html, /Recover your account/);
   assert.match(recovery.text, /Recovery code: 123456/);
   assert.doesNotMatch(recovery.html.split('<table')[0], /123456/);
-  assert.match(recovery.html, /https:\/\/www.oprun.ai\/saas\/oprun-icon-192.png/);
+  assert.doesNotMatch(recovery.html, /<img/, 'nothing depends on remote images');
+  assert.match(recovery.html, /Trust Center/);
   assert.match(requests[1].message.text, /Verification code: 123456/);
+});
+
+test('T-189: enquiry alerts come from the enquiries address, look professional and carry the confidentiality notice', async (t) => {
+  const { enquirySender, sendBrandedEmail } = await import('../src/mailer.js');
+  assert.equal(enquirySender({ SAAS_VERIFY_FROM: 'Oprun AI Security <security@oprun.ai>' }), 'Oprun Enquiries <inquiry@oprun.ai>');
+  assert.equal(enquirySender({ ENQUIRY_FROM: 'Enquiries <inquiry@oprun.ai>', SAAS_VERIFY_FROM: 'security@oprun.ai' }), 'Enquiries <inquiry@oprun.ai>');
+  const sent = [];
+  t.mock.method(globalThis, 'fetch', async (_u, o) => { sent.push(JSON.parse(o.body)); return Response.json({ id: 'e1' }); });
+  const r = renderEmail(platformBrand({ PUBLIC_BASE_URL: 'https://www.oprun.ai', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' }), { eyebrow: 'New enquiry', heading: 'New call from Sam · ENQ-1', facts: [['Enquiry number', 'ENQ-1'], ['Mobile', '0412 345 678'], ['Summary', 'Bull bar <polish>']], callout: { tone: 'warning', text: 'Reply waiting for approval.' }, button: { label: 'Review', url: 'https://www.oprun.ai/saas/workspace.html#approvals' }, confidential: true, audience: 'You are an owner.' });
+  assert.match(r.html, /NEW ENQUIRY|New enquiry/); assert.match(r.html, /Bull bar &lt;polish&gt;/); assert.match(r.html, /Australian Privacy Principles/); assert.match(r.html, /PO Box 1, Perth WA 6000/);
+  assert.match(r.text, /Mobile: 0412 345 678/); assert.match(r.text, /Confidential\./);
+  const res = await sendBrandedEmail({ RESEND_API_KEY: 'k', SAAS_VERIFY_FROM: 'Oprun AI Security <security@oprun.ai>' }, { to: 'owner@example.test', subject: 'New call', rendered: r, kind: 'enquiry' });
+  assert.equal(res.sent, true); assert.equal(sent[0].from, 'Oprun Enquiries <inquiry@oprun.ai>');
 });
