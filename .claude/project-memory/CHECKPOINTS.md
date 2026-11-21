@@ -2313,3 +2313,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T165008Z (8db521b)
 - Known errors: none
 - Next exact action: Publish caption/audio candidate;run full hosted checks and repair issues;no deployment claim
+
+## CP-166 2026-11-22T00:59:06+08:00 T-194 TESTING
+- Phase: Final processing and paid-dispatch gates
+- Task: T-194 (TESTING)
+- Completed steps: Frame/magic safety; deterministic stop-before-paid dispatch; pause UI coverage; focused processing7/7 andheld-frame1/1 pass
+- Incomplete steps: Final exact-SHA hosted CI/UI; provider/device/restore gates; deeper publishing analytics
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; docs/coordination/chatgpt.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; scripts/ai-video-projects.test.mjs; scripts/media-tools.test.mjs; scripts/test-ai-video-ui.mjs; scripts/test-media-studio-guided-ui.mjs; src/ai-video.js; src/media-tools.js; src/studio-media-safety.js
+- Tests executed: processing regressions and held-frame Finish race
+- Test results: 7/7 and1/1 PASS; no real provider requests
+- Git branch: codex/t194-studio-completion
+- Commit: 3dc8a4f (Match descriptive library control names in browser acceptance); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T165906Z (a3f10c7)
+- Known errors: none
+- Next exact action: Publish final candidate;inspect full CI and expanded browser results;fix any failures before rollout

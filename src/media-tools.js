@@ -5,6 +5,8 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import {verifyStudioMedia} from './studio-media-safety.js';
+function verifyInput(file){const mime={'.mp4':'video/mp4','.mov':'video/quicktime','.webm':'video/webm','.weba':'audio/webm','.m4a':'audio/mp4','.mp3':'audio/mpeg','.wav':'audio/wav','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp','.heic':'image/heic','.heif':'image/heif'}[path.extname(file).toLowerCase()];if(!mime)throw Object.assign(new Error('Unsupported media format.'),{status:400});verifyStudioMedia(file,mime);}
 
 const require = createRequire(import.meta.url);
 let bundled = null;
@@ -54,6 +56,7 @@ export function runMediaTool(args, { env = process.env, timeoutMs = 10 * 60_000 
 
 /** Duration in seconds and whether the file has audio/video, read from FFmpeg's own report. */
 export async function probe(file, env) {
+  verifyInput(file);
   let out = '';
   try { await runMediaTool(['-i', file], { env, timeoutMs: 30_000 }); } catch (e) { out = e.stderr || ''; }
   let m = out.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
@@ -72,6 +75,7 @@ export async function probe(file, env) {
 
 /** A still frame as JPEG: `at` seconds in, or the last frame when at === 'end'. */
 export async function frame(file, out, at = 1, env) {
+  verifyInput(file);
   if (at === 'end') await runMediaTool(['-y', '-sseof', '-0.25', '-i', file, '-frames:v', '1', '-q:v', '2', '-update', '1', out], { env, timeoutMs: 60_000 });
   else await runMediaTool(['-y', '-ss', String(Math.max(0, at)), '-i', file, '-frames:v', '1', '-q:v', '2', out], { env, timeoutMs: 60_000 });
   if (!fs.existsSync(out) || !fs.statSync(out).size) {
@@ -101,7 +105,7 @@ export async function concat(files, out, env, {seconds=null}={}) {
 }
 
 /** Trim a finished voiced video to the explicitly requested final duration. */
-export async function trim(file,out,seconds,env){await runMediaTool(['-y','-i',file,'-t',String(seconds),'-c','copy','-movflags','+faststart',out],{env,timeoutMs:30*60_000});return out;}
+export async function trim(file,out,seconds,env){verifyInput(file);await runMediaTool(['-y','-i',file,'-t',String(seconds),'-c','copy','-movflags','+faststart',out],{env,timeoutMs:30*60_000});return out;}
 
 /** Puts a voice track on a video. The picture holds its last frame if the voice is longer; the voice is padded with
  *  silence if the picture is longer. keep = mix the video's own sound quietly under the voice. */
@@ -115,7 +119,7 @@ export async function addVoice(video, voice, out, { keep = false } = {}, env) {
 }
 
 /** Any audio or video file to MP3 (voice samples for cloning). */
-export async function toMp3(file, out, env) { await runMediaTool(['-y', '-i', file, '-vn', '-ac', '1', '-ar', '44100', '-b:a', '128k', out], { env, timeoutMs: 5 * 60_000 }); return out; }
+export async function toMp3(file, out, env) { verifyInput(file); await runMediaTool(['-y', '-i', file, '-vn', '-ac', '1', '-ar', '44100', '-b:a', '128k', out], { env, timeoutMs: 5 * 60_000 }); return out; }
 
 /** A camera recording (WebM) to a phone-friendly MP4. */
-export async function toMp4(file, out, env) { await runMediaTool(['-y', '-i', file, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '21', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', out], { env, timeoutMs: 20 * 60_000 }); return out; }
+export async function toMp4(file, out, env) { verifyInput(file); await runMediaTool(['-y', '-i', file, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '21', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', out], { env, timeoutMs: 20 * 60_000 }); return out; }

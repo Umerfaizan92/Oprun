@@ -129,6 +129,7 @@ try {
   assert.equal(camMedia.mime_type, 'video/mp4', 'camera WebM is turned into MP4 for every phone');
   await panel.getByRole('radio', { name: 'Record my voice' }).click();
   await panel.getByRole('button', { name: 'Record', exact: true }).click(); await page.waitForTimeout(2200);
+  await panel.getByRole('button',{name:'Pause recording',exact:true}).click();await panel.getByRole('button',{name:'Resume recording',exact:true}).waitFor();await page.waitForTimeout(200);await panel.getByRole('button',{name:'Resume recording',exact:true}).click();
   await panel.getByRole('button', { name: 'Stop', exact: true }).click();
   await panel.getByText('Your recording is ready and will be used.').waitFor({ timeout: 30000 });
   await page.locator('#aiv-duration').selectOption('custom');

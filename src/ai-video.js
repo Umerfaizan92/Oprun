@@ -154,6 +154,8 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     const e = ENGINES.find((x) => x.id === job.engine);
     const imgs = (job.refs_json || job.continue_file) ? await imagesFor(job) : [imageOf(job.organisation_id, job.source_media_id)].filter(Boolean);
     const img = imgs[0] || null;
+    // Reference extraction is asynchronous. Finish may arrive after reservation but before this paid dispatch.
+    if(job.project_id){const p=db.prepare('SELECT status,stop_requested FROM ai_video_projects WHERE id=? AND organisation_id=?').get(job.project_id,job.organisation_id);if(!p||p.status!=='rendering'||p.stop_requested)throw Object.assign(err('Generation stopped before provider submission.',409),{code:'CANCELLED_BEFORE_SUBMISSION'});}
     if (e.provider === 'google') {
       const input = imgs.length ? [...imgs.map((i) => ({ type: 'image', data: i.b64, mime_type: i.mime })), { type: 'text', text: job.prompt }] : job.prompt;
       const r = await google(key, 'POST', '/v1beta/interactions', { model: e.model, input, background: true, response_format: { type: 'video', aspect_ratio: job.aspect_ratio, resolution: job.resolution, duration: `${job.duration}s` } });
@@ -267,7 +269,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       AND NOT EXISTS(SELECT 1 FROM ai_video_jobs WHERE project_id=? AND seq=? AND status IN ('queued','running','succeeded'))`)
       .run(id,job.organisation_id,e.id,job.prompt,p.idea,p.aspect_ratio,p.resolution,duration,p.created_by,now,now,p.id,seq,p.refs_json,job.continue_file,p.id,p.id,seq);
     if(!inserted.changes){beginJoin(p.id);return null;}
-    let s;try{s=await start(job,key)}catch(x){if(!x.status)x=Object.assign(err('The provider request was interrupted. Check your provider account before continuing.',502),{code:'SUBMISSION_UNCERTAIN',action:'check_provider'});finish(job,{status:'failed',error:x.message,error_code:x.code||null});providerProblem(p.organisation_id,e.provider,x);throw x;}
+    let s;try{s=await start(job,key)}catch(x){if(x.code==='CANCELLED_BEFORE_SUBMISSION'){finish(job,{status:'failed',error:x.message,error_code:x.code,next_poll_at:null});beginJoin(p.id);return null}if(!x.status)x=Object.assign(err('The provider request was interrupted. Check your provider account before continuing.',502),{code:'SUBMISSION_UNCERTAIN',action:'check_provider'});finish(job,{status:'failed',error:x.message,error_code:x.code||null});providerProblem(p.organisation_id,e.provider,x);throw x;}
     finish(job,{status:'running',provider_task_id:s.task,next_poll_at:iso(Date.now()+pollMs)});
     if (s.early?.status === 'completed') await advance({ ...db.prepare('SELECT * FROM ai_video_jobs WHERE id=?').get(id) }, s.early);
     return id;
