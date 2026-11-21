@@ -17,7 +17,7 @@ const shot = async (page, name) => { if (process.env.UI_SCREENSHOT_DIR) { fs.mkd
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'aiv-ui-'));
 const mp4 = path.join(tmp, 'clip.mp4');
-execFileSync(ffmpegPath(), ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=360x640:rate=24', '-t', '2', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '34', '-movflags', '+faststart', mp4]);
+execFileSync(ffmpegPath(), ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=360x640:rate=24', '-t', '15', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '34', '-movflags', '+faststart', mp4]);
 const VIDEO = fs.readFileSync(mp4).toString('base64');
 let polls = 0;
 const mock = http.createServer((req, res) => {
@@ -36,6 +36,14 @@ try {
   const owner = await seedOwner(server);
   browser = await chromium.launch({ headless: true, ...(process.env.UI_CHROMIUM_PATH ? { executablePath: process.env.UI_CHROMIUM_PATH } : {}), args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--autoplay-policy=no-user-gesture-required'] });
   const ctx = await ownerContext(browser, server, owner), page = await ctx.newPage(), errors = [];
+  await page.addInitScript(()=>{
+    window.SpeechRecognition=class{
+      constructor(){window.__videoDictationRecognition=this}
+      start(){this.onstart?.()}
+      stop(){this.onend?.()}
+      abort(){this.aborted=true}
+    };
+  });
   await ctx.grantPermissions(['camera', 'microphone'], { origin: server.base });
   page.on('pageerror', (e) => errors.push(e.message)); page.setDefaultTimeout(20000);
   await page.setViewportSize({ width: 1440, height: 950 });
@@ -53,10 +61,36 @@ try {
   await panel.getByText('Connected · key …0000').waitFor();
   assert.ok(!(await page.content()).includes('AIza-ui-test-key'), 'the key is not shown anywhere after saving');
 
-  // Idea -> AI prompt -> generate.
-  await page.locator('#aiv-idea').fill('Before and after of a leaking kitchen tap we fixed');
+  // T-191: real browser microphone capture -> authenticated transcription ->
+  // original-language editable idea. Recording never starts a paid render.
+  let dictationBody='',enhanceCalls=0,renderCalls=0;
+  page.on('request',r=>{if(r.url().endsWith('/ai-video/enhance'))enhanceCalls++;if(r.url().endsWith('/ai-video/projects')&&r.method()==='POST')renderCalls++});
+  await page.route('**/api/saas/voice/transcribe',async route=>{
+    dictationBody=route.request().postDataBuffer().toString('utf8');
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,text:'ہمارے ٹرک کی پالش پہلے اور بعد میں دکھائیں',language:'ur'})});
+  });
+  await panel.getByRole('button',{name:'Speak idea',exact:true}).click();
+  await panel.getByRole('status').filter({hasText:/Listening… speak naturally/}).waitFor();
+  await page.waitForTimeout(1300);
+  await panel.getByRole('button',{name:'Stop dictation',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('#aiv-idea').value.includes('ہمارے ٹرک'));
+  assert.match(dictationBody,/name="language"\r\n\r\nauto/);
+  assert.equal(enhanceCalls,0,'dictation does not automatically call the prompt writer');
+  assert.equal(renderCalls,0,'dictation does not automatically start a paid render');
+  assert.equal(await page.locator('#aiv-idea').getAttribute('dir'),'auto');
+  await page.unroute('**/api/saas/voice/transcribe');
+
+  // Idea -> AI prompt, then add detail by explicit-language browser dictation.
   await page.getByRole('button', { name: 'Write the prompt with AI' }).click();
   await page.waitForFunction(() => document.querySelector('#aiv-prompt').value.length > 60);
+  const writtenPrompt=await page.locator('#aiv-prompt').inputValue();
+  await page.locator('#aiv-prompt').evaluate(t=>t.setSelectionRange(t.value.length,t.value.length));
+  await page.locator('#aiv-dictation-language').selectOption('hi-IN');
+  await panel.getByRole('button',{name:'Speak prompt',exact:true}).click();
+  assert.equal(await page.evaluate(()=>window.__videoDictationRecognition.lang),'hi-IN');
+  await page.evaluate(()=>window.__videoDictationRecognition.onresult({results:[Object.assign([{transcript:'धीमी कैमरा गति रखें'}],{isFinal:true})]}));
+  await panel.getByRole('button',{name:'Stop dictation',exact:true}).click();
+  assert.equal(await page.locator('#aiv-prompt').inputValue(),writtenPrompt+' धीमी कैमरा गति रखें');
   await panel.getByRole('radio', { name: 'Vertical 9:16' }).click();
   assert.deepEqual(await page.locator('#aiv-resolution option').allTextContents(), ['720p HD', '1080p Full HD', '4K Ultra HD']);
   await page.locator('#aiv-resolution').selectOption('4k');
@@ -97,14 +131,32 @@ try {
   await panel.getByRole('button', { name: 'Record', exact: true }).click(); await page.waitForTimeout(2200);
   await panel.getByRole('button', { name: 'Stop', exact: true }).click();
   await panel.getByText('Your recording is ready and will be used.').waitFor({ timeout: 30000 });
-  await page.locator('#aiv-duration').selectOption('30');
-  await panel.getByText(/30 seconds = 2 shots of 15 seconds/).waitFor();
+  await page.locator('#aiv-duration').selectOption('custom');
+  await page.locator('#aiv-custom-duration').fill('0.5');
+  await panel.getByText('Your finished video: 30 seconds. One full video to play or download.').waitFor();
+  assert.ok(!(await page.locator('#aiv-duration').innerText()).includes('shots'),'length options never show internal sections');
   await page.locator('#aiv-resolution').selectOption('720p');
   await shot(page, 'ai-video-creator.png');
-  await page.locator('#aiv-generate').click();
-  await panel.locator('.aiv-job.succeeded', { hasText: '2 shots' }).locator('video').waitFor({ timeout: 90000 });
-  const long = await page.evaluate(async () => { const v = [...document.querySelectorAll('.aiv-job.succeeded')].find((n) => n.textContent.includes('2 shots')).querySelector('video'); await new Promise((r) => (v.readyState >= 1 ? r() : v.addEventListener('loadedmetadata', r, { once: true }))); return v.duration; });
-  assert.ok(long > 3.5, 'two shots joined into one video: ' + long);
+  const createdResponse=page.waitForResponse(r=>r.url().endsWith('/ai-video/projects')&&r.request().method()==='POST');
+  await page.locator('#aiv-generate').click();const customProject=(await (await createdResponse).json()).project;
+  const customCard=panel.locator(`[data-project="${customProject.id}"]`);
+  await customCard.locator('video').waitFor({timeout:90000});
+  const long=await customCard.locator('video').evaluate(async v=>{await new Promise(r=>v.readyState>=1?r():v.addEventListener('loadedmetadata',r,{once:true}));return v.duration});
+  assert.ok(Math.abs(long-30)<0.2,'one full video matches custom requested duration: '+long);
+  assert.ok(!(await customCard.innerText()).includes('shots'),'finished card hides internal sections');
+
+  // Unlimited is explicit about charges and ends in one downloadable video.
+  await panel.getByRole('radio',{name:'None',exact:true}).click();
+  await page.locator('#aiv-duration').selectOption('continuous');
+  const countBefore=renderCalls;await page.locator('#aiv-generate').click();
+  await page.locator('#notice',{hasText:'Confirm ongoing provider charges'}).waitFor();assert.equal(renderCalls,countBefore);
+  await page.locator('#aiv-continuous-consent').check();
+  const ongoingResponse=page.waitForResponse(r=>r.url().endsWith('/ai-video/projects')&&r.request().method()==='POST');
+  await page.locator('#aiv-generate').click();const ongoing=(await (await ongoingResponse).json()).project;
+  const ongoingCard=panel.locator(`[data-project="${ongoing.id}"]`);
+  await ongoingCard.getByRole('button',{name:'Finish video',exact:true}).click();
+  await ongoingCard.locator('video').waitFor({timeout:60000});
+  assert.equal(await ongoingCard.getByRole('link',{name:'Download',exact:true}).count(),1);
 
   // Fits phone, tablet and laptop; the preview fits the phone screen too; no accessibility blockers.
   for (const width of [390, 768, 1440]) { await page.setViewportSize({ width, height: 900 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Media Studio fits at ' + width); }

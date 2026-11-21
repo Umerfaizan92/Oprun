@@ -2005,3 +2005,73 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t190-integration/20261121T024551Z (f04b033)
 - Known errors: none
 - Next exact action: Publish fixture-only correction and inspect AI-video-first CI run
+
+## CP-144 2026-11-21T11:06:47+08:00 T-190 COMPLETED
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-190 (COMPLETED)
+- Completed steps: Recorded voice Generate fixed; all release checks green; PR165 squash merged; exact tested source deployed live; six live smoke checks pass
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; docs/coordination/chatgpt.md
+- Tests executed: npm test; hosted feature and broad UI; CodeQL and dependencies; build:ds and manifest/memory; live deploy check
+- Test results: 73/73 including81 contract files pass; video, phone, meetings, localization, mobile317, navigation616 and66 modules pass; security checks pass with documented review; builds and validation pass; 6/6 live checks pass
+- Git branch: codex/t190-release-handover
+- Commit: cfcae59 (Release web phone, enquiry alerts and AI video creator (T-188–T-190)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Resume next owner-assigned task. T-188/T-189/T-190 are live at main cfcae59; do not re-merge PR165. Latest final handover is on codex/t190-release-handover.
+
+## CP-145 2026-11-21T12:53:12+08:00 T-191 IN_PROGRESS
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-191 (IN_PROGRESS)
+- Completed steps: Verified main cfcae59 and Render live; reconciled CP-144; existing authenticated multilingual voice runtime available
+- Incomplete steps: Implement scoped dictation controls and lifecycle protection; tests; publish reviewable candidate
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: 38ddb66 (Preserve completed T-190 release and live deployment handover); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Add video dictation controller using existing voice runtime and explicit-language browser fallback
+
+## CP-146 2026-11-21T13:00:17+08:00 T-191 TESTING
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-191 (TESTING)
+- Completed steps: Implemented idea and prompt dictation; 18 focused tests pass; full suite running; existing voice/runtime reused
+- Incomplete steps: Hosted browser acceptance for dictation; then T-192 custom/continuous duration; combined deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-runtime.js; saas/workspace-ai-video.js; saas/workspace.html; scripts/test-ai-video-ui.mjs; saas/workspace-video-dictation.js; scripts/video-dictation.test.mjs
+- Tests executed: node --test scripts/video-dictation.test.mjs scripts/voice-runtime.test.mjs
+- Test results: 18/18 pass
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: 38ddb66 (Preserve completed T-190 release and live deployment handover); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T050017Z (0696bbf)
+- Known errors: none
+- Next exact action: Publish T-191 candidate for hosted UI checks; complete voice task before implementing T-192
+
+## CP-147 2026-11-21T13:06:31+08:00 T-192 IN_PROGRESS
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-192 (IN_PROGRESS)
+- Completed steps: T-191 voice dictation accepted and completed before duration implementation; user authorizes combined release after both tasks tested
+- Incomplete steps: Custom total duration, hidden internal segments, exact final length; continuous until-stop with explicit billing consent; races/retries/isolation tests; combined release
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: 5088342 (Add multilingual voice dictation for AI video ideas and prompts (T-191)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T050631Z (a4e90ea)
+- Known errors: none
+- Next exact action: Implement T-192 duration persistence and safe continuation/finalization, then update video controls and tests
+
+## CP-148 2026-11-21T13:24:26+08:00 T-192 TESTING
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-192 (TESTING)
+- Completed steps: Implemented full-length custom durations and consented continuous generation; 23 focused tests pass including real 1/5/10-minute media assembly
+- Incomplete steps: Full release suite and hosted browser acceptance; merge combined PR166 and verify Render live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; docs/coordination/chatgpt.md; saas/ds/refresh.css; saas/workspace-ai-video.js; saas/workspace.html; scripts/ai-video-projects.test.mjs; scripts/media-tools.test.mjs; scripts/test-ai-video-ui.mjs; src/ai-video.js; src/media-tools.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: bd4713e (Record T-191 acceptance and begin T-192 duration task); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T052426Z (969ac44)
+- Known errors: none
+- Next exact action: Run full release validation then publish candidate for hosted UI

@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import Database from 'better-sqlite3';
 import { startServer } from './test-server.mjs';
 import { seedOwner } from './visual/session.mjs';
 import { ffmpegPath, probe } from '../src/media-tools.js';
@@ -14,22 +15,26 @@ import { ffmpegPath, probe } from '../src/media-tools.js';
 const bin = ffmpegPath();
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'aivp-'));
 const make = (name, args) => { const f = path.join(tmp, name); execFileSync(bin, ['-y', '-loglevel', 'error', ...args, f]); return f; };
-const CLIP = fs.readFileSync(make('clip.mp4', ['-f', 'lavfi', '-i', 'testsrc2=size=360x640:rate=24', '-f', 'lavfi', '-i', 'sine=f=330', '-t', '3', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-c:a', 'aac']));
+const clips=new Map();
+const clipFor=seconds=>{
+  if(!clips.has(seconds))clips.set(seconds,fs.readFileSync(make(`clip-${seconds}.mp4`, ['-f','lavfi','-i','testsrc2=size=360x640:rate=24','-f','lavfi','-i','sine=f=330','-t',String(seconds),'-pix_fmt','yuv420p','-c:v','libx264','-preset','ultrafast','-crf','38','-c:a','aac'])));
+  return clips.get(seconds);
+};
 const PHOTO = fs.readFileSync(make('face.jpg', ['-f', 'lavfi', '-i', 'testsrc=size=320x320', '-frames:v', '1']));
 const CAM = fs.readFileSync(make('cam.webm', ['-f', 'lavfi', '-i', 'testsrc=size=320x240:rate=15', '-t', '2', '-c:v', 'libvpx', '-b:v', '200k']));
 const VOICE = fs.readFileSync(make('voice.webm', ['-f', 'lavfi', '-i', 'sine=f=200', '-t', '20', '-c:a', 'libopus', '-live', '1']));
 const TTS = fs.readFileSync(make('tts.mp3', ['-f', 'lavfi', '-i', 'sine=f=500', '-t', '7']));
 
 async function mock() {
-  const calls = []; let n = 0, failNext = false;
+  const calls = [], tasks=new Map(); let n = 0, failNext = false;
   const server = http.createServer((req, res) => {
     const chunks = []; req.on('data', (c) => chunks.push(c)); req.on('end', () => {
       const raw = Buffer.concat(chunks); let body = null; try { body = JSON.parse(raw.toString()); } catch { body = raw.length ? { raw: raw.length } : null; }
       calls.push({ method: req.method, path: req.url, body, headers: req.headers });
       const send = (s, o) => { res.writeHead(s, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
       if (req.url.startsWith('/g/v1beta/models')) return send(200, { models: [] });
-      if (req.url === '/g/v1beta/interactions') { n += 1; return failNext ? (failNext = false, send(400, { error: { message: 'Quota exceeded' } })) : send(200, { id: `int-${n}`, status: 'in_progress' }); }
-      if (/^\/g\/v1beta\/interactions\/int-\d+$/.test(req.url)) return send(200, { status: 'completed', steps: [{ type: 'model_output', content: [{ type: 'video', mime_type: 'video/mp4', data: CLIP.toString('base64') }] }] });
+      if (req.url === '/g/v1beta/interactions') { n += 1; if(failNext){failNext=false;return send(400,{error:{message:'Quota exceeded'}})}tasks.set(`int-${n}`,clipFor(parseInt(body.response_format.duration,10)));return send(200,{id:`int-${n}`,status:'in_progress'}); }
+      if (/^\/g\/v1beta\/interactions\/int-\d+$/.test(req.url)) return send(200, { status: 'completed', steps: [{ type: 'model_output', content: [{ type: 'video', mime_type: 'video/mp4', data: tasks.get(req.url.split('/').at(-1)).toString('base64') }] }] });
       if (req.url === '/e/v1/user') return req.headers['xi-api-key'] === 'el_key_1234567890abcdef' ? send(200, { user_id: 'u' }) : send(401, { detail: { message: 'Invalid API key' } });
       if (req.url === '/e/v1/voices/add') return send(200, { voice_id: 'voice-abc' });
       if (req.url.startsWith('/e/v1/text-to-speech/voice-abc')) { res.writeHead(200, { 'content-type': 'audio/mpeg' }); return res.end(TTS); }
@@ -52,7 +57,7 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
 
   assert.equal((await O('POST', '/api/saas/ai-video/providers/google', { api_key: 'AIza-key-1234567890abcdef' })).status, 200);
   let r = await O('GET', '/api/saas/ai-video');
-  assert.equal(r.json.joining_available, true); assert.equal(r.json.max_seconds, 600); assert.equal(r.json.providers.elevenlabs.kind, 'voice');
+  assert.equal(r.json.joining_available, true); assert.equal(r.json.max_seconds, 86400); assert.equal(r.json.providers.elevenlabs.kind, 'voice');
 
   // Own photo, and a camera recording (WebM) turned into an MP4 in place.
   const face = await upload(PHOTO, 'image/jpeg', 'me.jpg');
@@ -78,7 +83,7 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
   assert.equal(final.kind, 'video'); assert.match(final.original_name, /^AI video – Me explaining/);
   const dl = await fetch(`${s.base}/api/saas/media/${p.media_id}/file`, { headers: { cookie: owner.cookie, origin: s.base } });
   const out = path.join(tmp, 'final.mp4'); fs.writeFileSync(out, Buffer.from(await dl.arrayBuffer()));
-  const info = await probe(out); assert.ok(info.seconds > 8.5 && info.seconds < 9.5, 'three 3-second clips joined: ' + info.seconds); assert.equal(info.width, 360);
+  const info = await probe(out); assert.ok(Math.abs(info.seconds-40)<0.2, 'one full video matches the requested 40 seconds: ' + info.seconds); assert.equal(info.width, 360);
   assert.equal(lib.filter((x) => x.source === 'ai-video').length, 1, 'clips are not added to the library one by one');
 
   // Own voice: an ElevenLabs clone needs a key and consent; the script becomes a voice-over and sets the length.
@@ -115,15 +120,61 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
   r = await O('POST', `/api/saas/ai-video/projects/${stopped.id}/continue`); assert.equal(r.status, 200, r.text);
   p = await until(stopped.id, ['succeeded', 'failed']); assert.equal(p.status, 'succeeded', JSON.stringify(p));
 
-  // Limits and isolation.
-  assert.equal((await O('POST', '/api/saas/ai-video/projects', { engine: 'google:gemini-omni-1.2-flash', idea: 'Too long a video for one go', aspect_ratio: '9:16', total_seconds: 600, clip_seconds: 3 })).status, 400);
+  // Custom full lengths are accepted without the former 40-part ceiling.
+  for(const seconds of [60,300,600,1800]){
+    const before=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;
+    r=await O('POST','/api/saas/ai-video/projects',{engine:'google:gemini-omni-1.2-flash',idea:'A continuous tour of the completed work',aspect_ratio:'9:16',total_seconds:seconds,clip_seconds:3});
+    assert.equal(r.status,201,r.text);assert.equal(r.json.project.requested_seconds,seconds);assert.equal(r.json.project.clips_total,Math.ceil(seconds/3));
+    const id=r.json.project.id;
+    assert.equal((await O('POST',`/api/saas/ai-video/projects/${id}/finish`)).status,200);
+    assert.equal((await O('POST',`/api/saas/ai-video/projects/${id}/finish`)).status,200);
+    const ended=await until(id,['succeeded','failed']);assert.equal(ended.status,'succeeded',JSON.stringify(ended));
+    assert.ok(ended.total_seconds>=2.9&&ended.total_seconds<3.2,'explicit early finish keeps one playable video');
+    assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,before+1,'no paid continuation after Finish');
+  }
+  const unlimited={engine:'google:gemini-omni-1.2-flash',idea:'Keep showing our work in one continuous video',aspect_ratio:'9:16',duration_mode:'continuous'};
+  assert.equal((await O('POST','/api/saas/ai-video/projects',unlimited)).status,400,'ongoing billing needs explicit consent');
+  r=await O('POST','/api/saas/ai-video/projects',{...unlimited,continuous_consent:true});assert.equal(r.status,201,r.text);const ongoing=r.json.project.id;
+  for(let i=0;i<30;i++){const q=(await O('POST',`/api/saas/ai-video/projects/${ongoing}/refresh`)).json.project;if(q.produced_seconds>=14.9)break;await wait(400)}
+  const beforeFinish=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;
+  assert.equal((await O('POST',`/api/saas/ai-video/projects/${ongoing}/finish`)).status,200);
+  const ended=await until(ongoing,['succeeded','failed']);assert.equal(ended.status,'succeeded',JSON.stringify(ended));assert.equal(ended.stop_requested,true);
+  assert.ok(ended.total_seconds>=29.9&&ended.total_seconds<30.2,'current generation finishes into one full video');
+  assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,beforeFinish,'Finish does not create another billable request');
+  const roleDb=new Database(s.dbPath);
+  roleDb.prepare("UPDATE memberships SET role='manager' WHERE organisation_id=? AND user_id=?").run(owner.org,owner.uid);
+  assert.equal((await O('POST','/api/saas/ai-video/projects',{...unlimited,continuous_consent:true})).status,403,'unlimited spending is owner/admin only');
+  roleDb.prepare("UPDATE memberships SET role='owner' WHERE organisation_id=? AND user_id=?").run(owner.org,owner.uid);
+  // A process interruption must never silently retry a request that may have
+  // been paid for. The owner is told to inspect the provider account first.
+  r=await O('POST','/api/saas/ai-video/projects',{...unlimited,continuous_consent:true});const interrupted=r.json.project.id;
+  roleDb.prepare("UPDATE ai_video_jobs SET status='queued',provider_task_id=NULL,created_at=? WHERE project_id=?").run(new Date(Date.now()-10*60_000).toISOString(),interrupted);
+  const paidBefore=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;
+  const interruptedState=(await O('POST',`/api/saas/ai-video/projects/${interrupted}/refresh`)).json.project;
+  assert.equal(interruptedState.status,'failed');assert.match(interruptedState.error,/Check your provider account/);
+  assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,paidBefore);
+  roleDb.prepare("UPDATE memberships SET role='manager' WHERE organisation_id=? AND user_id=?").run(owner.org,owner.uid);
+  assert.equal((await O('POST',`/api/saas/ai-video/projects/${interrupted}/continue`)).status,403,'a manager cannot resume unlimited billing through Continue');
+  roleDb.prepare("UPDATE memberships SET role='owner' WHERE organisation_id=? AND user_id=?").run(owner.org,owner.uid);roleDb.close();
+  assert.equal((await O('POST','/api/saas/ai-video/projects',{...unlimited,duration_mode:'fixed',total_seconds:86401})).status,400);
   const other = await seedOwner(s, { business: 'Other Co', email: 'other-aivp@other.example.test' });
   const X = (meth, u, b) => s.call(meth, u, { cookie: other.cookie, body: b });
   assert.equal((await X('GET', '/api/saas/ai-video')).json.projects.length, 0);
   assert.equal((await X('POST', `/api/saas/ai-video/projects/${stopped.id}/refresh`)).status, 404);
+  assert.equal((await X('POST', `/api/saas/ai-video/projects/${ongoing}/finish`)).status, 404);
   assert.equal((await X('POST', `/api/saas/ai-video/voices/${voice}/speak`, { text: 'hello there' })).status, 404);
   assert.equal((await X('POST', `/api/saas/ai-video/media/${cam}/mp4`)).status, 400);
   // Clearing a finished video keeps it in the library.
   assert.equal((await O('DELETE', `/api/saas/ai-video/projects/${stopped.id}`)).status, 200);
   assert.ok((await O('GET', '/api/saas/media')).json.media.some((x) => x.id === p.media_id));
+  const bounded=await startServer({GEMINI_API_BASE_URL:m.base+'/g',AI_VIDEO_POLL_MS:'2000',AI_VIDEO_PROJECT_MAX_BYTES:'1'});
+  try{
+    const bo=await seedOwner(bounded);const B=(method,url,body)=>bounded.call(method,url,{cookie:bo.cookie,body});
+    await B('POST','/api/saas/ai-video/providers/google',{api_key:'AIza-key-1234567890abcdef'});
+    const before=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;
+    const made=await B('POST','/api/saas/ai-video/projects',{...unlimited,continuous_consent:true});let ended;
+    for(let i=0;i<40;i++){ended=(await B('POST',`/api/saas/ai-video/projects/${made.json.project.id}/refresh`)).json.project;if(['succeeded','failed'].includes(ended.status))break;await wait(400)}
+    assert.equal(ended.status,'succeeded',JSON.stringify(ended));assert.equal(ended.completion_reason,'storage_limit');
+    assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,before+1,'storage budget stops paid continuations and finalizes available footage');
+  }finally{await bounded.stop()}
 });

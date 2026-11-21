@@ -589,9 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-190 AI video creator: camera recording, longer videos, own photos/videos, own voice
+## T-192 Custom full-length and continue-until-stopped AI video duration
 - Status: TESTING
-- Added: 2026-11-20
-- Requirement: Owner (21 Nov 2026): in Media Studio add recording a short video from the live camera to generate from; length not limited to 15 seconds; upload own photos or videos from gallery/mobile/laptop and generate from them (e.g. a face photo + prompt); record own voice so the video speaks in the person's own voice; fully AI assisted.
-- Files: src/ai-video.js, saas/workspace-ai-video.js
-- Acceptance: Camera capture to library; reference photos/videos used in generation; long videos via extension/chaining; own-voice narration; tests pass
+- Added: 2026-11-21
+- Requirement: Owner 21 Nov 2026: after completing T-191 voice dictation, replace fixed visible 15/30-second sections with custom full video duration including 1,5,10 minutes and an unlimited option. Deliver one continuous finished video; handle provider clip limits internally without exposing sections. Unlimited must mean continue until the person explicitly finishes, with ongoing provider charges clearly disclosed and no claim of an unlimited native provider clip. Test both tasks, then push to Render for owner live testing.
+- Files: src/ai-video.js, src/media-tools.js, saas/workspace-ai-video.js, scripts/ai-video-projects.test.mjs, scripts/test-ai-video-ui.mjs
+- Acceptance: Custom durations accepted and final duration matches requested length within encoding tolerance; no segment selector shown; continuous generation can be stopped and finalized safely; clear billing consent; tenant/role isolation, retries, cancellation and output limits handled; test evidence; combined release deployed and verified
