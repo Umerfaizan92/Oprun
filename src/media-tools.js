@@ -3,11 +3,23 @@
 // never through a shell, and only on files Oprun wrote itself.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 let bundled = null;
 try { bundled = require('ffmpeg-static'); } catch { bundled = null; }
+
+/** Replace a private media file atomically without following an existing symlink. */
+export function writePrivateFile(file, body) {
+  fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+  const dir = fs.mkdtempSync(path.join(path.dirname(file), '.media-'));
+  try {
+    const staging = path.join(dir, 'data');
+    fs.writeFileSync(staging, body, { flag: 'wx', mode: 0o600 });
+    fs.renameSync(staging, file);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+}
 
 export function ffmpegPath(env = process.env) {
   if (env.FFMPEG_PATH && fs.existsSync(env.FFMPEG_PATH)) return env.FFMPEG_PATH;

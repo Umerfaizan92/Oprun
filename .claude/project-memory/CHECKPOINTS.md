@@ -1977,3 +1977,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t190-video-creator/20261121T022113Z (5bbb8b1)
 - Known errors: none
 - Next exact action: Complete npm test, publish separate Codex branch and PR, verify hosted UI checks before merge
+
+## CP-142 2026-11-21T10:32:35+08:00 T-190 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (TESTING)
+- Completed steps: Streaming voice regression and web phone backend pass; hardened guide reads and atomic private media writes; symlink/permissions regression passes
+- Incomplete steps: Publish security fixes; full stable npm test; hosted UI and CodeQL; merge PR165 then verify Render live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; src/ai-video.js; src/media-tools.js; src/meeting-extras.js; scripts/media-tools.test.mjs
+- Tests executed: node --test scripts/ai-video-projects.test.mjs scripts/webphone.test.mjs
+- Test results: 2/2 pass
+- Git branch: codex/t190-integration
+- Commit: c8e4f61 (Update pipeline regression for the worker offer chooser); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t190-integration/20261121T023235Z (e80dca0)
+- Known errors: none
+- Next exact action: Publish hardening to codex/t190-video-creator after focused checks, then inspect PR165 hosted CI and security alerts

@@ -12,6 +12,7 @@ import rateLimit from 'express-rate-limit';
 import fs from 'node:fs';
 import path from 'node:path';
 import multer from 'multer';
+import { writePrivateFile } from './media-tools.js';
 import { normalisePhone } from './country-profile.js';
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max';
 // Any valid number (mobile or landline) in the business's country, or a full international number.
@@ -176,7 +177,7 @@ export function installMeetingExtras(app, { db, env = {}, requireSaasUser, requi
       if (!req.file?.buffer?.length) return fail(res, 400, 'The recording is empty.');
       const ext = /mp4/.test(req.file.mimetype) ? '.m4a' : /ogg/.test(req.file.mimetype) ? '.ogg' : /mpeg/.test(req.file.mimetype) ? '.mp3' : '.webm';
       fs.mkdirSync(recDir(org(req)), { recursive: true });
-      const file = c.call_control_id + ext; fs.writeFileSync(path.join(recDir(org(req)), file), req.file.buffer);
+      const file = c.call_control_id + ext; writePrivateFile(path.join(recDir(org(req)), file), req.file.buffer);
       db.prepare('UPDATE voice_calls SET recording_url=?,updated_at=? WHERE call_control_id=?').run(`/api/saas/comms/recordings/${c.call_control_id}`, iso(), c.call_control_id);
       saasAudit(req, 'call.recording_saved', 'voice_call', c.call_control_id, { bytes: req.file.size });
       res.status(201).json({ ok: true, recording: `/api/saas/comms/recordings/${c.call_control_id}` });

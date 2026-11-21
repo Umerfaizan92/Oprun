@@ -98,7 +98,14 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
   const mediaRow = (o, id) => db.prepare('SELECT * FROM tenant_media WHERE id=? AND organisation_id=?').get(id, o);
   const mediaPath = (o, m) => path.join(orgDir(o), m.stored_name);
   const workDir = (o, ...p) => { const d = path.join(orgDir(o), 'ai-work', ...p.map((x) => String(x).replace(/[^a-zA-Z0-9-]/g, ''))); fs.mkdirSync(d, { recursive: true }); return d; };
-  const readImage = (file, mime = 'image/jpeg') => { const st = fs.statSync(file); if (st.size > 15 * 1048576) throw err('A guide photo must be under 15 MB.'); return { mime, b64: fs.readFileSync(file).toString('base64') }; };
+  const readImage = (file, mime = 'image/jpeg') => {
+    const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+    try {
+      const st = fs.fstatSync(fd);
+      if (!st.isFile() || st.size > 15 * 1048576) throw err('A guide photo must be a file under 15 MB.');
+      return { mime, b64: fs.readFileSync(fd).toString('base64') };
+    } finally { fs.closeSync(fd); }
+  };
   // Guide pictures for a clip: the photos chosen, a frame from each video chosen, and (for later clips in a long
   // video) the last frame of the clip before, which goes first so the scene continues.
   async function imagesFor(job) {
@@ -170,7 +177,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
   function save(job, body) {
     if (!body?.length) throw err('The provider sent an empty video.');
     if (body.length > maxBytes) throw err('The video is larger than your library allows.');
-    if (job.project_id) { const f = path.join(workDir(job.organisation_id, 'projects', job.project_id), `clip-${String(job.seq).padStart(3, '0')}.mp4`); fs.writeFileSync(f, body); return { file: f }; }
+    if (job.project_id) { const f = path.join(workDir(job.organisation_id, 'projects', job.project_id), `clip-${String(job.seq).padStart(3, '0')}.mp4`); tools.writePrivateFile(f, body); return { file: f }; }
     const dir = orgDir(job.organisation_id); fs.mkdirSync(dir, { recursive: true });
     const stored = crypto.randomUUID() + '.mp4'; fs.writeFileSync(path.join(dir, stored), body);
     const id = crypto.randomUUID(), e = ENGINES.find((x) => x.id === job.engine);
@@ -276,7 +283,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     const r = await fetchImpl(`${elevenBase()}/v1/text-to-speech/${encodeURIComponent(voice.provider_voice_id)}?output_format=mp3_44100_128`, { method: 'POST', headers: { 'xi-api-key': key, 'content-type': 'application/json', accept: 'audio/mpeg' }, body: JSON.stringify({ text, model_id: TTS_MODEL }) });
     if (!r.ok) { const j = await json(r); throw err(`ElevenLabs could not read the script: ${why(j?.detail ? { message: j.detail.message || j.detail } : j, r.status)}`, 502); }
     const body = Buffer.from(await r.arrayBuffer()); if (body.length < 500) throw err('ElevenLabs sent back empty audio.', 502);
-    const stored = crypto.randomUUID() + '.mp3'; fs.mkdirSync(orgDir(o), { recursive: true }); fs.writeFileSync(path.join(orgDir(o), stored), body);
+    const stored = crypto.randomUUID() + '.mp3'; tools.writePrivateFile(path.join(orgDir(o), stored), body);
     const id = crypto.randomUUID();
     db.prepare(`INSERT INTO tenant_media (id,organisation_id,original_name,stored_name,mime_type,kind,size_bytes,source,tags,created_by_user_id,created_at) VALUES (?,?,?,?,'audio/mpeg','audio',?,'ai-voice',?,?,?)`)
       .run(id, o, `Voice-over – ${voice.name} – ${text.replace(/\s+/g, ' ').slice(0, 40)}.mp3`, stored, body.length, JSON.stringify(['voice-over', voice.name]), userId, iso());
