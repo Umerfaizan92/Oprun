@@ -2187,3 +2187,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T125039Z (d6d096f)
 - Known errors: none
 - Next exact action: Wait for current focused regressions,run full suite on stable tree,commit/push PR candidate for hosted UI;do not deploy
+
+## CP-157 2026-11-21T21:02:39+08:00 T-194 TESTING
+- Phase: MS04A/MS04B/MS05A candidate follow-up
+- Task: T-194 (TESTING)
+- Completed steps: Initialfullsuite73/73 and50 focused pass; legacyAIvideo hostedUI passes; fixed guided Library conflict; added shared-library/picker/viewer workspace guards and no-store previews; 27 targeted follow-up tests pass
+- Incomplete steps: Recheck finalfocused tests; hosted guided UI and full CI; record screenshots and final handover; remaining editing/campaign/audio modules
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; saas/media-picker.js; saas/media-viewer.js; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace-media.js; saas/workspace.html; scripts/ai-video.test.mjs; scripts/media-guided.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/ai-video.js; src/server.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: d46e67a (Implement Direction A guided studio and provider recovery candidate (T-194)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T130239Z (626cbd9)
+- Known errors: none
+- Next exact action: Commit and push follow-up to PR167;require full hosted CI/security and guided UI success;do not merge/deploy

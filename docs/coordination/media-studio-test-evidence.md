@@ -62,3 +62,9 @@ Only documentation/manifest/memory/secret checks are appropriate for this docume
 ## E-MS-05 — documentation quality gate (T195)
 
 PASS five required coordination files,17 competitor rows,347 census records and all50 source SHA256 matches, Python inventory-generator syntax, relative artifact links, `git diff --check`, manifest749-file verification, project-memory validation and repository secret scan (739 eligible tracked files). Application/runtime files unchanged. No new application unit/browser suite was claimed or needed for this docs-only gate. Final publication receipt is appended to journal/handover after branch commit.
+
+## E-MS-06 — first implementation candidate and follow-up
+
+Candidate e0a2974 (locald46e67a), tree58e9a47, draftPR167. Node22 focused50/50 and local full73/73 pass. Hosted CI44906040895 verify job136851708489 passes; Security44906040911 green; legacy AI-video browser passes. New guided test creates/plays actual synthetic60-second video, then fails Library visibility because old focus-section observer hides it. This run is NOT a guided UI pass.
+
+Follow-up fixes legacy section disposal/restoration and ARIA, adds explicit guided source reuse, shared media state/capture guards and private no-store previews.27 targeted regressions pass, including stale workspace responses, old recording permissions, library selection, full-preview clearing and picker clearing. New final full/browser/security checks remain required on follow-up commit. Local Chromium cannot launch due Unix socket policy; not counted as pass. No real vendor credit or social publication used.

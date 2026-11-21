@@ -6,8 +6,11 @@
     let mode='create',step=0,furthest=0,enabled=false,legacyRun=0;
     const original=[...form.childNodes],oldParent=panel.parentNode,oldNext=panel.nextSibling;
     const oldSelection=library.querySelector('#library-selection small'),oldSelectionText=oldSelection?.textContent;
+    const panelTitle=panel.querySelector('#aiv-title'),panelCopy=panel.querySelector('.panel-head p'),originalPanelTitle=panelTitle?.textContent,originalPanelCopy=panelCopy?.textContent,importHelp=library.querySelector('#add-demo-assets'),originalImportText=importHelp?.textContent;
     const oldHeading=view.querySelector('.page-heading h1'),oldTitle=oldHeading?.textContent;
     const oldRibbon=view.querySelector('.studio-workflow'),oldGrid=view.querySelector('.content-studio-grid');
+    const legacyPanels=view._superProSectionPanels?.slice()||[],legacyTabs=view.querySelector(':scope > .context-section-tabs'),legacyLabels=legacyTabs?[...legacyTabs.querySelectorAll('[role=tab]')].map(b=>b.textContent):[],legacySelected=legacyTabs?.querySelector('[aria-selected=true]')?.textContent;
+    const legacyAria=legacyPanels.map(n=>[n,Object.fromEntries(['role','aria-labelledby','tabindex'].map(a=>[a,n.getAttribute(a)]))]);
     const hiddenBefore=new Map([oldRibbon,oldGrid,library].filter(Boolean).map(n=>[n,n.hidden]));
     const nav=el('nav',{class:'ms-nav','aria-label':'Media Studio views'}),steps=el('div',{class:'ms-steps','aria-label':'Creation steps'});
     const names=['Brief','Attachments','Production','Voice & review'];
@@ -21,7 +24,7 @@
       if(!allowed()||n<0||n>=parts.length)return;
       if(n>step&&step===0&&panel.querySelector('#aiv-idea').value.trim().length<3&&panel.querySelector('#aiv-prompt').value.trim().length<10){note('Write or dictate your idea first.',true);panel.querySelector('#aiv-idea').focus();return}
       step=n;furthest=Math.max(furthest,n);parts.forEach((p,i)=>p.hidden=i!==step);buttons.forEach((b,i)=>{b.disabled=i>furthest+1;b.setAttribute('aria-current',i===step?'step':'false')});back.hidden=step===0;next.hidden=step===parts.length-1;
-      parts[step].querySelector('h3')?.focus({preventScroll:true});
+      const heading=parts[step].querySelector('h3');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start',behavior:'auto'});
     }
     async function loadLegacy(){
       const run=++legacyRun;
@@ -37,10 +40,11 @@
       form.hidden=mode!=='create';steps.hidden=mode!=='create';footer.hidden=mode!=='create';
       panel.querySelector('#aiv-providers').hidden=mode!=='connections';panel.querySelector('#aiv-connect').hidden=true;
       panel.querySelector('.aiv-jobs-head').hidden=mode!=='projects';panel.querySelector('#aiv-jobs').hidden=mode!=='projects';legacy.hidden=mode!=='projects';
-      if(mode==='projects')loadLegacy();
+      const title=panel.querySelector('#aiv-title'),copy=panel.querySelector('.panel-head p');if(title)title.textContent=mode==='projects'?'Your media projects':mode==='connections'?'Connections & billing':'Make a video from an idea';if(copy)copy.textContent=mode==='projects'?'Preview, download and reuse your finished videos. Saved legacy specifications remain drafts.':mode==='connections'?'Use your own provider accounts. A valid key does not guarantee available generation credits.':'Describe your idea, add guides, choose production settings and review your voice-over before generating.';
+      if(mode==='projects')loadLegacy();if(mode==='library')window.dispatchEvent(new Event('oprun:media-changed'));
     }
     function enable(){
-      enabled=true;view.classList.add('ms-unified');if(oldSelection)oldSelection.textContent='Choose an asset to reuse as a guide in your next video.';if(oldHeading)oldHeading.textContent='Media Studio';
+      enabled=true;if(importHelp)importHelp.textContent='Connected account help';window.SuperProPageSections?.dispose(view);legacyTabs?.remove();legacyAria.forEach(([n,attrs])=>Object.keys(attrs).forEach(a=>n.removeAttribute(a)));view.querySelectorAll('.focus-inactive').forEach(n=>n.classList.remove('focus-inactive'));view.dataset.sectionInstalled='media-guided';view.classList.add('ms-unified');if(oldSelection)oldSelection.textContent='Choose an asset to reuse as a guide in your next video.';if(oldHeading)oldHeading.textContent='Media Studio';
       for(const n of [oldRibbon,oldGrid])if(n)n.hidden=true;
       panel.before(nav);view.querySelector('.page-heading').after(nav);nav.after(panel);
       for(const [id,label] of [['create','Create'],['projects','Projects'],['library','Library'],['connections','Connections & billing']])nav.append(el('button',{type:'button',class:'secondary-button','data-mode':id,text:label,onclick:()=>show(id)}));
@@ -51,8 +55,9 @@
     }
     function destroy(){
       enabled=false;legacyRun++;nav.remove();legacy.remove();form.replaceChildren(...original);form.hidden=false;view.classList.remove('ms-unified');
-      if(oldHeading)oldHeading.textContent=oldTitle;if(oldSelection)oldSelection.textContent=oldSelectionText;for(const [n,hidden] of hiddenBefore)n.hidden=hidden;
+      if(panelTitle)panelTitle.textContent=originalPanelTitle;if(panelCopy)panelCopy.textContent=originalPanelCopy;if(importHelp)importHelp.textContent=originalImportText;if(oldHeading)oldHeading.textContent=oldTitle;if(oldSelection)oldSelection.textContent=oldSelectionText;for(const [n,hidden] of hiddenBefore)n.hidden=hidden;
       panel.hidden=false;panel.querySelector('#aiv-providers').hidden=false;panel.querySelector('.aiv-jobs-head').hidden=false;panel.querySelector('#aiv-jobs').hidden=false;
+      legacyAria.forEach(([n,attrs])=>Object.entries(attrs).forEach(([a,v])=>{if(v===null)n.removeAttribute(a);else n.setAttribute(a,v)}));delete view.dataset.sectionInstalled;if(legacyPanels.length>1)window.SuperProPageSections?.install(view,legacyPanels,{labels:legacyLabels,preferred:legacySelected});
       if(oldNext?.parentNode===oldParent)oldParent.insertBefore(panel,oldNext);else oldParent.append(panel);
     }
     enable();return {show,destroy};

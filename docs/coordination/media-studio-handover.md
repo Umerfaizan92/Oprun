@@ -1,6 +1,6 @@
 # Media Studio continuation handover
 
-Current checkpoint: T195 phases0–3 approval package. This file is a current pointer; append-only history is in media-studio-progress.md. Read CLAUDE.md, this file, master/decisions/test-evidence and both agent coordination logs before any edit.
+Current checkpoint: CP157; Direction A approved, MS04A/MS04B/MS05A candidate in TESTING (draft PR167). Historical approval-gate sections below are superseded by the current implementation addendum. This file is a current pointer; append-only history is in media-studio-progress.md. Read CLAUDE.md, this file, master/decisions/test-evidence and both agent coordination logs before any edit.
 
 ## Production and code
 
@@ -40,3 +40,11 @@ Each completed batch: append stable ID/status/owner/branch/commit/files/tests/re
 - Validation: five documents,17 vendors,347 records/50 source hashes,relative links and Python syntax PASS; live read-only6/6 and five asset matches; manifest749,memory,secret checks PASS. Memory completion introduced an extra trailing blank line; normalized before final handover, no functional impact. Re-run final whitespace gate below.
 - Checkpoint CP153 records completed approval package and T194 BLOCKED. Owner approval required by master brief, not a tool limitation.
 - Next: wait for owner Direction A/B/C and staged implementation approval. Speech/device/account billing and backup recovery remain unverified; no completion claim for fixes.
+
+## Current implementation addendum — CP157
+
+Owner replied A: implementation approved, not production deployment. Branch codex/t194-media-studio from main58fc72b. First published candidate e0a2974992ac9ec71b1a740ba1c00ee104dca4a5 (locald46e67a, tree58e9a47); draft PR167. Full local73/73 and50 focused pass on first candidate; hosted legacy video and verify/security pass. Guided browser reached real60-second playback but found Library hidden by pre-existing page sections; fixed in follow-up with additional27 targeted passes, final hosted acceptance pending.
+
+Current exact next action: publish/test PR167 follow-up, check guided Library and source reuse, screenshots, accessibility and full CI. No deploy or paid external calls. Default-off flag STUDIO_UNIFIED_UI or tenant allowlist STUDIO_UNIFIED_WORKSPACES must be enabled only in approved test/staged rollout. Production remains58fc72b; no new UI will be visible live merely because PR exists.
+
+Follow-up also closes private shared-library/picker/viewer state on workspace switches and prevents stale responses/recording uploads; private preview no-store while range playback remains. Native Android/iOS speech and actual funded generation remain unverified. Do not mark entire T194 transformation complete: later timeline/audio/storyboard/campaign/analytics work remains. See current journal for exact files, evidence and remaining gates.

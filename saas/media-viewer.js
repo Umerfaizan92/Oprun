@@ -31,8 +31,10 @@
     stage.replaceChildren(media);
     dlg.querySelectorAll('.mv-nav').forEach(b=>b.hidden=list.length<2);
     const dl=dlg.querySelector('.mv-download');dl.href=url(m);dl.setAttribute('download',m.original_name||'media');
-    const use=dlg.querySelector('.mv-use');use.hidden=!opts.onUse;use.onclick=()=>{opts.onUse?.(m);dlg.close()};
+    const use=dlg.querySelector('.mv-use');use.textContent=document.querySelector('#video-view')?.classList.contains('ms-unified')?'Use as guide':'Use as render source';use.hidden=!opts.onUse;use.onclick=()=>{opts.onUse?.(m);dlg.close()};
   }
   function go(step){if(list.length<2)return;at=(at+step+list.length)%list.length;show()}
+  const resetWorkspace=()=>{list=[];opts={};at=0;if(dlg){if(dlg.open)dlg.close();dlg.querySelector('.mv-stage').replaceChildren();dlg.querySelector('.mv-name').textContent='';dlg.querySelector('.mv-count').textContent='';dlg.querySelector('.mv-download').removeAttribute('href');dlg.querySelector('.mv-use').onclick=null;}};
+  window.addEventListener('superpro:workspace-ready',resetWorkspace);window.addEventListener('pagehide',resetWorkspace);document.getElementById('logout')?.addEventListener('click',resetWorkspace,true);
   window.OprunMediaViewer={open(items,index=0,options={}){if(!items?.length)return;if(!dlg)build();list=items;at=Math.max(0,Math.min(index,items.length-1));opts=options;show();if(!dlg.open)dlg.showModal();dlg.querySelector('.mv-close').focus()}};
 })();

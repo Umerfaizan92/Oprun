@@ -27,3 +27,7 @@ Additive, idempotent legacy draft import and server-controlled tenant flags; no 
 ## MS-D007 —21Nov2026 — evidence and continuity (REQUIRED)
 
 Store public research and structured inventory with limits, keep append-only batch journal and exact next action. Do not claim zero bugs, independent competitor security knowledge or automatic cross-model execution. Each next session is explicitly started and verifies current state. No other agent's active branch/log is edited. These decisions do not override owner-directed scope/permissions.
+
+## MS-D008 —21Nov2026 — Direction A implementation approved
+
+Owner response A explicitly approves Guided production and staged implementation. D047 in project memory records this. Initial scope MS04A/MS04B/MS05A uses current services, reversible default-off server flag and existing records. No silent vendor switch, funded test, new infrastructure or production deployment authorization is inferred. T194 proceeds in small tested batches; historical "wait for approval" entries above remain history.

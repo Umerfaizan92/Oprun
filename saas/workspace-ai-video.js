@@ -83,7 +83,7 @@
     const host=$('#aiv-providers');if(!host)return;const canKey=OWNERS.includes(role());
     host.replaceChildren(...Object.entries(state.providers).map(([id,p])=>el('div',{class:'aiv-provider'+(p.connected?' on':'')},
       el('div',{},el('b',{text:p.label}),el('small',{text:p.connected?`Connected · key ${p.key_hint||''}`:(p.kind==='voice'?'Optional: for your own voice':'Not connected')})),
-      p.connected?el('small',{class:'muted',text:p.readiness==='generation_verified'?'Generation verified on this account.':p.readiness==='billing_required'?'Billing required · your project is kept.':'Key connected · video funding is not verified.'}):null,
+      p.connected?el('small',{class:'muted',text:p.readiness==='generation_verified'?'Generation verified on this account.':p.readiness==='billing_required'?'Billing required · your project is kept.':p.kind==='voice'?'Key connected · voice funding is not verified.':'Key connected · video funding is not verified.'}):null,
       p.problem&&p.connected?el('small',{class:'aiv-problem',text:`Last problem: ${p.problem}`}):null,
       canKey&&p.connected?el('button',{type:'button',class:'secondary-button',text:'Check again',onclick:()=>checkProvider(id)}):null,
       canKey&&p.problem_code==='BILLING_REQUIRED'?el('a',{class:'secondary-button',href:id==='google'?'https://aistudio.google.com/billing':id==='runway'?'https://dev.runwayml.com/':'https://elevenlabs.io/',target:'_blank',rel:'noopener noreferrer',text:'Open provider billing'}):null,
@@ -246,7 +246,7 @@
       el('div',{class:'aiv-actions'},!p.continuous||p.stop_requested||OWNERS.includes(role())?el('button',{type:'button',class:'secondary-button',text:p.stop_requested?'Retry finishing':'Continue',onclick:()=>continueProject(p)}):el('small',{class:'muted',text:'An owner or admin can resume Unlimited generation.'}),
         p.clips_done>0&&!p.stop_requested?el('button',{type:'button',class:'secondary-button',text:'Finish with available footage',onclick:()=>finishProject(p)}):null,
         el('button',{type:'button',class:'link-button',text:'Clear',onclick:()=>clearProject(p)})),
-      el('small',{class:'muted',text:'Your generated footage is kept. Continue resumes where it stopped.'}));
+      el('small',{class:'muted',text:p.clips_done>0?'Your generated footage is kept. Continue resumes where it stopped.':'Your prompt and settings are kept. No completed footage is available yet.'}));
     else{
       const percent=p.continuous?null:Math.min(99,Math.round(100*(p.produced_seconds||0)/(p.requested_seconds||p.total_seconds||1)));
       body.push(el('div',{class:'aiv-progress',role:'progressbar','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':percent,'aria-label':'Full video progress'},el('span',{style:`width:${percent===null?10:percent}%`})),
@@ -340,13 +340,14 @@
       await load();
     },8000);
   }
-  window.addEventListener('oprun:media-pick',e=>{
+  window.addEventListener('oprun:studio-guide',e=>{
     if(!state.unified_ui||!e.detail?.id)return;setGuides([...guides().filter(id=>id!==e.detail.id),e.detail.id].slice(-3));guided?.show('create');note('Added as a guide. Your existing idea and prompt are kept.');
   });
   window.addEventListener('superpro:workspace-ready',()=>{
     workspaceEpoch++;clearTimeout(timer);timer=null;dictation?.cancel();stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());guided?.destroy();guided=null;
     state={providers:{},engines:[],jobs:[],projects:[],voices:[]};library=[];loaded=false;narrationId=null;voiceMode='none';shape='9:16';$('#aiv-voice-body')?.replaceChildren();
     const form=$('#aiv-form');if(form){form.reset();$('#aiv-jobs')?.replaceChildren();$('#aiv-providers')?.replaceChildren();$('#aiv-guides')?.replaceChildren();picker=null;}
+    if($('#video-view')&&!$('#video-view').hidden)load().catch(()=>{});
   });
   onView('video',{enter:load,leave:()=>{clearTimeout(timer);timer=null;stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());dictation?.cancel()}});
 })();

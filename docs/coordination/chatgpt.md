@@ -1,5 +1,12 @@
 # ChatGPT coordination
 
+##21November2026 — Direction A approved; T194 candidate PR167
+
+- Owner selected A. D047/CP154–157 record authorization for staged implementation; production approval still separate. Branch codex/t194-media-studio is based on currentmain58fc72b with T195 docs preserved. No main change, deployment, funded call or new infrastructure.
+- Candidate e0a2974/locald46e67a tree58e9a47 published through connector; draft PR167. Typed402/provider readiness/manual retry, safe speech recovery, default-off guided creator and workspace recording guards implemented. Initial focused50/50, local full73/73, hosted verify and security pass; legacy video UI passes.
+- Hosted guided UI played60-second output but Library was focus-inactive under existing page-sections. Follow-up disposes/restores that layer, corrects ARIA and tests selection/visibility; shared library/picker/viewer now clear on workspace changes, private preview is no-store.27 targeted follow-up passes; final hosted UI/full/security rerun pending.
+- Required rollout flag: STUDIO_UNIFIED_UI=1 in approved environment or explicit server STUDIO_UNIFIED_WORKSPACES allowlist. Default off preserves current live UI; do not imply production redesigned yet. Remaining editor/audio/storyboard/campaign/analytics modules not completed. Exact next action in media-studio-handover.md.
+
 ## 21 November 2026 — T-195 master transformation phases0–3
 
 - Owner supplied expanded master brief with explicit approval gates before implementation and production. Work isolated on codex/t195-media-studio-blueprint; runtime source/config/data unchanged. T194 is now BLOCKED pending owner blueprint/design approval; prior PR166 deployment authorization is not new redesign authorization.

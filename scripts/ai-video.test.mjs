@@ -97,7 +97,7 @@ test('AI video: own keys, AI prompt, generate in the background, save to the lib
   const media = (await O('GET', '/api/saas/media')).json.media.filter((x) => x.source === 'ai-video');
   assert.equal(media.length, 2); assert.equal(media[0].kind, 'video'); assert.match(media.find((x) => x.original_name.includes('tap repair')).original_name, /^AI video – tap repair\.mp4$/);
   const file = await fetch(`${s.base}/api/saas/media/${jobs.find((x) => x.id === gid).media_id}/file`, { headers: { cookie: owner.cookie, origin: s.base, range: 'bytes=0-15' } });
-  assert.equal(file.status, 206, 'supports seeking in the player'); assert.match(file.headers.get('content-type'), /video\/mp4/);
+  assert.equal(file.status, 206, 'supports seeking in the player');assert.match(file.headers.get('cache-control'),/no-store/,'private previews are not reused from a prior workspace cache'); assert.match(file.headers.get('content-type'), /video\/mp4/);
   assert.deepEqual(Buffer.from(await file.arrayBuffer()), MP4.subarray(0, 16));
 
   // A refused starting image fails with the provider's reason, and it can be cleared from the list.

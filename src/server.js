@@ -4772,7 +4772,7 @@ app.get('/api/saas/media/:id/file',requireSaasUser,requireSaasRole(...studioRole
   if(!m)return res.status(404).json({ok:false,error:'Media not found.'});
   const file=path.join(uploadRoot,'studio',String(req.saas.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);
   if(!fs.existsSync(file))return res.status(404).json({ok:false,error:'The stored file is missing.'});
-  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, max-age=300'});
+  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, no-store'});
   res.sendFile(file);
 });
 app.delete('/api/saas/media/:id',requireSaasUser,requireSaasRole('owner','admin','super_admin'),(req,res)=>{
@@ -4863,7 +4863,7 @@ app.get('/api/saas/job-media/:id/file',requireSaasUser,(req,res)=>{
   }
   const file=path.join(uploadRoot,'job-evidence',String(req.saas.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);
   if(!fs.existsSync(file))return res.status(404).json({ok:false,error:'The stored file is missing.'});
-  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, max-age=300'});
+  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'private, no-store'});
   res.sendFile(file);
 });
 app.delete('/api/saas/job-media/:id',requireSaasUser,requireSaasRole(...SENIOR_JOB_ROLES),(req,res)=>{
