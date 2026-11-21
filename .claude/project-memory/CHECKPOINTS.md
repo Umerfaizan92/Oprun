@@ -2257,3 +2257,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T162512Z (2d79c0a)
 - Known errors: none
 - Next exact action: Publish candidate and run hosted acceptance;fix defects before authorized Render rollout
+
+## CP-162 2026-11-22T00:31:09+08:00 T-194 TESTING
+- Phase: Editor source/network guards
+- Task: T-194 (TESTING)
+- Completed steps: 73/73 local regression; 86 contracts; four hosted security checks pass; adversarial source and revocation guards pass
+- Incomplete steps: Hosted browser/verify final results; advanced product gaps; restore and real provider/device gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; scripts/studio-editor.test.mjs; src/media-tools.js; src/studio-editor.js; scripts/studio-draft-ui.test.mjs
+- Tests executed: source regressions and editor adversarial plus draft DOM
+- Test results: 3/3 and2/2 PASS
+- Git branch: codex/t194-studio-completion
+- Commit: ad69a22 (Add versioned Studio planning, real video edits and social draft handoff (T-194)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inspect PR168 hosted guided browser result;fix defects and publish follow-up;do not deploy unfinished release

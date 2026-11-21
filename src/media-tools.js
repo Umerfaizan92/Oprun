@@ -39,7 +39,7 @@ export function runMediaTool(args, { env = process.env, timeoutMs = 10 * 60_000 
   const bin = ffmpegPath(env);
   if (!bin) return Promise.reject(Object.assign(new Error('Video processing is not available on this server.'), { status: 503 }));
   return new Promise((resolve, reject) => {
-    const p = spawn(bin, ['-hide_banner', '-nostdin', ...args], { stdio: ['ignore', 'ignore', 'pipe'] });
+    const p = spawn(bin, ['-hide_banner', '-nostdin', '-protocol_whitelist', 'file,pipe', ...args], { stdio: ['ignore', 'ignore', 'pipe'] });
     let err = '';
     p.stderr.on('data', (d) => { err = (err + d).slice(-20000); });
     const t = setTimeout(() => { p.kill('SIGKILL'); }, timeoutMs);

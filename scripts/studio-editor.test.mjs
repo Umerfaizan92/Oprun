@@ -30,4 +30,15 @@ test('editor renders real trimmed/reordered media privately, deduplicates export
  assert.equal((await B('GET',result.preview_url)).status,404);const file=await fetch(s.base+result.preview_url,{headers:{cookie:a.cookie,Range:'bytes=0-100'}});assert.equal(file.status,206);assert.match(file.headers.get('cache-control'),/no-store/);
  const cancel={...spec,idempotency_key:crypto.randomUUID()};r=await A('POST','/api/saas/studio-exports',cancel);assert.equal((await A('POST',`/api/saas/studio-exports/${r.json.export.id}/cancel`,{})).json.export.status,'cancelled');
  assert.equal((await A('POST','/api/saas/studio-exports',{...spec,workspace_id:b.org})).status,400);
+ // A file labelled MP4 must never make FFmpeg resolve a playlist or network URL.
+ const fake=crypto.randomUUID();fs.writeFileSync(path.join(dir,fake+'.mp4'),'#EXTM3U\n#EXTINF:1,\nhttp://127.0.0.1:9/private\n');
+ db.prepare("INSERT INTO tenant_media(id,organisation_id,original_name,stored_name,mime_type,kind,size_bytes,created_at) VALUES (?,?,?,?,'video/mp4','video',64,?)").run(fake,a.org,'fake.mp4',fake+'.mp4',new Date().toISOString());
+ const bad=await A('POST','/api/saas/studio-exports',{idempotency_key:crypto.randomUUID(),composition:{...spec.composition,clips:[{media_id:fake,start:0,end:1}]}});assert.equal(bad.status,202);
+ for(let i=0;i<50;i++){const state=db.prepare('SELECT status FROM studio_exports WHERE id=?').get(bad.json.export.id);if(state.status==='failed')break;await new Promise(r=>setTimeout(r,200))}
+ assert.equal(db.prepare('SELECT status FROM studio_exports WHERE id=?').get(bad.json.export.id).status,'failed');
+ // Revoking membership after enqueue prevents the worker from exporting for that user.
+ const revoked=await A('POST','/api/saas/studio-exports',{...spec,idempotency_key:crypto.randomUUID()});assert.equal(revoked.status,202);db.prepare("UPDATE memberships SET status='revoked' WHERE organisation_id=? AND user_id=?").run(a.org,a.uid);
+ for(let i=0;i<50;i++){const state=db.prepare('SELECT status FROM studio_exports WHERE id=?').get(revoked.json.export.id);if(state.status==='failed')break;await new Promise(r=>setTimeout(r,200))}
+ assert.equal(db.prepare('SELECT status FROM studio_exports WHERE id=?').get(revoked.json.export.id).status,'failed');
+
 });
