@@ -19,6 +19,7 @@ import path from 'node:path';
 import rateLimit from 'express-rate-limit';
 import { createMediaFetcher } from './media-fetch.js';
 import * as tools from './media-tools.js';
+import { mediaProviderError } from './media-provider-errors.js';
 
 const STUDIO = ['owner', 'admin', 'manager', 'super_admin', 'director'];
 const OWNERS = ['owner', 'admin', 'super_admin'];
@@ -57,16 +58,19 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     CREATE INDEX IF NOT EXISTS ai_video_projects_org ON ai_video_projects(organisation_id, created_at);
     CREATE TABLE IF NOT EXISTS ai_voices (id TEXT PRIMARY KEY, organisation_id TEXT NOT NULL, provider_voice_id TEXT NOT NULL, name TEXT NOT NULL,
       consent_text TEXT NOT NULL, created_by TEXT, created_at TEXT NOT NULL);`);
-  for (const [c, t] of [['project_id', 'TEXT'], ['seq', 'INTEGER'], ['refs_json', 'TEXT'], ['continue_file', 'TEXT'], ['file_path', 'TEXT'], ['actual_seconds', 'REAL NOT NULL DEFAULT 0'], ['file_bytes', 'INTEGER NOT NULL DEFAULT 0']]) {
+  for (const [c, t] of [['project_id', 'TEXT'], ['seq', 'INTEGER'], ['refs_json', 'TEXT'], ['continue_file', 'TEXT'], ['file_path', 'TEXT'], ['actual_seconds', 'REAL NOT NULL DEFAULT 0'], ['file_bytes', 'INTEGER NOT NULL DEFAULT 0'], ['error_code','TEXT']]) {
     if (!db.prepare('PRAGMA table_info(ai_video_jobs)').all().some((x) => x.name === c)) db.exec(`ALTER TABLE ai_video_jobs ADD COLUMN ${c} ${t}`);
   }
-  for (const [c,t] of [['requested_seconds','INTEGER'],['continuous','INTEGER NOT NULL DEFAULT 0'],['stop_requested','INTEGER NOT NULL DEFAULT 0'],['produced_seconds','REAL NOT NULL DEFAULT 0'],['finished_seconds','REAL'],['completion_reason','TEXT']]) {
+  for (const [c,t] of [['requested_seconds','INTEGER'],['continuous','INTEGER NOT NULL DEFAULT 0'],['stop_requested','INTEGER NOT NULL DEFAULT 0'],['produced_seconds','REAL NOT NULL DEFAULT 0'],['finished_seconds','REAL'],['completion_reason','TEXT'],['error_code','TEXT']]) {
     if (!db.prepare('PRAGMA table_info(ai_video_projects)').all().some(x=>x.name===c)) db.exec(`ALTER TABLE ai_video_projects ADD COLUMN ${c} ${t}`);
+  }
+  for(const [c,t] of [['last_error_code','TEXT'],['last_checked_at','TEXT'],['last_success_at','TEXT']]){
+    if(!db.prepare('PRAGMA table_info(ai_video_providers)').all().some(x=>x.name===c))db.exec(`ALTER TABLE ai_video_providers ADD COLUMN ${c} ${t}`);
   }
   db.prepare('UPDATE ai_video_projects SET requested_seconds=clip_seconds*clips_total WHERE requested_seconds IS NULL AND continuous=0').run();
   const iso = (ms = Date.now()) => new Date(ms).toISOString();
   const org = (req) => req.saas.organisation_id;
-  const fail = (res, status, error) => res.status(status).json({ ok: false, error });
+  const fail = (res, status, error) => res.status(status).json({ ok: false, error: error?.message || error, ...(error?.code ? {error_code:error.code,action:error.action||null} : {}) });
   const err = (message, status = 400) => Object.assign(new Error(message), { status });
   const parse = (schema, body, res) => { const p = schema.safeParse(body || {}); if (!p.success) { fail(res, 400, p.error.issues[0]?.message || 'Check the details.'); return null; } return p.data; };
   const limiter = rateLimit({ windowMs: 60_000, limit: Number(env.AI_VIDEO_RATE_LIMIT || 20), standardHeaders: true, legacyHeaders: false });
@@ -85,8 +89,8 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
 
   const keyOf = (o, provider) => { const r = db.prepare('SELECT secret_bundle FROM ai_video_providers WHERE organisation_id=? AND provider=?').get(o, provider); return r ? runtime.decryptBundle(JSON.parse(r.secret_bundle)).api_key : null; };
   const status = (o) => {
-    const rows = db.prepare('SELECT provider,key_hint,last_error,connected_at FROM ai_video_providers WHERE organisation_id=?').all(o);
-    return Object.fromEntries(Object.entries(PROVIDERS).map(([id, p]) => { const r = rows.find((x) => x.provider === id); return [id, { kind: 'video', ...p, connected: Boolean(r), key_hint: r?.key_hint || null, problem: r?.last_error || null, connected_at: r?.connected_at || null }]; }));
+    const rows = db.prepare('SELECT provider,key_hint,last_error,last_error_code,last_checked_at,last_success_at,connected_at FROM ai_video_providers WHERE organisation_id=?').all(o);
+    return Object.fromEntries(Object.entries(PROVIDERS).map(([id, p]) => { const r = rows.find((x) => x.provider === id); return [id, { kind: 'video', ...p, connected: Boolean(r), key_hint: r?.key_hint || null, problem: r?.last_error || null, problem_code:r?.last_error_code||null, readiness:!r?'not_connected':r.last_error_code==='BILLING_REQUIRED'?'billing_required':r.last_error_code?'needs_attention':r.last_success_at?'generation_verified':'credential_valid', funding:'unknown',last_checked_at:r?.last_checked_at||null,last_success_at:r?.last_success_at||null, connected_at: r?.connected_at || null }]; }));
   };
 
   // ---------- provider calls ----------
@@ -97,9 +101,18 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
 
   async function checkKey(provider, key) {
     const r = provider === 'google' ? await google(key, 'GET', '/v1beta/models?pageSize=1') : provider === 'elevenlabs' ? await fetchImpl(elevenBase() + '/v1/user', { headers: { 'xi-api-key': key } }) : await runway(key, 'GET', '/v1/organization');
-    if (r.status === 400 || r.status === 401 || r.status === 403) { const j = await json(r); throw err(`${PROVIDERS[provider].label} did not accept this key: ${why(j, r.status)}`); }
-    if (!r.ok && r.status >= 500) throw err(`${PROVIDERS[provider].label} is not answering right now (status ${r.status}). Try again in a minute.`, 502);
+    if(!r.ok)throw mediaProviderError(provider,r.status,{credentialCheck:true});
   }
+  function providerProblem(o,provider,x){
+    if(x.provider===provider&&x.code)db.prepare('UPDATE ai_video_providers SET last_error=?,last_error_code=?,updated_at=? WHERE organisation_id=? AND provider=?').run(x.message,x.code,iso(),o,provider);
+  }
+  function submissionAllowed(req,provider,confirmed=false){
+    const p=db.prepare('SELECT last_error_code FROM ai_video_providers WHERE organisation_id=? AND provider=?').get(org(req),provider);
+    if(p?.last_error_code!=='BILLING_REQUIRED')return;
+    if(!confirmed)throw mediaProviderError(provider,402);
+    if(!OWNERS.includes(req.saas.role))throw err('Only the owner or admin can retry after checking provider billing.',403);
+  }
+
   const mediaRow = (o, id) => db.prepare('SELECT * FROM tenant_media WHERE id=? AND organisation_id=?').get(id, o);
   const mediaPath = (o, m) => path.join(orgDir(o), m.stored_name);
   const workDir = (o, ...p) => { const d = path.join(orgDir(o), 'ai-work', ...p.map((x) => String(x).replace(/[^a-zA-Z0-9-]/g, ''))); fs.mkdirSync(d, { recursive: true }); return d; };
@@ -144,12 +157,12 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     if (e.provider === 'google') {
       const input = imgs.length ? [...imgs.map((i) => ({ type: 'image', data: i.b64, mime_type: i.mime })), { type: 'text', text: job.prompt }] : job.prompt;
       const r = await google(key, 'POST', '/v1beta/interactions', { model: e.model, input, background: true, response_format: { type: 'video', aspect_ratio: job.aspect_ratio, resolution: job.resolution, duration: `${job.duration}s` } });
-      const j = await json(r); if (!r.ok || !j.id) throw err(`Google did not start the video: ${why(j, r.status)}`, 502);
+      const j = await json(r); if (!r.ok || !j.id) throw mediaProviderError('google',r.ok?502:r.status);
       return { task: j.id, early: j };
     }
     const body = { model: e.model, promptText: job.prompt.slice(0, 1000), ratio: RUNWAY_RATIO[job.aspect_ratio], duration: job.duration };
     const r = img ? await runway(key, 'POST', '/v1/image_to_video', { ...body, promptImage: `data:${img.mime};base64,${img.b64}` }) : await runway(key, 'POST', '/v1/text_to_video', body);
-    const j = await json(r); if (!r.ok || !j.id) throw err(`Runway did not start the video: ${why(j, r.status)}`, 502);
+    const j = await json(r); if (!r.ok || !j.id) throw mediaProviderError('runway',r.ok?502:r.status);
     return { task: j.id };
   }
   // Returns { done:false } | { done:true, body:Buffer } | throws on failure.
@@ -157,7 +170,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     const e = ENGINES.find((x) => x.id === job.engine);
     if (e.provider === 'google') {
       let j = early;
-      if (!j || j.status !== 'completed') { const r = await google(key, 'GET', `/v1beta/interactions/${encodeURIComponent(job.provider_task_id)}`); j = await json(r); if (!r.ok) throw err(`Google: ${why(j, r.status)}`, r.status >= 500 ? 503 : 502); }
+      if (!j || j.status !== 'completed') { const r = await google(key, 'GET', `/v1beta/interactions/${encodeURIComponent(job.provider_task_id)}`); j = await json(r); if (!r.ok) throw mediaProviderError('google',r.status); }
       if (['failed', 'cancelled', 'incomplete'].includes(j.status)) throw err(`Google could not make this video: ${why(j, j.status)}`);
       if (j.status !== 'completed') return { done: false };
       const video = (j.steps || []).flatMap((s) => (s.type === 'model_output' ? s.content || [] : [])).concat(j.outputs || []).find((c) => c?.type === 'video');
@@ -173,7 +186,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       throw err('Google sent the video in a format Oprun does not recognise.');
     }
     const r = await runway(key, 'GET', `/v1/tasks/${encodeURIComponent(job.provider_task_id)}`); const j = await json(r);
-    if (!r.ok) throw err(`Runway: ${why(j, r.status)}`, r.status >= 500 || r.status === 429 ? 503 : 502);
+    if (!r.ok) throw mediaProviderError('runway',r.status);
     if (j.status === 'FAILED' || j.status === 'CANCELLED') throw err(`Runway could not make this video: ${why(j, j.failureCode || 'failed')}`);
     if (j.status !== 'SUCCEEDED') return { done: false };
     const url = Array.isArray(j.output) ? j.output[0] : null; if (!url) throw err('Runway finished but sent no video link.');
@@ -206,6 +219,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
         if (Date.parse(job.created_at) + giveUpMs < Date.now()) { finish(job, { status: 'failed', error: 'The provider took longer than 30 minutes. Check your provider account, then try again.', next_poll_at: null }); if (job.project_id) projectFailed(job.project_id, 'A clip took longer than 30 minutes at the provider.'); else tell(job, false); return; }
         finish(job, { status: 'running', polls: job.polls + 1, next_poll_at: iso(Date.now() + pollMs) }); return;
       }
+      db.prepare('UPDATE ai_video_providers SET last_error=NULL,last_error_code=NULL,last_success_at=?,updated_at=? WHERE organisation_id=? AND provider=?').run(iso(),iso(),job.organisation_id,e.provider);
       const media = save(job, r.body);
       if (media?.file) {
         const info=await tools.probe(media.file,env);
@@ -214,9 +228,10 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       }
       finish(job, { status: 'succeeded', media_id: media, error: null, next_poll_at: null }); tell(job, true);
     } catch (x) {
+      providerProblem(job.organisation_id,e.provider,x);
       if (x.status === 503 && job.polls < 30) { finish(job, { polls: job.polls + 1, next_poll_at: iso(Date.now() + pollMs * 2) }); return; } // temporary: try again later
-      finish(job, { status: 'failed', error: String(x.message).slice(0, 400), next_poll_at: null });
-      if (job.project_id) projectFailed(job.project_id, `Clip ${job.seq + 1} could not be made: ${x.message}`); else tell(job, false);
+      finish(job, { status: 'failed', error: String(x.message).slice(0, 400),error_code:x.code||null, next_poll_at: null });
+      if (job.project_id) projectFailed(job.project_id, `Clip ${job.seq + 1} could not be made: ${x.message}`,x.code); else tell(job, false);
     }
   }
 
@@ -227,7 +242,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     if (!p.created_by || !notify?.notifyUser) return;
     Promise.resolve(notify.notifyUser(p.organisation_id, p.created_by, { kind: ok ? 'ai_video_ready' : 'ai_video_failed', title: ok ? 'Your AI video is ready' : 'Your AI video could not be finished', body: ok ? `"${p.title}" is in Media Studio.` : 'Open Media Studio to see why and continue it.', link: '#growth/media', dedupe: `ai_video_project:${p.id}:${ok}` })).catch(() => {});
   }
-  function projectFailed(id, message) { const p = P(id); if (!p || p.status === 'failed'||p.status==='succeeded') return; setP(id, { status: 'failed', error: String(message).slice(0, 400) }); if(p.stop_requested&&p.clips_done>0)beginJoin(id);else tellProject(p, false); }
+  function projectFailed(id, message,code=null) { const p = P(id); if (!p || p.status === 'failed'||p.status==='succeeded') return; setP(id, { status: 'failed', error: String(message).slice(0, 400),error_code:code }); if(p.stop_requested&&p.clips_done>0)beginJoin(id);else tellProject(p, false); }
   const targetSeconds=p=>p.requested_seconds||p.clip_seconds*p.clips_total;
   function beginJoin(id){
     const p=P(id);if(!p||!['rendering','failed'].includes(p.status))return;
@@ -236,9 +251,10 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     if(!count)return;
     if(db.prepare("UPDATE ai_video_projects SET status='joining',clips_total=?,updated_at=? WHERE id=? AND status IN ('rendering','failed')").run(count,iso(),id).changes===1)join(id).catch(()=>{});
   }
-  async function startClip(p, seq, continueFile) {
+  async function startClip(p, seq, continueFile, billingRetryConfirmed=false) {
     const e = ENGINES.find((x) => x.id === p.engine), key = keyOf(p.organisation_id, e.provider);
     if (!key) throw err(`Connect your ${PROVIDERS[e.provider].label} key first.`, 409);
+    if(!billingRetryConfirmed&&db.prepare('SELECT last_error_code FROM ai_video_providers WHERE organisation_id=? AND provider=?').get(p.organisation_id,e.provider)?.last_error_code==='BILLING_REQUIRED')throw mediaProviderError(e.provider,402);
     const shots = JSON.parse(p.shots_json), now = iso(), id = crypto.randomUUID();
     const duration=e.provider==='runway'?e.max:p.continuous?p.clip_seconds:Math.max(e.min,Math.min(p.clip_seconds,Math.ceil(targetSeconds(p)-p.produced_seconds)));
     const prompt=shots[seq]||`${shots[0]} Continue seamlessly from the supplied last frame. Same people, place, clothing, lighting and colour; natural continuous action. No on-screen text.`;
@@ -251,7 +267,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       AND NOT EXISTS(SELECT 1 FROM ai_video_jobs WHERE project_id=? AND seq=? AND status IN ('queued','running','succeeded'))`)
       .run(id,job.organisation_id,e.id,job.prompt,p.idea,p.aspect_ratio,p.resolution,duration,p.created_by,now,now,p.id,seq,p.refs_json,job.continue_file,p.id,p.id,seq);
     if(!inserted.changes){beginJoin(p.id);return null;}
-    let s;try{s=await start(job,key)}catch(x){if(['AbortError','TimeoutError'].includes(x.name))x=err('The provider request was interrupted. Check your provider account before continuing.',502);finish(job,{status:'failed',error:x.message});throw x;}
+    let s;try{s=await start(job,key)}catch(x){if(!x.status)x=Object.assign(err('The provider request was interrupted. Check your provider account before continuing.',502),{code:'SUBMISSION_UNCERTAIN',action:'check_provider'});finish(job,{status:'failed',error:x.message,error_code:x.code||null});providerProblem(p.organisation_id,e.provider,x);throw x;}
     finish(job,{status:'running',provider_task_id:s.task,next_poll_at:iso(Date.now()+pollMs)});
     if (s.early?.status === 'completed') await advance({ ...db.prepare('SELECT * FROM ai_video_jobs WHERE id=?').get(id) }, s.early);
     return id;
@@ -267,7 +283,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     const latest=P(p.id);
     if (!latest.stop_requested&&(p.continuous||done.seconds+0.02<targetSeconds(p))) {
       if(job.seq+2>p.clips_total)setP(p.id,{clips_total:job.seq+2});
-      try { await startClip(P(p.id), job.seq + 1, file); } catch (x) { projectFailed(p.id, `Clip ${job.seq + 2} could not be started: ${x.message}`); }
+      try { await startClip(P(p.id), job.seq + 1, file); } catch (x) { projectFailed(p.id, `Clip ${job.seq + 2} could not be started: ${x.message}`,x.code); }
       return;
     }
     beginJoin(p.id);
@@ -295,7 +311,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       db.prepare(`INSERT INTO tenant_media (id,organisation_id,original_name,stored_name,mime_type,kind,size_bytes,source,tags,created_by_user_id,created_at) VALUES (?,?,?,?,'video/mp4','video',?,'ai-video',?,?,?)`)
         .run(mid, p.organisation_id, `AI video – ${p.title.replace(/[\u0000-\u001f]/g, ' ').slice(0, 60)}.mp4`, stored, size, JSON.stringify(['ai', e?.label || 'AI', p.narration_media_id ? 'voice-over' : 'generated']), p.created_by, iso());
       const info=await tools.probe(final,env);
-      setP(id, { status: 'succeeded', media_id: mid,finished_seconds:info.seconds, error: null }); tellProject(P(id), true);
+      setP(id, { status: 'succeeded', media_id: mid,finished_seconds:info.seconds, error: null,error_code:null }); tellProject(P(id), true);
       for (const f of fs.readdirSync(dir)) if (/^(joined|final|trimmed)\.mp4$/.test(f)) fs.rmSync(path.join(dir, f), { force: true }); // clips stay until the project is cleared
     } catch (x) { setP(id, { status: 'failed', error: `Preparing the full video failed: ${String(x.message).slice(0, 300)}` }); tellProject(P(id), false); }
     finally{clearInterval(heartbeat);joiningNow.delete(id);}
@@ -331,8 +347,8 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
 
   let sweeping = false;
   function expireQueued(project=null){
-    const stale=db.prepare("SELECT * FROM ai_video_jobs WHERE status='queued' AND project_id IS NOT NULL AND created_at<? AND (? IS NULL OR project_id=?)").all(iso(Date.now()-5*60_000),project,project);
-    for(const job of stale){const message='The provider request was interrupted. Check your provider account before continuing.';finish(job,{status:'failed',error:message});projectFailed(job.project_id,message);}
+    const stale=db.prepare("SELECT * FROM ai_video_jobs WHERE status='queued' AND created_at<? AND (? IS NULL OR project_id=?)").all(iso(Date.now()-5*60_000),project,project);
+    for(const job of stale){const message='The provider request was interrupted. Check your provider account before continuing.';finish(job,{status:'failed',error:message,error_code:'SUBMISSION_UNCERTAIN'});if(job.project_id)projectFailed(job.project_id,message,'SUBMISSION_UNCERTAIN');else tell(job,false);}
   }
   async function sweep() {
     if (sweeping) return; sweeping = true;
@@ -354,12 +370,12 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
 
   const out = (j) => {
     const e = ENGINES.find((x) => x.id === j.engine);
-    return { id: j.id, engine: j.engine, engine_label: e?.label || j.engine, prompt: j.prompt, idea: j.idea, aspect_ratio: j.aspect_ratio, resolution: j.resolution, duration: j.duration, source_media_id: j.source_media_id, status: j.status, media_id: j.media_id, error: j.error, created_at: j.created_at, updated_at: j.updated_at };
+    return { id: j.id, engine: j.engine, engine_label: e?.label || j.engine, prompt: j.prompt, idea: j.idea, aspect_ratio: j.aspect_ratio, resolution: j.resolution, duration: j.duration, source_media_id: j.source_media_id, status: j.status, media_id: j.media_id, error: j.error,error_code:j.error_code||null, created_at: j.created_at, updated_at: j.updated_at };
   };
 
   const projOut = (p) => {
     const e = ENGINES.find((x) => x.id === p.engine), running = db.prepare("SELECT id FROM ai_video_jobs WHERE project_id=? AND status='running' ORDER BY seq DESC LIMIT 1").get(p.id);
-    return { id: p.id, title: p.title, idea: p.idea, engine: p.engine, engine_label: e?.label || p.engine, aspect_ratio: p.aspect_ratio, resolution: p.resolution, clip_seconds: p.clip_seconds, clips_total: p.clips_total, clips_done: p.clips_done, total_seconds:p.finished_seconds||(p.continuous?p.produced_seconds:targetSeconds(p)),requested_seconds:p.requested_seconds,produced_seconds:p.produced_seconds,continuous:Boolean(p.continuous),stop_requested:Boolean(p.stop_requested),completion_reason:p.completion_reason, narration_media_id: p.narration_media_id, status: p.status, media_id: p.media_id, error: p.error, running_job_id: running?.id || null, refs: JSON.parse(p.refs_json || '[]'), created_at: p.created_at, updated_at: p.updated_at };
+    return { id: p.id, title: p.title, idea: p.idea, engine: p.engine, engine_label: e?.label || p.engine, aspect_ratio: p.aspect_ratio, resolution: p.resolution, clip_seconds: p.clip_seconds, clips_total: p.clips_total, clips_done: p.clips_done, total_seconds:p.finished_seconds||(p.continuous?p.produced_seconds:targetSeconds(p)),requested_seconds:p.requested_seconds,produced_seconds:p.produced_seconds,continuous:Boolean(p.continuous),stop_requested:Boolean(p.stop_requested),completion_reason:p.completion_reason, narration_media_id: p.narration_media_id, status: p.status, media_id: p.media_id, error: p.error,error_code:p.error_code||null, running_job_id: running?.id || null, refs: JSON.parse(p.refs_json || '[]'), created_at: p.created_at, updated_at: p.updated_at };
   };
 
   // ---------- routes ----------
@@ -370,20 +386,29 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       jobs: db.prepare('SELECT * FROM ai_video_jobs WHERE organisation_id=? AND project_id IS NULL ORDER BY created_at DESC LIMIT 30').all(org(req)).map(out),
       projects: db.prepare('SELECT * FROM ai_video_projects WHERE organisation_id=? ORDER BY created_at DESC LIMIT 20').all(org(req)).map(projOut),
       voices: db.prepare('SELECT id,name,created_at FROM ai_voices WHERE organisation_id=? ORDER BY created_at DESC').all(org(req)),
-      joining_available: Boolean(tools.ffmpegPath(env)), max_seconds: MAX_TOTAL });
+      unified_ui:env.STUDIO_UNIFIED_UI==='1'||String(env.STUDIO_UNIFIED_WORKSPACES||'').split(',').map(x=>x.trim()).includes(org(req)),joining_available: Boolean(tools.ffmpegPath(env)), max_seconds: MAX_TOTAL });
   });
   app.post('/api/saas/ai-video/providers/:provider', limiter, requireSaasUser, requireSaasRole(...OWNERS), async (req, res) => {
     const provider = req.params.provider; if (!PROVIDERS[provider]) return fail(res, 404, 'Unknown provider.');
     const d = parse(z.object({ api_key: z.string().trim().min(16, 'Paste the full API key.').max(400).regex(/^[\x21-\x7e]+$/, 'The key has spaces or unusual characters. Copy it again.') }).strict(), req.body, res); if (!d) return;
     try {
+      const same=keyOf(org(req),provider)===d.api_key;
       await checkKey(provider, d.api_key);
       const now = iso();
       db.prepare(`INSERT INTO ai_video_providers(organisation_id,provider,secret_bundle,key_hint,last_error,connected_by,connected_at,updated_at) VALUES (?,?,?,?,NULL,?,?,?)
-        ON CONFLICT(organisation_id,provider) DO UPDATE SET secret_bundle=excluded.secret_bundle,key_hint=excluded.key_hint,last_error=NULL,connected_by=excluded.connected_by,connected_at=excluded.connected_at,updated_at=excluded.updated_at`)
+        ON CONFLICT(organisation_id,provider) DO UPDATE SET secret_bundle=excluded.secret_bundle,key_hint=excluded.key_hint,last_error=ai_video_providers.last_error,connected_by=excluded.connected_by,connected_at=excluded.connected_at,updated_at=excluded.updated_at`)
         .run(org(req), provider, JSON.stringify(runtime.encryptBundle({ api_key: d.api_key })), `…${d.api_key.slice(-4)}`, req.saas.user_id, now, now);
+      if(!same)db.prepare('UPDATE ai_video_providers SET last_error=NULL,last_error_code=NULL,last_success_at=NULL WHERE organisation_id=? AND provider=?').run(org(req),provider);
+      db.prepare('UPDATE ai_video_providers SET last_checked_at=? WHERE organisation_id=? AND provider=?').run(now,org(req),provider);
       saasAudit(req, 'ai_video.provider_connected', 'ai_video_provider', provider, {});
       res.json({ ok: true, providers: status(org(req)) });
-    } catch (e) { fail(res, e.status || 400, e.message); }
+    } catch (e) { fail(res, e.status || 400, e); }
+  });
+  app.post('/api/saas/ai-video/providers/:provider/check',limiter,requireSaasUser,requireSaasRole(...OWNERS),async(req,res)=>{
+    const provider=req.params.provider;if(!PROVIDERS[provider])return fail(res,404,'Unknown provider.');
+    const key=keyOf(org(req),provider);if(!key)return fail(res,404,'Connect this provider first.');
+    try{await checkKey(provider,key);db.prepare('UPDATE ai_video_providers SET last_checked_at=? WHERE organisation_id=? AND provider=?').run(iso(),org(req),provider);db.prepare("UPDATE ai_video_providers SET last_error=NULL,last_error_code=NULL WHERE organisation_id=? AND provider=? AND COALESCE(last_error_code,'')<>'BILLING_REQUIRED'").run(org(req),provider);res.json({ok:true,providers:status(org(req)),note:'Credentials checked. This does not verify available video credits. A known billing block remains until a confirmed generation succeeds.'});}
+    catch(x){providerProblem(org(req),provider,x);fail(res,x.status||502,x);}
   });
   app.delete('/api/saas/ai-video/providers/:provider', requireSaasUser, requireSaasRole(...OWNERS), (req, res) => {
     if (!PROVIDERS[req.params.provider]) return fail(res, 404, 'Unknown provider.');
@@ -409,25 +434,27 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
   });
 
   app.post('/api/saas/ai-video/jobs', limiter, ...studio, async (req, res) => {
-    const d = parse(z.object({ engine: z.enum(ENGINES.map((e) => e.id)), prompt: z.string().trim().min(10, 'Write a fuller prompt (at least a sentence).').max(2000), idea: z.string().trim().max(2000).optional(), aspect_ratio: z.enum(['16:9', '9:16']), resolution: z.enum(['720p', '1080p', '4k']).default('720p'), duration: z.number().int().min(2).max(15), source_media_id: z.string().max(80).optional() }).strict(), req.body, res); if (!d) return;
+    const d = parse(z.object({ engine: z.enum(ENGINES.map((e) => e.id)), prompt: z.string().trim().min(10, 'Write a fuller prompt (at least a sentence).').max(2000), idea: z.string().trim().max(2000).optional(), aspect_ratio: z.enum(['16:9', '9:16']), resolution: z.enum(['720p', '1080p', '4k']).default('720p'), duration: z.number().int().min(2).max(15), source_media_id: z.string().max(80).optional(),billing_retry_confirmed:z.boolean().default(false) }).strict(), req.body, res); if (!d) return;
     const e = ENGINES.find((x) => x.id === d.engine);
     if (!e.res.includes(d.resolution)) return fail(res, 400, `${e.label} makes ${e.res.join(' or ')} videos. Choose ${e.res.join(' or ')}.`);
     if (d.duration < e.min || d.duration > e.max) return fail(res, 400, `${e.label} makes videos from ${e.min} to ${e.max} seconds long.`);
     const key = keyOf(org(req), e.provider); if (!key) return fail(res, 409, `Connect your ${PROVIDERS[e.provider].label} key first (owner or admin).`);
+    try{submissionAllowed(req,e.provider,d.billing_retry_confirmed)}catch(x){return fail(res,x.status||402,x)}
     const open = db.prepare("SELECT COUNT(*) n FROM ai_video_jobs WHERE organisation_id=? AND status IN ('queued','running')").get(org(req)).n;
     if (open >= Number(env.AI_VIDEO_MAX_OPEN || 4)) return fail(res, 429, 'A few videos are already being made. Wait for one to finish, then try again.');
     const now = iso(), id = crypto.randomUUID();
     const job = { id, organisation_id: org(req), engine: e.id, prompt: d.prompt, idea: d.idea || null, aspect_ratio: d.aspect_ratio, resolution: d.resolution, duration: d.duration, source_media_id: d.source_media_id || null, polls: 0, created_by: req.saas.user_id, created_at: now };
     try {
+      db.prepare(`INSERT INTO ai_video_jobs (id,organisation_id,engine,prompt,idea,aspect_ratio,resolution,duration,source_media_id,status,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,'queued',?,?,?)`)
+        .run(id,job.organisation_id,e.id,d.prompt,job.idea,d.aspect_ratio,d.resolution,d.duration,job.source_media_id,job.created_by,now,now);
       const s = await start(job, key);
-      db.prepare(`INSERT INTO ai_video_jobs (id,organisation_id,engine,prompt,idea,aspect_ratio,resolution,duration,source_media_id,status,provider_task_id,next_poll_at,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,'running',?,?,?,?,?)`)
-        .run(id, job.organisation_id, e.id, d.prompt, job.idea, d.aspect_ratio, d.resolution, d.duration, job.source_media_id, s.task, iso(Date.now() + pollMs), job.created_by, now, now);
+      finish(job,{status:'running',provider_task_id:s.task,next_poll_at:iso(Date.now()+pollMs)});
       saasAudit(req, 'ai_video.started', 'ai_video_job', id, { engine: e.id, seconds: d.duration, resolution: d.resolution });
       if (s.early?.status === 'completed') await advance({ ...db.prepare('SELECT * FROM ai_video_jobs WHERE id=?').get(id) }, s.early);
       res.status(201).json({ ok: true, job: out(db.prepare('SELECT * FROM ai_video_jobs WHERE id=?').get(id)) });
     } catch (x) {
-      db.prepare('UPDATE ai_video_providers SET last_error=?,updated_at=? WHERE organisation_id=? AND provider=?').run(String(x.message).slice(0, 300), iso(), org(req), e.provider);
-      fail(res, x.status === 400 ? 400 : 502, x.message);
+      if(!x.status)x=Object.assign(err('The provider request was interrupted. Check your provider account before continuing.',502),{code:'SUBMISSION_UNCERTAIN',action:'check_provider'});
+      finish(job,{status:'failed',error:x.message,error_code:x.code||null});providerProblem(org(req),e.provider,x);fail(res,x.status||502,x);
     }
   });
   // Refresh one job now (the page calls this while a video is being made, so it appears without waiting for the sweep).
@@ -449,12 +476,13 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
   app.post('/api/saas/ai-video/projects', limiter, ...studio, async (req, res) => {
     const d = parse(z.object({ engine: z.enum(ENGINES.map((e) => e.id)), idea: z.string().trim().max(2000).optional(), prompt: z.string().trim().max(4000).optional(),
       aspect_ratio: z.enum(['16:9', '9:16']), resolution: z.enum(['720p', '1080p', '4k']).default('720p'), clip_seconds: z.number().int().min(2).max(15).optional(),
-      total_seconds: z.number().int().min(2).max(MAX_TOTAL).optional(), duration_mode:z.enum(['fixed','continuous']).default('fixed'),continuous_consent:z.boolean().default(false),reference_media_ids: z.array(z.string().max(80)).max(3).default([]),
+      total_seconds: z.number().int().min(2).max(MAX_TOTAL).optional(), duration_mode:z.enum(['fixed','continuous']).default('fixed'),continuous_consent:z.boolean().default(false),billing_retry_confirmed:z.boolean().default(false),reference_media_ids: z.array(z.string().max(80)).max(3).default([]),
       narration_media_id: z.string().max(80).optional(), voice_id: z.string().max(80).optional(), script: z.string().trim().max(9000).optional(), keep_sound: z.boolean().default(false) }).strict(), req.body, res); if (!d) return;
     const o = org(req), e = ENGINES.find((x) => x.id === d.engine);
     const continuous=d.duration_mode==='continuous';
     if(continuous&&!OWNERS.includes(req.saas.role))return fail(res,403,'Only an owner or admin can start unlimited generation.');
     if(continuous&&(!d.continuous_consent||d.total_seconds!==undefined))return fail(res,400,'Confirm ongoing provider charges for unlimited generation, without a fixed duration.');
+    try{submissionAllowed(req,e.provider,d.billing_retry_confirmed)}catch(x){return fail(res,x.status||402,x)}
     const brief = (d.prompt || d.idea || '').trim(); if (brief.length < 10) return fail(res, 400, 'Describe the video in at least a sentence, or let AI write the prompt.');
     if (!e.res.includes(d.resolution)) return fail(res, 400, `${e.label} makes ${e.res.join(' or ')} videos.`);
     if (!keyOf(o, e.provider)) return fail(res, 409, `Connect your ${PROVIDERS[e.provider].label} key first (owner or admin).`);
@@ -479,7 +507,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
         .run(id, o, title, d.idea || null, e.id, d.aspect_ratio, d.resolution, clip, clips, JSON.stringify(shots), JSON.stringify(d.reference_media_ids), narration?.id || null, d.keep_sound ? 1 : 0, req.saas.user_id, now, now);
       setP(id,{requested_seconds:continuous?null:total,continuous:continuous?1:0});
       saasAudit(req, 'ai_video.project_started', 'ai_video_project', id, { engine: e.id, clips, clip_seconds: clip,duration_mode:d.duration_mode,ongoing_charges_confirmed:continuous, references: d.reference_media_ids.length, voice_over: Boolean(narration) });
-      try { await startClip(P(id), 0, null); } catch (x) { projectFailed(id, x.message); return fail(res, x.status === 400 ? 400 : 502, x.message); }
+      try { await startClip(P(id), 0, null,d.billing_retry_confirmed); } catch (x) { projectFailed(id, x.message,x.code); return fail(res,x.status||502,x); }
       res.status(201).json({ ok: true, project: projOut(P(id)) });
     } catch (x) { fail(res, x.status && x.status < 600 ? x.status : 400, x.message); }
   });
@@ -504,15 +532,17 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
   // Continue a failed long video from the clip that failed (clips already made are kept and not paid for again).
   app.post('/api/saas/ai-video/projects/:id/continue', limiter, ...studio, async (req, res) => {
     const p = db.prepare("SELECT * FROM ai_video_projects WHERE id=? AND organisation_id=? AND status='failed'").get(req.params.id, org(req)); if (!p) return fail(res, 404, 'Only a video that stopped can be continued.');
+    const retry=z.object({billing_retry_confirmed:z.boolean().default(false)}).strict().safeParse(req.body||{});if(!retry.success)return fail(res,400,'Check the retry request.');
+    if(!p.stop_requested){try{submissionAllowed(req,ENGINES.find(e=>e.id===p.engine).provider,retry.data.billing_retry_confirmed)}catch(x){return fail(res,x.status||402,x)}}
     if(p.continuous&&!p.stop_requested&&!OWNERS.includes(req.saas.role))return fail(res,403,'Only an owner or admin can resume unlimited generation.');
     if(p.stop_requested){beginJoin(p.id);return res.json({ok:true,project:projOut(P(p.id))});}
     const done = db.prepare("SELECT seq,file_path FROM ai_video_jobs WHERE project_id=? AND status='succeeded' ORDER BY seq").all(p.id).filter((c) => c.file_path && fs.existsSync(c.file_path));
     let next = 0; while (done.some((c) => c.seq === next)) next += 1;
     db.prepare("DELETE FROM ai_video_jobs WHERE project_id=? AND status='failed'").run(p.id);
-    if (!p.continuous&&p.produced_seconds+0.02>=targetSeconds(p)) { setP(p.id, { status: 'rendering', error: null });beginJoin(p.id); return res.json({ ok: true, project: projOut(P(p.id)) }); }
-    setP(p.id, { status: 'rendering', error: null, clips_done: done.length });
-    try { await startClip(P(p.id), next, done.find((c) => c.seq === next - 1)?.file_path || null); res.json({ ok: true, project: projOut(P(p.id)) }); }
-    catch (x) { projectFailed(p.id, x.message); fail(res, x.status === 400 ? 400 : 502, x.message); }
+    if (!p.continuous&&p.produced_seconds+0.02>=targetSeconds(p)) { setP(p.id, { status: 'rendering', error: null,error_code:null });beginJoin(p.id); return res.json({ ok: true, project: projOut(P(p.id)) }); }
+    setP(p.id, { status: 'rendering', error: null,error_code:null, clips_done: done.length });
+    try { await startClip(P(p.id), next, done.find((c) => c.seq === next - 1)?.file_path || null,retry.data.billing_retry_confirmed); res.json({ ok: true, project: projOut(P(p.id)) }); }
+    catch (x) { projectFailed(p.id, x.message,x.code); fail(res,x.status||502,x); }
   });
   app.delete('/api/saas/ai-video/projects/:id', ...studio, (req, res) => {
     const p = db.prepare("SELECT * FROM ai_video_projects WHERE id=? AND organisation_id=? AND status IN ('succeeded','failed')").get(req.params.id, org(req));

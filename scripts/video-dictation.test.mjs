@@ -57,3 +57,9 @@ test('permission and service errors keep existing text and re-enable retry',asyn
     f.buttons[0].click();f.requests[1].reject(new Error('provider quota'));await tick();assert.match(f.status.textContent,/available AI speech service/);assert.equal(f.idea.value,'Keep me');
   }finally{f.close()}
 });
+test('billing-blocked automatic speech exposes actionable fallback without changing typed text',async()=>{
+  const f=fixture();try{f.idea.value='Keep the approved brief';f.buttons[0].click();f.requests[0].reject(Object.assign(new Error('Automatic speech needs billing attention. Choose a language for browser dictation.'),{code:'SPEECH_BILLING_REQUIRED'}));await tick();
+    assert.equal(f.idea.value,'Keep the approved brief');assert.match(f.status.textContent,/billing attention/);assert.match(f.status.textContent,/No video generation was started/);assert.equal(f.controller.isBusy(),false);
+    f.w.document.getElementById('aiv-dictation-language').value='ur-PK';f.buttons[0].click();const r=f.recognizers[0];r.onresult({results:[Object.assign([{transcript:'ورکشاپ'}],{isFinal:true})]});f.buttons[0].click();assert.match(f.idea.value,/ورکشاپ/);assert.equal(f.requests.length,1,'fallback chosen explicitly, not automatic paid substitution');
+  }finally{f.close()}
+});

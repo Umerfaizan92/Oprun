@@ -68,6 +68,7 @@ jobs:
       - name: Verify video creator, phone, meetings and localized mobile interfaces
         run: |
           npm run test:ai-video-ui
+          UI_SCREENSHOT_DIR=qa/visual/media-studio node scripts/test-media-studio-guided-ui.mjs
           node scripts/test-webphone-ui.mjs
           npm run test:meetings-ui
           node scripts/test-localization-ui.mjs
@@ -97,6 +98,7 @@ jobs:
           path: |
             qa/visual/redesign/
             qa/visual/navigation/
+            qa/visual/media-studio/
             qa/reports/navigation-coverage.json
           if-no-files-found: ignore
           retention-days: 14

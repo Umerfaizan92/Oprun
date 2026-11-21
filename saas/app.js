@@ -43,7 +43,7 @@ function enhanceShell(){
 }
 enhanceShell();
 
-async function api(url, options={}){const r=await fetch(url,{credentials:'same-origin',...options,headers:{...(options.body&&!(options.body instanceof FormData)?{'content-type':'application/json'}:{}),...options.headers}});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(r.status===429?'This feature is receiving several requests at once. Please wait a few seconds and try again.':(d.error||'The requested action could not be completed.'));e.status=r.status;e.payload=d;throw e}return d}
+async function api(url, options={}){const r=await fetch(url,{credentials:'same-origin',...options,headers:{...(options.body&&!(options.body instanceof FormData)?{'content-type':'application/json'}:{}),...options.headers}});const d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(r.status===429&&!d.error_code?'This feature is receiving several requests at once. Please wait a few seconds and try again.':(d.error||'The requested action could not be completed.'));e.status=r.status;e.payload=d;throw e}return d}
 window.SuperProApi=api;
 // No rejected promise or stray error may surface as a console error or a blank screen: show a calm notice instead.
 let lastFault=0;

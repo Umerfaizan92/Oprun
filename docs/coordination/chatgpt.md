@@ -1,5 +1,32 @@
 # ChatGPT coordination
 
+## 21 November 2026 — T-195 master transformation phases0–3
+
+- Owner supplied expanded master brief with explicit approval gates before implementation and production. Work isolated on codex/t195-media-studio-blueprint; runtime source/config/data unchanged. T194 is now BLOCKED pending owner blueprint/design approval; prior PR166 deployment authorization is not new redesign authorization.
+- GitHub main and Render remain58fc72b / dep-dc0nunmc6qcc73bonn2g LIVE. Fresh read-only smoke6/6; workspace HTML, generator, dictation, runtime and service-worker assets HTTP200/exact byte matches. No implemented redesign hidden by cache: T193 was specification only. Local audit/release branchfef2e17 corresponds remote8f6ef9a; no upstream tracking label is not evidence of unpublished work.
+- Source census347 entries/50 files/59 routes/20 table declarations/26 test files with hashes; scope and regex/runtime limitations explicit. IssueB real-device recognition and IssueC actual account balance/request trace remain unresolved. Historical UI tests mock transcription/recognition; do not call them proof of actual multilingual speech.
+- Official research covers17 requested competitors with sources and verified facts vs inferred product patterns. Three design directions proposed; recommend A Guided production with timeline Edit mode. Architecture/database/APIs/media pipeline/security/two-tenant gate/flags/migrations/rollback/backlog/effort/risk are in docs/coordination/media-studio-master.md and linked artifacts.
+- Five required coordination files created. Current approval package adds documentation/census only, not a new UI or runtime service. No paid generation, messages/posts, new account/infra, production data access or deployment. Separate Render workers cannot share web's SQLite disk; scale topology requires review.
+- Next: owner reviews concrete package and approves direction/scope before MS-04A. Save publication receipt/checkpoint in the append-only media-studio progress and handover files. Do not repeat T191/T192 or existing research unnecessarily.
+
+## 21 November 2026 — T-191/T-192 released for live testing
+
+- Owner explicitly requested Render deployment after the T-193 audit/specification. Scope disclosed before action: release the tested voice-input and full/custom/continuous-duration code; unified redesign and typed402 recovery remain T-194, not implemented.
+- PR166 squash-merged as main `58fc72b597666c637a7fefb19af5962bb1980a80`. GitHub merge tree `834275b22a1dba8587325bde67b7f6434284c906` exactly matches candidate `6dd2a0e`, with all six CI/Security checks successful, full73/73 including82 contract files and hosted feature/broad UI acceptance.
+- Render service `srv-dbuq98ojo6nc73aro66g`, deploy `dep-dc0nunmc6qcc73bonn2g`, exact commit58fc72b verified LIVE at2026-11-21T11:31:50.583738Z (19:31:50 Perth). No infrastructure, billing, credentials or production records were manually changed.
+- Read-only `node scripts/post-deploy-check.mjs https://oprun-ai.onrender.com`: six/six PASS (health, DB/queue readiness, security headers, business/founder signed-out refusal, sign-in/public pages). Live workspace-ai-video and workspace-video-dictation assets return200 and contain expected custom/Unlimited/Finish and microphone controller features.
+- No real customer messages, calls, social posts or paid generation were initiated by smoke checks. Google's account402 limitation is not fixed by this release. User can now live-test the controls with their authorized workspace and funded provider.
+- CP151 preserves release evidence and continuation. The T-193 specification and all release notes remain on `codex/t193-unified-media-studio-audit`; this documentation update is kept off main to avoid another production deploy. Historical audit text below describes pre-release state; this entry supersedes its release hold. Next is T-194A typed provider billing recovery, then T-194B one unified composer. Do not re-merge PR166 or redo T-191/T-192.
+
+## 21 November 2026 — T-193 unified Media Studio specification
+
+- Owner expanded scope to audit/merge/redesign and requested all nine implementation-ready outputs. No redesign or account-billing fix is claimed. Complete specification: `docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md`; implementation backlog T-194, next batch T-194A.
+- Production reverified on Render at `cfcae59`, deploy `dep-dc0ghqbrjlhs739ukbt0` LIVE. PR166 `6dd2a0ec594662299e990fda3721a57746928dd5` remains UNMERGED; all six check runs now PASS, CI44870894755 and Security44870894658. Hosted verify job136744943466 confirms73/73 including82 contract files; UI job136744943252 passes new feature and broad interface suites. Local candidate42c7ed3 and remote6dd2a0e have identical tree834275b. No deploy occurred for T-191/T-192; hold release while accounting for expanded scope.
+- Found actual duplicate: old `#video-form`/video_render_jobs stores draft specifications only (`rendered:false`), while `#ai-video-panel` creates real videos. Old stepper only scrolls, duplicate prompts/settings/queues confuse users. Preserve source records, import drafts idempotently and remove competing UI only after unified replacement.
+- Google402 is documented depleted prepaid credit; exact tenant/project balance not inspected. Confirmed code gaps: key validation can accept402/429; generic502 hides typed billing recovery. Platform speech/text and tenant video keys are separate. Never buy credits implicitly or claim voice caused billing failure.
+- Growth calendar has narrow Facebook/X direct dispatch while channel-providers has broader adapters. Specification consolidates orchestration, keeps approvals/receipts, honestly gates account/scopes/manual channels, and attaches final media IDs without reupload.
+- Preservation: this task branch includes prior tested candidate and documentation only. No customer records, credentials or production settings changed. Environment restart removed transient logs; hosted evidence is durable. Next model must read handover/spec, implement T-194A typed billing recovery first, then T-194B single composer. Do not redo T-191/T-192, blindly merge PR166, or promise universal recognition/zero external failures.
+
 ## 21 November 2026 — T-192 full-length video candidate
 
 - T-191 is verified: 18 focused tests, full suite 73/73 and hosted feature UI pass at `261281c`. T-192 followed that acceptance; both will release together under owner authorization.

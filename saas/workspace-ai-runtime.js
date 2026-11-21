@@ -222,10 +222,10 @@
           if(state.cancelled||run!==captureRun)return resolve({text:'',cancelled:true});
           if(blob.size<700){onStatus?.('No speech detected. Microphone stopped.','ready');return resolve({text:'',noSpeech:true})}
           onStatus?.('Understanding what you said…','transcribing');
-          const fd=new FormData();fd.append('audio',blob,'speech.webm');fd.append('language',language);
+          const fd=new FormData();fd.append('audio',blob,/mp4|aac/.test(blob.type)?'speech.m4a':/ogg/.test(blob.type)?'speech.ogg':'speech.webm');fd.append('language',language);
           const response=await fetch('/api/saas/voice/transcribe',{method:'POST',credentials:'same-origin',headers:window.SuperProWorkspaceContext?.headers?.()||{},signal:state.controller.signal,body:fd});
           const d=await response.json().catch(()=>({}));
-          if(!response.ok)throw new Error(d.error||'Voice transcription failed.');
+          if(!response.ok)throw Object.assign(new Error(d.error||'Voice transcription failed.'),{code:d.error_code||'SPEECH_UNAVAILABLE',fallback:d.fallback,status:response.status});
           if(state.cancelled||run!==captureRun)return resolve({text:'',cancelled:true});
           const text=String(d.text||'').trim();
           if(!text){onStatus?.('No speech was understood. Please try again.','ready');return resolve({text:'',noSpeech:true})}
