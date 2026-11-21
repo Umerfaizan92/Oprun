@@ -1991,3 +1991,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t190-integration/20261121T023235Z (e80dca0)
 - Known errors: none
 - Next exact action: Publish hardening to codex/t190-video-creator after focused checks, then inspect PR165 hosted CI and security alerts
+
+## CP-143 2026-11-21T10:45:51+08:00 T-190 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (TESTING)
+- Completed steps: Stable npm test 73/73; hosted localization, 317 mobile layout checks, meetings and web phone pass; CodeQL reviewed green; corrected AI-video test FFmpeg path
+- Incomplete steps: Run AI-video UI with bundled FFmpeg; final CI; squash merge PR165; verify Render live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; .github/workflows/ci.yml; scripts/test-ai-video-ui.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t190-integration
+- Commit: e7e63d7 (Harden video and call recording file access (T-190)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t190-integration/20261121T024551Z (f04b033)
+- Known errors: none
+- Next exact action: Publish fixture-only correction and inspect AI-video-first CI run

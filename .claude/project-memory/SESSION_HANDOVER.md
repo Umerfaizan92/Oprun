@@ -8,15 +8,15 @@ CURRENT BRANCH: codex/t190-integration (not on GitHub yet)
 LATEST VERIFIED COMMIT: fb0a12c (Merge PR #116: S5b privacy-friendly website visit counts)
 CURRENT PHASE: Candidate foundation and reviewed global-platform blueprint
 CURRENT TASK: T-190 (TESTING)
-LAST COMPLETED STEP: symlink/permissions regression passes
-FILES MODIFIED: .claude/project-memory/ERROR_LOG.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; src/ai-video.js; src/media-tools.js; src/meeting-extras.js; scripts/media-tools.test.mjs
-TESTS PASSED: node --test scripts/ai-video-projects.test.mjs scripts/webphone.test.mjs 2/2 pass
+LAST COMPLETED STEP: corrected AI-video test FFmpeg path
+FILES MODIFIED: .claude/project-memory/ERROR_LOG.md; .github/workflows/ci.yml; scripts/test-ai-video-ui.mjs
+TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 7 file(s), saved in refs/recovery/codex/t190-integration/20261121T023235Z
-KNOWN BLOCKERS: Local Chromium socket policy prevents UI tests; security review and full CI incomplete
-NEXT EXACT ACTION: Publish hardening to codex/t190-video-creator after focused checks, then inspect PR165 hosted CI and security alerts
+UNCOMMITTED CHANGES: 3 file(s), saved in refs/recovery/codex/t190-integration/20261121T024551Z
+KNOWN BLOCKERS: Final AI-video browser acceptance pending
+NEXT EXACT ACTION: Publish fixture-only correction and inspect AI-video-first CI run
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-142 at 2026-11-21T10:32:35+08:00
+LAST CHECKPOINT: CP-143 at 2026-11-21T10:45:51+08:00
 <!-- handover:end -->
 
 ## Notes

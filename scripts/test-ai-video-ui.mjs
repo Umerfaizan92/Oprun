@@ -11,12 +11,13 @@ import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
+import { ffmpegPath } from '../src/media-tools.js';
 const require = createRequire(import.meta.url);
 const shot = async (page, name) => { if (process.env.UI_SCREENSHOT_DIR) { fs.mkdirSync(process.env.UI_SCREENSHOT_DIR, { recursive: true }); await page.screenshot({ path: path.join(process.env.UI_SCREENSHOT_DIR, name), fullPage: false }); } };
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'aiv-ui-'));
 const mp4 = path.join(tmp, 'clip.mp4');
-execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=360x640:rate=24', '-t', '2', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '34', '-movflags', '+faststart', mp4]);
+execFileSync(ffmpegPath(), ['-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'testsrc2=size=360x640:rate=24', '-t', '2', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '34', '-movflags', '+faststart', mp4]);
 const VIDEO = fs.readFileSync(mp4).toString('base64');
 let polls = 0;
 const mock = http.createServer((req, res) => {
