@@ -2005,3 +2005,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t190-integration/20261121T024551Z (f04b033)
 - Known errors: none
 - Next exact action: Publish fixture-only correction and inspect AI-video-first CI run
+
+## CP-144 2026-11-21T11:06:47+08:00 T-190 COMPLETED
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-190 (COMPLETED)
+- Completed steps: Recorded voice Generate fixed; all release checks green; PR165 squash merged; exact tested source deployed live; six live smoke checks pass
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; docs/coordination/chatgpt.md
+- Tests executed: npm test; hosted feature and broad UI; CodeQL and dependencies; build:ds and manifest/memory; live deploy check
+- Test results: 73/73 including81 contract files pass; video, phone, meetings, localization, mobile317, navigation616 and66 modules pass; security checks pass with documented review; builds and validation pass; 6/6 live checks pass
+- Git branch: codex/t190-release-handover
+- Commit: cfcae59 (Release web phone, enquiry alerts and AI video creator (T-188–T-190)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Resume next owner-assigned task. T-188/T-189/T-190 are live at main cfcae59; do not re-merge PR165. Latest final handover is on codex/t190-release-handover.

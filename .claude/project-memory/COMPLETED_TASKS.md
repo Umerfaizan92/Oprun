@@ -547,3 +547,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/email-templates.js, notification senders, src/notify.js
 - Acceptance: Enquiry email from inquiry@oprun.ai; security codes from security@; new template; SMS enquiry alert delivered or clear cause; tests pass
 - Evidence: email-templates.js redesign (HTML-drawn mark visible with images blocked, eyebrow, details card, callout, confidentiality/APP notice, audience line, Trust Center link, optional postal address); mailer.enquirySender -> 'Oprun Enquiries <inquiry@oprun.ai>' (ENQUIRY_FROM override), security@ kept for verification; receptionist owner email uses kind enquiry with structured facts and button; enquiry SMS uses ENQUIRY_SMS_FROM when set, falls back once to platform number, failure reason logged as [ALERT SMS]. email-templates.test 4/4, receptionist-intake 16/16, npm test 73/73. (recorded 2026-11-21 on claude/web-phone at fa7f1a6)
+
+## T-190 AI video creator: camera recording, longer videos, own photos/videos, own voice
+- Added: 2026-11-20
+- Requirement: Owner (21 Nov 2026): in Media Studio add recording a short video from the live camera to generate from; length not limited to 15 seconds; upload own photos or videos from gallery/mobile/laptop and generate from them (e.g. a face photo + prompt); record own voice so the video speaks in the person's own voice; fully AI assisted.
+- Files: src/ai-video.js, saas/workspace-ai-video.js
+- Acceptance: Camera capture to library; reference photos/videos used in generation; long videos via extension/chaining; own-voice narration; tests pass
+- Evidence: PR165 squash merged main cfcae59; CI44857659877 and Security44857659884 green. Node22 npm test73/73 with81 contract files; AI-video camera and recorded-voice two-shot generation/playback UI, web phone, meetings, localization, mobile, navigation, redesign and comms pass. Render srv-dbuq98ojo6nc73aro66g deploy dep-dc0ghqbrjlhs739ukbt0 LIVE 2026-11-21 03:05:34 UTC; six read-only production smoke checks pass. Full evidence in docs/coordination/chatgpt.md. (recorded 2026-11-21 on codex/t190-release-handover at cfcae59)
