@@ -81,6 +81,13 @@ jobs:
           npm run test:finance-ui
           npm run test:reliability-ui
           npm run verify:modules
+      - name: Verify video creator, phone, meetings and localized mobile interfaces
+        run: |
+          node scripts/test-localization-ui.mjs
+          npm run test:mobile-workspace-ui
+          npm run test:meetings-ui
+          node scripts/test-webphone-ui.mjs
+          npm run test:ai-video-ui
 
       - name: Preserve navigation and redesign visual evidence
         if: always()

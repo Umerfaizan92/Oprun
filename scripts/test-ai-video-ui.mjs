@@ -101,7 +101,7 @@ try {
   await page.locator('#aiv-resolution').selectOption('720p');
   await shot(page, 'ai-video-creator.png');
   await page.locator('#aiv-generate').click();
-  await panel.locator('.aiv-job.succeeded', { hasText: '2 shots' }).locator('video').waitFor({ timeout: 90000 }).catch(async (e) => { console.log('DEBUG', await page.evaluate(async () => JSON.stringify((await (await fetch('/api/saas/ai-video', { credentials: 'same-origin', headers: window.SuperProWorkspaceContext?.headers?.() || {} })).json()).projects)), await panel.locator('#aiv-jobs').innerText(), await page.locator('#notice').innerText().catch(() => ''), errors); throw e; });
+  await panel.locator('.aiv-job.succeeded', { hasText: '2 shots' }).locator('video').waitFor({ timeout: 90000 });
   const long = await page.evaluate(async () => { const v = [...document.querySelectorAll('.aiv-job.succeeded')].find((n) => n.textContent.includes('2 shots')).querySelector('video'); await new Promise((r) => (v.readyState >= 1 ? r() : v.addEventListener('loadedmetadata', r, { once: true }))); return v.duration; });
   assert.ok(long > 3.5, 'two shots joined into one video: ' + long);
 

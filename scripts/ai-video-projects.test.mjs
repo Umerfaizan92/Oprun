@@ -17,7 +17,7 @@ const make = (name, args) => { const f = path.join(tmp, name); execFileSync(bin,
 const CLIP = fs.readFileSync(make('clip.mp4', ['-f', 'lavfi', '-i', 'testsrc2=size=360x640:rate=24', '-f', 'lavfi', '-i', 'sine=f=330', '-t', '3', '-pix_fmt', 'yuv420p', '-c:v', 'libx264', '-c:a', 'aac']));
 const PHOTO = fs.readFileSync(make('face.jpg', ['-f', 'lavfi', '-i', 'testsrc=size=320x320', '-frames:v', '1']));
 const CAM = fs.readFileSync(make('cam.webm', ['-f', 'lavfi', '-i', 'testsrc=size=320x240:rate=15', '-t', '2', '-c:v', 'libvpx', '-b:v', '200k']));
-const VOICE = fs.readFileSync(make('voice.webm', ['-f', 'lavfi', '-i', 'sine=f=200', '-t', '20', '-c:a', 'libopus']));
+const VOICE = fs.readFileSync(make('voice.webm', ['-f', 'lavfi', '-i', 'sine=f=200', '-t', '20', '-c:a', 'libopus', '-live', '1']));
 const TTS = fs.readFileSync(make('tts.mp3', ['-f', 'lavfi', '-i', 'sine=f=500', '-t', '7']));
 
 async function mock() {
@@ -85,6 +85,13 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
   assert.equal((await O('POST', '/api/saas/ai-video/providers/elevenlabs', { api_key: 'el_bad_1234567890abcdef' })).status, 400);
   assert.equal((await O('POST', '/api/saas/ai-video/providers/elevenlabs', { api_key: 'el_key_1234567890abcdef' })).status, 200);
   const sample = await upload(VOICE, 'audio/webm', 'my voice.weba');
+  // Browser recordings have no duration header: Generate must still start and
+  // finish the requested two-shot video with the uploaded voice attached.
+  r = await O('POST', '/api/saas/ai-video/projects', { engine: 'google:gemini-omni-1.2-flash', idea: 'Show our polishing process with my recorded explanation', aspect_ratio: '9:16', total_seconds: 30, clip_seconds: 15, narration_media_id: sample, reference_media_ids: [cam] });
+  assert.equal(r.status, 201, r.text); assert.equal(r.json.project.clips_total, 2);
+  assert.equal(r.json.project.narration_media_id, sample);
+  p = await until(r.json.project.id, ['succeeded', 'failed']);
+  assert.equal(p.status, 'succeeded', JSON.stringify(p));
   assert.equal((await O('POST', '/api/saas/ai-video/voices', { media_id: sample, name: 'Faizan', consent: false })).status, 400);
   r = await O('POST', '/api/saas/ai-video/voices', { media_id: sample, name: 'Faizan', consent: true });
   assert.equal(r.status, 201, r.text); const voice = r.json.voice.id;

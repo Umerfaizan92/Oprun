@@ -36,7 +36,16 @@ function run(args, { env = process.env, timeoutMs = 10 * 60_000 } = {}) {
 export async function probe(file, env) {
   let out = '';
   try { await run(['-i', file], { env, timeoutMs: 30_000 }); } catch (e) { out = e.stderr || ''; }
-  const m = out.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
+  let m = out.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/);
+  // MediaRecorder writes streaming WebM without a Duration header. Decode it to
+  // a null output to measure the actual timeline, stopping just beyond our
+  // ten-minute limit so oversized recordings can still be rejected by callers.
+  if (!m && /Stream #.*(?:Audio|Video):/.test(out)) {
+    try {
+      const progress = await run(['-i', file, '-t', '601', '-progress', 'pipe:2', '-nostats', '-f', 'null', '-'], { env, timeoutMs: 60_000 });
+      m = [...progress.matchAll(/out_time=(\d+):(\d+):(\d+(?:\.\d+)?)/g)].at(-1);
+    } catch { /* unreadable recordings retain a zero duration and are rejected */ }
+  }
   const size = out.match(/Video:.*?(\d{2,5})x(\d{2,5})/);
   return { seconds: m ? Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]) : 0, audio: /Stream #.*Audio:/.test(out), video: /Stream #.*Video:/.test(out), width: size ? Number(size[1]) : 0, height: size ? Number(size[2]) : 0 };
 }

@@ -1949,3 +1949,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Implement src/media-tools.js and project flow in src/ai-video.js; then merge PR for claude/web-phone after T-190 tests pass; owner asleep, finish and deploy autonomously.
+
+## CP-140 2026-11-21T10:18:15+08:00 T-190 IN_PROGRESS
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (IN_PROGRESS)
+- Completed steps: Recovered GitHub snapshot 0768ccb on separate Codex branch; handover branch mismatch is stale and resolved
+- Incomplete steps: Reproduce recorded voice Generate failure; full regression suite; publish PR and verify deployment
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t190-video-creator
+- Commit: 0768ccb (recovery snapshot (checkpoint) T-190 on claude/web-phone at 0073830); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Install dependencies and reproduce scripts/test-ai-video-ui.mjs
+
+## CP-141 2026-11-21T10:21:13+08:00 T-190 TESTING
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (TESTING)
+- Completed steps: Fixed metadata-free WebM duration; two-shot recorded-voice backend regression passes; DEBUG removed; build:ds and memory validation pass
+- Incomplete steps: Complete npm test; run UI suites on GitHub runner; PR merge and Render live verification
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; SHA256SUMS.txt; scripts/ai-video-projects.test.mjs; scripts/test-ai-video-ui.mjs; src/media-tools.js
+- Tests executed: node --test scripts/ai-video-projects.test.mjs
+- Test results: 1 test passes including recorded-voice two-shot completion
+- Git branch: codex/t190-video-creator
+- Commit: 0768ccb (recovery snapshot (checkpoint) T-190 on claude/web-phone at 0073830); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t190-video-creator/20261121T022113Z (5bbb8b1)
+- Known errors: none
+- Next exact action: Complete npm test, publish separate Codex branch and PR, verify hosted UI checks before merge
