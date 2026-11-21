@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import Database from 'better-sqlite3';
+import {startServer} from './test-server.mjs';
+import {seedOwner} from './visual/session.mjs';
+import {runMediaTool,probe} from '../src/media-tools.js';
+test('editor renders real trimmed/reordered media privately, deduplicates exports and isolates tenants',async t=>{
+ const s=await startServer();t.after(()=>s.stop());const a=await seedOwner(s),b=await seedOwner(s,{email:'edit-b@example.test'}),db=new Database(s.dbPath);t.after(()=>db.close());
+ const id=crypto.randomUUID(),dir=path.join(s.temp,'uploads','studio',a.org);fs.mkdirSync(dir,{recursive:true});const source=path.join(dir,id+'.mp4');
+ await runMediaTool(['-y','-f','lavfi','-i','testsrc2=size=160x90:rate=15','-f','lavfi','-i','sine=frequency=440','-t','3','-c:v','libx264','-threads','1','-pix_fmt','yuv420p','-c:a','aac',source]);
+ db.prepare("INSERT INTO tenant_media(id,organisation_id,original_name,stored_name,mime_type,kind,size_bytes,created_at) VALUES (?,?,?,?,'video/mp4','video',?,?)").run(id,a.org,'source.mp4',id+'.mp4',fs.statSync(source).size,new Date().toISOString());
+ const A=(m,u,body)=>s.call(m,u,{body,cookie:a.cookie}),B=(m,u,body)=>s.call(m,u,{body,cookie:b.cookie});
+ const spec={idempotency_key:crypto.randomUUID(),composition:{title:'Edited',clips:[{media_id:id,start:1,end:2,volume:0.5,text:'Test caption'},{media_id:id,start:0,end:1,volume:1,text:''}],aspect_ratio:'16:9',resolution:'720p',captions:[{start:0,end:1,text:'Hello'}]}};
+ assert.equal((await B('POST','/api/saas/studio-exports',spec)).status,400);
+ let r=await A('POST','/api/saas/studio-exports',spec);assert.equal(r.status,202);const job=r.json.export.id;
+ assert.equal((await A('POST','/api/saas/studio-exports',spec)).json.replayed,true);
+ assert.equal((await B('POST',`/api/saas/studio-exports/${job}/cancel`,{})).status,404);
+ assert.deepEqual((await B('GET','/api/saas/studio-exports')).json.exports,[]);
+ let result;for(let i=0;i<100;i++){result=(await A('GET','/api/saas/studio-exports')).json.exports[0];if(!['queued','processing'].includes(result.status))break;await new Promise(r=>setTimeout(r,300))}
+ assert.equal(result.status,'succeeded',s.log().slice(-1000));const m=db.prepare('SELECT * FROM tenant_media WHERE id=?').get(result.media_id),info=await probe(path.join(dir,m.stored_name));assert.ok(Math.abs(info.seconds-2)<0.2);assert.equal(info.width,1280);assert.ok(info.audio);assert.ok(fs.existsSync(source));
+ const draft={request_id:crypto.randomUUID(),media_id:result.media_id,platforms:['facebook','youtube'],caption:'A real workshop video.',title:'Workshop',scheduled_at:new Date(Date.now()+3600000).toISOString()};
+ assert.equal((await B('POST','/api/saas/growth/studio-drafts',draft)).status,400);
+ const drafts=await A('POST','/api/saas/growth/studio-drafts',draft);assert.equal(drafts.status,201);assert.equal(drafts.json.published,false);assert.equal(drafts.json.ids.length,2);
+ assert.equal((await A('POST','/api/saas/growth/studio-drafts',draft)).json.replayed,true);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM growth_calendar WHERE organisation_id=?').get(a.org).n,2);
+ assert.equal(db.prepare('SELECT COUNT(*) n FROM growth_calendar WHERE organisation_id=? AND status=\'draft\'').get(a.org).n,2);
+ assert.equal((await B('GET',result.preview_url)).status,404);const file=await fetch(s.base+result.preview_url,{headers:{cookie:a.cookie,Range:'bytes=0-100'}});assert.equal(file.status,206);assert.match(file.headers.get('cache-control'),/no-store/);
+ const cancel={...spec,idempotency_key:crypto.randomUUID()};r=await A('POST','/api/saas/studio-exports',cancel);assert.equal((await A('POST',`/api/saas/studio-exports/${r.json.export.id}/cancel`,{})).json.export.status,'cancelled');
+ assert.equal((await A('POST','/api/saas/studio-exports',{...spec,workspace_id:b.org})).status,400);
+});

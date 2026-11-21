@@ -251,6 +251,18 @@ export function installGrowth(app, { db, env = {}, requireSaasUser, requireSaasR
     res.status(201).json({ ok: true, created: slots.length, ai_written: PILLARS.reduce((n, k) => n + Math.min(bank[k].length, used[k]), 0) });
   });
 
+  // One media-to-calendar handoff. It only creates drafts; existing owner approvals and receipts remain authoritative.
+  db.exec(`CREATE TABLE IF NOT EXISTS studio_publish_handoffs(organisation_id TEXT NOT NULL,request_id TEXT NOT NULL,payload_json TEXT NOT NULL,ids_json TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(organisation_id,request_id));`);
+  app.post('/api/saas/growth/studio-drafts',...gate,(req,res)=>{
+    const p=z.object({request_id:z.string().uuid(),media_id:z.string().uuid(),platforms:z.array(z.enum(['facebook','instagram','x','youtube','tiktok','snapchat','whatsapp'])).min(1).max(7),caption:z.string().trim().min(2).max(3000),title:z.string().trim().min(1).max(160),scheduled_at:z.string().datetime()}).strict().safeParse(req.body);
+    if(!p.success)return res.status(400).json({ok:false,error:'Choose a video, platforms, caption and schedule.'});
+    const d=p.data,o=org(req),payload=JSON.stringify(d),prior=db.prepare('SELECT * FROM studio_publish_handoffs WHERE organisation_id=? AND request_id=?').get(o,d.request_id);
+    if(prior){if(prior.payload_json!==payload)return res.status(409).json({ok:false,error:'Draft request already used.'});return res.json({ok:true,ids:JSON.parse(prior.ids_json),published:false,status:'draft',replayed:true})}
+    const media=mediaList(o,[d.media_id]);if(media.length!==1||media[0].kind!=='video')return res.status(400).json({ok:false,error:'Video not available in this workspace.'});
+    const ids=[],now=iso();db.transaction(()=>{for(const platform of new Set(d.platforms)){const id=crypto.randomUUID();ids.push(id);db.prepare("INSERT INTO growth_calendar(id,organisation_id,plan_day,scheduled_at,platform,pillar,post_type,hook,body,status,media_json,created_at,updated_at) VALUES (?,?,1,?,?,'Story','reel',?,?,'draft',?,?,?)").run(id,o,d.scheduled_at,platform,d.title,d.caption,JSON.stringify([d.media_id]),now,now)}db.prepare('INSERT INTO studio_publish_handoffs VALUES (?,?,?,?,?)').run(o,d.request_id,payload,JSON.stringify(ids),now)})();
+    saasAudit(req,'studio.social_drafts_prepared','growth',ids[0],{platforms:d.platforms,count:ids.length});res.status(201).json({ok:true,ids,published:false,status:'draft',approval_required:true,note:'Drafts saved to the existing Content calendar. Owner approval and connected platform capabilities determine delivery; unsupported formats require manual posting.'});
+  });
+
   app.get('/api/saas/growth/calendar', ...gate, (req, res) => {
     const q = z.object({ status: z.string().max(20).optional(), limit: z.coerce.number().int().min(1).max(600).default(200) }).safeParse(req.query);
     const lim = q.success ? q.data.limit : 200, st = q.success ? q.data.status : undefined;

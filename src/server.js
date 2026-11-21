@@ -67,6 +67,8 @@ import { mediaToken, readMediaToken } from './media-link.js';
 import { installMeetingExtras } from './meeting-extras.js';
 import { installAppointments } from './appointments.js';
 import { installAiVideo } from './ai-video.js';
+import { installStudioProjects } from './studio-projects.js';
+import { installStudioEditor } from './studio-editor.js';
 import { createEntitlements } from './entitlements.js';
 import { createAddons } from './addons.js';
 import { createBillingOps } from './billing-ops.js';
@@ -6332,6 +6334,10 @@ const receptionistSend=(res,fn)=>Promise.resolve().then(fn).then(d=>res.json({ok
 installMeetingExtras(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,dispatch:saasPlatform.dispatch,voice:voiceFlow,webphone:receptionistTelnyx,uploadRoot});
 installAppointments(app,{db,env,requireSaasUser,requireSaasRole,saasAudit,dispatch:saasPlatform.dispatch,notifications});
 installAiVideo(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,runtime:integrationRuntime,generateAiText,notify:notifications});
+installStudioProjects(app,{db,requireSaasUser,requireSaasRole,saasAudit,generateAiText});
+const studioEditQueue=createJobQueue({db,workerId:'studio-'+process.pid});
+installStudioEditor(app,{db,env,uploadRoot,queue:studioEditQueue,requireSaasUser,requireSaasRole,saasAudit});
+if(!/^(1|true|yes)$/i.test(String(env.JOBS_DISABLED||'')))studioEditQueue.start();
 app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));
 app.post('/api/saas/receptionist/telnyx/connect',...receptionistOwner,(req,res)=>{
   const b=z.object({api_key:z.string().trim().min(20).max(400),public_key:z.string().trim().min(40).max(100),number:z.string().trim().min(8).max(20),assistant_id:z.string().trim().max(60).optional().or(z.literal(''))}).strict().safeParse(req.body);

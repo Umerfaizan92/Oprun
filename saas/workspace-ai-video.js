@@ -75,7 +75,7 @@
     const host=$('#aiv-guides');if(!host||!window.OprunMediaPicker)return;
     const known=ids.map(id=>library.find(m=>m.id===id)).filter(Boolean).map(m=>({id:m.id,kind:m.kind,name:m.original_name}));
     picker=window.OprunMediaPicker.create({selected:known.length?known:ids,label:'Photos and videos to guide the AI',hint:'Up to 3. JPG, PNG or WebP photos, or videos.'});
-    host.replaceChildren(picker.element);
+    host.replaceChildren(picker.element);picker.onChange(()=>$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true})));
   }
   const guides=()=>picker?picker.value():[];
 
@@ -174,7 +174,7 @@
       r.onstop=async()=>{clearInterval(tick);stream.getTracks().forEach(t=>t.stop());if(rec===current)rec=null;btn.textContent='Record';if(current.cancelled||epoch!==workspaceEpoch||capture!==captureEpoch)return;
         const blob=new Blob(chunks,{type:(r.mimeType||type||'audio/webm').split(';')[0]});if(blob.size<2000){status.textContent='That recording was too short. Try again.';return}
         status.textContent='Saving your recording…';
-        try{const id=await uploadBlob(blob,`Voice recording ${stamp()}.${blob.type.includes('mp4')?'m4a':'weba'}`,epoch);if(epoch!==workspaceEpoch)return;narrationId=id;await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;drawVoice();window.dispatchEvent(new Event('oprun:media-changed'))}catch(x){status.textContent=x.message}};
+        try{const id=await uploadBlob(blob,`Voice recording ${stamp()}.${blob.type.includes('mp4')?'m4a':'weba'}`,epoch);if(epoch!==workspaceEpoch)return;narrationId=id;$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;drawVoice();window.dispatchEvent(new Event('oprun:media-changed'))}catch(x){status.textContent=x.message}};
       r.start(1000);
     }catch{note('Allow the microphone for this site to record your voice.',true)}
   }
@@ -237,6 +237,8 @@
     el('button',{type:'button',class:'secondary-button',text:'Full preview',onclick:()=>window.OprunMediaViewer?.open([{id,kind:'video',original_name:name}],0,{onUse:m=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id:m.id}}))})}),
     el('button',{type:'button',class:'secondary-button',text:state.unified_ui?'Use as guide':'Use in render',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id}}))}),
     el('a',{class:'secondary-button',href:`/api/saas/media/${encodeURIComponent(id)}/file`,download:name,text:'Download'}),
+    state.unified_ui?el('button',{type:'button',class:'secondary-button',text:'Edit video',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-edit',{detail:{id}}))}):null,
+    state.unified_ui?el('button',{type:'button',class:'secondary-button',text:'Prepare social drafts',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-publish',{detail:{id,title:name}}))}):null,
     el('button',{type:'button',class:'link-button',text:'Clear',onclick:onClear}));
   function projectCard(p){
     const label={rendering:p.stop_requested?'Finishing':'Rendering',joining:'Finishing',succeeded:'Ready',failed:'Stopped'}[p.status]||p.status;
@@ -280,7 +282,7 @@
     const v=$('#aiv-duration').value,e=engine();
     const full=v==='custom'?Number($('#aiv-custom-duration').value)*Number($('#aiv-duration-unit').value):Number(v)||8;
     if(!Number.isFinite(full)||full<2||full>(state.max_seconds||86400)){b.disabled=false;b.textContent='Write the prompt with AI';note('Enter a valid full video length first.',true);return}
-    try{const r=await api('/api/saas/ai-video/enhance',{method:'POST',body:JSON.stringify({idea,aspect_ratio:shape,duration:Math.round(full),duration_mode:v==='voice'?'voice':v==='continuous'?'continuous':'fixed'})});$('#aiv-prompt').value=r.prompt;
+    try{const r=await api('/api/saas/ai-video/enhance',{method:'POST',body:JSON.stringify({idea,aspect_ratio:shape,duration:Math.round(full),duration_mode:v==='voice'?'voice':v==='continuous'?'continuous':'fixed'})});$('#aiv-prompt').value=r.prompt;$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));
       $('#aiv-enhance-note').textContent=r.source==='ai'?'AI wrote this prompt. Read it and change anything before generating.':'A ready-made structure was used because the AI writer is not available. Edit it to match your idea.'}
     catch(x){note(x.message,true)}finally{b.disabled=false;b.textContent='Write the prompt with AI'}
   }
@@ -324,7 +326,7 @@
     const before=new Set([...(state.projects||[]),...(state.jobs||[])].filter(x=>x.status==='succeeded').map(x=>x.id));
     const epoch=workspaceEpoch;let incoming;try{incoming=await api('/api/saas/ai-video')}catch{return}
     if(epoch!==workspaceEpoch)return;state=incoming;await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;if(!picker)setGuides([]);
-    if(state.unified_ui&&!guided)guided=window.OprunMediaGuided?.create({panel:$('#ai-video-panel'),library:$('#video-view .source-library-panel'),canNavigate:()=>!rec&&!dictation?.isBusy()});
+    if(state.unified_ui&&!guided)guided=window.OprunMediaGuided?.create({panel:$('#ai-video-panel'),library:$('#video-view .source-library-panel'),canNavigate:()=>!rec&&!dictation?.isBusy(),capture:()=>({reference_media_ids:guides(),narration_media_id:narrationId,voice_mode:voiceMode,shape,voice_id:$('#aiv-voice')?.value||''}),restore:d=>{setGuides((d.reference_media_ids||[]).slice(0,3));shape=['9:16','16:9'].includes(d.shape)?d.shape:'9:16';voiceMode=['none','record','library','script'].includes(d.voice_mode)?d.voice_mode:'none';narrationId=d.narration_media_id||null;drawVoice();if($('#aiv-voice')&&d.voice_id)$('#aiv-voice').value=d.voice_id;$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));}});
     else if(!state.unified_ui&&guided){guided.destroy();guided=null}
     drawProviders();drawEngines();drawJobs();if(!loaded&&voiceMode!=='record')drawVoice();
     if(loaded&&[...state.projects,...state.jobs].some(x=>x.status==='succeeded'&&!before.has(x.id)))window.dispatchEvent(new Event('oprun:media-changed'));loaded=true;

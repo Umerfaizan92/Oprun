@@ -1,0 +1,28 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import {startServer} from './test-server.mjs';
+import {seedOwner} from './visual/session.mjs';
+test('creative projects are tenant scoped, versioned, idempotent and conflict safe',async t=>{
+ const s=await startServer();t.after(()=>s.stop());
+ const a=await seedOwner(s),b=await seedOwner(s,{email:'studio-other@example.test'});
+ const ac=a.cookie,bc=b.cookie,id=crypto.randomUUID();
+ const document={title:'میرا ویڈیو',idea:'Show the workshop',prompt:'Show real workshop polishing',script:'हिंदी اردو English',scenes:[{id:crypto.randomUUID(),title:'One',visual:'Workshop',narration:'Hello',seconds:5}],fields:{'aiv-duration':'custom'},media_ids:[]};
+ const data={expected_version:0,mutation_id:crypto.randomUUID(),document};
+ const call=(method,url,body,c=ac)=>s.call(method,url,{cookie:c,body});
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,data)).json.version,1);
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,data)).json.replayed,true);
+ assert.equal((await call('GET',`/api/saas/studio-projects/${id}`,undefined,bc)).status,404);
+ assert.equal((await call('GET',`/api/saas/studio-projects/${id}/versions`,undefined,bc)).status,404);
+ assert.deepEqual((await call('GET','/api/saas/studio-projects',undefined,bc)).json.projects,[]);
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,{...data,mutation_id:crypto.randomUUID()},bc)).status,404);
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,{...data,mutation_id:crypto.randomUUID()})).status,409);
+ const next={...data,expected_version:1,mutation_id:crypto.randomUUID(),document:{...document,script:'Changed'}};
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,next)).json.version,2);
+ assert.equal((await call('GET',`/api/saas/studio-projects/${id}/versions/1`)).json.document.script,document.script);
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,{...next,expected_version:2,mutation_id:crypto.randomUUID(),workspace_id:b.org})).status,400);
+ assert.equal((await call('PUT',`/api/saas/studio-projects/${id}`,{...next,expected_version:2,mutation_id:crypto.randomUUID(),document:{...document,media_ids:[crypto.randomUUID()]}})).status,400);
+ assert.equal((await call('GET',`/api/saas/studio-projects/${id}`)).json.project.version,2);
+ assert.equal((await call('GET',`/api/saas/studio-projects/${id}/versions/500`)).status,404);
+ assert.equal((await call('POST','/api/saas/studio-plan',{idea:'Show my workshop'})).status,503);
+});

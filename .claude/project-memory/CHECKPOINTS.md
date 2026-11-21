@@ -2229,3 +2229,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Review green PR167; continue next approved implementation batch on separate branch; no merge or deploy
+
+## CP-160 2026-11-21T21:32:36+08:00 T-194 IN_PROGRESS
+- Phase: MS05B/MS05C/MS06A implementation
+- Task: T-194 (IN_PROGRESS)
+- Completed steps: Persistent creative projects CAS and versions; editable scripts/storyboards; private real FFmpeg editor; calendar draft handoff; 8 targeted API tests pass
+- Incomplete steps: Browser acceptance and full regression; remaining capability gaps; release backup and rollout gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace.html; scripts/test-media-studio-guided-ui.mjs; src/growth.js; src/media-tools.js; src/server.js; saas/workspace-studio-editor.js; saas/workspace-studio-projects.js; saas/workspace-studio-publish.js; scripts/studio-editor.test.mjs; scripts/studio-projects.test.mjs; src/studio-editor.js; src/studio-projects.js
+- Tests executed: studio-projects,studio-editor,media-guided contracts
+- Test results: 8/8 PASS with actual MP4 export and two tenants
+- Git branch: codex/t194-studio-completion
+- Commit: 8adc8ae (docs(media): preserve green Direction A candidate and mobile evidence); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T133236Z (418dbc4)
+- Known errors: none
+- Next exact action: Run full tests and hosted browser suite; fix any errors before release
+
+## CP-161 2026-11-22T00:25:12+08:00 T-194 TESTING
+- Phase: MS05B MS05C MS06A candidate
+- Task: T-194 (TESTING)
+- Completed steps: Persistent plans and edit compositions; real MP4 editor; calendar drafts; 8 focused tests and2 final guards pass
+- Incomplete steps: Full regression and expanded hosted browser checks; remaining advanced modules; restore and live provider/device gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace.html; scripts/test-media-studio-guided-ui.mjs; src/growth.js; src/media-tools.js; src/server.js; saas/workspace-studio-editor.js; saas/workspace-studio-projects.js; saas/workspace-studio-publish.js; scripts/studio-editor.test.mjs; scripts/studio-projects.test.mjs; src/studio-editor.js; src/studio-projects.js
+- Tests executed: studio-projects studio-editor media-guided
+- Test results: 8/8 focused plus2/2 final guard tests PASS
+- Git branch: codex/t194-studio-completion
+- Commit: 8adc8ae (docs(media): preserve green Direction A candidate and mobile evidence); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T162512Z (2d79c0a)
+- Known errors: none
+- Next exact action: Publish candidate and run hosted acceptance;fix defects before authorized Render rollout
