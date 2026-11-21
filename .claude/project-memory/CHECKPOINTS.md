@@ -2271,3 +2271,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Inspect PR168 hosted guided browser result;fix defects and publish follow-up;do not deploy unfinished release
+
+## CP-163 2026-11-22T00:36:40+08:00 T-194 TESTING
+- Phase: Branding transitions and stable previews
+- Task: T-194 (TESTING)
+- Completed steps: Logo and fade MP4 export tested; desktop drag with accessible reorder; explicit playback speed; edit history; preview nodes preserved
+- Incomplete steps: Final browser acceptance; library/sharing/retention; automatic captions and advanced audio; extra publishing adapters and live gates
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace-studio-editor.js; scripts/studio-editor.test.mjs; src/studio-editor.js
+- Tests executed: studio editor brand/adversarial; media-guided and draft DOM
+- Test results: 2/2 brand/adversarial and7/7 DOM PASS
+- Git branch: codex/t194-studio-completion
+- Commit: 5d73521 (Constrain edit media decoding and test revoked workspace access); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T163640Z (7acd52f)
+- Known errors: none
+- Next exact action: Publish branding/playback batch then continue remaining library and release gates

@@ -13,7 +13,8 @@ test('editor renders real trimmed/reordered media privately, deduplicates export
  await runMediaTool(['-y','-f','lavfi','-i','testsrc2=size=160x90:rate=15','-f','lavfi','-i','sine=frequency=440','-t','3','-c:v','libx264','-threads','1','-pix_fmt','yuv420p','-c:a','aac',source]);
  db.prepare("INSERT INTO tenant_media(id,organisation_id,original_name,stored_name,mime_type,kind,size_bytes,created_at) VALUES (?,?,?,?,'video/mp4','video',?,?)").run(id,a.org,'source.mp4',id+'.mp4',fs.statSync(source).size,new Date().toISOString());
  const A=(m,u,body)=>s.call(m,u,{body,cookie:a.cookie}),B=(m,u,body)=>s.call(m,u,{body,cookie:b.cookie});
- const spec={idempotency_key:crypto.randomUUID(),composition:{title:'Edited',clips:[{media_id:id,start:1,end:2,volume:0.5,text:'Test caption'},{media_id:id,start:0,end:1,volume:1,text:''}],aspect_ratio:'16:9',resolution:'720p',captions:[{start:0,end:1,text:'Hello'}]}};
+ const logo=crypto.randomUUID();await runMediaTool(['-y','-f','lavfi','-i','color=c=red:size=64x64','-frames:v','1','-threads','1',path.join(dir,logo+'.png')]);db.prepare("INSERT INTO tenant_media(id,organisation_id,original_name,stored_name,mime_type,kind,size_bytes,created_at) VALUES (?,?,?,?,'image/png','photo',?,?)").run(logo,a.org,'logo.png',logo+'.png',fs.statSync(path.join(dir,logo+'.png')).size,new Date().toISOString());
+ const spec={idempotency_key:crypto.randomUUID(),composition:{title:'Edited',logo_media_id:logo,clips:[{media_id:id,start:1,end:2,volume:0.5,text:'Test caption',transition:'fade'},{media_id:id,start:0,end:1,volume:1,text:''}],aspect_ratio:'16:9',resolution:'720p',captions:[{start:0,end:1,text:'Hello'}]}};
  assert.equal((await B('POST','/api/saas/studio-exports',spec)).status,400);
  let r=await A('POST','/api/saas/studio-exports',spec);assert.equal(r.status,202);const job=r.json.export.id;
  assert.equal((await A('POST','/api/saas/studio-exports',spec)).json.replayed,true);

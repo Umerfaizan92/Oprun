@@ -272,7 +272,7 @@
     const existing=new Map([...host.querySelectorAll('[data-project],[data-job]')].map(n=>[n.dataset.project||n.dataset.job,n]));
     const keep=(id,status,make)=>{const old=existing.get(id);return old&&old.classList.contains(status)&&(status==='succeeded'||status==='failed')?old:make()};
     const cards=[...(state.projects||[]).map(p=>keep(p.id,p.status,()=>projectCard(p))),...(state.jobs||[]).map(j=>keep(j.id,j.status,()=>jobCard(j)))];
-    host.replaceChildren(...(cards.length?cards:[el('div',{class:'empty-state'},el('b',{text:'No AI videos yet'}),el('span',{text:'Write an idea above and press Generate video.'}))]));
+    if(cards.length){for(let i=0;i<cards.length;i++)if(host.children[i]!==cards[i])host.insertBefore(cards[i],host.children[i]||null);for(const n of [...host.children])if(!cards.includes(n))n.remove()}else host.replaceChildren(el('div',{class:'empty-state'},el('b',{text:'No AI videos yet'}),el('span',{text:'Write an idea above and press Generate video.'})));
   }
 
   async function enhance(){
