@@ -1,5 +1,14 @@
 # ChatGPT coordination
 
+## 21 November 2026 — T-195 master transformation phases0–3
+
+- Owner supplied expanded master brief with explicit approval gates before implementation and production. Work isolated on codex/t195-media-studio-blueprint; runtime source/config/data unchanged. T194 is now BLOCKED pending owner blueprint/design approval; prior PR166 deployment authorization is not new redesign authorization.
+- GitHub main and Render remain58fc72b / dep-dc0nunmc6qcc73bonn2g LIVE. Fresh read-only smoke6/6; workspace HTML, generator, dictation, runtime and service-worker assets HTTP200/exact byte matches. No implemented redesign hidden by cache: T193 was specification only. Local audit/release branchfef2e17 corresponds remote8f6ef9a; no upstream tracking label is not evidence of unpublished work.
+- Source census347 entries/50 files/59 routes/20 table declarations/26 test files with hashes; scope and regex/runtime limitations explicit. IssueB real-device recognition and IssueC actual account balance/request trace remain unresolved. Historical UI tests mock transcription/recognition; do not call them proof of actual multilingual speech.
+- Official research covers17 requested competitors with sources and verified facts vs inferred product patterns. Three design directions proposed; recommend A Guided production with timeline Edit mode. Architecture/database/APIs/media pipeline/security/two-tenant gate/flags/migrations/rollback/backlog/effort/risk are in docs/coordination/media-studio-master.md and linked artifacts.
+- Five required coordination files created. Current approval package adds documentation/census only, not a new UI or runtime service. No paid generation, messages/posts, new account/infra, production data access or deployment. Separate Render workers cannot share web's SQLite disk; scale topology requires review.
+- Next: owner reviews concrete package and approves direction/scope before MS-04A. Save publication receipt/checkpoint in the append-only media-studio progress and handover files. Do not repeat T191/T192 or existing research unnecessarily.
+
 ## 21 November 2026 — T-191/T-192 released for live testing
 
 - Owner explicitly requested Render deployment after the T-193 audit/specification. Scope disclosed before action: release the tested voice-input and full/custom/continuous-duration code; unified redesign and typed402 recovery remain T-194, not implemented.

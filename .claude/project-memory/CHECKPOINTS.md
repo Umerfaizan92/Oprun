@@ -2117,3 +2117,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md and coordination log;branch T194 from current main58fc72b;implement typed402/readiness recovery before unified composer;do not redo or remerge T191/T192
+
+## CP-152 2026-11-21T20:28:32+08:00 T-195 IN_PROGRESS
+- Phase: Master Media Studio phases0-3 approval package
+- Task: T-195 (IN_PROGRESS)
+- Completed steps: Verified currentmain/Render and five live assets; 17-competitor research; 347-record inventory; five coordination documents and architecture/security/roadmap written
+- Incomplete steps: Validate documentation/source hashes; commit and push task branch; present approval question before MS-04A
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/master-audit.md; docs/media-studio/master-inventory-generator.py; docs/media-studio/master-inventory.json; docs/media-studio/master-research.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t195-media-studio-blueprint
+- Commit: fef2e17 (Preserve T-191/T-192 live Render release and CP-151 handover); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t195-media-studio-blueprint/20261121T122832Z (05ff355)
+- Known errors: none
+- Next exact action: Validate and publish phases0-3 package then wait for owner DirectionA/B/C and implementation-scope approval
+
+## CP-153 2026-11-21T20:29:01+08:00 T-194 BLOCKED
+- Phase: Master Media Studio phases0-3 package complete;owner approval gate
+- Task: T-194 (BLOCKED)
+- Completed steps: T195 recovery/research/source audit/blueprint documentation complete; three design directions and recommendedA presented; no runtime source/config/data change
+- Incomplete steps: Owner approves blueprint/design and MS04A/MS04B/MS05A scope; actual device/STT/provider acceptance; fresh backup proof before any release
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/master-audit.md; docs/media-studio/master-inventory-generator.py; docs/media-studio/master-inventory.json; docs/media-studio/master-research.md
+- Tests executed: Read-only live deploy; five asset SHA comparisons; documentation/source inventory validation; manifest memory secret checks
+- Test results: 6/6 PASS; 5/5 exact matches; 17 vendors347 records50 hashes and five coordination docs PASS; PASS
+- Git branch: codex/t195-media-studio-blueprint
+- Commit: fef2e17 (Preserve T-191/T-192 live Render release and CP-151 handover); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Wait for owner approval of DirectionA guided production and staged implementation;then reverify main/ownership and implement MS04A on separate branch, no deployment
