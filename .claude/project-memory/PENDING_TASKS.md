@@ -589,13 +589,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-189 Enquiry alerts from inquiry@oprun.ai, professional email design, enquiry SMS fix
-- Status: NOT_STARTED
-- Added: 2026-11-20
-- Requirement: Owner (21 Nov 2026, screenshots): enquiry emails arrive from security@oprun.ai; enquiries must come from inquiry@oprun.ai (email and message), security stays separate for verification. Redesign all Oprun emails to be highly professional (logo visible without images, clear sections, confidentiality/legal notes). Enquiry SMS to mobile not received ('Message could not be sent' SMS). Audit and fix.
-- Files: src/email-templates.js, notification senders, src/notify.js
-- Acceptance: Enquiry email from inquiry@oprun.ai; security codes from security@; new template; SMS enquiry alert delivered or clear cause; tests pass
-
 ## T-190 AI video creator: camera recording, longer videos, own photos/videos, own voice
 - Status: NOT_STARTED
 - Added: 2026-11-20

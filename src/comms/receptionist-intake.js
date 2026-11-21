@@ -268,7 +268,15 @@ export function createReceptionistIntake({ db, pipeline, comms, notify = async (
       urgent: true,
       dedupe: `receptionist:${fresh.call_control_id}`
     });
-    try { await emailOwners(org, { subject: title, text: `${body}\n\n${reply.approvals ? `A reply to the customer is waiting for your approval in Oprun (Approvals). Nothing is sent until you approve it.` : 'Open Oprun to reply to the customer.'}`, dedupe: `receptionist:${fresh.call_control_id}` }); }
+    const missing = missingDetails({ ...x, callback_number: x.callback_number || callerId });
+    const facts = [['Enquiry number', reference], ['Customer', x.caller_name], ['Mobile', displayAU(x.callback_number || callerId)],
+      extraNumber && callerId && extraNumber !== callerId ? ['Called from', displayAU(callerId)] : null, ['Email', x.email], ['Address', x.address],
+      ['Service', x.service || x.need], ['Vehicle or item', x.item], ['Job details', x.job_details], ['Preferred date and time', x.preferred_time],
+      ['Time required', x.time_required || 'To be set when quoting'], x.urgency === 'urgent' ? ['Urgency', 'URGENT'] : null,
+      x.wants_links ? ['Photos', 'Wants to send photos (links offered)'] : null, ['Summary', x.summary],
+      missing.length ? ['Still needed', missing.join(', ')] : null,
+      ['Taken by', `AI receptionist, ${new Date(now).toLocaleString('en-AU', { timeZone: profile.timezone || 'Australia/Perth', dateStyle: 'medium', timeStyle: 'short' })}`]].filter((f) => f && f[1]);
+    try { await emailOwners(org, { subject: title, text: `${body}\n\n${reply.approvals ? `A reply to the customer is waiting for your approval in Oprun (Approvals). Nothing is sent until you approve it.` : 'Open Oprun to reply to the customer.'}`, facts, business, urgent: x.urgency === 'urgent', approvals: reply.approvals, reference, link: reply.approvals ? '#approvals' : '#communications/inbox', dedupe: `receptionist:${fresh.call_control_id}` }); }
     catch (e) { log.warn('[RECEPTIONIST] owner email failed:', String(e.message || e).slice(0, 160)); }
     return { customer_id: customerId, customer_created: customerCreated, enquiry_id: enquiryId, enquiry_created: enquiryCreated, reference, thread_id: msg.thread_id, method: x.method, urgency: x.urgency, approvals: reply.approvals, links_sent: links.sent, missing: missingDetails({ ...x, callback_number: x.callback_number || callerId }) };
   }

@@ -27,7 +27,15 @@ export function installNotifications(app, { db, env, requireSaasUser, push = nul
     const phone = db.prepare(`SELECT phone FROM users WHERE id=?`).get(userId)?.phone;
     // A business that connected its own SMS sender alerts its team from it; otherwise the platform sender is used.
     let viaEnv = env; try { const own = smsEnv?.(org); if (own && String(own.TELNYX_API_KEY || '').trim() && String(own.TELNYX_FROM_NUMBER || '').trim()) viaEnv = own; } catch { /* platform sender */ }
-    const r = await sendTextMessage(viaEnv, { to: phone,delivery:{organisationId:org,userId,category:kind,subject:title}, text: `${orgName(org)}: ${title}${body ? '. ' + body : ''}`.slice(0, 300) });
+    // T-189: enquiry alerts come from Oprun's enquiry sender (a sender name such as "OprunEnq" or a mobile number set
+    // as ENQUIRY_SMS_FROM), so the owner recognises them; the security sender is never used for them.
+    const enquiry = /^(receptionist_call|enquiry|new_enquiry)/.test(String(kind));
+    if (enquiry && String(env.ENQUIRY_SMS_FROM || '').trim()) viaEnv = { ...env, TELNYX_FROM_NUMBER: String(env.ENQUIRY_SMS_FROM).trim(), TELNYX_PHONE_NUMBER: '', TELNYX_MESSAGING_PROFILE_ID: env.ENQUIRY_SMS_MESSAGING_PROFILE_ID || env.TELNYX_MESSAGING_PROFILE_ID || '' };
+    const text = enquiry ? `New enquiry for ${orgName(org)}: ${title}${body ? '. ' + body : ''}` : `${orgName(org)}: ${title}${body ? '. ' + body : ''}`;
+    let r = await sendTextMessage(viaEnv, { to: phone,delivery:{organisationId:org,userId,category:kind,subject:title}, text: text.slice(0, 300) });
+    // One more try from the platform's own number when a different sender was refused (never for a phone problem).
+    if (!r.sent && viaEnv !== env && r.reason !== 'no_valid_mobile_number') r = await sendTextMessage(env, { to: phone,delivery:{organisationId:org,userId,category:kind,subject:title}, text: text.slice(0, 300) });
+    if (!r.sent) console.warn('[ALERT SMS] not sent', JSON.stringify({ organisation_id: org, kind, reason: r.reason, own_sender: viaEnv !== env && !enquiry }));
     db.prepare(`UPDATE user_notifications SET sms_status=? WHERE id=?`).run(r.sent ? 'sent' : r.reason, id);
     return { id, sms: r.sent };
   }

@@ -156,6 +156,7 @@ test('a full call saves email and address, numbers the enquiry, and stages text 
   assert.equal(ap.length, 2); assert.ok(ap.every((a) => a.approval_type === 'outbound_message' && a.source_module === 'receptionist' && JSON.parse(a.draft_payload_json).reference === 'ENQ-1001'));
   assert.match(s.alerts[0].title, /ENQ-1001/); assert.equal(s.alerts[0].link, '#approvals');
   assert.equal(s.emails.length, 1); assert.match(s.emails[0].text, /Approvals/); assert.match(s.emails[0].text, /SsangYong/);
+  assert.ok(s.emails[0].facts.some(([k, v]) => k === 'Enquiry number' && /^ENQ-/.test(v)), 'structured details for the email card'); assert.ok(s.emails[0].approvals >= 1);
 });
 
 test('a second call on the same enquiry does not stack duplicate replies', async () => {

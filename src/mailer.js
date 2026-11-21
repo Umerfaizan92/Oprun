@@ -86,6 +86,7 @@ export async function sendEnquiryNotification(env, enquiry, files = []) {
 
   const { data, error } = await resend.emails.send({
     from:
+      enquirySender(env) ||
       env.NOTIFY_FROM ||
       env.SAAS_VERIFY_FROM,
 
@@ -242,15 +243,13 @@ export async function sendVoiceEnquiryNotification(env, { to, enquiry }) {
   const target = to || env.VOICE_ENQUIRY_NOTIFY_TO || env.NOTIFY_TO || env.SUPPORT_ESCALATION_EMAIL;
   if (!resendOutboundKey(env) || !target) return { sent: false, reason: 'voice_email_not_configured' };
   const resend = new Resend(resendOutboundKey(env));
-  const from = env.VOICE_ENQUIRY_FROM || env.NOTIFY_FROM || env.SAAS_VERIFY_FROM;
+  const from = env.VOICE_ENQUIRY_FROM || enquirySender(env) || env.NOTIFY_FROM || env.SAAS_VERIFY_FROM;
   const subjectName = enquiry.customer_name || 'Business caller';
   const { data, error } = await resend.emails.send({
     from,
     to: [target],
     subject: `[AI Receptionist] ${enquiry.urgent ? 'URGENT · ' : ''}${subjectName} · business enquiry`,
     ...renderEmail(platformBrand(env),{heading:'New receptionist enquiry',paragraphs:([
-      'FLEET PARLOUR — AI RECEPTIONIST BUSINESS ENQUIRY',
-      '',
       `Enquiry ID: ${enquiry.id}`,
       `Priority: ${enquiry.priority || 3}`,
       `Urgent: ${enquiry.urgent ? 'Yes' : 'No'}`,
@@ -290,13 +289,22 @@ export async function sendPlatformAnnouncementEmail(env, { to, announcement, acc
   return result;
 }
 
+// T-189: enquiry alerts come from their own address (inquiry@ on the platform's verified sending domain), never from
+// the security sender, which stays reserved for verification and account-security emails.
+export function enquirySender(env) {
+  const set = normaliseSender(env.ENQUIRY_FROM, 'Oprun Enquiries'); if (set) return set;
+  const base = [env.PLATFORM_NOTICE_FROM, env.NOTIFY_FROM, env.SAAS_VERIFY_FROM].map((v) => normaliseSender(v, 'x')).find(Boolean);
+  const domain = base ? base.match(/@([^>]+)>?$/)?.[1] : null;
+  return domain ? `Oprun Enquiries <inquiry@${domain}>` : null;
+}
 // Sends one branded email (see email-templates.js). `kind` picks the sender: platform emails use the platform sender, emails
 // sent for a business use that business's display name on the shared sender address. Never throws; reports why it did not send.
 export async function sendBrandedEmail(env, { to, subject, rendered, kind = 'platform', fromName = 'Oprun', replyTo = null, attachments = [], delivery = null }) {
   const finish=result=>{trackCommunication(delivery?{...delivery,channel:'email',recipient:to}:null,result);return result};
   if (!usableEnvValue(resendOutboundKey(env))) return finish({ sent: false, reason: 'email_not_configured' });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(to || ''))) return finish({ sent: false, reason: 'no_valid_email_address' });
-  const from = kind === 'platform'
+  const from = kind === 'enquiry' ? enquirySender(env)
+    : kind === 'platform'
     ? normaliseSender(env.PLATFORM_NOTICE_FROM, fromName) || normaliseSender(env.NOTIFY_FROM, fromName) || normaliseSender(env.SAAS_VERIFY_FROM, fromName)
     : normaliseSender(env.NOTIFY_FROM, fromName) || normaliseSender(env.SAAS_VERIFY_FROM, fromName);
   if (!from) return finish({ sent: false, reason: 'sender_not_configured' });
