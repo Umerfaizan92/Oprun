@@ -607,3 +607,5 @@ html body .aiv-cam-clock:empty{display:none}
 .aiv-dictation-status{margin:0;font-size:.9rem}
 .aiv-dictation-review:not([hidden]){display:grid;gap:8px}
 .aiv-dictation-review textarea{width:100%;min-width:0;box-sizing:border-box}
+#aiv-custom-length:not([hidden]){grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+#aiv-custom-length input,#aiv-custom-length select{min-width:0;width:100%;box-sizing:border-box}

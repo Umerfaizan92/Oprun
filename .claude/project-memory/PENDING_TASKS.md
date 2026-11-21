@@ -589,15 +589,8 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-191 Multilingual voice dictation for AI video ideas and prompts
-- Status: TESTING
-- Added: 2026-11-21
-- Requirement: Owner 21 Nov 2026: add microphone speech-to-text beside AI video idea and director prompt inputs. Users dictate naturally in their language, text appears in the prompt field, then existing AI prompt writing and video generation work. Automatic language detection for provider-supported languages, explicit browser language fallback, editable review, accurate professional states and performance. Do not claim universal language support or zero recognition errors.
-- Files: saas/workspace-ai-video.js, saas/workspace-ai-runtime.js, saas/workspace-video-dictation.js, saas/workspace.html, saas/ds/refresh.css, scripts/video-dictation.test.mjs, scripts/test-ai-video-ui.mjs
-- Acceptance: Idea and prompt dictation; auto detection server request; selectable browser mode; original scripts/RTL preserved; no automatic paid generation; existing edits protected; no stale results after navigation/workspace switch/signout; permission/errors/limits handled; responsive and accessibility checks; backend and relevant UI regressions pass
-
 ## T-192 Custom full-length and continue-until-stopped AI video duration
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-21
 - Requirement: Owner 21 Nov 2026: after completing T-191 voice dictation, replace fixed visible 15/30-second sections with custom full video duration including 1,5,10 minutes and an unlimited option. Deliver one continuous finished video; handle provider clip limits internally without exposing sections. Unlimited must mean continue until the person explicitly finishes, with ongoing provider charges clearly disclosed and no claim of an unlimited native provider clip. Test both tasks, then push to Render for owner live testing.
 - Files: src/ai-video.js, src/media-tools.js, saas/workspace-ai-video.js, scripts/ai-video-projects.test.mjs, scripts/test-ai-video-ui.mjs

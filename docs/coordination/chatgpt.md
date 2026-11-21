@@ -1,5 +1,12 @@
 # ChatGPT coordination
 
+## 21 November 2026 — T-192 full-length video candidate
+
+- T-191 is verified: 18 focused tests, full suite 73/73 and hosted feature UI pass at `261281c`. T-192 followed that acceptance; both will release together under owner authorization.
+- Custom durations now produce one final video at the requested actual length, including 1/5/10 minutes. Provider clip limits stay internal; actual measured footage drives continuations and excess footage is trimmed. Sequential FFmpeg normalization, bounded threads and private disk copying keep memory bounded on Render.
+- Unlimited means continue until Finish video, available credits or storage limit. Owner/admin consent is required to start or resume spending. Finish is idempotent, preserves the current accepted render and blocks further continuations. Interrupted provider submissions never retry automatically; tenant and role guards remain enforced.
+- Focused acceptance: 23/23 PASS, including real 60/300/600-second final media, custom durations, continuous stop, duplicate-request prevention, queued interruption, storage stop, tenant isolation, dictation and voice-runtime regressions. Final full suite and hosted UI are required before merge. No deployment or paid production render has occurred.
+
 ## 21 November 2026 — T-191 speech input; T-192 queued next
 
 - Current main/Render verified at `cfcae59`; CP-144 reconciled from `codex/t190-release-handover`. T-190 is already released and must not be redone. New work is isolated on `codex/t191-video-prompt-dictation`.

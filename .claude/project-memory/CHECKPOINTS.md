@@ -2047,3 +2047,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T050017Z (0696bbf)
 - Known errors: none
 - Next exact action: Publish T-191 candidate for hosted UI checks; complete voice task before implementing T-192
+
+## CP-147 2026-11-21T13:06:31+08:00 T-192 IN_PROGRESS
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-192 (IN_PROGRESS)
+- Completed steps: T-191 voice dictation accepted and completed before duration implementation; user authorizes combined release after both tasks tested
+- Incomplete steps: Custom total duration, hidden internal segments, exact final length; continuous until-stop with explicit billing consent; races/retries/isolation tests; combined release
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: 5088342 (Add multilingual voice dictation for AI video ideas and prompts (T-191)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T050631Z (a4e90ea)
+- Known errors: none
+- Next exact action: Implement T-192 duration persistence and safe continuation/finalization, then update video controls and tests
+
+## CP-148 2026-11-21T13:24:26+08:00 T-192 TESTING
+- Phase: T-188/T-189/T-190 released and live
+- Task: T-192 (TESTING)
+- Completed steps: Implemented full-length custom durations and consented continuous generation; 23 focused tests pass including real 1/5/10-minute media assembly
+- Incomplete steps: Full release suite and hosted browser acceptance; merge combined PR166 and verify Render live
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; docs/coordination/chatgpt.md; saas/ds/refresh.css; saas/workspace-ai-video.js; saas/workspace.html; scripts/ai-video-projects.test.mjs; scripts/media-tools.test.mjs; scripts/test-ai-video-ui.mjs; src/ai-video.js; src/media-tools.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t191-video-prompt-dictation
+- Commit: bd4713e (Record T-191 acceptance and begin T-192 duration task); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T052426Z (969ac44)
+- Known errors: none
+- Next exact action: Run full release validation then publish candidate for hosted UI
