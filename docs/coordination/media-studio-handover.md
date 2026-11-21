@@ -31,3 +31,12 @@ No secrets, settings, accounts, runtime source, production records or other agen
 ## Transfer protocol
 
 Each completed batch: append stable ID/status/owner/branch/commit/files/tests/results/decision/blocker/exact next action; update memory checkpoint; commit and push permitted task branch. Save unfinished work via snapshot and explicit handover if access remains. Next session (Claude/ChatGPT/Grok) must be started and verify state; limits resetting does not automatically resume work. Never overwrite another agent's unmerged branch or claim an unfinished module done. Current uncommitted changes must be checked with git status; final publication receipt below records the saved batch.
+
+## Publication receipt — T195 / MS-00–MS-03
+
+- Completed documentation batch commit: remote 04299af6444696f9f098e60f1227f612c3a3b964 (local b52f108eb109fa742623f109c0f857cc1bafc2e2), identical tree add9fbcc02dc8151cb0365d2c178581ee4ed3540.
+- Branch: codex/t195-media-studio-blueprint; pushed through GitHub connector, remote branch creation confirmed. No main merge, PR creation, application implementation or deployment in this batch.
+- Files: five required coordination documents; master audit/research/census JSON/generator; ChatGPT coordination; project memory; SHA256 manifest. Runtime source unchanged.
+- Validation: five documents,17 vendors,347 records/50 source hashes,relative links and Python syntax PASS; live read-only6/6 and five asset matches; manifest749,memory,secret checks PASS. Memory completion introduced an extra trailing blank line; normalized before final handover, no functional impact. Re-run final whitespace gate below.
+- Checkpoint CP153 records completed approval package and T194 BLOCKED. Owner approval required by master brief, not a tool limitation.
+- Next: wait for owner Direction A/B/C and staged implementation approval. Speech/device/account billing and backup recovery remain unverified; no completion claim for fixes.

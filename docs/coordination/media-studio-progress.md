@@ -48,3 +48,12 @@ Status vocabulary: DONE (deliverable exists), TESTED (specified verification pas
 ## Roadmap stable task IDs
 
 MS-04A billing/speech critical fixes; MS-04B security/isolation tests; MS-05A unified UI; MS-05B scripts/storyboard/versions/preview; MS-05C timeline/audio/edit/export; MS-06A campaign/channel orchestration; MS-06B optional new official adapters; MS-07 full quality/security gate; MS-08 release readiness; MS-09 separately authorized live verification. All NOT_STARTED at this checkpoint. T194 remains implementation umbrella, T195 planning deliverable; don't assign duplicate project tasks for the same feature.
+
+## Publication receipt — T195 / MS-00–MS-03
+
+- Completed documentation batch commit: remote 04299af6444696f9f098e60f1227f612c3a3b964 (local b52f108eb109fa742623f109c0f857cc1bafc2e2), identical tree add9fbcc02dc8151cb0365d2c178581ee4ed3540.
+- Branch: codex/t195-media-studio-blueprint; pushed through GitHub connector, remote branch creation confirmed. No main merge, PR creation, application implementation or deployment in this batch.
+- Files: five required coordination documents; master audit/research/census JSON/generator; ChatGPT coordination; project memory; SHA256 manifest. Runtime source unchanged.
+- Validation: five documents,17 vendors,347 records/50 source hashes,relative links and Python syntax PASS; live read-only6/6 and five asset matches; manifest749,memory,secret checks PASS. Memory completion introduced an extra trailing blank line; normalized before final handover, no functional impact. Re-run final whitespace gate below.
+- Checkpoint CP153 records completed approval package and T194 BLOCKED. Owner approval required by master brief, not a tool limitation.
+- Next: wait for owner Direction A/B/C and staged implementation approval. Speech/device/account billing and backup recovery remain unverified; no completion claim for fixes.
