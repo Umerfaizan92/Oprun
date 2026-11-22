@@ -16,9 +16,14 @@ Updated: 23 Nov 2026
 - [x] Palette samples sent (gold vs purple/cyan on home, Command Centre, Media Studio, sign-in; laptop and phone)
 
 ## Pending (in order)
-- [ ] Owner picks the palette (and sends the reference screenshot if available)
-- [ ] TR-03 test site: owner points Render service `superpro-ai-v2-preview-20261029` at branch
-  `claude/transformation-staging` and removes any live provider keys from that service's environment
+- [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
+- [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
+  https://oprun-test.onrender.com), branch `claude/transformation-staging`, auto-deploy, build `npm ci --include=dev`
+  (~1 build minute; tests run before each push), isolated preview mode (`SUPERPRO_ISOLATED_PREVIEW=1`: temporary
+  synthetic data under /tmp, registration/webhooks/customer intake blocked, refuses to start with any storage or
+  provider key). Test logins: `owner.alpha@preview.invalid`, `employee.alpha@preview.invalid`,
+  `owner.beta@preview.invalid`; password = the `PREVIEW_BUSINESS_PASSWORD` value in Render → oprun-test →
+  Environment (never written to the repository). Live 22 Nov 19:49 UTC on commit `675c13d` (Render logs).
 - [ ] Phase 3: TR-10 tokens v2 → TR-11 components → TR-12 CSS consolidation → TR-13 brand assets → TR-14 public
   website → TR-15 sign-in pages
 
@@ -27,10 +32,11 @@ Updated: 23 Nov 2026
   measurements in [01](01_PHASE1_AUDIT.md).
 
 ## Known failures / blockers
-- Reference screenshot not received.
+- Reference screenshot not received (no longer blocking: gold kept).
 - Live oprun.ai screenshots not possible from this workspace (network); needs Claude in Chrome or domain access.
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-When the owner picks the palette: TR-10 design tokens v2 on `claude/transformation-staging` (both themes, AA
-contrast test), then TR-11 component catalogue.
+TR-10/TR-12 on `claude/transformation-staging`: gold token ramp in `saas/ds/tokens.css` and replace the ~120
+hard-coded gold values across older stylesheets with tokens (no visible change, checked by screenshot diff), then
+TR-11 component catalogue, TR-13 brand assets, TR-14 public website.
