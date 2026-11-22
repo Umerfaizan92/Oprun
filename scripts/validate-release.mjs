@@ -80,7 +80,8 @@ for(const token of ['FREE_AI_MODE=1','GEMINI_API_KEY=','GEMINI_MODEL=gemini-3.5-
 for(const token of ['/api/saas/content/ai-spec','generateAiText','local-content-fallback'])if(!server.includes(token))failures.push('server.js missing '+token);
 if(!server.includes("const allowUnlistedOrigins = env.NODE_ENV !== 'production'")||server.includes('allowedOrigins.length === 0 ||'))failures.push('Production CORS must fail closed when ALLOWED_ORIGINS is omitted');
 const app=read('saas/app.js'),ops=read('saas/ai-operations.js'),workspaceAi=read('saas/workspace-ai-runtime.js'),platformNotices=read('saas/platform-notices.js'),db=read('src/db.js');
-for(const token of ['/api/saas/content/ai-spec'])if(!app.includes(token))failures.push('app.js missing '+token);
+for(const token of ['workspace-studio.js','id="st-library"','id="st-reels"','id="st-editor"','id="st-ai"'])if(!workspace.includes(token))failures.push('workspace.html missing Media Studio '+token);
+for(const token of ['video-form','studio-workflow','workspace-media-guided.js','workspace-studio-projects.js'])if(workspace.includes(token))failures.push('workspace.html still has old Media Studio '+token);
 for(const token of ['/api/saas/ai/status','startBrowserRecognitionFallback'])if(!ops.includes(token))failures.push('ai-operations.js missing '+token);
 for(const token of ['/api/saas/voice/transcribe','/api/saas/voice/speech','/api/saas/voice/speech-stream'])if(!workspaceAi.includes(token))failures.push('workspace-ai-runtime.js missing '+token);
 if(app.includes("voiceTest=shell.querySelector('[data-copilot-voice-test]'); if(voiceStyle)"))failures.push('app.js contains unsafe copilot voice initialization ordering');

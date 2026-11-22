@@ -36,7 +36,7 @@ add('ai:central-provider',server.includes('generateAiText')&&shim.includes('reso
 add('ai:strict-free-mode',shim.includes('if (freeAiModeEnabled()) return gemini')&&shim.includes('if (freeAiModeEnabled()) return null'));
 add('ai:gemini-free',shim.includes('generativelanguage.googleapis.com')&&server.includes('GEMINI_TTS_MODEL'));
 add('ai:operations-resilient',server.includes('local-operational-fallback')&&server.includes('/api/saas/ai/threads')&&ops.includes('GDSProductGuide')&&ops.includes('answerAsync'));
-add('ai:content-studio-live',server.includes('/api/saas/content/ai-spec')&&app.includes('/api/saas/content/ai-spec'));
+add('ai:content-studio-live',server.includes('/api/saas/content/ai-spec')&&workspace.includes('workspace-ai-video.js')&&workspace.includes('id="st-ai"'));
 add('ai:global-search-stt',app.includes('SuperProAIClient')&&workspaceAi.includes('/api/saas/voice/transcribe'));
 add('ai:operations-status',ops.includes('/api/saas/ai/status')&&ops.includes('startBrowserRecognitionFallback'));
 add('ai:copilot-init-safe',!app.includes("voiceTest=shell.querySelector('[data-copilot-voice-test]'); if(voiceStyle)"));
@@ -92,7 +92,7 @@ add('workforce:industry-skill-assist',workforceCompliance.includes('workforceSki
 add('workforce:strict-eligibility',server.includes("verification_status!=='verified'")&&server.includes('blocking_compliance')&&server.includes('work_rights_verified'));
 add('workforce:evidence-review',server.includes("/documents/:documentId/upload")&&server.includes('workerStaffEvidenceUpload')&&server.includes('official_source_url'));
 add('finance:tenant',server.includes('/api/saas/finance')&&db.includes('organisation_finance_entries'));
-add('content:studio',workspace.includes('video-view')&&app.includes('renderTrendSuggestions'));
+add('content:studio',workspace.includes('video-view')&&workspace.includes('workspace-studio.js')&&workspace.includes('id="st-reels"'));
 add('office:current-assets',office.includes('office-extras.js')&&office.includes('office-records.js')&&office.includes('office-insights.js')&&!office.includes('office-v11'));
 add('seo:public',/<title>[^<]{20,}/.test(index)&&/name="description"/.test(index)&&/rel="canonical"/.test(index)&&/application\/ld\+json/.test(index));
 add('private:noindex-office',/noindex,nofollow/.test(office));

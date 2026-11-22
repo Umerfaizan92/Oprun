@@ -9,7 +9,7 @@
   const $=s=>document.querySelector(s);
   const OWNERS=['owner','admin','super_admin'];
   let loaded=false,state={providers:{},engines:[],jobs:[],projects:[],voices:[]},library=[],timer=null,shape='9:16',mounted=false,busy=false;
-  let picker=null,voiceMode='none',narrationId=null,dictation=null,guided=null,workspaceEpoch=0,captureEpoch=0,audioPending=false,generationPending=false,generationRun=0,pendingSubmission=null;
+  let picker=null,voiceMode='none',narrationId=null,dictation=null,workspaceEpoch=0,captureEpoch=0,audioPending=false,generationPending=false,generationRun=0,pendingSubmission=null;
   const ago=iso=>{const s=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000));return s<60?`${s}s`:`${Math.floor(s/60)} min ${s%60}s`};
   const secs=n=>{n=Math.max(0,Math.round(Number(n)||0));return n<60?`${n} seconds`:n%60?`${Math.floor(n/60)} min ${n%60}s`:`${n/60} minute${n===60?'':'s'}`};
   const engine=()=>state.engines.find(e=>e.id===$('#aiv-engine')?.value);
@@ -26,21 +26,18 @@
 
   function mount(){
     if(mounted)return true;
-    const lib=$('#video-view .source-library-panel');if(!lib)return false;
+    const host=$('#st-ai');if(!host)return false;
     const seg=(name,items,cur,on)=>el('div',{class:'aiv-seg',role:'radiogroup','aria-label':name},...items.map(([v,l,h])=>el('button',{type:'button',role:'radio','data-v':v,'aria-checked':String(v===cur),title:h||'',text:l,onclick:e=>{e.currentTarget.parentElement.querySelectorAll('[data-v]').forEach(x=>x.setAttribute('aria-checked',String(x===e.currentTarget)));on(v)}})));
     const panel=el('article',{class:'panel aiv-panel',id:'ai-video-panel','aria-labelledby':'aiv-title'},
-      el('div',{class:'panel-head'},el('div',{},el('span',{class:'panel-kicker',text:'AI VIDEO GENERATOR'}),el('h2',{id:'aiv-title',text:'Make a video from an idea'}),
-        el('p',{text:'Describe what you want, add your own photos or videos and your own voice if you like. Choose your full video length; AI develops your idea and creates one finished video to preview, download or use in posts and campaigns.'})),
-        el('span',{class:'ai-live-chip',text:'AI assisted'})),
+      el('h2',{id:'aiv-title',class:'sr-only',text:'AI video'}),
       el('div',{class:'aiv-providers',id:'aiv-providers'}),
       el('div',{class:'aiv-connect',id:'aiv-connect',hidden:true}),
       el('form',{class:'aiv-form',id:'aiv-form',novalidate:true},
         el('div',{class:'aiv-full aiv-dictation',id:'aiv-dictation'}),
         el('label',{class:'aiv-full'},el('span',{text:'1. Your idea'}),el('textarea',{id:'aiv-idea',rows:'2',maxlength:'2000',placeholder:'Example: me explaining how we polish a bull bar, then a close-up of the mirror finish.'})),
-        el('div',{class:'aiv-full aiv-row'},el('button',{type:'button',class:'secondary-button',id:'aiv-enhance',text:'Write the prompt with AI'}),el('small',{class:'muted',id:'aiv-enhance-note',text:'AI adds camera, lighting, pacing and mood. You can edit the result.'})),
+        el('div',{class:'aiv-full aiv-row'},el('button',{type:'button',class:'secondary-button',id:'aiv-enhance',text:'Write the prompt with AI'}),el('small',{class:'muted',id:'aiv-enhance-note',text:''})),
         el('label',{class:'aiv-full'},el('span',{text:'2. Director’s prompt'}),el('textarea',{id:'aiv-prompt',rows:'5',maxlength:'4000',placeholder:'Describe your full video, or let AI write the prompt from your idea. You receive one finished video.'})),
         el('div',{class:'aiv-full aiv-field'},el('span',{class:'aiv-label',text:'3. Your photos or videos (optional, up to 3)'}),
-          el('small',{class:'muted',text:'A clear photo helps keep the same person or product throughout your video. Upload from this phone or computer, choose from your library, or record with your camera.'}),
           el('div',{id:'aiv-guides'}),
           el('div',{class:'aiv-row'},el('button',{type:'button',class:'secondary-button',id:'aiv-camera',text:'Record with camera'}))),
         el('label',{},el('span',{text:'Video model'}),el('select',{id:'aiv-engine'})),
@@ -58,9 +55,9 @@
           el('label',{class:'aiv-check'},el('input',{type:'checkbox',id:'aiv-keep'}),el('span',{text:'Keep the video’s own sound quietly under my voice'}))),
         el('p',{class:'aiv-full aiv-plan',id:'aiv-plan',role:'status'}),
         el('div',{class:'aiv-full aiv-row'},el('button',{type:'submit',class:'primary-button',id:'aiv-generate',text:'Generate video'}),el('small',{class:'muted',id:'aiv-cost',text:''}))),
-      el('div',{class:'aiv-jobs-head'},el('h3',{text:'Your AI videos'}),el('small',{class:'muted',text:'Videos keep rendering if you leave this page. You get a notification when each one is ready.'})),
+      el('div',{class:'aiv-jobs-head'},el('h3',{text:'Your AI videos'})),
       el('div',{class:'aiv-jobs',id:'aiv-jobs'}));
-    lib.after(panel);
+    host.append(panel);
     $('#aiv-resolution').closest('label').after($('#aiv-custom-length'));
     $('#aiv-engine').addEventListener('change',fit);$('#aiv-duration').addEventListener('change',plan);
     $('#aiv-custom-duration').addEventListener('input',plan);$('#aiv-duration-unit').addEventListener('change',plan);
@@ -234,11 +231,9 @@
   // ---------- list ----------
   const player=(id,shapeKey,label)=>el('div',{class:'aiv-player','data-shape':shapeKey},el('video',{src:`/api/saas/media/${encodeURIComponent(id)}/file`,controls:true,playsinline:true,preload:'metadata','aria-label':label}));
   const doneActions=(id,name,onClear)=>el('div',{class:'aiv-actions'},
-    el('button',{type:'button',class:'secondary-button',text:'Full preview',onclick:()=>window.OprunMediaViewer?.open([{id,kind:'video',original_name:name}],0,{onUse:m=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id:m.id}}))})}),
-    el('button',{type:'button',class:'secondary-button',text:state.unified_ui?'Use as guide':'Use in render',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id}}))}),
+    el('button',{type:'button',class:'secondary-button',text:'Preview',onclick:()=>window.OprunMediaViewer?.open([{id,kind:'video',original_name:name}],0)}),
     el('a',{class:'secondary-button',href:`/api/saas/media/${encodeURIComponent(id)}/file`,download:name,text:'Download'}),
-    state.unified_ui?el('button',{type:'button',class:'secondary-button',text:'Edit video',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-edit',{detail:{id}}))}):null,
-    state.unified_ui?el('button',{type:'button',class:'secondary-button',text:'Prepare social drafts',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-publish',{detail:{id,title:name}}))}):null,
+    el('button',{type:'button',class:'secondary-button',text:'Post draft',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-publish',{detail:{id,title:name}}))}),
     el('button',{type:'button',class:'link-button',text:'Clear',onclick:onClear}));
   function projectCard(p){
     const label={rendering:p.stop_requested?'Finishing':'Rendering',joining:'Finishing',succeeded:'Ready',failed:'Stopped'}[p.status]||p.status;
@@ -290,7 +285,7 @@
   async function generateInternal(epoch){
     if(rec||audioPending){note('Stop and save, or cancel, your voice recording before generating.',true);return}
     if(dictation?.isBusy()){note('Finish or cancel dictation before generating a video.',true);return}
-    if(guided&&!(await guided.save())){note('Wait for the project to finish saving, then generate again. No generation was started.',true);return}if(epoch!==workspaceEpoch)return;
+    if(epoch!==workspaceEpoch)return;
     const e=engine();if(!e?.ready){note('Connect a video provider first.',true);return}
     let prompt=$('#aiv-prompt').value.trim();const idea=$('#aiv-idea').value.trim();
     if(prompt.length<10&&idea.length>=10)prompt=idea;
@@ -312,11 +307,11 @@
     }
     if(epoch!==workspaceEpoch)return;const serialized=JSON.stringify(body);if(!pendingSubmission||pendingSubmission.serialized!==serialized)pendingSubmission={serialized,id:crypto.randomUUID()};body.request_id=pendingSubmission.id;
     busy=true;const b=$('#aiv-generate');b.disabled=true;b.textContent='Starting…';
-    try{const result=await api('/api/saas/ai-video/projects',{method:'POST',body:JSON.stringify(body)});if(epoch!==workspaceEpoch)return;pendingSubmission=null;$('#aiv-continuous-consent').checked=false;note(result.project?.status==='failed'?'Your saved request has stopped. Review it in Projects before retrying.':'Your video is rendering. It will appear below when ready.');await load();guided?.show('projects')}
+    try{const result=await api('/api/saas/ai-video/projects',{method:'POST',body:JSON.stringify(body)});if(epoch!==workspaceEpoch)return;pendingSubmission=null;$('#aiv-continuous-consent').checked=false;note(result.project?.status==='failed'?'Your saved request has stopped. Review it in Projects before retrying.':'Your video is rendering. It will appear below when ready.');await load()}
     catch(x){if(epoch===workspaceEpoch){note(x.payload?.error||x.message,true);await load()}}finally{if(epoch===workspaceEpoch){busy=false;b.textContent='Generate video';fit()}}
   }
   async function continueProject(p){
-    if(p.stop_requested&&!p.clips_done){$('#aiv-idea').value=p.idea||'';$('#aiv-prompt').value=p.prompt||p.title;$('#aiv-engine').value=p.engine;fit();shape=p.aspect_ratio;$('#aiv-resolution').value=p.resolution;setGuides(p.refs||[]);$('#aiv-duration').value=p.continuous?'continuous':'custom';$('#aiv-custom-duration').value=String(p.requested_seconds||8);$('#aiv-duration-unit').value='1';narrationId=p.narration_media_id||null;voiceMode=narrationId?'library':'none';drawVoice();$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));plan();$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));guided?.show('create');note('Your saved idea and guides are restored. Review settings before explicitly generating again.');return}
+    if(p.stop_requested&&!p.clips_done){$('#aiv-idea').value=p.idea||'';$('#aiv-prompt').value=p.prompt||p.title;$('#aiv-engine').value=p.engine;fit();shape=p.aspect_ratio;$('#aiv-resolution').value=p.resolution;setGuides(p.refs||[]);$('#aiv-duration').value=p.continuous?'continuous':'custom';$('#aiv-custom-duration').value=String(p.requested_seconds||8);$('#aiv-duration-unit').value='1';narrationId=p.narration_media_id||null;voiceMode=narrationId?'library':'none';drawVoice();$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));plan();$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));note('Your saved idea and guides are restored. Review settings before explicitly generating again.');return}
 
     if(p.error?.includes('Check your provider account')&&!confirm('A generation request was interrupted and may already have been charged by your provider. Check your provider account before continuing. Start another request?'))return;
     const provider=state.engines.find(e=>e.id===p.engine)?.provider,confirmed=p.stop_requested?false:billingRetry(provider);if(confirmed===null)return;
@@ -332,8 +327,6 @@
     const before=new Set([...(state.projects||[]),...(state.jobs||[])].filter(x=>x.status==='succeeded').map(x=>x.id));
     const epoch=workspaceEpoch;let incoming;try{incoming=await api('/api/saas/ai-video')}catch{return}
     if(epoch!==workspaceEpoch)return;state=incoming;await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;if(!picker)setGuides([]);
-    if(state.unified_ui&&!guided)guided=window.OprunMediaGuided?.create({panel:$('#ai-video-panel'),library:$('#video-view .source-library-panel'),canNavigate:()=>!rec&&!audioPending&&!dictation?.isBusy(),capture:()=>({reference_media_ids:guides(),narration_media_id:narrationId,voice_mode:voiceMode,shape,voice_id:$('#aiv-voice')?.value||''}),restore:d=>{setGuides((d.reference_media_ids||[]).slice(0,3));shape=['9:16','16:9'].includes(d.shape)?d.shape:'9:16';voiceMode=['none','record','library','script'].includes(d.voice_mode)?d.voice_mode:'none';narrationId=d.narration_media_id||null;drawVoice();if($('#aiv-voice')&&d.voice_id)$('#aiv-voice').value=d.voice_id;$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));}});
-    else if(!state.unified_ui&&guided){guided.destroy();guided=null}
     drawProviders();drawEngines();drawJobs();if(!loaded&&voiceMode!=='record')drawVoice();
     if(loaded&&[...state.projects,...state.jobs].some(x=>x.status==='succeeded'&&!before.has(x.id)))window.dispatchEvent(new Event('oprun:media-changed'));loaded=true;
     schedule();
@@ -348,14 +341,12 @@
       await load();
     },8000);
   }
-  window.addEventListener('oprun:studio-guide',e=>{
-    if(!state.unified_ui||!e.detail?.id)return;setGuides([...guides().filter(id=>id!==e.detail.id),e.detail.id].slice(-3));guided?.show('create');note('Added as a guide. Your existing idea and prompt are kept.');
-  });
   window.addEventListener('superpro:workspace-ready',()=>{
-    workspaceEpoch++;generationRun++;generationPending=false;pendingSubmission=null;busy=false;$('#aiv-generate')&&($('#aiv-generate').textContent='Generate video');clearTimeout(timer);timer=null;dictation?.cancel();stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());guided?.destroy();guided=null;
+    workspaceEpoch++;generationRun++;generationPending=false;pendingSubmission=null;busy=false;$('#aiv-generate')&&($('#aiv-generate').textContent='Generate video');clearTimeout(timer);timer=null;dictation?.cancel();stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());
     state={providers:{},engines:[],jobs:[],projects:[],voices:[]};library=[];loaded=false;narrationId=null;voiceMode='none';shape='9:16';$('#aiv-voice-body')?.replaceChildren();
     const form=$('#aiv-form');if(form){form.reset();$('#aiv-jobs')?.replaceChildren();$('#aiv-providers')?.replaceChildren();$('#aiv-guides')?.replaceChildren();picker=null;}
     if($('#video-view')&&!$('#video-view').hidden)load().catch(()=>{});
   });
+  window.addEventListener('oprun:ai-video-refresh',()=>{if(mounted)load().catch(()=>{})});
   onView('video',{enter:load,leave:()=>{clearTimeout(timer);timer=null;stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());dictation?.cancel()}});
 })();

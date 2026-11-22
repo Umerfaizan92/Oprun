@@ -27,21 +27,25 @@ try {
   page.on('pageerror', (e) => errors.push(e.message)); page.setDefaultTimeout(30000);
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto(server.base + '/saas/workspace.html#growth/media');
+  // One tool per page: Library shows first; Reels is its own tab.
+  await page.locator('#st-tab-library[aria-selected=true]').waitFor();
+  assert.ok(await page.locator('#st-reels').isHidden());
+  await page.getByRole('tab', { name: 'Reels' }).click();
   const panel = page.locator('#reel-maker-panel');
-  await panel.getByRole('heading', { name: 'Turn your photos and videos into a professional reel' }).waitFor();
+  await panel.getByRole('heading', { name: 'Reels', exact: true }).waitFor();
+  assert.ok(await page.locator('#st-library').isHidden(), 'only one tool shows at a time');
   await panel.locator('.rm-template').nth(5).waitFor();
   assert.ok(await panel.locator('#rm-offer').isHidden(), 'offer box only for the offer reel');
 
   await panel.getByRole('radio', { name: 'Before and after' }).click();
-  await panel.getByText('First the “before” photos').waitFor();
   await panel.locator('input[type=file]').setInputFiles([photo1, photo2, clip]);
   await panel.getByText('3 added.').waitFor();
 
   await page.locator('#rm-make').click();
-  await panel.getByText('Add a hook, or press “Suggest words”.').waitFor();
+  await panel.getByText('Add a hook, or tap Suggest text.').waitFor();
   await page.locator('#rm-service').fill('Deck restoration');
   await page.locator('#rm-suggest').click();
-  await panel.getByText('Suggestions ready.').waitFor();
+  await panel.getByText('Text ready.').waitFor();
   assert.match(await page.locator('#rm-hook').inputValue(), /deck restoration/i);
   assert.equal(await panel.locator('.rm-hook').count(), 3);
   await panel.locator('.rm-hook').nth(1).click();
@@ -51,7 +55,7 @@ try {
   await panel.getByRole('radio', { name: 'Square' }).click();
   await page.locator('#rm-quality').selectOption('720p');
   await page.locator('#rm-make').click();
-  await panel.getByText('Your reel is being made.').waitFor();
+  await panel.getByText('Making your reel…').waitFor();
   const card = panel.locator('.rm-card').first();
   await card.and(page.locator('[data-status="succeeded"]')).waitFor({ timeout: 180000 });
   const video = card.locator('video');
@@ -60,6 +64,8 @@ try {
   assert.equal(dims[0], dims[1], 'square reel'); assert.ok(dims[2] > 5, 'reel has a real length: ' + dims[2]);
   assert.match(await card.getByRole('link', { name: 'Download' }).getAttribute('href'), /^\/api\/saas\/media\/.+\/file$/);
 
+  await card.getByRole('button', { name: 'Preview' }).click();
+  await page.locator('.mv-dialog[open] video').waitFor(); await page.keyboard.press('Escape');
   await card.getByRole('button', { name: 'Create post draft' }).click();
   const dlg = page.locator('dialog[open]'); await dlg.waitFor();
   assert.match(await dlg.locator('textarea').first().inputValue(), /Deck restoration|deck restoration/i, 'the reel caption is filled in');

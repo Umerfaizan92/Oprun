@@ -31,7 +31,7 @@
     stage.replaceChildren(media);
     dlg.querySelectorAll('.mv-nav').forEach(b=>b.hidden=list.length<2);
     const dl=dlg.querySelector('.mv-download');dl.href=url(m);dl.setAttribute('download',m.original_name||'media');
-    const use=dlg.querySelector('.mv-use');use.textContent=document.querySelector('#video-view')?.classList.contains('ms-unified')?'Use as guide':'Use as render source';use.hidden=!opts.onUse;use.onclick=()=>{opts.onUse?.(m);dlg.close()};
+    const use=dlg.querySelector('.mv-use');use.textContent=opts.useLabel||'Use';use.hidden=!opts.onUse;use.onclick=()=>{opts.onUse?.(m);dlg.close()};
   }
   function go(step){if(list.length<2)return;at=(at+step+list.length)%list.length;show()}
   const resetWorkspace=()=>{list=[];opts={};at=0;if(dlg){if(dlg.open)dlg.close();dlg.querySelector('.mv-stage').replaceChildren();dlg.querySelector('.mv-name').textContent='';dlg.querySelector('.mv-count').textContent='';dlg.querySelector('.mv-download').removeAttribute('href');dlg.querySelector('.mv-use').onclick=null;}};

@@ -609,3 +609,4 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: From brief v2 (docs/ai-website/PROMPT_V2_2026-11-23.txt) and docs/ai-website/00_CONTRACT.md
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
+

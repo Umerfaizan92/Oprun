@@ -2397,3 +2397,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start T-149 wizard + T-150 generation service behind website_builder_v2
+
+## CP-172 2026-11-22T18:51:41+00:00 T-202 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-202 (COMPLETED)
+- Completed steps: Media Studio redesign
+- Incomplete steps: Verify Render deploy; owner taps Delete all AI-generated videos once
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .github/workflows/ci.yml; package.json; saas/app.js; saas/media-viewer.js; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace-media.js; saas/workspace-reel-maker.js; saas/workspace-studio-audio.js; saas/workspace-studio-editor.js; saas/workspace-studio-projects.js; saas/workspace.html; scripts/media-guided.test.mjs; scripts/media-provider-recovery.test.mjs; scripts/quality-check.mjs; scripts/studio-draft-ui.test.mjs; scripts/test-ai-video-ui.mjs; scripts/test-media-studio-guided-ui.mjs; scripts/test-reel-maker-ui.mjs; scripts/validate-release.mjs; src/ai-video.js; saas/workspace-studio.css; saas/workspace-studio.js; scripts/ai-video-generated-delete.test.mjs; scripts/test-media-studio-ui.mjs
+- Tests executed: npm test; test:ui; media-studio/reel/ai-video UI; unit tests
+- Test results: all passed
+- Git branch: claude/media-studio-redesign
+- Commit: 0e7bfb0 (T-199 (W-18): llms.txt and an owner setting for AI crawlers on every business website (#173))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Continue website step 2 (T-149/T-150) after deploy check
