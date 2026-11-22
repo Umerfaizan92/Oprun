@@ -25,7 +25,7 @@ approved release, the same page is screenshotted **on oprun.ai** and the live co
 | TR-10 | **Design tokens v2** (`saas/ds/tokens.css`): palette per [03](03_VISUAL_BLUEPRINT.md) §2, both themes, AA contrast pairs | Contrast test passes for every pair; screenshots of the token sheet |
 | TR-11 | **Component library v2** (`saas/ds/components.css`): buttons, inputs, cards, tabs, tables, badges, stat cards, charts, dialogs, toasts, empty states | One reference page `saas/ds/catalogue.html` (not public) with every component in both themes |
 | TR-12 | **CSS consolidation**: page stylesheets folded into the system; target ≤ 8 stylesheets on `workspace.html` | Stylesheet count recorded; no visual regressions in the existing UI tests |
-| TR-13 | **Brand assets**: logo, mark, favicon, PWA/app icons, email header, notification icon in the approved palette; remove unused `superpro-*` files | All references resolve; manifest and both app projects use the new icons |
+| TR-13 | **Brand assets**: logo, mark, favicon, PWA/app icons, email header, notification icon in the approved palette; keep the `superpro-*` copies (D-022) in step with the new icon | All references resolve; manifest and both app projects use the new icons |
 | TR-14 | **Public website v2**: home, product overview, features with real product screenshots, industries, AI capabilities, pricing (server prices), new Integrations and Security pages, help, contact/enquiry, sign-in/registration entry, mobile navigation | Lighthouse SEO and accessibility ≥ 90 on mobile; every claim matches a built feature |
 | TR-15 | Sign-in, create account, verify, recover pages in the new system (keep `#signin-operator-link`; no Install option on sign-in) | Existing auth tests pass; screenshots |
 

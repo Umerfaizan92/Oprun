@@ -41,4 +41,4 @@ Updated: 23 Nov 2026
 
 ## Exact next action
 TR-11 component catalogue (one reference page of every shared component, both themes), then TR-13 brand assets
-(remove unused superpro-* files, check icons everywhere), then TR-14 public website.
+(check icons everywhere; keep the superpro-* copies per D-022), then TR-14 public website.

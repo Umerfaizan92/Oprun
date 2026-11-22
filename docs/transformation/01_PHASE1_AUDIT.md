@@ -54,7 +54,7 @@ Secondary pages still registered (candidates to merge, routes kept as aliases):
   WCAG AA pairs in both themes. Components: `saas/ds/components.css`, `kit.css`, `layout.css`, `refresh.css`,
   `retheme.css`, plus ~57 page stylesheets layered on top.
 - Brand files: `oprun-icon.svg`, `oprun-mark.svg`, `oprun-logo.svg`, 192/512 PNG icons, `favicon.ico`,
-  `manifest.webmanifest`. Old `superpro-*` icon files are still in `saas/` but **nothing references them**.
+  `manifest.webmanifest`. Old `superpro-*` icon files in `saas/` are **kept on purpose** (decision D-022): they are copies of the new Oprun icon so installed apps and old links keep showing the right icon.
 - The brief asks for **purple, cyan and subtle blue accents**. That replaces the current gold identity across
   logo, icons, emails and both apps: a brand decision that needs the owner's approval and the reference
   screenshot (not received; only the text brief arrived).
@@ -111,5 +111,5 @@ Secondary pages still registered (candidates to merge, routes kept as aliases):
 | Public website, sign-in/registration screens, Business Workspace pages, Operator Console | **UPGRADE** | Working, but mixed visual generations and 44 stylesheets |
 | Secondary pages (§3 list) | **MERGE** into their main page as tabs or filters; routes stay as aliases | Duplicates and "(older)" labels still reachable |
 | AI Agent Manager, operator departments/teams/workload/assignment, project tracking, voice multilingual onboarding with workspace proposal, Integrations and Security public pages, temporary-suggestion system | **BUILD** (on existing engine, queue and nav registry) | Not present |
-| Unused `superpro-*` icons, superseded PRs, stale tasks (T-194), legacy Render services | **RETIRE**, only after owner approval and, for services, after checking the legacy disk | Clutter or cost; data must be checked first |
+| Superseded PRs, stale tasks (T-194), legacy Render services | **RETIRE**, only after owner approval and, for services, after checking the legacy disk | Clutter or cost; data must be checked first |
 | Self-hosted video (T-196), app-store publishing | **DEFERRED** | Need budget or developer accounts |
