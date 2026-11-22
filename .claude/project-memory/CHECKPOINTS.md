@@ -2369,3 +2369,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Push branch claude/t197-reel-maker and merge
+
+## CP-170 2026-11-22T17:29:08+00:00 T-198 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-198 (COMPLETED)
+- Completed steps: AI Website spec v2 refresh
+- Incomplete steps: Build T-199 (W-18) next, then W-03/W-04/W-05
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; SHA256SUMS.txt; docs/ai-website/00_CONTRACT.md; docs/ai-website/00_START_HERE.md; docs/ai-website/01_GAP_ANALYSIS.md; docs/ai-website/02_ARCHITECTURE.md; docs/ai-website/03_WIZARD.md; docs/ai-website/06_DOMAIN_EMAIL.md; docs/ai-website/07_SEO_BACKLINKS.md; docs/ai-website/09_TOOLS.md; docs/ai-website/10_IMPLEMENTATION_PLAN.md; docs/ai-website/11_PROGRESS_STATE.md; docs/ai-website/RESUME_PROMPT_FOR_CHATGPT.md; docs/ai-website/SOURCES.md; docs/ai-website/PROMPT_V2_2026-11-23.txt
+- Tests executed: memory:validate; verify:manifest; security:secrets (docs-only change)
+- Test results: all passed
+- Git branch: claude/ai-website-v2
+- Commit: 4cb2553 (T-197: free Reel Maker turns a business's own photos and videos into professional reels (#171))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start T-199: llms.txt route + robots AI-crawler setting

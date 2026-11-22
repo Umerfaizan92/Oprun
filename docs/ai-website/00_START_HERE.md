@@ -1,11 +1,11 @@
 # AI Website: start here
 
 Spec pack for Oprun's one-section AI Website (new sites, transfer + redesign, cinematic 3D, domains, business email,
-SEO/AEO and white-hat link growth), written 2026-11-20. The original brief is in [PROMPT_ORIGINAL.txt](PROMPT_ORIGINAL.txt).
+SEO/AEO and white-hat link growth), written 2026-11-20 and refreshed 2026-11-23 for brief v2. Briefs: [PROMPT_ORIGINAL.txt](PROMPT_ORIGINAL.txt) and [PROMPT_V2_2026-11-23.txt](PROMPT_V2_2026-11-23.txt). Brief v2 maps one-to-one onto these files; the only new decisions are D-W15–D-W18 in the contract.
 
 Read in this order:
 
-1. [00_CONTRACT.md](00_CONTRACT.md): what exists, names, decisions D-W1…D-W14, states, data. **Wins over every other file.**
+1. [00_CONTRACT.md](00_CONTRACT.md): what exists, names, decisions D-W1…D-W18, states, data. **Wins over every other file.**
 2. [01_GAP_ANALYSIS.md](01_GAP_ANALYSIS.md): Framer, Webflow, Wix Harmony / Lovable vs Oprun
 3. [02_ARCHITECTURE.md](02_ARCHITECTURE.md): flow diagram, components, custom-domain request path, security, speed budget
 4. [03_WIZARD.md](03_WIZARD.md): the one-section, nine-step self-service wizard

@@ -46,6 +46,9 @@ One pull request per item; `npm test`, unit tests and `test:ui` must pass; Rende
 | W-15 | Growth: citations checklist + NAP check, mention finder, outreach drafts through approvals, Links CSV import, optional DataForSEO key | No message sent without approval; daily cap enforced |
 | W-16 | Export to GitHub and ZIP (static bundle, `_redirects`, sitemap) | Exported bundle deploys on Cloudflare Pages and the form still posts to Oprun |
 | W-17 | Help article, public page wording, pricing line for the Website add-on, monitoring of generation cost | Owner approves wording; no claims beyond what is built |
+| W-18 | `llms.txt` per published site + owner AI-crawler setting in `robots.txt` (D-W18) — repo task T-199 | `/llms.txt` lists summary, services, areas, contact and pages; robots rules follow the setting; change needs approval |
+| W-19 | Buy a domain inside Oprun with the business's own Cloudflare account (D-W15) — T-200 | Live price shown; owner confirm recorded; one registration per idempotency key; unsupported extension → deep link; Oprun never pays |
+| W-20 | Free email forwarding with Cloudflare Email Routing (D-W17) — T-201 | Records written only after approval; SPF merged; screen says receive-only |
 
 ## 2. MVP scope (first live test: a test business on the free oprun.ai address and a spare test domain)
 
@@ -72,6 +75,10 @@ publishing, live Oprun data). Out of MVP: email automation beyond showing record
 
 ## 4. What to push to GitHub first for live testing
 
+**Status 23 Nov 2026 (brief v2):** items 1 and 2 below are done (spec pack, W-01 Website section live, W-02 tables partly). W-09 custom-domain hosting is built (T-155) and switches on when the Cloudflare items in §5 are set. **Next push, in this order:** W-18 (small, free, raises AI visibility for every published site) → W-03/W-04/W-05 behind `website_builder_v2` → W-08 speed budget → W-06 cinematic → W-19/W-20 (needs a test Cloudflare account) → W-13/W-14 transfer.
+
+Original order:
+
 1. This spec pack (`docs/ai-website/`) — done in this pull request.
 2. W-01 + W-02 (one section, migrations) — safe, no behaviour change, proves navigation on phone/tablet/laptop.
 3. W-03 to W-06 behind the business flag `website_builder_v2` so one test business tries it first.
@@ -84,4 +91,5 @@ publishing, live Oprun data). Out of MVP: email automation beyond showing record
 | A Cloudflare account for Oprun with a zone for the site target (recommend a separate domain such as `oprunsites.com`, so `oprun.ai` DNS does not move) and Cloudflare for SaaS enabled | Custom hostnames and SSL (D-W4) |
 | A Cloudflare API token for that zone (Custom Hostnames + Cache Purge), saved in Render as `CLOUDFLARE_SAAS_TOKEN`, plus `CLOUDFLARE_SAAS_ZONE_ID` | Server-side hostname management |
 | Decision: Website as part of plans or a paid add-on, and its price | Pricing page and metering |
+| For W-19/W-20 tests: a Cloudflare account of a test business with a payment method and an API token (Registrar write + Zone DNS edit), entered in the app, never in chat | One-step purchase and free forwarding can only be proven against a real account |
 | A spare test domain the owner buys (any cheap gTLD) | First live custom-domain test without touching Fleet Parlour's website |

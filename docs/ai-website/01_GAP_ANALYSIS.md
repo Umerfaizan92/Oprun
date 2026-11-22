@@ -1,6 +1,28 @@
 # 01 Competitor gap analysis: Framer, Webflow, Wix Harmony / Lovable vs Oprun
 
-Researched 2026-11-20 (sources in [SOURCES.md](SOURCES.md)). Vendor terms change often; re-check before quoting them to customers.
+Researched 2026-11-20, refreshed 2026-11-23 for brief v2 (§0 below; sources in [SOURCES.md](SOURCES.md)). Vendor terms change often; re-check before quoting them to customers.
+
+## 0. November 2026 refresh (brief v2)
+
+Checked on 23 Nov 2026 against vendor pages and an independent 12-builder review dated 2 Nov 2026 (prices are the cheapest plan with a custom domain, billed annually).
+
+| | Framer | Webflow | Wix Harmony | Lovable |
+|---|---|---|---|---|
+| AI | Agents generate and edit pages on the canvas | AI site builder: up to 5 pages with a design system | Prompt to site, then the Aria agent or drag-and-drop | Chat to code (sites and apps) |
+| From | US$10/mo | US$15/mo (site) + workspace, seats, credits | US$17/mo | US$25/mo for 100 credits |
+| Export | None (third-party React export plugin US$50–250/mo) | HTML/CSS on paid workspace plans, **without CMS content** | None | Full code, GitHub sync |
+| SEO / AI engines | Meta from CMS, canonicals, 301s, sitemap, **llms.txt** | Meta, schema, robots.txt, **llms.txt, AI-crawler access** | Server-rendered, per-page JSON-LD, editable robots.txt; **sitemap not editable** | SSR only for projects since 13 May 2026; older projects serve empty HTML to normal visitors; sitemap not always generated |
+| Weakest point for a trade business | Lock-in, no business data | Price complexity, partial export | Lock-in | Generic metadata, no business tools |
+
+**What changed since 20 Nov:** nothing that removes an Oprun advantage. Two things raised the bar, now answered in the contract: `llms.txt` and AI-crawler controls are standard (D-W18), and Cloudflare now sells domains by API, so buying a domain can happen inside Oprun (D-W15).
+
+**Oprun's lead, in one line each**
+1. The only builder whose content comes from the business's live records (services, areas, real reviews, finished jobs) and whose enquiries flow straight into customers, Unibox and the AI Receptionist.
+2. Full ownership like Lovable (static export with redirects and sitemap, D-W13), with the business tools Lovable does not have.
+3. Domain bought, connected, emailed and verified in one screen, including `.com.au` guidance (D-W5, D-W15).
+4. Cinematic 3D that cannot break Core Web Vitals (island, poster first, plays once, budget enforced at publish, D-W3).
+5. Transfer that keeps rankings: every old URL mapped, checked before switch-over and watched for 30 days (D-W9).
+6. White-hat growth with approvals, never bought links (D-W11).
 
 ## 1. What each leader does best
 

@@ -589,3 +589,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/reel-maker.js, src/assets/fonts/*, src/server.js, saas/workspace-reel-maker.js, scripts/reel-maker.test.mjs
 - Acceptance: npm test passes; render test produces a valid MP4 with text, cross-fades, end card for 9:16 and 1:1; UI test creates a reel; deployed and live on Render
 - Evidence: npm test 73/73 passed; test:ui 38 passed; scripts/reel-maker.test.mjs 2/2 (9:16 720p 13 s reel with photos, clip, logo, music, end card rendered in about 16 s; 1:1 reel; tenant isolation; idempotency; delete keeps library video); test-reel-maker-ui passed (upload, suggest words, make, play, post draft with caption, 390/768/1440 fit, axe clean); ai-video-ui, media-studio-guided-ui, studio-editor, studio-draft-ui passed; security:secrets passed (recorded 2026-11-22 on claude/t197-reel-maker at 8573c88)
+
+## T-198 AI Website spec v2 refresh (owner prompt 23 Nov)
+- Added: 2026-11-22
+- Requirement: Owner re-issued the AI Website architect brief (saved in docs/ai-website/PROMPT_V2_2026-11-23.txt): redesign/specify the one-section website system (new site + transfer/redesign with SEO equity, cinematic 3D, SEO/AEO + white-hat backlinks, domain buy/transfer preferring Cloudflare or Namecheap, business email, Oprun integration, tools/agents, MVP plan, progress state). Zero duplicates: update the existing docs/ai-website pack, do not write a second one.
+- Files: docs/ai-website/*
+- Acceptance: Every v2 output covered and cross-linked; facts refreshed Nov 2026 with sources; registrar decision for Cloudflare API and Namecheap recorded; honest code status; progress state updated; memory valid; pushed
+- Evidence: docs/ai-website updated: 00 contract D-W15..D-W18, 01 Nov 2026 refresh, 02 mermaid buy/forwarding, 03 wizard, 06 in-app buy flow + Namecheap + forwarding, 07 AI crawlers, 09 agents + tools, 10 status/next order + W-18..W-20, 11 progress state with honest code status, SOURCES, resume prompt, PROMPT_V2 saved; new tasks T-199..T-201; memory:validate, verify:manifest and security:secrets passed (recorded 2026-11-22 on claude/ai-website-v2 at 4cb2553)
