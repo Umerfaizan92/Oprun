@@ -1,0 +1,472 @@
+OPRUN AI — MASTER AUTONOMOUS TRANSFORMATION PROJECT
+
+1. YOUR ROLE
+
+Act as Oprun AI's Chief Product Architect, Principal Full-Stack Engineer, Senior SaaS Developer, Enterprise UI/UX Director, AI Systems Architect, DevOps Lead, Cybersecurity Auditor, QA Director and Technical Project Manager.
+
+You are responsible for coordinating the complete project, executing approved development tasks sequentially, testing every feature and preserving progress permanently.
+
+Project: Oprun AI
+GitHub: Umerfaizan92/Oprun
+Website: oprun.ai
+Deployment: Render
+Storage: AWS
+Reference: Attached premium dark AI dashboard screenshot.
+
+2. PRIMARY OBJECTIVE
+
+Transform the existing Oprun application into a world-class, unified, AI-assisted business operating platform.
+
+Modernize the complete application, including:
+
+- Public website before login.
+- Branding, logos, icons and graphics.
+- Sign-in, registration and onboarding.
+- Subscriber Business Workspace.
+- Operator Console.
+- Staff management and job allocation.
+- CRM, enquiries and customer support.
+- Communications, phone, SMS and email.
+- AI Media Studio and content creation.
+- Marketing and social publishing.
+- Websites and business automation.
+- Billing, subscriptions and integrations.
+- Security, monitoring and administration.
+- AI Agent Manager and specialized AI agents.
+- Desktop, tablet, Android and iOS experiences.
+
+Do not create a separate replacement application when the existing system can be safely upgraded.
+
+Preserve all existing working functionality, production data, integrations, subscriber accounts and business settings.
+
+3. DESIGN STANDARD
+
+Use the attached dashboard screenshot as the primary visual reference.
+
+Create a more refined, premium and professional version featuring:
+
+- Deep navy and graphite backgrounds.
+- Purple, cyan and subtle blue accents.
+- Premium typography and iconography.
+- Compact, clean dashboard cards.
+- Elegant analytics and visualizations.
+- Sophisticated but lightweight animations.
+- Intelligent contextual AI interactions.
+- Consistent spacing and alignment.
+- Unified component library.
+- Accessible dark and light themes.
+- Fully responsive layouts.
+
+Every section must share the same design identity.
+
+Avoid crowded dashboards, oversized empty spaces, excessive descriptions, duplicated menus and permanently visible suggestion panels.
+
+Replace outdated logos, icons and branding consistently, including public website assets, favicon, app icons, emails, notifications, mobile/PWA icons and internal navigation.
+
+Do not change the established Oprun brand name without approval.
+
+4. COMPLETE EXISTING SYSTEM AUDIT
+
+Before implementation:
+
+1. Inspect the current main branch and active development branches.
+2. Review all previous handovers, checkpoints and unfinished tasks.
+3. Inspect Render services, deployment history and configurations.
+4. Inventory every existing page, route, tab, button, form and feature.
+5. Identify duplicate and outdated components.
+6. Inspect frontend and backend architecture.
+7. Audit existing design systems and branding.
+8. Review staff, subscriber and AI-agent functionality.
+9. Review integrations and communications.
+10. Verify security and tenant isolation.
+11. Inspect available backup and recovery evidence.
+
+Classify features as KEEP, MERGE, UPGRADE, BUILD or RETIRE.
+
+Do not delete functionality simply because it looks outdated.
+
+IMPORTANT VERIFIED CONTEXT:
+
+- Primary Render service: srv-dbuq98ojo6nc73aro66g.
+- Main branch has automatic deployment enabled.
+- Previous observed live commit: 0e7bfb0.
+- T-202 Media Studio redesign commit: 6cbbe20; its deployment status requires rechecking.
+- Multiple legacy Render services exist.
+- At least two Oprun-related services have separate persistent disks.
+- Existing Media Studio, video, website and communication improvements must be reconciled before rebuilding.
+
+These observations are historical checkpoints, not guaranteed current state. Reverify them.
+
+5. PUBLIC WEBSITE TRANSFORMATION
+
+Redesign the complete pre-login website.
+
+Include:
+
+- Premium homepage.
+- Product overview.
+- Interactive feature demonstrations.
+- Industry solutions.
+- AI capabilities.
+- Pricing and subscriptions.
+- Integrations.
+- Security and privacy information.
+- Help and support.
+- Contact and enquiry forms.
+- Sign-in and registration.
+- Mobile-friendly navigation.
+- SEO and accessibility.
+
+Ensure the website clearly explains what Oprun does before visitors create an account.
+
+Use authentic product screenshots or working demonstrations. Never present fictional functionality as live.
+
+6. BUSINESS WORKSPACE TRANSFORMATION
+
+Create one unified subscriber experience.
+
+Audit and modernize:
+
+- Dashboard.
+- CRM and leads.
+- Enquiries.
+- Customers.
+- Quotations.
+- Jobs and scheduling.
+- Staff and permissions.
+- Inbox and communications.
+- Phone and meetings.
+- Invoicing and payments.
+- Marketing.
+- Social media.
+- AI Media Studio.
+- Website builder.
+- Documents.
+- Automations.
+- Analytics.
+- Integrations.
+- Settings.
+
+Display only relevant modules based on industry, subscription and permissions.
+
+Preserve each subscriber's independent data and configuration.
+
+7. ADVANCED OPERATOR CONSOLE
+
+Transform the Operator Console into Oprun's central headquarters.
+
+Include:
+
+- Executive dashboard.
+- Subscriber administration.
+- Employee and contractor management.
+- Departments and teams.
+- Staff roles and permissions.
+- Staff availability and workload.
+- Enquiry and task allocation.
+- Project management.
+- Support ticket management.
+- AI Agent Command Center.
+- AI Agent Manager.
+- Platform monitoring.
+- Communications management.
+- Subscription and billing oversight.
+- Security and audit logs.
+- Integrations.
+- Feature management.
+- Reporting and analytics.
+
+Allow the Oprun owner to assign responsibilities to staff and monitor their completion.
+
+Maintain strict separation between Oprun internal operations and subscriber business operations.
+
+8. AI AGENT MANAGER
+
+Build a central AI Agent Manager coordinating specialized agents for:
+
+- Platform health.
+- Security.
+- Customer enquiries.
+- Subscriber onboarding.
+- Staff allocation.
+- Customer support.
+- Communications.
+- UI/UX quality.
+- Automated testing.
+- Media and content.
+- Integrations.
+- Billing monitoring.
+- Release coordination.
+
+Each agent requires:
+
+- Defined responsibilities.
+- Restricted permissions.
+- Durable task queues.
+- Scheduled execution.
+- Progress tracking.
+- Retry and timeout handling.
+- Failure escalation.
+- Audit logs.
+- Performance monitoring.
+- Human approval controls.
+
+The manager must delegate tasks, monitor deadlines, verify completion and escalate failures.
+
+24/7 automation must run through real backend infrastructure, not simulated AI activity or an open chat session.
+
+Never permit autonomous production deployments, destructive changes or sensitive financial actions without authorization.
+
+9. INTELLIGENT BUSINESS ONBOARDING
+
+Build multilingual AI-powered onboarding.
+
+Collect business information through voice and text.
+
+Determine:
+
+- Country and jurisdiction.
+- Preferred language.
+- Industry and sub-industry.
+- Business operations.
+- Services and pricing.
+- Customers.
+- Employees.
+- Scheduling.
+- Communications.
+- Finance.
+- Marketing.
+- Integrations.
+- Relevant compliance requirements.
+
+Generate a proposed industry-specific workspace.
+
+Require subscriber review and approval before activation.
+
+Support save/resume, correction, accessible controls and appropriate privacy consent.
+
+10. DUPLICATE & LEGACY CLEANUP
+
+Audit all overlapping features, routes, menus, components, agents and old branding.
+
+Merge useful functionality into one authoritative implementation.
+
+Remove obsolete customer-facing UI only after migration, functional parity testing and approval.
+
+Preserve historical records, audit trails and data.
+
+Use one navigation registry, one design system and one clear ownership model for each workflow.
+
+Do not display confusing legacy versions or duplicate sections.
+
+11. TEMPORARY AI RECOMMENDATIONS
+
+Recommendations must be compact, contextual and temporary.
+
+Show suggestions only when relevant.
+
+Dismiss completed or acknowledged suggestions.
+
+Remember dismissed suggestions to prevent repeated interruptions.
+
+Never automatically hide unresolved critical security, billing or compliance warnings.
+
+Avoid permanent recommendation dashboards unless genuinely necessary.
+
+12. CRITICAL LIVE-UI VERIFICATION
+
+This requirement is mandatory.
+
+Never claim a redesigned feature is complete merely because code was written, committed or tests passed.
+
+For EVERY redesigned page:
+
+1. Identify the exact route and component.
+2. Implement the approved visual changes.
+3. Build the application.
+4. Test functionality.
+5. Open the actual page in a browser.
+6. Capture desktop and mobile screenshots.
+7. Compare against the approved design.
+8. Verify the new assets, branding and navigation.
+9. Check that old UI is no longer visible.
+10. Test relevant permissions and user roles.
+11. Record the commit SHA and evidence.
+12. Mark complete only after visual and functional verification.
+
+For production releases:
+
+- Confirm the deployed Git SHA.
+- Confirm the correct Render service.
+- Confirm the correct environment and domain.
+- Check feature flags and rollout permissions.
+- Check browser caching and service workers.
+- Verify static assets are updated.
+- Test the public website and authenticated workspaces.
+- Capture screenshots from the actual live deployment.
+- Compare live UI against the approved reference.
+- Report discrepancies and fix them through an approved release process.
+
+A successful build is NOT proof of a successful redesign.
+
+A successful deployment is NOT proof that users can see the new interface.
+
+Never report production completion until the actual live UI has been verified.
+
+13. SECURITY & DATA PRESERVATION
+
+Enforce strict multi-tenant isolation across:
+
+- Database records.
+- File storage.
+- Background jobs.
+- AI agent contexts.
+- Search indexes.
+- Caches.
+- Logs.
+- Integrations.
+- Staff permissions.
+
+Use least-privilege authorization, secure credentials, encrypted storage and audit trails.
+
+Verify backups and recovery readiness before high-risk changes.
+
+Never delete old Render services, disks, databases or AWS resources without explicit approval and verified migration evidence.
+
+Never expose secrets in logs, commits or handover documents.
+
+14. DEVELOPMENT EXECUTION RULES
+
+Work sequentially through the approved task backlog.
+
+For each task:
+
+PLAN → IMPLEMENT → TEST → VISUALLY VERIFY → SECURITY CHECK → COMMIT → CHECKPOINT → NEXT TASK.
+
+Batch related changes to minimize repeated work.
+
+Reuse existing components and test infrastructure.
+
+Avoid unnecessary dependencies, paid APIs, repetitive research and redundant AI calls.
+
+Use isolated development branches.
+
+Do not merge to main because Render auto-deploy is enabled.
+
+Do not deploy or modify production without explicit owner approval.
+
+Continue through independent approved tasks without repeatedly asking for confirmation.
+
+Ask only when a decision requires owner authorization, new credentials, spending or irreversible changes.
+
+15. PERMANENT CONTINUITY SYSTEM
+
+Maintain one authoritative master task register and one current checkpoint.
+
+Reuse existing coordination documents where possible.
+
+After every completed batch, record:
+
+- Completed tasks.
+- Pending tasks.
+- Current branch.
+- Latest commit SHA.
+- Tests performed.
+- Visual evidence.
+- Security results.
+- Known failures.
+- Blockers.
+- Exact next action.
+
+Commit and push approved non-production work to durable Git branches.
+
+Never store credentials in checkpoints.
+
+Before session limits, preserve all progress.
+
+When a new session starts:
+
+1. Read the latest checkpoint.
+2. Inspect Git status.
+3. Verify the latest committed work.
+4. Identify the first incomplete task.
+5. Resume from that exact point.
+6. Avoid repeating completed work.
+7. Save another checkpoint after progress.
+
+If Claude cannot execute because of usage limits, leave a complete handover.
+
+Do not claim automatic execution during an inactive session. Resume when a new session is available, or use a separately approved persistent orchestrator.
+
+16. QUALITY GATES
+
+Test:
+
+- Desktop and mobile browsers.
+- Tablet responsiveness.
+- Android and iOS layouts.
+- Accessibility.
+- Navigation.
+- Forms and buttons.
+- Subscriber workflows.
+- Operator Console.
+- Staff management.
+- AI agents.
+- Email and phone workflows.
+- Media Studio.
+- Integrations.
+- Security and tenant isolation.
+- Performance.
+- Backup and recovery readiness.
+
+Use actual device/browser testing where available.
+
+Clearly identify anything that cannot be verified.
+
+No fake test results or unsupported completion claims.
+
+17. EXECUTION ORDER
+
+PHASE 1 — Read-only audit and current-state verification.
+
+PHASE 2 — Feature inventory, duplicate analysis and master design.
+
+PHASE 3 — Public website and unified design system.
+
+PHASE 4 — Subscriber Business Workspace redesign.
+
+PHASE 5 — Operator Console and staff management.
+
+PHASE 6 — AI Agent Manager and specialized agents.
+
+PHASE 7 — Intelligent onboarding and industry-specific workspaces.
+
+PHASE 8 — Communications, Media Studio and integrations consolidation.
+
+PHASE 9 — Complete QA, security and visual verification.
+
+PHASE 10 — Staging validation and production release preparation.
+
+For each phase, complete all approved tasks and record evidence before proceeding.
+
+Do not skip unfinished tasks.
+
+18. FIRST ACTION
+
+Start immediately with Phase 1.
+
+Read the existing GitHub repository, coordination files and Render state.
+
+Identify existing work to preserve, duplicate features, unfinished tasks and design inconsistencies.
+
+Prepare the complete implementation backlog and a concise visual transformation blueprint.
+
+Present the read-only audit and request approval for the implementation scope.
+
+After approval, execute approved tasks sequentially, preserve progress after each batch and stop at production approval gates.
+
+PRIMARY SUCCESS CRITERION:
+
+The final Oprun application must visibly and functionally reflect the approved redesign across its public website, Business Workspace, Operator Console and supported devices.
+
+Do not mark the transformation complete while the actual user-facing interface still displays the old design.

@@ -2411,3 +2411,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Continue website step 2 (T-149/T-150) after deploy check
+
+## CP-173 2026-11-22T19:06:47+00:00 T-203 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-203 (COMPLETED)
+- Completed steps: Phase 1 audit, backlog TR-01..TR-81, visual blueprint draft
+- Incomplete steps: Owner approvals: scope, palette + screenshot, release process/staging, browser access, security settings, legacy service
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PROGRESS.md; docs/transformation/00_START_HERE.md; docs/transformation/01_PHASE1_AUDIT.md; docs/transformation/02_BACKLOG.md; docs/transformation/03_VISUAL_BLUEPRINT.md; docs/transformation/04_PROGRESS.md; docs/transformation/PROMPT_ORIGINAL.txt
+- Tests executed: memory:validate; verify:manifest; security:secrets (docs only)
+- Test results: all passed
+- Git branch: claude/transformation-phase1
+- Commit: 6cbbe20 (T-202: Media Studio redesign - one tool per page, old material removed, preview everywhere (#174))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: After approval: TR-01 record decisions, TR-02 register tidy, TR-03 staging, then TR-10 tokens v2
