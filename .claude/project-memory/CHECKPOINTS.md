@@ -2341,3 +2341,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T171047Z (5ceba77)
 - Known errors: none
 - Next exact action: Publish last tested submission batch and finish CI before authorized live-test rollout
+
+## CP-168 2026-11-22T19:19:33+08:00 T-194 TESTING
+- Phase: MS07 hosted acceptance and release verification
+- Task: T-194 (TESTING)
+- Completed steps: All six candidate checks pass; 90 contract files and 73 checks; final browser suite passes; screenshots preserved
+- Incomplete steps: Isolated backup restore; staged deployment; native speech and funded provider acceptance; remaining master scope
+- Files modified (uncommitted at checkpoint): docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/previews/release-guided-brief-phone.png; docs/media-studio/previews/release-guided-editor-phone.png; docs/media-studio/previews/release-guided-output-phone.png; docs/media-studio/previews/release-guided-production-phone.png
+- Tests executed: CI44928655323; Security44928655284
+- Test results: SUCCESS 73/73 and 90 contract files and hosted UI; SUCCESS six checks
+- Git branch: codex/t194-release-evidence
+- Commit: a318e36 (Deduplicate paid generation requests and preserve drafts before submission); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Secure operator authentication and isolated backup verify, then authorized staged rollout
