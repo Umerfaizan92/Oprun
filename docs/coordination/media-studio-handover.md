@@ -107,3 +107,13 @@ Exact next action: securely authenticate Operator Console without enabling accou
 
 ### Operator backup gate follow-up — CP168
 Secure browserAuth submitted operator sign-in; fresh visible page returned “That admin key is not right.” No credential was read, printed or stored, and private account-link shortcut remained unchecked. Stop automated credential attempts; secure manual authentication needed for isolated backup verify. PR168 body now matches final candidate scope/evidence. CP168 evidence published as f39962d25fb5700855a8e667c6946c5fbf25dc4b on codex/t194-release-evidence, tree bb8c0aa467aca28cec7b5bc68f54df411c714f4e identical to local aecc8c4. No production changes. Exact next action: user completes operator sign-in, then inspect Reliability/Backups and run isolated verification, never live restore.
+
+## MS-08 staged release started — 22 November 2026 (Perth)
+
+Owner Codex; D048 deployment authorization persists. Secure operator authentication succeeded; no key visible or retained and no private account-link shortcut enabled. Existing Reliability > Backups > Test a restore executed an isolated drill:22Nov19:31Perth Passed1.3s, checksum OK, integrity ok. Production database was not restored/replaced. Latest daily snapshot1.4MB/244tables/audit-chain verified. Continuous replication running.
+
+Current official Render deploys.md, health-checks.md and configure-environment-variables.md read: persistent disk precludes zero-downtime; autoDeploy on commit; environment updates merge existing variables and need deployment. Confirmed existing service Primary/My Workspace, main, persistent10GB /var/data. Only two nonsecret Studio flags changed (merge, never replace): unified UI globally off; signed-in owner workspace explicitly allowlisted. No credentials/settings outside those keys changed. Env update itself started old-source deploy dep-dc1d5qqjnfac738er7dg; no manual duplicate trigger.
+
+PR168 made ready and squash-merged at expected headbb10 as main8573c88ae1d3eb1aa05967c395954ec399aa5693. Automatic deploy dep-dc1d5ut9uf1s73e05840 QUEUED at11:33UTC. This is not yet live. Older PR167 closed as superseded, branch retained. Rollback source58fc72b597666c637a7fefb19af5962bb1980a80 / prior live dep-dc0nunmc6qcc73bonn2g. Additive application changes preserve old-source compatibility; never roll back disk/data.
+
+Exact next action: monitor dep-dc1d5ut9uf1s73e05840 to terminal state; verify exact deployed SHA, health, static assets and authenticated owner Studio tabs/microphone/preview paths; avoid paid calls/posts without cost/content authorization. Native-device speech and funded vendor generation remain unverified. Overall transformation PARTIAL; no final-live or all-tasks-complete claim until evidence exists.

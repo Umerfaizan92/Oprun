@@ -2355,3 +2355,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Secure operator authentication and isolated backup verify, then authorized staged rollout
+
+## CP-169 2026-11-22T19:34:03+08:00 T-194 TESTING
+- Phase: MS08 authorized staged Render release
+- Task: T-194 (TESTING)
+- Completed steps: Fresh isolated backup drill passed checksum/integrity; PR168 squash-merged 8573c88; owner-only rollout flags set; PR167 superseded
+- Incomplete steps: Monitor deploy dep-dc1d5ut9uf1s73e05840; verify live SHA/assets/owner UI; funded and native-device acceptance; remaining master scope
+- Files modified (uncommitted at checkpoint): docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md
+- Tests executed: Production isolated backup verification; candidate CI and Security
+- Test results: Passed 1.3s checksum OK integrity ok; all six checks success 73 checks 90 contract files hosted UI
+- Git branch: codex/t194-release-evidence
+- Commit: ec96882 (docs(studio): preserve operator authentication blocker without credentials); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Monitor exact queued deploy and verify actual production workload before claiming live
