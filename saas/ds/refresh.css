@@ -570,3 +570,31 @@ html body #dialer-view .ph-dtmf{max-width:300px}
 html body #dialer-view .ph-dtmf[hidden]{display:none}
 html body #dialer-view .ph-alt{margin-left:auto}
 html body #dialer-view .ph-rec-play{grid-column:1/-1;width:100%;height:36px;margin-top:4px}
+/* T-190: AI video creator: guides, voice-over, long videos, camera */
+html body .aiv-voice{border:1px solid var(--rf-edge);border-radius:14px;padding:12px 14px 14px;margin:0;display:grid;gap:10px;min-width:0}
+html body .aiv-voice legend{padding:0 6px;font-size:.78rem;font-weight:800;color:var(--sp-fg-muted);letter-spacing:.04em}
+html body .aiv-voice .aiv-seg{flex-wrap:wrap}
+html body .aiv-voice .aiv-seg button{flex:1 1 9rem}
+html body .aiv-check{display:flex!important;align-items:center;gap:10px;font-size:.88rem}
+html body .aiv-check[hidden]{display:none!important}
+html body .aiv-check input{width:20px;height:20px;flex:none;accent-color:var(--sp-gold)}
+html body .aiv-plan{margin:0;font-size:.85rem;color:var(--sp-fg-muted)}
+html body .aiv-plan:empty{display:none}
+html body .aiv-grow{flex:1 1 14rem}
+html body .aiv-audio{width:100%;height:40px}
+html body .aiv-rec-status{margin:0;font-size:.85rem}
+html body .aiv-clone{display:grid;gap:10px;padding:12px;border:1px dashed var(--rf-edge-strong);border-radius:12px}
+html body .aiv-clone p{margin:0;font-size:.85rem}
+html body .aiv-progress{height:8px;border-radius:999px;background:rgba(237,241,248,.08);overflow:hidden}
+html body .aiv-progress span{display:block;height:100%;background:var(--sp-gold);border-radius:999px}
+html body .aiv-cam{width:min(560px,96vw);max-height:96dvh;padding:0;border:1px solid var(--rf-edge-strong);border-radius:18px;background:#0b0d13;color:#EDF1F8;overflow:auto}
+html body .aiv-cam::backdrop{background:rgba(3,4,8,.82)}
+html body .aiv-cam header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(237,241,248,.08)}
+html body .aiv-cam > p,html body .aiv-cam > .aiv-row{margin:10px 14px}
+html body .aiv-cam > .aiv-row{margin-bottom:14px}
+html body .aiv-cam-x{width:40px;height:40px;border-radius:999px;border:1px solid rgba(237,241,248,.16);background:transparent;color:inherit;font-size:1.4rem;cursor:pointer}
+html body .aiv-cam-stage{position:relative;background:#000;display:flex;justify-content:center}
+html body .aiv-cam-video{display:block;width:100%;max-height:calc(96dvh - 190px);object-fit:contain;background:#000}
+html body .aiv-cam-clock{position:absolute;top:10px;left:10px;padding:3px 10px;border-radius:999px;background:rgba(0,0,0,.6);color:#ff8a8a;font-weight:800;font-size:.85rem}
+html body .aiv-cam-clock:empty{display:none}
+@media (width < 700px){html body .aiv-cam{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0}}

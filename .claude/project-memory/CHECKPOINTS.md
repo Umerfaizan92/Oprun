@@ -1935,3 +1935,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/v1-meta-video/20261113T153408Z (37ee2e9)
 - Known errors: none
 - Next exact action: Run channel UI test and npm test for V1, then start the Connections rework
+
+## CP-139 2026-11-21T01:36:15+00:00 T-190 IN_PROGRESS
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (IN_PROGRESS)
+- Completed steps: T-188 web phone and T-189 enquiry email committed on branch claude/web-phone (pushed to GitHub, not merged).
+- Incomplete steps: T-190: add ffmpeg-static 5.2.0; src/media-tools.js (frameAt, lastFrame, duration, concat re-encode with scale/pad and silent audio, mux narration, toMp3); ai-video projects (multi-segment up to 10 min, AI shot plan, continuity via last frame, reference photos/videos, narration own recording or ElevenLabs voice clone with consent); UI: record from camera, record voice, references, length up to 10 min, narration; tests; then merge branch to main, verify Render deploy, live checks.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/web-phone
+- Commit: 0073830 (Enquiry alerts from inquiry@, professional email layout, SMS alert fix (T-189)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Implement src/media-tools.js and project flow in src/ai-video.js; then merge PR for claude/web-phone after T-190 tests pass; owner asleep, finish and deploy autonomously.
+
+## CP-140 2026-11-21T01:56:19+00:00 T-190 IN_PROGRESS
+- Phase: Candidate foundation and reviewed global-platform blueprint
+- Task: T-190 (IN_PROGRESS)
+- Completed steps: Branch claude/web-phone (pushed): T-187 merged earlier; T-188 web phone (commit fa7f1a6) and T-189 enquiry emails from inquiry@oprun.ai + new email layout + SMS alert logging (commit 0073830), both tested (npm test 73/73). T-190 uncommitted in working tree: src/media-tools.js (ffmpeg-static 5.2.0), src/ai-video.js projects/voices/camera-mp4 routes, saas/workspace-ai-video.js new UI, refresh.css T-190 block, scripts/ai-video-projects.test.mjs (passes), scripts/test-ai-video-ui.mjs (extended; last step fails: clicking Generate after recording voice + 30s length does not create the 2-shot project; debug line prints projects and #notice).
+- Incomplete steps: Find why Generate does not submit in UI test (check #notice text, narrationId after drawVoice, button disabled); remove DEBUG catch in test; run npm test, test:ui, navigation, redesign, localization, mobile, meetings, webphone, comms UI; npm run build:ds, manifest:update, verify:manifest, memory:validate; commit T-190; open PR from claude/web-phone and squash-merge to main; wait ~7 min; check Render deploy live; smoke-check https://www.oprun.ai/healthz.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; package-lock.json; package.json; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace.html; scripts/test-ai-video-ui.mjs; src/ai-video.js; scripts/ai-video-projects.test.mjs; src/media-tools.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/web-phone
+- Commit: 0073830 (Enquiry alerts from inquiry@, professional email layout, SMS alert fix (T-189)); branch not on remote
+- Recovery snapshot: refs/recovery/claude/web-phone/20261121T015619Z (0768ccb)
+- Known errors: none
+- Next exact action: Debug the generate click in scripts/test-ai-video-ui.mjs (step after 'Record my voice').

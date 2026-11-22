@@ -92,6 +92,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.22.3",
     "express-rate-limit": "^7.5.0",
+    "ffmpeg-static": "5.2.0",
     "helmet": "^8.0.0",
     "libphonenumber-js": "^1.13.17",
     "multer": "^2.0.2",

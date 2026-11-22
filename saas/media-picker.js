@@ -19,7 +19,8 @@
   }
   let uid = 0;
 
-  function create({ selected = [], label = 'Photos and videos', hint = '' } = {}) {
+  function create({ selected = [], label = 'Photos and videos', hint = '', max = MAX } = {}) {
+    const LIMIT = Math.max(1, Math.min(MAX, Number(max) || MAX));
     const known = new Map(); // id -> { id, kind, name }
     let chosen = selected.map((m) => (typeof m === 'string' ? m : m.id)).filter(Boolean);
     for (const m of selected) if (typeof m === 'object' && m?.id) known.set(m.id, { id: m.id, kind: m.kind, name: m.name || m.original_name || '' });
@@ -43,7 +44,7 @@
         return make('li', {}, thumb(m), make('button', { type: 'button', class: 'mp-remove', 'aria-label': `Remove ${m.name || (m.kind === 'video' ? 'video' : 'photo')} ${i + 1}`, text: '×', onclick: () => { chosen = chosen.filter((x) => x !== id); changed(); } }));
       }));
       strip.hidden = !chosen.length;
-      count.textContent = chosen.length ? `${chosen.length} of ${MAX} chosen` : 'None chosen';
+      count.textContent = chosen.length ? `${chosen.length} of ${LIMIT} chosen` : 'None chosen';
       grid.querySelectorAll('[data-media-id]').forEach((b) => b.setAttribute('aria-pressed', String(chosen.includes(b.dataset.mediaId))));
     }
     async function openLibrary() {
@@ -57,7 +58,7 @@
         grid.dataset.loaded = '1';
         grid.replaceChildren(...(items.length ? items.map((m) => make('button', { type: 'button', class: 'mp-pick', 'data-media-id': m.id, 'aria-pressed': 'false', 'aria-label': `${m.kind === 'video' ? 'Video' : 'Photo'}: ${m.original_name}`, onclick: () => {
           if (chosen.includes(m.id)) chosen = chosen.filter((x) => x !== m.id);
-          else if (chosen.length >= MAX) { status.textContent = `Up to ${MAX} photos and videos.`; return; } else chosen.push(m.id);
+          else if (chosen.length >= LIMIT) { status.textContent = `Up to ${LIMIT} photos and videos.`; return; } else chosen.push(m.id);
           status.textContent = ''; changed();
         } }, thumb(m))) : [make('p', { class: 'mp-status', text: 'Your media library is empty. Add photos or videos from your device.' })]));
         draw();
@@ -66,15 +67,15 @@
     input.addEventListener('change', async () => {
       const files = [...input.files]; input.value = '';
       if (!files.length) return;
-      const room = MAX - chosen.length;
-      if (room <= 0) { status.textContent = `Up to ${MAX} photos and videos. Remove one first.`; return; }
+      const room = LIMIT - chosen.length;
+      if (room <= 0) { status.textContent = `Up to ${LIMIT} photos and videos. Remove one first.`; return; }
       const form = new FormData(); files.slice(0, Math.min(room, 10)).forEach((f) => form.append('files', f));
       status.textContent = `Uploading ${Math.min(files.length, room)} file${files.length === 1 ? '' : 's'}…`;
       try {
         const d = await request('/api/saas/media', { method: 'POST', body: form });
         d.ids.forEach((id, i) => { const f = files[i]; known.set(id, { id, kind: f.type.startsWith('video/') ? 'video' : 'photo', name: f.name }); chosen.push(id); });
         delete grid.dataset.loaded; if (!grid.hidden) { grid.hidden = true; openLibrary(); }
-        status.textContent = `${d.ids.length} added.${files.length > room ? ` Only ${MAX} can be used.` : ''}`; changed();
+        status.textContent = `${d.ids.length} added.${files.length > room ? ` Only ${LIMIT} can be used.` : ''}`; changed();
       } catch (e) { status.textContent = e.message; }
     });
     libButton.addEventListener('click', openLibrary);
