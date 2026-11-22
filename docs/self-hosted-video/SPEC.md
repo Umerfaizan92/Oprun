@@ -13,8 +13,10 @@ Sources checked 22 Nov 2026: Hugging Face cards for Wan-AI/Wan2.2-* and Lightric
 - [x] Automatic market-update loop designed (section 5)
 - [x] Implementation plan written (section 6)
 - [x] Render deployment + live test plan written (section 7)
-- Decisions: 23 Nov 2026 owner chose an OWNED GPU server (section 3.7). Open: LTX-2.5 licence acceptance (LTX stays
-  behind flag `STUDIO_LTX_ENABLED=0` until approved), server purchase and hosting site.
+- Decisions (23 Nov 2026): owner chose an OWNED GPU server (section 3.7) and ACCEPTED the LTX-2.x Community License
+  limit (free under US$10M ARR). LTX-2.5 is in scope; flag `STUDIO_LTX_ENABLED` defaults on. Re-check the licence
+  at each LTX release and budget a commercial licence before Oprun approaches US$10M ARR.
+  Open: server purchase and hosting site.
 - Current focus: owner approval of the server build, then phase P1
 - Next: P1 (benchmark box) as soon as hardware is on site
 
@@ -80,8 +82,7 @@ then a rule-based template is used, so a job never fails because of the LLM.
 ### 2.2 Model routing per shot
 - Wan 2.2 A14B (I2V or T2V): default for every visual shot (best quality of the open set).
 - Wan 2.2 TI2V-5B: draft/preview tier and overflow when the large GPU is busy.
-- LTX-2.5: only shots with `needs_audio` (on-camera dialogue with lip sync, sound-led moments). Never used if the
-  licence check flag is off.
+- LTX-2.5: only shots with `needs_audio` (on-camera dialogue with lip sync, sound-led moments).
 
 ### 2.3 Shot prompt template (filled by the Director)
 `[continuity bible]. Shot k of N, Xs. [shot size], [lens feel], [camera move]. [subject] [action] in [setting].
@@ -168,7 +169,7 @@ Weekly job on the GPU server (ops only; not part of user requests):
    canary on 10% of jobs for a week, then full rollout; the previous model stays installed for instant rollback.
 
 ## 6. Implementation plan (phases; each ends with tests passing and a checkpoint)
-- P0 Approvals: server quote, hosting site, LTX licence answer. No code risk.
+- P0 Approvals: server quote and hosting site (LTX licence accepted 23 Nov 2026). No code risk.
 - P1 Server and benchmark (1-2 weeks after hardware): OS hardening, models installed offline, egress firewall,
   benchmark Wan A14B / TI2V-5B / LTX-2.5 at 480p/720p, record times in this spec.
 - P2 Worker (`studio-worker/`, Python): job claim/heartbeat/upload protocol with HMAC, Wan I2V/T2V, quality gate,
@@ -179,7 +180,7 @@ Weekly job on the GPU server (ops only; not part of user requests):
 - P5 Voice: Chatterbox with consent record and watermark; captions from script; loudness.
 - P6 Hardening and launch: safety classifier, load test (10 businesses x 1 project), failure drills (worker dies
   mid-shot, server offline, disk full), accessibility and phone/tablet/laptop checks, Help article.
-- P7 LTX-2.5 (only if licence approved): audio shots, lip-sync check.
+- P7 LTX-2.5 (licence accepted): audio shots, lip-sync check.
 
 ## 7. Render deployment and live test plan
 - Render: deploy the Oprun side (P3) behind `STUDIO_ENABLED=0`; existing Media Studio keeps working unchanged.
