@@ -38,7 +38,7 @@ Build minutes ran out once this month (22 Nov); the owner added a US$5 build spe
 | Operator Console (`office/console.html`) | **9 groups, 35 pages** | Marketing (7) and Operations (7) are crowded; no departments/teams, workload or project tracking |
 | Public website (`saas/site/`, built by `npm run build:site`) | **21 pages** (home, features ×7, industries ×6, pricing, receptionist, stories, help, contact, install, account deletion) | No dedicated Integrations or Security page in the site build (Trust Center exists as a separate account page) |
 | Account pages (`saas/*.html`) | **21 pages** (sign-in, create account, verify, recover, worker onboarding, terms, privacy, trust centre, pay, …) | Mixed generations of styling |
-| Workspace page weight | **44 stylesheets, 81 scripts** on `workspace.html`; **64 CSS files**, **82 distinct media queries** | First-wave target was ≤ 6 stylesheets; not reached. Main source of inconsistent look and of slow first load |
+| Workspace page weight | **49 stylesheets, 81 scripts** on `workspace.html`; **64 CSS files**, **82 distinct media queries** | First-wave target was ≤ 6 stylesheets; not reached. Main source of inconsistent look and of slow first load |
 
 Secondary pages still registered (candidates to merge, routes kept as aliases):
 - Communications: Call Handling, Email folder, Channel inbox (classic view), Phone numbers setup, Calls & SMS setup
@@ -108,7 +108,7 @@ Secondary pages still registered (candidates to merge, routes kept as aliases):
 | Area | Decision | Why |
 |---|---|---|
 | Work pipeline (enquiry → quote → booking → job → invoice), Unified Inbox, approvals, AI Receptionist, Website hub, Reels, Media Studio (T-202), money ledger, staff roles, tenant isolation | **KEEP** (restyle only) | Working, tested, recently rebuilt |
-| Public website, sign-in/registration screens, Business Workspace pages, Operator Console | **UPGRADE** | Working, but mixed visual generations and 44 stylesheets |
+| Public website, sign-in/registration screens, Business Workspace pages, Operator Console | **UPGRADE** | Working, but mixed visual generations and 49 stylesheets |
 | Secondary pages (§3 list) | **MERGE** into their main page as tabs or filters; routes stay as aliases | Duplicates and "(older)" labels still reachable |
 | AI Agent Manager, operator departments/teams/workload/assignment, project tracking, voice multilingual onboarding with workspace proposal, Integrations and Security public pages, temporary-suggestion system | **BUILD** (on existing engine, queue and nav registry) | Not present |
 | Superseded PRs, stale tasks (T-194), legacy Render services | **RETIRE**, only after owner approval and, for services, after checking the legacy disk | Clutter or cost; data must be checked first |

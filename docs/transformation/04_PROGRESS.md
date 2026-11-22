@@ -18,6 +18,9 @@ Updated: 23 Nov 2026
 - [x] TR-10/TR-12 (T-204): gold scale `--sp-gold-100…800`; 533 hard-coded golds replaced; screenshot diff on 105
   page shots shows no change above 0.1%
 
+- [x] TR-11 (T-205): design-system catalogue `saas/design-system.html` (test site: /saas/design-system.html); shared
+  styles for link/danger buttons, badge and table; two unstyled live buttons fixed
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -40,5 +43,6 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-11 component catalogue (one reference page of every shared component, both themes), then TR-13 brand assets
-(check icons everywhere; keep the superpro-* copies per D-022), then TR-14 public website.
+TR-13 brand assets (check logo/icons on every page, manifest, emails and both apps; keep the superpro-* copies per
+D-022), then TR-14 public website v2, then TR-15 sign-in pages, then TR-20 merge portal-button into the standard
+buttons.

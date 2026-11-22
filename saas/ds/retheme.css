@@ -99,3 +99,20 @@ html[data-theme="light"] .guide-card select{color:#0C1424}
 
 /* T-036: on phones the live-update notices sat under the folded navigation rail (--portal-rail). Keep them right of it. */
 @media (max-width:760px){body:has(.portal-rail) .gds-live-toasts{right:10px!important;width:calc(100vw - var(--portal-rail,56px) - 20px)!important}}
+
+/* TR-11: shared styles for pieces that had none (found with saas/design-system.html). Page-specific rules
+   (more specific selectors) still win, so existing screens keep their look. */
+button.link-button,a.link-button{display:inline-flex;align-items:center;gap:6px;min-height:auto;padding:4px 2px;border:0;background:none;box-shadow:none;color:var(--sp-gold);font:inherit;font-weight:700;text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);text-underline-offset:.2em;cursor:pointer}
+button.link-button:hover,a.link-button:hover{color:var(--sp-gold-hover);text-decoration-color:currentColor}
+button.danger-button,a.danger-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:9px 16px;border-radius:var(--sp-r-control,10px);border:1px solid color-mix(in srgb,var(--sp-bad) 55%,transparent);background:color-mix(in srgb,var(--sp-bad) 14%,transparent);box-shadow:none;color:var(--sp-bad);font:inherit;font-weight:700;cursor:pointer}
+button.danger-button:hover,a.danger-button:hover{background:color-mix(in srgb,var(--sp-bad) 24%,transparent)}
+button.link-button:focus-visible,button.danger-button:focus-visible{outline:2px solid var(--sp-focus);outline-offset:2px}
+button.link-button:disabled,button.danger-button:disabled{opacity:.55;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--sp-gold) 30%,transparent);background:var(--sp-gold-soft);color:var(--sp-gold);font-size:.72rem;font-weight:800;letter-spacing:.04em}
+/* The shared table. */
+.data-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.data-table th,.data-table td{padding:10px 12px;border-bottom:1px solid var(--sp-line-soft);text-align:left;vertical-align:middle}
+.data-table th{color:var(--sp-fg-muted);font-weight:700;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase}
+.data-table tbody tr:hover{background:color-mix(in srgb,var(--sp-fg) 4%,transparent)}
+.data-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}

@@ -2467,3 +2467,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-11 component catalogue on claude/transformation-staging
+
+## CP-177 2026-11-22T21:10:27+00:00 T-205 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-205 (COMPLETED)
+- Completed steps: Catalogue + shared styles; two live button defects fixed
+- Incomplete steps: TR-13 brand assets, TR-14 public website, TR-15 sign-in, TR-20 buttons merge
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PROGRESS.md; docs/transformation/01_PHASE1_AUDIT.md; docs/transformation/04_PROGRESS.md; office/console.html; office/index.html; office/legacy.html; saas/answers.html; saas/apply.html; saas/complaints.html; saas/create-account.html; saas/ds/retheme.css; saas/ds/retheme.css.br; saas/ds/retheme.css.gz; saas/index.html; saas/join-team.html; saas/operator-sign-in.html; saas/pay.html; saas/payment-thanks.html; saas/policy-center.html; saas/privacy.html; saas/recover-account.html; saas/sign-in.html; saas/subprocessors.html; saas/terms.html; saas/trust-center.html; saas/verify-account.html; saas/worker-onboarding.html; saas/workspace.html; saas/design-system.html; saas/design-system.js; scripts/build-design-catalogue.mjs; scripts/design-catalogue.test.mjs
+- Tests executed: npm test 73/73; test:ui 38; screenshot diff 105
+- Test results: all passed
+- Git branch: claude/transformation-staging
+- Commit: 71d2535 (Audit correction: superpro-* icon copies are kept on purpose (D-022)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-13 brand asset check on claude/transformation-staging
