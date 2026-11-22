@@ -9,12 +9,14 @@ Sources checked 22 Nov 2026: Hugging Face cards for Wan-AI/Wan2.2-* and Lightric
 - [x] Architecture designed
 - [x] Production agent specified
 - [x] Model selection and self-hosting plan complete
-- [ ] Prompt engineering system designed (shot-prompt template is in 2.3; full rule library next)
-- [ ] Automatic market-update loop designed (outline in 3.6)
-- [ ] Implementation plan written
-- [ ] Render deployment + live test plan written
-- Current focus: sections 1-3 delivered
-- Next: prompt library, update loop, implementation plan, deploy/test plan
+- [x] Prompt engineering system designed (section 4)
+- [x] Automatic market-update loop designed (section 5)
+- [x] Implementation plan written (section 6)
+- [x] Render deployment + live test plan written (section 7)
+- Decisions: 23 Nov 2026 owner chose an OWNED GPU server (section 3.7). Open: LTX-2.5 licence acceptance (LTX stays
+  behind flag `STUDIO_LTX_ENABLED=0` until approved), server purchase and hosting site.
+- Current focus: owner approval of the server build, then phase P1
+- Next: P1 (benchmark box) as soon as hardware is on site
 
 ## 0. Locked requirements and facts that shape the design
 - No call during generation leaves Oprun infrastructure. No Google, Runway, ElevenLabs, Kling, Veo or LLM API.
@@ -125,3 +127,69 @@ position and shots done. The BYO-key panels stay hidden in this mode (code kept,
 Weekly ops job (not in the user path): list new video/TTS models on Hugging Face, filter to Apache/MIT/BSD or
 already-approved licences, run the fixed 40-prompt eval set on the R&D box, score (automatic metrics + blind owner
 review of 10 pairs), and write a recommendation. Switching needs owner approval and a canary on 10% of jobs.
+
+### 3.7 Owned GPU server (decision 23 Nov 2026)
+Recommended build (one server, Perth colocation or office rack with UPS):
+| Part | Choice | Why |
+|---|---|---|
+| GPU A | NVIDIA RTX PRO 6000 Blackwell 96 GB (approx. A$21.5k-28k, AU retail Nov 2026) | Wan 2.2 A14B FP8 and LTX-2.5 FP8 fully on one card |
+| GPU B | second RTX PRO 6000 96 GB (or RTX 5090 32 GB to save money) | Director LLM, Whisper, Chatterbox, TI2V-5B drafts |
+| CPU / RAM | 24-32 core EPYC or Xeon, 256 GB ECC | model loading, FFmpeg, offload |
+| Storage | 2x 4 TB NVMe (mirror) | model store about 400 GB plus scratch |
+| Power / cooling | 2x 1600 W redundant PSU, rack chassis built for 2 workstation GPUs; about 1.5-1.8 kW at load | |
+| Network | business fibre, outbound only; no public ports | worker pulls jobs |
+Budget guide: about A$70k-85k with two 96 GB cards; about A$40k-45k with one 96 GB card and one RTX 5090.
+Get two written quotes from AU builders; confirm warranty and that the chassis cools two 600 W cards.
+Operations: Ubuntu LTS, NVIDIA driver plus CUDA pinned, Docker with NVIDIA runtime, encrypted disks, automatic
+security updates, remote access only over WireGuard, nightly config backup, UPS-triggered clean shutdown,
+health heartbeat to Oprun every 30 s (Oprun shows "Studio offline" and alerts the owner if missed for 5 min).
+
+## 4. Prompt engineering system
+- Director prompts are versioned files in the repo (`studio/prompts/vN/`): system rules, JSON schema, shot template
+  (2.3), negative prompt, safety rules, 12 worked examples (trades, retail, food, beauty, real estate, product).
+- Inputs are treated as data (quoted JSON), never instructions. Output is schema-validated; invalid -> one retry ->
+  template fallback.
+- Fixed vocabulary the models follow well: shot size (wide, medium, close-up, macro), move (static, slow dolly in,
+  orbit, handheld, crane up), light (soft window, golden hour, studio key, neon), lens feel (24/35/50/85 mm).
+- Platform presets: 9:16 hook in the first 1.5 s, faces centred in the safe zone; 16:9 wider establishing shots.
+- Continuity bible is generated once and repeated verbatim at the start of every shot prompt.
+- Each prompt version must beat the previous one on the eval set (section 5) before it is used.
+
+## 5. Automatic model-update loop
+Weekly job on the GPU server (ops only; not part of user requests):
+1. Read new or updated video, TTS and LLM models from the Hugging Face Hub (metadata only).
+2. Keep those with Apache 2.0, MIT or BSD licences (others listed for owner review, never auto-used), that fit the
+   server memory, and that have working inference code.
+3. Download to a quarantine folder, verify checksums, run the 40-prompt eval set (10 people, 10 products, 10 places,
+   10 motion-heavy) at fixed seeds.
+4. Score: automatic (temporal consistency, motion amount, face consistency against the reference, prompt-match with
+   an open image-text model, time per shot) plus a blind owner review of 10 side-by-side pairs.
+5. Write a one-page recommendation into Oprun (Super admin > Studio models). A switch needs owner approval, then a
+   canary on 10% of jobs for a week, then full rollout; the previous model stays installed for instant rollback.
+
+## 6. Implementation plan (phases; each ends with tests passing and a checkpoint)
+- P0 Approvals: server quote, hosting site, LTX licence answer. No code risk.
+- P1 Server and benchmark (1-2 weeks after hardware): OS hardening, models installed offline, egress firewall,
+  benchmark Wan A14B / TI2V-5B / LTX-2.5 at 480p/720p, record times in this spec.
+- P2 Worker (`studio-worker/`, Python): job claim/heartbeat/upload protocol with HMAC, Wan I2V/T2V, quality gate,
+  RIFE, unit tests with a tiny model; "no egress" test.
+- P3 Oprun side (`src/studio-gpu.js`): job queue tables, signed claim API, plan quotas and fair queue, Studio engine
+  in the existing project flow (reuses shot chain, FFmpeg join, voice mux), BYO-key panels off by default.
+- P4 Director: Qwen3 on vLLM, Whisper, prompt library v1, eval set, JSON validation and fallback.
+- P5 Voice: Chatterbox with consent record and watermark; captions from script; loudness.
+- P6 Hardening and launch: safety classifier, load test (10 businesses x 1 project), failure drills (worker dies
+  mid-shot, server offline, disk full), accessibility and phone/tablet/laptop checks, Help article.
+- P7 LTX-2.5 (only if licence approved): audio shots, lip-sync check.
+
+## 7. Render deployment and live test plan
+- Render: deploy the Oprun side (P3) behind `STUDIO_ENABLED=0`; existing Media Studio keeps working unchanged.
+  New env (owner enters in Render, never in chat): `STUDIO_WORKER_KEYS` (HMAC secrets, one per server).
+  render.yaml unchanged; normal autoDeploy from main after the full test suite.
+- GPU server: worker runs as a systemd-managed container pointed at `https://www.oprun.ai`; enabling is per business
+  first (Fleet Parlour as pilot), then all.
+- Live tests in order: (1) heartbeat shows "Studio online"; (2) one 5 s draft shot; (3) one 30 s 6-shot video with
+  a face photo and the owner's own recorded voice, checked on phone, iPad and laptop; (4) server unplugged during a
+  shot: job resumes after restart with no duplicate; (5) egress check from the server shows no external calls during
+  generation; (6) two businesses at once: no cross-tenant data; (7) quotas stop the 11th video on a 10-video plan.
+- Rollback: set `STUDIO_ENABLED=0` (UI falls back to the current Media Studio); worker can be stopped without data
+  loss because jobs stay queued.
