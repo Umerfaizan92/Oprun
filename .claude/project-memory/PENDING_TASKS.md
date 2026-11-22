@@ -589,13 +589,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-194 Implement unified Media Studio and provider recovery
-- Status: TESTING
-- Added: 2026-11-21
-- Requirement: Implement approved T-193 specification: remove competing creator/specification UX, typed provider402 recovery and readiness, one project flow with adjacent dictation controls, actual editing/output controls, integrated campaign/channel handoff, preserve legacy records, test all paths before combined deployment.
-- Files: saas/workspace.html;saas/app.js;saas/workspace-ai-video.js;saas/workspace-video-dictation.js;src/ai-video.js;src/server.js;src/growth.js;src/channel-providers.js;scripts/
-- Acceptance: One creator and library; no draft queue pretending to render; typed402 with saved draft and explicit funded fallback; multilingual reviewable dictation; real final videos; channel capability-gated variants and approved publishing; accessibility/mobile/recovery/tenant/security/browser tests green; authorized exact-commit Render deploy verified.
-
 ## T-200 W-19 AI Website: Buy a domain inside Oprun with the business's own Cloudflare account (Registrar API beta, D-W15)
 - Status: NOT_STARTED
 - Added: 2026-11-22

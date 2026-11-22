@@ -15,7 +15,7 @@ approved release, the same page is screenshotted **on oprun.ai** and the live co
 | ID | Task | Acceptance |
 |---|---|---|
 | TR-01 | Owner approves scope, visual direction and release process (questions in the reply to this audit) | Decisions recorded in `DECISIONS.md` |
-| TR-02 | Tidy the task register: close or supersede stale tasks (T-194, T-141/T-142 status), link this backlog | `memory:validate` passes; no task marked TESTING without open work |
+| TR-02 | Tidy the task register: close superseded T-194; T-141/T-142 stay TESTING until the owner's live call test | `memory:validate` passes |
 | TR-03 | Staging: a non-production service for live-like review (proposal: reuse the free `superpro-ai-v2-preview` service, pointed at the transformation branch, no production data) | Owner approval; staging URL loads the branch; production untouched |
 
 ## Phase 3 · Public website and unified design system

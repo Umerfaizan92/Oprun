@@ -25,9 +25,10 @@ Build minutes ran out once this month (22 Nov); the owner added a US$5 build spe
   the superseded ones, after owner approval.
 - GitHub reports **1 moderate vulnerability** on `main`; the alert detail is not readable with this session's
   access (owner can open Security → Dependabot).
-- Task register: **86 tasks pending**. Inconsistencies found: T-141 and T-142 (receptionist) and T-194 (Codex
-  unified Media Studio, superseded by T-202) are still "TESTING". The receptionist plan R-02…R-20
-  (T-122–T-140) and the website plan W-03…W-20 (T-149–T-163, T-200, T-201) are open.
+- Task register: **86 tasks pending** at audit time. T-194 (Codex unified Media Studio) was still "TESTING"
+  although T-202 replaced its interface: closed on 23 Nov (TR-02). T-141 and T-142 (receptionist) correctly stay
+  "TESTING": they wait for the owner's live call test. The receptionist plan R-02…R-20 (T-122–T-140) and the
+  website plan W-03…W-20 (T-149–T-163, T-200, T-201) are open.
 
 ## 3. Pages, navigation and front-end size
 

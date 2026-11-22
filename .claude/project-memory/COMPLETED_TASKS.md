@@ -617,3 +617,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: docs/transformation/*
 - Acceptance: Audit facts verified against Render, GitHub and repo; backlog with live-UI acceptance; blueprint; checkpoint; branch pushed; nothing deployed
 - Evidence: docs/transformation 00-04 written; facts verified 23 Nov: Render list_services (6 services, live 6cbbe20), list_deploys, gh PR list (26 open), nav registry parse (31 main + 31 secondary), console defs (9 groups/35 pages), automation ACTIONS 36 + RULES 5, tokens (gold, Manrope/Bodoni), sw.js network-first; memory:validate, verify:manifest, security:secrets passed; docs-only, nothing deployed (recorded 2026-11-22 on claude/transformation-phase1 at 6cbbe20)
+
+## T-194 Implement unified Media Studio and provider recovery
+- Added: 2026-11-21
+- Requirement: Implement approved T-193 specification: remove competing creator/specification UX, typed provider402 recovery and readiness, one project flow with adjacent dictation controls, actual editing/output controls, integrated campaign/channel handoff, preserve legacy records, test all paths before combined deployment.
+- Files: saas/workspace.html;saas/app.js;saas/workspace-ai-video.js;saas/workspace-video-dictation.js;src/ai-video.js;src/server.js;src/growth.js;src/channel-providers.js;scripts/
+- Acceptance: One creator and library; no draft queue pretending to render; typed402 with saved draft and explicit funded fallback; multilingual reviewable dictation; real final videos; channel capability-gated variants and approved publishing; accessibility/mobile/recovery/tenant/security/browser tests green; authorized exact-commit Render deploy verified.
+- Evidence: Released in 8573c88; its unified creator UI was then replaced by T-202 (PR #174, live 6cbbe20). Provider recovery kept and covered by scripts/media-provider-recovery.test.mjs (passing in npm test 73/73 on 6cbbe20) (recorded 2026-11-22 on claude/transformation-phase1 at 739d1d7)
