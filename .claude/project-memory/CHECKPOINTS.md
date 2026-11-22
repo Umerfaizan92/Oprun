@@ -2075,3 +2075,269 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t191-video-prompt-dictation/20261121T052426Z (969ac44)
 - Known errors: none
 - Next exact action: Run full release validation then publish candidate for hosted UI
+
+## CP-149 2026-11-21T19:09:28+08:00 T-193 COMPLETED
+- Phase: Unified Media Studio specification complete; implementation T-194 next
+- Task: T-193 (COMPLETED)
+- Completed steps: T-191/T-192 candidate fully green and preserved in unmerged PR166; T-193 audit and unified implementation specification complete
+- Incomplete steps: T-194 implementation and funded real-provider acceptance; unified UI and authorized deploy
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md
+- Tests executed: Source audit and official API reference review; specification structure; manifest and memory validation; hosted candidate CI44870894755 and Security44870894658
+- Test results: Evidence-linked audit PASS; 9 required sections and10 progress items PASS; validation PASS; all six checks PASS with73/73 and82 contract files
+- Git branch: codex/t193-unified-media-studio-audit
+- Commit: 42c7ed3 (Create full-length custom and continuous AI videos (T-192)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Implement T-194A typed402/key-check readiness recovery, then T-194B unified composer; read docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md; PR166 remains unmerged and production cfcae59
+
+## CP-150 2026-11-21T19:24:28+08:00 T-194 NOT_STARTED
+- Phase: T191/T192 authorized Render release in progress; T194 implementation pending
+- Task: T-194 (NOT_STARTED)
+- Completed steps: PR166 merged at58fc72b; Render build triggered dep-dc0nunmc6qcc73bonn2g; exact green candidate tree verified
+- Incomplete steps: Wait for exact-commit Render LIVE; run read-only post-deploy checks; preserve final handover
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t193-unified-media-studio-audit
+- Commit: 65d07d4 (Specify one unified Media Studio and billing recovery (T-193, CP-149)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t193-unified-media-studio-audit/20261121T112428Z (c7fe336)
+- Known errors: none
+- Next exact action: Poll Render dep-dc0nunmc6qcc73bonn2g for main58fc72b then run scripts/post-deploy-check.mjs https://oprun-ai.onrender.com
+
+## CP-151 2026-11-21T19:33:16+08:00 T-194 NOT_STARTED
+- Phase: T191/T192 released and live; T194 implementation next
+- Task: T-194 (NOT_STARTED)
+- Completed steps: PR166 merged main58fc72b; Render dep-dc0nunmc6qcc73bonn2g LIVE19:31:50 Perth; live health/access/feature checks pass
+- Incomplete steps: T194A typed402 recovery; T194B unified composer; funded real-provider acceptance
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; docs/coordination/chatgpt.md; docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md
+- Tests executed: Hosted CI44870894755 and Security44870894658; post-deploy-check; live feature assets
+- Test results: All six checks PASS and73/73 including82 contract files; 6/6 PASS; 2/2 PASS
+- Git branch: codex/t193-unified-media-studio-audit
+- Commit: 65d07d4 (Specify one unified Media Studio and billing recovery (T-193, CP-149)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md and coordination log;branch T194 from current main58fc72b;implement typed402/readiness recovery before unified composer;do not redo or remerge T191/T192
+
+## CP-152 2026-11-21T20:28:32+08:00 T-195 IN_PROGRESS
+- Phase: Master Media Studio phases0-3 approval package
+- Task: T-195 (IN_PROGRESS)
+- Completed steps: Verified currentmain/Render and five live assets; 17-competitor research; 347-record inventory; five coordination documents and architecture/security/roadmap written
+- Incomplete steps: Validate documentation/source hashes; commit and push task branch; present approval question before MS-04A
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/master-audit.md; docs/media-studio/master-inventory-generator.py; docs/media-studio/master-inventory.json; docs/media-studio/master-research.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t195-media-studio-blueprint
+- Commit: fef2e17 (Preserve T-191/T-192 live Render release and CP-151 handover); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t195-media-studio-blueprint/20261121T122832Z (05ff355)
+- Known errors: none
+- Next exact action: Validate and publish phases0-3 package then wait for owner DirectionA/B/C and implementation-scope approval
+
+## CP-153 2026-11-21T20:29:01+08:00 T-194 BLOCKED
+- Phase: Master Media Studio phases0-3 package complete;owner approval gate
+- Task: T-194 (BLOCKED)
+- Completed steps: T195 recovery/research/source audit/blueprint documentation complete; three design directions and recommendedA presented; no runtime source/config/data change
+- Incomplete steps: Owner approves blueprint/design and MS04A/MS04B/MS05A scope; actual device/STT/provider acceptance; fresh backup proof before any release
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/master-audit.md; docs/media-studio/master-inventory-generator.py; docs/media-studio/master-inventory.json; docs/media-studio/master-research.md
+- Tests executed: Read-only live deploy; five asset SHA comparisons; documentation/source inventory validation; manifest memory secret checks
+- Test results: 6/6 PASS; 5/5 exact matches; 17 vendors347 records50 hashes and five coordination docs PASS; PASS
+- Git branch: codex/t195-media-studio-blueprint
+- Commit: fef2e17 (Preserve T-191/T-192 live Render release and CP-151 handover); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Wait for owner approval of DirectionA guided production and staged implementation;then reverify main/ownership and implement MS04A on separate branch, no deployment
+
+## CP-154 2026-11-21T20:34:03+08:00 T-194 IN_PROGRESS
+- Phase: DirectionA approved;MS04A critical recovery implementation
+- Task: T-194 (IN_PROGRESS)
+- Completed steps: Owner approved DirectionA; implementation branch created from currentmain; T195 blueprint and evidence preserved
+- Incomplete steps: Implement typed provider recovery and microphone diagnostics; targeted tests; tenant security; unified guided creator
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/UNIFIED_MEDIA_STUDIO_SPEC.md; docs/media-studio/master-audit.md; docs/media-studio/master-inventory-generator.py; docs/media-studio/master-inventory.json; docs/media-studio/master-research.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: 58fc72b (Release voice prompts and full-length AI video generation (T-191/T-192)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T123403Z (d935112)
+- Known errors: none
+- Next exact action: Implement and test MS04A on isolated fixtures;no production deployment or paid provider calls
+
+## CP-155 2026-11-21T20:41:41+08:00 T-194 IN_PROGRESS
+- Phase: MS04A recovery tested;MS04B isolation and MS05A guided UI in progress
+- Task: T-194 (IN_PROGRESS)
+- Completed steps: Typed provider billing/quota errors and manual retry guards; stored readiness; explicit speech fallback and MPEG4 naming; 20 recovery/dictation/runtime regressions pass
+- Incomplete steps: Expanded isolation validation; unified guided creator behind default-off tenant flag; hosted browser and full suite
+- Files modified (uncommitted at checkpoint): saas/app.js; saas/workspace-ai-runtime.js; saas/workspace-ai-video.js; saas/workspace-video-dictation.js; scripts/ai-video-projects.test.mjs; scripts/video-dictation.test.mjs; src/ai-video.js; src/server.js; scripts/media-provider-recovery.test.mjs; src/media-provider-errors.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: 6a69e9b (Preserve approved Direction A blueprint on current main (T-194)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T124141Z (0904969)
+- Known errors: none
+- Next exact action: Implement unified guided UI and test default-off/allowlisted behavior;preserve existing controls and projects
+
+## CP-156 2026-11-21T20:50:39+08:00 T-194 IN_PROGRESS
+- Phase: DirectionA candidate:recovery/isolation/guided UI testing
+- Task: T-194 (IN_PROGRESS)
+- Completed steps: Implemented typed402 and key checks; manual retry guard; explicit speech fallback; recording/workspace race guards; one progressive creator behind default-off flag
+- Incomplete steps: Final focused/full suite; hosted browser and screenshots; independent review; save and push candidate; remaining editor/campaign modules
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; .github/workflows/ci.yml; SHA256SUMS.txt; saas/app.js; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-runtime.js; saas/workspace-ai-video.js; saas/workspace-video-dictation.js; saas/workspace.html; scripts/ai-video-projects.test.mjs; scripts/video-dictation.test.mjs; src/ai-video.js; src/server.js; saas/workspace-media-guided.js; scripts/media-guided.test.mjs; scripts/media-provider-recovery.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/media-provider-errors.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: 6a69e9b (Preserve approved Direction A blueprint on current main (T-194)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T125039Z (d6d096f)
+- Known errors: none
+- Next exact action: Wait for current focused regressions,run full suite on stable tree,commit/push PR candidate for hosted UI;do not deploy
+
+## CP-157 2026-11-21T21:02:39+08:00 T-194 TESTING
+- Phase: MS04A/MS04B/MS05A candidate follow-up
+- Task: T-194 (TESTING)
+- Completed steps: Initialfullsuite73/73 and50 focused pass; legacyAIvideo hostedUI passes; fixed guided Library conflict; added shared-library/picker/viewer workspace guards and no-store previews; 27 targeted follow-up tests pass
+- Incomplete steps: Recheck finalfocused tests; hosted guided UI and full CI; record screenshots and final handover; remaining editing/campaign/audio modules
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; saas/media-picker.js; saas/media-viewer.js; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace-media.js; saas/workspace.html; scripts/ai-video.test.mjs; scripts/media-guided.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/ai-video.js; src/server.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: d46e67a (Implement Direction A guided studio and provider recovery candidate (T-194)); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-media-studio/20261121T130239Z (626cbd9)
+- Known errors: none
+- Next exact action: Commit and push follow-up to PR167;require full hosted CI/security and guided UI success;do not merge/deploy
+
+## CP-158 2026-11-21T21:19:04+08:00 no task
+- Phase: MS04A/MS04B/MS05A candidate follow-up
+- Task: not set
+- Completed steps: none
+- Incomplete steps: none
+- Files modified (uncommitted at checkpoint): docs/media-studio/previews/guided-brief-phone.png; docs/media-studio/previews/guided-output-phone.png; docs/media-studio/previews/guided-production-phone.png
+- Tests executed: none
+- Test results: none
+- Git branch: codex/t194-media-studio
+- Commit: 7a28df0 (Fix guided Library navigation and clear media across workspace changes); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: not set
+
+## CP-159 2026-11-21T21:19:26+08:00 T-194 TESTING
+- Phase: Direction A first batch hosted acceptance
+- Task: T-194 (TESTING)
+- Completed steps: All six hosted checks pass on b67d3dc; mobile screenshots preserved; first batch implementation tested
+- Incomplete steps: Native microphone and funded provider acceptance; backup restore; later storyboard editing publishing modules
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/SESSION_HANDOVER.md; docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/previews/guided-brief-phone.png; docs/media-studio/previews/guided-output-phone.png; docs/media-studio/previews/guided-production-phone.png
+- Tests executed: CI44906994554; Security44906994542
+- Test results: 6/6 checks PASS; 73/73 checks and84 contract files; guided playback mobile accessibility PASS
+- Git branch: codex/t194-first-batch-handover
+- Commit: 7a28df0 (Fix guided Library navigation and clear media across workspace changes); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Review green PR167; continue next approved implementation batch on separate branch; no merge or deploy
+
+## CP-160 2026-11-21T21:32:36+08:00 T-194 IN_PROGRESS
+- Phase: MS05B/MS05C/MS06A implementation
+- Task: T-194 (IN_PROGRESS)
+- Completed steps: Persistent creative projects CAS and versions; editable scripts/storyboards; private real FFmpeg editor; calendar draft handoff; 8 targeted API tests pass
+- Incomplete steps: Browser acceptance and full regression; remaining capability gaps; release backup and rollout gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace.html; scripts/test-media-studio-guided-ui.mjs; src/growth.js; src/media-tools.js; src/server.js; saas/workspace-studio-editor.js; saas/workspace-studio-projects.js; saas/workspace-studio-publish.js; scripts/studio-editor.test.mjs; scripts/studio-projects.test.mjs; src/studio-editor.js; src/studio-projects.js
+- Tests executed: studio-projects,studio-editor,media-guided contracts
+- Test results: 8/8 PASS with actual MP4 export and two tenants
+- Git branch: codex/t194-studio-completion
+- Commit: 8adc8ae (docs(media): preserve green Direction A candidate and mobile evidence); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T133236Z (418dbc4)
+- Known errors: none
+- Next exact action: Run full tests and hosted browser suite; fix any errors before release
+
+## CP-161 2026-11-22T00:25:12+08:00 T-194 TESTING
+- Phase: MS05B MS05C MS06A candidate
+- Task: T-194 (TESTING)
+- Completed steps: Persistent plans and edit compositions; real MP4 editor; calendar drafts; 8 focused tests and2 final guards pass
+- Incomplete steps: Full regression and expanded hosted browser checks; remaining advanced modules; restore and live provider/device gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace.html; scripts/test-media-studio-guided-ui.mjs; src/growth.js; src/media-tools.js; src/server.js; saas/workspace-studio-editor.js; saas/workspace-studio-projects.js; saas/workspace-studio-publish.js; scripts/studio-editor.test.mjs; scripts/studio-projects.test.mjs; src/studio-editor.js; src/studio-projects.js
+- Tests executed: studio-projects studio-editor media-guided
+- Test results: 8/8 focused plus2/2 final guard tests PASS
+- Git branch: codex/t194-studio-completion
+- Commit: 8adc8ae (docs(media): preserve green Direction A candidate and mobile evidence); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T162512Z (2d79c0a)
+- Known errors: none
+- Next exact action: Publish candidate and run hosted acceptance;fix defects before authorized Render rollout
+
+## CP-162 2026-11-22T00:31:09+08:00 T-194 TESTING
+- Phase: Editor source/network guards
+- Task: T-194 (TESTING)
+- Completed steps: 73/73 local regression; 86 contracts; four hosted security checks pass; adversarial source and revocation guards pass
+- Incomplete steps: Hosted browser/verify final results; advanced product gaps; restore and real provider/device gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; scripts/studio-editor.test.mjs; src/media-tools.js; src/studio-editor.js; scripts/studio-draft-ui.test.mjs
+- Tests executed: source regressions and editor adversarial plus draft DOM
+- Test results: 3/3 and2/2 PASS
+- Git branch: codex/t194-studio-completion
+- Commit: ad69a22 (Add versioned Studio planning, real video edits and social draft handoff (T-194)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inspect PR168 hosted guided browser result;fix defects and publish follow-up;do not deploy unfinished release
+
+## CP-163 2026-11-22T00:36:40+08:00 T-194 TESTING
+- Phase: Branding transitions and stable previews
+- Task: T-194 (TESTING)
+- Completed steps: Logo and fade MP4 export tested; desktop drag with accessible reorder; explicit playback speed; edit history; preview nodes preserved
+- Incomplete steps: Final browser acceptance; library/sharing/retention; automatic captions and advanced audio; extra publishing adapters and live gates
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/workspace-ai-video.js; saas/workspace-studio-editor.js; scripts/studio-editor.test.mjs; src/studio-editor.js
+- Tests executed: studio editor brand/adversarial; media-guided and draft DOM
+- Test results: 2/2 brand/adversarial and7/7 DOM PASS
+- Git branch: codex/t194-studio-completion
+- Commit: 5d73521 (Constrain edit media decoding and test revoked workspace access); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T163640Z (7acd52f)
+- Known errors: none
+- Next exact action: Publish branding/playback batch then continue remaining library and release gates
+
+## CP-164 2026-11-22T00:43:32+08:00 T-194 TESTING
+- Phase: Private library organization and expiring sharing
+- Task: T-194 (TESTING)
+- Completed steps: Folders labels notes usage version links retention review dates; owner-only expiring revocable shares; voice pause/cancel and cleanup guards
+- Incomplete steps: Hosted new library/voice UI and full regression; automatic captions advanced audio extra adapters and live release gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; saas/workspace-ai-video.js; saas/workspace-media.js; saas/workspace.html; scripts/media-guided.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/server.js; scripts/studio-library.test.mjs; src/studio-library.js
+- Tests executed: library and guided/dictation contracts
+- Test results: 17/17 PASS; share expiry revocation foreign tenant verified
+- Git branch: codex/t194-studio-completion
+- Commit: 931e4d2 (Add branded exports, fade transitions and stable video previews); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T164332Z (2ec47c2)
+- Known errors: none
+- Next exact action: Publish library/voice batch and run final hosted acceptance;continue remaining caption/audio gaps
+
+## CP-165 2026-11-22T00:50:08+08:00 T-194 TESTING
+- Phase: Explicit caption transcription translation and waveform
+- Task: T-194 (TESTING)
+- Completed steps: Idempotent consented STT; estimated editable caption timing; translation; actual waveform; late-response protections; shared media safety helper
+- Incomplete steps: Full and hosted final acceptance; advanced campaign/analytics adapters; real provider/device and restore gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; saas/workspace-studio-editor.js; saas/workspace.html; scripts/studio-draft-ui.test.mjs; scripts/test-media-studio-guided-ui.mjs; src/server.js; src/studio-editor.js; saas/workspace-studio-audio.js; scripts/studio-captions.test.mjs; src/studio-captions.js; src/studio-media-safety.js
+- Tests executed: caption audio privacy/library tests
+- Test results: 4/4 focused PASS; actual extracted audio and waveform; mocked STT only
+- Git branch: codex/t194-studio-completion
+- Commit: 4d1b9c1 (Organize private Studio assets, expire sharing and harden voice recording); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T165008Z (8db521b)
+- Known errors: none
+- Next exact action: Publish caption/audio candidate;run full hosted checks and repair issues;no deployment claim
+
+## CP-166 2026-11-22T00:59:06+08:00 T-194 TESTING
+- Phase: Final processing and paid-dispatch gates
+- Task: T-194 (TESTING)
+- Completed steps: Frame/magic safety; deterministic stop-before-paid dispatch; pause UI coverage; focused processing7/7 andheld-frame1/1 pass
+- Incomplete steps: Final exact-SHA hosted CI/UI; provider/device/restore gates; deeper publishing analytics
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; docs/coordination/chatgpt.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; scripts/ai-video-projects.test.mjs; scripts/media-tools.test.mjs; scripts/test-ai-video-ui.mjs; scripts/test-media-studio-guided-ui.mjs; src/ai-video.js; src/media-tools.js; src/studio-media-safety.js
+- Tests executed: processing regressions and held-frame Finish race
+- Test results: 7/7 and1/1 PASS; no real provider requests
+- Git branch: codex/t194-studio-completion
+- Commit: 3dc8a4f (Match descriptive library control names in browser acceptance); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T165906Z (a3f10c7)
+- Known errors: none
+- Next exact action: Publish final candidate;inspect full CI and expanded browser results;fix any failures before rollout
+
+## CP-167 2026-11-22T01:10:47+08:00 T-194 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-194 (TESTING)
+- Completed steps: Concurrent request replay; original full prompt; save-before-generate; cancelled first-shot terminal state; workspace async request guards
+- Incomplete steps: Final hosted exact-SHA acceptance and screenshots; restore/provider/device gates; remaining advanced product scope
+- Files modified (uncommitted at checkpoint): saas/workspace-ai-video.js; saas/workspace-media-guided.js; saas/workspace-studio-projects.js; scripts/ai-video-projects.test.mjs; src/ai-video.js; scripts/ai-video-idempotency.test.mjs
+- Tests executed: submission/project/idempotency/recovery/draft tests
+- Test results: 12/12 PASS; concurrent and billing replay create no duplicate provider submission
+- Git branch: codex/t194-studio-completion
+- Commit: 030b47c (Stop unsubmitted video continuations and validate all media processing inputs); branch not on remote
+- Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T171047Z (5ceba77)
+- Known errors: none
+- Next exact action: Publish last tested submission batch and finish CI before authorized live-test rollout

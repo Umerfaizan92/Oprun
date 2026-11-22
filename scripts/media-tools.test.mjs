@@ -44,3 +44,7 @@ test('one-, five- and ten-minute videos are assembled as one file at the request
     }
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('media probing rejects disguised playlists before FFmpeg can resolve local or network references',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'oprun-media-playlist-'));try{const file=path.join(dir,'disguised.mp4');fs.writeFileSync(file,'#EXTM3U\n#EXTINF:2,\nfile:///private/other-workspace.mp4\n');await assert.rejects(probe(file),e=>e.status===400&&/does not match/.test(e.message));}finally{fs.rmSync(dir,{recursive:true,force:true})}
+});

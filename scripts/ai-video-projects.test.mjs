@@ -33,7 +33,7 @@ async function mock() {
       calls.push({ method: req.method, path: req.url, body, headers: req.headers });
       const send = (s, o) => { res.writeHead(s, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
       if (req.url.startsWith('/g/v1beta/models')) return send(200, { models: [] });
-      if (req.url === '/g/v1beta/interactions') { n += 1; if(failNext){failNext=false;return send(400,{error:{message:'Quota exceeded'}})}tasks.set(`int-${n}`,clipFor(parseInt(body.response_format.duration,10)));return send(200,{id:`int-${n}`,status:'in_progress'}); }
+      if (req.url === '/g/v1beta/interactions') { n += 1; if(failNext){failNext=false;return send(429,{error:{message:'Quota exceeded'}})}tasks.set(`int-${n}`,clipFor(parseInt(body.response_format.duration,10)));return send(200,{id:`int-${n}`,status:'in_progress'}); }
       if (/^\/g\/v1beta\/interactions\/int-\d+$/.test(req.url)) return send(200, { status: 'completed', steps: [{ type: 'model_output', content: [{ type: 'video', mime_type: 'video/mp4', data: tasks.get(req.url.split('/').at(-1)).toString('base64') }] }] });
       if (req.url === '/e/v1/user') return req.headers['xi-api-key'] === 'el_key_1234567890abcdef' ? send(200, { user_id: 'u' }) : send(401, { detail: { message: 'Invalid API key' } });
       if (req.url === '/e/v1/voices/add') return send(200, { voice_id: 'voice-abc' });
@@ -114,7 +114,7 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
   // A clip that fails stops the video; Continue makes only the missing clips.
   m.failOnce();
   r = await O('POST', '/api/saas/ai-video/projects', { engine: 'google:gemini-omni-1.2-flash', idea: 'A short product reveal of our polish kit', aspect_ratio: '16:9', resolution: '720p', total_seconds: 6, clip_seconds: 3 });
-  assert.equal(r.status, 502); assert.match(r.json.error, /Quota exceeded/);
+  assert.equal(r.status,429);assert.equal(r.json.error_code,'QUOTA_EXCEEDED');assert.match(r.json.error,/rate or usage limit/);
   const stopped = (await O('GET', '/api/saas/ai-video')).json.projects.find((x) => x.status === 'failed');
   assert.ok(stopped);
   r = await O('POST', `/api/saas/ai-video/projects/${stopped.id}/continue`); assert.equal(r.status, 200, r.text);
@@ -138,9 +138,10 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
   for(let i=0;i<30;i++){const q=(await O('POST',`/api/saas/ai-video/projects/${ongoing}/refresh`)).json.project;if(q.produced_seconds>=14.9)break;await wait(400)}
   const beforeFinish=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;
   assert.equal((await O('POST',`/api/saas/ai-video/projects/${ongoing}/finish`)).status,200);
+  const acknowledged=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;assert.ok(acknowledged<=beforeFinish+1,'at most the pre-acknowledgement in-flight dispatch can complete');
   const ended=await until(ongoing,['succeeded','failed']);assert.equal(ended.status,'succeeded',JSON.stringify(ended));assert.equal(ended.stop_requested,true);
-  assert.ok(ended.total_seconds>=29.9&&ended.total_seconds<30.2,'current generation finishes into one full video');
-  assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,beforeFinish,'Finish does not create another billable request');
+  assert.ok(ended.total_seconds>=14.9&&ended.total_seconds<30.2,'only available or already-submitted current footage finishes into one full video');
+  assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,acknowledged,'Finish acknowledgement prevents any later billable request');
   const roleDb=new Database(s.dbPath);
   roleDb.prepare("UPDATE memberships SET role='manager' WHERE organisation_id=? AND user_id=?").run(owner.org,owner.uid);
   assert.equal((await O('POST','/api/saas/ai-video/projects',{...unlimited,continuous_consent:true})).status,403,'unlimited spending is owner/admin only');
@@ -177,4 +178,18 @@ test('long AI video: clips planned, continued from the last frame, joined; own p
     assert.equal(ended.status,'succeeded',JSON.stringify(ended));assert.equal(ended.completion_reason,'storage_limit');
     assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,before+1,'storage budget stops paid continuations and finalizes available footage');
   }finally{await bounded.stop()}
+});
+
+test('Finish during continuation frame preparation prevents the reserved job reaching the provider',async t=>{
+ fs.mkdirSync(tmp,{recursive:true});const dir=fs.mkdtempSync(path.join(os.tmpdir(),'aiv-finish-gate-')),hold=path.join(dir,'hold'),ready=path.join(dir,'ready'),shim=path.join(dir,'ffmpeg.mjs');fs.writeFileSync(hold,'wait');
+ fs.writeFileSync(shim,`#!/usr/bin/env node\nimport fs from 'node:fs';import {spawn} from 'node:child_process';const args=process.argv.slice(2);if(args.includes('-frames:v')&&fs.existsSync(${JSON.stringify(hold)})){fs.writeFileSync(${JSON.stringify(ready)},'ready');const until=Date.now()+20000;while(fs.existsSync(${JSON.stringify(hold)})&&Date.now()<until)await new Promise(r=>setTimeout(r,10));}const child=spawn(${JSON.stringify(bin)},args,{stdio:'inherit'});child.on('exit',code=>process.exit(code||0));child.on('error',()=>process.exit(1));\n`,{mode:0o700});
+ const m=await mock(),s=await startServer({GEMINI_API_BASE_URL:m.base+'/g',FFMPEG_PATH:shim,AI_VIDEO_POLL_MS:'2000',AI_VIDEO_RATE_LIMIT:'200'});t.after(async()=>{fs.rmSync(hold,{force:true});await s.stop();await m.close();fs.rmSync(dir,{recursive:true,force:true});fs.rmSync(tmp,{recursive:true,force:true})});const owner=await seedOwner(s),O=(meth,u,b)=>s.call(meth,u,{cookie:owner.cookie,body:b});assert.equal((await O('POST','/api/saas/ai-video/providers/google',{api_key:'synthetic-stop-fixture'})).status,200);
+ const made=await O('POST','/api/saas/ai-video/projects',{engine:'google:gemini-omni-1.2-flash',idea:'A safe continuous workshop tour',aspect_ratio:'9:16',duration_mode:'continuous',continuous_consent:true,clip_seconds:3});assert.equal(made.status,201);const id=made.json.project.id;
+ const refreshing=O('POST',`/api/saas/ai-video/projects/${id}/refresh`);for(let i=0;i<800&&!fs.existsSync(ready);i++)await wait(10);assert.ok(fs.existsSync(ready),'the continuation is held before any paid submission');const paid=m.calls.filter(c=>c.path==='/g/v1beta/interactions').length;assert.equal(paid,1);
+ assert.equal((await O('POST',`/api/saas/ai-video/projects/${id}/finish`)).status,200);fs.rmSync(hold,{force:true});await refreshing;
+ let ended;for(let i=0;i<100;i++){ended=(await O('POST',`/api/saas/ai-video/projects/${id}/refresh`)).json.project;if(['succeeded','failed'].includes(ended.status))break;await wait(100)}assert.equal(ended.status,'succeeded',JSON.stringify(ended));assert.ok(ended.total_seconds>=2.9&&ended.total_seconds<3.2);assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,paid);
+ const db=new Database(s.dbPath);try{assert.equal(db.prepare('SELECT error_code FROM ai_video_jobs WHERE project_id=? AND seq=1').get(id).error_code,'CANCELLED_BEFORE_SUBMISSION')}finally{db.close()}
+ fs.writeFileSync(hold,'wait');fs.rmSync(ready,{force:true});const upload=new FormData();upload.append('files',new Blob([CAM],{type:'video/webm'}),'guide.webm');const uploaded=await fetch(s.base+'/api/saas/media',{method:'POST',headers:{cookie:owner.cookie,origin:s.base},body:upload});const guide=(await uploaded.json()).ids[0];const creating=O('POST','/api/saas/ai-video/projects',{engine:'google:gemini-omni-1.2-flash',idea:'Cancel before the first frame',aspect_ratio:'9:16',total_seconds:3,reference_media_ids:[guide]});for(let i=0;i<800&&!fs.existsSync(ready);i++)await wait(10);assert.ok(fs.existsSync(ready));const ids=new Database(s.dbPath);let waiting;try{waiting=ids.prepare("SELECT id FROM ai_video_projects WHERE organisation_id=? AND status='rendering' ORDER BY created_at DESC LIMIT 1").get(owner.org).id}finally{ids.close()}
+ assert.equal((await O('POST',`/api/saas/ai-video/projects/${waiting}/finish`)).status,200);fs.rmSync(hold,{force:true});const stopped=(await creating).json.project;assert.equal(stopped.status,'failed');assert.equal(stopped.error_code,'CANCELLED_BEFORE_SUBMISSION');assert.equal(stopped.clips_done,0);assert.equal(m.calls.filter(c=>c.path==='/g/v1beta/interactions').length,paid);assert.equal((await O('POST',`/api/saas/ai-video/projects/${waiting}/continue`,{})).status,409);
+
 });

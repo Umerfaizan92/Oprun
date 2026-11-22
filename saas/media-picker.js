@@ -3,7 +3,9 @@
 // (POST /api/saas/media), so the same photo can be reused later.
 (() => {
   'use strict';
-  const MAX = 10;
+  const MAX = 10;let workspaceEpoch=0;
+  const resetPickers=()=>{workspaceEpoch++;document.querySelectorAll('.media-picker').forEach(n=>n.dispatchEvent(new Event('oprun:picker-reset')))};
+  window.addEventListener('superpro:workspace-ready',resetPickers);window.addEventListener('pagehide',resetPickers);document.getElementById('logout')?.addEventListener('click',resetPickers,true);
   const make = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) { if (v === null || v === undefined || v === false) continue; if (k === 'text') e.textContent = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? '' : v); }
@@ -12,8 +14,9 @@
   };
   const headers = () => window.SuperProWorkspaceContext?.headers?.() || {};
   async function request(path, opt = {}) {
-    const r = await fetch(path, { credentials: 'same-origin', ...opt, headers: { ...headers(), ...(opt.headers || {}) } });
+    const epoch=workspaceEpoch;const r = await fetch(path, { credentials: 'same-origin', ...opt, headers: { ...headers(), ...(opt.headers || {}) } });
     let d = {}; try { d = await r.json(); } catch { /* not JSON */ }
+    if(epoch!==workspaceEpoch)throw new Error('Workspace changed. Previous media selection was discarded.');
     if (!r.ok || d.ok === false) throw new Error(d.error || `The server refused this action (${r.status}).`);
     return d;
   }
@@ -84,6 +87,7 @@
       strip,
       make('div', { class: 'mp-actions' }, make('label', { class: 'portal-button mp-upload', for: fid, text: 'Add from your device' }), input, libButton, count),
       grid, status, hint ? make('small', { text: hint }) : null);
+    element.addEventListener('oprun:picker-reset',()=>{chosen=[];known.clear();grid.replaceChildren();grid.hidden=true;delete grid.dataset.loaded;status.textContent='';input.value='';libButton.setAttribute('aria-expanded','false');draw()});
     draw();
     return { element, value: () => chosen.slice(), onChange: (fn) => listeners.push(fn) };
   }

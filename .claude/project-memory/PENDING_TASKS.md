@@ -589,9 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/finance/*, saas/workspace-*.js
 - Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
 
-## T-192 Custom full-length and continue-until-stopped AI video duration
+## T-194 Implement unified Media Studio and provider recovery
 - Status: TESTING
 - Added: 2026-11-21
-- Requirement: Owner 21 Nov 2026: after completing T-191 voice dictation, replace fixed visible 15/30-second sections with custom full video duration including 1,5,10 minutes and an unlimited option. Deliver one continuous finished video; handle provider clip limits internally without exposing sections. Unlimited must mean continue until the person explicitly finishes, with ongoing provider charges clearly disclosed and no claim of an unlimited native provider clip. Test both tasks, then push to Render for owner live testing.
-- Files: src/ai-video.js, src/media-tools.js, saas/workspace-ai-video.js, scripts/ai-video-projects.test.mjs, scripts/test-ai-video-ui.mjs
-- Acceptance: Custom durations accepted and final duration matches requested length within encoding tolerance; no segment selector shown; continuous generation can be stopped and finalized safely; clear billing consent; tenant/role isolation, retries, cancellation and output limits handled; test evidence; combined release deployed and verified
+- Requirement: Implement approved T-193 specification: remove competing creator/specification UX, typed provider402 recovery and readiness, one project flow with adjacent dictation controls, actual editing/output controls, integrated campaign/channel handoff, preserve legacy records, test all paths before combined deployment.
+- Files: saas/workspace.html;saas/app.js;saas/workspace-ai-video.js;saas/workspace-video-dictation.js;src/ai-video.js;src/server.js;src/growth.js;src/channel-providers.js;scripts/
+- Acceptance: One creator and library; no draft queue pretending to render; typed402 with saved draft and explicit funded fallback; multilingual reviewable dictation; real final videos; channel capability-gated variants and approved publishing; accessibility/mobile/recovery/tenant/security/browser tests green; authorized exact-commit Render deploy verified.

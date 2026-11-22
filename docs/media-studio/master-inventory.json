@@ -1,0 +1,2952 @@
+{
+  "scope": "Media Studio declared UI, generation, voice, library, campaign/calendar/channel integration and related tests. Static census plus curated pipeline entries; not an authenticated DOM census or proof all runtime paths work.",
+  "source_commit": "fef2e17484fd4ab577ad9f34e7e220631870143f",
+  "production_commit": "58fc72b597666c637a7fefb19af5962bb1980a80",
+  "source_hashes": {
+    "saas/app.js": "2560b916f2ee615b0c9ef60310409a0d0015987bdc1c4b219b519a28f494e512",
+    "saas/media-picker.js": "c72a0dd7bb4a86811191e4644399322cdbd8f33a7ca83125d5a3df58f7a44dcd",
+    "saas/media-viewer.js": "7e71eb26629c0e74f25fbde9d791035893d22e96dc4a709223a5308ab1eb50f1",
+    "saas/sw.js": "f393b4f19cf765fc45666316ac5993c2b24e3e6525b6e895bc0a07a8f5d01995",
+    "saas/workspace-ai-runtime.js": "455e06869ed6bf70ee00e4ade58323b046c9b68d8fb572448710d4e6c9857d4f",
+    "saas/workspace-ai-video.js": "8a7394f9e6c1b4325969b0d1dca7fa861e25cd43147bb30119483c15791b9d87",
+    "saas/workspace-growth.js": "5c503d6d5427abb80c12626a0a4f57ad65f537973eba762d94cef0c67a53b0cb",
+    "saas/workspace-media.js": "06a365d9b7a7e1732a5128ad97e92dc8f6bbafd5af78d364ad41b5b4e110bf41",
+    "saas/workspace-nav.js": "70a9713725295d40fce8f6176a858b4a09c1d2fc6392558aa54406fb032bb9e6",
+    "saas/workspace-video-dictation.js": "4a81b463835f7b69388d8b7de1cf01acde4c8b8d1d555cc637b499aa3f1daadc",
+    "saas/workspace.html": "aae7d97fb2279438e3eb9243a50cd9554e9655a41e32e1d7f619c76c4887faf0",
+    "scripts/ai-video-projects.test.mjs": "77cbfa1260af4db9a7e23b2617df82e9741c4f6a8649a63367c0238f49df849e",
+    "scripts/ai-video.test.mjs": "3e53666ac9db5b277497423dc94de5a21412d2dd2ba1561fa02ddc7c78579238",
+    "scripts/channel-operations.test.mjs": "e1b781435594d2031dc7684354624c2a376080106968fc367d6f347c33aa284a",
+    "scripts/growth-media-publish.test.mjs": "9182c6afe70b7553f3bc96aa36221964b5bdf2b6baec245aace2d5f365baf262",
+    "scripts/growth-publishing-security.test.mjs": "0bc7013a9a952660a661e2c21242464401e3fc2be997b9b689463bc5db82f087",
+    "scripts/growth-schedule.test.mjs": "bcd525f8c001c836b69fcf875f1c5a07487f8cbf4614d88b4757e48cfdfdccba",
+    "scripts/integration-security.test.mjs": "4c0a7a6bbbbd5abdbfa4657304419ff261cbac1123bdbcaed34ebf3f54ae75ff",
+    "scripts/integration-tenant.test.mjs": "5394d3756c3e5989f0130b4f09c34908785e63a171a90d065f4756332bd15446",
+    "scripts/media-tools.test.mjs": "a9262ddcf9497fa51df04ef59cacbd3401b4789fcce8cc82056599571c133ec6",
+    "scripts/object-storage.test.mjs": "80fd2624b92685ff840e75dd4b693f20ecc85038db6ff7f420c9d796984b9925",
+    "scripts/restore-drill.mjs": "357839bcc27e4926df344f3ae95bf9522d7fe6e5f968f259c56cb84090d0d530",
+    "scripts/restore-drill.test.mjs": "c11b9a784292fbe70861283fb84b140ef4df588890f8dc7c964a4172211cc892",
+    "scripts/start.mjs": "797c6c318065bd0de0f6357d5bf55bf432c6f5ae7d07e92a5a107db1dcc3e208",
+    "scripts/tenant-indexes.test.mjs": "183fec94907a0bccaa47eeda906e0f599961e0258962afa661bd450d8efee918",
+    "scripts/tenant-isolation.test.mjs": "381c4bef0c478c542db5e8996a1a8bf2bfbf980ac36819d3650303260b11c018",
+    "scripts/test-ai-video-ui.mjs": "2fda34bb949d1c243350874e7979fa9a2e7cbc752bb8a7ef5e3e743905b2e5ca",
+    "scripts/test-channel-operations-ui.mjs": "980e42e2838693852c3619f1d7cf057db9f45f495e377710111059e8d92e7741",
+    "scripts/test-comms-ui.mjs": "36dfe175df8345e52bfa20866bd3306de11d3101341812d2a97d8ff19657a9b4",
+    "scripts/test-connections-ui.mjs": "9ab363b40eb38e6246c0667e06574f12da4e55fd77d0f2c5e424f81d18c44013",
+    "scripts/test-localization-ui.mjs": "14b5bd093f49dd7bc4098e8efe206fe94e8148d7ca705960ef0975d345957fe4",
+    "scripts/test-mobile-readiness.mjs": "5817314fd4000b324f8e609762a48bed23945058fb8838b78616bb934c12fde6",
+    "scripts/test-mobile-workspace-ui.mjs": "5668a69bfa5a3db0782915cfd4d75622363876dd12ff163dcd3d2579625f13be",
+    "scripts/test-navigation-ui.mjs": "3006edc94537eed3594ed0f68a08aba65d322e9ab17f034f2e2c1461d01f0782",
+    "scripts/test-redesign-ui.mjs": "561458791d920cb36ff67afc0087b5bb912fbd95d199cd1abf68cb01df8ce35a",
+    "scripts/test-ui.mjs": "00479aec35ac6cfab954162678682b42bc929d3bbc8688730f4744678262272d",
+    "scripts/video-dictation.test.mjs": "362d2278cb9866e163a0488a37d4f56c040c13a2cce588252d51dcc1d603757e",
+    "scripts/voice-runtime.test.mjs": "8f4ee2d8ef944e5c0272b4a47a349aa05e23bb4253d925ff11d1c3bbf4e67b5b",
+    "src/ai-video.js": "d91a65cde0077db8585b7448236ae017fa7fb949de684635e0373c071e088c91",
+    "src/channel-operations.js": "6302bd2eb27d078959236224d9ca57ccc7003863fcf375152e7a7e6e64907a16",
+    "src/channel-providers.js": "9de1bf82678ec7536c9ec03795fbd4dceb63a62cc79094cade1fd5773f0fb30c",
+    "src/db.js": "02d4211e8a9a0349d5ce12a82dede40632bf9815baf80def8db1453b64237965",
+    "src/growth.js": "55d084e322c13b78a965b29a989d18d7d9e507d0317aad8444497ae7e8e22139",
+    "src/media-link.js": "d08f094704919bb239d05cfde7c976badc423a3b77230f55dd7aa843426255a2",
+    "src/media-tools.js": "31ccb58e3858d65e05c54ff7b2d618dffb9f43c2007776f6edbaaaec37abc5e2",
+    "src/notifications.js": "f81a71b52ed1a7208e04f3570083cc9c2a774eee099dd35c20d3d7179889cebf",
+    "src/object-storage.js": "b1b3642787912fea969251d4d58357e746c01094bdb1d7fa08341e36d611b39f",
+    "src/s3-files.js": "a1bd30c25898f646a9976cb925a6690bb120691f423e1bd79352db97c1d897f0",
+    "src/saas-platform.js": "49151354b7a185301c17e9f3813d364cadff04e5be8a0ccaa857bde0b0ca2197",
+    "src/server.js": "1872ef8be4f4eddfc9fcdd09fde3b59d2d26eb65c62b71af6c6592bba712ed6a"
+  },
+  "counts": {
+    "api": 59,
+    "component": 7,
+    "database-table": 20,
+    "dynamic-ui:audio": 2,
+    "dynamic-ui:button": 47,
+    "dynamic-ui:form": 4,
+    "dynamic-ui:input": 12,
+    "dynamic-ui:select": 9,
+    "dynamic-ui:textarea": 7,
+    "dynamic-ui:video": 3,
+    "event-binding": 76,
+    "navigation-or-legacy-binding": 4,
+    "pipeline-or-storage": 17,
+    "test": 26,
+    "ui:button": 15,
+    "ui:div": 6,
+    "ui:form": 1,
+    "ui:h1": 1,
+    "ui:h2": 5,
+    "ui:input": 12,
+    "ui:section": 1,
+    "ui:select": 9,
+    "ui:span": 2,
+    "ui:strong": 1,
+    "ui:textarea": 1
+  },
+  "records": [
+    {
+      "kind": "ui:section",
+      "file": "saas/workspace.html",
+      "line": 283,
+      "name": "video-view",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "view",
+        "hidden": "",
+        "id": "video-view"
+      }
+    },
+    {
+      "kind": "ui:h1",
+      "file": "saas/workspace.html",
+      "line": 284,
+      "name": "h1",
+      "classification": "IMPROVE",
+      "attributes": {}
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 285,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "active",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 285,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 285,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 285,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 285,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 285,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:h2",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "h2",
+      "classification": "IMPROVE",
+      "attributes": {}
+    },
+    {
+      "kind": "ui:span",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "library-count",
+      "classification": "KEEP",
+      "attributes": {
+        "class": "status-pill neutral",
+        "id": "library-count"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "all",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "source-action active",
+        "data-source-mode": "all",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "video",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "source-action",
+        "data-source-mode": "video",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "photo",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "source-action",
+        "data-source-mode": "photo",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "audio",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "source-action",
+        "data-source-mode": "audio",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:div",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "media-drop",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "media-drop",
+        "id": "media-drop",
+        "tabindex": "0",
+        "role": "button",
+        "aria-label": "Upload photos, videos or audio"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "media-file",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "file",
+        "id": "media-file",
+        "multiple": null,
+        "accept": "image/*,video/*,audio/*",
+        "hidden": null
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "media-library-search",
+      "classification": "KEEP",
+      "attributes": {
+        "id": "media-library-search",
+        "placeholder": "Search by file name"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "media-library-sort",
+      "classification": "KEEP",
+      "attributes": {
+        "id": "media-library-sort"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "organize-library",
+      "classification": "KEEP",
+      "attributes": {
+        "class": "secondary-button",
+        "id": "organize-library",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "add-demo-assets",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "secondary-button",
+        "id": "add-demo-assets",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:div",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "media-library-grid",
+      "classification": "KEEP",
+      "attributes": {
+        "class": "media-library-grid",
+        "id": "media-library-grid"
+      }
+    },
+    {
+      "kind": "ui:div",
+      "file": "saas/workspace.html",
+      "line": 286,
+      "name": "library-selection",
+      "classification": "KEEP",
+      "attributes": {
+        "class": "library-selection",
+        "id": "library-selection"
+      }
+    },
+    {
+      "kind": "ui:h2",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "h2",
+      "classification": "IMPROVE",
+      "attributes": {}
+    },
+    {
+      "kind": "ui:form",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "video-form",
+      "classification": "MERGE",
+      "attributes": {
+        "class": "form-grid single-mobile",
+        "id": "video-form"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "content-platform",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "platform",
+        "id": "content-platform"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "content-all-platforms",
+      "classification": "IMPROVE",
+      "attributes": {
+        "type": "checkbox",
+        "id": "content-all-platforms",
+        "name": "all_platforms"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "goal",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "goal"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "quality",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "quality"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "aspect_ratio",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "aspect_ratio"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "media_id",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "media_id",
+        "placeholder": "Source media identifier or uploaded media reference",
+        "required": ""
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "start_seconds",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "start_seconds",
+        "type": "number",
+        "value": "0"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "end_seconds",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "end_seconds",
+        "type": "number",
+        "value": "15"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "transition",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "transition"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "pacing",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "pacing"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "hook",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "hook"
+      }
+    },
+    {
+      "kind": "ui:select",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "caption_style",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "caption_style"
+      }
+    },
+    {
+      "kind": "ui:textarea",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "style_prompt",
+      "classification": "IMPROVE",
+      "attributes": {
+        "name": "style_prompt",
+        "placeholder": "Tell AI the result you want. Example: premium transformation reel, strongest result in first 1.5 seconds, clean branded captions, natural motion and a clear enquiry CTA.",
+        "required": "",
+        "rows": "5"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "captions",
+      "classification": "IMPROVE",
+      "attributes": {
+        "checked": "",
+        "name": "captions",
+        "type": "checkbox"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "music",
+      "classification": "IMPROVE",
+      "attributes": {
+        "checked": "",
+        "name": "music",
+        "type": "checkbox"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "logo",
+      "classification": "IMPROVE",
+      "attributes": {
+        "checked": "",
+        "name": "logo",
+        "type": "checkbox"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "auto_reframe",
+      "classification": "IMPROVE",
+      "attributes": {
+        "checked": "",
+        "name": "auto_reframe",
+        "type": "checkbox"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "auto_highlights",
+      "classification": "IMPROVE",
+      "attributes": {
+        "checked": "",
+        "name": "auto_highlights",
+        "type": "checkbox"
+      }
+    },
+    {
+      "kind": "ui:input",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "cta",
+      "classification": "IMPROVE",
+      "attributes": {
+        "checked": "",
+        "name": "cta",
+        "type": "checkbox"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "generate-ai-spec",
+      "classification": "MERGE",
+      "attributes": {
+        "class": "secondary-button",
+        "id": "generate-ai-spec",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "button",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "primary-button",
+        "type": "submit"
+      }
+    },
+    {
+      "kind": "ui:h2",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "h2",
+      "classification": "IMPROVE",
+      "attributes": {}
+    },
+    {
+      "kind": "ui:span",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "trend-source-status",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "status-pill neutral",
+        "id": "trend-source-status"
+      }
+    },
+    {
+      "kind": "ui:div",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "trend-suggestions",
+      "classification": "IMPROVE",
+      "attributes": {
+        "id": "trend-suggestions",
+        "class": "trend-suggestions"
+      }
+    },
+    {
+      "kind": "ui:button",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "refresh-trends",
+      "classification": "IMPROVE",
+      "attributes": {
+        "class": "secondary-button full-width",
+        "id": "refresh-trends",
+        "type": "button"
+      }
+    },
+    {
+      "kind": "ui:h2",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "h2",
+      "classification": "IMPROVE",
+      "attributes": {}
+    },
+    {
+      "kind": "ui:strong",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "creative-score",
+      "classification": "IMPROVE",
+      "attributes": {
+        "id": "creative-score"
+      }
+    },
+    {
+      "kind": "ui:div",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "performance-signals",
+      "classification": "IMPROVE",
+      "attributes": {
+        "id": "performance-signals",
+        "class": "performance-signals"
+      }
+    },
+    {
+      "kind": "ui:h2",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "h2",
+      "classification": "IMPROVE",
+      "attributes": {}
+    },
+    {
+      "kind": "ui:div",
+      "file": "saas/workspace.html",
+      "line": 287,
+      "name": "renders",
+      "classification": "MERGE",
+      "attributes": {
+        "class": "record-list",
+        "id": "renders"
+      }
+    },
+    {
+      "kind": "component",
+      "file": "saas/workspace-ai-video.js",
+      "line": 1,
+      "name": "workspace-ai-video",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 28,
+      "name": "el('button',{type:'button',role:'radio','data-v':v,'aria-checked':String(v===cur),title:h||'',text:l,onclick:e=>{e.currentTarget.parentElement.querySelectorAll('[data-v]').forEach(x=>x.setAttribute('aria-checked',String(x===e.currentTarget)));on(v)}})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:form",
+      "file": "saas/workspace-ai-video.js",
+      "line": 35,
+      "name": "el('form',{class:'aiv-form',id:'aiv-form',novalidate:true},",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-ai-video.js",
+      "line": 37,
+      "name": "el('textarea',{id:'aiv-idea',rows:'2',maxlength:'2000',placeholder:'Example: me explaining how we polish a bull bar, then a close-up of the mirror finish.'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 38,
+      "name": "el('button',{type:'button',class:'secondary-button',id:'aiv-enhance',text:'Write the prompt with AI'}),el('small',{class:'muted',id:'aiv-enhance-note',text:'AI adds camera, lighting, pacing and mood. You can edit the result.'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-ai-video.js",
+      "line": 39,
+      "name": "el('textarea',{id:'aiv-prompt',rows:'5',maxlength:'4000',placeholder:'Describe your full video, or let AI write the prompt from your idea. You receive one finished video.'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 43,
+      "name": "el('button',{type:'button',class:'secondary-button',id:'aiv-camera',text:'Record with camera'}))),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 44,
+      "name": "el('select',{id:'aiv-engine'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 47,
+      "name": "el('select',{id:'aiv-duration'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-ai-video.js",
+      "line": 49,
+      "name": "el('input',{type:'number',id:'aiv-custom-duration',min:'0.033333',step:'any',value:'1',inputmode:'decimal'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 50,
+      "name": "el('select',{id:'aiv-duration-unit'},el('option',{value:'60',text:'Minutes'}),el('option',{value:'1',text:'Seconds'})))),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 51,
+      "name": "el('select',{id:'aiv-resolution'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-ai-video.js",
+      "line": 52,
+      "name": "el('input',{type:'checkbox',id:'aiv-continuous-consent'}),el('span',{text:'I understand Unlimited keeps generating and charging my provider account until I press Finish video, or provider credits or storage limits stop it.'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-ai-video.js",
+      "line": 56,
+      "name": "el('input',{type:'checkbox',id:'aiv-keep'}),el('span',{text:'Keep the video’s own sound quietly under my voice'}))),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 58,
+      "name": "el('button',{type:'submit',class:'primary-button',id:'aiv-generate',text:'Generate video'}),el('small',{class:'muted',id:'aiv-cost',text:''}))),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 85,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Disconnect',onclick:()=>disconnect(id,p)}):el('button',{type:'button',class:'secondary-button',text:'Connect',onclick:()=>openConnect(id)})):null)));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 85,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Connect',onclick:()=>openConnect(id)})):null)));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-ai-video.js",
+      "line": 90,
+      "name": "el('input',{type:'password',id:'aiv-key',autocomplete:'off',spellcheck:'false',placeholder:'Paste your API key','aria-label':`${p.label} API key`});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:form",
+      "file": "saas/workspace-ai-video.js",
+      "line": 91,
+      "name": "el('form',{class:'aiv-connect-form',onsubmit:async e=>{e.preventDefault();const btn=e.target.querySelector('[type=submit]');btn.disabled=true;",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 95,
+      "name": "el('button',{type:'submit',class:'primary-button',text:'Check and save'}),el('button',{type:'button',class:'secondary-button',text:'Cancel',onclick:()=>{box.hidden=true}})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 95,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Cancel',onclick:()=>{box.hidden=true}})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 135,
+      "name": "el('button',{type:'button',class:'secondary-button',text:rec?'Stop':'Record',onclick:()=>rec?stopAudio():recordAudio(status,btn,host)});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:audio",
+      "file": "saas/workspace-ai-video.js",
+      "line": 136,
+      "name": "el('audio',{controls:true,src:`/api/saas/media/${encodeURIComponent(narrationId)}/file`,class:'aiv-audio'}):null);return;",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 140,
+      "name": "el('select',{id:'aiv-narration','aria-label':'Voice-over from your library',onchange:e=>{narrationId=e.target.value||null}},el('option',{value:'',text:items.length?'Choose a recording':'No audio in your library yet'}),...items.map(m=>el('option',{value:m.id,text:`${m.original_name} (${m.kind})`})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 147,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Connect ElevenLabs',onclick:()=>openConnect('elevenlabs')}):null);return}",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-ai-video.js",
+      "line": 150,
+      "name": "el('textarea',{id:'aiv-script',rows:'4',maxlength:'9000',placeholder:'What you want to say. The video will be as long as this takes to read.'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 151,
+      "name": "el('select',{id:'aiv-voice'},...(voices.length?voices.map(v=>el('option',{value:v.id,text:v.name})):[el('option',{value:'',text:'No voice yet: create yours below'})]))),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 152,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Create my voice',onclick:()=>cloneForm(host)})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-ai-video.js",
+      "line": 175,
+      "name": "el('select',{id:'aiv-sample'},el('option',{value:'',text:audio.length?'Choose a recording':'Record one with “Record my voice” first'}),...audio.map(m=>el('option',{value:m.id,text:m.original_name})))),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-ai-video.js",
+      "line": 176,
+      "name": "el('input',{id:'aiv-voice-name',maxlength:'60',placeholder:'My voice'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-ai-video.js",
+      "line": 177,
+      "name": "el('input',{type:'checkbox',id:'aiv-consent'}),el('span',{text:'This is my own voice, or I have the speaker’s written permission to copy it.'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 178,
+      "name": "el('button',{type:'button',class:'primary-button',text:'Create voice',onclick:async e=>{",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:video",
+      "file": "saas/workspace-ai-video.js",
+      "line": 191,
+      "name": "el('video',{class:'aiv-cam-video',playsinline:true,autoplay:true,muted:true,'aria-label':'Camera preview'});live.muted=true;",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 193,
+      "name": "el('button',{type:'button',class:'primary-button',text:'Start recording'}),flip=el('button',{type:'button',class:'secondary-button',text:'Switch camera'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 193,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Switch camera'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 194,
+      "name": "el('button',{type:'button',class:'primary-button',text:'Use this video',hidden:true}),retake=el('button',{type:'button',class:'secondary-button',text:'Record again',hidden:true});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 194,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Record again',hidden:true});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 195,
+      "name": "el('button',{type:'button',class:'aiv-cam-x','aria-label':'Close',text:'×',onclick:()=>dlg.close()})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:video",
+      "file": "saas/workspace-ai-video.js",
+      "line": 223,
+      "name": "el('video',{src:`/api/saas/media/${encodeURIComponent(id)}/file`,controls:true,playsinline:true,preload:'metadata','aria-label':label}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 225,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Full preview',onclick:()=>window.OprunMediaViewer?.open([{id,kind:'video',original_name:name}],0,{onUse:m=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id:m.id}}))})}),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 226,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Use in render',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id}}))}),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 228,
+      "name": "el('button',{type:'button',class:'link-button',text:'Clear',onclick:onClear}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 234,
+      "name": "el('button',{type:'button',class:'secondary-button',text:p.stop_requested?'Retry finishing':'Continue',onclick:()=>continueProject(p)}):el('small',{class:'muted',text:'An owner or admin can resume Unlimited generation.'}),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 235,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Finish with available footage',onclick:()=>finishProject(p)}):null,",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 236,
+      "name": "el('button',{type:'button',class:'link-button',text:'Clear',onclick:()=>clearProject(p)})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 242,
+      "name": "el('button',{type:'button',class:'secondary-button',text:p.stop_requested?'Finish requested':'Finish video',disabled:p.stop_requested,onclick:()=>finishProject(p)}):null);",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-ai-video.js",
+      "line": 252,
+      "name": "el('button',{type:'button',class:'link-button',text:'Clear',onclick:()=>clearJob(j)})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 28,
+      "name": "onclick:e=>{e.currentTarget.parentElement.querySelectorAll('[data-v]').forEach(x=>x.setAttribute('aria-checked',String(x===e.currentTarget)));on(v)}})));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 63,
+      "name": "addEventListener('change',fit);$('#aiv-duration').addEventListener('change',plan);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 63,
+      "name": "addEventListener('change',plan);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 64,
+      "name": "addEventListener('input',plan);$('#aiv-duration-unit').addEventListener('change',plan);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 64,
+      "name": "addEventListener('change',plan);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 65,
+      "name": "addEventListener('click',enhance);$('#aiv-camera').addEventListener('click',openCamera);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 65,
+      "name": "addEventListener('click',openCamera);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 66,
+      "name": "addEventListener('submit',e=>{e.preventDefault();generate()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 85,
+      "name": "onclick:()=>disconnect(id,p)}):el('button',{type:'button',class:'secondary-button',text:'Connect',onclick:()=>openConnect(id)})):null)));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 85,
+      "name": "onclick:()=>openConnect(id)})):null)));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 95,
+      "name": "onclick:()=>{box.hidden=true}})),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 135,
+      "name": "onclick:()=>rec?stopAudio():recordAudio(status,btn,host)});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 147,
+      "name": "onclick:()=>openConnect('elevenlabs')}):null);return}",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 152,
+      "name": "onclick:()=>cloneForm(host)})));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 178,
+      "name": "onclick:async e=>{",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 195,
+      "name": "onclick:()=>dlg.close()})),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 217,
+      "name": "addEventListener('close',()=>{stop();stream?.getTracks().forEach(t=>t.stop());if(live.src)URL.revokeObjectURL(live.src);dlg.remove()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 225,
+      "name": "onclick:()=>window.OprunMediaViewer?.open([{id,kind:'video',original_name:name}],0,{onUse:m=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id:m.id}}))})}),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 226,
+      "name": "onclick:()=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id}}))}),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 228,
+      "name": "onclick:onClear}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 234,
+      "name": "onclick:()=>continueProject(p)}):el('small',{class:'muted',text:'An owner or admin can resume Unlimited generation.'}),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 235,
+      "name": "onclick:()=>finishProject(p)}):null,",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 236,
+      "name": "onclick:()=>clearProject(p)})),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 242,
+      "name": "onclick:()=>finishProject(p)}):null);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-video.js",
+      "line": 252,
+      "name": "onclick:()=>clearJob(j)})));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "component",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 1,
+      "name": "workspace-video-dictation",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 15,
+      "name": "el('select',{id:'aiv-dictation-language','aria-label':'Dictation language'},",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 21,
+      "name": "el('textarea',{rows:3,dir:'auto','aria-label':'Speech to review'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 24,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Insert reviewed speech',onclick:()=>{if(pending&&insert(pending,draft.value,true)){pending=null;review.hidden=true;status.textContent='Speech inserted. Review it before generating.'}}}),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 25,
+      "name": "el('button',{type:'button',class:'secondary-button',text:'Discard speech',onclick:()=>{pending=null;draft.value='';review.hidden=true}}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 113,
+      "name": "el('button',{type:'button',class:'secondary-button aiv-dictate','aria-pressed':'false','aria-controls':target.id,onclick:()=>start(field)},micIcon(),field.label);",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 114,
+      "name": "el('button',{type:'button',class:'secondary-button',hidden:true,text:'Cancel dictation',onclick:()=>cancel('Dictation cancelled. Your existing text was preserved.')});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 24,
+      "name": "onclick:()=>{if(pending&&insert(pending,draft.value,true)){pending=null;review.hidden=true;status.textContent='Speech inserted. Review it before generating.'}}}),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 25,
+      "name": "onclick:()=>{pending=null;draft.value='';review.hidden=true}}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 111,
+      "name": "addEventListener('input',()=>field.revision++);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 113,
+      "name": "onclick:()=>start(field)},micIcon(),field.label);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 114,
+      "name": "onclick:()=>cancel('Dictation cancelled. Your existing text was preserved.')});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 118,
+      "name": "addEventListener('pagehide',()=>cancel());",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 119,
+      "name": "addEventListener('superpro:workspace-ready',()=>cancel('Workspace changed. Dictation cancelled.'));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 120,
+      "name": "addEventListener('gds:viewchange',e=>{if(e.detail?.view!=='video')cancel()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-video-dictation.js",
+      "line": 121,
+      "name": "addEventListener('click',()=>cancel(),true);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "component",
+      "file": "saas/workspace-media.js",
+      "line": 1,
+      "name": "workspace-media",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "dynamic-ui:video",
+      "file": "saas/workspace-media.js",
+      "line": 12,
+      "name": "el('video',{src:url+'#t=0.1',preload:'metadata',muted:true,playsinline:true});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:audio",
+      "file": "saas/workspace-media.js",
+      "line": 13,
+      "name": "el('audio',{src:url,controls:true,preload:'none'}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-media.js",
+      "line": 23,
+      "name": "el('button',{type:'button',class:'media-pick','aria-label':`Use ${m.original_name} as the source`,onclick:()=>pick(m)},thumb(m)),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-media.js",
+      "line": 24,
+      "name": "el('button',{type:'button',class:'media-preview','aria-label':`Preview ${m.original_name}`,title:'Preview',onclick:()=>preview(list,m)},el('span',{'aria-hidden':'true',text:m.kind==='photo'?'⤢':'▶'})),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-media.js",
+      "line": 27,
+      "name": "el('button',{type:'button',class:'media-del',text:'Remove','aria-label':`Remove ${m.original_name}`,onclick:()=>remove(m)}):null)));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 23,
+      "name": "onclick:()=>pick(m)},thumb(m)),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 24,
+      "name": "onclick:()=>preview(list,m)},el('span',{'aria-hidden':'true',text:m.kind==='photo'?'⤢':'▶'})),",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 27,
+      "name": "onclick:()=>remove(m)}):null)));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 50,
+      "name": "addEventListener('click',e=>{if(e.target!==input)choose()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 51,
+      "name": "addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose()}});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 52,
+      "name": "addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 53,
+      "name": "addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 54,
+      "name": "addEventListener('drop',e=>upload(e.dataTransfer?.files||[]));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 55,
+      "name": "addEventListener('change',()=>{upload(input.files);input.value=''});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 56,
+      "name": "addEventListener('click',choose);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 57,
+      "name": "addEventListener('click',()=>{note('Importing straight from a social account needs that platform to approve this app. For now, save the clip from the platform and upload it here. C",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 58,
+      "name": "addEventListener('click',()=>{mode=b.dataset.sourceMode;document.querySelectorAll('[data-source-mode]').forEach(x=>x.classList.toggle('active',x===b));draw()}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 59,
+      "name": "addEventListener('input',draw);$('#media-library-sort')?.addEventListener('change',draw);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 59,
+      "name": "addEventListener('change',draw);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 60,
+      "name": "addEventListener('oprun:media-changed',()=>{load()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-media.js",
+      "line": 61,
+      "name": "addEventListener('oprun:media-pick',async e=>{const id=e.detail?.id;if(!items.some(x=>x.id===id))await load();const m=items.find(x=>x.id===id);if(m)pick(m)});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "component",
+      "file": "saas/media-picker.js",
+      "line": 1,
+      "name": "media-picker",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-picker.js",
+      "line": 9,
+      "name": "addEventListener(k.slice(2), v); else e.setAttribute(k, v === true ? '' : v); }",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-picker.js",
+      "line": 43,
+      "name": "onclick: () => { chosen = chosen.filter((x) => x !== id); changed(); } }));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-picker.js",
+      "line": 58,
+      "name": "onclick: () => {",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-picker.js",
+      "line": 66,
+      "name": "addEventListener('change', async () => {",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-picker.js",
+      "line": 80,
+      "name": "addEventListener('click', openLibrary);",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "component",
+      "file": "saas/media-viewer.js",
+      "line": 1,
+      "name": "media-viewer",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 5,
+      "name": "addEventListener(k.slice(2),v);else n.setAttribute(k,v===true?'':String(v))}n.append(...kids.filter(Boolean));return n};",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 11,
+      "name": "onclick:()=>dlg.close()}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 13,
+      "name": "onclick:()=>go(-1)});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 14,
+      "name": "onclick:()=>go(1)});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 17,
+      "name": "addEventListener('keydown',e=>{if(e.key==='ArrowLeft'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){e.preventDefault();go(-1)}if(e.key==='ArrowRight'&&!/INPUT|TEXTAREA|SELECT/.",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 18,
+      "name": "addEventListener('click',e=>{if(e.target===dlg)dlg.close()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/media-viewer.js",
+      "line": 19,
+      "name": "addEventListener('close',()=>{dlg.querySelectorAll('video,audio').forEach(v=>{try{v.pause()}catch{}});dlg.querySelector('.mv-stage').replaceChildren()});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "component",
+      "file": "saas/workspace-growth.js",
+      "line": 1,
+      "name": "workspace-growth",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-growth.js",
+      "line": 15,
+      "name": "el('input',{name,autocomplete:'off',...attrs}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-growth.js",
+      "line": 16,
+      "name": "el('textarea',{name,maxlength:'1500'});t.value=value||'';return el('label',{class:cls},el('span',{text:label}),t)};",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-growth.js",
+      "line": 24,
+      "name": "el('textarea',{placeholder:'Paste the text of 3 to 5 top posts from similar pages here (optional). Oprun cannot browse other pages for you.',maxlength:'12000'}):null;",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 25,
+      "name": "el('button',{class:'primary-button compact',type:'button',text:p?'Create again':'Create'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 28,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Copy',onclick:()=>copy(p.content.summary+'\\n\\n'+all)})]:[])));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:form",
+      "file": "saas/workspace-growth.js",
+      "line": 40,
+      "name": "el('form',{class:'panel gr-form'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-growth.js",
+      "line": 41,
+      "name": "el('input',{type:'checkbox',name:'plat',value:id,checked:p.platforms.includes(id)?true:null}),el('span',{text:l}))));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:select",
+      "file": "saas/workspace-growth.js",
+      "line": 42,
+      "name": "el('select',{name:n});for(let h=0;h<24;h++)s.append(el('option',{value:String(h),text:`${h%12||12}${h<12?'am':'pm'}`,selected:(n==='from_hour'?p.from_hour:p.to_hour)===h?true:null}));return s};",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-growth.js",
+      "line": 46,
+      "name": "el('input',{name:'per_day',type:'number',min:'1',max:'16',value:String(p.posts_per_day)})),el('label',{},el('span',{text:'First post'}),hours('from_hour')),el('label',{},el('span',{text:'Last post'}),hours('to_hour')),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 48,
+      "name": "el('button',{class:'primary-button compact',type:'submit',text:'Save'})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-growth.js",
+      "line": 58,
+      "name": "el('input',{type:'date',name:'start',value:new Date(Date.now()+864e5).toISOString().slice(0,10)}),days=el('input',{type:'number',min:'1',max:'30',value:'30',name:'days'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-growth.js",
+      "line": 58,
+      "name": "el('input',{type:'number',min:'1',max:'30',value:'30',name:'days'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 59,
+      "name": "el('button',{class:'primary-button compact',type:'button',text:items.length?'Rebuild drafts':'Create calendar'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 62,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:`Approve all ${drafts} drafts`,disabled:!drafts||!canApprove()?true:null,title:canApprove()?'':'Only an owner or admin can approve posts.'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 76,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Edit',onclick:()=>edit(i)}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 77,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Skip',onclick:()=>patch(i,{action:'skip'})}));else acts.push(el('button',{class:'secondary-button compact',type:'button',text:'Restore',onclick:()=>patch(i,{action:'restore'})}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 77,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Restore',onclick:()=>patch(i,{action:'restore'})}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 79,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Copy',onclick:()=>copy(i.hook+(i.body?'\\n\\n'+i.body:''))}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 80,
+      "name": "el('button',{class:'primary-button compact',type:'button',text:'Post now',onclick:async()=>{try{const r=await api(`/api/saas/growth/calendar/${i.id}/publish`,{method:'POST',body:'{}'});note(r.status==='published'?'Posted.':'Marked ready to post.');await loadCalendar()}catch(e){note(e.message,true);await loadCalendar()}}}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 81,
+      "name": "el('button',{class:'primary-button compact',type:'button',text:'Approve',onclick:async()=>{try{await api('/api/saas/growth/calendar/approve',{method:'POST',body:JSON.stringify({ids:[i.id]})});await loadCalendar()}catch(e){note(e.message,true)}}}));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:form",
+      "file": "saas/workspace-growth.js",
+      "line": 88,
+      "name": "el('form',{method:'dialog',class:'cust-form'},el('h2',{text:'Edit post'}),field('First line','hook',{value:i.hook,required:true,maxlength:'300'}),area('Post text','body',i.body),...(picker?[picker.element]:[]),",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 90,
+      "name": "el('button',{class:'primary-button compact',value:'save',text:'Save'}),el('button',{class:'secondary-button compact',type:'button',text:'Cancel',onclick:ev=>ev.target.closest('dialog').close()})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 90,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Cancel',onclick:ev=>ev.target.closest('dialog').close()})));",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:textarea",
+      "file": "saas/workspace-growth.js",
+      "line": 96,
+      "name": "el('textarea',{maxlength:'3000',placeholder:'Paste a post that did well. You will get a carousel, a reel script and a story sequence.'}),out=el('div',{});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 97,
+      "name": "el('button',{class:'primary-button compact',type:'button',text:'Make 3 new pieces'});",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:button",
+      "file": "saas/workspace-growth.js",
+      "line": 98,
+      "name": "el('button',{class:'secondary-button compact',type:'button',text:'Copy',onclick:()=>copy(r.content.sections.map(s=>s.title+'\\n'+s.items.join('\\n')).join('\\n\\n'))})))}catch(e){note(e.message,true)}finally{b.disabled=false}};",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "dynamic-ui:input",
+      "file": "saas/workspace-growth.js",
+      "line": 112,
+      "name": "el('input',{type:'checkbox',checked:p.allowed?true:null,onchange:async ev=>{try{await api('/api/saas/activity/access',{method:'PUT',body:JSON.stringify({user_id:p.id,allowed:ev.target.checked})});note(ev.target.checked?'Access allowed.':'Access removed.')}catch(err){ev.target.checked=!ev.target.checked;note(err.message,true)}}}),el('span'",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 13,
+      "name": "addEventListener('click',e=>{const b=e.target.closest('[data-gr-tab]');if(b)tab(b.dataset.grTab)});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 28,
+      "name": "onclick:()=>copy(p.content.summary+'\\n\\n'+all)})]:[])));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 49,
+      "name": "onsubmit=async e=>{e.preventDefault();const x=f.elements,b=f.querySelector('button[type=submit]');b.disabled=true;",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 76,
+      "name": "onclick:()=>edit(i)}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 77,
+      "name": "onclick:()=>patch(i,{action:'skip'})}));else acts.push(el('button',{class:'secondary-button compact',type:'button',text:'Restore',onclick:()=>patch(i,{action:'restore'})}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 77,
+      "name": "onclick:()=>patch(i,{action:'restore'})}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 79,
+      "name": "onclick:()=>copy(i.hook+(i.body?'\\n\\n'+i.body:''))}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 80,
+      "name": "onclick:async()=>{try{const r=await api(`/api/saas/growth/calendar/${i.id}/publish`,{method:'POST',body:'{}'});note(r.status==='published'?'Posted.':'Marked ready to post.');await ",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 81,
+      "name": "onclick:async()=>{try{await api('/api/saas/growth/calendar/approve',{method:'POST',body:JSON.stringify({ids:[i.id]})});await loadCalendar()}catch(e){note(e.message,true)}}}));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 90,
+      "name": "onclick:ev=>ev.target.closest('dialog').close()})));",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 91,
+      "name": "addEventListener('close',()=>d.remove());",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 92,
+      "name": "addEventListener('submit',async e=>{if(e.submitter?.value!=='save')return;e.preventDefault();const body={hook:f.elements.hook.value,body:f.elements.body.value};if(picker){const ids",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-growth.js",
+      "line": 98,
+      "name": "onclick:()=>copy(r.content.sections.map(s=>s.title+'\\n'+s.items.join('\\n')).join('\\n\\n'))})))}catch(e){note(e.message,true)}finally{b.disabled=false}};",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "component",
+      "file": "saas/workspace-ai-runtime.js",
+      "line": 1,
+      "name": "workspace-ai-runtime",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "event-binding",
+      "file": "saas/workspace-ai-runtime.js",
+      "line": 244,
+      "name": "addEventListener('pagehide',()=>{stopSpeech();stopListening(true)});",
+      "classification": "UNVERIFIED",
+      "reason": "Static binding exists; real-device execution not established by census"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 367,
+      "name": "GET /api/saas/ai-video",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...studio, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 375,
+      "name": "POST /api/saas/ai-video/providers/:provider",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, requireSaasUser, requireSaasRole(...OWNERS), async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 388,
+      "name": "DELETE /api/saas/ai-video/providers/:provider",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireSaasUser, requireSaasRole(...OWNERS), (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 396,
+      "name": "POST /api/saas/ai-video/enhance",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 411,
+      "name": "POST /api/saas/ai-video/jobs",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 434,
+      "name": "POST /api/saas/ai-video/jobs/:id/refresh",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 441,
+      "name": "DELETE /api/saas/ai-video/jobs/:id",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...studio, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 449,
+      "name": "POST /api/saas/ai-video/projects",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 486,
+      "name": "POST /api/saas/ai-video/projects/:id/refresh",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 495,
+      "name": "POST /api/saas/ai-video/projects/:id/finish",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...studio,(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 505,
+      "name": "POST /api/saas/ai-video/projects/:id/continue",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 517,
+      "name": "DELETE /api/saas/ai-video/projects/:id",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...studio, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 526,
+      "name": "POST /api/saas/ai-video/voices",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 543,
+      "name": "POST /api/saas/ai-video/voices/:id/speak",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 549,
+      "name": "DELETE /api/saas/ai-video/voices/:id",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireSaasUser, requireSaasRole(...OWNERS), async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/ai-video.js",
+      "line": 557,
+      "name": "POST /api/saas/ai-video/media/:id/mp4",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", limiter, ...studio, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 3306,
+      "name": "POST /api/saas/voice/transcribe",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,voiceReplyLimiter,voiceInputUpload.single('audio'),transcribeVoice);",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4322,
+      "name": "POST /api/saas/content/ai-spec",
+      "classification": "MERGE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole('owner','admin','manager','super_admin','director'),async(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4369,
+      "name": "GET /api/saas/video-renders",
+      "classification": "MERGE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole('owner','admin','manager','super_admin','director'),(req,res)=>res.json({ok:true,jobs:db.prepare(`SELECT * FROM video_render_jobs WHERE organisation_id=? ORDER BY updated_at DESC`).all(req.saas.organisation_id).map(j=>({...j,edit_spec:JSON.parse(j.edit_spec)}))}));",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4370,
+      "name": "POST /api/saas/video-renders",
+      "classification": "MERGE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole('owner','admin','manager','super_admin','director'),(req,res)=>{const parsed=z.object({quality:z.enum(['720p','1080p','4k']),edit_spec:z.object({platform:z.string().max(80).default('Multi-platform'),goal:z.string().max(120).default('More views'),aspect_ratio:z.enum(['9:16','16:9','1:1','4:5']),clips:z.array(z.object",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4718,
+      "name": "POST /api/admin/jobs/:id/media",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireAdmin, (req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4742,
+      "name": "GET /api/saas/media",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4746,
+      "name": "POST /api/saas/media",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4758,
+      "name": "GET /m/:token",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4767,
+      "name": "GET /api/saas/media/:id/file",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4775,
+      "name": "DELETE /api/saas/media/:id",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,requireSaasRole('owner','admin','super_admin'),(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4803,
+      "name": "GET /api/saas/work-orders/:id/media",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4810,
+      "name": "POST /api/saas/work-orders/:id/media",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",requireSaasUser,(req,res)=>{",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4875,
+      "name": "GET /api/admin/jobs/:jobId/media/:mediaId",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireAdmin, (req,res)=>{const item=db.prepare(`SELECT * FROM job_media WHERE id=? AND booking_id=?`).get(req.params.mediaId,req.params.jobId);if(!item)return res.status(404).json({ok:false,error:'Media not found'});const absolute=path.resolve(uploadRoot,item.relative_path);if(!absolute.startsWith(path.resolve(uploadRoot)+path.sep)||!fs.existsSy",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4913,
+      "name": "GET /api/admin/campaigns",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireAdmin, (req,res)=>res.json({ok:true,campaigns:db.prepare(`SELECT * FROM marketing_campaigns ORDER BY updated_at DESC`).all()}));",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/server.js",
+      "line": 4915,
+      "name": "POST /api/admin/campaigns",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireAdmin, (req,res)=>{const parsed=z.object({name:z.string().trim().min(2).max(200),campaign_type:z.enum(['offer','follow_up','newsletter','lead_generation']),channel:z.enum(['email','sms','whatsapp','facebook','instagram','tiktok','youtube','snapchat','x','website']),offer:z.string().trim().min(2).max(2000),message:z.string().trim().min(2).m",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 173,
+      "name": "GET /api/saas/growth/overview",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 190,
+      "name": "PUT /api/saas/growth/profile",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 203,
+      "name": "POST /api/saas/growth/generate",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 227,
+      "name": "POST /api/saas/growth/calendar/generate",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 254,
+      "name": "GET /api/saas/growth/calendar",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 263,
+      "name": "PATCH /api/saas/growth/calendar/:id",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 285,
+      "name": "POST /api/saas/growth/calendar/approve",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gateApprove, (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 407,
+      "name": "POST /api/saas/growth/calendar/:id/publish",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gateApprove, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/growth.js",
+      "line": 424,
+      "name": "POST /api/saas/growth/repurpose",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", ...gate, async (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 108,
+      "name": "GET /api/saas/channels/access",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,wrap((req,res) => res.json({ok:true,owner:owner(req),access:memberAccess(req)})));",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 109,
+      "name": "GET /api/saas/channels/overview",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,wrap((req,res) => res.json(overview(req))));",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 110,
+      "name": "GET /api/saas/channels/team",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,wrap((req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 116,
+      "name": "PUT /api/saas/channels/team/:user/:provider",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap((req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 131,
+      "name": "GET /api/saas/channels/tiktok/creator-info",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 137,
+      "name": "POST /api/saas/channels/:provider/sync",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 159,
+      "name": "GET /api/saas/channels/:provider/items",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,wrap((req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 164,
+      "name": "GET /api/saas/channels/drafts",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,wrap((req,res) => res.json({ok:true,drafts:db.prepare('SELECT * FROM channel_drafts WHERE organisation_id=? ORDER BY updated_at DESC LIMIT 200').all(org(req)).filter(r => can(req,r.provider,'read',r.resource_id) && selected(req,r.provider).some(v => v.id === r.resource_id)).map(outDraft)})));",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 165,
+      "name": "GET /api/saas/channels/whatsapp/templates",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 170,
+      "name": "POST /api/saas/channels/drafts",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 210,
+      "name": "POST /api/saas/channels/drafts/:id/decision",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap((req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 216,
+      "name": "POST /api/saas/channels/drafts/:id/publish",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 248,
+      "name": "GET /api/saas/channels/campaigns",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,wrap((req,res) => res.json({ok:true,campaigns:db.prepare('SELECT * FROM channel_campaigns WHERE organisation_id=? ORDER BY updated_at DESC LIMIT 100').all(org(req)).filter(r => parse(r.providers_json,[]).every(p => can(req,p,'campaign'))).map(r => ({...r,providers:parse(r.providers_json,[]),targeting:parse(r.targeting_json),providers_json:",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 249,
+      "name": "POST /api/saas/channels/campaigns",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap((req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 256,
+      "name": "POST /api/saas/channels/campaigns/:id/approve",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap((req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 262,
+      "name": "POST /api/saas/channels/:provider/recommendations",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/channel-operations.js",
+      "line": 277,
+      "name": "POST /api/saas/channels/growth-actions",
+      "classification": "IMPROVE",
+      "guard_excerpt": ",...read,limit,wrap(async(req,res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/saas-platform.js",
+      "line": 276,
+      "name": "GET /api/saas/comms/channels",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", requireSaasUser, requireSaasRole(...ADMINS), (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "api",
+      "file": "src/saas-platform.js",
+      "line": 279,
+      "name": "PUT /api/saas/comms/channels/:channel",
+      "classification": "IMPROVE",
+      "guard_excerpt": ", commsLimiter, requireSaasUser, requireSaasRole('owner'), (req, res) => {",
+      "guard_status": "Manual review required; middleware aliases and global guards not expanded by regex"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 329,
+      "name": "channel_connections",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 372,
+      "name": "marketing_campaigns",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 418,
+      "name": "channel_metrics",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 731,
+      "name": "video_render_jobs",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 901,
+      "name": "security_notifications",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 919,
+      "name": "organisation_integrations",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 1712,
+      "name": "tenant_media",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/db.js",
+      "line": 1756,
+      "name": "user_notifications",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/ai-video.js",
+      "line": 44,
+      "name": "ai_video_providers",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/ai-video.js",
+      "line": 46,
+      "name": "ai_video_jobs",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/ai-video.js",
+      "line": 52,
+      "name": "ai_video_projects",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/ai-video.js",
+      "line": 58,
+      "name": "ai_voices",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/growth.js",
+      "line": 117,
+      "name": "growth_profiles",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/growth.js",
+      "line": 123,
+      "name": "growth_plans",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/growth.js",
+      "line": 128,
+      "name": "growth_calendar",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/channel-operations.js",
+      "line": 16,
+      "name": "channel_access",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/channel-operations.js",
+      "line": 20,
+      "name": "channel_items",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/channel-operations.js",
+      "line": 24,
+      "name": "channel_drafts",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/channel-operations.js",
+      "line": 29,
+      "name": "channel_campaigns",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "database-table",
+      "file": "src/channel-operations.js",
+      "line": 33,
+      "name": "channel_sync_state",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/video-dictation.test.mjs",
+      "line": 1,
+      "name": "video-dictation.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/tenant-indexes.test.mjs",
+      "line": 1,
+      "name": "tenant-indexes.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/growth-media-publish.test.mjs",
+      "line": 1,
+      "name": "growth-media-publish.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/tenant-isolation.test.mjs",
+      "line": 1,
+      "name": "tenant-isolation.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/integration-tenant.test.mjs",
+      "line": 1,
+      "name": "integration-tenant.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-mobile-readiness.mjs",
+      "line": 1,
+      "name": "test-mobile-readiness.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/ai-video-projects.test.mjs",
+      "line": 1,
+      "name": "ai-video-projects.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/ai-video.test.mjs",
+      "line": 1,
+      "name": "ai-video.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-redesign-ui.mjs",
+      "line": 1,
+      "name": "test-redesign-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/voice-runtime.test.mjs",
+      "line": 1,
+      "name": "voice-runtime.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-channel-operations-ui.mjs",
+      "line": 1,
+      "name": "test-channel-operations-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-comms-ui.mjs",
+      "line": 1,
+      "name": "test-comms-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/restore-drill.mjs",
+      "line": 1,
+      "name": "restore-drill.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/media-tools.test.mjs",
+      "line": 1,
+      "name": "media-tools.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/object-storage.test.mjs",
+      "line": 1,
+      "name": "object-storage.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-ui.mjs",
+      "line": 1,
+      "name": "test-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/growth-publishing-security.test.mjs",
+      "line": 1,
+      "name": "growth-publishing-security.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-navigation-ui.mjs",
+      "line": 1,
+      "name": "test-navigation-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-localization-ui.mjs",
+      "line": 1,
+      "name": "test-localization-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/growth-schedule.test.mjs",
+      "line": 1,
+      "name": "growth-schedule.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-mobile-workspace-ui.mjs",
+      "line": 1,
+      "name": "test-mobile-workspace-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/restore-drill.test.mjs",
+      "line": 1,
+      "name": "restore-drill.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-ai-video-ui.mjs",
+      "line": 1,
+      "name": "test-ai-video-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/integration-security.test.mjs",
+      "line": 1,
+      "name": "integration-security.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/channel-operations.test.mjs",
+      "line": 1,
+      "name": "channel-operations.test.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "test",
+      "file": "scripts/test-connections-ui.mjs",
+      "line": 1,
+      "name": "test-connections-ui.mjs",
+      "classification": "KEEP",
+      "verification": "Prior CI may cover this file; not rerun by documentation census"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/ai-video.js",
+      "line": 1,
+      "name": "sweep/poll persisted jobs",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/ai-video.js",
+      "line": 1,
+      "name": "expireQueued uncertain-submission recovery",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/ai-video.js",
+      "line": 1,
+      "name": "join assembly heartbeat/restart lease",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/ai-video.js",
+      "line": 1,
+      "name": "clipDone next continuation",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/ai-video.js",
+      "line": 1,
+      "name": "tellProject tenant notification",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/growth.js",
+      "line": 1,
+      "name": "publishItem scheduling claim/approval",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/growth.js",
+      "line": 1,
+      "name": "scheduler tick and delivery uncertainty",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/media-tools.js",
+      "line": 1,
+      "name": "FFmpeg sequential concat/trim/addVoice",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/media-tools.js",
+      "line": 1,
+      "name": "private file copy/write staging",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/object-storage.js",
+      "line": 1,
+      "name": "tenant object storage and mode selection",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/s3-files.js",
+      "line": 1,
+      "name": "upload replication/restore",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/media-link.js",
+      "line": 1,
+      "name": "tenant signed public token (no embedded expiry)",
+      "classification": "IMPROVE"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/channel-providers.js",
+      "line": 1,
+      "name": "official social API provider adapters",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "src/notifications.js",
+      "line": 1,
+      "name": "workspace recipient notifications",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "scripts/start.mjs",
+      "line": 1,
+      "name": "Litestream DB restore/replication startup",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "scripts/restore-drill.mjs",
+      "line": 1,
+      "name": "separate temporary restore/integrity/audit verification",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "pipeline-or-storage",
+      "file": "saas/sw.js",
+      "line": 1,
+      "name": "public cache; workspace/API excluded; network-first static assets",
+      "classification": "KEEP"
+    },
+    {
+      "kind": "navigation-or-legacy-binding",
+      "file": "saas/app.js",
+      "line": 581,
+      "name": "video-form",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "navigation-or-legacy-binding",
+      "file": "saas/app.js",
+      "line": 694,
+      "name": "studio-workflow",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "navigation-or-legacy-binding",
+      "file": "saas/app.js",
+      "line": 581,
+      "name": "content-platform",
+      "classification": "MERGE"
+    },
+    {
+      "kind": "navigation-or-legacy-binding",
+      "file": "saas/workspace-nav.js",
+      "line": 72,
+      "name": "growth/media",
+      "classification": "MERGE"
+    }
+  ],
+  "limitations": [
+    "Dynamic labels/options/role-specific branches need runtime census per tenant and role.",
+    "Regex does not expand router factories/global middleware or prove object-level authorization.",
+    "No provider credentials, subscriber records or production database were read.",
+    "All proposed features in blueprint remain ADD until implementation/acceptance."
+  ]
+}

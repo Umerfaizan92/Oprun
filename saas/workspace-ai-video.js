@@ -9,14 +9,16 @@
   const $=s=>document.querySelector(s);
   const OWNERS=['owner','admin','super_admin'];
   let loaded=false,state={providers:{},engines:[],jobs:[],projects:[],voices:[]},library=[],timer=null,shape='9:16',mounted=false,busy=false;
-  let picker=null,voiceMode='none',narrationId=null,dictation=null;
+  let picker=null,voiceMode='none',narrationId=null,dictation=null,guided=null,workspaceEpoch=0,captureEpoch=0,audioPending=false,generationPending=false,generationRun=0,pendingSubmission=null;
   const ago=iso=>{const s=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000));return s<60?`${s}s`:`${Math.floor(s/60)} min ${s%60}s`};
   const secs=n=>{n=Math.max(0,Math.round(Number(n)||0));return n<60?`${n} seconds`:n%60?`${Math.floor(n/60)} min ${n%60}s`:`${n/60} minute${n===60?'':'s'}`};
-  const engine=()=>state.engines.find(e=>e.id===$('#aiv-engine')?.value)||state.engines[0];
+  const engine=()=>state.engines.find(e=>e.id===$('#aiv-engine')?.value);
   const headers=()=>window.SuperProWorkspaceContext?.headers?.()||{};
-  async function uploadBlob(blob,name){
+  async function uploadBlob(blob,name,epoch=workspaceEpoch){
+    if(epoch!==workspaceEpoch)throw new Error('Workspace changed. Recording was not added to this workspace.');
     const fd=new FormData();fd.append('files',new File([blob],name,{type:blob.type.split(';')[0]}));
     const r=await fetch('/api/saas/media',{method:'POST',credentials:'same-origin',headers:headers(),body:fd});const d=await r.json().catch(()=>({}));
+    if(epoch!==workspaceEpoch)throw new Error('Workspace changed. Your recording was not added to the new workspace.');
     if(!r.ok||!d.ids?.[0])throw new Error(d.error||'The recording could not be saved.');return d.ids[0];
   }
   const stamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}.${z(d.getMinutes())}`};
@@ -43,7 +45,7 @@
           el('div',{class:'aiv-row'},el('button',{type:'button',class:'secondary-button',id:'aiv-camera',text:'Record with camera'}))),
         el('label',{},el('span',{text:'Video model'}),el('select',{id:'aiv-engine'})),
         el('div',{class:'aiv-field'},el('span',{class:'aiv-label',text:'Shape'}),
-          seg('Shape',[['9:16','Vertical 9:16','Reels, TikTok, Shorts'],['16:9','Wide 16:9','YouTube, website']],shape,v=>{shape=v})),
+          seg('Shape',[['9:16','Vertical 9:16','Reels, TikTok, Shorts'],['16:9','Wide 16:9','YouTube, website']],shape,v=>{shape=v;$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}))})),
         el('label',{},el('span',{text:'Length'}),el('select',{id:'aiv-duration'})),
         el('div',{class:'aiv-field',id:'aiv-custom-length',hidden:true},
           el('label',{},el('span',{text:'Custom full video length'}),el('input',{type:'number',id:'aiv-custom-duration',min:'0.033333',step:'any',value:'1',inputmode:'decimal'})),
@@ -51,7 +53,7 @@
         el('label',{},el('span',{text:'Quality'}),el('select',{id:'aiv-resolution'})),
         el('label',{class:'aiv-full aiv-check',id:'aiv-continuous-consent-row',hidden:true},el('input',{type:'checkbox',id:'aiv-continuous-consent'}),el('span',{text:'I understand Unlimited keeps generating and charging my provider account until I press Finish video, or provider credits or storage limits stop it.'})),
         el('fieldset',{class:'aiv-full aiv-voice'},el('legend',{text:'4. Voice-over (optional)'}),
-          seg('Voice-over',[['none','None'],['record','Record my voice'],['library','From my library'],['script','Script in my voice']],'none',v=>{voiceMode=v;drawVoice()}),
+          seg('Voice-over',[['none','None'],['record','Record my voice'],['library','From my library'],['script','Script in my voice']],'none',v=>{stopAudio(true);voiceMode=v;drawVoice();$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}))}),
           el('div',{id:'aiv-voice-body'}),
           el('label',{class:'aiv-check'},el('input',{type:'checkbox',id:'aiv-keep'}),el('span',{text:'Keep the video’s own sound quietly under my voice'}))),
         el('p',{class:'aiv-full aiv-plan',id:'aiv-plan',role:'status'}),
@@ -64,7 +66,7 @@
     $('#aiv-custom-duration').addEventListener('input',plan);$('#aiv-duration-unit').addEventListener('change',plan);
     $('#aiv-enhance').addEventListener('click',enhance);$('#aiv-camera').addEventListener('click',openCamera);
     $('#aiv-form').addEventListener('submit',e=>{e.preventDefault();generate()});
-    dictation=window.OprunVideoDictation?.create($('#aiv-dictation'),{canStart:()=>!busy&&!$('#aiv-enhance').disabled&&!rec});
+    dictation=window.OprunVideoDictation?.create($('#aiv-dictation'),{canStart:()=>!busy&&!$('#aiv-enhance').disabled&&!rec&&!audioPending});
     dictation?.attach($('#aiv-idea'),'idea');dictation?.attach($('#aiv-prompt'),'prompt');
     setGuides([]);drawVoice();
     mounted=true;return true;
@@ -73,7 +75,7 @@
     const host=$('#aiv-guides');if(!host||!window.OprunMediaPicker)return;
     const known=ids.map(id=>library.find(m=>m.id===id)).filter(Boolean).map(m=>({id:m.id,kind:m.kind,name:m.original_name}));
     picker=window.OprunMediaPicker.create({selected:known.length?known:ids,label:'Photos and videos to guide the AI',hint:'Up to 3. JPG, PNG or WebP photos, or videos.'});
-    host.replaceChildren(picker.element);
+    host.replaceChildren(picker.element);$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));picker.onChange(()=>$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true})));
   }
   const guides=()=>picker?picker.value():[];
 
@@ -81,7 +83,10 @@
     const host=$('#aiv-providers');if(!host)return;const canKey=OWNERS.includes(role());
     host.replaceChildren(...Object.entries(state.providers).map(([id,p])=>el('div',{class:'aiv-provider'+(p.connected?' on':'')},
       el('div',{},el('b',{text:p.label}),el('small',{text:p.connected?`Connected · key ${p.key_hint||''}`:(p.kind==='voice'?'Optional: for your own voice':'Not connected')})),
+      p.connected?el('small',{class:'muted',text:p.readiness==='generation_verified'?'Generation verified on this account.':p.readiness==='billing_required'?'Billing required · your project is kept.':p.kind==='voice'?'Key connected · voice funding is not verified.':'Key connected · video funding is not verified.'}):null,
       p.problem&&p.connected?el('small',{class:'aiv-problem',text:`Last problem: ${p.problem}`}):null,
+      canKey&&p.connected?el('button',{type:'button',class:'secondary-button',text:'Check again',onclick:()=>checkProvider(id)}):null,
+      canKey&&p.problem_code==='BILLING_REQUIRED'?el('a',{class:'secondary-button',href:id==='google'?'https://aistudio.google.com/billing':id==='runway'?'https://dev.runwayml.com/':'https://elevenlabs.io/',target:'_blank',rel:'noopener noreferrer',text:'Open provider billing'}):null,
       canKey?(p.connected?el('button',{type:'button',class:'secondary-button',text:'Disconnect',onclick:()=>disconnect(id,p)}):el('button',{type:'button',class:'secondary-button',text:'Connect',onclick:()=>openConnect(id)})):null)));
     if(!Object.entries(state.providers).some(([,p])=>p.connected&&p.kind!=='voice'))host.append(el('p',{class:'aiv-hint',text:canKey?'Connect at least one video provider with your own API key. You pay the provider directly for each video; Oprun adds no charge.':'Ask the business owner or an admin to connect a video provider.'}));
   }
@@ -95,6 +100,12 @@
       el('div',{class:'aiv-row'},input,el('button',{type:'submit',class:'primary-button',text:'Check and save'}),el('button',{type:'button',class:'secondary-button',text:'Cancel',onclick:()=>{box.hidden=true}})),
       el('small',{class:'muted',text:'The key is checked with the provider, stored encrypted, and never shown again.'})));
     input.focus();box.scrollIntoView({block:'nearest'});
+  }
+  async function checkProvider(id){try{const r=await api(`/api/saas/ai-video/providers/${id}/check`,{method:'POST',body:'{}'});note(r.note);await load()}catch(x){note(x.payload?.error||x.message,true);await load()}}
+  function billingRetry(provider){
+    if(state.providers[provider]?.problem_code!=='BILLING_REQUIRED')return false;
+    if(!OWNERS.includes(role())){note('Ask the owner or admin to check provider billing before retrying.',true);return null}
+    return confirm('This provider reported a billing problem. Check its billing account first. Retry one generation request using this provider? It may incur provider charges.')?true:null;
   }
   async function disconnect(id,p){if(!confirm(`Disconnect ${p.label}? Videos already made stay in your library.`))return;try{const r=await api(`/api/saas/ai-video/providers/${id}`,{method:'DELETE'});state.providers=r.providers;await load()}catch(x){note(x.message,true)}}
 
@@ -152,21 +163,22 @@
         el('button',{type:'button',class:'secondary-button',text:'Create my voice',onclick:()=>cloneForm(host)})));
   }
   async function recordAudio(status,btn,host){
-    dictation?.cancel();
+    dictation?.cancel();const epoch=workspaceEpoch,capture=++captureEpoch;audioPending=true;let stream=null,tick=null;btn.disabled=true;const cancel=el('button',{type:'button',class:'secondary-button',text:'Cancel recording',onclick:()=>{stopAudio(true);btn.disabled=false;status.textContent='Recording cancelled. Your earlier voice-over is preserved.';cancel.remove()}});host.querySelector('.aiv-row')?.append(cancel);
     try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+      if(epoch!==workspaceEpoch||capture!==captureEpoch){cancel.remove();stream.getTracks().forEach(t=>t.stop());return}
       const type=pickType(['audio/webm;codecs=opus','audio/webm','audio/mp4']);const r=new MediaRecorder(stream,type?{mimeType:type}:undefined),chunks=[],started=Date.now();
-      rec={r,stream,chunks};btn.textContent='Stop';
-      const tick=setInterval(()=>{status.textContent=`Recording… ${secs(Math.round((Date.now()-started)/1000))}`},500);
+      const current={r,stream,chunks,cancelled:false};rec=current;btn.disabled=false;btn.textContent='Stop';let pausedAt=0,pausedMs=0;const pause=el('button',{type:'button',class:'secondary-button',text:'Pause recording',hidden:typeof r.pause!=='function',onclick:()=>{try{if(r.state==='paused'){pausedMs+=Date.now()-pausedAt;pausedAt=0;r.resume();pause.textContent='Pause recording'}else if(r.state==='recording'){pausedAt=Date.now();r.pause();pause.textContent='Resume recording'}}catch{note('Pause is unavailable. Stop and save or cancel this recording.',true)}}});host.querySelector('.aiv-row')?.append(pause);
+      tick=setInterval(()=>{status.textContent=r.state==='paused'?'Recording paused. Resume, stop or cancel.':`Recording… ${secs(Math.round((Date.now()-started-pausedMs)/1000))}`},500);
       r.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-      r.onstop=async()=>{clearInterval(tick);stream.getTracks().forEach(t=>t.stop());rec=null;btn.textContent='Record';
+      r.onstop=async()=>{clearInterval(tick);pause.remove();cancel.remove();stream.getTracks().forEach(t=>t.stop());if(rec===current)rec=null;btn.textContent='Record';if(current.cancelled||epoch!==workspaceEpoch||capture!==captureEpoch)return;
         const blob=new Blob(chunks,{type:(r.mimeType||type||'audio/webm').split(';')[0]});if(blob.size<2000){status.textContent='That recording was too short. Try again.';return}
         status.textContent='Saving your recording…';
-        try{narrationId=await uploadBlob(blob,`Voice recording ${stamp()}.${blob.type.includes('mp4')?'m4a':'weba'}`);await loadLibrary();drawVoice();window.dispatchEvent(new Event('oprun:media-changed'))}catch(x){status.textContent=x.message}};
+        try{const id=await uploadBlob(blob,`Voice recording ${stamp()}.${blob.type.includes('mp4')?'m4a':'weba'}`,epoch);if(epoch!==workspaceEpoch)return;narrationId=id;$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;drawVoice();window.dispatchEvent(new Event('oprun:media-changed'))}catch(x){status.textContent=x.message}};
       r.start(1000);
-    }catch{note('Allow the microphone for this site to record your voice.',true)}
+    }catch{clearInterval(tick);stream?.getTracks().forEach(t=>t.stop());if(rec?.stream===stream)rec=null;cancel.remove();if(epoch===workspaceEpoch&&capture===captureEpoch)note('Allow the microphone for this site to record your voice.',true)}finally{if(capture===captureEpoch)audioPending=false;btn.disabled=false}
   }
-  function stopAudio(){try{rec?.r.stop()}catch{rec=null}}
+  function stopAudio(cancel=false){if(cancel){audioPending=false;captureEpoch++;if(rec)rec.cancelled=true}try{rec?.r.stop()}catch{rec=null}}
   function cloneForm(host){
     const audio=library.filter(m=>m.kind==='audio'||m.kind==='video');
     const box=el('div',{class:'aiv-clone'},
@@ -185,36 +197,36 @@
 
   // ---------- camera ----------
   async function openCamera(){
-    dictation?.cancel();
+    dictation?.cancel();const epoch=workspaceEpoch;
     if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){note('This browser cannot record video. Upload a video instead.',true);return}
-    let facing='user',stream=null,recorder=null,chunks=[],blob=null,started=0,tick=null;
+    let facing='user',stream=null,recorder=null,chunks=[],blob=null,started=0,tick=null,closed=false;
     const live=el('video',{class:'aiv-cam-video',playsinline:true,autoplay:true,muted:true,'aria-label':'Camera preview'});live.muted=true;
     const clock=el('span',{class:'aiv-cam-clock',role:'status'});
     const recBtn=el('button',{type:'button',class:'primary-button',text:'Start recording'}),flip=el('button',{type:'button',class:'secondary-button',text:'Switch camera'});
     const use=el('button',{type:'button',class:'primary-button',text:'Use this video',hidden:true}),retake=el('button',{type:'button',class:'secondary-button',text:'Record again',hidden:true});
     const dlg=el('dialog',{class:'aiv-cam','aria-label':'Record a video'},el('header',{},el('b',{text:'Record a video'}),el('button',{type:'button',class:'aiv-cam-x','aria-label':'Close',text:'×',onclick:()=>dlg.close()})),
       el('div',{class:'aiv-cam-stage'},live,clock),el('p',{class:'muted',text:'Up to 3 minutes. Face the light and hold the phone steady.'}),el('div',{class:'aiv-row'},recBtn,flip,retake,use));
-    const startCam=async()=>{stream?.getTracks().forEach(t=>t.stop());stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1080},height:{ideal:1920}},audio:true});live.srcObject=stream;live.controls=false;live.muted=true;await live.play().catch(()=>{})};
+    const startCam=async()=>{stream?.getTracks().forEach(t=>t.stop());stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1080},height:{ideal:1920}},audio:true});if(closed||epoch!==workspaceEpoch){stream.getTracks().forEach(t=>t.stop());return}live.srcObject=stream;live.controls=false;live.muted=true;await live.play().catch(()=>{})};
     const stop=()=>{clearInterval(tick);try{recorder?.state==='recording'&&recorder.stop()}catch{}};
     recBtn.onclick=()=>{
       if(recorder?.state==='recording'){stop();return}
       const type=pickType(['video/mp4;codecs=avc1','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4']);
       chunks=[];recorder=new MediaRecorder(stream,type?{mimeType:type}:undefined);started=Date.now();
       recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-      recorder.onstop=()=>{blob=new Blob(chunks,{type:(recorder.mimeType||type||'video/webm').split(';')[0]});live.srcObject=null;live.src=URL.createObjectURL(blob);live.muted=false;live.controls=true;recBtn.hidden=true;flip.hidden=true;use.hidden=false;retake.hidden=false;clock.textContent=''};
+      recorder.onstop=()=>{if(closed||epoch!==workspaceEpoch)return;blob=new Blob(chunks,{type:(recorder.mimeType||type||'video/webm').split(';')[0]});live.srcObject=null;live.src=URL.createObjectURL(blob);live.muted=false;live.controls=true;recBtn.hidden=true;flip.hidden=true;use.hidden=false;retake.hidden=false;clock.textContent=''};
       recorder.start(1000);recBtn.textContent='Stop';
       tick=setInterval(()=>{const s=Math.round((Date.now()-started)/1000);clock.textContent=`● ${secs(s)}`;if(s>=180)stop()},500);
     };
     flip.onclick=async()=>{facing=facing==='user'?'environment':'user';try{await startCam()}catch{note('Could not switch the camera.',true)}};
     retake.onclick=async()=>{URL.revokeObjectURL(live.src);live.removeAttribute('src');blob=null;recBtn.hidden=false;flip.hidden=false;use.hidden=true;retake.hidden=true;recBtn.textContent='Start recording';await startCam().catch(()=>{})};
     use.onclick=async()=>{
-      if(!blob)return;use.disabled=true;use.textContent='Saving…';
-      try{let id=await uploadBlob(blob,`Camera recording ${stamp()}.${blob.type.includes('mp4')?'mp4':'webm'}`);
+      if(!blob||closed||epoch!==workspaceEpoch)return;use.disabled=true;use.textContent='Saving…';
+      try{let id=await uploadBlob(blob,`Camera recording ${stamp()}.${blob.type.includes('mp4')?'mp4':'webm'}`,epoch);
         if(!blob.type.includes('mp4')){use.textContent='Making it play on every phone…';id=(await api(`/api/saas/ai-video/media/${id}/mp4`,{method:'POST',body:'{}'})).media_id}
-        await loadLibrary();setGuides([...guides().filter(x=>x!==id),id].slice(-3));window.dispatchEvent(new Event('oprun:media-changed'));note('Your video is saved and added as a guide.');dlg.close();
+        if(closed||epoch!==workspaceEpoch)return;await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;setGuides([...guides().filter(x=>x!==id),id].slice(-3));window.dispatchEvent(new Event('oprun:media-changed'));note('Your video is saved and added as a guide.');dlg.close();
       }catch(x){note(x.message,true);use.disabled=false;use.textContent='Use this video'}
     };
-    dlg.addEventListener('close',()=>{stop();stream?.getTracks().forEach(t=>t.stop());if(live.src)URL.revokeObjectURL(live.src);dlg.remove()});
+    dlg.addEventListener('close',()=>{closed=true;stop();stream?.getTracks().forEach(t=>t.stop());if(live.src)URL.revokeObjectURL(live.src);dlg.remove()});
     document.body.append(dlg);dlg.showModal();
     try{await startCam()}catch{note('Allow the camera and microphone for this site to record.',true);dlg.close()}
   }
@@ -223,18 +235,20 @@
   const player=(id,shapeKey,label)=>el('div',{class:'aiv-player','data-shape':shapeKey},el('video',{src:`/api/saas/media/${encodeURIComponent(id)}/file`,controls:true,playsinline:true,preload:'metadata','aria-label':label}));
   const doneActions=(id,name,onClear)=>el('div',{class:'aiv-actions'},
     el('button',{type:'button',class:'secondary-button',text:'Full preview',onclick:()=>window.OprunMediaViewer?.open([{id,kind:'video',original_name:name}],0,{onUse:m=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id:m.id}}))})}),
-    el('button',{type:'button',class:'secondary-button',text:'Use in render',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id}}))}),
+    el('button',{type:'button',class:'secondary-button',text:state.unified_ui?'Use as guide':'Use in render',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:media-pick',{detail:{id}}))}),
     el('a',{class:'secondary-button',href:`/api/saas/media/${encodeURIComponent(id)}/file`,download:name,text:'Download'}),
+    state.unified_ui?el('button',{type:'button',class:'secondary-button',text:'Edit video',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-edit',{detail:{id}}))}):null,
+    state.unified_ui?el('button',{type:'button',class:'secondary-button',text:'Prepare social drafts',onclick:()=>window.dispatchEvent(new CustomEvent('oprun:studio-publish',{detail:{id,title:name}}))}):null,
     el('button',{type:'button',class:'link-button',text:'Clear',onclick:onClear}));
   function projectCard(p){
     const label={rendering:p.stop_requested?'Finishing':'Rendering',joining:'Finishing',succeeded:'Ready',failed:'Stopped'}[p.status]||p.status;
     const name=`AI video – ${p.title.slice(0,60)}.mp4`,body=[];
     if(p.status==='succeeded'&&p.media_id)body.push(player(p.media_id,p.aspect_ratio,'Generated video'),doneActions(p.media_id,name,()=>clearProject(p)));
     else if(p.status==='failed')body.push(el('p',{class:'aiv-error',role:'alert',text:p.error||'The video stopped.'}),
-      el('div',{class:'aiv-actions'},!p.continuous||p.stop_requested||OWNERS.includes(role())?el('button',{type:'button',class:'secondary-button',text:p.stop_requested?'Retry finishing':'Continue',onclick:()=>continueProject(p)}):el('small',{class:'muted',text:'An owner or admin can resume Unlimited generation.'}),
+      el('div',{class:'aiv-actions'},!p.continuous||p.stop_requested||OWNERS.includes(role())?el('button',{type:'button',class:'secondary-button',text:p.stop_requested&&!p.clips_done?'Return to Create':p.stop_requested?'Retry finishing':'Continue',onclick:()=>continueProject(p)}):el('small',{class:'muted',text:'An owner or admin can resume Unlimited generation.'}),
         p.clips_done>0&&!p.stop_requested?el('button',{type:'button',class:'secondary-button',text:'Finish with available footage',onclick:()=>finishProject(p)}):null,
         el('button',{type:'button',class:'link-button',text:'Clear',onclick:()=>clearProject(p)})),
-      el('small',{class:'muted',text:'Your generated footage is kept. Continue resumes where it stopped.'}));
+      el('small',{class:'muted',text:p.clips_done>0?'Your generated footage is kept. Continue resumes where it stopped.':'Your prompt and settings are kept. No completed footage is available yet.'}));
     else{
       const percent=p.continuous?null:Math.min(99,Math.round(100*(p.produced_seconds||0)/(p.requested_seconds||p.total_seconds||1)));
       body.push(el('div',{class:'aiv-progress',role:'progressbar','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':percent,'aria-label':'Full video progress'},el('span',{style:`width:${percent===null?10:percent}%`})),
@@ -258,7 +272,7 @@
     const existing=new Map([...host.querySelectorAll('[data-project],[data-job]')].map(n=>[n.dataset.project||n.dataset.job,n]));
     const keep=(id,status,make)=>{const old=existing.get(id);return old&&old.classList.contains(status)&&(status==='succeeded'||status==='failed')?old:make()};
     const cards=[...(state.projects||[]).map(p=>keep(p.id,p.status,()=>projectCard(p))),...(state.jobs||[]).map(j=>keep(j.id,j.status,()=>jobCard(j)))];
-    host.replaceChildren(...(cards.length?cards:[el('div',{class:'empty-state'},el('b',{text:'No AI videos yet'}),el('span',{text:'Write an idea above and press Generate video.'}))]));
+    if(cards.length){for(let i=0;i<cards.length;i++)if(host.children[i]!==cards[i])host.insertBefore(cards[i],host.children[i]||null);for(const n of [...host.children])if(!cards.includes(n))n.remove()}else host.replaceChildren(el('div',{class:'empty-state'},el('b',{text:'No AI videos yet'}),el('span',{text:'Write an idea above and press Generate video.'})));
   }
 
   async function enhance(){
@@ -268,18 +282,22 @@
     const v=$('#aiv-duration').value,e=engine();
     const full=v==='custom'?Number($('#aiv-custom-duration').value)*Number($('#aiv-duration-unit').value):Number(v)||8;
     if(!Number.isFinite(full)||full<2||full>(state.max_seconds||86400)){b.disabled=false;b.textContent='Write the prompt with AI';note('Enter a valid full video length first.',true);return}
-    try{const r=await api('/api/saas/ai-video/enhance',{method:'POST',body:JSON.stringify({idea,aspect_ratio:shape,duration:Math.round(full),duration_mode:v==='voice'?'voice':v==='continuous'?'continuous':'fixed'})});$('#aiv-prompt').value=r.prompt;
+    try{const r=await api('/api/saas/ai-video/enhance',{method:'POST',body:JSON.stringify({idea,aspect_ratio:shape,duration:Math.round(full),duration_mode:v==='voice'?'voice':v==='continuous'?'continuous':'fixed'})});$('#aiv-prompt').value=r.prompt;$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));
       $('#aiv-enhance-note').textContent=r.source==='ai'?'AI wrote this prompt. Read it and change anything before generating.':'A ready-made structure was used because the AI writer is not available. Edit it to match your idea.'}
     catch(x){note(x.message,true)}finally{b.disabled=false;b.textContent='Write the prompt with AI'}
   }
-  async function generate(){
+  async function generate(){if(busy||generationPending)return;const run=++generationRun,epoch=workspaceEpoch;generationPending=true;try{await generateInternal(epoch)}finally{if(run===generationRun)generationPending=false}}
+  async function generateInternal(epoch){
+    if(rec||audioPending){note('Stop and save, or cancel, your voice recording before generating.',true);return}
     if(dictation?.isBusy()){note('Finish or cancel dictation before generating a video.',true);return}
+    if(guided&&!(await guided.save())){note('Wait for the project to finish saving, then generate again. No generation was started.',true);return}if(epoch!==workspaceEpoch)return;
     const e=engine();if(!e?.ready){note('Connect a video provider first.',true);return}
     let prompt=$('#aiv-prompt').value.trim();const idea=$('#aiv-idea').value.trim();
     if(prompt.length<10&&idea.length>=10)prompt=idea;
     if(prompt.length<10){note('Write your idea and press “Write the prompt with AI”, or write the prompt yourself.',true);$('#aiv-idea').focus();return}
     const refs=guides();if(refs.length>3){note('Choose up to 3 photos or videos to guide the AI.',true);return}
     const v=$('#aiv-duration').value,body={engine:e.id,prompt,aspect_ratio:shape,resolution:$('#aiv-resolution').value,reference_media_ids:refs,keep_sound:$('#aiv-keep').checked};
+    const billingConfirmed=billingRetry(e.provider);if(billingConfirmed===null)return;if(billingConfirmed)body.billing_retry_confirmed=true;
     if(idea)body.idea=idea;
     if(voiceMode==='record'||voiceMode==='library'){if(!narrationId){note(voiceMode==='record'?'Record your voice first, or choose None.':'Choose a recording, or choose None.',true);return}body.narration_media_id=narrationId}
     if(voiceMode==='script'){const script=$('#aiv-script')?.value.trim(),voice=$('#aiv-voice')?.value;if(!voice){note('Create your voice first.',true);return}if(!script){note('Write the script for your voice-over.',true);return}body.voice_id=voice;body.script=script}
@@ -292,22 +310,31 @@
       if(!Number.isFinite(n)||Math.abs(n-Math.round(n))>0.001||n<2||n>(state.max_seconds||86400)){note(`Enter a full video length from 2 seconds to ${secs(state.max_seconds||86400)}, using whole seconds.`,true);return}
       body.total_seconds=Math.round(n);body.clip_seconds=Math.min(Math.round(n),e.max);
     }
+    if(epoch!==workspaceEpoch)return;const serialized=JSON.stringify(body);if(!pendingSubmission||pendingSubmission.serialized!==serialized)pendingSubmission={serialized,id:crypto.randomUUID()};body.request_id=pendingSubmission.id;
     busy=true;const b=$('#aiv-generate');b.disabled=true;b.textContent='Starting…';
-    try{await api('/api/saas/ai-video/projects',{method:'POST',body:JSON.stringify(body)});$('#aiv-continuous-consent').checked=false;note('Your video is rendering. It will appear below when ready.');await load()}
-    catch(x){note(x.message,true);await load()}finally{busy=false;b.textContent='Generate video';fit()}
+    try{const result=await api('/api/saas/ai-video/projects',{method:'POST',body:JSON.stringify(body)});if(epoch!==workspaceEpoch)return;pendingSubmission=null;$('#aiv-continuous-consent').checked=false;note(result.project?.status==='failed'?'Your saved request has stopped. Review it in Projects before retrying.':'Your video is rendering. It will appear below when ready.');await load();guided?.show('projects')}
+    catch(x){if(epoch===workspaceEpoch){note(x.payload?.error||x.message,true);await load()}}finally{if(epoch===workspaceEpoch){busy=false;b.textContent='Generate video';fit()}}
   }
-  async function continueProject(p){if(p.error?.includes('Check your provider account')&&!confirm('A generation request was interrupted and may already have been charged by your provider. Check your provider account before continuing. Start another request?'))return;try{await api(`/api/saas/ai-video/projects/${p.id}/continue`,{method:'POST',body:'{}'});note('Continuing your video.');await load()}catch(x){note(x.message,true)}}
+  async function continueProject(p){
+    if(p.stop_requested&&!p.clips_done){$('#aiv-idea').value=p.idea||'';$('#aiv-prompt').value=p.prompt||p.title;$('#aiv-engine').value=p.engine;fit();shape=p.aspect_ratio;$('#aiv-resolution').value=p.resolution;setGuides(p.refs||[]);$('#aiv-duration').value=p.continuous?'continuous':'custom';$('#aiv-custom-duration').value=String(p.requested_seconds||8);$('#aiv-duration-unit').value='1';narrationId=p.narration_media_id||null;voiceMode=narrationId?'library':'none';drawVoice();$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));plan();$('#aiv-form').dispatchEvent(new Event('input',{bubbles:true}));guided?.show('create');note('Your saved idea and guides are restored. Review settings before explicitly generating again.');return}
+
+    if(p.error?.includes('Check your provider account')&&!confirm('A generation request was interrupted and may already have been charged by your provider. Check your provider account before continuing. Start another request?'))return;
+    const provider=state.engines.find(e=>e.id===p.engine)?.provider,confirmed=p.stop_requested?false:billingRetry(provider);if(confirmed===null)return;
+    try{await api(`/api/saas/ai-video/projects/${p.id}/continue`,{method:'POST',body:JSON.stringify({billing_retry_confirmed:confirmed})});note('Continuing your video.');await load()}catch(x){note(x.payload?.error||x.message,true);await load()}
+  }
   async function finishProject(p){try{await api(`/api/saas/ai-video/projects/${p.id}/finish`,{method:'POST',body:'{}'});note('Finish requested. Already-started rendering will complete, then your full video will be saved.');await load()}catch(x){note(x.message,true)}}
   async function clearProject(p){try{await api(`/api/saas/ai-video/projects/${p.id}`,{method:'DELETE'});await load()}catch(x){note(x.message,true)}}
   async function clearJob(j){try{await api(`/api/saas/ai-video/jobs/${j.id}`,{method:'DELETE'});await load()}catch(x){note(x.message,true)}}
 
-  async function loadLibrary(){try{library=(await api('/api/saas/media')).media||[]}catch{library=[]}}
+  async function loadLibrary(epoch=workspaceEpoch){try{const d=await api('/api/saas/media');if(epoch===workspaceEpoch)library=d.media||[]}catch{if(epoch===workspaceEpoch)library=[]}}
   async function load(){
     if(!mount())return;
     const before=new Set([...(state.projects||[]),...(state.jobs||[])].filter(x=>x.status==='succeeded').map(x=>x.id));
-    try{state=await api('/api/saas/ai-video')}catch{return}
-    await loadLibrary();
-    drawProviders();drawEngines();drawJobs();if(voiceMode!=='record')drawVoice();
+    const epoch=workspaceEpoch;let incoming;try{incoming=await api('/api/saas/ai-video')}catch{return}
+    if(epoch!==workspaceEpoch)return;state=incoming;await loadLibrary(epoch);if(epoch!==workspaceEpoch)return;if(!picker)setGuides([]);
+    if(state.unified_ui&&!guided)guided=window.OprunMediaGuided?.create({panel:$('#ai-video-panel'),library:$('#video-view .source-library-panel'),canNavigate:()=>!rec&&!audioPending&&!dictation?.isBusy(),capture:()=>({reference_media_ids:guides(),narration_media_id:narrationId,voice_mode:voiceMode,shape,voice_id:$('#aiv-voice')?.value||''}),restore:d=>{setGuides((d.reference_media_ids||[]).slice(0,3));shape=['9:16','16:9'].includes(d.shape)?d.shape:'9:16';voiceMode=['none','record','library','script'].includes(d.voice_mode)?d.voice_mode:'none';narrationId=d.narration_media_id||null;drawVoice();if($('#aiv-voice')&&d.voice_id)$('#aiv-voice').value=d.voice_id;$('#aiv-form').querySelectorAll('[role=radiogroup]').forEach(g=>g.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.v===(g.getAttribute('aria-label')==='Shape'?shape:voiceMode)))));}});
+    else if(!state.unified_ui&&guided){guided.destroy();guided=null}
+    drawProviders();drawEngines();drawJobs();if(!loaded&&voiceMode!=='record')drawVoice();
     if(loaded&&[...state.projects,...state.jobs].some(x=>x.status==='succeeded'&&!before.has(x.id)))window.dispatchEvent(new Event('oprun:media-changed'));loaded=true;
     schedule();
   }
@@ -321,5 +348,14 @@
       await load();
     },8000);
   }
-  onView('video',{enter:load,leave:()=>{clearTimeout(timer);timer=null;stopAudio();dictation?.cancel()}});
+  window.addEventListener('oprun:studio-guide',e=>{
+    if(!state.unified_ui||!e.detail?.id)return;setGuides([...guides().filter(id=>id!==e.detail.id),e.detail.id].slice(-3));guided?.show('create');note('Added as a guide. Your existing idea and prompt are kept.');
+  });
+  window.addEventListener('superpro:workspace-ready',()=>{
+    workspaceEpoch++;generationRun++;generationPending=false;pendingSubmission=null;busy=false;$('#aiv-generate')&&($('#aiv-generate').textContent='Generate video');clearTimeout(timer);timer=null;dictation?.cancel();stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());guided?.destroy();guided=null;
+    state={providers:{},engines:[],jobs:[],projects:[],voices:[]};library=[];loaded=false;narrationId=null;voiceMode='none';shape='9:16';$('#aiv-voice-body')?.replaceChildren();
+    const form=$('#aiv-form');if(form){form.reset();$('#aiv-jobs')?.replaceChildren();$('#aiv-providers')?.replaceChildren();$('#aiv-guides')?.replaceChildren();picker=null;}
+    if($('#video-view')&&!$('#video-view').hidden)load().catch(()=>{});
+  });
+  onView('video',{enter:load,leave:()=>{clearTimeout(timer);timer=null;stopAudio(true);document.querySelectorAll('dialog.aiv-cam[open]').forEach(d=>d.close());dictation?.cancel()}});
 })();
