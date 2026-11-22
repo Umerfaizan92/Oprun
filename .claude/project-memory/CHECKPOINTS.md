@@ -2425,3 +2425,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: After approval: TR-01 record decisions, TR-02 register tidy, TR-03 staging, then TR-10 tokens v2
+
+## CP-174 2026-11-22T19:24:38+00:00 T-203 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-203 (COMPLETED)
+- Completed steps: Approvals recorded; register tidied; palette samples sent
+- Incomplete steps: Owner: pick palette; point free preview service at claude/transformation-staging and remove live keys
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: memory:validate; verify:manifest (docs only)
+- Test results: passed
+- Git branch: claude/transformation-phase1
+- Commit: 4789ce5 (TR-01/TR-02: record owner approvals, close superseded T-194, update transformation checkpoint); 2 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-10 design tokens v2 on claude/transformation-staging after palette choice
