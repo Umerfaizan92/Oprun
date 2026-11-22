@@ -13,7 +13,7 @@ const SENIOR = ['owner', 'admin', 'manager', 'super_admin', 'director'];
 const EDITORS = ['owner', 'admin', 'manager', 'super_admin', 'director'];
 const clip = (s, n) => String(s ?? '').trim().slice(0, n);
 const json = (s, f) => { try { return JSON.parse(s); } catch { return f; } };
-const UA = 'SuperProVisibilityCheck/1.0';
+const UA = 'OprunVisibilityCheck/1.0';
 
 export const PILLARS = {
   seo: { name: 'SEO', long: 'Search engine optimisation', checks: [['technical', 'Technical SEO'], ['onpage', 'On-Page SEO'], ['topical', 'Topical Authority'], ['entity', 'Entity & Semantic SEO'], ['offpage', 'Off-Page SEO']] },

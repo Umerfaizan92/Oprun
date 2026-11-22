@@ -3356,7 +3356,7 @@ async function checkRegulatorySource(source){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),12000);
   try{
-    const response=await fetch(source.url,{method:'GET',redirect:'follow',headers:{'user-agent':'SuperProAI-OfficeManager/1.0 regulatory-monitor'},signal:controller.signal});
+    const response=await fetch(source.url,{method:'GET',redirect:'follow',headers:{'user-agent':'Oprun-OfficeManager/1.0 regulatory-monitor'},signal:controller.signal});
     const text=await response.text().catch(()=> '');
     return {http_status:response.status,check_status:response.ok?'reachable':'http_error',content_hash:text?sha256(text.slice(0,250000)):null,note:response.ok?'Official source reached successfully.':'Official source returned HTTP '+response.status};
   }catch(err){

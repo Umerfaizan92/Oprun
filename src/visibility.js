@@ -10,7 +10,7 @@ import { z } from 'zod';
 
 const iso = () => new Date().toISOString();
 const DAY = 86400000;
-const UA = 'SuperProVisibilityCheck/1.0';
+const UA = 'OprunVisibilityCheck/1.0';
 export const AI_CRAWLERS = ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended', 'OAI-SearchBot'];
 const strip = (h) => String(h || '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&amp;/g, ' ').replace(/\s+/g, ' ').trim();
 const attr = (tag, name) => (tag.match(new RegExp(`${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i')) || []).slice(1).find((x) => x !== undefined);

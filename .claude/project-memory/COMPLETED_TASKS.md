@@ -645,3 +645,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/ds/retheme.css, saas/ds/retheme.css.br/.gz, saas/*.html version strings, saas/design-system.html
 - Acceptance: Buttons measure 44px with 16px padding in both themes; screenshot diff shows only button-size changes; npm test, test:ui, release validation and secret scan pass
 - Evidence: Buttons measured 44px/16px padding in dark and light; screenshot diff 105 signed-in shots: 6 pages over 0.5%, all taller buttons shifting content; npm test 73/73, test:ui 38/38, release validation and secret scan pass. T-204/T-205 light-theme evidence corrected in 04_PROGRESS.md (recorded 2026-11-22 on claude/transformation-staging at 5d0adb3)
+
+## T-207 TR-13 brand assets: Oprun icons on every page, workspace installable, outbound checks named Oprun
+- Added: 2026-11-22
+- Requirement: Check logo/icons on every page, manifest, emails and both apps; keep superpro-* copies (D-022)
+- Files: saas/*.html, scripts/build-design-catalogue.mjs, src/visibility.js, src/seo-cluster.js, src/server.js, scripts/brand-assets.test.mjs
+- Acceptance: Every page's icon links load (200); workspace links the manifest; sign-in has no Install and keeps #signin-operator-link; tests pass
+- Evidence: Browser check on local server: icon, apple-touch and manifest links return 200 on all 25 pages; workspace signed in with manifest; sign-in shows no Install and #signin-operator-link visible; brand-assets test 2/2; npm test 73/73; test:ui 38; release validation and secret scan pass (recorded 2026-11-22 on claude/transformation-staging at 207aa4b)

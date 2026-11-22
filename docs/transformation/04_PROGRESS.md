@@ -27,6 +27,11 @@ Updated: 23 Nov 2026
   padding in dark and light (before: 44/40/42px). Screenshot diff, 105 shots (signed in, dark 1440/390, light
   1440): 6 pages above 0.5%, all from taller buttons moving content down a few pixels
 
+- [x] TR-13 (T-207): brand check. Favicon, install icons (192/512/SVG), Android and iOS app icons all show the Oprun
+  mark; platform emails draw the mark in HTML on purpose (T-189). Fixed: 21 app pages now declare the Oprun tab and
+  phone home-screen icons; the workspace links the install manifest; outbound website checks now say "Oprun"
+  instead of "SuperPro". Browser check: icon links load on all 25 pages; new test scripts/brand-assets.test.mjs
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -49,5 +54,4 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-13 brand assets (check logo/icons on every page, manifest, emails and both apps; keep the superpro-* copies per
-D-022), then TR-14 public website v2, then TR-15 sign-in pages.
+TR-14 public website v2, then TR-15 sign-in pages.
