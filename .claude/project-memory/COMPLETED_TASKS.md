@@ -596,3 +596,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: docs/ai-website/*
 - Acceptance: Every v2 output covered and cross-linked; facts refreshed Nov 2026 with sources; registrar decision for Cloudflare API and Namecheap recorded; honest code status; progress state updated; memory valid; pushed
 - Evidence: docs/ai-website updated: 00 contract D-W15..D-W18, 01 Nov 2026 refresh, 02 mermaid buy/forwarding, 03 wizard, 06 in-app buy flow + Namecheap + forwarding, 07 AI crawlers, 09 agents + tools, 10 status/next order + W-18..W-20, 11 progress state with honest code status, SOURCES, resume prompt, PROMPT_V2 saved; new tasks T-199..T-201; memory:validate, verify:manifest and security:secrets passed (recorded 2026-11-22 on claude/ai-website-v2 at 4cb2553)
+
+## T-199 W-18 AI Website: llms.txt per published site + owner AI-crawler setting in robots.txt (D-W18)
+- Added: 2026-11-22
+- Requirement: From brief v2 (docs/ai-website/PROMPT_V2_2026-11-23.txt) and docs/ai-website/00_CONTRACT.md
+- Files: src/seo/routes.js, src/seo/service.js, saas/workspace-website.js
+- Acceptance: GET /sites/:site/llms.txt and custom-domain /llms.txt return the business summary, services, areas, contact and pages; robots.txt reflects the setting; change needs approval; tests pass
+- Evidence: scripts/ai-visibility.test.mjs 3/3 (robots rules, llms escaping, live free address + custom domain, owner-only, manager 403, isolation, audit, none mode removes llms); seo-platform + website-edge + website-hub 18/18; test:ui 38 (Growth panel); npm test 73/73 (recorded 2026-11-22 on claude/t199-llms-txt at 3c494cf)

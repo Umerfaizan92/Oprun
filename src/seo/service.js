@@ -1,3 +1,4 @@
+import { robotsTxt, llmsTxt, AI_MODES } from './ai-visibility.js';
 import {googleResourceLinks} from '../integration-resources.js';
 // Phase 06: the SEO platform's data and operations. Every row belongs to one owner: 'platform' (Oprun's own public
 // website, Founder Console only) or one business's organisation id. No function reads across owners.
@@ -39,6 +40,8 @@ export function migrateSeo(db) {
     CREATE TABLE IF NOT EXISTS seo_site_pages (id TEXT PRIMARY KEY, site_id TEXT NOT NULL REFERENCES seo_sites(id) ON DELETE CASCADE, owner_key TEXT NOT NULL, slug TEXT NOT NULL, title TEXT NOT NULL, template TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'draft', draft_version INTEGER NOT NULL DEFAULT 1, published_version INTEGER, scheduled_at TEXT, scheduled_version INTEGER, published_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE (site_id, slug));
     CREATE TABLE IF NOT EXISTS seo_page_versions (id TEXT PRIMARY KEY, page_id TEXT NOT NULL REFERENCES seo_site_pages(id) ON DELETE CASCADE, version INTEGER NOT NULL, content_json TEXT NOT NULL, created_by TEXT, created_at TEXT NOT NULL, note TEXT, UNIQUE (page_id, version));
   `);
+  // W-18 (D-W18): owner setting for AI crawlers; 'all' keeps today's behaviour for every existing site.
+  if (!db.prepare('PRAGMA table_info(seo_sites)').all().some((c) => c.name === 'ai_crawlers')) db.exec("ALTER TABLE seo_sites ADD COLUMN ai_crawlers TEXT NOT NULL DEFAULT 'all'");
 }
 
 export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, resolveHost, profileOf, connections, ai = null, aiAvailable = () => Boolean(ai), ownBase = () => '', engineRef = { current: null }, log = console }) {
@@ -323,6 +326,30 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
     const loc = (x) => (mount ? `${mount.base}/${x === 'home' ? '' : x}` : `${ownBase()}/sites/${s.slug}/${x === 'home' ? '' : x}`);
     return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map((p) => `<url><loc>${loc(p.slug)}</loc><lastmod>${String(p.published_at).slice(0, 10)}</lastmod></url>`).join('')}</urlset>`;
   }
+  // W-18: robots.txt with the owner's AI-crawler setting, and llms.txt from facts and published pages only.
+  function siteRobots(siteSlug, mount = null) {
+    const s = db.prepare('SELECT slug,ai_crawlers FROM seo_sites WHERE slug=?').get(siteSlug); if (!s) return null;
+    const base = mount ? mount.base : `${ownBase()}/sites/${s.slug}`;
+    return robotsTxt({ allowPath: mount ? '/' : `/sites/${s.slug}/`, sitemapUrl: `${base}/sitemap.xml`, llmsUrl: `${base}/llms.txt`, mode: s.ai_crawlers });
+  }
+  function siteLlms(siteSlug, mount = null) {
+    const s = db.prepare('SELECT * FROM seo_sites WHERE slug=?').get(siteSlug); if (!s || s.ai_crawlers === 'none') return null;
+    const rows = db.prepare('SELECT id,slug,title,published_version FROM seo_site_pages WHERE site_id=? AND published_version IS NOT NULL ORDER BY created_at').all(s.id);
+    if (!rows.length) return null;
+    const loc = (x) => (mount ? `${mount.base}/${x === 'home' ? '' : x}` : `${ownBase()}/sites/${s.slug}/${x === 'home' ? '' : x}`);
+    const pages = rows.map((p) => { const c = version(p.id, p.published_version) || {}; return { title: c.meta_title || c.title || p.title, url: loc(p.slug), description: c.meta_description || '' }; });
+    return llmsTxt({ name: s.name, facts: isPlatform(s.owner_key) ? {} : facts(s.owner_key), pages });
+  }
+  function aiCrawlers(ownerKey) {
+    const rows = db.prepare('SELECT slug,name,ai_crawlers FROM seo_sites WHERE owner_key=? ORDER BY created_at').all(ownerKey);
+    return { modes: AI_MODES, sites: rows.map((r) => ({ slug: r.slug, name: r.name, mode: r.ai_crawlers, llms_url: `${ownBase()}/sites/${r.slug}/llms.txt`, robots_url: `${ownBase()}/sites/${r.slug}/robots.txt` })) };
+  }
+  function setAiCrawlers(ownerKey, mode) {
+    if (!AI_MODES[mode]) return { ok: false, status: 400, error: 'Choose a valid setting.' };
+    const n = db.prepare('UPDATE seo_sites SET ai_crawlers=?, updated_at=? WHERE owner_key=?').run(mode, iso(), ownerKey).changes;
+    if (!n) return { ok: false, status: 404, error: 'Create your website first.' };
+    return { ok: true, ...aiCrawlers(ownerKey) };
+  }
   // Freshness: published pages not changed for six months, and audit pages that look stale.
   function freshness(ownerKey) {
     const old = db.prepare("SELECT p.id,p.title,p.slug,s.slug site,p.published_at FROM seo_site_pages p JOIN seo_sites s ON s.id=p.site_id WHERE p.owner_key=? AND p.published_version IS NOT NULL AND p.published_at<?").all(ownerKey, iso(Date.now() - 182 * DAY));
@@ -392,5 +419,5 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
   async function weekly(ownerKey) { const sync = await syncGoogle(ownerKey, { days: 28 }); const target = isPlatform(ownerKey) ? true : facts(ownerKey).website_url; if (target) await runAudit(ownerKey, { trigger: 'weekly' }); const plan = buildKeywordPlan(ownerKey); const r = report(ownerKey, 'weekly'); return { sync, clusters: plan.clusters.length, report_id: r.id }; }
   async function monthly(ownerKey) { const plan = buildKeywordPlan(ownerKey); const r = report(ownerKey, 'monthly'); return { clusters: plan.clusters.length, gaps: plan.gaps.length, report_id: r.id }; }
 
-  return { facts, googleStatus, verifyGoogle, syncGoogle, setLink, link, google, googleToken, runAudit, latestAudit, buildKeywordPlan, latestPlan, addKeywordInputs, studio, local, draftReviewReply, postReviewReply, sites, createSite, site, createPage, pageOut, saveVersion, requestPublish, publishVersion, publishDue, publishProposal, rollback, renderPublic, siteSitemap, freshness, dashboard, report, daily, weekly, monthly, CONTENT_KINDS, siteBase: ownBase };
+  return { facts, googleStatus, verifyGoogle, syncGoogle, setLink, link, google, googleToken, runAudit, latestAudit, buildKeywordPlan, latestPlan, addKeywordInputs, studio, local, draftReviewReply, postReviewReply, sites, createSite, site, createPage, pageOut, saveVersion, requestPublish, publishVersion, publishDue, publishProposal, rollback, renderPublic, siteSitemap, siteRobots, siteLlms, aiCrawlers, setAiCrawlers, freshness, dashboard, report, daily, weekly, monthly, CONTENT_KINDS, siteBase: ownBase };
 }

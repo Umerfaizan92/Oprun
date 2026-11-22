@@ -163,7 +163,19 @@
   }
 
   async function growth(s, body) {
-    const g = await api('/api/saas/website/growth');
+    const [g, ai] = await Promise.all([api('/api/saas/website/growth'), api('/api/saas/seo/ai-crawlers').catch(() => null)]);
+    // W-18 (D-W18): AI answer engines. One setting for the business's websites; llms.txt follows it.
+    if (ai) {
+      const site = ai.sites[0], name = 'ws-ai-mode';
+      const opts = [['all', 'Let AI answer engines and AI training read my site'], ['no_training', 'Let AI answer engines read my site, block AI training'], ['none', 'Block all AI crawlers (Google and Bing search still work)']];
+      const radios = el('div', { class: 'ws-ai-modes', role: 'radiogroup', 'aria-label': 'AI crawler setting' }, opts.map(([v, t]) => el('label', { class: 'ws-ai-mode' }, el('input', { type: 'radio', name, value: v, checked: site?.mode === v || null, disabled: !site || !isOwner() || null }), ' ', t)));
+      const save = el('button', { type: 'button', class: 'portal-button primary', text: 'Save AI setting', disabled: !site || !isOwner() || null });
+      save.addEventListener('click', () => busy(s, save, async () => { const v = radios.querySelector('input:checked')?.value; if (!v) return say(s, 'Choose a setting first.', true); await send('/api/saas/seo/ai-crawlers', 'PUT', { mode: v }); say(s, 'AI setting saved. Your robots.txt and llms.txt now follow it.'); }));
+      body.append(panel('AI answer engines', el('p', { text: 'ChatGPT, Perplexity, Claude and Google AI can quote your website when people ask about your services. Oprun publishes an llms.txt summary of your business and pages (only what you told Oprun and published), and writes your choice into robots.txt.' }),
+        site ? radios : el('p', { text: 'Create and publish your website first; then this setting appears.' }),
+        site ? el('div', { class: 'pl-actions' }, save, link(site.llms_url, 'View llms.txt'), link(site.robots_url, 'View robots.txt')) : null,
+        !isOwner() && site ? el('small', { text: 'Only the owner or an admin can change this.' }) : null));
+    }
     const STATUS = [['not_started', 'Not started'], ['in_progress', 'In progress'], ['listed', 'Listed'], ['needs_fix', 'Needs fixing']];
     body.append(panel('Listings (honest links)', el('p', { text: g.rules }),
       el('ul', { class: 'ws-listings' }, g.listings.map((l) => {
