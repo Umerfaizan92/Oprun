@@ -106,3 +106,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-22: T-197 free Reel Maker built and verified; releasing to Render.
 - 2026-11-22: T-198 AI Website spec v2 refresh done; next T-199 llms.txt + AI-crawler setting.
 - 2026-11-22: T-199 llms.txt + AI-crawler setting built and verified; Render builds paused (build minutes used up), goes live on next deploy.
+- 2026-11-22: T-202 Media Studio redesign built and verified; releasing to Render.

@@ -389,7 +389,7 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
       jobs: db.prepare('SELECT * FROM ai_video_jobs WHERE organisation_id=? AND project_id IS NULL ORDER BY created_at DESC LIMIT 30').all(org(req)).map(out),
       projects: db.prepare('SELECT * FROM ai_video_projects WHERE organisation_id=? ORDER BY created_at DESC LIMIT 20').all(org(req)).map(projOut),
       voices: db.prepare('SELECT id,name,created_at FROM ai_voices WHERE organisation_id=? ORDER BY created_at DESC').all(org(req)),
-      unified_ui:env.STUDIO_UNIFIED_UI==='1'||String(env.STUDIO_UNIFIED_WORKSPACES||'').split(',').map(x=>x.trim()).includes(org(req)),joining_available: Boolean(tools.ffmpegPath(env)), max_seconds: MAX_TOTAL });
+      joining_available: Boolean(tools.ffmpegPath(env)), max_seconds: MAX_TOTAL });
   });
   app.post('/api/saas/ai-video/providers/:provider', limiter, requireSaasUser, requireSaasRole(...OWNERS), async (req, res) => {
     const provider = req.params.provider; if (!PROVIDERS[provider]) return fail(res, 404, 'Unknown provider.');
@@ -473,6 +473,32 @@ export function installAiVideo(app, { db, env = {}, uploadRoot, requireSaasUser,
     if (!j) return fail(res, 404, 'Only finished or failed videos can be cleared from this list.');
     db.prepare('DELETE FROM ai_video_jobs WHERE id=?').run(j.id); // the saved video stays in the media library
     res.json({ ok: true });
+  });
+  // Media Studio redesign: an owner can permanently delete this workspace's AI-generated material in one step
+  // (finished/stopped AI videos and their files, AI voice-over files, and the old saved render specifications).
+  // Anything still rendering is left alone and reported. Other workspaces are never touched.
+  const generated = (o) => ({
+    media: db.prepare("SELECT id,stored_name FROM tenant_media WHERE organisation_id=? AND source IN ('ai-video','ai-voice')").all(o),
+    projects: db.prepare("SELECT id FROM ai_video_projects WHERE organisation_id=? AND status IN ('succeeded','failed')").all(o),
+    jobs: db.prepare("SELECT COUNT(*) n FROM ai_video_jobs WHERE organisation_id=? AND status IN ('succeeded','failed')").get(o).n,
+    specs: db.prepare('SELECT COUNT(*) n FROM video_render_jobs WHERE organisation_id=?').get(o).n,
+    running: db.prepare("SELECT (SELECT COUNT(*) FROM ai_video_projects WHERE organisation_id=? AND status IN ('rendering','joining'))+(SELECT COUNT(*) FROM ai_video_jobs WHERE organisation_id=? AND status IN ('queued','running')) n").get(o, o).n,
+  });
+  const counts = (g) => ({ files: g.media.length, videos: g.projects.length + g.jobs, specs: g.specs, running: g.running });
+  app.get('/api/saas/ai-video/generated', requireSaasUser, requireSaasRole(...OWNERS), (req, res) => { res.set('cache-control', 'private, no-store'); res.json({ ok: true, ...counts(generated(org(req))) }); });
+  app.post('/api/saas/ai-video/generated/delete', limiter, requireSaasUser, requireSaasRole(...OWNERS), (req, res) => {
+    if (req.body?.confirm !== 'DELETE') return fail(res, 400, 'Confirm the deletion first.');
+    const o = org(req), g = generated(o), done = counts(g);
+    db.transaction(() => {
+      for (const m of g.media) db.prepare('DELETE FROM tenant_media WHERE id=? AND organisation_id=?').run(m.id, o);
+      for (const p of g.projects) { db.prepare('DELETE FROM ai_video_jobs WHERE project_id=? AND organisation_id=?').run(p.id, o); db.prepare('DELETE FROM ai_video_projects WHERE id=? AND organisation_id=?').run(p.id, o); }
+      db.prepare("DELETE FROM ai_video_jobs WHERE organisation_id=? AND status IN ('succeeded','failed')").run(o);
+      db.prepare('DELETE FROM video_render_jobs WHERE organisation_id=?').run(o);
+    })();
+    for (const m of g.media) { if (path.basename(m.stored_name) === m.stored_name) fs.rmSync(path.join(orgDir(o), m.stored_name), { force: true }); }
+    for (const p of g.projects) fs.rmSync(path.join(orgDir(o), 'ai-work', 'projects', p.id.replace(/[^a-zA-Z0-9-]/g, '')), { recursive: true, force: true });
+    saasAudit(req, 'ai_video.generated_deleted', 'ai_video', o, done);
+    res.json({ ok: true, deleted: done });
   });
   // ---------- T-190 routes ----------
   const pick = (o, id, kinds) => { const m = id ? mediaRow(o, id) : null; if (id && (!m || !kinds.includes(m.kind))) throw err('That file is not in your library, or is the wrong type.'); return m; };

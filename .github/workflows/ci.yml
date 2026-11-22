@@ -68,7 +68,8 @@ jobs:
       - name: Verify video creator, phone, meetings and localized mobile interfaces
         run: |
           npm run test:ai-video-ui
-          UI_SCREENSHOT_DIR=qa/visual/media-studio node scripts/test-media-studio-guided-ui.mjs
+          UI_SCREENSHOT_DIR=qa/visual/media-studio npm run test:media-studio-ui
+          npm run test:reel-maker-ui
           node scripts/test-webphone-ui.mjs
           npm run test:meetings-ui
           node scripts/test-localization-ui.mjs

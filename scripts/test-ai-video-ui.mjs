@@ -48,7 +48,10 @@ try {
   page.on('pageerror', (e) => errors.push(e.message)); page.setDefaultTimeout(20000);
   await page.setViewportSize({ width: 1440, height: 950 });
   await page.goto(server.base + '/saas/workspace.html#growth/media');
-  const panel = page.locator('#ai-video-panel'); await panel.getByRole('heading', { name: 'Make a video from an idea' }).waitFor();
+    // Tabs are the row at the top on tablet/laptop and the bottom dock on a phone (the app's standard).
+  const tabTo = async (name) => { await page.locator('#video-view .st-tabs').waitFor({ state: 'attached' }); const phone = (page.viewportSize()?.width || 1440) < 700; if (!phone) return page.getByRole('tab', { name, exact: true }).click(); await page.locator(`#mobile-workspace-dock [aria-label="${name}"]`).first().click(); };
+  await tabTo('AI video');
+  const panel = page.locator('#ai-video-panel'); await panel.getByRole('heading', { name: 'AI video', exact: true }).waitFor();
   await panel.locator('.aiv-provider').nth(2).waitFor();
   assert.equal(await panel.getByText('Not connected').count(), 2, 'both video providers start disconnected');
   await panel.getByText('Optional: for your own voice').waitFor();
@@ -104,15 +107,17 @@ try {
   assert.ok(played.t > 0.2 && played.w === 360 && played.h === 640, 'generated video plays: ' + JSON.stringify(played));
   await shot(page, 'ai-video-ready.png');
 
-  // It is in the media library with an AI badge, and the full preview plays it.
-  await page.locator('.media-card .media-ai-badge').first().waitFor();
-  await page.locator('.media-card').first().getByRole('button', { name: /^Preview / }).click();
+  // Preview from the AI card, then from the Library tab: both open the full player.
+  await panel.locator('.aiv-job.succeeded').getByRole('button', { name: 'Preview' }).first().click();
   const viewer = page.locator('.mv-dialog[open]'); await viewer.waitFor();
   await page.waitForFunction(() => { const v = document.querySelector('.mv-dialog[open] video'); return v && v.readyState >= 2 && v.videoWidth === 360; });
-  await shot(page, 'ai-video-preview.png');
-  await viewer.getByRole('button', { name: 'Use as render source' }).click();
+  await shot(page, 'ai-video-preview.png'); await page.keyboard.press('Escape');
   assert.equal(await page.locator('.mv-dialog[open]').count(), 0, 'preview closes');
-  assert.match(await page.locator('#video-form [name=media_id]').inputValue(), /^[0-9a-f-]{36}$/);
+  await tabTo('Library');
+  await page.locator('#st-library .media-card').first().getByRole('button', { name: /^Preview / }).click();
+  await page.waitForFunction(() => { const v = document.querySelector('.mv-dialog[open] video'); return v && v.readyState >= 2; });
+  await page.keyboard.press('Escape');
+  await tabTo('AI video');
 
   // T-190: record a guide video with the camera, record the voice-over, and make a 30-second video in 2 shots.
   await page.evaluate(() => scrollTo(0, 0));
@@ -163,12 +168,22 @@ try {
   for (const width of [390, 768, 1440]) { await page.setViewportSize({ width, height: 900 }); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Media Studio fits at ' + width); }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('#ai-video-panel').scrollIntoViewIfNeeded(); await shot(page, 'ai-video-phone.png');
-  await page.locator('.media-card').first().getByRole('button', { name: /^Preview / }).click();
+  await tabTo('Library');
+  await page.locator('#st-library .media-card').first().getByRole('button', { name: /^Preview / }).click();
   const box = await page.locator('.mv-dialog[open]').boundingBox(); assert.ok(box.width <= 390 && box.height <= 844, 'preview fits the phone: ' + JSON.stringify(box));
   await shot(page, 'ai-video-preview-phone.png'); await page.keyboard.press('Escape');
+  await tabTo('AI video');
   await page.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8'));
   const v = await page.evaluate(async () => (await window.axe.run(document.querySelector('#ai-video-panel'), { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.filter((x) => ['critical', 'serious'].includes(x.impact)).map((x) => ({ id: x.id, nodes: x.nodes.map((n) => n.html.slice(0, 140)) })));
   assert.deepEqual(v, []);
+  // Owner deletes all AI-generated videos in one step (two taps); the library and the AI list are empty afterwards.
+  const clear = page.locator('#st-clear-ai'); await clear.waitFor();
+  assert.match(await clear.textContent(), /Delete all AI-generated videos \(\d+ files?\)/);
+  await clear.click(); await page.getByText('Tap again to delete permanently').waitFor(); await clear.click();
+  await page.locator('#st-clear-ai').waitFor({ state: 'detached', timeout: 20000 });
+  await page.waitForFunction(() => !document.querySelector('#aiv-jobs .aiv-job.succeeded'));
+  await tabTo('Library');
+  await page.waitForFunction(() => !document.querySelector('#st-library .media-card') || [...document.querySelectorAll('#st-library .media-meta b')].every((b) => !/^AI video/.test(b.textContent)));
   assert.deepEqual(errors, []);
-  console.log('AI video UI: connect, AI prompt, generate, play, preview, use as source, layouts and accessibility passed.');
+  console.log('AI video UI: connect, AI prompt, generate, play, preview, delete all AI videos, layouts and accessibility passed.');
 } finally { await browser?.close(); await server.stop(); mock.close(); fs.rmSync(tmp, { recursive: true, force: true }); }
