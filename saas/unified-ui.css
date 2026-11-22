@@ -1,8 +1,8 @@
 /* Shared product surface: public pages, business workspace and founder console.
    Keep this last in the cascade. Functional visibility and role gates live elsewhere. */
 @font-face{font-family:Manrope;src:url('/saas/fonts/manrope-latin-wght-normal.woff2') format('woff2');font-style:normal;font-weight:200 800;font-display:swap}
-:root{--sp-canvas:#090b10;--sp-surface:#11151c;--sp-elevated:#181e27;--sp-border:#2c3441;--sp-text:#f3f4f7;--sp-muted:#adb5c3;--sp-accent:#e2bd72;--sp-on-accent:#1b160c;--sp-focus:#f1ce87;--sp-radius:16px;--sp-control-radius:10px;--sp-space:16px;--sp-ease:cubic-bezier(.2,.8,.2,1);--font-ui:Manrope,'Segoe UI',system-ui,sans-serif}
-html[data-theme="light"]{--sp-canvas:#f5f6f8;--sp-surface:#fff;--sp-elevated:#edf0f5;--sp-border:#cbd1db;--sp-text:#1a202c;--sp-muted:#535e70;--sp-accent:#805b17;--sp-on-accent:#fff;--sp-focus:#805b17}
+:root{--sp-canvas:#090b10;--sp-surface:#11151c;--sp-elevated:#181e27;--sp-border:#2c3441;--sp-text:#f3f4f7;--sp-muted:#adb5c3;--sp-accent:var(--sp-gold-300);--sp-on-accent:#1b160c;--sp-focus:var(--sp-gold-200);--sp-radius:16px;--sp-control-radius:10px;--sp-space:16px;--sp-ease:cubic-bezier(.2,.8,.2,1);--font-ui:Manrope,'Segoe UI',system-ui,sans-serif}
+html[data-theme="light"]{--sp-canvas:#f5f6f8;--sp-surface:#fff;--sp-elevated:#edf0f5;--sp-border:#cbd1db;--sp-text:#1a202c;--sp-muted:#535e70;--sp-accent:var(--sp-gold-700);--sp-on-accent:#fff;--sp-focus:var(--sp-gold-700)}
 html{scroll-padding-top:96px}
 body{font-family:var(--font-ui);color:var(--sp-text);background-color:var(--sp-canvas)}
 button,input,select,textarea{font-family:inherit}
@@ -34,11 +34,11 @@ dialog pre{white-space:pre-wrap}
 dialog :is(.dialog-actions,.form-actions,.modal-actions){display:flex;flex-wrap:wrap;gap:10px}
 /* One access screen, clear business/founder context, fewer competing surfaces. */
 .auth-page .auth-layout{min-height:100dvh;grid-template-columns:minmax(0,1fr) minmax(420px,1fr)}
-.auth-page .auth-story{padding:clamp(28px,5vw,72px);background:radial-gradient(ellipse at 0 0,#e2bd7212,transparent 65%),var(--sp-canvas)}
+.auth-page .auth-story{padding:clamp(28px,5vw,72px);background:radial-gradient(ellipse at 0 0,color-mix(in srgb,var(--sp-gold-300) 7.1%,transparent),transparent 65%),var(--sp-canvas)}
 .auth-page .auth-story-copy h1{font-family:var(--font-ui);font-size:clamp(2.6rem,4.5vw,4.25rem);font-weight:700;letter-spacing:-.055em;line-height:1.08}
 .auth-page .auth-story-copy>p{max-width:46ch;color:var(--sp-muted)}
 .auth-page .auth-proof-grid{gap:18px}
-.auth-page .auth-proof-grid>div{padding:0 0 0 14px;border:0;border-left:2px solid #e2bd7240;border-radius:0;background:none}
+.auth-page .auth-proof-grid>div{padding:0 0 0 14px;border:0;border-left:2px solid color-mix(in srgb,var(--sp-gold-300) 25.1%,transparent);border-radius:0;background:none}
 .auth-page .auth-proof-grid small{color:var(--sp-muted);line-height:1.6}
 .auth-page .auth-form-side{padding:40px clamp(20px,4vw,64px);background:var(--sp-surface);border-left:1px solid var(--sp-border)}
 .auth-page .auth-form-card{width:100%;max-width:500px;padding-bottom:48px}
@@ -62,7 +62,7 @@ body.sp-operator{--bg:var(--sp-canvas);--panel:var(--sp-surface);--panel2:var(--
 .sp-operator #app>aside nav{display:grid;align-content:start;gap:4px;min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
 .sp-operator .nav{display:flex;align-items:center;gap:10px;min-height:44px;white-space:normal;font-weight:600;text-align:left;box-shadow:none!important}
 .sp-operator .sp-nav-icon{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.sp-operator .nav.active{background:#e2bd7212!important;border-color:#e2bd7240!important;color:var(--sp-accent)!important}
+.sp-operator .nav.active{background:color-mix(in srgb,var(--sp-gold-300) 7.1%,transparent)!important;border-color:color-mix(in srgb,var(--sp-gold-300) 25.1%,transparent)!important;color:var(--sp-accent)!important}
 .sp-nav-group{margin:20px 10px 5px;color:var(--sp-muted);font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
 .sp-nav-filter{width:100%;margin:20px 0 4px;min-height:44px}
 .sp-operator #app>main>header{background:var(--sp-canvas);border-color:var(--sp-border);backdrop-filter:none}
@@ -189,7 +189,7 @@ html.has-stage main{height:auto;min-height:0;overflow:visible;padding-bottom:68p
 html.has-stage .stage-pane{height:auto;min-height:0;overflow:visible}
 html.has-stage .stage-pane::after{height:0}
 body .signal-bar{margin-block:0;padding-block:18px}
-body .superpro-newsletter{width:calc(100% - 36px);max-width:1180px;margin:18px auto;padding:18px 20px;gap:18px;border-radius:16px;background:radial-gradient(ellipse at top left,#e2bd7210,transparent 65%),var(--sp-surface)}
+body .superpro-newsletter{width:calc(100% - 36px);max-width:1180px;margin:18px auto;padding:18px 20px;gap:18px;border-radius:16px;background:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 6.3%,transparent),transparent 65%),var(--sp-surface)}
 body .superpro-newsletter h2{font-family:var(--font-ui);font-size:clamp(1.05rem,2vw,1.35rem);line-height:1.3;margin:5px 0 8px;max-width:34ch}
 body .superpro-newsletter p{margin:6px 0;font-size:12px;line-height:1.5}
 body .superpro-newsletter form{gap:8px;align-items:start}
@@ -206,8 +206,8 @@ body :is(.panel,.metric-card){padding:18px}
 body :is(.panel-head,.form-section-head){margin-bottom:14px}
 body :is(.focus-navigation,.focus-pagination){padding:9px 12px;gap:8px;margin-bottom:12px}
 body .sp-global-trust-footer{margin-top:16px;padding-block:14px;gap:12px}
-body :is(.plan-card,.pricing-card){min-height:0;padding:18px;gap:8px;border-radius:14px;background:radial-gradient(ellipse at top left,#e2bd720b,transparent 65%),var(--sp-surface)}
-body :is(.plan-card.featured,.pricing-card.featured){border-color:var(--sp-accent);box-shadow:inset 0 1px #e2bd7228,0 10px 24px #0002}
+body :is(.plan-card,.pricing-card){min-height:0;padding:18px;gap:8px;border-radius:14px;background:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 4.3%,transparent),transparent 65%),var(--sp-surface)}
+body :is(.plan-card.featured,.pricing-card.featured){border-color:var(--sp-accent);box-shadow:inset 0 1px color-mix(in srgb,var(--sp-gold-300) 15.7%,transparent),0 10px 24px #0002}
 body :is(.plans-grid,.pricing-grid){gap:12px;margin-bottom:14px}
 body :is(.plan-card,.pricing-card) :is(h2,h3){font-family:var(--font-ui);font-size:clamp(1.6rem,2.5vw,2rem);margin:4px 0}
 body :is(.plan-card,.pricing-card) p{margin:0 0 8px;font-size:13px;line-height:1.5}
@@ -263,7 +263,7 @@ body .guide-card .chat-composer{flex-shrink:0;margin:0 12px 8px;padding:8px;min-
 body .guide-card .voice-status{flex-shrink:0;padding:4px 12px 10px!important;font-size:11px}
 html.has-stage main{padding-bottom:0}
 html.has-stage body{padding-bottom:72px}
-body .superpro-newsletter button[type=submit]{background:linear-gradient(135deg,#f0d28a,#c99a43);color:#1b160c;border:1px solid #e2bd72;font-weight:700}
+body .superpro-newsletter button[type=submit]{background:linear-gradient(135deg,var(--sp-gold-200),var(--sp-gold-500));color:#1b160c;border:1px solid var(--sp-gold-300);font-weight:700}
 @media(max-width:700px){
  body .guide-card{height:440px}
  body .guide-card>header{padding:10px 12px}
@@ -275,7 +275,7 @@ body .superpro-newsletter button[type=submit]{background:linear-gradient(135deg,
 }
 
 /* Dialogs shrink to their contents instead of stretching between top/bottom insets. */
-html body dialog{padding:20px;border-radius:16px;background:radial-gradient(ellipse at top left,#e2bd7209,transparent 65%),var(--sp-surface);border-color:var(--sp-border)}
+html body dialog{padding:20px;border-radius:16px;background:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 3.5%,transparent),transparent 65%),var(--sp-surface);border-color:var(--sp-border)}
 html body dialog>form{padding:0}
 html body dialog :is(h1,h2){margin:0 0 10px;line-height:1.3}
 html body dialog p{margin:8px 0;line-height:1.5}
@@ -301,7 +301,7 @@ html body .topbar-actions #logout{display:inline-flex!important;visibility:visib
 .sp-access-dialog{width:min(760px,calc(100vw - 24px));height:auto!important;min-height:0!important;max-height:85dvh;overflow:auto;padding:20px;border:1px solid #bfa15b55;border-radius:18px;background:var(--panel,#111820);color:var(--text,#eee)}
 .sp-access-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}.sp-access-dialog h2{margin:0;font-size:20px}.sp-access-dialog p{font-size:13px;line-height:1.5}.sp-access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}.sp-access-grid fieldset{border:1px solid #bfa15b44;border-radius:10px;padding:10px;min-width:0}.sp-access-grid legend{font-size:12px}.sp-access-grid label{display:inline-flex;align-items:center;gap:5px;margin:4px 10px 4px 0;font-size:12px}.sp-access-grid input[type=checkbox]{width:16px!important;height:16px!important;min-height:0!important;margin:0}.sp-access-log article{border-bottom:1px solid #8884;padding:10px 0}.sp-access-log small{overflow-wrap:anywhere}
 /* Shared original gold atmosphere: two compositor layers, no video or WebGL. */
-.sp-cinematic-backdrop{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}.sp-cinematic-backdrop:before,.sp-cinematic-backdrop:after{content:"";position:absolute;inset:-15%;background:radial-gradient(ellipse at 85% 15%,#c29b3820,transparent 45%),radial-gradient(ellipse at 10% 80%,#3d738218,transparent 45%);will-change:auto}.sp-cinematic-backdrop:after{background:repeating-linear-gradient(120deg,transparent 0 120px,#bd9c3910 121px,transparent 122px);opacity:.35}body{isolation:isolate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:before{animation:sp-atmosphere 24s ease-in-out infinite alternate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:after{animation:sp-atmosphere 32s ease-in-out infinite alternate-reverse}@keyframes sp-atmosphere{to{transform:translate3d(-3%,2%,0) rotate(2deg)}}
+.sp-cinematic-backdrop{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}.sp-cinematic-backdrop:before,.sp-cinematic-backdrop:after{content:"";position:absolute;inset:-15%;background:radial-gradient(ellipse at 85% 15%,color-mix(in srgb,var(--sp-gold-500) 12.5%,transparent),transparent 45%),radial-gradient(ellipse at 10% 80%,#3d738218,transparent 45%);will-change:auto}.sp-cinematic-backdrop:after{background:repeating-linear-gradient(120deg,transparent 0 120px,#bd9c3910 121px,transparent 122px);opacity:.35}body{isolation:isolate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:before{animation:sp-atmosphere 24s ease-in-out infinite alternate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:after{animation:sp-atmosphere 32s ease-in-out infinite alternate-reverse}@keyframes sp-atmosphere{to{transform:translate3d(-3%,2%,0) rotate(2deg)}}
 @media(prefers-reduced-motion:reduce){.sp-cinematic-backdrop:before,.sp-cinematic-backdrop:after{animation:none!important}}
 
 /* Auto height plus inset:0 stretches absolutely positioned dialogs. Use intrinsic size. */
@@ -309,18 +309,18 @@ html body dialog.sp-access-dialog{width:min(1000px,calc(100% - 24px));height:fit
 html body .sp-access-dialog #staff-access-form{height:auto;min-height:0;margin:0;padding:0}
 html body .sp-access-dialog .sp-access-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
 html body .sp-access-dialog header button{border:1px solid var(--sp-border);background:var(--sp-elevated);color:var(--sp-text);border-radius:9px;min-height:36px;padding:6px 12px}
-html body .sp-access-dialog fieldset{background:linear-gradient(135deg,#e2bd7208,transparent 70%);border-color:var(--sp-border)}
+html body .sp-access-dialog fieldset{background:linear-gradient(135deg,color-mix(in srgb,var(--sp-gold-300) 3.1%,transparent),transparent 70%);border-color:var(--sp-border)}
 html body .sp-access-dialog legend{line-height:1.4;color:var(--sp-text)}
 html body .sp-access-dialog #staff-access-note:empty{display:none}
 @media(max-width:600px){html body .sp-access-dialog .sp-access-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}html body .sp-access-dialog fieldset{padding:8px}html body .sp-access-dialog legend{font-size:11px}html body .sp-access-dialog label{font-size:11px}html body .sp-access-dialog .sp-access-grid label{gap:4px;margin-right:6px}html body .sp-access-dialog header h2{font-size:17px}}
 
 /* One restrained card treatment across business and founder workspaces. */
-:is(.app-main,#app>main) :is(.panel,.row-card,.metric-card,.finance-kpi,.bill-card,.stats>div,.office-premium-cards article){position:relative;min-width:0;background-image:radial-gradient(ellipse at top left,#e2bd7209,transparent 65%);box-shadow:inset 0 1px #ffffff09,0 5px 20px #00000012!important;border-radius:14px;will-change:auto;transition:border-color 180ms ease,box-shadow 180ms ease}
+:is(.app-main,#app>main) :is(.panel,.row-card,.metric-card,.finance-kpi,.bill-card,.stats>div,.office-premium-cards article){position:relative;min-width:0;background-image:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 3.5%,transparent),transparent 65%);box-shadow:inset 0 1px #ffffff09,0 5px 20px #00000012!important;border-radius:14px;will-change:auto;transition:border-color 180ms ease,box-shadow 180ms ease}
 :is(.app-main,#app>main) :is(.panel,.row-card,.metric-card,.finance-kpi,.bill-card):focus-within{border-color:color-mix(in srgb,var(--sp-accent) 50%,var(--sp-border))}
 @media(hover:hover){:is(.app-main,#app>main) :is(.panel,.row-card,.metric-card,.finance-kpi,.bill-card,.stats>div,.office-premium-cards article):hover{border-color:color-mix(in srgb,var(--sp-accent) 38%,var(--sp-border));box-shadow:inset 0 1px #ffffff0c,0 8px 24px #0000001c!important}}
 /* Provider cards use normal-flow content, including every nested manager block. */
 html body #self-service-integration-grid{align-items:start;gap:12px}
-html body #self-service-integration-grid .integration-card{height:auto;min-height:0;padding:16px;align-self:start;overflow-wrap:anywhere;border-color:var(--sp-border);background:linear-gradient(145deg,#e2bd7208,transparent 65%),var(--sp-surface);box-shadow:inset 0 1px #ffffff08,0 6px 18px #0001}
+html body #self-service-integration-grid .integration-card{height:auto;min-height:0;padding:16px;align-self:start;overflow-wrap:anywhere;border-color:var(--sp-border);background:linear-gradient(145deg,color-mix(in srgb,var(--sp-gold-300) 3.1%,transparent),transparent 65%),var(--sp-surface);box-shadow:inset 0 1px #ffffff08,0 6px 18px #0001}
 html body #self-service-integration-grid .integration-manager{grid-area:auto!important;grid-column:1/-1!important;grid-row:2!important;display:flex;flex-direction:column;gap:12px;padding-top:12px;margin:0;align-self:start}
 html body #self-service-integration-grid .integration-manager div{grid-area:auto!important;min-width:0;position:static}
 html body #self-service-integration-grid .integration-manager-actions{display:flex;flex-flow:row wrap;align-items:center;gap:8px}
@@ -341,8 +341,8 @@ html body #finance-view .fin-trend{height:150px}html body #finance-view #fin-bre
 
 /* Setup and usage tiles follow the same surface and focus treatment. */
 :is(.setup-step,.setup-item,.setup-task,.industry-browser-card,.plan-use-row,.plan-block){border-radius:12px;transition:border-color 180ms ease,box-shadow 180ms ease}
-.plan-use-row{padding:9px 10px;border:1px solid var(--sp-border);background:linear-gradient(120deg,#e2bd7206,transparent 70%)}
-@media(hover:hover){:is(.setup-step,.setup-item,.setup-task,.industry-browser-card,.plan-use-row):hover{border-color:#e2bd725c;box-shadow:inset 0 1px #ffffff08,0 6px 16px #0001}}
+.plan-use-row{padding:9px 10px;border:1px solid var(--sp-border);background:linear-gradient(120deg,color-mix(in srgb,var(--sp-gold-300) 2.4%,transparent),transparent 70%)}
+@media(hover:hover){:is(.setup-step,.setup-item,.setup-task,.industry-browser-card,.plan-use-row):hover{border-color:color-mix(in srgb,var(--sp-gold-300) 36.1%,transparent);box-shadow:inset 0 1px #ffffff08,0 6px 16px #0001}}
 .migration-help{display:grid;justify-items:start;gap:7px;margin-top:12px}.migration-help button{white-space:normal;text-align:left}.migration-help small{color:var(--sp-muted);line-height:1.5}
 @media(prefers-reduced-motion:reduce){:is(.setup-step,.setup-item,.setup-task,.industry-browser-card,.plan-use-row,.plan-block){transition:none!important}}
 /* Organise print reports as a row, with a full-width backup workspace below. */
@@ -354,28 +354,28 @@ html body #exports-view .export-backup>:is(.panel-kicker,h2,p){grid-column:1}
 html body #exports-view .export-backup>#export-backup{grid-column:2;grid-row:1/3;align-self:center;justify-self:start}
 html body #exports-view .export-backup>.export-csv{grid-column:2;grid-row:3/5;display:flex;flex-wrap:wrap;gap:8px}
 html body #exports-view .export-backup>#export-feedback{grid-column:1/-1}
-html body .setup-list>li{min-width:0;border-radius:12px;background:linear-gradient(135deg,#e2bd7208,transparent 65%),var(--sp-surface);box-shadow:inset 0 1px #ffffff09,0 4px 12px #0001;transition:border-color 180ms ease,box-shadow 180ms ease}
-@media(hover:hover){html body .setup-list>li:hover{border-color:#e2bd725c;box-shadow:inset 0 1px #ffffff0c,0 6px 16px #0002}}
+html body .setup-list>li{min-width:0;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--sp-gold-300) 3.1%,transparent),transparent 65%),var(--sp-surface);box-shadow:inset 0 1px #ffffff09,0 4px 12px #0001;transition:border-color 180ms ease,box-shadow 180ms ease}
+@media(hover:hover){html body .setup-list>li:hover{border-color:color-mix(in srgb,var(--sp-gold-300) 36.1%,transparent);box-shadow:inset 0 1px #ffffff0c,0 6px 16px #0002}}
 @media(max-width:640px){html body #exports-view .export-grid{grid-template-columns:minmax(0,1fr)}html body #exports-view .export-backup{grid-template-columns:minmax(0,1fr)}html body #exports-view .export-backup>*{grid-column:1!important;grid-row:auto!important}html body #exports-view .export-backup>#export-backup{justify-self:stretch}}
 #workspace-context .ctx-sub{font-size:12px;color:var(--sp-muted);line-height:1.3}#workspace-context .ctx-designation{font-size:11px;color:var(--sp-accent);line-height:1.3}
-#workspace-context .sp-founder-shortcut{font-size:11px;color:var(--sp-accent);text-decoration:none;padding:5px 8px;border:1px solid #e2bd723f;border-radius:8px;justify-self:start}
-#workspace-context .sp-founder-shortcut:hover,#workspace-context .sp-founder-shortcut:focus-visible{background:#e2bd7210;border-color:var(--sp-accent)}
+#workspace-context .sp-founder-shortcut{font-size:11px;color:var(--sp-accent);text-decoration:none;padding:5px 8px;border:1px solid color-mix(in srgb,var(--sp-gold-300) 24.7%,transparent);border-radius:8px;justify-self:start}
+#workspace-context .sp-founder-shortcut:hover,#workspace-context .sp-founder-shortcut:focus-visible{background:color-mix(in srgb,var(--sp-gold-300) 6.3%,transparent);border-color:var(--sp-accent)}
 
-.sp-card-icon{width:26px;height:26px;padding:4px;border:1px solid #e2bd7238;border-radius:8px;fill:none;stroke:var(--sp-accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;background:#e2bd7209}
+.sp-card-icon{width:26px;height:26px;padding:4px;border:1px solid color-mix(in srgb,var(--sp-gold-300) 22%,transparent);border-radius:8px;fill:none;stroke:var(--sp-accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;background:color-mix(in srgb,var(--sp-gold-300) 3.5%,transparent)}
 .sp-motion-enabled .sp-motion-visible.sp-card-icon{animation:sp-icon-breathe 6s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){.sp-card-icon{animation:none!important}}
 
 .sp-operator .stat .sp-card-icon{position:absolute;top:16px;right:14px}.sp-operator .stat{padding-right:52px!important}
 
 /* Visible shared depth for job/workspace cards, with equivalent touch feedback. */
-html body :is(#workspace,#app) .sp-surface-card{border-top:2px solid #e2bd7260;border-left-color:#e2bd7230;background-image:radial-gradient(ellipse at top left,#e2bd7217,transparent 58%);box-shadow:inset 0 1px #ffffff0b,0 8px 24px #00000028!important;transition:translate 180ms ease,border-color 180ms ease,box-shadow 180ms ease}
+html body :is(#workspace,#app) .sp-surface-card{border-top:2px solid color-mix(in srgb,var(--sp-gold-300) 37.6%,transparent);border-left-color:color-mix(in srgb,var(--sp-gold-300) 18.8%,transparent);background-image:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 9%,transparent),transparent 58%);box-shadow:inset 0 1px #ffffff0b,0 8px 24px #00000028!important;transition:translate 180ms ease,border-color 180ms ease,box-shadow 180ms ease}
 .sp-section-icon{display:inline-block;vertical-align:middle;margin-right:9px;flex:none}
-@media(hover:hover) and (pointer:fine){html body :is(#workspace,#app) .sp-surface-card:hover{translate:0 -3px;border-color:#e2bd7280;box-shadow:inset 0 1px #ffffff12,0 0 0 1px #e2bd7228,0 14px 34px #00000040!important}}
+@media(hover:hover) and (pointer:fine){html body :is(#workspace,#app) .sp-surface-card:hover{translate:0 -3px;border-color:color-mix(in srgb,var(--sp-gold-300) 50.2%,transparent);box-shadow:inset 0 1px #ffffff12,0 0 0 1px color-mix(in srgb,var(--sp-gold-300) 15.7%,transparent),0 14px 34px #00000040!important}}
 /* Hover lift without jitter: the lifted card keeps a 4px hit strip below it, so a pointer near its lower edge does not
    unhover, drop, rehover and shake the card (seen as an unstable card on Jobs). */
 @media(hover:hover) and (pointer:fine){:where(#workspace,#app) :where(.sp-surface-card){position:relative}html body :is(#workspace,#app) .sp-surface-card:hover::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:5px}}
-html body :is(#workspace,#app) .sp-surface-card:focus-within{border-color:var(--sp-accent);box-shadow:inset 0 1px #ffffff12,0 0 0 1px #e2bd7240,0 10px 28px #00000030!important}
-@media(hover:none){html body :is(#workspace,#app) .sp-surface-card:active{border-color:var(--sp-accent);background-image:radial-gradient(ellipse at top left,#e2bd7230,transparent 70%)}}
+html body :is(#workspace,#app) .sp-surface-card:focus-within{border-color:var(--sp-accent);box-shadow:inset 0 1px #ffffff12,0 0 0 1px color-mix(in srgb,var(--sp-gold-300) 25.1%,transparent),0 10px 28px #00000030!important}
+@media(hover:none){html body :is(#workspace,#app) .sp-surface-card:active{border-color:var(--sp-accent);background-image:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 18.8%,transparent),transparent 70%)}}
 .sp-motion-enabled .sp-motion-visible:is(.signin-feature-icon svg,.sp-section-icon){animation:sp-icon-breathe 5s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){html body :is(#workspace,#app) .sp-surface-card{transition:none!important;translate:none!important}.sp-section-icon,.signin-feature-icon svg{animation:none!important}}
 /* Founder authentication uses the same compact surfaces, without viewport-height columns. */

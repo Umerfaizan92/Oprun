@@ -624,3 +624,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace.html;saas/app.js;saas/workspace-ai-video.js;saas/workspace-video-dictation.js;src/ai-video.js;src/server.js;src/growth.js;src/channel-providers.js;scripts/
 - Acceptance: One creator and library; no draft queue pretending to render; typed402 with saved draft and explicit funded fallback; multilingual reviewable dictation; real final videos; channel capability-gated variants and approved publishing; accessibility/mobile/recovery/tenant/security/browser tests green; authorized exact-commit Render deploy verified.
 - Evidence: Released in 8573c88; its unified creator UI was then replaced by T-202 (PR #174, live 6cbbe20). Provider recovery kept and covered by scripts/media-provider-recovery.test.mjs (passing in npm test 73/73 on 6cbbe20) (recorded 2026-11-22 on claude/transformation-phase1 at 739d1d7)
+
+## T-204 TR-10/TR-12 gold token scale and hard-coded gold clean-up
+- Added: 2026-11-22
+- Requirement: Transformation Phase 3 (palette kept gold, D-056): one gold scale in saas/ds/tokens.css; replace hard-coded gold-family colours in saas/*.css, saas/ds/*.css, office/*.css with the scale (alpha kept); warning/alert ambers excluded; no intended visual change except unifying legacy gold variants
+- Files: saas/ds/tokens.css; saas/*.css; saas/ds/*.css; office/*.css
+- Acceptance: Before/after screenshots of 31 workspace pages + public/sign-in pages (dark 1440/390, light 1440) show only small colour differences; npm test and test:ui pass; deployed to oprun-test
+- Evidence: 533 hard-coded gold values in 59 stylesheets now use the --sp-gold-100..800 scale (saas/ds/tokens.css); warning ambers excluded; offline.css kept literal (works offline); meet.html now loads tokens.css; cache versions bumped (44 pages + site template V). Screenshot diff before/after on 105 page shots (31 workspace pages dark 1440/390 + light 1440, public and sign-in pages): none above 0.1% (largest = live clock). npm test 73/73; test:ui 38 (recorded 2026-11-22 on claude/transformation-staging at dfe3be6)

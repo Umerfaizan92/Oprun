@@ -13,7 +13,7 @@ html body #st-library .media-library-grid{display:grid;grid-template-columns:rep
 html body #st-library .media-pick{position:relative;display:block;width:100%;padding:0;border:0;background:#000;border-radius:12px;overflow:hidden;cursor:pointer;aspect-ratio:1}
 html body #st-library .media-pick img,html body #st-library .media-pick video{width:100%;height:100%;object-fit:cover;display:block}
 html body #st-library .media-play{position:absolute;inset:auto auto 8px 8px;display:grid;place-items:center;width:32px;height:32px;border-radius:999px;background:rgba(8,10,16,.78);color:#fff;font-size:.8rem}
-html body #st-library .media-pick:focus-visible{outline:2px solid var(--sp-gold,#e6b455);outline-offset:2px}
+html body #st-library .media-pick:focus-visible{outline:2px solid var(--sp-gold,var(--sp-gold-400));outline-offset:2px}
 html body #st-library .media-meta{display:grid;gap:2px;min-width:0;padding:6px 2px}
 html body #st-library .media-meta b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.85rem}
 html body #st-library .media-meta small{color:var(--sp-fg-muted,inherit);font-size:.75rem}

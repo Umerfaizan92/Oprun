@@ -39,7 +39,7 @@
   html body #workspace .topbar-more>#replay-tour{font-size:0;gap:0}
   html body #workspace .topbar-more>#replay-tour::before{content:"?";display:grid;place-items:center;width:20px;margin-right:12px;font-size:17px;font-weight:800;color:var(--muted,#a9b2c3)}
   html body #workspace .topbar-more>#replay-tour::after{content:attr(aria-label);font-size:14px;font-weight:600}
-  html body #workspace .topbar-more>#pad-open>span{flex:none;display:grid;place-items:center;width:22px;height:22px;font-size:12px;box-shadow:none;background:var(--brand,#d9ad59);color:var(--brand-ink,#111)}
+  html body #workspace .topbar-more>#pad-open>span{flex:none;display:grid;place-items:center;width:22px;height:22px;font-size:12px;box-shadow:none;background:var(--brand,var(--sp-gold-400));color:var(--brand-ink,#111)}
   html body #workspace .topbar-more>:is(#pad-open,#open-digital-manual)>b{display:inline!important;font-size:14px;font-weight:600}
   html body #workspace .topbar-more>#open-digital-manual>span{display:grid;place-items:center;width:20px;font-size:17px;color:var(--muted,#a9b2c3)}
 }
@@ -84,10 +84,10 @@
   body.portal-workspace .mobile-workspace-icon svg{width:22px;height:22px}
   /* Names stay in the page for screen readers; only the current page shows its name. */
   body.portal-workspace .mobile-workspace-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current]{flex:0 0 auto!important;max-width:min(62vw,250px);padding:0 16px 0 14px;background:var(--brand,#d9ad59);color:var(--brand-ink,#111);box-shadow:none;border:0}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current]{flex:0 0 auto!important;max-width:min(62vw,250px);padding:0 16px 0 14px;background:var(--brand,var(--sp-gold-400));color:var(--brand-ink,#111);box-shadow:none;border:0}
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-item[aria-current] .mobile-workspace-label{position:static;width:auto;height:auto;clip:auto;min-width:0;max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:750;line-height:1;color:inherit}
   body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu)::after{display:none!important}
-  body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu):focus-visible{outline:2px solid var(--brand,#d9ad59);outline-offset:2px}
+  body.portal-workspace :is(.mobile-workspace-item,.mobile-workspace-menu):focus-visible{outline:2px solid var(--brand,var(--sp-gold-400));outline-offset:2px}
 }
 
 /* ---------- Tablet and laptop: one consistent tool style ---------- */
@@ -98,9 +98,9 @@
     background:var(--panel-2,rgba(255,255,255,.04));color:var(--muted,#a9b2c3);box-shadow:none;transform:none
   }
   html body #workspace .app-topbar :is(#replay-tour,.topbar-actions>.icon-button:not(.theme-toggle),.theme-toggle){width:40px;min-width:40px;padding:0}
-  html body #workspace .app-topbar :is(.search-button,#replay-tour,#pad-open,#open-digital-manual,.icon-button,.theme-toggle):is(:hover,:focus-visible){color:var(--text);border-color:var(--brand-line,rgba(217,173,89,.45));background:var(--panel,rgba(255,255,255,.06))}
+  html body #workspace .app-topbar :is(.search-button,#replay-tour,#pad-open,#open-digital-manual,.icon-button,.theme-toggle):is(:hover,:focus-visible){color:var(--text);border-color:var(--brand-line,color-mix(in srgb,var(--sp-gold-400) 45%,transparent));background:var(--panel,rgba(255,255,255,.06))}
   html body #workspace .app-topbar #pad-open{gap:8px;padding:0 12px 0 8px;font-weight:700;color:var(--text)}
-  html body #workspace .app-topbar #pad-open>span{width:24px;height:24px;font-size:13px;box-shadow:none;background:var(--brand,#d9ad59);color:var(--brand-ink,#111)}
+  html body #workspace .app-topbar #pad-open>span{width:24px;height:24px;font-size:13px;box-shadow:none;background:var(--brand,var(--sp-gold-400));color:var(--brand-ink,#111)}
   html body #workspace .app-topbar #open-digital-manual{gap:8px;padding:0 12px;font-weight:600}
   html body #workspace .app-topbar #open-digital-manual>span{font-size:16px;color:inherit}
   html body #workspace .app-topbar #workspace-language{height:40px;min-height:40px;border-radius:12px;padding:0 12px}
@@ -120,19 +120,19 @@
 .connection-signin-error small{display:block;margin-top:2px;color:var(--muted,#a9b2c3)}
 .connection-action-result:not(:empty){margin:10px 0 4px;padding:10px 12px;border-radius:10px;background:var(--panel-2,rgba(255,255,255,.05));font-size:13px;line-height:1.45}
 .connection-action-result.connection-error{border:1px solid rgba(239,107,107,.45);background:rgba(239,107,107,.08)}
-.connection-continue{display:inline-flex;align-items:center;min-height:40px;margin-top:6px;padding:0 14px;border-radius:10px;background:var(--brand,#d9ad59);color:var(--brand-ink,#111)!important;font-weight:700;text-decoration:none}
+.connection-continue{display:inline-flex;align-items:center;min-height:40px;margin-top:6px;padding:0 14px;border-radius:10px;background:var(--brand,var(--sp-gold-400));color:var(--brand-ink,#111)!important;font-weight:700;text-decoration:none}
 
 /* Connections: original gold badges in the Oprun palette. */
 html body #workspace .integration-logo.integration-badge{
   display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:14px;padding:0;
   background:radial-gradient(120% 120% at 20% 10%,#2a2112 0%,#14100a 70%);
-  border:1px solid rgba(217,173,89,.55);box-shadow:inset 0 1px 0 rgba(255,232,170,.18),0 6px 16px rgba(0,0,0,.35);
-  color:#f2cf7c;font-family:inherit;font-weight:800;font-size:14px;line-height:1;letter-spacing:.04em;text-transform:uppercase;
+  border:1px solid color-mix(in srgb,var(--sp-gold-400) 55%,transparent);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--sp-gold-100) 18%,transparent),0 6px 16px rgba(0,0,0,.35);
+  color:var(--sp-gold-300);font-family:inherit;font-weight:800;font-size:14px;line-height:1;letter-spacing:.04em;text-transform:uppercase;
   background-clip:padding-box
 }
 html body #workspace .integration-logo.integration-badge[data-provider="website"]{font-size:11px}
 html body #workspace .integration-logo.integration-badge[data-provider="email_sms"]{font-size:18px}
-html[data-theme="light"] body #workspace .integration-logo.integration-badge{background:linear-gradient(180deg,#fff8e6,#f3e2b6);color:#7a5a12;border-color:rgba(166,124,36,.55);box-shadow:inset 0 1px 0 #fff,0 4px 12px rgba(122,90,18,.15)}
+html[data-theme="light"] body #workspace .integration-logo.integration-badge{background:linear-gradient(180deg,#fff8e6,#f3e2b6);color:var(--sp-gold-700);border-color:color-mix(in srgb,var(--sp-gold-600) 55%,transparent);box-shadow:inset 0 1px 0 #fff,0 4px 12px color-mix(in srgb,var(--sp-gold-700) 15%,transparent)}
 /* Connections cards: one column rhythm; collapsible sections full width; notes aligned with the content. */
 html body #workspace [data-provider-card]>details:not(.connection-more),html body #workspace [data-provider-card] details.connection-own-app{display:block;width:100%;max-width:none;box-sizing:border-box;margin:8px 0;padding:10px 12px;border-radius:12px}
 html body #workspace [data-provider-card]>details>summary{cursor:pointer;font-size:13px;font-weight:600}
@@ -152,7 +152,7 @@ html body #workspace [data-provider-card] .connection-card-heading .connection-s
 html body #workspace [data-provider-card]>p:not([class]){margin:0 0 8px;font-size:13px;line-height:1.5;color:var(--muted,#a9b2c3);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 html body #workspace [data-provider-card] .integration-manager-actions{margin:10px 0 4px}
 html body #workspace [data-provider-card] .integration-manager-actions>button{min-height:44px;padding:0 14px;border-radius:10px;font-size:13px}
-html body #workspace [data-provider-card] .integration-manager-actions>[data-connect-provider]:not([data-im-switch]){background:var(--brand,#d9ad59);color:var(--brand-ink,#111);border-color:transparent}
+html body #workspace [data-provider-card] .integration-manager-actions>[data-connect-provider]:not([data-im-switch]){background:var(--brand,var(--sp-gold-400));color:var(--brand-ink,#111);border-color:transparent}
 html body #workspace .connection-more{margin:10px 0 0;padding:8px 0 0!important;border:0!important;border-radius:0!important;background:none!important;border-top:1px solid var(--line,rgba(255,255,255,.08));padding-top:8px}
 html body #workspace .connection-more>summary{cursor:pointer;list-style:none;font-size:13px;font-weight:650;color:var(--muted,#a9b2c3);padding:6px 0}
 html body #workspace .connection-more>summary::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;margin-right:8px;border-radius:6px;border:1px solid currentColor;font-size:12px;line-height:1}
@@ -163,13 +163,13 @@ html[data-theme="light"] body #workspace [data-provider-card] .integration-manag
 
 /* Your Workspace feature grid (owner request 2026-11-14): one panel per group, even columns, distinct icons. */
 html body #workspace .cc-group{margin:0 0 14px;padding:14px 14px 12px;border:1px solid var(--line,rgba(255,255,255,.08));border-radius:18px;background:var(--panel,rgba(255,255,255,.02))}
-html body #workspace .cc-group>h3{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:.74rem;font-weight:800;letter-spacing:.08em;color:var(--brand,#d9ad59)}
+html body #workspace .cc-group>h3{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:.74rem;font-weight:800;letter-spacing:.08em;color:var(--brand,var(--sp-gold-400))}
 html body #workspace .cc-group>h3 svg{width:16px;height:16px}
 html body #workspace .cc-group-count{margin-left:auto;min-width:22px;padding:2px 7px;border-radius:999px;background:var(--panel-2,rgba(255,255,255,.06));color:var(--muted,#a9b2c3);font-size:.7rem;font-weight:700;letter-spacing:0;text-align:center}
 html body #workspace .cc-group .cc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
 html body #workspace .cc-group .cc-tile{flex-direction:row!important;align-items:center;justify-content:flex-start;gap:10px;min-height:58px;padding:10px 12px;text-align:left;border:1px solid transparent;border-radius:13px;background:var(--panel-2,rgba(255,255,255,.04))}
-html body #workspace .cc-group .cc-tile:hover,html body #workspace .cc-group .cc-tile:focus-visible{border-color:var(--brand,#d9ad59)}
-html body #workspace .cc-group .cc-tile-icon{width:36px;height:36px;border-radius:11px;background:rgba(217,173,89,.1);border-color:rgba(217,173,89,.35)}
+html body #workspace .cc-group .cc-tile:hover,html body #workspace .cc-group .cc-tile:focus-visible{border-color:var(--brand,var(--sp-gold-400))}
+html body #workspace .cc-group .cc-tile-icon{width:36px;height:36px;border-radius:11px;background:color-mix(in srgb,var(--sp-gold-400) 10%,transparent);border-color:color-mix(in srgb,var(--sp-gold-400) 35%,transparent)}
 html body #workspace .cc-group .cc-tile-icon svg{width:18px;height:18px}
 html body #workspace .cc-group .cc-tile-text{min-width:0}
 html body #workspace .cc-group .cc-tile-text b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;font-size:.84rem;font-weight:650;line-height:1.25}
@@ -183,7 +183,7 @@ html body #workspace .cc-group .cc-more>summary{cursor:pointer;padding:6px 2px;f
   html body #workspace .cc-group .cc-tile-icon{width:32px;height:32px;border-radius:10px}
   html body #workspace .cc-group .cc-tile-text b{font-size:.8rem}
 }
-html[data-theme="light"] body #workspace .cc-group .cc-tile-icon{background:rgba(166,124,36,.08)}
+html[data-theme="light"] body #workspace .cc-group .cc-tile-icon{background:color-mix(in srgb,var(--sp-gold-600) 8%,transparent)}
 
 /* Nested tabs (a page's tabs plus a section's own tabs) share ONE row that scrolls sideways (owner request).
    The outer group's current page shows as an outlined icon; only the innermost current tab is the gold pill. */
@@ -193,10 +193,10 @@ html[data-theme="light"] body #workspace .cc-group .cc-tile-icon{background:rgba
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:only-child{flex:1 0 auto!important;min-width:100%!important}
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group+.mobile-workspace-section-group{padding-left:6px!important;margin-left:6px!important;border-left:1px solid var(--line,rgba(255,255,255,.12))!important}
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:only-child) .mobile-workspace-item:not([aria-current]){flex:0 0 46px!important}
-  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current]{flex:0 0 46px!important;max-width:46px;padding:0!important;background:transparent!important;color:var(--brand,#d9ad59)!important;box-shadow:inset 0 0 0 1.5px var(--brand,#d9ad59)!important}
+  html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current]{flex:0 0 46px!important;max-width:46px;padding:0!important;background:transparent!important;color:var(--brand,var(--sp-gold-400))!important;box-shadow:inset 0 0 0 1.5px var(--brand,var(--sp-gold-400))!important}
   html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-label{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important}
 }
-@media (max-width:760px){html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-icon{color:var(--brand,#d9ad59)!important}}
+@media (max-width:760px){html body.portal-workspace .mobile-workspace-dock .mobile-workspace-section-group:not(:last-child) .mobile-workspace-item[aria-current] .mobile-workspace-icon{color:var(--brand,var(--sp-gold-400))!important}}
 /* Phone: when a page's own tabs fill the bar, the current tab's label shortens (ellipsis) instead of pushing the
    last tab past the edge, so nothing needs sideways scrolling at 390px. */
 @media (max-width:760px){

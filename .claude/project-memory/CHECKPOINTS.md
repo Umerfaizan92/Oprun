@@ -2453,3 +2453,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-10 on claude/transformation-staging
+
+## CP-176 2026-11-22T20:31:04+00:00 T-204 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-204 (COMPLETED)
+- Completed steps: Gold scale + 533 replacements, verified by screenshot diff
+- Incomplete steps: TR-11 catalogue, TR-13 brand assets, TR-14 public website
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PROGRESS.md; docs/transformation/04_PROGRESS.md; office/console-platform.css; office/console.html; office/index.html; office/legacy.html; office/office-insights.css; office/office-records.css; office/office-theme.css; office/office.css; saas/adaptive.css; saas/answers.html; saas/app.css; saas/apply.css; saas/apply.html; saas/auth.css; saas/brand.css; saas/channel-operations.css; saas/command-centre.css; saas/complaints.html; saas/create-account.html; saas/ds/refresh.css; saas/ds/refresh.css.br; saas/ds/refresh.css.gz; saas/ds/retheme.css; saas/ds/retheme.css.br; saas/ds/retheme.css.gz; saas/ds/tokens.css; saas/ds/tokens.css.br; saas/ds/tokens.css.gz; saas/experience.css; saas/governance.css; saas/index.html; saas/intro.css; saas/join-team.html; saas/journey.css; saas/manual.css; saas/meet.html; saas/meetings.css; saas/operator-sign-in.html; saas/pay.css; saas/pay.html; saas/payment-thanks.html; saas/policy-center.html; saas/portal-shell.css; saas/premium-ui.css; saas/privacy.html; saas/public-design.css; saas/public-polish.css; saas/public-sections.css; saas/public-stage.css; saas/public-voice-install.css; saas/recover-account.html; saas/sign-in-layout.css; saas/sign-in.html; saas/site/account-deletion.html; saas/site/contact.html; saas/site/features-ai.html; saas/site/features-communications.html; saas/site/features-customers.html; saas/site/features-growth.html; saas/site/features-money.html; saas/site/features-people.html; saas/site/features.html; saas/site/for-agencies.html; saas/site/for-cleaning.html; saas/site/for-clinics.html; saas/site/for-retail.html; saas/site/for-trades.html; saas/site/help.html; saas/site/home.html; saas/site/industries.html; saas/site/install.html; saas/site/pricing.html; saas/site/receptionist.html; saas/site/stories.html; saas/subprocessors.html; saas/support.css; saas/sw.js; saas/terms.html; saas/trust-center.html; saas/unified-ui.css; saas/verify-account.html; saas/worker-onboarding.html; saas/workspace-automations.css; saas/workspace-bars.css; saas/workspace-chat.css; saas/workspace-comms-platform.css; saas/workspace-customers.css; saas/workspace-finance.css; saas/workspace-gadgets.css; saas/workspace-hiring.css; saas/workspace-locale.css; saas/workspace-nav.css; saas/workspace-pad.css; saas/workspace-payments.css; saas/workspace-pipeline.css; saas/workspace-reel-maker.css; saas/workspace-seo-platform.css; saas/workspace-steps.css; saas/workspace-studio.css; saas/workspace-theme.css; saas/workspace-tour.css; saas/workspace-views.css; saas/workspace.html; scripts/site/templates.mjs
+- Tests executed: npm test 73/73; test:ui 38; screenshot diff 105 shots
+- Test results: all passed; max diff 0.09% (clock)
+- Git branch: claude/transformation-staging
+- Commit: dfe3be6 (TR-03: free isolated test site oprun-test; checkpoint); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-11 component catalogue on claude/transformation-staging

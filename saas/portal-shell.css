@@ -43,7 +43,7 @@
   height: 40px;
   border-radius: 13px;
   border: 1px solid var(--brand-line, #74613c);
-  background: linear-gradient(145deg, #e5c47a30, #141b2610);
+  background: linear-gradient(145deg, color-mix(in srgb,var(--sp-gold-300) 18.8%,transparent), #141b2610);
   box-shadow:
     inset 1px 1px 0 #fff2,
     3px 4px 10px #0004;
@@ -194,7 +194,7 @@ body.portal-workspace .topbar-actions .profile-copy {
   border: 1px solid var(--line);
   border-radius: 15px;
   background:
-    radial-gradient(ellipse at 0 0, #e2bd7210, transparent 65%), var(--panel);
+    radial-gradient(ellipse at 0 0, color-mix(in srgb,var(--sp-gold-300) 6.3%,transparent), transparent 65%), var(--panel);
   box-shadow:
     inset 0 1px #fff1,
     0 8px 24px #0001;
@@ -281,7 +281,7 @@ body.portal-workspace .topbar-actions .profile-copy {
   font-weight: 650;
 }
 .portal-button.primary {
-  background: linear-gradient(125deg, #efd28b, #b48b36);
+  background: linear-gradient(125deg, var(--sp-gold-200), #b48b36);
   color: #201909;
 }
 .portal-button:disabled {

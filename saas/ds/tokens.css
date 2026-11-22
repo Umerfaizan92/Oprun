@@ -28,6 +28,10 @@
   --sp-gold-press:#D29E3E;
   --sp-on-gold:#17120A;
   --sp-gold-soft:rgba(230,180,85,.14);
+  /* One gold scale (TR-10). The same values in both themes, so older screens keep their look; new work uses
+     --sp-gold, which changes per theme. Lightest 100 → darkest 800. */
+  --sp-gold-100:#FFE9A8;--sp-gold-200:#F6D98C;--sp-gold-300:#F0C46E;--sp-gold-400:#E6B455;
+  --sp-gold-500:#D29E3E;--sp-gold-600:#A87829;--sp-gold-700:#7A5410;--sp-gold-800:#5C3F0C;
   --sp-cyan:#43D3F0;          /* live, AI working, incoming signal */
   --sp-cyan-soft:rgba(67,211,240,.13);
   --sp-violet:#9C8CFF;        /* data series only */

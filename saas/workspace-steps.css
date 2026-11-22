@@ -2,18 +2,18 @@
 .setup-stepper{display:grid;gap:8px;margin:0 0 16px}
 .setup-stepper-label{margin:0;font-size:14px;font-weight:700;color:var(--sp-fg-2,var(--muted,#c9d1df))}
 .setup-stepper-bar{height:6px;border-radius:999px;background:var(--sp-line,rgba(255,255,255,.12));overflow:hidden}
-.setup-stepper-bar span{display:block;height:100%;background:var(--sp-gold,#e6b455)}
+.setup-stepper-bar span{display:block;height:100%;background:var(--sp-gold,var(--sp-gold-400))}
 .setup-stepper-actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:16px 0}
 .setup-stepper-actions .primary-button{margin-left:auto}
-.settings-nav [data-done="true"]::after{content:"✓";content:"✓" / "";margin-left:8px;color:var(--sp-gold,#e6b455);font-weight:800}
+.settings-nav [data-done="true"]::after{content:"✓";content:"✓" / "";margin-left:8px;color:var(--sp-gold,var(--sp-gold-400));font-weight:800}
 .setup-review{display:grid;gap:12px}
 .setup-review-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .setup-review-list li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--sp-line,rgba(255,255,255,.12));border-radius:12px}
 .setup-review-state{font-size:12px;font-weight:800;padding:3px 8px;border-radius:999px;border:1px solid currentColor}
 .setup-review-list .is-done .setup-review-state{color:#34d399}
-.setup-review-list .is-todo .setup-review-state{color:var(--sp-gold,#e6b455)}
+.setup-review-list .is-todo .setup-review-state{color:var(--sp-gold,var(--sp-gold-400))}
 [data-theme="light"] .setup-review-list .is-done .setup-review-state{color:#05603a}
-[data-theme="light"] .setup-review-list .is-todo .setup-review-state{color:#7a5410}
+[data-theme="light"] .setup-review-list .is-todo .setup-review-state{color:var(--sp-gold-700)}
 :is(.setup-stepper,.setup-stepper-actions,.setup-review,.worker-step-label)[hidden],#worker-form label[hidden],#worker-form button[hidden]{display:none!important}
 .worker-step-label{grid-column:1/-1;margin:0 0 4px}
 html[data-device="phone"] .setup-stepper-actions{position:sticky;bottom:calc(var(--mobile-dock-height,72px) + 8px);z-index:3;padding:10px;border-radius:14px;background:var(--sp-glass-strong,rgba(15,21,34,.92))}

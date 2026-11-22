@@ -4,8 +4,8 @@
 .pl-stage b{font-size:22px;line-height:1.1;color:var(--sp-fg,var(--text));font-variant-numeric:tabular-nums}
 .pl-stage span{font-size:12px;line-height:1.3}
 .pl-stage small{font-size:12px;color:var(--sp-fg-2,var(--text-2));font-variant-numeric:tabular-nums}
-.pl-stage.has{border-color:color-mix(in srgb,var(--sp-gold,#e6b455) 40%,var(--sp-line,#26314a))}
-.pl-stage:hover,.pl-stage:focus-visible{border-color:var(--sp-gold,#e6b455);color:var(--sp-fg,var(--text))}
+.pl-stage.has{border-color:color-mix(in srgb,var(--sp-gold,var(--sp-gold-400)) 40%,var(--sp-line,#26314a))}
+.pl-stage:hover,.pl-stage:focus-visible{border-color:var(--sp-gold,var(--sp-gold-400));color:var(--sp-fg,var(--text))}
 .pl-status:empty{display:none}
 .pl-status[data-tone="bad"],[data-tone="bad"].portal-note{color:var(--sp-bad,var(--red))}
 .pl-status[data-tone="good"]{color:var(--sp-good,var(--green))}

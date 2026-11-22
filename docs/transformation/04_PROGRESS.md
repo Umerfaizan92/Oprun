@@ -15,6 +15,9 @@ Updated: 23 Nov 2026
 - [x] TR-02 register tidy: T-194 closed (superseded by T-202); T-141/T-142 wait for the owner's live call test
 - [x] Palette samples sent (gold vs purple/cyan on home, Command Centre, Media Studio, sign-in; laptop and phone)
 
+- [x] TR-10/TR-12 (T-204): gold scale `--sp-gold-100…800`; 533 hard-coded golds replaced; screenshot diff on 105
+  page shots shows no change above 0.1%
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -37,6 +40,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-10/TR-12 on `claude/transformation-staging`: gold token ramp in `saas/ds/tokens.css` and replace the ~120
-hard-coded gold values across older stylesheets with tokens (no visible change, checked by screenshot diff), then
-TR-11 component catalogue, TR-13 brand assets, TR-14 public website.
+TR-11 component catalogue (one reference page of every shared component, both themes), then TR-13 brand assets
+(remove unused superpro-* files, check icons everywhere), then TR-14 public website.
