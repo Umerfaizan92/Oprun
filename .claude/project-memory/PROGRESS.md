@@ -105,3 +105,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-21: T194: full local regression73/73 including86 contract files passed. Candidate d5b1274 remote PR168; four security checks pass, hosted verify/UI running. Follow-up source guards and2 adversarial tests pass; not deployed.
 - 2026-11-22: T-196 self-hosted video spec sections 1-3 in docs/self-hosted-video/SPEC.md (branch claude/t196-self-hosted-video); next: prompt library, model-update loop, implementation plan, Render/GPU deploy and live-test plan.
 - 2026-11-22: T-196 spec complete (sections 1-7 incl. owned server build); waiting on owner: server quote/site and LTX licence; next phase P1.
+- 2026-11-22: T-196: owner cannot buy GPU server yet; plan = build software now (free), keep BYO-key Studio live, start later with one 24-32 GB GPU running Wan 2.2 TI2V-5B, upgrade later.

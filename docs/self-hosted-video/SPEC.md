@@ -17,6 +17,9 @@ Sources checked 22 Nov 2026: Hugging Face cards for Wan-AI/Wan2.2-* and Lightric
   limit (free under US$10M ARR). LTX-2.5 is in scope; flag `STUDIO_LTX_ENABLED` defaults on. Re-check the licence
   at each LTX release and budget a commercial licence before Oprun approaches US$10M ARR.
   Open: server purchase and hosting site.
+- 23 Nov 2026: owner cannot buy the server yet. Plan: build and test the software now at no cost (P2-P5 with a
+  CPU stand-in model in tests), keep the current bring-your-own-key Media Studio live meanwhile, start hardware
+  with one 24-32 GB GPU (Wan 2.2 TI2V-5B only) when affordable, then upgrade to the full build.
 - Current focus: owner approval of the server build, then phase P1
 - Next: P1 (benchmark box) as soon as hardware is on site
 
