@@ -2369,3 +2369,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Monitor exact queued deploy and verify actual production workload before claiming live
+
+## CP-170 2026-11-22T19:49:16+08:00 T-194 TESTING
+- Phase: MS09 staged release LIVE and core export verified
+- Task: T-194 (TESTING)
+- Completed steps: Render dep-dc1d5ut9uf1s73e05840 LIVE 8573c88; health/assets match; owner unified UI visible; private upload/playback; real 3.02second split export played; mic graceful denial
+- Incomplete steps: Native Android/iOS speech; funded provider generation and billing recovery; remaining master scope and UUID dependency compatibility
+- Files modified (uncommitted at checkpoint): docs/coordination/chatgpt.md; docs/coordination/media-studio-decisions.md; docs/coordination/media-studio-handover.md; docs/coordination/media-studio-master.md; docs/coordination/media-studio-progress.md; docs/coordination/media-studio-test-evidence.md; docs/media-studio/LIVE_TESTING.md
+- Tests executed: Render build; deployed health and five asset hashes; authenticated private editor export; microphone denied-permission path; isolated backup restore
+- Test results: 73/73 PASS; HTTP200 hashes identical; 3.021333seconds played to end error null; graceful recovery text and no auto-generation; checksum OK integrity ok 1.3s
+- Git branch: codex/t194-release-evidence
+- Commit: d0351af (docs(studio): preserve successful restore drill and authorized staged release CP169); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Owner native-device speech acceptance and explicit small funded-provider budget, then remaining documented product/security batches
