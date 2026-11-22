@@ -596,13 +596,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: saas/workspace.html;saas/app.js;saas/workspace-ai-video.js;saas/workspace-video-dictation.js;src/ai-video.js;src/server.js;src/growth.js;src/channel-providers.js;scripts/
 - Acceptance: One creator and library; no draft queue pretending to render; typed402 with saved draft and explicit funded fallback; multilingual reviewable dictation; real final videos; channel capability-gated variants and approved publishing; accessibility/mobile/recovery/tenant/security/browser tests green; authorized exact-commit Render deploy verified.
 
-## T-199 W-18 AI Website: llms.txt per published site + owner AI-crawler setting in robots.txt (D-W18)
-- Status: NOT_STARTED
-- Added: 2026-11-22
-- Requirement: From brief v2 (docs/ai-website/PROMPT_V2_2026-11-23.txt) and docs/ai-website/00_CONTRACT.md
-- Files: src/seo/routes.js, src/seo/service.js, saas/workspace-website.js
-- Acceptance: GET /sites/:site/llms.txt and custom-domain /llms.txt return the business summary, services, areas, contact and pages; robots.txt reflects the setting; change needs approval; tests pass
-
 ## T-200 W-19 AI Website: Buy a domain inside Oprun with the business's own Cloudflare account (Registrar API beta, D-W15)
 - Status: NOT_STARTED
 - Added: 2026-11-22

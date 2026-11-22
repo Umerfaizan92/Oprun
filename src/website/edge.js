@@ -136,7 +136,8 @@ export function edgeHandler({ edge, hub, seo }) {
     const moved = hub().redirectFor(site.site_id, path) || (path.length > 1 && path.endsWith('/') ? hub().redirectFor(site.site_id, path.slice(0, -1)) : null);
     if (moved) return res.redirect(moved.code === 302 ? 302 : 301, moved.to_path);
     const base = `https://${site.hostname}`, mount = { base, prefix: '' };
-    if (path === '/robots.txt') return res.set('Cache-Control', 'public, max-age=3600').type('text/plain').send(`User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
+    if (path === '/robots.txt') { const x = seo.siteRobots ? seo.siteRobots(site.slug, mount) : null; return res.set('Cache-Control', 'public, max-age=3600').type('text/plain').send(x || `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`); }
+    if (path === '/llms.txt') { const x = seo.siteLlms?.(site.slug, mount); return x ? res.set({ 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' }).type('text/markdown; charset=utf-8').send(x) : notFound(res); }
     if (path === '/sitemap.xml') { const x = seo.siteSitemap(site.slug, mount); return x ? res.set('Cache-Control', 'public, max-age=3600').type('application/xml').send(x) : notFound(res); }
     const m = /^\/([a-z0-9][a-z0-9-]{0,79})?\/?$/.exec(path);
     if (!m) return notFound(res);

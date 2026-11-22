@@ -1022,7 +1022,7 @@ const globalCors =
 // handled here (published pages, robots, sitemap, the contact form); everything else is untouched.
 const siteEdge=createEdge({env});
 const websiteHubRef={current:null},seoServiceRef={current:null};
-app.use(edgeHandler({edge:siteEdge,hub:()=>websiteHubRef.current,seo:{renderPublic:(...a)=>seoServiceRef.current.renderPublic(...a),siteSitemap:(...a)=>seoServiceRef.current.siteSitemap(...a)}}));
+app.use(edgeHandler({edge:siteEdge,hub:()=>websiteHubRef.current,seo:{renderPublic:(...a)=>seoServiceRef.current.renderPublic(...a),siteSitemap:(...a)=>seoServiceRef.current.siteSitemap(...a),siteRobots:(...a)=>seoServiceRef.current.siteRobots(...a),siteLlms:(...a)=>seoServiceRef.current.siteLlms(...a)}}));
 // S5: a business's verified website may post its contact form here. Origins not on the platform
 // list skip the global check only for this path; the route itself admits only the verified site.
 app.use((req, res, next) => {

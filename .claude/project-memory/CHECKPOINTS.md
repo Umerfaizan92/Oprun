@@ -2383,3 +2383,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start T-199: llms.txt route + robots AI-crawler setting
+
+## CP-171 2026-11-22T17:44:44+00:00 T-199 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-199 (COMPLETED)
+- Completed steps: llms.txt + AI-crawler setting
+- Incomplete steps: Deploy when Render build minutes return; then T-149/T-150/T-151
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; docs/ai-website/07_SEO_BACKLINKS.md; docs/ai-website/11_PROGRESS_STATE.md; saas/workspace-website.js; saas/workspace.html; scripts/test-ui.mjs; src/seo/routes.js; src/seo/service.js; src/server.js; src/website/edge.js; scripts/ai-visibility.test.mjs; src/seo/ai-visibility.js
+- Tests executed: npm test; test:ui; ai-visibility; seo-platform; website-edge; website-hub
+- Test results: all passed
+- Git branch: claude/t199-llms-txt
+- Commit: 3c494cf (T-198: AI Website spec v2 refresh (brief of 23 Nov) without duplicating the pack (#172))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start T-149 wizard + T-150 generation service behind website_builder_v2

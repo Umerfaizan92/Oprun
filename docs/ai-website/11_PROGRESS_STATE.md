@@ -14,8 +14,8 @@ PROGRESS STATE (2026-11-23, brief v2 — [PROMPT_V2_2026-11-23.txt](PROMPT_V2_20
 - [x] Security, compliance, performance covered → [02](02_ARCHITECTURE.md) §4–5, [07](07_SEO_BACKLINKS.md) §4, [00](00_CONTRACT.md) §7
 - [x] MVP scope + implementation plan written → [10](10_IMPLEMENTATION_PLAN.md)
 - [x] Recommended agents, tools, plugins nominated → [09](09_TOOLS.md) (agents table added 23 Nov)
-- Current focus: specification complete; building has started (2 of 20 build items done)
-- Next: W-18 llms.txt + AI-crawler setting (T-199), then W-03/W-04/W-05 behind `website_builder_v2`
+- Current focus: specification complete; 3 of 20 build items done (W-01, W-09, W-18)
+- Next: W-03/W-04/W-05 behind `website_builder_v2` (T-149, T-150, T-151)
 
 ## Code status (honest, checked in the repository 23 Nov 2026)
 
@@ -29,7 +29,8 @@ PROGRESS STATE (2026-11-23, brief v2 — [PROMPT_V2_2026-11-23.txt](PROMPT_V2_20
 | W-12 buy links | Partly built | Spaceship, VentraIP, Cloudflare links; link checker not yet |
 | W-13 transfer | Partly built | Ownership-gated crawl → draft pages + redirect map; keep/merge/drop and switch-over later |
 | W-15 growth | Partly built | Listings checklist + Search Console links import; outreach drafts later |
-| W-05, W-06, W-07, W-08, W-10, W-14, W-16, W-17, W-18, W-19, W-20 | Not started | Repo tasks T-151…T-163 and T-199…T-201 |
+| W-18 llms.txt + AI-crawler setting | **Built** (23 Nov), goes live with the next deploy | T-199; `src/seo/ai-visibility.js`, Website → Growth → AI answer engines |
+| W-05, W-06, W-07, W-08, W-10, W-14, W-16, W-17, W-19, W-20 | Not started | Repo tasks T-151…T-163, T-200, T-201 |
 
 Nothing in the "not started" rows may be described to customers as available.
 
@@ -39,4 +40,4 @@ See [10](10_IMPLEMENTATION_PLAN.md) §5: Cloudflare account + SaaS zone + token 
 
 ## Resume
 
-Next session: read [00_START_HERE.md](00_START_HERE.md), then this file, then `PENDING_TASKS.md` (T-199 first).
+Next session: read [00_START_HERE.md](00_START_HERE.md), then this file, then `PENDING_TASKS.md` (T-149 next).

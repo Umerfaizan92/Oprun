@@ -120,6 +120,11 @@ try{
     await page.locator('#websitehub-view a[href^="https://www.spaceship.com/domain-search/"]').waitFor({state:'visible'});
     await page.locator('#websitehub-view .ws-tabs [role=tab]',{hasText:'Build'}).click();
     await page.locator('#websitehub-view').getByText('B. Bring in your existing website').waitFor({state:'visible'});
+    // W-18: Growth shows the AI answer engines panel; with no site yet it explains what to do first.
+    await page.locator('#websitehub-view .ws-tabs [role=tab]',{hasText:'Growth'}).click();
+    await page.locator('#websitehub-view h2',{hasText:'AI answer engines'}).waitFor({state:'visible'});
+    await page.locator('#websitehub-view').getByText('Create and publish your website first').waitFor({state:'visible'});
+    await page.locator('#websitehub-view .ws-tabs [role=tab]',{hasText:'Build'}).click();
     await screenshot(page,'website-desktop');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(300);const vis=await page.evaluate(()=>{const v=document.querySelector('#websitehub-view');const t=v?.querySelector('.ws-tabs');return {hidden:v?.hidden,display:v&&getComputedStyle(v).display,tabs:t?getComputedStyle(t).display:null,hash:location.hash,rect:t?.getBoundingClientRect().toJSON()}});if(!vis.rect||vis.hidden)console.log('website view on phone:',JSON.stringify(vis));await page.evaluate(()=>window.scrollTo(0,0));await screenshot(page,'website-phone');
     const wide=await page.evaluate(()=>document.querySelector('#websitehub-view').scrollWidth>document.documentElement.clientWidth+2);assert.equal(wide,false,'no sideways scrolling on a phone');
     await page.setViewportSize({width:1440,height:900});
