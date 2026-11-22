@@ -18,6 +18,7 @@ project wires it into the generated site and adds Growth. Nothing here guarantee
 - Canonicals, `hreflang` not used (single `en-AU`), 301 map ([05](05_TRANSFER_REDESIGN.md)), no redirect chains.
 - Core Web Vitals budget enforced before publish ([02](02_ARCHITECTURE.md) §5); field data from the existing CWV link.
 - IndexNow ping to Bing on publish (optional key per domain).
+- AI crawlers (D-W18): `llms.txt` served at the site root; `robots.txt` has an owner setting **Let AI answer engines read my site** (on by default) and **Block AI training crawlers** (off by default), written as named user-agent rules; changes go through approval.
 - Weekly audit (existing) with fixes offered as drafts.
 
 ## 3. Content refresh schedule

@@ -22,3 +22,14 @@
 
 Record templates for Google, Microsoft and Zoho mail DNS are the providers' published defaults; each value must be
 confirmed against the provider's admin console during W-11.
+
+## Added 23 Nov 2026 (brief v2)
+
+- Cloudflare Registrar API docs (beta workflow: search, check, register; billing to default payment method; non-refundable; transfers/renewals/contact updates not yet): https://developers.cloudflare.com/registrar/registrar-api/
+- Cloudflare blog, Registrar API beta: https://blog.cloudflare.com/registrar-api-beta
+- Domain Name Wire, Cloudflare launches domain registration API (15 Apr 2026): https://domainnamewire.com/2026/04/15/cloudflare-launches-domain-registration-api/
+- Namecheap API FAQ (20 domains or US$50 balance, IPv4 whitelist, balance-only billing): https://www.namecheap.com/support/knowledgebase/article.aspx/9739/63/api-faq/
+- Google Workspace payment plans (Business Starter A$9.90 annual, A$11.80 flexible): https://knowledge.workspace.google.com/admin/billing/compare-flexible-and-annual-fixed-term-payment-plans
+- Cloudflare Email Routing: https://www.cloudflare.com/products/email-routing/
+- Postdigitalist, Best AI website builder 2026 (12 builders, prices as of 2 Nov 2026; export, SSR, llms.txt findings): https://postdigitalist.xyz/best-ai-website-builder/
+- nxcode, Wix Harmony vs Lovable vs Base44 2026: https://www.nxcode.io/resources/news/ai-website-builder-comparison-2026

@@ -29,7 +29,8 @@ flowchart LR
   PUB --> SEO[SEO layer: sitemap, schema, Search Console, visibility cluster, Growth]
   PUB --> EXP[Export: GitHub or ZIP]
   DNS[Business's DNS: Cloudflare / Porkbun token or manual] --> CF
-  MAIL[Business email: Google / Microsoft / Zoho records] --> DNS
+  MAIL[Business email: Google / Microsoft / Zoho records, or free Cloudflare forwarding] --> DNS
+  BUY[Buy domain: Cloudflare Registrar API in the business's own account, after owner confirms price] --> DNS
 ```
 
 ## 2. Components
