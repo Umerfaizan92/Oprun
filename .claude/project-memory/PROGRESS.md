@@ -106,3 +106,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-22: T-196 self-hosted video spec sections 1-3 in docs/self-hosted-video/SPEC.md (branch claude/t196-self-hosted-video); next: prompt library, model-update loop, implementation plan, Render/GPU deploy and live-test plan.
 - 2026-11-22: T-196 spec complete (sections 1-7 incl. owned server build); waiting on owner: server quote/site and LTX licence; next phase P1.
 - 2026-11-22: T-196: owner cannot buy GPU server yet; plan = build software now (free), keep BYO-key Studio live, start later with one 24-32 GB GPU running Wan 2.2 TI2V-5B, upgrade later.
+- 2026-11-22: T-196: owner has no budget; Gemini test cost ~US$13.40 for 30 s with face mismatch. Proposed free path: real-footage video maker on Render CPU, paid providers off by default with cost estimate, apply for startup GPU credits, own GPU later. Awaiting go-ahead.

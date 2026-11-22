@@ -20,6 +20,15 @@ Sources checked 22 Nov 2026: Hugging Face cards for Wan-AI/Wan2.2-* and Lightric
 - 23 Nov 2026: owner cannot buy the server yet. Plan: build and test the software now at no cost (P2-P5 with a
   CPU stand-in model in tests), keep the current bring-your-own-key Media Studio live meanwhile, start hardware
   with one 24-32 GB GPU (Wan 2.2 TI2V-5B only) when affordable, then upgrade to the full build.
+- 23 Nov 2026: owner has no budget at all. A Gemini test cost about US$13.40 for one 30 s video and faces did not
+  match the photos. Free path agreed in principle:
+  (1) "Real footage" video maker on the existing Render server (FFmpeg on CPU, $0 per video): the business's own
+      photos and clips, pan/zoom motion, transitions, exact captions, own recorded voice, music from an owned
+      library; faces stay real. Script and shot order from templates (no paid AI).
+  (2) Paid AI video providers off by default, with a cost estimate and confirmation before any paid generation.
+  (3) Apply for free startup GPU credits (AWS Activate Founders, Microsoft for Startups, Google for Startups Start,
+      NVIDIA Inception) and run Wan 2.2 self-hosted on credited GPUs with hard budget alarms and auto-shutdown.
+  (4) Own GPU when revenue allows (section 3.7).
 - Current focus: owner approval of the server build, then phase P1
 - Next: P1 (benchmark box) as soon as hardware is on site
 
