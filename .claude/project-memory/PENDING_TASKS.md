@@ -595,3 +595,4 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Implement approved T-193 specification: remove competing creator/specification UX, typed provider402 recovery and readiness, one project flow with adjacent dictation controls, actual editing/output controls, integrated campaign/channel handoff, preserve legacy records, test all paths before combined deployment.
 - Files: saas/workspace.html;saas/app.js;saas/workspace-ai-video.js;saas/workspace-video-dictation.js;src/ai-video.js;src/server.js;src/growth.js;src/channel-providers.js;scripts/
 - Acceptance: One creator and library; no draft queue pretending to render; typed402 with saved draft and explicit funded fallback; multilingual reviewable dictation; real final videos; channel capability-gated variants and approved publishing; accessibility/mobile/recovery/tenant/security/browser tests green; authorized exact-commit Render deploy verified.
+

@@ -1,0 +1,24 @@
+/* T-197 Reel Maker panel. Fits phone, iPad and laptop; no looping animation. */
+html body .rm-panel{display:grid;gap:12px}
+html body .rm-step{margin:10px 0 0;font-size:1rem}
+html body .rm-hint{margin:0;font-size:.85rem}
+html body .rm-templates,html body .rm-hooks{display:flex;flex-wrap:wrap;gap:8px}
+html body .rm-template,html body .rm-hook{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--rf-edge,rgba(237,241,248,.14));background:transparent;color:var(--sp-fg,inherit);font-weight:700;cursor:pointer;text-align:left;max-width:100%}
+html body .rm-template[aria-checked="true"],html body .rm-hook[aria-checked="true"]{background:var(--sp-gold-soft,rgba(230,180,85,.2));border-color:var(--rf-edge-strong,rgba(230,180,85,.5));color:var(--sp-gold,#e6b455)}
+html body .rm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end}
+html body .rm-field{display:grid;gap:6px;min-width:0}
+html body .rm-field[hidden]{display:none}
+html body .rm-field small{font-size:.78rem;color:var(--sp-fg-muted,inherit)}
+html body .rm-field textarea{resize:vertical}
+html body .rm-field input[type=color]{min-height:44px;width:100%;padding:2px}
+html body .rm-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+html body .rm-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+html body .rm-card{display:grid;gap:8px;align-content:start;padding:10px;border:1px solid var(--rf-edge,rgba(237,241,248,.14));border-radius:16px}
+html body .rm-video{width:100%;max-height:420px;border-radius:12px;background:#000;object-fit:contain}
+html body .rm-placeholder{display:grid;place-items:center;aspect-ratio:9/16;max-height:240px;font-size:1.6rem;color:var(--sp-fg-muted,inherit)}
+html body .rm-meta{display:grid;gap:4px;min-width:0}
+html body .rm-meta b{overflow-wrap:anywhere}
+html body .rm-meta small{color:var(--sp-fg-muted,inherit)}
+html body .rm-error{color:#ff8a8a!important}
+html body .rm-actions{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:720px){html body .rm-grid{grid-template-columns:1fr}html body .rm-panel .aiv-seg{flex-wrap:wrap}html body .rm-panel .aiv-seg button{flex:1 1 45%}}
