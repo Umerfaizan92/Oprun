@@ -97,3 +97,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-20: T-177: AI Receptionist is now 5 steps with a step list and Back/Next; one related-pages row per page; checkboxes sit beside their labels. Next: Campaign Studio, Website hub.
 - 2026-11-20: T-179 photos/videos for campaigns and posts; T-180 Video Meetings with own-account Zoom, invites, phone keypad (click-to-call); T-181 official platform icons in Connections.
 - 2026-11-20: T-183 Phone page; T-184 video quality and backgrounds (self-hosted MediaPipe), appointments and calendar in Bookings with reminders and team alerts. Next: T-185 Media Studio AI video generation; research shows Veo 3.1 preview in Gemini API shut down 2026-10-22, verify providers first.
+- 2026-11-22: T-191 spec sections 1-3 written in docs/self-hosted-video/SPEC.md on branch claude/t190-video-creator; next: prompt library, update loop, implementation plan, deploy/test plan.

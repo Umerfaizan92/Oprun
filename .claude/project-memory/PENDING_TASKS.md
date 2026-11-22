@@ -595,3 +595,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner (21 Nov 2026): in Media Studio add recording a short video from the live camera to generate from; length not limited to 15 seconds; upload own photos or videos from gallery/mobile/laptop and generate from them (e.g. a face photo + prompt); record own voice so the video speaks in the person's own voice; fully AI assisted.
 - Files: src/ai-video.js, saas/workspace-ai-video.js
 - Acceptance: Camera capture to library; reference photos/videos used in generation; long videos via extension/chaining; own-voice narration; tests pass
+
+## T-191 Self-hosted AI video (Oprun Studio): design and build
+- Status: NOT_STARTED
+- Added: 2026-11-22
+- Requirement: Owner 22 Nov 2026: zero external paid APIs; open-weight models on Oprun infrastructure; Wan 2.2 primary, LTX-2.5 only when audio is needed; internal production agent turns typed or spoken ideas into multi-shot cinematic videos; continuous open-model tracking; concise; preserve progress.
+- Files: docs/self-hosted-video/SPEC.md
+- Acceptance: Spec sections 1-8 complete; owner approves GPU hosting; then implementation per spec
