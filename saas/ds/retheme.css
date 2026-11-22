@@ -116,3 +116,7 @@ button.link-button:disabled,button.danger-button:disabled{opacity:.55;cursor:not
 .data-table tbody tr:hover{background:color-mix(in srgb,var(--sp-fg) 4%,transparent)}
 .data-table .num{text-align:right;font-variant-numeric:tabular-nums}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* TR-20: one button standard. Every main button (primary, secondary, the older portal-button set, danger) is 44px
+   tall with the same side padding, in both themes and on every device; compact and icon buttons keep their size.
+   Colours were already identical, so portal-button now matches the standard set exactly. */
+html body :is(.primary-button,.secondary-button,.portal-button,.danger-button):not(.compact):not(.icon-button){min-height:44px;padding-inline:16px}

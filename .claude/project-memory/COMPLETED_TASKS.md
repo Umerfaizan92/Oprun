@@ -638,3 +638,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: scripts/build-design-catalogue.mjs; saas/design-system.html; saas/design-system.js; saas/ds/retheme.css; saas/workspace.html; saas/join-team.html; scripts/design-catalogue.test.mjs
 - Acceptance: Catalogue renders all sections in both themes on phone and laptop with no errors; contrast pairs pass AA; screenshot diff shows no page regressions; npm test and test:ui pass
 - Evidence: saas/design-system.html generated from workspace (49 stylesheets, icon sprite) with colours, gold scale, live AA contrast table (all 10 pairs pass in dark and light), type, buttons, forms, status, cards, tabs, table, dialog/toast; noindex; CSP-clean (external design-system.js). New shared styles in retheme.css: link-button and danger-button (fixes unstyled AI-video 'Clear' and 'Schedule deletion' buttons), badge, data-table/table-scroll. app.css now versioned (cache). Audit corrected: 49 stylesheets, not 44. 105-shot screenshot diff: no change above 0.06%. Tests: design-catalogue 2/2, breakpoints, npm test 73/73, test:ui 38 (recorded 2026-11-22 on claude/transformation-staging at 71d2535)
+
+## T-206 TR-20 one button standard (44px, 16px side padding) across primary, secondary, portal and danger buttons
+- Added: 2026-11-22
+- Requirement: Owner: pick the best professional combination and continue. Unify the two button sets so every main button has the same height and padding in dark and light themes.
+- Files: saas/ds/retheme.css, saas/ds/retheme.css.br/.gz, saas/*.html version strings, saas/design-system.html
+- Acceptance: Buttons measure 44px with 16px padding in both themes; screenshot diff shows only button-size changes; npm test, test:ui, release validation and secret scan pass
+- Evidence: Buttons measured 44px/16px padding in dark and light; screenshot diff 105 signed-in shots: 6 pages over 0.5%, all taller buttons shifting content; npm test 73/73, test:ui 38/38, release validation and secret scan pass. T-204/T-205 light-theme evidence corrected in 04_PROGRESS.md (recorded 2026-11-22 on claude/transformation-staging at 5d0adb3)

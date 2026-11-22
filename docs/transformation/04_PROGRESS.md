@@ -16,10 +16,16 @@ Updated: 23 Nov 2026
 - [x] Palette samples sent (gold vs purple/cyan on home, Command Centre, Media Studio, sign-in; laptop and phone)
 
 - [x] TR-10/TR-12 (T-204): gold scale `--sp-gold-100…800`; 533 hard-coded golds replaced; screenshot diff on 105
-  page shots shows no change above 0.1%
+  page shots shows no change above 0.1%. Correction (22 Nov): the light-theme workspace shots in that run were
+  signed-out screens (the server's per-account request limit returned HTTP 429 after ~39 fast page loads), so the
+  light-theme part was not verified then. Re-checked under T-206 with signed-in light pages: no gold change found.
 
 - [x] TR-11 (T-205): design-system catalogue `saas/design-system.html` (test site: /saas/design-system.html); shared
   styles for link/danger buttons, badge and table; two unstyled live buttons fixed
+
+- [x] TR-20 (T-206): one button standard: primary, secondary, portal and danger buttons are 44px high with 16px side
+  padding in dark and light (before: 44/40/42px). Screenshot diff, 105 shots (signed in, dark 1440/390, light
+  1440): 6 pages above 0.5%, all from taller buttons moving content down a few pixels
 
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
@@ -44,5 +50,4 @@ Updated: 23 Nov 2026
 
 ## Exact next action
 TR-13 brand assets (check logo/icons on every page, manifest, emails and both apps; keep the superpro-* copies per
-D-022), then TR-14 public website v2, then TR-15 sign-in pages, then TR-20 merge portal-button into the standard
-buttons.
+D-022), then TR-14 public website v2, then TR-15 sign-in pages.
