@@ -224,6 +224,15 @@
       if (r.ok) { setStatus(news, 'Subscribed. Thank you.', 'good'); news.reset(); } else setStatus(news, r.data.error || 'That did not work. Please try again.', 'bad');
     });
 
+    // TR-14: plan prices follow the server, so a price the operator changes shows here without rebuilding the site.
+    if ($('[data-plan-price]')) fetch('/api/saas/plans', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).then((d) => {
+      for (const p of d?.plans || []) {
+        const cents = Number(p.monthly_fee_cents); if (!Number.isFinite(cents) || cents <= 0 || p.currency !== 'AUD') continue;
+        const text = 'A$' + (cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100));
+        document.querySelectorAll(`[data-plan="${CSS.escape(p.id)}"] [data-plan-price]`).forEach((el) => { if (el.textContent !== text) el.textContent = text; });
+      }
+    }).catch(() => {});
+
     const contact = $('[data-contact]');
     if (contact) {
       const topic = new URLSearchParams(location.search).get('topic');

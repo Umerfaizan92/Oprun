@@ -652,3 +652,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/*.html, scripts/build-design-catalogue.mjs, src/visibility.js, src/seo-cluster.js, src/server.js, scripts/brand-assets.test.mjs
 - Acceptance: Every page's icon links load (200); workspace links the manifest; sign-in has no Install and keeps #signin-operator-link; tests pass
 - Evidence: Browser check on local server: icon, apple-touch and manifest links return 200 on all 25 pages; workspace signed in with manifest; sign-in shows no Install and #signin-operator-link visible; brand-assets test 2/2; npm test 73/73; test:ui 38; release validation and secret scan pass (recorded 2026-11-22 on claude/transformation-staging at 207aa4b)
+
+## T-208 TR-14 public website v2: Integrations and Security pages, live server prices, a11y/perf report fixed
+- Added: 2026-11-22
+- Requirement: Backlog TR-14: new Integrations and Security pages, pricing from server, Lighthouse-level a11y/perf on mobile, every claim matches a built feature. Existing site already redesigned (Phase 03), so no rewrite.
+- Files: scripts/site/content.mjs, scripts/site/templates.mjs, saas/site/*, saas/ds/site.css, saas/ds/site.js, src/public-site.js, scripts/report-a11y-perf.mjs, scripts/public-site-v2.test.mjs
+- Acceptance: Pages render on phone and laptop; claims each traced to code; prices follow /api/saas/plans; axe 0 serious on all public pages; Web Vitals budgets met; tests pass
+- Evidence: Screenshots of /integrations and /security at 1440 and 390; price sync verified in browser (mocked A$59/A$99.50 shown, real server A$49/99/149); routes 200 and in sitemap; public-site-v2 test 3/3; npm test 73/73; test:ui 38; a11y/perf report: 0 serious issues on public pages, 0 over budget; release validation and secret scan pass (recorded 2026-11-22 on claude/transformation-staging at d3d99f8)

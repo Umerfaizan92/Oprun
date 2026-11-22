@@ -20,7 +20,7 @@ const BUDGET = { lcp: 2500, cls: 0.1, tbt: 200 };
 const PAGES = [
   ['home', '/', 'site'], ['features', '/features', 'site'], ['feature-money', '/features/money', 'site'], ['industries', '/for', 'site'],
   ['industry-clinics', '/for/clinics', 'site'], ['pricing', '/pricing', 'site'], ['receptionist', '/receptionist', 'site'],
-  ['stories', '/stories', 'site'], ['help', '/help', 'site'], ['contact', '/contact', 'site'],
+  ['stories', '/stories', 'site'], ['help', '/help', 'site'], ['contact', '/contact', 'site'], ['integrations', '/integrations', 'site'], ['security', '/security', 'site'],
   ['legacy-landing', '/saas/index.html', 'existing'], ['sign-in', '/saas/sign-in.html', 'existing'], ['create-account', '/saas/create-account.html', 'existing'],
   ['workspace', '/saas/workspace.html', 'app', 'owner'], ['workspace-money', '/saas/workspace.html#money', 'app', 'owner'],
   ['founder-console', '/office/', 'app', 'founder']
@@ -28,7 +28,7 @@ const PAGES = [
 
 fs.mkdirSync(OUT, { recursive: true });
 const server = await startServer();
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.UI_CHROMIUM_PATH ? { executablePath: process.env.UI_CHROMIUM_PATH } : {});
 const owner = await seedOwner(server);
 
 async function openPage([, url, , auth], { width, height, theme = 'dark', bypassCSP = true }) {

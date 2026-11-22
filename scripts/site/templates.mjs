@@ -1,14 +1,19 @@
 // HTML templates for the public website. Pure functions that return strings; no runtime framework.
-import { SITE, NAV, PLANS, DOMAINS, INDUSTRIES, SCENARIOS, FAQ, HELP, RECEPTIONIST_CALL } from './content.mjs';
+import { SITE, NAV, PLANS, DOMAINS, INDUSTRIES, SCENARIOS, FAQ, HELP, RECEPTIONIST_CALL, INTEGRATIONS, SECURITY } from './content.mjs';
+import fs from 'node:fs';
 
 const BASE = '__PUBLIC_BASE_URL__';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const icon = (id, cls = 'sp-icon') => `<svg class="${cls}" aria-hidden="true"><use href="/saas/ds/icons.svg#${id}"/></svg>`;
-const V = '20261123.gold';
+const V = '20261123.tr14';
 const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`;
 const ORG = { '@type': 'Organization', '@id': `${BASE}/#organization`, name: SITE.name, url: `${BASE}/`, logo: `${BASE}/saas/oprun-icon-512.png` };
 const faqLd = (items) => ({ '@type': 'FAQPage', mainEntity: items.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const crumbs = (trail) => ({ '@type': 'BreadcrumbList', itemListElement: trail.map(([name, path], i) => ({ '@type': 'ListItem', position: i + 1, name, item: `${BASE}${path}` })) });
+// Service logos come from the same CC0 simple-icons set the workspace uses (saas/brand-icons.js), only to identify the
+// service being connected.
+const BRAND = (() => { try { const src = fs.readFileSync(new URL('../../saas/brand-icons.js', import.meta.url), 'utf8'); return JSON.parse(src.slice(src.indexOf('{'), src.lastIndexOf('}') + 1)).icons; } catch { return {}; } })();
+const brandMark = (name) => { const b = BRAND[name]; return b ? `<svg class="sp-int__logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="${esc(b.hex)}" d="${esc(b.path)}"/></svg>` : ''; };
 const offers = () => PLANS.map((p) => ({ '@type': 'Offer', name: p.name, price: String(p.price), priceCurrency: 'AUD', description: 'Monthly plan price, plus GST.' }));
 
 export function page({ path, title, description, body, graph = [], scripts = [], current = path, bodyClass = '' }) {
@@ -77,10 +82,10 @@ function footer() {
   <div class="sp-page">
     <div class="sp-footer__grid">
       <div><a class="sp-brand" href="/"><img src="/saas/oprun-icon-192.png" alt="" width="34" height="34" loading="lazy">${esc(SITE.name)}</a><p style="margin-top:var(--sp-3);max-width:32ch"><strong>${esc(SITE.tagline)}</strong> The AI office manager for Australian service businesses. Prices in AUD, plus GST.</p></div>
-      ${col('Product', [['Features', '/features'], ['AI receptionist', '/receptionist'], ['Pricing', '/pricing'], ['Install Oprun', '/install'], ['Example scenarios', '/stories']])}
+      ${col('Product', [['Features', '/features'], ['AI receptionist', '/receptionist'], ['Pricing', '/pricing'], ['Integrations', '/integrations'], ['Install Oprun', '/install'], ['Example scenarios', '/stories']])}
       ${col('Industries', INDUSTRIES.map((i) => [i.name, `/for/${i.slug}`]))}
       ${col('Help', [['Help centre', '/help'], ['Product answers', '/saas/answers.html'], ['Contact us', '/contact'], ['Sign in', '/saas/sign-in.html']])}
-      ${col('Trust', [['Trust centre', '/saas/trust-center.html'], ['Privacy', '/saas/privacy.html'], ['Account deletion', '/account-deletion'], ['Terms', '/saas/terms.html'], ['Complaints', '/saas/complaints.html'], ['Subprocessors', '/saas/subprocessors.html']])}
+      ${col('Trust', [['Security', '/security'], ['Trust centre', '/saas/trust-center.html'], ['Privacy', '/saas/privacy.html'], ['Account deletion', '/account-deletion'], ['Terms', '/saas/terms.html'], ['Complaints', '/saas/complaints.html'], ['Subprocessors', '/saas/subprocessors.html']])}
     </div>
     <hr class="sp-rule" style="margin-block:var(--sp-6) var(--sp-4)">
     <p>© <span data-year>2026</span> Oprun. ${esc(SITE.tagline)}</p>
@@ -436,6 +441,32 @@ function callPlayer() {
   </div>`;
 }
 
+export function integrations() {
+  const body = `
+<section class="sp-section sp-pagehead"><div class="sp-page"><h1 class="sp-h1">Integrations</h1><p class="sp-lede" style="margin-top:var(--sp-4)">Connect the accounts your business already uses. Each business connects its own accounts, and anything that posts, sends or pays waits for your approval.</p></div></section>
+${INTEGRATIONS.map((g) => `<section class="sp-section sp-section--tight" aria-labelledby="int-${g.icon}"><div class="sp-page">
+  <h2 class="sp-h2 sp-int__group" id="int-${g.icon}">${icon(g.icon, 'sp-icon')}${esc(g.name)}</h2>
+  <ul class="sp-int" data-reveal-group>${g.items.map(([name, text, logos]) => `<li class="sp-card sp-int__item" data-reveal><div class="sp-int__head">${logos.map(brandMark).join('') || `<span class="sp-int__tile">${icon(g.icon, 'sp-icon')}</span>`}<h3 class="sp-h3">${esc(name)}</h3></div><p class="sp-muted">${esc(text)}</p></li>`).join('')}</ul>
+</div></section>`).join('')}
+<section class="sp-section sp-section--tight"><div class="sp-page"><p class="sp-small sp-muted">Service names and logos belong to their owners and are shown only to identify the service you connect. Each connection needs that service's own account and permissions.</p></div></section>
+${cta('Connect your own accounts', `Try every integration free for ${SITE.trialDays} days.`)}`;
+  return page({ path: '/integrations', title: 'Integrations', description: 'Connect Facebook, Instagram, WhatsApp, Gmail, Google Business Profile, TikTok, YouTube, Stripe, PayPal, Zoom and more to Oprun. Everything that leaves your business waits for your approval.', body, graph: [crumbs([['Home', '/'], ['Integrations', '/integrations']])] });
+}
+
+export function security() {
+  const body = `
+<section class="sp-section sp-pagehead"><div class="sp-page"><h1 class="sp-h1">Security</h1><p class="sp-lede" style="margin-top:var(--sp-4)">How Oprun keeps your business, your customers and your staff safe. The full detail is in the <a href="/saas/trust-center.html">Trust centre</a>.</p></div></section>
+<section class="sp-section sp-section--tight"><div class="sp-page sp-cols" data-reveal-group>
+  ${SECURITY.map(([ic, t, x]) => `<article class="sp-card" data-reveal>${icon(ic, 'sp-icon sp-icon--lg')}<h2 class="sp-h3" style="margin-top:var(--sp-3)">${esc(t)}</h2><p class="sp-muted" style="margin-top:var(--sp-2)">${esc(x)}</p></article>`).join('')}
+</div></section>
+<section class="sp-section sp-section--tight"><div class="sp-page sp-glass sp-launch">
+  <div><h2 class="sp-h3">Read more or raise a concern</h2><p class="sp-muted">The Trust centre, privacy policy and list of subprocessors explain how data is handled. Security concerns can be reported confidentially.</p></div>
+  <div class="sp-actions"><a class="sp-btn sp-btn--primary" href="/saas/trust-center.html">Trust centre</a><a class="sp-btn sp-btn--ghost" href="/saas/subprocessors.html">Subprocessors</a><a class="sp-btn sp-btn--ghost" href="/saas/complaints.html">Report a concern</a></div>
+</div></section>
+${cta()}`;
+  return page({ path: '/security', title: 'Security', description: 'How Oprun protects your business: approvals before anything leaves, separate business data, staff permissions, protected sign-in, encrypted keys, an action log and data export.', body, graph: [crumbs([['Home', '/'], ['Security', '/security']])] });
+}
+
 export function stories() {
   const body = `
 <section class="sp-section sp-pagehead"><div class="sp-page"><h1 class="sp-h1">Stories</h1><p class="sp-lede" style="margin-top:var(--sp-4)">How businesses use Oprun. Customer stories are published only with the customer's written agreement.</p></div></section>
@@ -537,5 +568,5 @@ export function accountDeletion() {
 export const PAGES = () => [
   ['home.html', home()], ['features.html', features()], ...DOMAINS.map((d) => [`features-${d.slug}.html`, domainPage(d)]),
   ['industries.html', industriesIndex()], ...INDUSTRIES.map((i) => [`for-${i.slug}.html`, industryPage(i)]),
-  ['pricing.html', pricing()], ['receptionist.html', receptionist()], ['stories.html', stories()], ['help.html', help()], ['contact.html', contact()], ['install.html', install()], ['account-deletion.html', accountDeletion()]
+  ['pricing.html', pricing()], ['receptionist.html', receptionist()], ['integrations.html', integrations()], ['security.html', security()], ['stories.html', stories()], ['help.html', help()], ['contact.html', contact()], ['install.html', install()], ['account-deletion.html', accountDeletion()]
 ];

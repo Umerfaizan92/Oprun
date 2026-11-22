@@ -162,6 +162,38 @@
       "violations": []
     },
     {
+      "page": "integrations",
+      "url": "/integrations",
+      "group": "site",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "integrations",
+      "url": "/integrations",
+      "group": "site",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "security",
+      "url": "/security",
+      "group": "site",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "security",
+      "url": "/security",
+      "group": "site",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
       "page": "legacy-landing",
       "url": "/saas/index.html",
       "group": "existing",
@@ -246,7 +278,17 @@
       "group": "existing",
       "width": 1440,
       "theme": "light",
-      "violations": []
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "count": 1,
+          "targets": [
+            ".auth-wordmark > span"
+          ]
+        }
+      ]
     },
     {
       "page": "create-account",
@@ -285,8 +327,8 @@
           "help": "Elements must have their visible text as part of their accessible name",
           "count": 8,
           "targets": [
-            ".search-button",
-            ".gx-gold.gx-tile[data-jump=\"comms\"]",
+            ".navigation-mobile-trigger",
+            "button[data-jump=\"comms\"]",
             ".gx-good.gx-tile[data-jump=\"approvals\"]",
             ".gx-gold.gx-tile[data-jump=\"jobs\"]"
           ]
@@ -304,9 +346,9 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 6,
+          "count": 5,
           "targets": [
-            ".gx-gold.gx-tile[data-jump=\"comms\"]",
+            "button[data-jump=\"comms\"]",
             ".gx-good.gx-tile[data-jump=\"approvals\"]",
             ".gx-gold.gx-tile[data-jump=\"jobs\"]",
             ".gx-good.gx-tile[data-jump=\"workforce\"]"
@@ -327,8 +369,8 @@
           "help": "Elements must have their visible text as part of their accessible name",
           "count": 8,
           "targets": [
-            ".search-button",
-            ".gx-gold.gx-tile[data-jump=\"comms\"]",
+            ".navigation-mobile-trigger",
+            "button[data-jump=\"comms\"]",
             ".gx-good.gx-tile[data-jump=\"approvals\"]",
             ".gx-gold.gx-tile[data-jump=\"jobs\"]"
           ]
@@ -346,9 +388,10 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 2,
+          "count": 3,
           "targets": [
-            ".search-button",
+            ".navigation-mobile-trigger",
+            ".sc-launch",
             ".copilot-launch"
           ]
         }
@@ -360,17 +403,7 @@
       "group": "app",
       "width": 390,
       "theme": "dark",
-      "violations": [
-        {
-          "id": "label-content-name-mismatch",
-          "impact": "serious",
-          "help": "Elements must have their visible text as part of their accessible name",
-          "count": 1,
-          "targets": [
-            ".copilot-launch"
-          ]
-        }
-      ]
+      "violations": []
     },
     {
       "page": "workspace-money",
@@ -383,9 +416,10 @@
           "id": "label-content-name-mismatch",
           "impact": "serious",
           "help": "Elements must have their visible text as part of their accessible name",
-          "count": 2,
+          "count": 3,
           "targets": [
-            ".search-button",
+            ".navigation-mobile-trigger",
+            ".sc-launch",
             ".copilot-launch"
           ]
         }

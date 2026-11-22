@@ -32,6 +32,12 @@ Updated: 23 Nov 2026
   phone home-screen icons; the workspace links the install manifest; outbound website checks now say "Oprun"
   instead of "SuperPro". Browser check: icon links load on all 25 pages; new test scripts/brand-assets.test.mjs
 
+- [x] TR-14 (T-208): public website v2. The Phase 03 site was already rebuilt (no rewrite). Added /integrations
+  (14 connections, each traced to code) and /security (7 built controls, links to the Trust centre); plan prices now
+  follow /api/saas/plans; footer links; a11y/perf report now runs with the installed Chrome. Report: 0 serious
+  accessibility issues on all 12 public pages, all within mobile Web Vitals budgets (lab, not Lighthouse scores).
+  Known, outside TR-14: workspace label-content-name-mismatch (serious, 1–8 per page) for TR-20+ work
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -54,4 +60,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-14 public website v2, then TR-15 sign-in pages.
+TR-15 sign-in, create account, verify and recover pages in the new system (keep #signin-operator-link; no Install
+option on sign-in), then the workspace label-content-name-mismatch accessibility issues.

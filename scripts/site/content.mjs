@@ -181,3 +181,41 @@ export const RECEPTIONIST_CALL = [
   ['ai', 'I\'ve requested 8am tomorrow. The team will confirm by text shortly. Is there anything else?'],
   ['note', 'Enquiry created, booking request waiting for the owner\'s approval, summary sent to the owner by text.']
 ];
+
+// TR-14: every integration below is built (src/channel-providers.js, src/payments.js, src/meeting-extras.js). Each business
+// connects its own account; nothing is shared between businesses.
+export const INTEGRATIONS = [
+  { name: 'Social and reviews', icon: 'megaphone', items: [
+    ['Facebook and Instagram', 'Posts, comments and follower totals sync. Posts and comment replies wait for your approval.', ['Facebook', 'Instagram']],
+    ['TikTok', 'Videos you approve are uploaded to your account.', ['TikTok']],
+    ['YouTube', 'Channel totals and comments sync. Replies wait for your approval.', ['YouTube']],
+    ['X', 'Posts and replies you approve, from your own account.', ['X']],
+    ['Snapchat', 'Connect your account alongside your other channels.', ['Snapchat']],
+    ['Google Business Profile', 'Reviews, posts and performance for your business locations. Review replies wait for your approval.', ['Google']]
+  ] },
+  { name: 'Messages and email', icon: 'message', items: [
+    ['WhatsApp Business', 'Messages arrive in the shared inbox with delivery receipts.', ['WhatsApp']],
+    ['Gmail', 'Email threads arrive in the inbox; replies are drafted for you to send.', ['Gmail']],
+    ['Email and SMS', 'Send from your business name, with consent checked before marketing messages go out.', []]
+  ] },
+  { name: 'Website and search', icon: 'globe', items: [
+    ['Your website', 'Web enquiries become customer records and replies wait for your approval.', []],
+    ['Google Search and Analytics', 'Search Console and Google Analytics 4 figures for your own site, read-only.', ['Google Search Console']]
+  ] },
+  { name: 'Payments and meetings', icon: 'wallet', items: [
+    ['Stripe', 'Card and wallet payments go straight to your own Stripe account.', []],
+    ['PayPal', 'Customers can pay invoices with PayPal into your account.', []],
+    ['Zoom', 'Create and list meetings in your own Zoom account.', ['Zoom']]
+  ] }
+];
+
+// TR-14: each point restates a control that is built and already described in the help centre or Trust centre.
+export const SECURITY = [
+  ['gate', 'You approve what leaves', 'Anything that sends, pays, publishes or deletes waits until a person you authorise approves it.'],
+  ['shield', 'Each business is kept apart', 'The server works out which business you belong to from your sign-in. A request can never reach another business by naming it.'],
+  ['users', 'Permissions per person', 'Owners decide what each staff member can see and do. Workers see only the jobs assigned to them, without prices or the customer list.'],
+  ['check', 'Protected sign-in', 'Passwords are never stored in readable form and two-step sign-in is available.'],
+  ['wallet', 'Your keys stay locked away', 'Payment and app keys you connect are stored encrypted and never shown again after you save them.'],
+  ['book', 'A record of important actions', 'Important actions are recorded in a tamper-evident log, and support can only see limited summaries if you approve a time-limited request.'],
+  ['briefcase', 'Your data stays yours', 'Owners can export business data at any time. Records are kept until you complete the verified deletion process.']
+];
