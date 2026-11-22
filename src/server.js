@@ -69,6 +69,7 @@ import { installAppointments } from './appointments.js';
 import { installAiVideo } from './ai-video.js';
 import { installStudioProjects } from './studio-projects.js';
 import { installStudioEditor } from './studio-editor.js';
+import { installReelMaker } from './reel-maker.js';
 import { installStudioLibrary } from './studio-library.js';
 import { installStudioCaptions } from './studio-captions.js';
 import { createEntitlements } from './entitlements.js';
@@ -6341,6 +6342,7 @@ installStudioLibrary(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saas
 installStudioCaptions(app,{db,env,uploadRoot,requireSaasUser,requireSaasRole,saasAudit,generateAiText,transcribe:async(file,language)=>{if(!freeAiModeEnabled()&&openAiSpeechConfig())return transcribeWithOpenAi(file,language);if(geminiApiKey())return transcribeWithGemini(file,language);throw Object.assign(new Error('Speech unavailable'),{upstreamStatus:503})}});
 const studioEditQueue=createJobQueue({db,workerId:'studio-'+process.pid});
 installStudioEditor(app,{db,env,uploadRoot,queue:studioEditQueue,requireSaasUser,requireSaasRole,saasAudit});
+installReelMaker(app,{db,env,uploadRoot,queue:studioEditQueue,requireSaasUser,requireSaasRole,saasAudit});
 if(!/^(1|true|yes)$/i.test(String(env.JOBS_DISABLED||'')))studioEditQueue.start();
 app.get('/api/saas/receptionist/telnyx',requireSaasUser,requireSaasRole('owner','admin'),(req,res)=>receptionistSend(res,()=>receptionistTelnyx.publicStatus(req.saas.organisation_id)));
 app.post('/api/saas/receptionist/telnyx/connect',...receptionistOwner,(req,res)=>{

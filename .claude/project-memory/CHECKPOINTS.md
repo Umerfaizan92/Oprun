@@ -2341,3 +2341,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/t194-studio-completion/20261121T171047Z (5ceba77)
 - Known errors: none
 - Next exact action: Publish last tested submission batch and finish CI before authorized live-test rollout
+
+## CP-168 2026-11-22T16:55:19+00:00 T-197 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-197 (IN_PROGRESS)
+- Completed steps: src/reel-maker.js backend + bundled OFL fonts + tests (2 pass, 13s 720p reel in ~16s CPU)
+- Incomplete steps: UI panel in Media Studio, publish prefill, full test suites, release
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; src/server.js; scripts/reel-maker.test.mjs; src/assets/fonts/Anton-Regular.ttf; src/assets/fonts/OFL-Anton.txt; src/assets/fonts/OFL-Poppins.txt; src/assets/fonts/Poppins-ExtraBold.ttf; src/assets/fonts/Poppins-SemiBold.ttf; src/reel-maker.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/t197-reel-maker
+- Commit: 8573c88 (Unify Media Studio projects, editing, private assets and campaign drafts)
+- Recovery snapshot: refs/recovery/claude/t197-reel-maker/20261122T165519Z (ff94d6f)
+- Known errors: none
+- Next exact action: Write saas/workspace-reel-maker.js and add script tag to workspace page
+
+## CP-169 2026-11-22T17:10:50+00:00 T-197 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-197 (COMPLETED)
+- Completed steps: Reel Maker backend, UI, tests; all suites green
+- Incomplete steps: Push, PR, merge, verify Render deploy, live check
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; package.json; saas/workspace-studio-publish.js; saas/workspace.html; src/server.js; saas/workspace-reel-maker.css; saas/workspace-reel-maker.js; scripts/reel-maker.test.mjs; scripts/test-reel-maker-ui.mjs; src/assets/fonts/Anton-Regular.ttf; src/assets/fonts/OFL-Anton.txt; src/assets/fonts/OFL-Poppins.txt; src/assets/fonts/Poppins-ExtraBold.ttf; src/assets/fonts/Poppins-SemiBold.ttf; src/reel-maker.js
+- Tests executed: npm test; test:ui; reel-maker tests; studio UI tests; security:secrets
+- Test results: all passed
+- Git branch: claude/t197-reel-maker
+- Commit: 8573c88 (Unify Media Studio projects, editing, private assets and campaign drafts)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Push branch claude/t197-reel-maker and merge
