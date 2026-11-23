@@ -56,16 +56,16 @@ Budgets: LCP ≤ 2500 ms, CLS ≤ 0.1, total blocking time ≤ 200 ms.
 | Page | Mode | LCP ms | CLS | TBT ms | FCP ms | Transfer KB | JS KB | Requests | 3D loaded |
 |---|---|---|---|---|---|---|---|---|---|
 | home | mobile-throttled | 812 | 0 | 0 | 812 | 122 | 25 | 18 | no |
-| features | mobile-throttled | 744 | 0 | 0 | 744 | 97 | 8 | 13 | no |
-| feature-money | mobile-throttled | 752 | 0 | 0 | 752 | 97 | 8 | 13 | no |
-| industries | mobile-throttled | 740 | 0 | 0 | 740 | 96 | 8 | 13 | no |
-| industry-clinics | mobile-throttled | 748 | 0 | 0 | 748 | 97 | 8 | 13 | no |
-| pricing | mobile-throttled | 760 | 0 | 0 | 760 | 98 | 8 | 14 | no |
-| receptionist | mobile-throttled | 760 | 0.002 | 0 | 760 | 99 | 8 | 14 | no |
-| stories | mobile-throttled | 720 | 0 | 0 | 720 | 97 | 8 | 14 | no |
-| help | mobile-throttled | 764 | 0 | 0 | 764 | 98 | 8 | 13 | no |
-| contact | mobile-throttled | 732 | 0 | 0 | 732 | 97 | 8 | 13 | no |
-| integrations | mobile-throttled | 736 | 0 | 0 | 736 | 101 | 8 | 13 | no |
-| security | mobile-throttled | 792 | 0 | 0 | 792 | 97 | 8 | 13 | no |
-| legacy-landing | mobile-throttled | 1692 | 0 | 484 | 1416 | 160 | 57 | 34 | no |
-| home (desktop, 3D on) | desktop-unthrottled | 180 | 0 | 0 | 180 | 122 | 25 | 18 | no |
+| features | mobile-throttled | 764 | 0 | 0 | 764 | 97 | 8 | 13 | no |
+| feature-money | mobile-throttled | 728 | 0 | 0 | 728 | 97 | 8 | 13 | no |
+| industries | mobile-throttled | 732 | 0 | 0 | 732 | 96 | 8 | 13 | no |
+| industry-clinics | mobile-throttled | 776 | 0 | 0 | 776 | 97 | 8 | 13 | no |
+| pricing | mobile-throttled | 796 | 0 | 0 | 796 | 98 | 8 | 14 | no |
+| receptionist | mobile-throttled | 764 | 0 | 0 | 764 | 99 | 8 | 14 | no |
+| stories | mobile-throttled | 760 | 0 | 0 | 760 | 97 | 8 | 14 | no |
+| help | mobile-throttled | 756 | 0 | 0 | 756 | 98 | 8 | 13 | no |
+| contact | mobile-throttled | 760 | 0 | 0 | 760 | 97 | 8 | 13 | no |
+| integrations | mobile-throttled | 764 | 0 | 0 | 764 | 101 | 8 | 13 | no |
+| security | mobile-throttled | 760 | 0 | 0 | 760 | 97 | 8 | 13 | no |
+| legacy-landing | mobile-throttled | 1360 | 0 | 312 | 1360 | 160 | 57 | 34 | no |
+| home (desktop, 3D on) | desktop-unthrottled | 160 | 0 | 0 | 160 | 122 | 25 | 18 | no |

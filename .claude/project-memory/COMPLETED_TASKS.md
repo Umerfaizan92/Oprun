@@ -659,3 +659,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: scripts/site/content.mjs, scripts/site/templates.mjs, saas/site/*, saas/ds/site.css, saas/ds/site.js, src/public-site.js, scripts/report-a11y-perf.mjs, scripts/public-site-v2.test.mjs
 - Acceptance: Pages render on phone and laptop; claims each traced to code; prices follow /api/saas/plans; axe 0 serious on all public pages; Web Vitals budgets met; tests pass
 - Evidence: Screenshots of /integrations and /security at 1440 and 390; price sync verified in browser (mocked A$59/A$99.50 shown, real server A$49/99/149); routes 200 and in sitemap; public-site-v2 test 3/3; npm test 73/73; test:ui 38; a11y/perf report: 0 serious issues on public pages, 0 over budget; release validation and secret scan pass (recorded 2026-11-22 on claude/transformation-staging at d3d99f8)
+
+## T-209 TR-15 sign-in pages polish: aligned fields, fixed registration intro, footer clear of help button, plain-language labels
+- Added: 2026-11-23
+- Requirement: Backlog TR-15: sign-in, create account, verify, recover pages in the new system; keep #signin-operator-link; no Install option on sign-in
+- Files: saas/ds/retheme.css(+.br/.gz), saas/create-account.html, saas/sign-in.html, retheme version refs, saas/design-system.html
+- Acceptance: No horizontal overflow at 320/390/768; side-by-side fields aligned; intro stays while form scrolls on laptop; footer links not covered; sign-in fits one phone screen; operator link visible; tests pass
+- Evidence: Browser checks: scrollWidth equals viewport at 320/390/768 on 5 auth pages; intro rectTop 0 when scrolled 1300px at 1440; footer links covered by help button: 0; screenshots before/after; npm test 73/73; test:ui 38 (sign-in fits 390x900, operator link visible, no install link); a11y report: sign-in/create-account dark 0 issues (recorded 2026-11-23 on claude/transformation-staging at 27e1316)

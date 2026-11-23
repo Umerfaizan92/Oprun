@@ -38,6 +38,14 @@ Updated: 23 Nov 2026
   accessibility issues on all 12 public pages, all within mobile Web Vitals budgets (lab, not Lighthouse scores).
   Known, outside TR-14: workspace label-content-name-mismatch (serious, 1–8 per page) for TR-20+ work
 
+- [x] TR-15 (T-209): sign-in pages were already on the new system; fixed what the live check found. Side-by-side
+  fields on create account now line up; the registration introduction stays in view while the long form scrolls
+  (body overflow-x hidden was blocking it; now clip); footer links no longer sit under the Help & complaints button on
+  phones (create account, verify, recover); jargon labels reworded (Email OTP → Email code, Tenant isolation → Your data
+  kept separate, MFA → Two-step sign-in). Sign-in still fits one phone screen; #signin-operator-link visible; no
+  Install option. Note: the a11y report flags one contrast item on sign-in only when it forces light theme, which the
+  sign-in pages do not offer (dark-only); already present before this change
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -60,5 +68,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-15 sign-in, create account, verify and recover pages in the new system (keep #signin-operator-link; no Install
-option on sign-in), then the workspace label-content-name-mismatch accessibility issues.
+Workspace accessibility: fix label-content-name-mismatch (visible text not in the accessible name, 1–8 per page),
+then TR-21 onwards from 02_BACKLOG.md.

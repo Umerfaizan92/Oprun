@@ -120,3 +120,11 @@ button.link-button:disabled,button.danger-button:disabled{opacity:.55;cursor:not
    tall with the same side padding, in both themes and on every device; compact and icon buttons keep their size.
    Colours were already identical, so portal-button now matches the standard set exactly. */
 html body :is(.primary-button,.secondary-button,.portal-button,.danger-button):not(.compact):not(.icon-button){min-height:44px;padding-inline:16px}
+/* TR-15: sign-in pages. Fields in a row line up (labels no longer stretch the gap above the input); the registration
+   introduction fills the screen and stays in place while the long form scrolls; the footer links keep clear of the
+   floating Help & complaints button. */
+body.auth-page .registration-grid label{align-content:start}
+body.auth-page{overflow-x:clip;overflow-y:visible}
+@media (min-width:1024px){body.auth-page[data-auth-page="register"] .auth-story{min-height:100vh;height:100vh;position:sticky;top:0;overflow:auto}}
+body.auth-page .auth-trust-footer{padding-inline-end:max(20px,220px)}
+@media (max-width:700px){body.auth-page .auth-trust-footer{padding-inline-end:20px}body.auth-page:not([data-auth-page="login"]) .auth-trust-footer{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
