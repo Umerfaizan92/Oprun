@@ -2607,3 +2607,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-51: extend CORE_QUESTIONS through the questions(req) hook using the business country (src/country-profile.js) and industry; add catalogue text.
+
+## CP-187 2026-11-23T22:56:04+00:00 T-229 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-229 (COMPLETED)
+- Completed steps: TR-51 committed on claude/transformation-phase1 (not on staging).
+- Incomplete steps: TR-52: proposed workspace (modules, pipeline stages, templates) from the interview, shown for review; nothing activates before the owner approves; consent recorded.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: onboarding-questions.test, onboarding-interview.test, test:onboarding-ui, npm test, test:ui, mobile-workspace
+- Test results: 4/4, 2/2, 4/4, 73/73, 38, 316
+- Git branch: claude/transformation-phase1
+- Commit: 641d85c (TR-51: guided-setup questions per country and industry); 44 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-52: build a proposal from onboarding_sessions answers + industry registry (modules, services, pipeline stages, templates); owner approves; record consent; only then write onboarding_profiles/modules.
