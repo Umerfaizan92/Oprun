@@ -701,3 +701,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/server.js, saas/auth.js, auth.js version refs, scripts/preview-signup.test.mjs
 - Acceptance: Registration checks SMS codes the same way they were sent (Telnyx Verify only with API key + profile and not test mode); test mode wording honest; regression test with profile set and two resends passes
 - Evidence: preview-signup test 4/4 incl. profile set + 2 resends then verify 201; npm test 73/73; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 00bdca8)
+
+## T-215 TR-23 part 1: every workspace page titled with its own name (no slogans)
+- Added: 2026-11-23
+- Requirement: Backlog TR-23: restyle modules consistently. Audit (contact sheets, widths, headings of 31 main pages) found consistent width and components; the inconsistency was 17 pages headed by a kicker + marketing slogan instead of the page name
+- Files: saas/workspace.html, saas/app.js, saas/workspace-finance.js, version refs
+- Acceptance: Every page h1 equals its top-bar title; kicker kept only where it states access (Owner only, Owner & admin only) and on the Command Centre; npm test, test:ui, redesign, mobile, navigation (role checks) pass
+- Evidence: Browser: h1 equals top-bar title on 19 checked pages incl. merged ones; screenshot of Customer Directory; npm test 73/73; test:ui 38; test:redesign-ui pass; test:mobile-workspace-ui 316 checks; test:navigation-ui 614 checks incl. restricted roles; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 7fdb964)

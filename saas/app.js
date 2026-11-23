@@ -265,7 +265,7 @@ function applyIndustryWorkspaceLanguage(row){
   else if(/retail_ecommerce|wholesale_trade/.test(code)){workforce='People & team';jobs='Orders & operations';workforceHero='Build an operationally ready team';jobsHero='Coordinate orders, tasks and customer operations'}
   else if(/construction_trades|repair_automotive|cleaning_facilities/.test(code)){workforce='Workforce & Compliance';jobs='Work Orders & Dispatch';workforceHero='Build a compliant, job-ready team';jobsHero='Create work, then allocate the right people'}
   setWorkspaceNavLabel('workforce',workforce);setWorkspaceNavLabel('jobs',jobs);setWorkspaceNavLabel('finance',finance);
-  const wh=$('#workforce-view .page-heading h1'),jh=$('#jobs-view .page-heading h1');if(wh)wh.textContent=workforceHero;if(jh)jh.textContent=jobsHero;
+  // TR-23: page headings stay the page's own name, as in the top bar (no industry slogans).
 }
 function selectIndustryProfile(code,{applySuggestions=false,announce=false}={}){
   const row=industryRegistryCache.find(x=>x.code===code)||industryRegistryCache.find(x=>x.code==='custom');if(!row)return;

@@ -73,6 +73,12 @@ Updated: 23 Nov 2026
   was 5 + 1). Action Centre "Start with the work that matters" shortcuts now appear only while there is work there
   (e.g. "2 conversations need a reply"); nothing permanent when queues are clear
 
+- [x] TR-23 part 1 (T-215): audit of all 31 main pages (contact sheets at 1440 and 390, measured widths, headings)
+  found the same width (1168px), cards, tabs and buttons everywhere. The one inconsistency: 17 pages opened with a
+  small-caps label and a slogan ("Profit on every job, without the spreadsheet", "Simple plans. Start with 14 days
+  free."). Every page now has its own name as the title, matching the top bar; access notes (Owner only, Owner &
+  admin only) kept. Remaining TR-23 work: per-module checks of forms and empty states with real data
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -95,4 +101,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-23 onwards from 02_BACKLOG.md (next workspace pages in the new system).
+TR-23 part 2: per-module review with sample data (forms, lists, empty and filled states) at 390 and 1440, then
+TR-24 modules by industry, plan and permission.
