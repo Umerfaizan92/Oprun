@@ -61,6 +61,13 @@ Updated: 23 Nov 2026
   vs Unified Inbox, Sales documents vs Invoices & Quotes, Campaign drafts vs Campaign Studio, Website & domain and
   Search readiness vs Website; Profit & Payments has its own Reports tab beside Reports & GST)
 
+- [x] T-212: test site fixed and test sign-up added. The owner had uploaded the production .env to oprun-test to make
+  ABN checks work; the safety check then refused to start. The check now names blocked settings (names only); the
+  22 production keys (AI, email, SMS, social tokens, disk requirement) were blanked on oprun-test only and its own
+  test settings restored. PREVIEW_ALLOW_SIGNUP=1: accounts can be created there with on-screen email/SMS codes; ABN
+  is checked against the official register when ABR_GUID is set. Live on oprun-test 23 Nov 02:50 UTC (6465914),
+  which also carries TR-21
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -78,10 +85,6 @@ Updated: 23 Nov 2026
   measurements in [01](01_PHASE1_AUDIT.md).
 
 ## Known failures / blockers
-- oprun-test will not start new versions since the owner's settings change (23 Nov 01:41/01:45 UTC): the
-  isolated-preview safety check found a storage/provider/API key, SMTP or backup setting. The site still serves
-  e62a7e4; TR-21 (9602846) is pushed but not live there. Needs the owner to remove that setting from oprun-test
-  or say where it was meant to go.
 - Reference screenshot not received (no longer blocking: gold kept).
 - Live oprun.ai screenshots not possible from this workspace (network); needs Claude in Chrome or domain access.
 - 4 production security warnings need Render settings from the owner.
