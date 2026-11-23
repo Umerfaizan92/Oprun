@@ -2509,3 +2509,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Plan TR-31 data model separate from subscriber tables; check existing platform_users and records:staff_task.
+
+## CP-180 2026-11-23T10:35:38+00:00 T-222 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-222 (COMPLETED)
+- Completed steps: TR-31 pushed to claude/transformation-phase1. Staging still held at df4711c.
+- Incomplete steps: Hold staging until the owner finishes testing. Next: TR-32 assignment and tracking.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: platform-team.test, npm test, test:ui, navigation-ui, axe
+- Test results: 3/3, 73/73, 38, 618, ok
+- Git branch: claude/transformation-phase1
+- Commit: ede2545 (TR-31: Oprun staff departments, teams, availability and workload); 29 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-32: owner assigns enquiries, tickets, tasks and projects to Oprun staff with deadlines, status and completion evidence; build on platform_records.assigned_to.
