@@ -76,3 +76,45 @@ a.ex-tile:focus-visible,.ex-link:focus-visible{outline:2px solid var(--sp-focus,
  .console-header .portal-toolbar #console-theme{flex:0 0 44px}
 }
 .portal-topbar #console-theme svg{width:18px!important;height:18px!important;flex:0 0 18px;min-width:18px}
+/* TR-31: Oprun team pages (People & workload, Departments & teams). */
+.tm-view{gap:14px}
+.tm-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.tm-bar h2{margin:0}
+.tm-bar small,.tm-person-head small,.tm-teams small{display:block;color:var(--sp-fg-muted,var(--muted));font-size:13px}
+.tm-sub{margin:4px 0 0;font-size:14px}
+.tm-note{margin:0;font-size:13px;color:var(--sp-fg-2,var(--text-2));overflow-wrap:anywhere}
+.tm-inline{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+.tm-field{display:grid;gap:4px;min-width:0;font-size:13px;color:var(--sp-fg-2,var(--text-2))}
+.tm-inline .tm-field{flex:1 1 160px}
+.tm-field input,.tm-field select,.tm-field textarea,.tm-bar select{min-height:40px;width:100%;box-sizing:border-box}
+.tm-bar select{width:auto;max-width:100%}
+.tm-form{display:grid;gap:12px}
+.tm-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tm-days,.tm-members{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0;padding:10px 12px;border:1px solid var(--sp-line,var(--line));border-radius:12px}
+.tm-days legend,.tm-members legend{padding:0 4px;font-size:13px}
+.tm-days label,.tm-members label,.tm-check{display:inline-flex;align-items:center;gap:6px;min-height:36px}
+.tm-error{margin:0;color:var(--sp-bad,#e5484d);font-size:13px}
+.tm-error:empty{display:none}
+.tm-people,.tm-teams,.tm-offlist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tm-people{grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
+.tm-person{display:grid;gap:8px;align-content:start;padding:14px;border:1px solid var(--sp-line,var(--line));border-radius:var(--sp-r-card,14px)}
+.tm-person-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.tm-person-head b{font-size:15px}
+.tm-facts{margin:0;display:grid;gap:4px}
+.tm-facts div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;font-size:13px}
+.tm-facts dt{color:var(--sp-fg-muted,var(--muted))}
+.tm-facts dd{margin:0;overflow-wrap:anywhere}
+.tm-actions{display:flex;flex-wrap:wrap;gap:8px}
+.tm-avail{flex:0 0 auto;padding:3px 9px;border-radius:var(--sp-r-pill,999px);border:1px solid var(--sp-line,var(--line));font-size:12px;font-weight:700;white-space:nowrap}
+.tm-available{color:var(--sp-good,#3fb950);border-color:color-mix(in srgb,var(--sp-good,#3fb950) 45%,transparent)}
+.tm-busy{color:var(--sp-gold-300,#f0c46e);border-color:color-mix(in srgb,var(--sp-gold-400,#e6b455) 50%,transparent)}
+.tm-away,.tm-off{color:var(--sp-fg-2,var(--text-2))}
+.tm-inactive{opacity:.7}
+.tm-teams li{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--sp-line-soft,var(--line))}
+.tm-offlist li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px}
+.tm-summary{margin:0}
+.tm-form input[type=checkbox],.tm-days input[type=checkbox],.tm-members input[type=checkbox]{width:18px!important;height:18px!important;min-height:0!important;flex:0 0 18px;margin:0;padding:0;accent-color:var(--sp-gold-400,#e6b455)}
+.tm-days label,.tm-members label{white-space:nowrap}
+.tm-check{justify-content:flex-start;width:auto}
+/* Console dialogs: "height:auto" with inset 0 stretched every dialog to the full window; fit the content instead. */
+dialog.portal-modal{height:fit-content!important}

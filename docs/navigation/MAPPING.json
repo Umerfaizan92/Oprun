@@ -173,7 +173,8 @@
           "alias": [
             "b02/archive"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "jobs"
         }
       ]
     },
@@ -283,7 +284,8 @@
           "alias": [
             "b03/offshore"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "workforce"
         }
       ]
     },
@@ -340,7 +342,8 @@
           "alias": [
             "b04/voice"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "receptionist"
         },
         {
           "view": "receptionist",
@@ -402,7 +405,8 @@
           "alias": [
             "b04/email"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "unifiedinbox"
         },
         {
           "view": "comms",
@@ -412,7 +416,7 @@
             "customers/inbox",
             "operations/inbox"
           ],
-          "label": "Channel inbox (classic view)",
+          "label": "Channel inbox",
           "icon": "i-bell",
           "roles": [
             "owner",
@@ -421,7 +425,8 @@
             "super_admin",
             "director"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "unifiedinbox"
         },
         {
           "view": "phone",
@@ -438,7 +443,8 @@
           "alias": [
             "b04/numbers"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "dialer"
         },
         {
           "view": "calls",
@@ -455,7 +461,8 @@
           "alias": [
             "b04/calls"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "dialer"
         }
       ]
     },
@@ -482,7 +489,8 @@
             "super_admin",
             "director"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "campaignstudio"
         },
         {
           "view": "campaignstudio",
@@ -552,7 +560,8 @@
             "b06/seo",
             "growth/seo"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seobuilder",
@@ -570,7 +579,8 @@
             "b06/builder",
             "growth/website-builder"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seoaudit",
@@ -588,7 +598,8 @@
             "b06/audit",
             "growth/seo-audit"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seoclusters",
@@ -606,7 +617,8 @@
             "b06/keywords",
             "growth/seo-keywords"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seogoogle",
@@ -624,7 +636,8 @@
             "b06/google",
             "growth/seo-google"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seostudio",
@@ -642,7 +655,8 @@
             "b06/studio",
             "growth/seo-content"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seolocal",
@@ -660,7 +674,8 @@
             "b06/local",
             "growth/seo-local"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seoanalytics",
@@ -678,7 +693,8 @@
             "b06/analytics",
             "growth/seo-analytics"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "seoreports",
@@ -696,7 +712,8 @@
             "b06/reports",
             "growth/seo-reports"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "visibility",
@@ -708,7 +725,7 @@
             "visibility",
             "growth/search-readiness"
           ],
-          "label": "Search readiness (older)",
+          "label": "Search readiness",
           "icon": "i-spark",
           "roles": [
             "owner",
@@ -717,7 +734,8 @@
             "super_admin",
             "director"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "searchconsole",
@@ -735,7 +753,8 @@
             "b06/search-console",
             "growth/search-connection"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "backlinks",
@@ -753,12 +772,13 @@
             "b06/backlinks",
             "growth/backlinks"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "website",
           "path": "website/domain",
-          "label": "Website & domain (older)",
+          "label": "Website & domain",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -771,12 +791,13 @@
             "b06/website",
             "growth/website-domain"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "websitehub"
         },
         {
           "view": "businesscampaigns",
           "path": "growth/drafts",
-          "label": "Older campaign drafts",
+          "label": "Campaign drafts",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -788,7 +809,8 @@
           "alias": [
             "b05/campaigns"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "campaignstudio"
         }
       ]
     },
@@ -858,7 +880,8 @@
           "alias": [
             "b07/reconcile"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "finance"
         },
         {
           "view": "finreports",
@@ -873,7 +896,8 @@
           "alias": [
             "b07/reports"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "finance"
         },
         {
           "view": "fincompliance",
@@ -893,7 +917,7 @@
         {
           "view": "finsales",
           "path": "money/sales",
-          "label": "Sales documents (older view)",
+          "label": "Sales documents",
           "icon": "i-doc",
           "roles": [
             "owner",
@@ -903,7 +927,8 @@
           "alias": [
             "b07/sales"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "businessinvoices"
         }
       ]
     },
@@ -995,7 +1020,8 @@
           "alias": [
             "b08/automation"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "automations"
         },
         {
           "view": "support",
@@ -1017,7 +1043,8 @@
           ],
           "label": "User Manual",
           "icon": "i-doc",
-          "secondary": true
+          "secondary": true,
+          "parent": "support"
         },
         {
           "view": "migration",
@@ -1035,7 +1062,8 @@
             "super_admin",
             "director"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "onboarding"
         },
         {
           "view": "exports",
@@ -1050,7 +1078,8 @@
           "roles": [
             "owner"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "onboarding"
         },
         {
           "view": "supportaccess",
@@ -1063,7 +1092,8 @@
           "alias": [
             "b08/support-access"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "governance"
         },
         {
           "view": "finplan",
@@ -1078,7 +1108,8 @@
           "alias": [
             "b09/change-plan"
           ],
-          "secondary": true
+          "secondary": true,
+          "parent": "billing"
         }
       ]
     }
@@ -1174,6 +1205,14 @@
       "Oprun team",
       "users",
       [
+        [
+          "team/people",
+          "People & workload"
+        ],
+        [
+          "team/structure",
+          "Departments & teams"
+        ],
         [
           "records:staff_task",
           "Team work"

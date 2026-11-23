@@ -206,5 +206,5 @@ try {
   fs.mkdirSync('qa/reports', { recursive: true }); fs.writeFileSync('qa/reports/navigation-coverage.json', JSON.stringify({ generated_at: new Date().toISOString(), baseline: mapping.baseline, coverage, errors, missing, writes: 'Synthetic form input only; no external service actions' }, null, 2) + '\n');
   assert.deepEqual(missing, [], 'every reviewed section is checked at both widths');
   assert.deepEqual(errors, []);
-  console.log(`PASS navigation: ${coverage.length} route/section checks; 60 business and 34 founder pages at mobile and desktop; restricted-role and state tests`);
+  console.log(`PASS navigation: ${coverage.length} route/section checks; 60 business and ${mapping.founder.reduce((n,g)=>n+g[4].length,0)} founder pages at mobile and desktop; restricted-role and state tests`);
 } finally { await browser?.close(); await s.stop(); }

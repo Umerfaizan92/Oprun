@@ -56,6 +56,8 @@
       "Oprun team",
       "users",
       [
+        ["team/people", "People & workload"],
+        ["team/structure", "Departments & teams"],
         ["records:staff_task", "Team work"],
         ["records:hire", "Hiring requests"],
       ],
@@ -245,6 +247,14 @@
         return;
       }
       // Phase 04 founder tabs (office/console-platform.js): read-only revenue, infrastructure, backups, AI, compliance, configuration.
+      // TR-31: Oprun's own staff (office/console-team.js).
+      if (window.OprunConsoleTeam?.handles(route)) {
+        const box = el("div", "cp-view tm-view");
+        await window.OprunConsoleTeam.render(route, box, api, { can, notify });
+        if (seq !== sequence) return;
+        host.replaceChildren(box);
+        return;
+      }
       if (window.SuperProPlatformConsole?.handles(route)) {
         const box = el("div", "cp-view");
         await window.SuperProPlatformConsole.render(route, box, api);
