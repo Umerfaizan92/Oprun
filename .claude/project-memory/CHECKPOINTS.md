@@ -2565,3 +2565,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-41: list which agents have real platform catalogue actions today; add the missing platform actions needed (enquiries, onboarding, staff allocation, support, communications, UI quality, testing, media, integrations, billing, release) as level-1 read/report actions.
+
+## CP-184 2026-11-23T21:00:01+00:00 T-226 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-226 (COMPLETED)
+- Completed steps: TR-41 committed on claude/transformation-phase1 (not on staging).
+- Incomplete steps: TR-42 Agent Command Center: queue, running, failed, escalated, performance; failure escalation notification; approvals for level 3-4.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: agent-defaults.test, agent-registry.test, npm test, test:ui, navigation-ui, axe
+- Test results: 3/3, 3/3, 73/73, 38, 629, ok
+- Git branch: claude/transformation-phase1
+- Commit: 8daf16e (TR-41: thirteen Oprun agents with scheduled jobs and visible results); 37 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-42: build on registry.list, automation_runs and platform_approvals; escalate failed or overdue agent runs to the agent's escalation contact via platform notifications.
