@@ -153,3 +153,13 @@ body.portal-workspace .view>.page-heading .heading-actions :is(button,a){min-hei
 .navigation-subpages{display:grid;gap:2px;margin:2px 0 6px 14px;padding-left:10px;border-left:1px solid var(--line)}
 .navigation-subpages[hidden]{display:none}
 .navigation-subpage{min-height:44px;display:flex;align-items:center;font-size:13px}
+/* TR-24: Business settings > Modules */
+.module-settings{margin-top:16px}
+.module-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:8px;margin:12px 0}
+.module-row{display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.module-row input{width:20px;height:20px;flex:none;accent-color:var(--sp-gold-400,#e6b455)}
+.module-name{flex:1;font-weight:600}
+.module-tag{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid color-mix(in srgb,var(--sp-gold-400,#e6b455) 50%,transparent);color:var(--sp-gold-300,#f0c46e)}
+.module-tag-muted{border-color:var(--line);color:var(--muted)}
+.module-actions{display:flex;flex-wrap:wrap;gap:10px}
+.module-status{min-height:1.4em;margin:8px 0 0;color:var(--muted)}

@@ -93,6 +93,14 @@ Updated: 23 Nov 2026
   by hand is kept). Reviewed with data and fine: Enquiries, Quotes, Bookings, Jobs, Invoices, Customer detail,
   Inbox, Campaigns, Website, Settings, Payments, Receptionist (no script errors on any page)
 
+- [x] TR-24 (T-219, D-057): one rule table (src/module-rules.js) for 8 optional modules (Stock, Hiring, Offshore
+  staff, AI Receptionist, Meetings, Media Studio, Campaigns & growth, Website & search). Each industry has a
+  recommended set (e.g. cleaning: Stock on, Offshore off; legal: Stock off, Offshore on; Media Studio on for 8
+  content industries). Owner or admin switches them in Business settings > Modules. Switched off: gone from the menu,
+  its addresses open the Command Centre with an explanation, its API returns 403, data kept. Core modules always on.
+  Existing businesses keep everything; new sign-ups follow their industry. Plans keep limiting amounts
+  (entitlements) and staff permissions keep limiting who sees what (staff-access), unchanged
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -115,5 +123,6 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-24 modules by industry, plan and permission. Hold pushes to claude/transformation-staging while the owner
+TR-25 temporary AI suggestions: contextual, dismissible, remembered per user; critical security, billing and
+compliance warnings never auto-hidden. Hold pushes to claude/transformation-staging while the owner
 is testing (each deploy wipes the test site); push to claude/transformation-phase1 only until he says done.

@@ -729,3 +729,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/approvals.js, src/saas-platform.js, saas/workspace-gadgets.js, saas/locale-catalog.js, scripts/review-fixes.test.mjs, version refs
 - Acceptance: Approvals lists documents waiting for approval with a link to approve; Home tile counts and describes them; customers with jobs show Current; regression test; tests pass
 - Evidence: review-fixes test: command-centre approvals.pending=1 with a draft quote; customers Sam/Priya current, Daniel lead; screenshots of Approvals list and Home tile; npm test 73/73; test:ui 38; release validation, secret scan, catalogue check pass (recorded 2026-11-23 on claude/transformation-staging at 8c9230c)
+
+## T-219 TR-24 modules by industry, plan and permission (one rule table, server-enforced)
+- Added: 2026-11-23
+- Requirement: Backlog TR-24; owner chose industry default + owner switch (D-057)
+- Files: src/module-rules.js, src/server.js, saas/workspace-modules.js, saas/workspace-nav.js, saas/app.js, saas/workspace-redesign.css, saas/workspace.html, scripts/module-rules.test.mjs, scripts/preview-signup.test.mjs, version refs
+- Acceptance: Industries start with different sets (cleaning vs legal differ); switched-off module hidden from menu, its addresses open the Command Centre with an explanation, its API returns 403, data kept; only owner/admin switch; existing businesses unchanged; new businesses follow industry; tests pass
+- Evidence: module-rules test 2/2 (industry sets differ; 403 when off; data kept; staff cannot switch; recommended mode); preview-signup 4/4 (new business auto); browser: all 8 off -> menu hides them, 7 addresses open Command Centre with message, 0 API refusals or JS errors, Settings switch restores Stock; npm test 73/73; test:ui 38; navigation 614 checks; mobile 316 checks; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 924de88)

@@ -2,6 +2,7 @@
 // email and SMS codes are returned for the screen, because no email or SMS provider is allowed on that site.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import Database from 'better-sqlite3';
 import { startServer } from './test-server.mjs';
 import { assertIsolatedPreview } from '../src/preview-preflight.js';
 
@@ -27,6 +28,8 @@ test('with PREVIEW_ALLOW_SIGNUP=1 an account is created with on-screen codes', a
     assert.equal(r.status, 202, r.text); assert.equal(r.json.test_mode, true);
     const codes = r.json.delivery.test_codes; assert.match(codes.email, /^\d{6}$/); assert.match(codes.sms, /^\d{6}$/);
     assert.equal((await s.call('POST', '/api/saas/registration/verify', { body: { pending_id: r.json.pending_id, email_code: codes.email, sms_code: codes.sms } })).status, 201);
+    const db = new Database(s.dbPath, { readonly: true }); const row = db.prepare("SELECT modules_json FROM organisations WHERE name='Thames Test Cleaning'").get(); db.close();
+    assert.deepEqual(JSON.parse(row.modules_json), { auto: true }, 'TR-24: a new business starts with its industry\'s recommended modules');
     assert.equal((await s.call('POST', '/api/public/support-ticket', { body: {} })).status, 403, 'other public intake stays closed');
   } finally { await s.stop(); }
 });
