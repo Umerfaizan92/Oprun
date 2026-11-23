@@ -175,3 +175,16 @@
         sessionStorage.setItem('fp-admin-key',d.token);if(x.link_workspace?.checked){const linked=await fetch('/api/operator/workspace-identity',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json','x-admin-key':d.token},body:JSON.stringify({confirm:true})});if(!linked.ok){const problem=await linked.json().catch(()=>({}));msg.textContent='Operator sign-in succeeded. '+(problem.error||'The workspace shortcut could not be linked.');const link=document.createElement('a');link.href='/office/';link.textContent=' Continue to operator console';msg.append(link);return}}location.href='/office/'}catch{msg.textContent='Could not reach the server. Try again.';msg.className='auth-message error'}};
   }
 })();
+
+// Test site only: accounts and records live in temporary storage and are erased whenever the site restarts, so say so
+// before anyone signs in or registers. Never shown on oprun.ai.
+(()=>{
+  const form=document.getElementById('login-form')||document.getElementById('register-form');if(!form)return;
+  fetch('/api/public/preview-status').then(r=>r.ok?r.json():null).then(d=>{
+    if(!d?.isolated_preview||document.getElementById('preview-data-note'))return;
+    const n=document.createElement('p');n.id='preview-data-note';n.className='portal-note';n.dataset.tone='warn';n.setAttribute('role','note');
+    n.textContent='Test site: accounts and records are temporary. They are erased whenever the site restarts, after about 15 minutes with no visitors or when an update is released. If your sign-in stops working, create the account again.';
+    n.style.cssText='margin:0 0 16px;padding:12px 14px;border-radius:12px;border:1px solid rgba(226,189,114,.45);background:rgba(226,189,114,.10);color:inherit;font-size:14px;line-height:1.45';
+    form.before(n);
+  }).catch(()=>{});
+})();

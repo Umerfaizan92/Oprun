@@ -708,3 +708,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace.html, saas/app.js, saas/workspace-finance.js, version refs
 - Acceptance: Every page h1 equals its top-bar title; kicker kept only where it states access (Owner only, Owner & admin only) and on the Command Centre; npm test, test:ui, redesign, mobile, navigation (role checks) pass
 - Evidence: Browser: h1 equals top-bar title on 19 checked pages incl. merged ones; screenshot of Customer Directory; npm test 73/73; test:ui 38; test:redesign-ui pass; test:mobile-workspace-ui 316 checks; test:navigation-ui 614 checks incl. restricted roles; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 7fdb964)
+
+## T-216 Test-site data notice; booking and job times in the business time zone
+- Added: 2026-11-23
+- Requirement: Owner could not sign in on the test site with the correct password (account erased by a restart). Sample-data review found booking card, calendar and Jobs showing the same booking at different times
+- Files: saas/auth.js, saas/app.js, saas/workspace-pipeline.js, src/server.js (/api/saas/me timezone), scripts/visual/sample-data.mjs, version refs
+- Acceptance: Test site shows a temporary-data notice on sign-in and create account (not on oprun.ai); booking card, calendar and Jobs show the same time and format with device time zone UTC or New York; tests pass
+- Evidence: Browser: notice visible on test-site sign-in and create account, hidden on normal site, operator link visible; booking 'Blocked kitchen drain' = 24 Nov 2026, 6:00 pm on card, calendar and Jobs with device TZ UTC and America/New_York; npm test 73/73; test:ui 38; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 3cfc939)

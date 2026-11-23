@@ -26,7 +26,7 @@
     return e;
   };
   const money = (c) => (Number(c || 0) / 100).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' });
-  const date = (v) => (v ? new Date(v).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' }) : '');
+  const date = (v) => (v ? (window.OprunTime ? OprunTime.when(v) : new Date(v).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' })) : '');
   const day = (v) => (v ? new Date(v).toLocaleDateString('en-AU', { dateStyle: 'medium' }) : '');
   // Hides buttons a person cannot use; the server still enforces every permission.
   const can = (feature, action = 'read') => (!window.GDS_SESSION?.access || typeof window.SuperProCan !== 'function' ? true : window.SuperProCan(feature, action));
