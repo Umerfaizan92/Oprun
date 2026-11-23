@@ -23,7 +23,7 @@ export function installOnboardingInterview(app, { db, requireSaasUser, requireSa
     const org = req.saas.organisation_id;
     let o = {}; try { o = db.prepare('SELECT * FROM organisations WHERE id=?').get(org) || {}; } catch {}
     let industry = 'custom'; try { industry = db.prepare('SELECT industry_code FROM onboarding_profiles WHERE organisation_id=?').get(org)?.industry_code || 'custom'; } catch {}
-    return build({ country: o.country || 'AU', industry, state: o.state || '', answers: safe(load(org)?.answers_json, {}) });
+    return build({ country: o.country || 'AU', industry, state: o.address_state || o.state || '', answers: safe(load(org)?.answers_json, {}) });
   }
   const qs = (req) => context(req).questions;
   // Every response carries the current questions: the list can change after the first answer.

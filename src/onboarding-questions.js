@@ -28,11 +28,13 @@ export function guessIndustry(text) {
   // Words share a stem when their first five letters match ("plumbing" and "plumber"), so small spelling
   // differences still match. Short keywords must appear as written.
   const words = t.match(/[a-z]{4,}/g) || [];
-  const matches = (k) => { k = String(k || '').toLowerCase(); if (!k) return false; if (t.includes(k)) return true; if (k.length < 5 || k.includes(' ')) return false; const stem = k.slice(0, 5); return words.some((w) => w.startsWith(stem)); };
+  // Specific words count more than short general ones ("plumber" beats "water").
+  const GENERIC = new Set(['repair', 'maintenance', 'service', 'services', 'water', 'gas', 'trade', 'other', 'support', 'custom', 'retail', 'online']);
+  const weight = (k) => { k = String(k || '').toLowerCase(); if (!k) return 0; if (GENERIC.has(k)) return t.includes(k) ? 1 : 0; if (t.includes(k)) return k.length >= 6 || k.includes(' ') ? 3 : 1; if (k.length < 5 || k.includes(' ')) return 0; const stem = k.slice(0, 5); return words.some((w) => w.startsWith(stem)) ? 2 : 0; };
   let best = null, score = 0;
   for (const row of INDUSTRY_REGISTRY) {
     if (row.code === 'custom') continue;
-    const hits = (row.keywords || []).filter(matches).length;
+    const hits = (row.keywords || []).reduce((n, k) => n + weight(k), 0);
     if (hits > score) { best = row.code; score = hits; }
   }
   return best;

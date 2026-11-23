@@ -72,6 +72,41 @@ try {
     assert.match(label, /[ऀ-ॿ]/, `Hindi question text, got "${label}"`);
     await ctx.close();
   });
+  await check('TR-52: the proposed workspace changes nothing until approved with consent, then applies', async () => {
+    // A second business, its questions answered through the API; the review and approval happen in the browser.
+    const o2 = await seedOwner(s, { business: 'Solo Plumbing', email: 'solo@plumbing.example.test' });
+    let r = await s.call('GET', '/api/saas/onboarding/interview', { cookie: o2.cookie });
+    for (const [k, v] of [['business', 'Residential plumbing'], ['services', 'Blocked drains, hot water systems'], ['service_area', 'Perth'], ['team', 'Just me']]) r = await s.call('PUT', `/api/saas/onboarding/interview/answers/${k}`, { cookie: o2.cookie, body: { value: v, revision: r.json.session.revision } });
+    await s.call('POST', '/api/saas/onboarding/interview/finish', { cookie: o2.cookie, body: {} });
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', serviceWorkers: 'block' });
+    await ctx.addCookies([{ name: 'fp_session', value: o2.token, url: s.base }]);
+    await ctx.addInitScript((slug) => { try { localStorage.setItem('gds-tour-' + slug, 'done'); } catch {} const get = Storage.prototype.getItem; Storage.prototype.getItem = function (k) { return /^superpro_release_seen:/.test(String(k)) ? '1' : get.call(this, k); }; }, o2.slug);
+    const page = await ctx.newPage(); const errors = []; page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(s.base + '/saas/workspace.html', { waitUntil: 'networkidle' });
+    await page.evaluate(() => { location.hash = window.SuperProNav.pathFor('onboarding'); });
+    await page.getByRole('button', { name: 'Prepare my proposed workspace' }).click();
+    await page.locator('.ob-review').waitFor();
+    assert.equal(await page.locator('.ob-review input[name="stage"][value="allocation"]').isChecked(), false, 'a one-person business has no allocation stage');
+    assert.equal(await page.locator('.ob-review input[name="module"][value="hiring"]').isChecked(), false);
+    await page.locator('.ob-review input[name="service"][value="Hot water systems"]').uncheck();
+    await page.getByRole('button', { name: 'Approve and apply' }).click();
+    assert.match(await page.locator('.ob-review .ob-status').innerText(), /Tick the box/, 'no approval without consent');
+    assert.equal((await s.call('GET', '/api/saas/modules', { cookie: o2.cookie })).json.mode, 'all', 'nothing applied yet');
+    await page.locator('.ob-review input[name="consent"]').check();
+    await page.getByRole('button', { name: 'Approve and apply' }).click();
+    await page.locator('.ob-applied').waitFor();
+    assert.match(await page.locator('.ob-applied').innerText(), /Applied on/);
+    const profile = (await s.call('GET', '/api/saas/onboarding', { cookie: o2.cookie })).json.profile;
+    assert.deepEqual(profile.services, ['Blocked drains']);
+    assert.equal((await s.call('GET', '/api/saas/modules', { cookie: o2.cookie })).json.mode, 'custom');
+    // After the reload, Workflow Guidance shows only the approved stages.
+    await page.waitForTimeout(2500);
+    await page.evaluate(() => { location.hash = window.SuperProNav.pathFor('dashboard'); });
+    await page.waitForFunction(() => Array.isArray(window.GDS_SESSION?.organisation?.pipeline_stages), null, { timeout: 10000 });
+    assert.ok(!(await page.evaluate(() => window.GDS_SESSION.organisation.pipeline_stages)).includes('allocation'));
+    assert.deepEqual(errors, []);
+    await ctx.close();
+  });
   console.log(`ONBOARDING INTERVIEW UI PASSED: ${results.length}`);
 } catch (e) { console.error('FAIL', e); process.exitCode = 1; }
 finally { await browser.close(); await s.stop(); }

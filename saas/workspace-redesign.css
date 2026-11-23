@@ -196,3 +196,15 @@ body.portal-workspace .view>.page-heading .heading-actions :is(button,a){min-hei
 html[data-theme="light"] .ob-summary li.is-current b{color:var(--sp-gold-700,#7a5a12)}
 .ob-summary p{margin:2px 0 0;font-size:13px;overflow-wrap:anywhere}
 @media (max-width:520px){.ob-actions .primary-button{margin-inline-start:0;flex:1 1 100%}.ob-summary li{flex-direction:column}}
+/* TR-52: proposed workspace review. */
+.ob-proposal{display:grid;gap:12px;margin-top:6px}
+.ob-review{display:grid;gap:12px}
+.ob-review h3,.ob-applied h3{margin:0}
+.ob-fieldset{margin:0;padding:12px 14px;border:1px solid var(--line);border-radius:14px;display:grid;gap:6px}
+.ob-fieldset legend{padding:0 6px;font-weight:700}
+.ob-check{display:flex;align-items:flex-start;gap:10px;min-height:36px;line-height:1.4}
+.ob-check input{width:18px;height:18px;margin-top:2px;flex:0 0 18px;accent-color:var(--sp-gold-400,#e6b455)}
+.ob-template{display:grid;gap:4px;padding:6px 0}
+.ob-template-body{margin:0 0 0 28px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--text,#fff) 4%,transparent);white-space:pre-wrap;font:inherit;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.ob-applied{display:grid;gap:10px}
+@media (max-width:520px){.ob-template-body{margin-left:0}}

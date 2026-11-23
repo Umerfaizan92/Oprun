@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T22:27:55.699Z",
+  "generated_at": "2026-11-23T23:19:53.474Z",
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
@@ -3966,46 +3966,6 @@
       "portal": "Founder",
       "route": "f07/agents/center",
       "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/agents/center",
-      "section": "Escalations (0)",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/agents/center",
-      "section": "Needs a decision (0)",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/agents/center",
-      "section": "Queue and running (0)",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/agents/center",
-      "section": "Failed in the last 7 days (0)",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/agents/center",
-      "section": "Performance (7 days)",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"

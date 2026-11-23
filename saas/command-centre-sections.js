@@ -189,16 +189,18 @@
     { key: 'payment', name: 'Payment', icon: 'i-shield', view: 'businessinvoices', count: () => stage('paid'), unit: ['invoice paid', 'invoices paid'], done: true,
       what: 'Payments land against each invoice and close the job.', needs: 'An issued invoice.', next: 'The job is closed and profit is recorded.' }
   ];
+  // TR-52: once the owner approves a proposed workspace, only the stages they kept are shown.
+  const stages = () => { const keep = window.GDS_SESSION?.organisation?.pipeline_stages; return Array.isArray(keep) && keep.length ? STAGES.filter((s) => keep.includes(s.key)) : STAGES; };
   let openStage = null;
   function paintWorkflow() {
     const host = $('[data-cc-workflow]'); if (!host) return;
     const allowed = allowedViews(), canAi = allowed.has('assistant');
     // Skip identical repaints: other modules react to DOM changes, so an unchanged repaint could loop.
-    const sig = JSON.stringify([window.OprunLocale?.locale, failed, loadedAt, openStage, [...allowed].length, data || pipeline ? STAGES.map(s => s.count()) : null]);
+    const sig = JSON.stringify([window.OprunLocale?.locale, failed, loadedAt, openStage, [...allowed].length, data || pipeline ? stages().map(s => s.count()) : null, stages().length]);
     if (sig === host.dataset.wgSig) return; host.dataset.wgSig = sig;
     const pill = $('[data-wg-status]');
     if (pill) { pill.className = 'status-pill ' + (failed ? 'warn' : data ? 'good' : 'neutral'); pill.textContent = failed ? tr('cc.unavailable', {}, 'Live data unavailable') : data ? tr('cc.liveAt', { time: time(loadedAt) }, `Live · ${time(loadedAt)}`) : tr('cc.loadingLive', {}, 'Loading live data…'); }
-    const rows = STAGES.map((s, i) => {
+    const rows = stages().map((s, i) => {
       const n = data || pipeline ? s.count() : undefined, can = allowed.has(s.view);
       const st = n === undefined ? [tr('wg.loading', {}, 'Loading…'), 'wait'] : n === null ? [tr('wg.noRole', {}, 'Not available for your role'), 'none'] : n === 0 ? [s.done ? tr('wg.noneYet', {}, 'None yet') : tr('wg.clear', {}, 'Clear'), 'ok'] : [unit(s, n), s.done ? 'ok' : 'warn'];
       const id = 'wg-' + s.key, isOpen = openStage === s.key;
@@ -214,8 +216,8 @@
             can ? el('a', { class: 'primary-button compact', href: '#' + nav().pathFor(s.view), text: tr('wg.open', { page: nav().pageMeta?.[s.view]?.[1] || sx(s, 'name') }, `Open ${nav().pageMeta?.[s.view]?.[1] || s.name}`) }) : el('small', { class: 'setup-locked', text: tr('wg.locked', {}, 'Your role cannot open this stage. Ask your business owner.') }),
             canAi ? el('button', { type: 'button', class: 'secondary-button compact', 'data-wg-ask': s.key, text: tr('wg.ask', {}, 'Ask AI about this step') }) : null)));
     });
-    const known = STAGES.map(s => (data || pipeline ? s.count() : null)).filter(n => n != null);
-    const active = STAGES.filter(s => { const n = data || pipeline ? s.count() : null; return n && !s.done; }).length;
+    const known = stages().map(s => (data || pipeline ? s.count() : null)).filter(n => n != null);
+    const active = stages().filter(s => { const n = data || pipeline ? s.count() : null; return n && !s.done; }).length;
     host.replaceChildren(
       el('p', { class: 'wg-summary', text: !data && !pipeline ? (failed ? tr('wg.loadFailed', {}, 'Live figures could not be loaded. Use Refresh in the Action Centre or reload.') : tr('wg.loadingFigures', {}, 'Loading live workflow figures…')) : known.length ? (active ? tr('wg.attention', { n: active }, `${plural(active, 'stage')} need attention. Select a stage to see what it needs and open it.`) : tr('wg.nothing', {}, 'Nothing is waiting at any stage you can see.')) : tr('wg.noFigures', {}, 'Your role cannot see pipeline figures. Select a stage to learn how it works.') }),
       el('ol', { class: 'wg-list' }, rows));

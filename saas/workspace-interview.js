@@ -87,7 +87,62 @@
     const status = make('p', { class: 'ob-status', role: 'status', 'aria-live': 'polite', text: done ? t('ob.finished') : '' });
     const finish = make('button', { type: 'button', class: 'primary-button', text: t('ob.finish'), disabled: done || !canAnswer() || s.missing_required.length > 0 });
     finish.onclick = async () => { finish.disabled = true; try { const d = await api('/api/saas/onboarding/interview/finish', { method: 'POST', body: '{}' }); accept(d); render($('#ob-interview')); } catch (x) { status.textContent = x.message; finish.disabled = false; } };
-    return make('div', { class: 'ob-done' }, make('h3', { text: t('ob.allAnswered') }), done ? null : finish, status);
+    const proposalHost = make('div', { class: 'ob-proposal', id: 'ob-proposal' });
+    if (done) setTimeout(() => loadProposal(proposalHost), 0);
+    return make('div', { class: 'ob-done' }, make('h3', { text: t('ob.allAnswered') }), done ? null : finish, status, proposalHost);
+  }
+
+  // ---------- TR-52: proposed workspace, applied only after the owner approves ----------
+  const STAGE_EN = { enquiry: 'Enquiry', quotation: 'Quotation', booking: 'Booking', allocation: 'Allocation', execution: 'Execution', completion: 'Completion', invoice: 'Invoice', payment: 'Payment' };
+  async function loadProposal(host, d = null) {
+    try { d = d || await api('/api/saas/onboarding/proposal'); } catch (x) { host.replaceChildren(make('p', { class: 'muted', text: x.message })); return; }
+    const p = d.proposal;
+    const remake = make('button', { type: 'button', class: p ? 'secondary-button' : 'primary-button', text: t(p ? 'ob.p.remake' : 'ob.p.prepare') });
+    remake.onclick = async () => { remake.disabled = true; remake.textContent = t('ob.p.working'); try { await api('/api/saas/onboarding/proposal', { method: 'POST', body: '{}' }); await loadProposal(host); } catch (x) { remake.disabled = false; remake.textContent = x.message; } };
+    if (!p) return host.replaceChildren(remake);
+    if (p.status === 'approved') return host.replaceChildren(applied(p));
+    if (p.status === 'declined') return host.replaceChildren(make('p', { class: 'muted', text: t('ob.p.declined') }), remake);
+    if (p.stale) return host.replaceChildren(make('p', { class: 'ob-resume', role: 'status', text: t('ob.p.stale') }), remake);
+    host.replaceChildren(review(p, d, host), make('div', { class: 'ob-actions' }, remake));
+  }
+
+  function review(p, d, host) {
+    const pr = p.proposal, form = make('form', { class: 'ob-review', 'aria-labelledby': 'ob-p-title' });
+    const box = (name, value, checked, label, note) => make('label', { class: 'ob-check' }, make('input', { type: 'checkbox', name, value, checked }), make('span', {}, label, note ? make('small', { class: 'muted', text: ' · ' + note }) : null));
+    const section = (title, ...kids) => make('fieldset', { class: 'ob-fieldset' }, make('legend', { text: title }), ...kids);
+    form.append(make('h3', { id: 'ob-p-title', text: t('ob.p.title') }), make('p', { class: 'muted', text: t('ob.p.intro') }),
+      section(t('ob.p.profile'), make('p', { text: [pr.profile.business_type, t(pr.profile.team_mode === 'solo' ? 'ob.p.teamSolo' : 'ob.p.teamTeam'), pr.profile.service_area].filter(Boolean).join(' · ') }), box('profile', '1', true, t('ob.p.profileApply'))),
+      section(t('ob.p.services'), ...pr.services.map((x) => box('service', x, true, x))),
+      section(t('ob.p.modules'), ...pr.modules.map((m) => box('module', m.key, m.on, m.label, m.reason === 'solo' ? t('ob.p.reasonSolo') : m.reason === 'not_for_industry' ? t('ob.p.reasonIndustry') : t('ob.p.recommended')))),
+      section(t('ob.p.stages'), ...pr.stages.map((st) => { const b = box('stage', st.key, st.on, window.OprunLocale?.t?.(`wg.s.${st.key}.name`) || STAGE_EN[st.key], st.reason === 'solo' ? t('ob.p.reasonSolo') : st.reason ? t('ob.p.reasonIndustry') : null); if (st.key === 'enquiry' || st.key === 'payment') b.querySelector('input').disabled = true; return b; })),
+      section(t('ob.p.templates'), ...pr.templates.map((tp) => make('div', { class: 'ob-template' }, box('template', tp.key, true, tp.title, tp.channel === 'sms' ? 'SMS' : 'Email'), make('pre', { class: 'ob-template-body', text: tp.body })))));
+    const status = make('p', { class: 'ob-status', id: 'ob-p-status', role: 'status', 'aria-live': 'polite' });
+    if (!d.can_approve) { form.append(make('p', { class: 'muted', text: t('ob.p.ownerOnly') })); return form; }
+    form.append(section(t('ob.p.consentHeading'), make('label', { class: 'ob-check' }, make('input', { type: 'checkbox', name: 'consent', 'aria-describedby': 'ob-p-status' }), make('span', { text: d.consent.text }))),
+      make('div', { class: 'ob-actions' },
+        make('button', { type: 'button', class: 'secondary-button', text: t('ob.p.decline'), onclick: async () => { try { await api(`/api/saas/onboarding/proposal/${p.id}/decline`, { method: 'POST', body: '{}' }); await loadProposal(host); } catch (x) { status.textContent = x.message; } } }),
+        make('button', { type: 'submit', class: 'primary-button', text: t('ob.p.approve') })), status);
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      if (!form.elements.consent.checked) { status.textContent = t('ob.p.needConsent'); return; }
+      const all = (n) => [...form.querySelectorAll(`input[name="${n}"]`)];
+      const choices = { profile: form.elements.profile.checked, services: all('service').filter((x) => x.checked).map((x) => x.value), modules: Object.fromEntries(all('module').map((x) => [x.value, x.checked])),
+        stages: all('stage').filter((x) => x.checked || x.disabled).map((x) => x.value), templates: all('template').filter((x) => x.checked).map((x) => x.value) };
+      const button = form.querySelector('[type=submit]'); button.disabled = true;
+      try { const r = await api(`/api/saas/onboarding/proposal/${p.id}/approve`, { method: 'POST', body: JSON.stringify({ consent: true, consent_version: d.consent.version, choices }) }); setTimeout(() => location.reload(), 1500); host.replaceChildren(applied(r.proposal)); }
+      catch (x) { status.textContent = x.message; button.disabled = false; }
+    };
+    return form;
+  }
+
+  function applied(p) {
+    const when = p.decided_at ? new Date(p.decided_at).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    const out = make('div', { class: 'ob-applied' }, make('p', { class: 'ob-resume', role: 'status', text: t('ob.p.applied', { date: when, name: p.decided_by || '' }) }));
+    api('/api/saas/workspace-templates').then((d) => { if (!d.templates.length) return;
+      out.append(make('h3', { text: t('ob.p.templates') }), ...d.templates.map((tp) => { const copy = make('button', { type: 'button', class: 'secondary-button', text: t('ob.p.copy'), 'aria-label': `${t('ob.p.copy')}: ${tp.title}` });
+        copy.onclick = async () => { try { await navigator.clipboard.writeText(tp.body); copy.textContent = t('ob.p.copied'); } catch { /* clipboard blocked: the text stays selectable */ } };
+        return make('div', { class: 'ob-template' }, make('div', { class: 'ob-actions' }, make('b', { text: tp.title }), copy), make('pre', { class: 'ob-template-body', text: tp.body })); })); }).catch(() => {});
+    return out;
   }
 
   function summary() {
