@@ -73,7 +73,7 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Platform overview | Infrastructure | /office/#f01/system | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | Storage & backups | /office/#f01/platform/backups | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | AI usage | /office/#f01/platform/ai-usage | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | My work | My work | /office/#f10/work/mine | self.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | My work | My work | /office/#f10/work/mine | any signed-in staff member | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Subscribers | Businesses | /office/#f02/subscribers | subscribers.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Billing & usage | Subscription invoices | /office/#f03/invoices | billing.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Billing & usage | Payment providers | /office/#f03/legacy:subpay | billing.read or founder | Retained maintenance link; no migration |
@@ -82,25 +82,25 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Support & success | Email Centre | /office/#f04/mail | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Support & success | Tickets | /office/#f04/records:ticket | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Support & success | Support access | /office/#f04/support-access | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun team | People & workload | /office/#f05/team/people | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun team | Departments & teams | /office/#f05/team/structure | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun team | Assignments | /office/#f05/team/assignments | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun team | Projects | /office/#f05/records:project | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun team | Team work | /office/#f05/records:staff_task | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | People & teams | /office/#f05/team/people | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | People & teams → Departments & teams | /office/#f05/team/structure | team.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Oprun team | Work & assignments | /office/#f05/team/assignments | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | Work & assignments → Projects | /office/#f05/records:project | team.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Oprun team | Work & assignments → Team work | /office/#f05/records:staff_task | team.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Oprun team | Hiring requests | /office/#f05/records:hire | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun marketing | Prospect CRM | /office/#f06/records:prospect | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun marketing | Campaign drafts | /office/#f06/records:campaign | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun marketing | Content drafts | /office/#f06/records:content | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun marketing | Announcement drafts | /office/#f06/records:announcement_draft | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Oprun marketing | Website visibility | /office/#f06/legacy:searchvisibility | marketing.read or founder | Retained maintenance link; no migration |
+| Founder | Oprun marketing | Prospects & drafts | /office/#f06/records:prospect | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | Prospects & drafts → Campaign drafts | /office/#f06/records:campaign | marketing.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Oprun marketing | Prospects & drafts → Content drafts | /office/#f06/records:content | marketing.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Oprun marketing | Prospects & drafts → Announcement drafts | /office/#f06/records:announcement_draft | marketing.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Oprun marketing | SEO & website | /office/#f06/platform/seo | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun marketing | SEO & website → Website visibility | /office/#f06/legacy:searchvisibility | marketing.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Oprun marketing | Newsletter campaigns | /office/#f06/platform/campaigns | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Operations & maintenance | Tasks & releases | /office/#f07/records:task | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Operations & maintenance | Incidents | /office/#f07/records:incident | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Operations & maintenance | Operating costs | /office/#f07/records:cost | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Operations & maintenance | Provider readiness | /office/#f07/legacy:connections | operations.read or founder | Retained maintenance link; no migration |
-| Founder | Operations & maintenance | AI automations | /office/#f07/platform/automation | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Operations & maintenance | Tasks & incidents | /office/#f07/records:task | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Operations & maintenance | Tasks & incidents → Incidents | /office/#f07/records:incident | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Operations & maintenance | Tasks & incidents → Operating costs | /office/#f07/records:cost | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Operations & maintenance | Reliability & backups | /office/#f07/platform/reliability | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Operations & maintenance | Reliability & backups → Provider readiness | /office/#f07/legacy:connections | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Operations & maintenance | AI automations | /office/#f07/platform/automation | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Operations & maintenance | Languages & translation coverage | /office/#f07/platform/localization | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Security & audit | Activity log | /office/#f08/audit | security.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Security & audit | Compliance | /office/#f08/platform/compliance | security.read or founder | Existing renderer; native section tabs or heading-based section panels |

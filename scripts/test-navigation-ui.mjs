@@ -170,6 +170,8 @@ try {
     for (const g of mapping.founder) for (const item of g[4]) {
       if (width === 390) await p.getByRole('button', { name: '☰ Menu', exact: true }).click();
       const group = p.locator(`[data-nav-group="${g[0]}"]`); if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+      // TR-33: a merged tab is listed under its main page, so open the main page first.
+      if (item[2]) { const main = p.locator(`[data-nav-page="${g[0] + '/' + item[2]}"]`); await main.click(); await main.locator(':scope[aria-current=page]').waitFor({state:'attached'}); await settle(p); if (width === 390) await p.getByRole('button', { name: '☰ Menu', exact: true }).click(); }
       const id = g[0] + '/' + item[0], link = p.locator(`[data-nav-page="${id}"]`); await link.click();
       await link.locator(':scope[aria-current=page]').waitFor({state:'attached'});
       await p.waitForFunction(hash => location.hash.split('?')[0] === '#' + hash, id); await settle(p);

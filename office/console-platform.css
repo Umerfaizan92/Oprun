@@ -140,3 +140,10 @@ dialog.portal-modal{height:fit-content!important}
 .as-evidence a{color:var(--sp-gold-300,#f0c46e)}
 /* Light theme: gold text needs the darker shade for contrast. */
 html[data-theme="light"] :is(.as-done,.as-blocked,.as-p-high,.as-tabs .portal-button.is-active,.tm-busy,.ex-warning .ex-level,.as-evidence a){color:var(--sp-gold-700,#7a5a12)}
+/* TR-33: merged pages show their member pages as tabs. */
+.console-pages[hidden]{display:none!important}
+.console-pages{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 0}
+.console-pages .portal-button{min-height:36px;padding:0 12px;text-decoration:none;font-size:13px}
+.console-pages .portal-button.is-active{border-color:var(--sp-gold-400,#e6b455);color:var(--sp-gold-300,#f0c46e)}
+html[data-theme="light"] .console-pages .portal-button.is-active{color:var(--sp-gold-700,#7a5a12)}
+@media (max-width:480px){.console-pages{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-inline:12px}.console-pages .portal-button{flex:0 0 auto}}

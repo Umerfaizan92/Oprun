@@ -58,11 +58,12 @@
       "Oprun team",
       "users",
       [
-        ["team/people", "People & workload"],
-        ["team/structure", "Departments & teams"],
-        ["team/assignments", "Assignments"],
-        ["records:project", "Projects"],
-        ["records:staff_task", "Team work"],
+        // TR-33: [route, menu label, main page (for merged tabs), tab label]. Every address still opens directly.
+        ["team/people", "People & teams", null, "People & workload"],
+        ["team/structure", "Departments & teams", "team/people"],
+        ["team/assignments", "Work & assignments", null, "Assignments"],
+        ["records:project", "Projects", "team/assignments"],
+        ["records:staff_task", "Team work", "team/assignments"],
         ["records:hire", "Hiring requests"],
       ],
     ],
@@ -72,12 +73,12 @@
       "Oprun marketing",
       "spark",
       [
-        ["records:prospect", "Prospect CRM"],
-        ["records:campaign", "Campaign drafts"],
-        ["records:content", "Content drafts"],
-        ["records:announcement_draft", "Announcement drafts"],
-        ["legacy:searchvisibility", "Website visibility"],
+        ["records:prospect", "Prospects & drafts", null, "Prospect CRM"],
+        ["records:campaign", "Campaign drafts", "records:prospect"],
+        ["records:content", "Content drafts", "records:prospect"],
+        ["records:announcement_draft", "Announcement drafts", "records:prospect"],
         ["platform/seo", "SEO & website"],
+        ["legacy:searchvisibility", "Website visibility", "platform/seo"],
         ["platform/campaigns", "Newsletter campaigns"],
       ],
     ],
@@ -87,12 +88,12 @@
       "Operations & maintenance",
       "gear",
       [
-        ["records:task", "Tasks & releases"],
-        ["records:incident", "Incidents"],
-        ["records:cost", "Operating costs"],
-        ["legacy:connections", "Provider readiness"],
-        ["platform/automation", "AI automations"],
+        ["records:task", "Tasks & incidents", null, "Tasks & releases"],
+        ["records:incident", "Incidents", "records:task"],
+        ["records:cost", "Operating costs", "records:task"],
         ["platform/reliability", "Reliability & backups"],
+        ["legacy:connections", "Provider readiness", "platform/reliability"],
+        ["platform/automation", "AI automations"],
         ["platform/localization", "Languages & translation coverage"],
       ],
     ],
@@ -131,6 +132,24 @@
     key: "M14 4a6 6 0 1 0 6 6 6 6 0 0 0-6-6M9 14l-7 7M4 19l2 2",
     check: "M4 4h16v16H4zM8 12l3 3 5-6",
   };
+  // TR-33: merged pages. A tab with a main page (t[2]) is listed under it and shown as a tab on it.
+  const mainOf = (group, t) => (t[2] ? group[4].find((x) => x[0] === t[2]) || t : t);
+  const tabLabel = (t) => t[3] || t[1];
+  const pageTrail = (group, t) => { const m = mainOf(group, t); return m === t ? (t[3] && group[4].some((x) => x[2] === t[0]) ? t[1] + ' / ' + t[3] : t[1]) : m[1] + ' / ' + t[1]; };
+  function pageTabs(group, t) {
+    const box = document.getElementById("console-pages"); if (!box) return;
+    const m = mainOf(group, t), members = [m, ...group[4].filter((x) => x[2] === m[0])];
+    box.replaceChildren();
+    box.hidden = members.length < 2;
+    if (members.length < 2) return;
+    box.setAttribute("aria-label", m[1] + " pages");
+    for (const x of members) {
+      const a = el("a", "portal-button" + (x === t ? " is-active" : ""), tabLabel(x));
+      a.href = "#" + group[0] + "/" + x[0];
+      if (x === t) a.setAttribute("aria-current", "page");
+      box.append(a);
+    }
+  }
   let me,
     current,
     tab,
@@ -232,7 +251,8 @@
     $("#console-title").textContent = current[2];
     navigation?.setActive(current[0] + '/' + tab[0]);
     const crumb = document.getElementById('console-breadcrumb');
-    if (crumb) crumb.textContent = current[2] + ' / ' + tab[1];
+    if (crumb) crumb.textContent = current[2] + ' / ' + pageTrail(current, tab);
+    pageTabs(current, tab);
     window.SuperProPageSections.dispose(document.getElementById('console-content'));
     const host = $("#console-content");
     host.replaceChildren(el("p", "portal-note", "Loading…"));
@@ -366,7 +386,7 @@
         const kind = route.slice(8);
         if (can(current[1], "create")) {
           const f = el("form", "portal-panel portal-form");
-          f.append(el("h2", "", "New " + tab[1].toLowerCase()));
+          f.append(el("h2", "", "New " + ({ prospect: "prospect", campaign: "campaign draft", content: "content draft", announcement_draft: "announcement draft", task: "task or release", incident: "incident", cost: "operating cost", hire: "hiring request", staff_task: "team task", project: "project", ticket: "ticket" }[kind] || tabLabel(tab).toLowerCase())));
           field(f, "Title", "title").required = true;
           field(f, "Details", "body");
           f.append(el("button", "portal-button primary", "Save record"));
@@ -742,10 +762,10 @@
       id: d[0], label: d[2], attribute: 'data-section', icon: () => {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), path = document.createElementNS(svg.namespaceURI, 'path');
         svg.setAttribute('viewBox', '0 0 24 24'); path.setAttribute('d', paths[d[3]]); svg.append(path); return svg;
-      }, pages: d[4].map(t => ({ id: d[0] + '/' + t[0], path: d[0] + '/' + t[0], label: t[1] }))
+      }, pages: d[4].map(t => ({ id: d[0] + '/' + t[0], path: d[0] + '/' + t[0], label: t[1], parent: t[2] ? d[0] + '/' + t[2] : undefined }))
     })));
     const crumb = el('nav', 'navigation-breadcrumb'); crumb.id = 'console-breadcrumb'; crumb.setAttribute('aria-label', 'Breadcrumb'); document.getElementById('console-title').before(crumb);
-    window.addEventListener('superpro:sectionchange', e => { crumb.textContent = current[2] + ' / ' + tab[1] + (e.detail.label ? ' / ' + e.detail.label : ''); });
+    window.addEventListener('superpro:sectionchange', e => { crumb.textContent = current[2] + ' / ' + pageTrail(current, tab) + (e.detail.label ? ' / ' + e.detail.label : ''); });
     $("#console-search").oninput = e => navigation.search(e.target.value);
     $("#console-logout").onclick = async () => {
       try {

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T17:11:25.193Z",
+  "generated_at": "2026-11-23T17:59:18.290Z",
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
@@ -3740,14 +3740,6 @@
     },
     {
       "portal": "Founder",
-      "route": "f06/legacy:searchvisibility",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
       "route": "f06/platform/seo",
       "section": "",
       "width": 1440,
@@ -3836,6 +3828,14 @@
     },
     {
       "portal": "Founder",
+      "route": "f06/legacy:searchvisibility",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
       "route": "f06/platform/campaigns",
       "section": "",
       "width": 1440,
@@ -3886,70 +3886,6 @@
       "portal": "Founder",
       "route": "f07/records:cost",
       "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/legacy:connections",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Emergency pause",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Waiting for your approval",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Platform automations",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Recent runs",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Reports and alerts",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Platform automation audit, last 30 days",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4014,6 +3950,70 @@
       "portal": "Founder",
       "route": "f07/platform/reliability",
       "section": "Daily summaries",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/legacy:connections",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Emergency pause",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Waiting for your approval",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Platform automations",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Recent runs",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Reports and alerts",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Platform automation audit, last 30 days",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4596,14 +4596,6 @@
     },
     {
       "portal": "Founder",
-      "route": "f06/legacy:searchvisibility",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
       "route": "f06/platform/seo",
       "section": "",
       "width": 390,
@@ -4692,6 +4684,14 @@
     },
     {
       "portal": "Founder",
+      "route": "f06/legacy:searchvisibility",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
       "route": "f06/platform/campaigns",
       "section": "",
       "width": 390,
@@ -4742,70 +4742,6 @@
       "portal": "Founder",
       "route": "f07/records:cost",
       "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/legacy:connections",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Emergency pause",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Waiting for your approval",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Platform automations",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Recent runs",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Reports and alerts",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f07/platform/automation",
-      "section": "Platform automation audit, last 30 days",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -4870,6 +4806,70 @@
       "portal": "Founder",
       "route": "f07/platform/reliability",
       "section": "Daily summaries",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/legacy:connections",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Emergency pause",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Waiting for your approval",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Platform automations",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Recent runs",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Reports and alerts",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Founder",
+      "route": "f07/platform/automation",
+      "section": "Platform automation audit, last 30 days",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"

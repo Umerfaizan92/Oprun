@@ -1219,23 +1219,30 @@
       [
         [
           "team/people",
+          "People & teams",
+          null,
           "People & workload"
         ],
         [
           "team/structure",
-          "Departments & teams"
+          "Departments & teams",
+          "team/people"
         ],
         [
           "team/assignments",
+          "Work & assignments",
+          null,
           "Assignments"
         ],
         [
           "records:project",
-          "Projects"
+          "Projects",
+          "team/assignments"
         ],
         [
           "records:staff_task",
-          "Team work"
+          "Team work",
+          "team/assignments"
         ],
         [
           "records:hire",
@@ -1251,27 +1258,33 @@
       [
         [
           "records:prospect",
+          "Prospects & drafts",
+          null,
           "Prospect CRM"
         ],
         [
           "records:campaign",
-          "Campaign drafts"
+          "Campaign drafts",
+          "records:prospect"
         ],
         [
           "records:content",
-          "Content drafts"
+          "Content drafts",
+          "records:prospect"
         ],
         [
           "records:announcement_draft",
-          "Announcement drafts"
-        ],
-        [
-          "legacy:searchvisibility",
-          "Website visibility"
+          "Announcement drafts",
+          "records:prospect"
         ],
         [
           "platform/seo",
           "SEO & website"
+        ],
+        [
+          "legacy:searchvisibility",
+          "Website visibility",
+          "platform/seo"
         ],
         [
           "platform/campaigns",
@@ -1287,27 +1300,32 @@
       [
         [
           "records:task",
+          "Tasks & incidents",
+          null,
           "Tasks & releases"
         ],
         [
           "records:incident",
-          "Incidents"
+          "Incidents",
+          "records:task"
         ],
         [
           "records:cost",
-          "Operating costs"
-        ],
-        [
-          "legacy:connections",
-          "Provider readiness"
-        ],
-        [
-          "platform/automation",
-          "AI automations"
+          "Operating costs",
+          "records:task"
         ],
         [
           "platform/reliability",
           "Reliability & backups"
+        ],
+        [
+          "legacy:connections",
+          "Provider readiness",
+          "platform/reliability"
+        ],
+        [
+          "platform/automation",
+          "AI automations"
         ],
         [
           "platform/localization",
