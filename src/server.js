@@ -10,6 +10,7 @@ import {createSubscriptionPolicy} from './subscription-policy.js';
 import {createPlatformIdentity} from './platform-identity.js';
 import {installOperatorConsole} from './operator-console.js';
 import { installPlatformHealth } from './platform-health.js';
+import { installOperatorExecutive } from './operator-executive.js';
 import { LEGAL_VERSION as PLATFORM_LEGAL_VERSION } from './legal.js';
 import {installMailCentre} from './mail-centre.js';
 import { createAutomationEngine } from './automation/engine.js';
@@ -6224,6 +6225,7 @@ platformIdentity.install(app,{limiter:operatorLoginLimiter});
 installOperatorConsole(app,{db,env,platform:platformIdentity,policy:subscriptionPolicy,requireSaasUser,requireSaasRole,saasAudit,entitlements});
 // Phase 04: founder revenue, storage and backups, AI usage, compliance and configuration (read-only).
 installPlatformHealth(app,{db,env,platform:platformIdentity,policy:subscriptionPolicy,legalVersion:PLATFORM_LEGAL_VERSION});
+installOperatorExecutive(app,{db,env,platform:platformIdentity,policy:subscriptionPolicy});
 // Phase 02: durable background jobs (retries, idempotency, dead letters) and founder-only operational views.
 const jobQueue=createJobQueue({db});
 jobQueue.register('audit.verify_chain',()=>{const r=verifyAuditChain(db);if(!r.ok)throw new Error('Audit chain did not verify ('+(r.reason||r.brokenAt||'unknown')+').');return {checked:r.checked}},{maxAttempts:3,baseDelayMs:600000,timeoutMs:120000});

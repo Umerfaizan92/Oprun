@@ -743,3 +743,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/suggestions.js, saas/workspace.html, saas/workspace-setup.js, saas/workspace-redesign.css, src/server.js, scripts/suggestions.test.mjs
 - Acceptance: Unit tests for dismissal memory and critical rule pass; browser check shows dismiss persists after reload, compliance disclaimer has no dismiss, setup checklist hides on Command Centre but stays in Brand & Settings; npm test and UI suites pass
 - Evidence: scripts/suggestions.test.mjs passes (critical rule for security/billing/compliance, per-user per-business store, reload memory, versioned ids, blocked storage). Browser at 1440 and 390: workforce tip dismissed and still hidden after reload; tax-advice disclaimer has no dismiss; Command Centre checklist Hide works, Brand & Settings checklist still shown; no page errors. npm test 73/73, test:ui 38, mobile-workspace-ui 316, navigation-ui 614, secret scan passed. (recorded 2026-11-23 on claude/transformation-staging at 9ce7390)
+
+## T-221 TR-30 Operator Console executive dashboard and shell fixes
+- Added: 2026-11-23
+- Requirement: Console shell and executive dashboard in the new system (backlog TR-30).
+- Files: src/operator-executive.js, src/server.js, office/console-executive.js, office/console.js, office/console.html, office/console-platform.css, scripts/operator-executive.test.mjs
+- Acceptance: Screenshots at 390/768/1440 in both themes; founder-only/role access test; axe no serious issues; existing suites pass
+- Evidence: scripts/operator-executive.test.mjs 3/3 (401 without platform sign-in; founder sees subscribers, revenue, support, operations with exact counts; support/billing/maintenance roles see only granted blocks; marketing gets 403; no names, emails or record contents). Browser screenshots in qa/visual/transformation/tr30 at 1440/768/390, dark and light; axe: no serious issues in either theme. npm test 73/73, test:ui 38, navigation-ui 614 (34 founder pages), mobile-workspace-ui 316, secret scan passed. (recorded 2026-11-23 on claude/transformation-phase1 at 44a2a77)

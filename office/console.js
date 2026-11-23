@@ -272,8 +272,13 @@
       host.replaceChildren();
       if (route === "overview") {
         const grid = el("div", "portal-grid");
-        for (const r of d.counts)
-          grid.append(panel(r.status, String(r.count) + " subscribers"));
+        // TR-30: executive dashboard first. If it cannot load, the earlier status panels are shown instead.
+        let exec = null;
+        try { exec = await api("/api/operator/executive"); } catch {}
+        if (seq !== sequence) return;
+        if (exec && window.OprunExecutive) window.OprunExecutive.render(host, exec);
+        else for (const r of d.counts)
+          grid.append(panel(window.OprunExecutive?.statusName(r.status) || r.status, String(r.count) + " subscribers"));
         grid.append(
           panel(
             "Complimentary",
@@ -695,7 +700,11 @@
     }
     const d = await api("/api/operator/me");
     me = d.user;
-    $("#console-role").textContent = me.name + " · " + me.role;
+    {
+      // TR-30: "Founder · founder" read twice; show the role once when it is the same as the name.
+      const roleName = { founder: "Founder", admin: "Administrator", billing: "Billing", support: "Support", marketing: "Marketing", maintenance: "Maintenance" }[me.role] || me.role;
+      $("#console-role").textContent = String(me.name || "").trim().toLowerCase() === String(me.role || "").toLowerCase() || me.name === roleName ? roleName : me.name + " · " + roleName;
+    }
     const nav = $("#console-nav");
     navigation = new window.SuperProNavigation.Navigation({
       rail: document.getElementById('console-rail'), toggle: document.getElementById('rail-toggle'),
