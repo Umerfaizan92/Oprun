@@ -77,7 +77,8 @@
     let shown = 0;
     for (const { g, items } of groups) {
       // One or two extra features are shown directly; only longer lists sit behind "More in …".
-      const extra = items.filter(i => i.secondary && match(i)), main = [...items.filter(i => !i.secondary && match(i)), ...(extra.length < 3 ? extra : [])], more = extra.length < 3 ? [] : extra;
+      const extra = q ? items.filter(i => i.secondary && match(i)) : [], // TR-21: merged pages open from their main page; they still appear when searched for
+        _x = 0, main = [...items.filter(i => !i.secondary && match(i)), ...(extra.length < 3 ? extra : [])], more = extra.length < 3 ? [] : extra;
       if (!main.length && !more.length) continue; shown += main.length + more.length;
       const block = el('section', { class: 'cc-group', 'aria-label': g.label }, el('h3', {}, icon(GROUP_ICON[g.id] || 'i-grid'), el('span', { text: g.label }), el('small', { class: 'cc-group-count', text: String(main.length + more.length) })), el('div', { class: 'cc-grid' }, main.map(i => tile(g, i))));
       if (more.length) block.append(q ? el('div', { class: 'cc-grid' }, more.map(i => tile(g, i))) : el('details', { class: 'cc-more' }, el('summary', { text: tr('ff.more', { group: g.label, n: more.length }, `More in ${g.label} (${more.length})`) }), el('div', { class: 'cc-grid' }, more.map(i => tile(g, i)))));

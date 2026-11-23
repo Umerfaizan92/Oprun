@@ -100,11 +100,17 @@ try {
     for (const g of mapping.business) {
       for (const item of g.items) {
         await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
-        const group = p.locator(`[data-nav-group="${g.id}"]`);
-        if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
         const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
-        const more = link.locator('xpath=ancestor::details');
-        if (await more.count() && !await link.isVisible()) await more.locator('summary').click();
+        // TR-21: a merged page is listed under its main page (possibly in another group) once that page is open.
+        const home = await link.evaluate(e => e.closest('.navigation-group').querySelector('[data-nav-group]').dataset.navGroup);
+        const group = p.locator(`[data-nav-group="${home}"]`);
+        if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+        const parent = await link.evaluate(e => e.closest('.navigation-subpages')?.dataset.navParent || '');
+        if (parent && !await link.isVisible()) {
+          await p.locator(`#business-navigation [data-nav-page="${parent}"]`).click(); await p.locator('#' + parent + '-view').waitFor({ state: 'visible' }); await settle(p);
+          await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
+          if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+        }
         await link.click();
         await p.locator('#' + item.view + '-view').waitFor({ state: 'visible' }); await settle(p);
         assert.equal(await link.getAttribute('aria-current'), 'page', item.path);
@@ -119,12 +125,13 @@ try {
     await p.reload(); // Fresh disclosure defaults, independent of manual openings in the route traversal.
     await p.locator('#unifiedinbox-view').waitFor({state:'visible'});
     if(width>760) await p.locator('#workspace-workflows [aria-label="Unified Inbox"]').waitFor();
-    if(width<=760){await p.locator('[data-dock-key=menu]').click();await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page=mail]')}).locator('summary').click();}
-    // T-174: the related-pages row lists main pages only, so on wider screens the older email folder opens by its address.
-    if(width<=760) await p.locator('#business-navigation a[href="#communications/email"]').click(); else { assert.equal(await p.locator('#workspace-workflows a[href="#communications/email"]').count(),0,'older pages are not in the related row'); await p.evaluate(()=>{location.hash='communications/email'}); }
+    // TR-21: the Email folder is a tab of the Unified Inbox: the second tab row on wider screens, nested in the menu on phones.
+    if(width<=760){await p.locator('[data-dock-key=menu]').click();await p.locator('#business-navigation .navigation-subpages[data-nav-parent=unifiedinbox] a[href="#communications/email"]').click();}
+    else { assert.equal(await p.locator('#workspace-workflows .workflow-links:not(.workflow-sublinks) a[href="#communications/email"]').count(),0,'merged pages are not in the main row'); await p.locator('#workspace-workflows .workflow-sublinks a[href="#communications/email"]').click(); }
     await p.locator('#mail-view').waitFor({state:'visible'});
-    if(width>760) assert.equal(await p.locator('#business-navigation .navigation-more').filter({has:p.locator('[data-nav-page="mail"]')}).getAttribute('open'),null,'selected secondary tool stays collapsed until requested');
-    checked('Business','b04/unified','Inbox context opens the Email folder without forcing More open',width);
+    if(width>760) assert.equal(await p.locator('#workspace-workflows .workflow-links:not(.workflow-sublinks) [aria-current=page]').getAttribute('href'),'#communications/inbox','main row keeps the Inbox current');
+    assert.equal(await p.locator('#business-navigation .navigation-more').count(),0,'no More lists');
+    checked('Business','b04/unified','Inbox tab row opens the Email folder',width);
     await p.goto(s.base + '/saas/workspace.html#b07/ledger?section=reports'); await p.locator('#finance-view').waitFor({ state: 'visible' });
     await p.locator('[data-fin-tab=reports][aria-selected=true]').waitFor({state:'attached'});
     await p.locator(width<=760?'.mobile-workspace-sections':'.view:not([hidden])').getByRole(width<=760?'button':'tab', { name: 'Costs & overheads', exact: true }).click();

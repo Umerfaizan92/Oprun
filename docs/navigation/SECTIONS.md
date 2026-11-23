@@ -54,7 +54,7 @@ Every page below was opened through its sidebar link at 1440 px and 390 px. List
 
 | Page / sidebar submenu | Route | Top sections in displayed order | Navigation |
 |---|---|---|---|
-| Media Studio | `growth/media` | Start from anything you already have → AI Render Specification → Platform suggestions → Creative readiness → Saved specifications | PASS, both widths |
+| Media Studio | `growth/media` | Library → Reels → Editor → AI video | PASS, both widths |
 | Growth Engine | `growth/hub` | Plan → Calendar → Reuse a post → About you → Activity | PASS, both widths |
 | Campaign Drafts | `growth/drafts` | Single content view; no additional tablist observed | PASS, both widths |
 | Campaign Studio | `growth/campaigns` | Section: New campaign → Section: Campaigns | PASS, both widths |

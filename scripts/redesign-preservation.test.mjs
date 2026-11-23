@@ -46,3 +46,8 @@ test('all legacy and individual SEO entries stay secondary under More',()=>{
  const expected=['archive','comms','mail','phone','calls','businesscampaigns','seoaudit','seoclusters','seogoogle','seostudio','seolocal','seoanalytics','seoreports','website','visibility','searchconsole','backlinks','finsales','migration','exports','supportaccess','finplan'];
  for(const id of expected) assert.equal(items.find(i=>i.view===id)?.secondary,true,id);
 });
+test('TR-21: every secondary page opens as a tab of a main page, and no page is labelled older or classic',()=>{
+ const n=nav(),items=n.DOMAINS.flatMap(g=>g.items);
+ for(const i of items.filter(i=>i.secondary)){const p=n.PARENT[i.view];assert.ok(p,i.view+' has a main page');const main=items.find(x=>x.view===p);assert.ok(main&&!main.secondary,i.view+' -> '+p+' is a main page');assert.equal(i.parent,p);}
+ for(const i of items) assert.doesNotMatch(i.label,/\b(older|classic)\b/i,i.view);
+});

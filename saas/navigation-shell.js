@@ -77,6 +77,8 @@
     }
     setGroups(groups) {
       this.groups = groups; this.nav.replaceChildren();
+      this.pages = groups.flatMap(g => g.pages); const ids = new Set(this.pages.map(p => p.id));
+      this.parentOf = Object.fromEntries(this.pages.filter(p => p.parent && ids.has(p.parent) && p.parent !== p.id).map(p => [p.id, p.parent]));
       for (const g of groups) {
         const box = make('section', 'navigation-group'), b = make('button', 'portal-main-button navigation-group-toggle'); b.type = 'button'; b.dataset.navGroup = g.id;
         if (g.attribute) b.setAttribute(g.attribute, g.id);
@@ -85,23 +87,33 @@
         const children = make('div', 'navigation-children'); children.id = this.rail.id + '-' + g.id; b.setAttribute('aria-controls', children.id);
         const more = make('details', 'navigation-more'); more.open = false;
         more.append(make('summary', '', window.OprunLocale?.translated?.('nav.more') ? window.OprunLocale.t('nav.more', { group: g.label }) : 'More ' + g.label.toLowerCase() + ' tools'));
-        for (const p of g.pages) { const a = make('a', 'navigation-page', p.label); a.href = '#' + p.path; a.dataset.navPage = p.id; a.setAttribute('aria-label', p.label); if (p.badge) { const badge = make('span', 'navigation-badge'); badge.dataset.badgeSource = p.badge; a.append(badge); } (p.secondary ? more : children).append(a); }
+        const link = (p, cls) => { const a = make('a', cls, p.label); a.href = '#' + p.path; a.dataset.navPage = p.id; a.setAttribute('aria-label', p.label); if (p.badge) { const badge = make('span', 'navigation-badge'); badge.dataset.badgeSource = p.badge; a.append(badge); } return a; };
+        for (const p of g.pages) {
+          if (this.parentOf[p.id]) continue; // TR-21: shown under its main page instead
+          children.append(link(p, 'navigation-page'));
+          const kids = this.pages.filter(c => this.parentOf[c.id] === p.id);
+          if (kids.length) { const sub = make('div', 'navigation-subpages'); sub.dataset.navParent = p.id; sub.setAttribute('role', 'group'); sub.setAttribute('aria-label', p.label + ' tabs'); kids.forEach(c => sub.append(link(c, 'navigation-page navigation-subpage'))); children.append(sub); }
+        }
+        for (const p of g.pages.filter(p => p.secondary && !this.parentOf[p.id])) { children.querySelector(`[data-nav-page="${CSS.escape(p.id)}"]`)?.remove(); more.append(link(p, 'navigation-page')); }
         if (more.children.length > 1) children.append(more);
         box.append(b, children); this.nav.append(box);
       }
       this.setActive(this.active);
     }
-    setActive(id) { this.active = id; const g = this.groups.find(g => g.pages.some(p => p.id === id)); if (g) this.open = g.id; this.paint(); }
+    setActive(id) { this.active = id; const anchor = this.parentOf?.[id] || id; const g = this.groups.find(g => g.pages.some(p => p.id === anchor)); if (g) this.open = g.id; this.paint(); }
     paint() {
       this.rail.inert = (this.autoHide || media.matches) && !this.drawer;
-      this.rail.querySelectorAll('.navigation-group').forEach(box => { const b = box.firstElementChild, id = b.dataset.navGroup, group = this.groups.find(g => g.id === id), open = id === this.open, active = group?.pages.some(p => p.id === this.active); b.setAttribute('aria-expanded', String(open)); b.classList.toggle('has-active', !!active); const children = b.nextElementSibling; children.hidden = !open;
+      this.rail.querySelectorAll('.navigation-group').forEach(box => { const b = box.firstElementChild, id = b.dataset.navGroup, group = this.groups.find(g => g.id === id), open = id === this.open, active = group?.pages.some(p => p.id === (this.parentOf?.[this.active] || this.active)); b.setAttribute('aria-expanded', String(open)); b.classList.toggle('has-active', !!active); const children = b.nextElementSibling; children.hidden = !open;
         if (this.collapsed && !media.matches && open) { const r = b.getBoundingClientRect(); children.style.top = Math.max(8, Math.min(r.top, innerHeight - 220)) + 'px'; } else children.style.top = '';
         // Keep disclosure state under user control, even on a secondary deep link.
         children.querySelectorAll('a').forEach(a => { if (a.dataset.navPage === this.active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+        // Merged pages are listed under their main page while that page (or one of them) is open.
+        const anchor = this.parentOf?.[this.active] || this.active;
+        children.querySelectorAll('.navigation-subpages').forEach(sub => { sub.hidden = sub.dataset.navParent !== anchor; sub.previousElementSibling?.classList.toggle('has-active-child', anchor !== this.active && sub.dataset.navParent === anchor); });
       });
       document.body.dataset.navigationCompact = String(this.collapsed && !media.matches);
     }
-    search(q) { q = String(q).trim().toLowerCase(); this.nav.querySelectorAll('.navigation-group').forEach(box => { const group = box.querySelector('[data-nav-group]'); const groupMatch = group.textContent.toLowerCase().includes(q); let hit = groupMatch; for (const a of box.querySelectorAll('a')) { a.hidden = !!q && !groupMatch && !a.textContent.toLowerCase().includes(q); if (!a.hidden) hit = true; } box.hidden = !hit; if (q && hit) { box.querySelectorAll('details').forEach(d => { d.open = true; }); box.lastElementChild.hidden = false; group.setAttribute('aria-expanded', 'true'); } }); if (!q) this.paint(); }
+    search(q) { q = String(q).trim().toLowerCase(); this.nav.querySelectorAll('.navigation-group').forEach(box => { const group = box.querySelector('[data-nav-group]'); const groupMatch = group.textContent.toLowerCase().includes(q); let hit = groupMatch; for (const a of box.querySelectorAll('a')) { a.hidden = !!q && !groupMatch && !a.textContent.toLowerCase().includes(q); if (!a.hidden) hit = true; } box.hidden = !hit; if (q && hit) { box.querySelectorAll('details').forEach(d => { d.open = true; }); box.querySelectorAll('.navigation-subpages').forEach(s => { s.hidden = false; }); box.lastElementChild.hidden = false; group.setAttribute('aria-expanded', 'true'); } }); if (!q) this.paint(); }
   }
   window.SuperProNavigation = { Navigation, canLeave, hasEdits };
 })();

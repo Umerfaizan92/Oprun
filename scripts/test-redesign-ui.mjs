@@ -8,7 +8,7 @@ const server=await startServer();let browser;
 const errors=[],axe=fs.readFileSync(new URL('../node_modules/axe-core/axe.min.js',import.meta.url),'utf8');
 fs.mkdirSync('qa/visual/redesign',{recursive:true});
 try {
- browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||undefined});
+ browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||process.env.UI_CHROMIUM_PATH||undefined});
  const owner=await seedOwner(server);
  for(const width of [320,390,768,1440]) {
   const context=await ownerContext(browser,server,owner,{viewport:{width,height:1000},reducedMotion:'reduce'});
@@ -94,21 +94,19 @@ try {
   }
   await page.goto(server.base+'/saas/workspace.html#b04/unified');
   await page.locator('#unifiedinbox-view').waitFor({state:'visible'});
-  if(width<=760){await page.locator('[data-dock-key=menu]').click();await page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page=mail]')}).locator('summary').click();}
-  if(width<=760){const link=page.locator('#business-navigation a[href="#communications/email"]');await link.waitFor();
+  // TR-21: the Email folder is a tab of the Unified Inbox (second tab row; nested under Inbox in the menu).
+  if(width<=760){await page.locator('[data-dock-key=menu]').click();const link=page.locator('#business-navigation .navigation-subpages[data-nav-parent=unifiedinbox] a[href="#communications/email"]');await link.waitFor();
   assert.ok(await link.evaluate(e=>e.getBoundingClientRect().height>=44));
-  await link.click();}else{assert.equal(await page.locator('#workspace-workflows a[href="#communications/email"]').count(),0,'related row lists main pages only (T-174)');await page.evaluate(()=>{location.hash='communications/email'});}
+  await link.click();}else{assert.equal(await page.locator('#workspace-workflows .workflow-links:not(.workflow-sublinks) a[href="#communications/email"]').count(),0,'main row lists main pages only (T-174)');await page.locator('#workspace-workflows .workflow-sublinks a[href="#communications/email"]').click();}
   await page.locator('#mail-view').waitFor({state:'visible'});
-  assert.equal(await page.locator((width<=760?'#business-navigation':'#workspace-workflows')+' a[href="#communications/email"]').getAttribute('aria-current'),'page');
+  assert.equal(await page.locator((width<=760?'#business-navigation':'#workspace-workflows .workflow-sublinks')+' a[href="#communications/email"]').getAttribute('aria-current'),'page');
   await page.reload();await page.locator('#mail-view').waitFor({state:'visible'});
-  const more=page.locator('#business-navigation .navigation-more').filter({has:page.locator('[data-nav-page="mail"]')});
-  assert.equal(await more.getAttribute('open'),null,'secondary navigation does not force More open');
+  assert.equal(await page.locator('#business-navigation .navigation-more').count(),0,'no More lists (TR-21)');
   await page.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
-  await more.locator('summary').click();assert.equal(await more.getAttribute('open'),'','More opens manually');
-  await more.locator('summary').press('Enter');assert.equal(await more.getAttribute('open'),null,'More can close while its page is active');
+  assert.ok(await page.locator('#business-navigation .navigation-subpages[data-nav-parent=unifiedinbox] [data-nav-page=mail]').isVisible(),'Email folder listed under Unified Inbox');
   await page.locator('#business-navigation [data-nav-group="today"]').click();
   await page.locator('#business-navigation [data-nav-group="communications"]').click();
-  assert.equal(await more.getAttribute('open'),null,'repainting does not reopen a manually closed More');
+  assert.ok(await page.locator('#business-navigation .navigation-subpages[data-nav-parent=unifiedinbox] [data-nav-page=mail]').isVisible(),'repainting keeps the Email folder under Unified Inbox');
   await page.screenshot({path:`qa/visual/redesign/business-drawer-${width}.png`,fullPage:true});
   await page.keyboard.press('Escape');
 

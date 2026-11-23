@@ -4,25 +4,7 @@
     {
       "route": "today/home",
       "width": 390,
-      "detail": "Section: Business overview",
-      "result": "PASS"
-    },
-    {
-      "route": "today/home",
-      "width": 390,
-      "detail": "Section: Your Workspace",
-      "result": "PASS"
-    },
-    {
-      "route": "today/home",
-      "width": 390,
-      "detail": "Section: Action Centre",
-      "result": "PASS"
-    },
-    {
-      "route": "today/home",
-      "width": 390,
-      "detail": "Section: Workflow Guidance",
+      "detail": "Page tab: Business overview",
       "result": "PASS"
     },
     {
@@ -34,25 +16,7 @@
     {
       "route": "today/assistant",
       "width": 390,
-      "detail": "Section: How AI works",
-      "result": "PASS"
-    },
-    {
-      "route": "today/assistant",
-      "width": 390,
-      "detail": "Section: Ask AI",
-      "result": "PASS"
-    },
-    {
-      "route": "today/assistant",
-      "width": 390,
-      "detail": "Section: Save an operational task",
-      "result": "PASS"
-    },
-    {
-      "route": "today/assistant",
-      "width": 390,
-      "detail": "Section: Saved tasks",
+      "detail": "Page tab: How AI works",
       "result": "PASS"
     },
     {
@@ -64,19 +28,7 @@
     {
       "route": "today/approvals",
       "width": 390,
-      "detail": "Section: Decision overview",
-      "result": "PASS"
-    },
-    {
-      "route": "today/approvals",
-      "width": 390,
-      "detail": "Section: Queue & history",
-      "result": "PASS"
-    },
-    {
-      "route": "today/approvals",
-      "width": 390,
-      "detail": "Section: Approval policy",
+      "detail": "Page tab: Decision overview",
       "result": "PASS"
     },
     {
@@ -88,31 +40,7 @@
     {
       "route": "today/automations",
       "width": 390,
-      "detail": "Section: Automations",
-      "result": "PASS"
-    },
-    {
-      "route": "today/automations",
-      "width": 390,
-      "detail": "Section: Activity",
-      "result": "PASS"
-    },
-    {
-      "route": "today/automations",
-      "width": 390,
-      "detail": "Section: Suggestions & reports",
-      "result": "PASS"
-    },
-    {
-      "route": "today/automations",
-      "width": 390,
-      "detail": "Section: Rules & safety",
-      "result": "PASS"
-    },
-    {
-      "route": "today/automations",
-      "width": 390,
-      "detail": "Section: Audit report",
+      "detail": "Page tab: Automations",
       "result": "PASS"
     },
     {
@@ -124,7 +52,19 @@
     {
       "route": "work/enquiries",
       "width": 390,
+      "detail": "Page tab: Enquiries",
+      "result": "PASS"
+    },
+    {
+      "route": "work/enquiries",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "work/quotes",
+      "width": 390,
+      "detail": "Page tab: Enquiries",
       "result": "PASS"
     },
     {
@@ -136,43 +76,31 @@
     {
       "route": "work/bookings",
       "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "Page tab: Enquiries",
       "result": "PASS"
     },
     {
-      "route": "work/jobs",
-      "width": 390,
-      "detail": "Section: Create work order",
-      "result": "PASS"
-    },
-    {
-      "route": "work/jobs",
-      "width": 390,
-      "detail": "Section: Open work orders",
-      "result": "PASS"
-    },
-    {
-      "route": "work/jobs",
+      "route": "work/bookings",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "work/stock",
+      "route": "work/jobs",
       "width": 390,
-      "detail": "Section: Reorder",
+      "detail": "Page tab: Create work order",
+      "result": "PASS"
+    },
+    {
+      "route": "work/jobs",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "work/stock",
       "width": 390,
-      "detail": "Section: Most used",
-      "result": "PASS"
-    },
-    {
-      "route": "work/stock",
-      "width": 390,
-      "detail": "Section: Stock on hand",
+      "detail": "Page tab: Reorder",
       "result": "PASS"
     },
     {
@@ -184,7 +112,19 @@
     {
       "route": "work/archive",
       "width": 390,
+      "detail": "Page tab: Enquiries",
+      "result": "PASS"
+    },
+    {
+      "route": "work/archive",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "customers/directory",
+      "width": 390,
+      "detail": "Page tab: Customer Directory",
       "result": "PASS"
     },
     {
@@ -194,15 +134,27 @@
       "result": "PASS"
     },
     {
-      "route": "people/workers",
+      "route": "growth/consent",
       "width": 390,
-      "detail": "Section: Add worker",
+      "detail": "Section: Marketing consent",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/consent",
+      "width": 390,
+      "detail": "Section: Unsubscribed and suppressed",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/consent",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "people/workers",
       "width": 390,
-      "detail": "Section: People",
+      "detail": "Page tab: Add worker",
       "result": "PASS"
     },
     {
@@ -214,13 +166,7 @@
     {
       "route": "people/staff",
       "width": 390,
-      "detail": "Section: Business members",
-      "result": "PASS"
-    },
-    {
-      "route": "people/staff",
-      "width": 390,
-      "detail": "Section: Invitation history",
+      "detail": "Page tab: Business members",
       "result": "PASS"
     },
     {
@@ -232,13 +178,7 @@
     {
       "route": "people/hiring",
       "width": 390,
-      "detail": "Section: Roles and adverts",
-      "result": "PASS"
-    },
-    {
-      "route": "people/hiring",
-      "width": 390,
-      "detail": "Section: Applicants",
+      "detail": "Page tab: Roles and adverts",
       "result": "PASS"
     },
     {
@@ -250,53 +190,35 @@
     {
       "route": "people/offshore",
       "width": 390,
+      "detail": "Page tab: Workers & Compliance",
+      "result": "PASS"
+    },
+    {
+      "route": "people/offshore",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "communications/inbox",
       "width": 390,
-      "detail": "Section: Inbox",
+      "detail": "Page tab: Inbox",
       "result": "PASS"
     },
     {
       "route": "communications/inbox",
       "width": 390,
-      "detail": "Section: Sent",
+      "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "communications/inbox",
+      "route": "communications/phone",
       "width": 390,
-      "detail": "Section: Drafts",
+      "detail": "Page tab: Keypad",
       "result": "PASS"
     },
     {
-      "route": "communications/inbox",
-      "width": 390,
-      "detail": "Section: Scheduled",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/inbox",
-      "width": 390,
-      "detail": "Section: Archived",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/inbox",
-      "width": 390,
-      "detail": "Section: Failed",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/inbox",
-      "width": 390,
-      "detail": "Section: Spam",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/inbox",
+      "route": "communications/phone",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
@@ -328,7 +250,19 @@
     {
       "route": "communications/receptionist",
       "width": 390,
+      "detail": "Page tab: Unified Inbox",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/receptionist",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/meetings",
+      "width": 390,
+      "detail": "Page tab: Unified Inbox",
       "result": "PASS"
     },
     {
@@ -340,67 +274,19 @@
     {
       "route": "communications/team-chat",
       "width": 390,
+      "detail": "Page tab: Unified Inbox",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/team-chat",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "communications/email",
       "width": 390,
-      "detail": "Section: All mail",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Received",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Drafts & approved",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Sent",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Scheduled",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Marketing",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Campaigns",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Enquiries",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Invoices",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/email",
-      "width": 390,
-      "detail": "Section: Support",
+      "detail": "Page tab: All mail",
       "result": "PASS"
     },
     {
@@ -412,7 +298,19 @@
     {
       "route": "communications/channels",
       "width": 390,
+      "detail": "Page tab: Unified Inbox",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/channels",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/numbers",
+      "width": 390,
+      "detail": "Page tab: Unified Inbox",
       "result": "PASS"
     },
     {
@@ -424,37 +322,19 @@
     {
       "route": "communications/calls-sms",
       "width": 390,
+      "detail": "Page tab: Unified Inbox",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/calls-sms",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "growth/hub",
       "width": 390,
-      "detail": "Section: Plan",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/hub",
-      "width": 390,
-      "detail": "Section: Calendar",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/hub",
-      "width": 390,
-      "detail": "Section: Reuse a post",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/hub",
-      "width": 390,
-      "detail": "Section: About you",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/hub",
-      "width": 390,
-      "detail": "Section: Activity",
+      "detail": "Page tab: Plan",
       "result": "PASS"
     },
     {
@@ -484,31 +364,7 @@
     {
       "route": "growth/media",
       "width": 390,
-      "detail": "Section: Start from anything you already have",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/media",
-      "width": 390,
-      "detail": "Section: AI Render Specification",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/media",
-      "width": 390,
-      "detail": "Section: Platform suggestions",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/media",
-      "width": 390,
-      "detail": "Section: Creative readiness",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/media",
-      "width": 390,
-      "detail": "Section: Saved specifications",
+      "detail": "Page tab: Library",
       "result": "PASS"
     },
     {
@@ -518,111 +374,201 @@
       "result": "PASS"
     },
     {
-      "route": "growth/consent",
+      "route": "website/home",
       "width": 390,
-      "detail": "Section: Marketing consent",
+      "detail": "Page tab: Overview",
       "result": "PASS"
     },
     {
-      "route": "growth/consent",
-      "width": 390,
-      "detail": "Section: Unsubscribed and suppressed",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/consent",
+      "route": "website/home",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo",
+      "route": "website/search",
       "width": 390,
       "detail": "Section: Google",
       "result": "PASS"
     },
     {
-      "route": "growth/seo",
+      "route": "website/search",
       "width": 390,
       "detail": "Section: Scheduled SEO jobs",
       "result": "PASS"
     },
     {
-      "route": "growth/seo",
+      "route": "website/search",
       "width": 390,
       "detail": "Section: Your sites",
       "result": "PASS"
     },
     {
-      "route": "growth/seo",
+      "route": "website/search",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/website-builder",
+      "route": "website/pages",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/pages",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-audit",
+      "route": "website/seo-audit",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/seo-audit",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-keywords",
+      "route": "website/seo-keywords",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/seo-keywords",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-google",
+      "route": "website/seo-google",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/seo-google",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-content",
+      "route": "website/seo-content",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/seo-content",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "width": 390,
       "detail": "Section: Checks",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "width": 390,
       "detail": "Section: Reviews",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "width": 390,
       "detail": "Section: Service-area and location pages",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-analytics",
+      "route": "website/seo-analytics",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/seo-analytics",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-reports",
+      "route": "website/seo-reports",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/seo-reports",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 390,
+      "detail": "Page tab: Score",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-connection",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-connection",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/backlinks",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/backlinks",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/domain",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
+      "result": "PASS"
+    },
+    {
+      "route": "website/domain",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "growth/drafts",
+      "width": 390,
+      "detail": "Page tab: Campaign Studio",
       "result": "PASS"
     },
     {
@@ -632,93 +578,21 @@
       "result": "PASS"
     },
     {
-      "route": "growth/search-readiness",
-      "width": 390,
-      "detail": "Section: Score",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 390,
-      "detail": "Section: Business facts",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 390,
-      "detail": "Section: Content library",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 390,
-      "detail": "Section: AI answers",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 390,
-      "detail": "Section: Schema & files",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-connection",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/backlinks",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/website-domain",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
       "route": "money/ledger",
       "width": 390,
-      "detail": "Section: Overview",
-      "result": "PASS"
-    },
-    {
-      "route": "money/ledger",
-      "width": 390,
-      "detail": "Section: Jobs & payments",
-      "result": "PASS"
-    },
-    {
-      "route": "money/ledger",
-      "width": 390,
-      "detail": "Section: Get paid",
-      "result": "PASS"
-    },
-    {
-      "route": "money/ledger",
-      "width": 390,
-      "detail": "Section: Costs & overheads",
-      "result": "PASS"
-    },
-    {
-      "route": "money/ledger",
-      "width": 390,
-      "detail": "Section: Reports",
+      "detail": "Page tab: Overview",
       "result": "PASS"
     },
     {
       "route": "money/ledger",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "money/invoices",
+      "width": 390,
+      "detail": "Page tab: Profit & Payments",
       "result": "PASS"
     },
     {
@@ -850,49 +724,7 @@
     {
       "route": "setup/settings",
       "width": 390,
-      "detail": "Section: Business profile",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: Contact details",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: Address",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: Workspace design",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: Appearance",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: Services & area",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: Approvals",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/settings",
-      "width": 390,
-      "detail": "Section: AI preferences",
+      "detail": "Page tab: Business profile",
       "result": "PASS"
     },
     {
@@ -904,19 +736,7 @@
     {
       "route": "setup/connections",
       "width": 390,
-      "detail": "Section: Secure connection policy",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/connections",
-      "width": 390,
-      "detail": "Section: Channel operations",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/connections",
-      "width": 390,
-      "detail": "Section: Your business connections",
+      "detail": "Page tab: Secure connection policy",
       "result": "PASS"
     },
     {
@@ -928,43 +748,7 @@
     {
       "route": "setup/plans",
       "width": 390,
-      "detail": "Section: Current access",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/plans",
-      "width": 390,
-      "detail": "Section: Compare plans",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/plans",
-      "width": 390,
-      "detail": "Section: Payment connections",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/plans",
-      "width": 390,
-      "detail": "Section: Usage & add-ons",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/plans",
-      "width": 390,
-      "detail": "Section: Billing safeguards",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/plans",
-      "width": 390,
-      "detail": "Section: Plan features",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/plans",
-      "width": 390,
-      "detail": "Section: Your workspace stays yours",
+      "detail": "Page tab: Current access",
       "result": "PASS"
     },
     {
@@ -976,43 +760,7 @@
     {
       "route": "setup/trust",
       "width": 390,
-      "detail": "Section: Owner control centre",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/trust",
-      "width": 390,
-      "detail": "Section: Governance follows the business profile",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/trust",
-      "width": 390,
-      "detail": "Section: AI routes. Authorised people decide.",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/trust",
-      "width": 390,
-      "detail": "Section: Policies relevant to your role",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/trust",
-      "width": 390,
-      "detail": "Section: Protected case management",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/trust",
-      "width": 390,
-      "detail": "Section: Owner & senior notifications",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/trust",
-      "width": 390,
-      "detail": "Section: Audit & governance ledger",
+      "detail": "Page tab: Owner control centre",
       "result": "PASS"
     },
     {
@@ -1024,61 +772,31 @@
     {
       "route": "setup/automation",
       "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "Page tab: Brand & Settings",
       "result": "PASS"
     },
     {
-      "route": "setup/help",
-      "width": 390,
-      "detail": "Section: Get contextual help",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/help",
-      "width": 390,
-      "detail": "Section: Policies and escalation",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/help",
+      "route": "setup/automation",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "setup/manual",
+      "route": "setup/help",
       "width": 390,
-      "detail": "Section: Workspace map",
+      "detail": "Page tab: Get contextual help",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/help",
+      "width": 390,
+      "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "setup/manual",
       "width": 390,
-      "detail": "Section: Current area",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/manual",
-      "width": 390,
-      "detail": "Section: Your role",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/manual",
-      "width": 390,
-      "detail": "Section: Next steps",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/manual",
-      "width": 390,
-      "detail": "Section: Connections guide",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/manual",
-      "width": 390,
-      "detail": "Section: Help",
+      "detail": "Page tab: Workspace map",
       "result": "PASS"
     },
     {
@@ -1090,37 +808,31 @@
     {
       "route": "setup/import",
       "width": 390,
+      "detail": "Page tab: Brand & Settings",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/import",
+      "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "setup/export",
       "width": 390,
-      "detail": "Section: Activity log",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/export",
-      "width": 390,
-      "detail": "Section: Worker master sheet",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/export",
-      "width": 390,
-      "detail": "Section: Financial summary",
-      "result": "PASS"
-    },
-    {
-      "route": "setup/export",
-      "width": 390,
-      "detail": "Section: Full workspace backup",
+      "detail": "Page tab: Activity log",
       "result": "PASS"
     },
     {
       "route": "setup/export",
       "width": 390,
       "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "setup/support-access",
+      "width": 390,
+      "detail": "Page tab: Brand & Settings",
       "result": "PASS"
     },
     {
@@ -1346,6 +1058,12 @@
       "result": "PASS"
     },
     {
+      "route": "growth/consent",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
       "route": "people/workers",
       "width": 1440,
       "detail": "Desktop section: Add worker",
@@ -1449,6 +1167,30 @@
     },
     {
       "route": "communications/inbox",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/phone",
+      "width": 1440,
+      "detail": "Desktop section: Keypad",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/phone",
+      "width": 1440,
+      "detail": "Desktop section: Recents",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/phone",
+      "width": 1440,
+      "detail": "Desktop section: Contacts",
+      "result": "PASS"
+    },
+    {
+      "route": "communications/phone",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
@@ -1606,31 +1348,25 @@
     {
       "route": "growth/media",
       "width": 1440,
-      "detail": "Desktop section: Start from anything you already have",
+      "detail": "Desktop section: Library",
       "result": "PASS"
     },
     {
       "route": "growth/media",
       "width": 1440,
-      "detail": "Desktop section: AI Render Specification",
+      "detail": "Desktop section: Reels",
       "result": "PASS"
     },
     {
       "route": "growth/media",
       "width": 1440,
-      "detail": "Desktop section: Platform suggestions",
+      "detail": "Desktop section: Editor",
       "result": "PASS"
     },
     {
       "route": "growth/media",
       "width": 1440,
-      "detail": "Desktop section: Creative readiness",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/media",
-      "width": 1440,
-      "detail": "Desktop section: Saved specifications",
+      "detail": "Desktop section: AI video",
       "result": "PASS"
     },
     {
@@ -1640,121 +1376,157 @@
       "result": "PASS"
     },
     {
-      "route": "growth/consent",
+      "route": "website/home",
+      "width": 1440,
+      "detail": "Desktop section: Overview",
+      "result": "PASS"
+    },
+    {
+      "route": "website/home",
+      "width": 1440,
+      "detail": "Desktop section: Build",
+      "result": "PASS"
+    },
+    {
+      "route": "website/home",
+      "width": 1440,
+      "detail": "Desktop section: Domain",
+      "result": "PASS"
+    },
+    {
+      "route": "website/home",
+      "width": 1440,
+      "detail": "Desktop section: Business email",
+      "result": "PASS"
+    },
+    {
+      "route": "website/home",
+      "width": 1440,
+      "detail": "Desktop section: Growth",
+      "result": "PASS"
+    },
+    {
+      "route": "website/home",
+      "width": 1440,
+      "detail": "Desktop section: Activity",
+      "result": "PASS"
+    },
+    {
+      "route": "website/home",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo",
+      "route": "website/search",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/website-builder",
+      "route": "website/pages",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-audit",
+      "route": "website/seo-audit",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-keywords",
+      "route": "website/seo-keywords",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-google",
+      "route": "website/seo-google",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-content",
+      "route": "website/seo-content",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-analytics",
+      "route": "website/seo-analytics",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
-      "route": "growth/seo-reports",
+      "route": "website/seo-reports",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Score",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Business facts",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Content library",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: AI answers",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 1440,
+      "detail": "Desktop section: Schema & files",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-readiness",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/search-connection",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/backlinks",
+      "width": 1440,
+      "detail": "Route, permissions-filtered current area, layout and footer",
+      "result": "PASS"
+    },
+    {
+      "route": "website/domain",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"
     },
     {
       "route": "growth/drafts",
-      "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 1440,
-      "detail": "Desktop section: Score",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 1440,
-      "detail": "Desktop section: Business facts",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 1440,
-      "detail": "Desktop section: Content library",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 1440,
-      "detail": "Desktop section: AI answers",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 1440,
-      "detail": "Desktop section: Schema & files",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-readiness",
-      "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/search-connection",
-      "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/backlinks",
-      "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
-      "result": "PASS"
-    },
-    {
-      "route": "growth/website-domain",
       "width": 1440,
       "detail": "Route, permissions-filtered current area, layout and footer",
       "result": "PASS"

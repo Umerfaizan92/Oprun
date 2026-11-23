@@ -673,3 +673,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/portal-shell.js, saas/workspace-phone.js, saas/workspace-chat.js, saas/app.js, saas/workspace.html, saas/workspace-gadgets.js, scripts/test-webphone-ui.mjs
 - Acceptance: axe label-content-name-mismatch 0 across 31 workspace sections at 1440 and 390; no visual change; tests pass
 - Evidence: axe label-content-name-mismatch across 31 workspace sections at 1440 and 390: 17 before, 0 after; screenshot diff 105 shots: no change except clock text; npm test 73/73; test:ui 38; webphone UI test passes; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at c26e48e)
+
+## T-211 TR-21 merge the 31 secondary workspace pages into their main pages as tabs
+- Added: 2026-11-23
+- Requirement: Backlog TR-21: merge the 31 secondary pages (audit §3) into their main pages as tabs or filters; aliases kept; no (older) label anywhere
+- Files: saas/workspace-nav.js, saas/portal-shell.js, saas/navigation-shell.js, saas/command-centre-sections.js, saas/locale-catalog.js, saas/workspace-redesign.css, version refs, tests: test-navigation-ui, test-redesign-ui, test-mobile-workspace-ui, test-ui, redesign-preservation; docs/navigation/SECTIONS.md
+- Acceptance: All 31 open from their main page (second tab row on wider screens, nested in the menu on phones); routes unchanged; no More lists; no older/classic labels in 4 languages; navigation, redesign, mobile and UI suites pass
+- Evidence: Browser check: 31/31 merged pages open at 1440 and 390 with main page current, own tab current, nested in menu; 0 More lists; screenshot diff only 14 main pages at 1440 (new tab row); npm test 73/73; test:ui 38; test:navigation-ui 614 checks; test:redesign-ui pass; test:mobile-workspace-ui 316 checks; redesign-preservation 6/6 (recorded 2026-11-23 on claude/transformation-staging at e62a7e4)

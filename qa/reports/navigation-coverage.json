@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T03:27:40.033Z",
+  "generated_at": "2026-11-23T02:05:58.857Z",
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
@@ -268,6 +268,30 @@
     },
     {
       "portal": "Business",
+      "route": "growth/consent",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
+      "section": "Section: Marketing consent",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
+      "section": "Section: Unsubscribed and suppressed",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
       "route": "people/workers",
       "section": "",
       "width": 1440,
@@ -406,6 +430,38 @@
       "portal": "Business",
       "route": "communications/inbox",
       "section": "Spam",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "Keypad",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "Recents",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "Contacts",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -661,7 +717,7 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "Start from anything you already have",
+      "section": "Library",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -669,7 +725,7 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "AI Render Specification",
+      "section": "Reels",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -677,7 +733,7 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "Platform suggestions",
+      "section": "Editor",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -685,22 +741,14 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "Creative readiness",
+      "section": "AI video",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
     },
     {
       "portal": "Business",
-      "route": "growth/media",
-      "section": "Saved specifications",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/consent",
+      "route": "website/home",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -708,23 +756,55 @@
     },
     {
       "portal": "Business",
-      "route": "growth/consent",
-      "section": "Section: Marketing consent",
+      "route": "website/home",
+      "section": "Overview",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
     },
     {
       "portal": "Business",
-      "route": "growth/consent",
-      "section": "Section: Unsubscribed and suppressed",
+      "route": "website/home",
+      "section": "Build",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/home",
+      "section": "Domain",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/home",
+      "section": "Business email",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/home",
+      "section": "Growth",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/home",
+      "section": "Activity",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -732,7 +812,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/search",
       "section": "Section: Google",
       "width": 1440,
       "result": "PASS",
@@ -740,7 +820,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/search",
       "section": "Section: Scheduled SEO jobs",
       "width": 1440,
       "result": "PASS",
@@ -748,7 +828,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/search",
       "section": "Section: Your sites",
       "width": 1440,
       "result": "PASS",
@@ -756,7 +836,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/website-builder",
+      "route": "website/pages",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -764,7 +844,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-audit",
+      "route": "website/seo-audit",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -772,7 +852,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-keywords",
+      "route": "website/seo-keywords",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -780,7 +860,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-google",
+      "route": "website/seo-google",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -788,7 +868,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-content",
+      "route": "website/seo-content",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -796,7 +876,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -804,7 +884,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "Section: Checks",
       "width": 1440,
       "result": "PASS",
@@ -812,7 +892,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "Section: Reviews",
       "width": 1440,
       "result": "PASS",
@@ -820,7 +900,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "Section: Service-area and location pages",
       "width": 1440,
       "result": "PASS",
@@ -828,7 +908,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-analytics",
+      "route": "website/seo-analytics",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -836,7 +916,79 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-reports",
+      "route": "website/seo-reports",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Score",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Business facts",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Content library",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "AI answers",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Schema & files",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-connection",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/backlinks",
+      "section": "",
+      "width": 1440,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/domain",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -845,78 +997,6 @@
     {
       "portal": "Business",
       "route": "growth/drafts",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Score",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Business facts",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Content library",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "AI answers",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Schema & files",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-connection",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/backlinks",
-      "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/website-domain",
       "section": "",
       "width": 1440,
       "result": "PASS",
@@ -1541,7 +1621,7 @@
     {
       "portal": "Business",
       "route": "b04/unified",
-      "section": "Inbox context opens the Email folder without forcing More open",
+      "section": "Inbox tab row opens the Email folder",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -1844,6 +1924,30 @@
     },
     {
       "portal": "Business",
+      "route": "growth/consent",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
+      "section": "Section: Marketing consent",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "growth/consent",
+      "section": "Section: Unsubscribed and suppressed",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
       "route": "people/workers",
       "section": "",
       "width": 390,
@@ -1982,6 +2086,38 @@
       "portal": "Business",
       "route": "communications/inbox",
       "section": "Spam",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "Keypad",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "Recents",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "communications/phone",
+      "section": "Contacts",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -2237,7 +2373,7 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "Start from anything you already have",
+      "section": "Library",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -2245,7 +2381,7 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "AI Render Specification",
+      "section": "Reels",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -2253,7 +2389,7 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "Platform suggestions",
+      "section": "Editor",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
@@ -2261,22 +2397,14 @@
     {
       "portal": "Business",
       "route": "growth/media",
-      "section": "Creative readiness",
+      "section": "AI video",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
     },
     {
       "portal": "Business",
-      "route": "growth/media",
-      "section": "Saved specifications",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/consent",
+      "route": "website/home",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2284,23 +2412,55 @@
     },
     {
       "portal": "Business",
-      "route": "growth/consent",
-      "section": "Section: Marketing consent",
+      "route": "website/home",
+      "section": "Overview",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
     },
     {
       "portal": "Business",
-      "route": "growth/consent",
-      "section": "Section: Unsubscribed and suppressed",
+      "route": "website/home",
+      "section": "Build",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/home",
+      "section": "Domain",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/home",
+      "section": "Business email",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/home",
+      "section": "Growth",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/home",
+      "section": "Activity",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2308,7 +2468,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/search",
       "section": "Section: Google",
       "width": 390,
       "result": "PASS",
@@ -2316,7 +2476,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/search",
       "section": "Section: Scheduled SEO jobs",
       "width": 390,
       "result": "PASS",
@@ -2324,7 +2484,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo",
+      "route": "website/search",
       "section": "Section: Your sites",
       "width": 390,
       "result": "PASS",
@@ -2332,7 +2492,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/website-builder",
+      "route": "website/pages",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2340,7 +2500,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-audit",
+      "route": "website/seo-audit",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2348,7 +2508,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-keywords",
+      "route": "website/seo-keywords",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2356,7 +2516,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-google",
+      "route": "website/seo-google",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2364,7 +2524,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-content",
+      "route": "website/seo-content",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2372,7 +2532,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2380,7 +2540,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "Section: Checks",
       "width": 390,
       "result": "PASS",
@@ -2388,7 +2548,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "Section: Reviews",
       "width": 390,
       "result": "PASS",
@@ -2396,7 +2556,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-local",
+      "route": "website/seo-local",
       "section": "Section: Service-area and location pages",
       "width": 390,
       "result": "PASS",
@@ -2404,7 +2564,7 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-analytics",
+      "route": "website/seo-analytics",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2412,7 +2572,79 @@
     },
     {
       "portal": "Business",
-      "route": "growth/seo-reports",
+      "route": "website/seo-reports",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Score",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Business facts",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Content library",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "AI answers",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-readiness",
+      "section": "Schema & files",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/search-connection",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/backlinks",
+      "section": "",
+      "width": 390,
+      "result": "PASS",
+      "detail": "Screen navigation and rendered panel passed; business writes untested"
+    },
+    {
+      "portal": "Business",
+      "route": "website/domain",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -2421,78 +2653,6 @@
     {
       "portal": "Business",
       "route": "growth/drafts",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Score",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Business facts",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Content library",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "AI answers",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-readiness",
-      "section": "Schema & files",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/search-connection",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/backlinks",
-      "section": "",
-      "width": 390,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Business",
-      "route": "growth/website-domain",
       "section": "",
       "width": 390,
       "result": "PASS",
@@ -3117,7 +3277,7 @@
     {
       "portal": "Business",
       "route": "b04/unified",
-      "section": "Inbox context opens the Email folder without forcing More open",
+      "section": "Inbox tab row opens the Email folder",
       "width": 390,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"

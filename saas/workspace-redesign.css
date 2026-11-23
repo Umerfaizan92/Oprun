@@ -147,3 +147,9 @@ body.portal-workspace .view .context-section-tabs{gap:4px;margin-bottom:12px}
 body.portal-workspace .view .context-section-tabs [role="tab"]{min-height:44px;padding:8px 12px;font:inherit;font-size:14px}
 body.portal-workspace .view>.page-heading .heading-actions :is(button,a){min-height:44px}
 @media(max-width:760px){body.portal-workspace .view>.page-heading{margin-bottom:12px}body.portal-workspace .view>.page-heading h1{font-size:22px}body.portal-workspace .view>.page-heading>div{min-width:0;max-width:100%}}
+/* TR-21: merged pages. A second tab row under the main page, and nested links under that page in the menu. */
+.workflow-sublinks{margin-top:-6px}
+.workflow-sublinks a{min-height:40px;font-size:13px}
+.navigation-subpages{display:grid;gap:2px;margin:2px 0 6px 14px;padding-left:10px;border-left:1px solid var(--line)}
+.navigation-subpages[hidden]{display:none}
+.navigation-subpage{min-height:44px;display:flex;align-items:center;font-size:13px}

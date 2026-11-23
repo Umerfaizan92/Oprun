@@ -35,10 +35,13 @@ try {
     assert.equal(await p.locator('.app-footer .workspace-trust-links a').count(),4);
     for(const group of groups) for(const item of group.items) {
       await p.locator(width<761?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
-      const toggle=p.locator(`[data-nav-group="${group.id}"]`);
-      if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click();
       const link=p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
-      const more=link.locator('xpath=ancestor::details');if(await more.count() && !await link.isVisible())await more.locator('summary').click();
+      // TR-21: merged pages are listed under their main page once it is open.
+      const home=await link.evaluate(e=>e.closest('.navigation-group').querySelector('[data-nav-group]').dataset.navGroup);
+      const toggle=p.locator(`[data-nav-group="${home}"]`);
+      if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click();
+      const parent=await link.evaluate(e=>e.closest('.navigation-subpages')?.dataset.navParent||'');
+      if(parent&&!await link.isVisible()){await p.locator(`#business-navigation [data-nav-page="${parent}"]`).click();await p.locator('#'+parent+'-view').waitFor();await settle(p);await p.locator(width<761?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click();}
       await link.click();await p.locator('#'+item.view+'-view').waitFor();await settle(p);
       const dock=p.locator('#mobile-workspace-dock');
       assert.equal(await dock.isVisible(),width<761,item.path+' dock breakpoint');

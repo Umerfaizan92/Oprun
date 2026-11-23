@@ -50,6 +50,17 @@ Updated: 23 Nov 2026
   tiles, Office chat, Ask Oprun, phone keypad keys, media upload area. axe scan of all 31 workspace sections at 1440
   and 390: 17 → 0 mismatches; screenshot diff shows no visual change (only clock text)
 
+- [x] TR-21 (T-211): the 31 secondary pages are now tabs of 14 main pages (e.g. Money › Profit & Payments ›
+  Bank Reconciliation, Reports & GST; Inbox › Email folder, Channel inbox; Website › 13 SEO/site tools). Wider
+  screens: a second tab row under the main row; phones: nested under the main page in the menu. The "More … tools"
+  lists and the Command Centre "More in …" lists are gone (merged pages still appear when searched). Labels no
+  longer say older/classic (English, Hindi, Urdu, Arabic). Routes, aliases, grants, element IDs and data unchanged.
+  Browser check: all 31 at 1440 and 390 pass; screenshot diff changes only the 14 main pages at laptop width.
+  Fixed two stale test inputs found on the way (Media Studio sections after T-202; redesign UI test now uses
+  UI_CHROMIUM_PATH). Follow-ups for owner decision: possible duplicates to retire after a data check (Channel inbox
+  vs Unified Inbox, Sales documents vs Invoices & Quotes, Campaign drafts vs Campaign Studio, Website & domain and
+  Search readiness vs Website; Profit & Payments has its own Reports tab beside Reports & GST)
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -72,5 +83,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-21: merge the 31 secondary pages (audit §3) into their main pages as tabs or filters, keeping every old address
-working; then TR-22 Command Centre.
+TR-22 Command Centre: compact cards, real analytics, no permanent suggestion panels; phone shows at most 3 cards above
+the fold.

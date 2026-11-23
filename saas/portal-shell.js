@@ -24,11 +24,24 @@
     // T-177: one related-pages row only (the page's main group); a page in two groups showed two stacked rows.
     // The row shown is the group that best matches this page's own menu section (Invoices: Documents & payments).
     const groupOf = (v) => (nav.DOMAINS || []).find(g => g.items.some(i => i.view === v))?.id;
-    const home = groupOf(view), score = (f) => f.items.filter(i => groupOf(i.view) === home).length;
-    for (const flow of nav.contexts(view, session.user.role).filter(f => f.items.length >= 2).sort((a, b) => score(b) - score(a)).slice(0, 1)) {
+    // TR-21: a merged page shows its main page as current in this row, and its own tab in the row below.
+    const role = session.user.role, anchor = nav.parentOf?.(view, role) || view;
+    const home = groupOf(anchor), score = (f) => f.items.filter(i => groupOf(i.view) === home).length;
+    for (const flow of nav.contexts(anchor, role).filter(f => f.items.length >= 2).sort((a, b) => score(b) - score(a)).slice(0, 1)) {
       const row = make('nav', 'workflow-links'); row.setAttribute('aria-label', flow.label);
       row.append(make('span', 'workflow-label', flow.label));
       for (const item of flow.items) {
+        const link = make('a', '', item.label); link.href = '#' + item.path;
+        if (item.view === anchor) link.setAttribute('aria-current', 'page');
+        row.append(link);
+      }
+      host.append(row);
+    }
+    const family = nav.childrenOf?.(anchor, role) || [];
+    if (family.length) {
+      const main = (nav.DOMAINS || []).flatMap(g => g.items).find(i => i.view === anchor);
+      const row = make('nav', 'workflow-links workflow-sublinks'); row.setAttribute('aria-label', (main?.label || 'Page') + ' tabs');
+      for (const item of [main, ...family].filter(Boolean)) {
         const link = make('a', '', item.label); link.href = '#' + item.path;
         if (item.view === view) link.setAttribute('aria-current', 'page');
         row.append(link);
@@ -89,7 +102,7 @@
     const key = `sp-nav:business:${session.user.id || session.user.email}:${session.organisation.id}`;
     if (contextKey !== key) { contextKey = key; shell.key = key; let compact = false; try { compact = localStorage.getItem(key) === 'collapsed'; } catch {} shell.setCollapsed(compact); }
     const allowed = new Set(nav.sequence(session.user.role));
-    shell.setGroups(nav.DOMAINS.map(d => ({ id: d.id, label: d.label, attribute: 'data-domain', icon: () => { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', '#' + d.icon); svg.append(use); return svg; }, pages: d.items.filter(i => allowed.has(i.view)).map(i => ({ id: i.view, path: i.path, label: i.label, badge: i.badge, secondary: i.secondary })) })).filter(d => d.pages.length));
+    shell.setGroups(nav.DOMAINS.map(d => ({ id: d.id, label: d.label, attribute: 'data-domain', icon: () => { const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', '#' + d.icon); svg.append(use); return svg; }, pages: d.items.filter(i => allowed.has(i.view)).map(i => ({ id: i.view, path: i.path, label: i.label, badge: i.badge, secondary: i.secondary, parent: nav.parentOf?.(i.view, session.user.role) || undefined })) })).filter(d => d.pages.length));
     shell.setActive(active); syncBadges(); breadcrumb(active); workflowContext(active); installFeatures();
   }
   function syncBadges() { rail?.querySelectorAll('[data-badge-source]').forEach(e => { const text = document.getElementById(e.dataset.badgeSource)?.textContent || ''; if (e.textContent !== text) e.textContent = text; }); }
