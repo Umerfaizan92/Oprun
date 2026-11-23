@@ -39,6 +39,8 @@
       state={status:'ready',steps,error:'',at:Date.now(),meta:{industry:cc.ok&&cc.v?.business?.code!=='custom'?cc.v?.business?.industry:''}};
       loading=null;paintAll();
       window.dispatchEvent(new CustomEvent('oprun:setup-status',{detail:summary()}));
+      // TR-25: a finished checklist is a completed suggestion, so the Command Centre stops showing it.
+      {const x=summary();window.OprunTips?.resolve?.('cc-setup-checklist@1',x.total>0&&x.done===x.total)}
       return state;
     })();
     return loading;
