@@ -666,3 +666,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/ds/retheme.css(+.br/.gz), saas/create-account.html, saas/sign-in.html, retheme version refs, saas/design-system.html
 - Acceptance: No horizontal overflow at 320/390/768; side-by-side fields aligned; intro stays while form scrolls on laptop; footer links not covered; sign-in fits one phone screen; operator link visible; tests pass
 - Evidence: Browser checks: scrollWidth equals viewport at 320/390/768 on 5 auth pages; intro rectTop 0 when scrolled 1300px at 1440; footer links covered by help button: 0; screenshots before/after; npm test 73/73; test:ui 38 (sign-in fits 390x900, operator link visible, no install link); a11y report: sign-in/create-account dark 0 issues (recorded 2026-11-23 on claude/transformation-staging at 27e1316)
+
+## T-210 Workspace accessibility: screen-reader names match visible labels (WCAG 2.5.3)
+- Added: 2026-11-23
+- Requirement: Fix label-content-name-mismatch found by the a11y report: 1–8 per workspace page
+- Files: saas/portal-shell.js, saas/workspace-phone.js, saas/workspace-chat.js, saas/app.js, saas/workspace.html, saas/workspace-gadgets.js, scripts/test-webphone-ui.mjs
+- Acceptance: axe label-content-name-mismatch 0 across 31 workspace sections at 1440 and 390; no visual change; tests pass
+- Evidence: axe label-content-name-mismatch across 31 workspace sections at 1440 and 390: 17 before, 0 after; screenshot diff 105 shots: no change except clock text; npm test 73/73; test:ui 38; webphone UI test passes; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at c26e48e)

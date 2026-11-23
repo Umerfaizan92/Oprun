@@ -46,6 +46,10 @@ Updated: 23 Nov 2026
   Install option. Note: the a11y report flags one contrast item on sign-in only when it forces light theme, which the
   sign-in pages do not offer (dark-only); already present before this change
 
+- [x] T-210: workspace screen-reader names now contain the visible label (WCAG 2.5.3): business menu button, Home
+  tiles, Office chat, Ask Oprun, phone keypad keys, media upload area. axe scan of all 31 workspace sections at 1440
+  and 390: 17 → 0 mismatches; screenshot diff shows no visual change (only clock text)
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -68,5 +72,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-Workspace accessibility: fix label-content-name-mismatch (visible text not in the accessible name, 1–8 per page),
-then TR-21 onwards from 02_BACKLOG.md.
+TR-21: merge the 31 secondary pages (audit §3) into their main pages as tabs or filters, keeping every old address
+working; then TR-22 Command Centre.

@@ -77,6 +77,7 @@
         shell.trigger.classList.add('navigation-business-trigger');
         shell.trigger.replaceChildren(mark,make('span','navigation-identity-name',name),make('span','navigation-identity-chevron','⌄'));
         shell.trigger.title = name + ' · Open business navigation';
+        shell.trigger.setAttribute('aria-label', name + ', open business navigation');
         identity.replaceChildren(mark.cloneNode(true),make('span','navigation-identity-name',name));
       };
       if (context) new MutationObserver(syncIdentity).observe(context,{childList:true,subtree:true,characterData:true,attributes:true});

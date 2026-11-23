@@ -69,7 +69,7 @@
     const endBtn = el('button', { type: 'button', class: 'ph-cs-end', 'aria-label': 'End call', onclick: () => hangUp() }, svg(PHONE));
     const pressed = (b) => b.getAttribute('aria-pressed') === 'true';
     const setPressed = (b, on) => b.setAttribute('aria-pressed', String(Boolean(on)));
-    const dtmfPad = el('div', { class: 'ph-pad ph-dtmf', role: 'group', 'aria-label': 'Send keypad tones', hidden: true }, [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']].map(([k, sub]) => el('button', { type: 'button', class: 'ph-key', 'aria-label': k, onclick: () => { try { live?.call?.dtmf(k); csNum.textContent = (live.tones = (live.tones || '') + k); } catch { /* not connected yet */ } } }, el('b', { text: k }), el('small', { text: sub }))));
+    const dtmfPad = el('div', { class: 'ph-pad ph-dtmf', role: 'group', 'aria-label': 'Send keypad tones', hidden: true }, [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']].map(([k, sub]) => el('button', { type: 'button', class: 'ph-key', 'aria-label': (k + ' ' + sub).trim(), onclick: () => { try { live?.call?.dtmf(k); csNum.textContent = (live.tones = (live.tones || '') + k); } catch { /* not connected yet */ } } }, el('b', { text: k }), ' ', el('small', { text: sub }))));
     const callScreen = el('div', { class: 'ph-callscreen', hidden: true, 'aria-label': 'Call in progress' },
       el('div', { class: 'ph-cs-top' }, el('span', { class: 'ph-avatar ph-cs-avatar', 'aria-hidden': 'true' }), csName, csNum, csState, csRec),
       dtmfPad,
@@ -190,7 +190,7 @@
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') call(input.value); });
     const press = (k) => { input.value += k; showMatch(); input.focus(); };
     const KEYS = [['1', ''], ['2', 'ABC'], ['3', 'DEF'], ['4', 'GHI'], ['5', 'JKL'], ['6', 'MNO'], ['7', 'PQRS'], ['8', 'TUV'], ['9', 'WXYZ'], ['*', ''], ['0', '+'], ['#', '']];
-    const pad = el('div', { class: 'ph-pad', role: 'group', 'aria-label': 'Keypad' }, KEYS.map(([k, sub]) => el('button', { type: 'button', class: 'ph-key', 'aria-label': k === '0' ? '0 (hold for +)' : k, onclick: () => press(k), oncontextmenu: (e) => { if (k === '0') { e.preventDefault(); press('+'); } } }, el('b', { text: k }), el('small', { text: sub }))));
+    const pad = el('div', { class: 'ph-pad', role: 'group', 'aria-label': 'Keypad' }, KEYS.map(([k, sub]) => el('button', { type: 'button', class: 'ph-key', 'aria-label': k === '0' ? '0 (hold for +)' : (k + ' ' + sub).trim(), onclick: () => press(k), oncontextmenu: (e) => { if (k === '0') { e.preventDefault(); press('+'); } } }, el('b', { text: k }), ' ', el('small', { text: sub }))));
     const keypad = el('div', { class: 'ph-keypad' },
       el('div', { class: 'ph-display' }, input, el('button', { type: 'button', class: 'ph-back', 'aria-label': 'Delete last digit', text: '⌫', onclick: () => { input.value = input.value.slice(0, -1); showMatch(); input.focus(); } })),
       match, pad,

@@ -52,7 +52,7 @@
   }
   function tile({key,label,value,fmt=v=>String(Math.round(v)),unit,sub,graphic,tone='gold',jump}){
     const num=el('strong',{class:'gx-num','data-key':key});
-    const card=el(jump?'button':'div',{class:`gx-tile gx-${tone}`,type:jump?'button':null,'data-jump':jump||null,'aria-label':`${label}: ${fmt(value)}${unit?' '+unit:''}. ${sub||''}`},
+    const card=el(jump?'button':'div',{class:`gx-tile gx-${tone}`,type:jump?'button':null,'data-jump':jump||null,'aria-label':null},
       el('div',{class:'gx-tile-head'},featureIcon(({inbox:'inbox',approvals:'approvals','jobs-today':'jobs',team:'workforce',profit:'finance'})[key]),el('span',{class:'gx-label',text:label})),
       el('div',{class:'gx-main'},el('div',{class:'gx-figure'},num,unit?el('em',{text:unit}):null),graphic||null),
       el('span',{class:'gx-sub',text:sub||''}));

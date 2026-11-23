@@ -67,7 +67,7 @@ try {
   await view.getByRole('button', { name: 'Mute' }).click();
   assert.equal(await view.getByRole('button', { name: 'Mute' }).getAttribute('aria-pressed'), 'true'); assert.equal(await page.evaluate(() => window.__call.muted), true);
   await view.getByRole('button', { name: 'Keypad' }).click();
-  await view.getByRole('group', { name: 'Send keypad tones' }).getByRole('button', { name: '5', exact: true }).click();
+  await view.getByRole('group', { name: 'Send keypad tones' }).getByRole('button', { name: '5 JKL', exact: true }).click();
   assert.equal(await page.evaluate(() => window.__call.tones), '5');
   await view.getByRole('button', { name: 'Hold' }).click(); await view.getByText('On hold').waitFor();
   await view.getByRole('button', { name: 'Resume' }).click(); await view.locator('.ph-cs-state', { hasText: /^0:\d\d$/ }).waitFor();
