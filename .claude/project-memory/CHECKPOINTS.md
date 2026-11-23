@@ -2551,3 +2551,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read docs/transformation/02_BACKLOG.md Phase 6 and start its first item.
+
+## CP-183 2026-11-23T18:17:28+00:00 T-225 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-225 (COMPLETED)
+- Completed steps: TR-40 committed on claude/transformation-phase1 (not on staging).
+- Incomplete steps: TR-41: create the 13 agents with real scheduled jobs and visible last-run results.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: agent-registry.test, automation-engine.test, npm test
+- Test results: 3/3, 8/8, 73/73
+- Git branch: claude/transformation-phase1
+- Commit: b9b414a (TR-40: agent registry on the automation engine); 35 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-41: list which agents have real platform catalogue actions today; add the missing platform actions needed (enquiries, onboarding, staff allocation, support, communications, UI quality, testing, media, integrations, billing, release) as level-1 read/report actions.
