@@ -2523,3 +2523,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-32: owner assigns enquiries, tickets, tasks and projects to Oprun staff with deadlines, status and completion evidence; build on platform_records.assigned_to.
+
+## CP-181 2026-11-23T17:16:28+00:00 T-223 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-223 (COMPLETED)
+- Completed steps: TR-32 pushed to claude/transformation-phase1. Staging still held at df4711c.
+- Incomplete steps: Hold staging until the owner finishes testing. Next: TR-33 merge crowded console groups into tabbed pages.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: platform-assignments.test, npm test, test:ui, navigation-ui, browser e2e, axe
+- Test results: 2/2, 73/73, 38, 630, pass, ok
+- Git branch: claude/transformation-phase1
+- Commit: 9af3307 (TR-32: assign work to Oprun staff, track it, review completion); 31 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-33: count console pages per group, merge crowded groups (Marketing, Operations) into tabbed pages, keep old addresses as aliases, record the page count.
