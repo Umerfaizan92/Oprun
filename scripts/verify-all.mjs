@@ -461,6 +461,8 @@ await stage('live', 'RBAC matrix and the end-to-end pipeline on a real server', 
       const auto = (await call('GET', '/api/saas/finance', { cookie: cookies.owner })).json.entries.filter((e) => e.source === 'auto');
       assert.equal(auto.length, 3, 'exactly one revenue, materials and labour entry after repeated saves');
       assert.equal(ov.json.current.overhead_cents, 10000);
+      // An overhead added this month is not charged to the months before it existed.
+      assert.deepEqual(ov.json.history.map((h) => h.overhead_cents), [0, 0, 0, 0, 0, 10000], 'overhead counts only from the month it was added');
       assert.equal((await call('GET', '/api/saas/finance/overview', { cookie: cookies.manager })).status, 403);
       assert.equal((await call('GET', '/api/saas/finance/overview', { cookie: cookies.ownerB })).json.current.revenue_cents, 0);
     });

@@ -79,6 +79,13 @@ Updated: 23 Nov 2026
   free."). Every page now has its own name as the title, matching the top bar; access notes (Owner only, Owner &
   admin only) kept. Remaining TR-23 work: per-module checks of forms and empty states with real data
 
+- [x] TR-23 part 2 (T-216, T-217): modules reviewed with a sample plumbing business built through the API
+  (scripts/visual/sample-data.mjs: 6 enquiries at every pipeline stage, 3 workers, stock, overheads). Fixed:
+  booking card, calendar and Jobs showed the same booking at different times (now the business time zone,
+  one format); the profit trend charged overheads to months before they existed; Workforce defaulted to
+  "Active" so newly added workers were hidden (now "Current team"); Stock figures ran into their labels (now
+  tiles); "-$0.00" for empty costs. Test site now warns that its data is erased on restart
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -101,5 +108,6 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-23 part 2: per-module review with sample data (forms, lists, empty and filled states) at 390 and 1440, then
-TR-24 modules by industry, plan and permission.
+TR-23 part 3: remaining modules with sample data (inbox, campaigns, website, settings, approvals with items), then
+TR-24 modules by industry, plan and permission. Hold pushes to claude/transformation-staging while the owner
+is testing (each deploy wipes the test site); push to claude/transformation-phase1 only until he says done.

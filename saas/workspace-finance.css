@@ -39,3 +39,6 @@
 .setup-tick{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:800}
 .setup-list li.done .setup-tick{background:#3fbf86;border-color:#3fbf86;color:#04140c}.setup-list em{font-style:normal;color:#3fbf86;font-weight:700;font-size:.8rem}
 html[data-theme="light"] .fin-tabs button.active{color:#6f5522;border-bottom-color:var(--sp-gold-600)}html[data-theme="light"] .media-drop{background:#fffaf0}
+/* Stock & Supplies uses the same figure tiles as Profit & Payments. */
+#stock-view .finance-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px;margin-bottom:14px}
+#stock-view .finance-kpi{display:flex;flex-direction:column;gap:2px}#stock-view .finance-kpi small{color:var(--muted);font-weight:700}#stock-view .finance-kpi strong{font-size:1.6rem;letter-spacing:-.02em}

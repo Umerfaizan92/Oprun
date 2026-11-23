@@ -21,7 +21,7 @@
     const max=Math.max(1,...o.history.map(h=>Math.abs(h.profit_cents)));
     $('#fin-trend').replaceChildren(...o.history.map(h=>el('div',{class:'fin-bar'},el('i',{class:h.profit_cents<0?'neg':'',style:`height:${Math.max(4,Math.round(Math.abs(h.profit_cents)/max*100))}%`,title:money(h.profit_cents)}),el('b',{text:monthName(h.month)}),el('small',{text:money(h.profit_cents)}))));
     const rows=[['Income',c.revenue_cents,'in'],['Materials',c.materials_cents,'out'],['Labour',c.labour_cents,'out'],['Other costs',c.other_cents,'out'],['Overheads',c.overhead_cents,'out']];
-    $('#fin-breakdown').replaceChildren(...rows.map(([l,v,k])=>el('article',{class:'row-card'},el('header',{},el('b',{text:l}),el('strong',{class:k==='in'?'finance-in':'finance-out',text:(k==='in'?'+':'-')+money(v)})))));
+    $('#fin-breakdown').replaceChildren(...rows.map(([l,v,k])=>el('article',{class:'row-card'},el('header',{},el('b',{text:l}),el('strong',{class:k==='in'?'finance-in':'finance-out',text:(v?(k==='in'?'+':'-'):'')+money(v)})))));
     $('#fin-note').textContent=o.note;
   }
   function field(label,name,value,step='0.01'){return el('label',{},el('span',{text:label}),el('input',{name,type:'number',min:'0',step,value:value===0?'':String(value)}))}

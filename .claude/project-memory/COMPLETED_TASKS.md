@@ -715,3 +715,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/auth.js, saas/app.js, saas/workspace-pipeline.js, src/server.js (/api/saas/me timezone), scripts/visual/sample-data.mjs, version refs
 - Acceptance: Test site shows a temporary-data notice on sign-in and create account (not on oprun.ai); booking card, calendar and Jobs show the same time and format with device time zone UTC or New York; tests pass
 - Evidence: Browser: notice visible on test-site sign-in and create account, hidden on normal site, operator link visible; booking 'Blocked kitchen drain' = 24 Nov 2026, 6:00 pm on card, calendar and Jobs with device TZ UTC and America/New_York; npm test 73/73; test:ui 38; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 3cfc939)
+
+## T-217 TR-23 part 2: filled-state review fixes (profit trend, workforce list, stock tiles, -$0.00)
+- Added: 2026-11-23
+- Requirement: TR-23 per-module review with sample data at 390 and 1440
+- Files: src/saas-platform.js, scripts/verify-all.mjs, saas/workspace-finance.js, saas/workspace-finance.css, saas/workspace.html, saas/app.js, saas/experience.css, version refs
+- Acceptance: Overheads count only from the month added (regression check); Workforce defaults to Current team so new workers show; Stock figures in tiles; zero costs show $0.00; tests pass
+- Evidence: verify-all overhead history [0,0,0,0,0,10000]; screenshots with sample data: trend Jun-Oct $0, Workforce shows 3 onboarding workers under Current team, Stock tiles; npm test 73/73; test:ui 38; test:mobile-workspace-ui 316 checks; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at df4711c)

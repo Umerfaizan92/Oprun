@@ -400,9 +400,9 @@ $('#save-workspace-branding')?.addEventListener('click',async()=>{
 async function loadWorkers(){
   refreshWorkerRoleSuggestions();
   const d=await api('/api/saas/workers'),list=$('#workers');
-  const filter=$('#worker-status-filter')?.value||'active';
+  const filter=$('#worker-status-filter')?.value||'current';
   const search=String($('#worker-directory-search')?.value||'').trim().toLowerCase();
-  const visible=d.workers.filter(w=>(filter==='all'||(filter==='active'?w.status==='active':filter==='onboarding'?w.status==='onboarding':filter==='inactive'?['inactive','archived','terminated','deactivated'].includes(w.status):true))&&(!search||[w.full_name,w.role_title,w.email,w.phone].some(value=>String(value||'').toLowerCase().includes(search))));
+  const visible=d.workers.filter(w=>(filter==='all'||(filter==='current'?!['inactive','archived','terminated','deactivated'].includes(w.status):filter==='active'?w.status==='active':filter==='onboarding'?w.status==='onboarding':filter==='inactive'?['inactive','archived','terminated','deactivated'].includes(w.status):true))&&(!search||[w.full_name,w.role_title,w.email,w.phone].some(value=>String(value||'').toLowerCase().includes(search))));
   list.innerHTML=visible.map(w=>{
     const skills=(w.skills||[]).slice(0,5);
     const active=w.status==='active';

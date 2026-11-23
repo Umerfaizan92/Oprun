@@ -479,11 +479,13 @@ export function installSaasPlatform(app, deps) {
     const org = req.saas.organisation_id;
     const month = /^\d{4}-\d{2}$/.test(String(req.query.month || '')) ? String(req.query.month) : isoNow().slice(0, 7);
     const sumFor = (m, where) => db.prepare(`SELECT COALESCE(SUM(amount_cents),0) a,COALESCE(SUM(tax_cents),0) t FROM organisation_finance_entries WHERE organisation_id=? AND substr(occurred_on,1,7)=? AND ${where}`).get(org, m);
-    const overheadMonthly = db.prepare(`SELECT amount_cents,period FROM finance_overheads WHERE organisation_id=? AND active=1`).all(org)
+    // An overhead counts from the month it was added, so the trend does not show costs for months before it existed.
+    const overheads = db.prepare(`SELECT amount_cents,period,created_at FROM finance_overheads WHERE organisation_id=? AND active=1`).all(org);
+    const overheadMonthly = (m) => overheads.filter((o) => String(o.created_at || '').slice(0, 7) <= m)
       .reduce((a, o) => a + (o.period === 'weekly' ? o.amount_cents * 52 / 12 : o.period === 'yearly' ? o.amount_cents / 12 : o.amount_cents), 0);
     const figures = (m) => {
       const rev = sumFor(m, `entry_type='revenue'`), mat = sumFor(m, `entry_type='expense' AND category='Materials'`), lab = sumFor(m, `entry_type='expense' AND category='Labour'`), oth = sumFor(m, `entry_type='expense' AND category NOT IN ('Materials','Labour')`);
-      const oh = Math.round(overheadMonthly);
+      const oh = Math.round(overheadMonthly(m));
       return { month: m, revenue_cents: rev.a, materials_cents: mat.a, labour_cents: lab.a, other_cents: oth.a, overhead_cents: oh, profit_cents: rev.a - mat.a - lab.a - oth.a - oh, gst_collected_cents: rev.t, gst_paid_cents: mat.t + oth.t };
     };
     const months = Array.from({ length: 6 }, (_, i) => { const d = new Date(Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5)) - 1 - (5 - i), 1)); return d.toISOString().slice(0, 7); });
