@@ -1,0 +1,35 @@
+// TR-40: operator routes for the agent registry. Reading needs operations read; creating or changing an agent
+// (which changes what automation may do) needs operations approve, or the founder.
+import { z } from 'zod';
+import { publicCatalogue } from '../automation/catalogue.js';
+
+export function installAgentRoutes(app, { registry, platform }) {
+  const actor = (req) => ({ id: req.platform.id, name: req.platform.name || 'Founder', role: req.platform.role });
+  const send = (res, r, ok = 200) => (r.ok ? res.status(ok).json(r) : res.status(r.status || 400).json({ ok: false, error: r.error }));
+  const read = [platform.identity, platform.permit('operations', 'read')];
+  const approve = [platform.identity, platform.permit('operations', 'approve')];
+
+  app.get('/api/operator/agents', ...read, (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    const eligible = publicCatalogue('platform').filter((a) => registry.agentEligible(a.key).ok).map((a) => ({ key: a.key, label: a.label, level: a.level, triggers: a.triggers }));
+    res.json({ ok: true, agents: registry.list(), eligible_actions: eligible, can_manage: platform.can(req, 'operations', 'approve') });
+  });
+  app.post('/api/operator/agents', ...approve, (req, res) => {
+    const r = registry.create(req.body, actor(req));
+    if (r.ok) platform.log(req.platform.id, 'agent.created', 'operations', r.id);
+    send(res, r, 201);
+  });
+  app.put('/api/operator/agents/:id', ...approve, (req, res) => {
+    const r = registry.update(req.params.id, req.body, actor(req));
+    if (r.ok) platform.log(req.platform.id, 'agent.updated', 'operations', req.params.id);
+    send(res, r);
+  });
+  const jobSchema = z.object({ name: z.string().trim().max(120).optional(), action: z.string().max(80), params: z.record(z.string(), z.any()).default({}), trigger: z.string().max(40).nullable().default(null), activate: z.boolean().default(true) }).strict();
+  app.post('/api/operator/agents/:id/jobs', ...approve, (req, res) => {
+    const p = jobSchema.safeParse(req.body ?? {});
+    if (!p.success) return res.status(400).json({ ok: false, error: 'Choose an action for the agent.' });
+    const r = registry.addJob(req.params.id, p.data, actor(req));
+    if (r.ok) platform.log(req.platform.id, 'agent.job_added', 'operations', req.params.id);
+    send(res, r, 201);
+  });
+}

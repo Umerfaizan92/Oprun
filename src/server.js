@@ -13,6 +13,8 @@ import { installPlatformHealth } from './platform-health.js';
 import { installOperatorExecutive } from './operator-executive.js';
 import { installPlatformTeam } from './platform-team.js';
 import { installPlatformAssignments } from './platform-assignments.js';
+import { createAgentRegistry } from './agents/registry.js';
+import { installAgentRoutes } from './agents/routes.js';
 import { LEGAL_VERSION as PLATFORM_LEGAL_VERSION } from './legal.js';
 import {installMailCentre} from './mail-centre.js';
 import { createAutomationEngine } from './automation/engine.js';
@@ -6300,7 +6302,9 @@ const seoEngineRef={current:null};
 const seoService=createSeoService({db,env,resolveHost:seoPublicHost,profileOf:seoCluster.profileOf,connections:integrationConnections,
   ai:async({system,user})=>(await generateAiText({system,messages:[{role:'user',content:user}],remember_conversation:false,max_output_tokens:1800})).text,
   aiAvailable:()=>aiProviderStatus().configured,ownBase:()=>String(env.PUBLIC_BASE_URL||'').replace(/\/$/,''),engineRef:seoEngineRef});
+let agentRegistry=null; // TR-40: set once the engine exists; the engine asks it before every agent run
 const automationEngine=createAutomationEngine({db,queue:jobQueue,generateAiText,aiStatus:aiProviderStatus,timers:env.NODE_ENV!=='test',deps:{
+  agentGuard:(run)=>agentRegistry?agentRegistry.guard(run):{ok:true},
   seo:seoService,
   comms:commsService,
   finance:subscriberFinance,
@@ -6384,6 +6388,8 @@ if(siteEdge.ready&&env.NODE_ENV!=='test'){
 websiteHub.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});
+agentRegistry=createAgentRegistry({db,engine:automationEngine});
+installAgentRoutes(app,{registry:agentRegistry,platform:platformIdentity});
 
 app.listen(
   port,

@@ -771,3 +771,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: office/console.js, office/console.html, office/console-platform.css, scripts/navigation-inventory.mjs, scripts/test-navigation-ui.mjs, scripts/console-page-merge.test.mjs, docs/navigation/PAGE_COUNT.md, docs/navigation/MAPPING.*
 - Acceptance: Page count recorded; all old addresses kept; nav and UI suites pass
 - Evidence: scripts/console-page-merge.test.mjs 2/2: Oprun team 6->3, marketing 7->3, operations 7->4 menu pages, founder 40 pages kept (30 in menus), every earlier address present, tabs only point at main pages in the same group, dashboard links still resolve; count recorded in docs/navigation/PAGE_COUNT.md. Browser 1440/390: deep link to a tab shows its page tabs, breadcrumb group/page/tab, tab click changes address and menu highlight, no overflow, axe clean dark and light. npm test 73/73, test:ui 38, navigation-ui 630, secret scan passed. (recorded 2026-11-23 on claude/transformation-phase1 at 1ae11a4)
+
+## T-225 TR-40 Agent registry
+- Added: 2026-11-23
+- Requirement: Agent registry on top of src/automation and src/job-queue: owner, responsibilities, allowed catalogue actions, schedule, deadline, retry/timeout, escalation contact.
+- Files: src/agents/registry.js, src/agents/routes.js, src/automation/engine.js, src/server.js, scripts/agent-registry.test.mjs
+- Acceptance: Agent cannot run an action outside its list (test)
+- Evidence: scripts/agent-registry.test.mjs 3/3: job outside the list refused (403); a job edited to another action is blocked at level 4 before analysis and nothing runs, refusal audited; permission removed while a run waits is refused before acting; paused agent runs nothing; automations without an agent unaffected; agent max_attempts and timeout applied (timed out after 5 s); restricted, manual and business actions can never be listed; owner and escalation must be real; revision conflicts. automation-engine.test 8/8 unchanged. Full-server smoke: create agent, add hourly job, run completes, last run shown. npm test 73/73, secret scan passed. (recorded 2026-11-23 on claude/transformation-phase1 at 709a9cc)

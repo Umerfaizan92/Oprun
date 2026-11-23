@@ -49,6 +49,8 @@ export const CONDITION_FIELDS = {
 export function createAutomationEngine({ db, queue, deps, generateAiText = null, aiStatus = () => ({ configured: false }), clock = () => Date.now(), timers = false, log = console }) {
   migrate(db);
   const pending = new Set();
+  // TR-40: optional agent registry hook. Returns { ok, reason, agent, max_attempts, timeout_seconds }.
+  const agentGuard = (run) => { try { return deps.agentGuard?.(run) || { ok: true }; } catch (e) { return { ok: false, reason: 'Agent check failed: ' + e.message }; } };
 
   // ---------------- audit ----------------
   function audit(org, action, entityId, detail = {}, actor = null) {
@@ -282,6 +284,9 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     if (run.organisation_id && !run.dry_run && recent(run.organisation_id, "SELECT COUNT(*) n FROM automation_runs WHERE organisation_id=? AND created_at>=? AND dry_run=0") > LIMITS.runsPerHour)
       return transition(run, 'skipped', { error: `More than ${LIMITS.runsPerHour} automation runs in an hour; this one was skipped. Check for a loop.` });
     if (!a || a.restricted) return transition(run, 'blocked', { level: 4, policy_json: { level: 4, reasons: ['Restricted: automation never does this.'] } });
+    // TR-40: a workflow owned by an agent may only run actions on that agent's list (and only while it is active).
+    const agentCheck = agentGuard(run);
+    if (!agentCheck.ok) { audit(run.organisation_id, 'agent.denied', id, { action: run.action, agent: agentCheck.agent || null, reason: agentCheck.reason }); return transition(run, 'blocked', { level: 4, error: agentCheck.reason, policy_json: { level: 4, reasons: [agentCheck.reason] } }); }
     const ctx = context(run);
     if (!ctx) return transition(run, 'skipped', { error: 'The record this event refers to no longer exists.' });
     const view = conditionView(run.trigger_type, ctx.facts, ctx.untrusted);
@@ -332,7 +337,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     const n = resume ? (db.prepare("SELECT COUNT(*) n FROM background_jobs WHERE type='automation.execute' AND idempotency_key LIKE ?").get(`automation.execute:${run.id}%`).n) : 0;
     const key = `automation.execute:${run.id}` + (n ? ':' + n : '');
     if (resume) setRun(run.id, { status: 'queued' });
-    const r = queue.enqueue('automation.execute', { run_id: run.id }, { organisationId: run.organisation_id, idempotencyKey: key, runAt, maxAttempts: LIMITS.maxAttempts });
+    const r = queue.enqueue('automation.execute', { run_id: run.id }, { organisationId: run.organisation_id, idempotencyKey: key, runAt, maxAttempts: agentGuard(run).max_attempts || LIMITS.maxAttempts });
     if (!runAt || Date.parse(runAt) <= clock()) kick();
     return r;
   }
@@ -350,6 +355,9 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
       throw new Error('Hourly execution limit reached; will retry.');
     }
     const a = ACTIONS[run.action];
+    // TR-40: checked again just before acting, in case the agent was paused or its list changed while waiting.
+    const agentCheck = agentGuard(run);
+    if (!agentCheck.ok) { audit(run.organisation_id, 'agent.denied', run.id, { action: run.action, agent: agentCheck.agent || null, reason: agentCheck.reason }); transition(run, 'blocked', { level: 4, error: agentCheck.reason }); return { blocked: true }; }
     const proposal = safe(run.edited_json, null) || safe(run.proposal_json, {});
     const accountable = run.approver_id || (a.rule ? rule(run.organisation_id, a.rule).configured_by : null);
     const ctx = context(run, { accountable, actor: run.approver_id || 'automation' });
@@ -363,7 +371,8 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
         if (a.async_execute) {
           // Actions that call another service (Google, a crawl) cannot share a database transaction; their result is
           // recorded straight after. The external calls used this way are idempotent (a reply or sitemap PUT replaces).
-          result = (await a.executeAsync(ctx, proposal)) || {};
+          const limit = agentCheck.timeout_seconds;
+          result = (await (limit ? Promise.race([a.executeAsync(ctx, proposal), new Promise((_, no) => setTimeout(() => no(new Error(`Timed out after ${limit} seconds.`)), limit * 1000).unref?.())]) : a.executeAsync(ctx, proposal))) || {};
           db.prepare('UPDATE automation_runs SET result_json=?,updated_at=? WHERE id=?').run(JSON.stringify(result), iso(clock()), run.id);
         } else result = db.transaction(() => { const r = a.execute(ctx, proposal) || {}; db.prepare('UPDATE automation_runs SET result_json=?,updated_at=? WHERE id=?').run(JSON.stringify(r), iso(clock()), run.id); return r; })();
       } catch (e) {
