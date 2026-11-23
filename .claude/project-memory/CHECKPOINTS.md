@@ -2593,3 +2593,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read the next phase in 02_BACKLOG.md and start its first item.
+
+## CP-186 2026-11-23T22:30:28+00:00 T-228 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-228 (COMPLETED)
+- Completed steps: TR-50 committed on claude/transformation-phase1 (not on staging).
+- Incomplete steps: TR-51: questions per country, industry, operations, services and pricing, customers, staff, scheduling, communications, finance, marketing, integrations, compliance; country rules from src/country-profile.js.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: onboarding-interview.test, test:onboarding-ui, npm test, test:ui, mobile-workspace, navigation
+- Test results: 2/2, 4/4, 73/73, 38, 316, 644
+- Git branch: claude/transformation-phase1
+- Commit: b5faad6 (TR-50: guided setup by voice or text, in any language, with save and resume); 42 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-51: extend CORE_QUESTIONS through the questions(req) hook using the business country (src/country-profile.js) and industry; add catalogue text.
