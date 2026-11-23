@@ -2495,3 +2495,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-26 from docs/transformation/02_BACKLOG.md.
+
+## CP-179 2026-11-23T10:09:36+00:00 T-221 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-221 (COMPLETED)
+- Completed steps: TR-30 executive dashboard pushed to claude/transformation-phase1 (902e610). Staging still held at df4711c.
+- Incomplete steps: Hold staging until the owner finishes testing. Next: TR-31 departments, teams, staff roles, availability and workload for Oprun's own staff.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: operator-executive.test, npm test, test:ui, navigation-ui, mobile-workspace-ui, axe
+- Test results: 3/3, 73/73, 38, 614, 316, no serious issues
+- Git branch: claude/transformation-phase1
+- Commit: 902e610 (TR-30: Operator Console executive dashboard; tablet and phone top bar fixed); 27 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Plan TR-31 data model separate from subscriber tables; check existing platform_users and records:staff_task.
