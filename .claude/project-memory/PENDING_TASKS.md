@@ -604,7 +604,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
 ## T-227 TR-42 Agent Command Center
-- Status: NOT_STARTED
+- Status: COMPLETED
 - Added: 2026-11-23
 - Requirement: Agent Command Center (operator): queue, running, failed, escalated, performance; human approval controls.
 - Files: src/agents/registry.js, src/agents/routes.js, src/automation/engine.js, src/operator-executive.js, src/server.js, office/console-agents.js, office/console.js, office/console.html, office/console-platform.css, scripts/agent-command-center.test.mjs, scripts/console-page-merge.test.mjs, docs/navigation/*

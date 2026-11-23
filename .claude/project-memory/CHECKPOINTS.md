@@ -2579,3 +2579,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-42: build on registry.list, automation_runs and platform_approvals; escalate failed or overdue agent runs to the agent's escalation contact via platform notifications.
+
+## CP-185 2026-11-23T21:22:25+00:00 T-227 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-227 (COMPLETED)
+- Completed steps: TR-42 committed on claude/transformation-phase1 (not on staging).
+- Incomplete steps: Next backlog item after Phase 6 (read docs/transformation/02_BACKLOG.md).
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: agent-command-center.test, npm test, test:ui, navigation-ui, axe
+- Test results: 4/4, 73/73, 38, 641, ok
+- Git branch: claude/transformation-phase1
+- Commit: 969c509 (TR-42: Agent Command Center with escalation and approval controls); 39 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read the next phase in 02_BACKLOG.md and start its first item.
