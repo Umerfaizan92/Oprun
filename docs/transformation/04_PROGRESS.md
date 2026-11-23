@@ -78,6 +78,10 @@ Updated: 23 Nov 2026
   measurements in [01](01_PHASE1_AUDIT.md).
 
 ## Known failures / blockers
+- oprun-test will not start new versions since the owner's settings change (23 Nov 01:41/01:45 UTC): the
+  isolated-preview safety check found a storage/provider/API key, SMTP or backup setting. The site still serves
+  e62a7e4; TR-21 (9602846) is pushed but not live there. Needs the owner to remove that setting from oprun-test
+  or say where it was meant to go.
 - Reference screenshot not received (no longer blocking: gold kept).
 - Live oprun.ai screenshots not possible from this workspace (network); needs Claude in Chrome or domain access.
 - 4 production security warnings need Render settings from the owner.
