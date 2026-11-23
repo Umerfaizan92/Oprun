@@ -2621,3 +2621,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-52: build a proposal from onboarding_sessions answers + industry registry (modules, services, pipeline stages, templates); owner approves; record consent; only then write onboarding_profiles/modules.
+
+## CP-188 2026-11-23T23:23:00+00:00 T-230 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-230 (COMPLETED)
+- Completed steps: TR-52 committed on claude/transformation-phase1 (not on staging). Phase 7 complete.
+- Incomplete steps: Phase 8: communications, Media Studio and integrations consolidation (read 02_BACKLOG.md).
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: onboarding-proposal.test, test:onboarding-ui, npm test, test:ui, mobile-workspace, navigation
+- Test results: 3/3, 5/5, 73/73, 38, 316, 639
+- Git branch: claude/transformation-phase1
+- Commit: 0ae2a2b (TR-52: proposed workspace, applied only after the owner approves); 46 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read Phase 8 in docs/transformation/02_BACKLOG.md and start its first item.
