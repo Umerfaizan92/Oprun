@@ -86,6 +86,13 @@ Updated: 23 Nov 2026
   "Active" so newly added workers were hidden (now "Current team"); Stock figures ran into their labels (now
   tiles); "-$0.00" for empty costs. Test site now warns that its data is erased on restart
 
+- [x] TR-23 part 3 (T-218): with sample data, Approvals and the Home tile said nothing was waiting while a quote
+  awaited approval (quotes and invoices are approved on their own pages and were not counted). They are now listed
+  on Approvals ("Documents waiting for approval", link to approve) and counted on Home ("1 item waiting for your
+  decision", 4 languages). Customers with a booked or completed job now show Current instead of Future (a status set
+  by hand is kept). Reviewed with data and fine: Enquiries, Quotes, Bookings, Jobs, Invoices, Customer detail,
+  Inbox, Campaigns, Website, Settings, Payments, Receptionist (no script errors on any page)
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -108,6 +115,5 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-23 part 3: remaining modules with sample data (inbox, campaigns, website, settings, approvals with items), then
 TR-24 modules by industry, plan and permission. Hold pushes to claude/transformation-staging while the owner
 is testing (each deploy wipes the test site); push to claude/transformation-phase1 only until he says done.

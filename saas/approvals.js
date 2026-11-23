@@ -101,13 +101,17 @@
     if(list)list.innerHTML='<div class="gov-empty">Loading approval queue…</div>';
     try{
       const d=await api('/api/saas/approvals?status='+encodeURIComponent(status));lastData=d;
-      $('#approval-count-pending').textContent=d.counts.pending;
+      // Quotes and invoices waiting for approval are approved on their own page; list them here too so nothing waiting
+      // for a decision is missed. Staff without access to documents simply do not see this part.
+      const docs=(await Promise.all([['quote','#work/quotes','Quote'],['invoice','#money/invoices','Invoice']].map(([kind,href,label])=>api('/api/saas/business-hub/'+kind).then(r=>(r.records||[]).filter(x=>x.status==='draft').map(x=>({...x,href,label}))).catch(()=>[])))).flat();
+      $('#approval-count-pending').textContent=Number(d.counts.pending||0)+docs.length;
       $('#approval-count-approved').textContent=d.counts.approved;
       $('#approval-count-rejected').textContent=d.counts.rejected;
       $('#approval-count-total').textContent=d.counts.total;
       const navBadge=$('#nav-approvals');if(navBadge)navBadge.textContent=String(d.counts.pending||0);
       if(policyHost){policyHost.innerHTML=policyHtml(d.policy);const mode=$('#approval-policy-mode');if(mode)mode.value=d.policy?.mode||'everything'}
-      if(list)list.innerHTML=(d.approvals||[]).map(a=>cardHtml(a,d.can_decide)).join('')||'<div class="gov-empty">No '+esc(status==='all'?'approval history':status+' approvals')+' for this workspace.</div>';
+      const docHtml=status==='pending'&&docs.length?'<section class="approval-docs" aria-label="Documents waiting for approval"><h3>Documents waiting for approval</h3>'+docs.map(x=>'<article class="approval-card"><header><div><b>'+esc(x.label+': '+x.title)+'</b><span class="muted" style="display:block;margin-top:2px">'+esc(x.reference?x.reference+' · ':'')+(x.amount_cents!=null?esc('$'+((Number(x.amount_cents)+Number(x.gst_cents||0))/100).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})):'')+'</span></div><span class="approval-status-pending">Waiting for approval</span></header><a class="secondary-button" href="'+x.href+'">Review and approve</a></article>').join('')+'</section>':'';
+      if(list)list.innerHTML=docHtml+((d.approvals||[]).map(a=>cardHtml(a,d.can_decide)).join('')||(docHtml?'':'<div class="gov-empty">No '+esc(status==='all'?'approval history':status+' approvals')+' for this workspace.</div>'));
       bind();
     }catch(err){if(list)list.innerHTML='<div class="gov-empty">'+esc(err.message)+'</div>'}
   }

@@ -722,3 +722,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/saas-platform.js, scripts/verify-all.mjs, saas/workspace-finance.js, saas/workspace-finance.css, saas/workspace.html, saas/app.js, saas/experience.css, version refs
 - Acceptance: Overheads count only from the month added (regression check); Workforce defaults to Current team so new workers show; Stock figures in tiles; zero costs show $0.00; tests pass
 - Evidence: verify-all overhead history [0,0,0,0,0,10000]; screenshots with sample data: trend Jun-Oct $0, Workforce shows 3 onboarding workers under Current team, Stock tiles; npm test 73/73; test:ui 38; test:mobile-workspace-ui 316 checks; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at df4711c)
+
+## T-218 TR-23 part 3: quotes/invoices waiting for approval shown in Approvals and counted; customer labels follow their jobs
+- Added: 2026-11-23
+- Requirement: TR-23 per-module review with sample data: Approvals and Home said nothing was waiting while a quote awaited approval; every customer was labelled Future
+- Files: saas/approvals.js, src/saas-platform.js, saas/workspace-gadgets.js, saas/locale-catalog.js, scripts/review-fixes.test.mjs, version refs
+- Acceptance: Approvals lists documents waiting for approval with a link to approve; Home tile counts and describes them; customers with jobs show Current; regression test; tests pass
+- Evidence: review-fixes test: command-centre approvals.pending=1 with a draft quote; customers Sam/Priya current, Daniel lead; screenshots of Approvals list and Home tile; npm test 73/73; test:ui 38; release validation, secret scan, catalogue check pass (recorded 2026-11-23 on claude/transformation-staging at 8c9230c)

@@ -345,6 +345,9 @@ export function installSaasPlatform(app, deps) {
   app.get('/api/saas/customers', requireSaasUser, requireSaasRole(...SENIOR), (req, res) => {
     const org = req.saas.organisation_id, q = String(req.query.q || '').trim().toLowerCase().slice(0, 100), status = String(req.query.status || '');
     const rows = db.prepare(`SELECT c.*,(SELECT COUNT(*) FROM work_orders w WHERE w.customer_id=c.id AND w.organisation_id=c.organisation_id) job_count,(SELECT MAX(w.start_at) FROM work_orders w WHERE w.customer_id=c.id AND w.organisation_id=c.organisation_id) last_job_at FROM tenant_customers c WHERE c.organisation_id=? ORDER BY c.name COLLATE NOCASE LIMIT 1000`).all(org)
+      // A customer still marked as a future customer becomes current once they have a job; a status set by hand
+      // (current or past) is kept.
+      .map((c) => (c.status === 'lead' && Number(c.job_count) > 0 ? { ...c, status: 'current' } : c))
       .filter((c) => (!status || c.status === status) && (!q || [c.name, c.email, c.phone, c.address].some((v) => String(v || '').toLowerCase().includes(q))));
     ok(res, { customers: rows });
   });
@@ -366,7 +369,7 @@ export function installSaasPlatform(app, deps) {
         (SELECT reason_code FROM job_media_reasons r WHERE r.work_order_id=w.id AND r.stage='before') before_reason,(SELECT reason_code FROM job_media_reasons r WHERE r.work_order_id=w.id AND r.stage='after') after_reason
       FROM work_orders w WHERE w.customer_id=? AND w.organisation_id=? ORDER BY w.start_at DESC LIMIT 200`).all(c.id, org);
     const threads = db.prepare(`SELECT id,channel,status,last_message_at FROM comms_threads WHERE organisation_id=? AND ((?<>'' AND lower(contact_address)=lower(?)) OR (?<>'' AND contact_address=?)) ORDER BY last_message_at DESC LIMIT 20`).all(org, c.email || '', c.email || '', c.phone || '', c.phone || '');
-    ok(res, { customer: c, jobs, conversations: threads });
+    ok(res, { customer: c.status === 'lead' && jobs.length ? { ...c, status: 'current' } : c, jobs, conversations: threads });
   });
   app.patch('/api/saas/customers/:id', commsLimiter, requireSaasUser, requireSaasRole(...SENIOR), (req, res) => {
     const org = req.saas.organisation_id, c = db.prepare(`SELECT * FROM tenant_customers WHERE id=? AND organisation_id=?`).get(req.params.id, org);
@@ -594,7 +597,8 @@ export function installSaasPlatform(app, deps) {
       business: { name: profile.name || '', type: profile.business_type || '', industry: industryByCode(code).label, code },
       terms: industryTerms(code),
       inbox: { needs_reply: n(`SELECT COUNT(*) c FROM comms_threads WHERE organisation_id=? AND status='needs_reply'`, org), week: inboundDaily.reduce((a, b) => a + b, 0), daily: inboundDaily, channels: byChannel.map((r) => ({ channel: r.channel, count: Number(r.c) })), drafts_waiting: n(`SELECT COUNT(*) c FROM comms_messages WHERE organisation_id=? AND status='pending_approval'`, org) },
-      approvals: { pending: n(`SELECT COUNT(*) c FROM workspace_approvals WHERE organisation_id=? AND status='pending'`, org) },
+      // Includes quotes and invoices waiting for approval, which are approved on their own pages.
+      approvals: { pending: n(`SELECT COUNT(*) c FROM workspace_approvals WHERE organisation_id=? AND status='pending'`, org) + n(`SELECT COUNT(*) c FROM tenant_documents WHERE organisation_id=? AND kind IN ('quote','invoice') AND status='draft'`, org) },
       jobs: {
         awaiting: n(`SELECT COUNT(*) c FROM work_orders WHERE organisation_id=? AND status IN ('awaiting_allocation','offered')`, org),
         allocated: n(`SELECT COUNT(*) c FROM work_orders WHERE organisation_id=? AND status='allocated'`, org),
