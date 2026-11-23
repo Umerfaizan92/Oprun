@@ -13,7 +13,9 @@ export function assertIsolatedPreview(env = process.env) {
     ['META_APP_SECRET', 'AI_TOOL_SHARED_SECRET', 'GOOGLE_SERVICE_ACCOUNT_JSON'].includes(key)
   ));
   if (blocked.length || /^(1|true|yes|on)$/i.test(String(env.REQUIRE_PERSISTENT_DISK || '').trim())) {
-    throw new Error('Isolated preview configuration is unsafe; startup aborted before backup access. Remove storage/provider configuration.');
+    // Setting names only (never values), so the owner can see which settings to remove from the test service.
+    const names = [...blocked, ...(/^(1|true|yes|on)$/i.test(String(env.REQUIRE_PERSISTENT_DISK || '').trim()) ? ['REQUIRE_PERSISTENT_DISK'] : [])].sort();
+    throw new Error('Isolated preview configuration is unsafe; startup aborted before backup access. Remove storage/provider configuration. Settings to remove from this test service: ' + names.join(', '));
   }
   // Explicit ephemeral paths prevent defaults from selecting a mounted production disk.
   for (const key of ['DATABASE_PATH', 'UPLOAD_DIR']) {

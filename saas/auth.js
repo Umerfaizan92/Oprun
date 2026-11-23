@@ -111,7 +111,7 @@
         row.classList.add('error');
       }
     }).catch(()=>{});
-    if(state.test_mode&&state.test_codes){const box=$('#test-codes');box.hidden=false;box.innerHTML=`<b>LOCAL TEST MODE</b><br>Email code: <strong>${state.test_codes.email}</strong> · SMS code: <strong>${state.test_codes.sms}</strong><br><small>Test codes are exposed only when SAAS_VERIFICATION_TEST_MODE=1 outside production.</small>`}
+    if(state.test_mode&&state.test_codes){const box=$('#test-codes');box.hidden=false;box.innerHTML=`<b>TEST CODES</b> (test only: not sent by email or SMS)<br>Email code: <strong>${state.test_codes.email}</strong> · SMS code: <strong>${state.test_codes.sms}</strong><br><small>Shown only on a test site or local test setup; real sign-ups receive them by email and SMS.</small>`}
     const voiceBtn=$('#voice-code');if(voiceBtn&&state.voice_available)voiceBtn.hidden=false;
     const form=$('#verification-form'),button=$('#verification-submit');
     for(const input of form.querySelectorAll('input[inputmode="numeric"]')){

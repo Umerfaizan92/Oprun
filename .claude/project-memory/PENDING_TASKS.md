@@ -603,3 +603,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
+## T-212 Test site: name blocked settings at start-up; optional test sign-up with on-screen codes
+- Status: NOT_STARTED
+- Added: 2026-11-23
+- Requirement: Owner: account creation on the test site failed at ABN check; uploading the production .env stopped the test site starting. Fix so the owner can test sign-up live on the test site.
+- Files: src/preview-preflight.js, src/server.js, saas/auth.js, auth.js version refs, scripts/preview-signup.test.mjs
+- Acceptance: Start-up error lists blocked setting names (never values); with PREVIEW_ALLOW_SIGNUP=1 on the isolated test site an account can be created using on-screen codes, ABN checked against ABR when ABR_GUID is set; off by default; other public intake stays closed; tests pass

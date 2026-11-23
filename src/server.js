@@ -888,7 +888,8 @@ app.use(compression({ threshold: 1024, filter: (req, res) => !res.getHeader('con
 app.use((req,res,next)=>{
   if(env.SUPERPRO_ISOLATED_PREVIEW==='1'&&!['GET','HEAD','OPTIONS'].includes(req.method)){
     const publicCapture=!req.path.startsWith('/api/saas/')&&!req.path.startsWith('/api/operator/');
-    if(publicCapture||/^\/api\/saas\/(registration|register)(\/|$)/.test(req.path))return res.status(403).json({ok:false,error:'Synthetic test preview only. Public registration, external webhooks and customer intake are disabled.'});
+    const signup=env.PREVIEW_ALLOW_SIGNUP==='1'&&/^\/api\/saas\/(registration|register)(\/|$)/.test(req.path);
+    if(!signup&&(publicCapture||/^\/api\/saas\/(registration|register)(\/|$)/.test(req.path)))return res.status(403).json({ok:false,error:'Synthetic test preview only. Public registration, external webhooks and customer intake are disabled.'});
   }
   next();
 });
@@ -2180,7 +2181,10 @@ const passwordHash=(password,salt)=>crypto.scryptSync(password,salt,64,{N:16384,
 // Try the exact password first, then a few safe variants of what was typed, so correct passwords are never rejected.
 function passwordCandidates(raw){return policyPasswordCandidates(raw,{strict:strictPasswordMatch(env)})}
 function passwordMatches(password,user){const stored=Buffer.from(String(user.password_hash||''));let ok=false;for(const c of passwordCandidates(String(password))){const h=Buffer.from(passwordHash(c,user.password_salt));if(h.length===stored.length&&crypto.timingSafeEqual(h,stored))ok=true}return ok}
-const verificationTestMode=env.NODE_ENV!=='production'&&String(env.SAAS_VERIFICATION_TEST_MODE||'')==='1';
+// Test sign-up on the isolated test site (PREVIEW_ALLOW_SIGNUP=1): no email or SMS provider is allowed there, so the
+// codes are shown on screen. With ABR_GUID set the ABN is still checked against the official register.
+const previewSignup=env.SUPERPRO_ISOLATED_PREVIEW==='1'&&String(env.PREVIEW_ALLOW_SIGNUP||'')==='1';
+const verificationTestMode=(env.NODE_ENV!=='production'&&String(env.SAAS_VERIFICATION_TEST_MODE||'')==='1')||previewSignup;
 function cookieValue(req,name){const row=String(req.headers.cookie||'').split(';').map(v=>v.trim()).find(v=>v.startsWith(`${name}=`));return row?decodeURIComponent(row.slice(name.length+1)):''}
 const SESSION_TTL_DAYS=Math.min(365,Math.max(1,Number(env.SESSION_TTL_DAYS||7)));
 const SESSION_TTL_MS=SESSION_TTL_DAYS*24*60*60*1000;
