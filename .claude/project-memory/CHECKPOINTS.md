@@ -2481,3 +2481,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-13 brand asset check on claude/transformation-staging
+
+## CP-178 2026-11-23T09:47:00+00:00 T-220 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-220 (COMPLETED)
+- Completed steps: TR-25 suggestions shipped to claude/transformation-phase1 (8306b76). Local working branch is now claude/transformation-phase1; local staging ref reset to origin (df4711c).
+- Incomplete steps: Hold staging until the owner says testing is done, then push phase1 to claude/transformation-staging and verify oprun-test. Next backlog: TR-26.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: npm test, test:ui, test:mobile-workspace-ui, test:navigation-ui, suggestions.test
+- Test results: 73/73, 38, 316, 614, pass
+- Git branch: claude/transformation-phase1
+- Commit: 8306b76 (TR-25: temporary suggestions with per-person dismissal; critical warnings stay); 25 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start TR-26 from docs/transformation/02_BACKLOG.md.
