@@ -71,6 +71,7 @@ export function installOperatorExecutive(app, { db, env, platform, policy, now =
     return {
       open_incidents: openCount('incident', ['open', 'waiting']),
       open_tasks: openCount('task', ['open', 'waiting']),
+      agent_escalations: one("SELECT COUNT(*) n FROM platform_agent_escalations WHERE status='open'")?.n ?? null,
       jobs: by ? {
         queued: by.queued || 0,
         running: by.running || 0,
@@ -96,6 +97,7 @@ export function installOperatorExecutive(app, { db, env, platform, policy, now =
       const o = s.operations;
       if (!o.backups_configured) add('critical', 'backups', 'Database backups are not configured.', 'f01/platform/backups');
       if (o.open_incidents) add('critical', 'incidents', `${n(o.open_incidents, 'open incident', 'open incidents')}.`, 'f07/records:incident');
+      if (o.agent_escalations) add('critical', 'agent-escalations', `${n(o.agent_escalations, 'AI agent problem needs', 'AI agent problems need')} someone to look at it.`, 'f07/agents/center');
       if (o.jobs?.dead) add('warning', 'jobs-dead', `${n(o.jobs.dead, 'background job has', 'background jobs have')} stopped after repeated failures.`, 'f01/system');
       else if (o.jobs?.failed_24_hours) add('warning', 'jobs-failed', `${n(o.jobs.failed_24_hours, 'background job', 'background jobs')} failed in the last 24 hours.`, 'f01/system');
     }

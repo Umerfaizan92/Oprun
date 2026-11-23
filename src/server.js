@@ -6306,6 +6306,8 @@ const seoService=createSeoService({db,env,resolveHost:seoPublicHost,profileOf:se
 let agentRegistry=null; // TR-40: set once the engine exists; the engine asks it before every agent run
 const automationEngine=createAutomationEngine({db,queue:jobQueue,generateAiText,aiStatus:aiProviderStatus,timers:env.NODE_ENV!=='test',deps:{
   agentGuard:(run)=>agentRegistry?agentRegistry.guard(run):{ok:true},
+  onRunStatus:(run,status)=>agentRegistry?.onRunStatus(run,status),
+  onTick:()=>agentRegistry?.sweepOverdue(),
   // TR-41: read-only inputs for the agents' report actions.
   diagnostics:()=>runDiagnostics({db,env,storage:storagePlan}),
   qaReport:(name)=>{if(!['accessibility.json','performance.json'].includes(name))return null;try{return JSON.parse(fs.readFileSync(path.join(backendRoot,'qa','reports',name),'utf8'))}catch{return null}},
@@ -6392,7 +6394,7 @@ if(siteEdge.ready&&env.NODE_ENV!=='test'){
 websiteHub.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});
-agentRegistry=createAgentRegistry({db,engine:automationEngine});
+agentRegistry=createAgentRegistry({db,engine:automationEngine,log:(actor,action,section,id)=>platformIdentity.log(actor,action,section,id)});
 try{const made=agentRegistry.ensureDefaults(DEFAULT_AGENTS);if(made.length)console.log(`[agents] created ${made.length} standard agents`)}catch(e){console.warn('[agents] could not create the standard agents:',e.message)}
 installAgentRoutes(app,{registry:agentRegistry,platform:platformIdentity});
 

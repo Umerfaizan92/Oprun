@@ -48,5 +48,54 @@
     host.append(el('section', { class: 'portal-panel cp-section' }, el('h2', { text: 'Oprun agents' }), list));
   }
 
-  window.OprunConsoleAgents = { handles: (r) => r === 'agents/list', render: (r, host, api, ctx) => render(host, api, ctx) };
+  // ---------- TR-42: Agent Command Center ----------
+  async function center(host, api, ctx) {
+    const { el, dialog, label } = T();
+    const d = await api('/api/operator/agents/center');
+    const refresh = () => { host.replaceChildren(); return center(host, api, ctx); };
+    const c = d.counts, rate = c.runs_7d ? Math.round((c.success_7d / c.runs_7d) * 100) + '%' : '—';
+    const tile = (lab, n, tone) => el('div', { class: 'ex-tile' + (n && tone && n !== '—' ? ' ex-' + tone : '') }, el('span', { class: 'ex-label', text: lab }), el('b', { class: 'ex-value', text: String(n) }));
+    host.append(el('div', { class: 'ex-tiles' }, tile('Escalated', c.escalated_open, 'critical'), tile('Waiting for approval', c.waiting_approval, 'warning'), tile('Failed (24 h)', c.failed_24h, 'critical'),
+      tile('Queued', c.queued), tile('Running', c.running), tile('Success (7 days)', rate)));
+    const STATUS = { received: 'Starting', queued: 'Queued', executing: 'Running', approved: 'Approved, waiting to run', held: 'Held (automation paused)', failed: 'Failed', verification_failed: 'Check failed', blocked: 'Blocked' };
+    const runItem = (r, extra = []) => el('li', { class: 'as-card', 'data-run': r.id },
+      el('div', { class: 'tm-bar' }, el('b', { class: 'as-title', text: `${r.agent}: ${r.action_label}` }), el('span', { class: 'as-badge ' + (/fail|block/.test(r.status) ? 'as-overdue' : ''), text: STATUS[r.status] || r.status })),
+      el('p', { class: 'as-meta' }, el('span', { text: time(r.updated_at) })), r.error ? el('p', { class: 'tm-note', text: r.error }) : null, ...extra);
+    const section = (title, items, empty) => el('section', { class: 'portal-panel cp-section' }, el('h2', { text: `${title} (${items.length})` }), items.length ? el('ul', { class: 'as-list' }, items) : el('p', { class: 'portal-note', text: empty }));
+
+    const act = (e, action) => () => dialog(`${action === 'resolve' ? 'Resolve' : 'Acknowledge'}: ${e.agent}`, [label(action === 'resolve' ? 'What was done?' : 'Note (optional)', el('textarea', { name: 'note', rows: '2', maxlength: '1000', required: action === 'resolve', minlength: action === 'resolve' ? '5' : null }))],
+      async (f) => { await api(`/api/operator/agents/escalations/${e.id}`, { method: 'POST', body: JSON.stringify({ action, note: f.get('note') || '' }) }); ctx.notify(action === 'resolve' ? 'Marked resolved.' : 'Acknowledged.'); await refresh(); });
+    const KIND = { failed: 'Failed', blocked: 'Blocked', overdue: 'Late' };
+    host.append(section('Escalations', d.escalations.map((e) => el('li', { class: 'as-card' + (e.status === 'open' ? ' as-late' : ''), 'data-escalation': e.id },
+      el('div', { class: 'tm-bar' }, el('b', { class: 'as-title', text: `${e.agent}: ${KIND[e.kind]}` }), el('span', { class: 'as-badge ' + (e.status === 'open' ? 'as-overdue' : e.status === 'resolved' ? 'as-accepted' : 'as-blocked'), text: e.status === 'open' ? 'Open' : e.status === 'resolved' ? 'Resolved' : 'Acknowledged' })),
+      el('p', { class: 'tm-note', text: e.reason }),
+      el('p', { class: 'as-meta' }, el('span', { text: `Sent to ${e.contact}${e.assigned ? ' (also in their My work)' : ''} · ${time(e.created_at)}` })),
+      e.note ? el('p', { class: 'tm-note', text: 'Note: ' + e.note }) : null,
+      ctx.can('operations', 'edit') && e.status !== 'resolved' ? el('div', { class: 'tm-actions' },
+        e.status === 'open' ? el('button', { type: 'button', class: 'portal-button', text: 'Acknowledge', 'aria-label': `Acknowledge ${e.agent} escalation`, onclick: act(e, 'acknowledge') }) : null,
+        el('button', { type: 'button', class: 'portal-button', text: 'Resolve', 'aria-label': `Resolve ${e.agent} escalation`, onclick: act(e, 'resolve') })) : null)), 'No escalations in the last 7 days.'));
+
+    // Needs a decision: level 3 actions wait here; level 4 is never offered.
+    const decide = (r, decision) => async () => {
+      if (decision === 'reject') return dialog(`Reject: ${r.title}`, [label('Why (optional)', el('textarea', { name: 'note', rows: '2', maxlength: '2000' }))], async (f) => {
+        await api(`/api/operator/automation/approvals/${r.approval_id}/decision`, { method: 'POST', body: JSON.stringify({ decision: 'reject', note: f.get('note') || '' }) }); ctx.notify('Rejected. Nothing was done.'); await refresh(); });
+      try { await api(`/api/operator/automation/approvals/${r.approval_id}/decision`, { method: 'POST', body: JSON.stringify({ decision: 'approve' }) }); ctx.notify('Approved.'); await refresh(); } catch (x) { ctx.notify(x.message); }
+    };
+    host.append(section('Needs a decision', d.waiting.map((r) => runItem(r, [
+      el('p', { class: 'as-body', text: r.summary || '' }),
+      el('p', { class: 'as-meta' }, el('span', { class: 'as-badge as-blocked', text: `Level ${r.policy_level} · ${r.risk_level} risk` }), el('span', { text: `${r.reference_code} · expires ${time(r.expires_at)}` })),
+      d.can_approve ? el('div', { class: 'tm-actions' }, el('button', { type: 'button', class: 'portal-button primary', text: 'Approve', 'aria-label': `Approve ${r.title}`, onclick: decide(r, 'approve') }), el('button', { type: 'button', class: 'portal-button', text: 'Reject', 'aria-label': `Reject ${r.title}`, onclick: decide(r, 'reject') }))
+        : el('p', { class: 'portal-note', text: 'Someone with operations approval rights must decide this.' })])), 'No agent action is waiting for approval. Actions at level 3 always wait here; level 4 actions are never run.'));
+
+    host.append(section('Queue and running', d.queue.map((r) => runItem(r)), 'Nothing is queued or running.'));
+    host.append(section('Failed in the last 7 days', d.failed.map((r) => runItem(r)), 'No failed agent runs in the last 7 days.'));
+
+    const table = el('table', { class: 'ag-perf' }, el('caption', { class: 'sr-only', text: 'Agent performance over the last 7 days' }),
+      el('thead', {}, el('tr', {}, ['Agent', 'Runs', 'Success', 'Average time', 'Last failure'].map((h) => el('th', { scope: 'col', text: h })))),
+      el('tbody', {}, d.performance.map((p) => el('tr', {}, el('th', { scope: 'row', text: p.name + (p.status !== 'active' ? ' (paused)' : '') }), el('td', { text: String(p.runs || 0) }),
+        el('td', { text: p.success_rate == null ? '—' : p.success_rate + '%' }), el('td', { text: p.avg_seconds == null ? '—' : p.avg_seconds + ' s' }), el('td', { text: p.last_failure ? time(p.last_failure) : 'None' })))));
+    host.append(el('section', { class: 'portal-panel cp-section' }, el('h2', { text: 'Performance (7 days)' }), el('div', { class: 'ag-perf-wrap' }, table)));
+  }
+
+  window.OprunConsoleAgents = { handles: (r) => r === 'agents/list' || r === 'agents/center', render: (r, host, api, ctx) => (r === 'agents/center' ? center(host, api, ctx) : render(host, api, ctx)) };
 })();

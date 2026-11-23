@@ -13,10 +13,10 @@ const menu = (g) => g[4].filter((t) => !t[2]).length;
 test('crowded groups now have at most four menu pages', () => {
   assert.equal(menu(groups.f05), 3, 'Oprun team');
   assert.equal(menu(groups.f06), 3, 'Oprun marketing');
-  assert.equal(menu(groups.f07), 4, 'Operations & maintenance');
+  assert.equal(menu(groups.f07), 5, 'Operations & maintenance (4 after TR-33, plus AI agents from TR-42)');
   for (const g of c.definitions) assert.ok(menu(g) <= 5, `${g[2]} has ${menu(g)} menu pages`);
-  assert.equal(c.definitions.flatMap((g) => g[4]).length, 41, 'no page removed (40 plus AI agents from TR-41)');
-  assert.equal(c.definitions.flatMap((g) => g[4]).filter((t) => !t[2]).length, 30, 'menu pages recorded in docs/navigation/PAGE_COUNT.md');
+  assert.equal(c.definitions.flatMap((g) => g[4]).length, 42, 'no page removed (40, plus the agent pages from TR-41 and TR-42)');
+  assert.equal(c.definitions.flatMap((g) => g[4]).filter((t) => !t[2]).length, 31, 'menu pages recorded in docs/navigation/PAGE_COUNT.md');
   assert.match(readFileSync(new URL('../docs/navigation/PAGE_COUNT.md', import.meta.url), 'utf8'), /\| All founder groups \| 40 \| 30 \|/);
 });
 

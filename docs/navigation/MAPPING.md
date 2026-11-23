@@ -100,8 +100,9 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Operations & maintenance | Tasks & incidents → Operating costs | /office/#f07/records:cost | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Operations & maintenance | Reliability & backups | /office/#f07/platform/reliability | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Operations & maintenance | Reliability & backups → Provider readiness | /office/#f07/legacy:connections | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
+| Founder | Operations & maintenance | AI agents | /office/#f07/agents/center | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Operations & maintenance | AI agents → Agents | /office/#f07/agents/list | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Operations & maintenance | AI automations | /office/#f07/platform/automation | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
-| Founder | Operations & maintenance | AI automations → AI agents | /office/#f07/agents/list | operations.read or founder | Tab on a merged page (TR-33); address unchanged |
 | Founder | Operations & maintenance | Languages & translation coverage | /office/#f07/platform/localization | operations.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Security & audit | Activity log | /office/#f08/audit | security.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Security & audit | Compliance | /office/#f08/platform/compliance | security.read or founder | Existing renderer; native section tabs or heading-based section panels |

@@ -24,6 +24,19 @@ export function installAgentRoutes(app, { registry, platform }) {
     if (r.ok) platform.log(req.platform.id, 'agent.updated', 'operations', req.params.id);
     send(res, r);
   });
+  // TR-42: Agent Command Center data and escalation handling.
+  app.get('/api/operator/agents/center', ...read, (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ ok: true, ...registry.center(), can_approve: platform.can(req, 'operations', 'approve'), can_run: platform.can(req, 'operations', 'edit') });
+  });
+  app.post('/api/operator/agents/escalations/:id', platform.identity, platform.permit('operations', 'edit'), (req, res) => {
+    const p = z.object({ action: z.enum(['acknowledge', 'resolve']), note: z.string().trim().max(1000).default('') }).strict().safeParse(req.body ?? {});
+    if (!p.success) return res.status(400).json({ ok: false, error: 'Choose acknowledge or resolve.' });
+    if (p.data.action === 'resolve' && p.data.note.length < 5) return res.status(400).json({ ok: false, error: 'Say what was done before resolving.' });
+    const r = registry.actOnEscalation(req.params.id, p.data.action, p.data.note, actor(req));
+    if (r.ok) platform.log(req.platform.id, 'agent.escalation_' + r.status, 'operations', req.params.id);
+    send(res, r);
+  });
   const jobSchema = z.object({ name: z.string().trim().max(120).optional(), action: z.string().max(80), params: z.record(z.string(), z.any()).default({}), trigger: z.string().max(40).nullable().default(null), activate: z.boolean().default(true) }).strict();
   app.post('/api/operator/agents/:id/jobs', ...approve, (req, res) => {
     const p = jobSchema.safeParse(req.body ?? {});

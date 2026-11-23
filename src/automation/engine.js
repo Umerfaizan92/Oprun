@@ -68,6 +68,8 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     const wf = run.workflow_id ? db.prepare('SELECT id FROM automation_workflows WHERE id=?').get(run.workflow_id) : null;
     if (wf) db.prepare('UPDATE automation_workflows SET last_run_at=?,last_status=? WHERE id=?').run(iso(clock()), status, wf.id);
     audit(run.organisation_id, 'run.' + status, run.id, { action: run.action, workflow_id: run.workflow_id, level: fields.level ?? run.level, ...detail }, actor);
+    // TR-42: lets the agent registry escalate failures. Never allowed to break the run itself.
+    try { deps.onRunStatus?.(runRow(run.id), status); } catch (e) { log.warn('[automation] status hook failed:', e.message); }
   }
 
   // ---------------- pause ----------------
@@ -478,6 +480,8 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
       db.prepare("UPDATE platform_approvals SET status='expired',updated_at=? WHERE id=?").run(now, ap.id);
       onDecision(ap, { status: 'expired' });
     }
+    // TR-42: agent deadline sweep.
+    try { deps.onTick?.(); } catch (e) { log.warn('[automation] tick hook failed:', e.message); }
     return started;
   }
   let timer = null;

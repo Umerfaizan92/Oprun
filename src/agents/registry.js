@@ -23,11 +23,15 @@ export function agentEligible(key) {
   return { ok: true, action: a };
 }
 
-export function createAgentRegistry({ db, engine, clock = () => Date.now() }) {
+export function createAgentRegistry({ db, engine, clock = () => Date.now(), log = () => {} }) {
   db.exec(`CREATE TABLE IF NOT EXISTS platform_agents(id TEXT PRIMARY KEY,agent_key TEXT NOT NULL UNIQUE,name TEXT NOT NULL,owner_id TEXT NOT NULL,responsibilities TEXT NOT NULL DEFAULT '',allowed_actions_json TEXT NOT NULL DEFAULT '[]',schedule TEXT NOT NULL DEFAULT 'manual',deadline_minutes INTEGER NOT NULL DEFAULT 60,max_attempts INTEGER NOT NULL DEFAULT 3,timeout_seconds INTEGER NOT NULL DEFAULT 120,escalation_contact TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','paused')),revision INTEGER NOT NULL DEFAULT 1,created_by TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);`);
   const cols = new Set(db.prepare('PRAGMA table_info(automation_workflows)').all().map((c) => c.name));
   if (!cols.has('agent_id')) db.exec('ALTER TABLE automation_workflows ADD COLUMN agent_id TEXT');
   db.exec('CREATE INDEX IF NOT EXISTS automation_workflows_agent ON automation_workflows(agent_id)');
+  // TR-42: escalations. One per run and kind; the escalation contact is told through the console notifications and,
+  // for staff, an assignment in their My work.
+  db.exec(`CREATE TABLE IF NOT EXISTS platform_agent_escalations(id TEXT PRIMARY KEY,agent_id TEXT NOT NULL REFERENCES platform_agents(id),run_id TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('failed','blocked','overdue')),reason TEXT NOT NULL,contact_id TEXT NOT NULL,assignment_id TEXT,status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','acknowledged','resolved')),note TEXT NOT NULL DEFAULT '',acted_by TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,UNIQUE(run_id,kind));
+ CREATE INDEX IF NOT EXISTS platform_agent_escalations_status ON platform_agent_escalations(status,created_at);`);
 
   const row = (id) => db.prepare('SELECT * FROM platform_agents WHERE id=?').get(id);
   const view = (a) => a && { id: a.id, key: a.agent_key, name: a.name, owner_id: a.owner_id, responsibilities: a.responsibilities, allowed_actions: safe(a.allowed_actions_json, []),
@@ -136,6 +140,77 @@ export function createAgentRegistry({ db, engine, clock = () => Date.now() }) {
     return agents;
   }
 
+  // ---------------- TR-42: escalation and the command centre ----------------
+  const agentOfWorkflow = (wid) => { const w = wid ? db.prepare('SELECT agent_id FROM automation_workflows WHERE id=?').get(wid) : null; return w?.agent_id ? row(w.agent_id) : null; };
+  function escalate(run, kind, reason) {
+    const a = agentOfWorkflow(run.workflow_id); if (!a) return null;
+    const id = crypto.randomUUID(), t = iso(clock());
+    const ins = db.prepare('INSERT OR IGNORE INTO platform_agent_escalations(id,agent_id,run_id,kind,reason,contact_id,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').run(id, a.id, run.id, kind, String(reason || 'No detail given.').slice(0, 1000), a.escalation_contact, t, t);
+    if (!ins.changes) return null;
+    // Staff contacts get it as high-priority work due today (TR-32 assignments), when that module is installed.
+    if (a.escalation_contact !== 'founder') {
+      try {
+        const rid = crypto.randomUUID(), label = ACTIONS[run.action]?.label || run.action;
+        db.transaction(() => {
+          db.prepare("INSERT INTO platform_records(id,kind,title,body,status,assigned_to,created_by,created_at,updated_at,due_on,priority,assigned_by,assigned_at,work_state) VALUES (?,'task',?,?,'open',?,'automation',?,?,?,'high','automation',?,'assigned')")
+            .run(rid, `Agent ${a.name}: ${label} ${kind === 'overdue' ? 'is late' : kind}`.slice(0, 200), `${reason}\n\nOpen Operations → AI agents → Command center for details.`, a.escalation_contact, t, t, t.slice(0, 10), t);
+          db.prepare("INSERT INTO platform_assignment_events(id,record_id,actor,action,note,created_at) VALUES (?,?,'automation','assigned',?,?)").run(crypto.randomUUID(), rid, 'Raised by the agent manager.', t);
+          db.prepare('UPDATE platform_agent_escalations SET assignment_id=? WHERE id=?').run(rid, id);
+        })();
+      } catch { /* assignments not installed: the console notification still goes out */ }
+    }
+    log('automation', 'agent.escalated', 'operations', id);
+    return id;
+  }
+  function onRunStatus(run, status) {
+    if (!run) return;
+    if (status === 'failed' || status === 'verification_failed') escalate(run, 'failed', run.error || 'The run failed.');
+    else if (status === 'blocked') escalate(run, 'blocked', run.error || 'The run was blocked.');
+  }
+  function sweepOverdue() {
+    const t = clock(), raised = [];
+    for (const a of db.prepare("SELECT * FROM platform_agents WHERE status='active'").all()) {
+      const late = db.prepare("SELECT r.* FROM automation_runs r JOIN automation_workflows w ON w.id=r.workflow_id WHERE w.agent_id=? AND r.dry_run=0 AND r.status IN ('received','queued','executing','approved') AND r.created_at<?").all(a.id, iso(t - a.deadline_minutes * 60000));
+      for (const r of late) { const id = escalate(r, 'overdue', `Not finished within ${a.deadline_minutes} minutes (status: ${r.status}).`); if (id) raised.push(id); }
+    }
+    return raised;
+  }
+  function actOnEscalation(id, action, note, actor) {
+    const e = db.prepare('SELECT * FROM platform_agent_escalations WHERE id=?').get(id);
+    if (!e) return { ok: false, status: 404, error: 'Escalation not found.' };
+    const next = action === 'resolve' ? 'resolved' : 'acknowledged';
+    if (e.status === 'resolved' || (e.status === next)) return { ok: false, status: 409, error: 'Already ' + e.status + '.' };
+    db.prepare('UPDATE platform_agent_escalations SET status=?,note=?,acted_by=?,updated_at=? WHERE id=?').run(next, String(note || '').slice(0, 1000), actor.id, iso(clock()), id);
+    return { ok: true, status: next };
+  }
+  function center() {
+    const t = clock(), day = iso(t - 86400000), week = iso(t - 7 * 86400000);
+    const agentRuns = "FROM automation_runs r JOIN automation_workflows w ON w.id=r.workflow_id JOIN platform_agents a ON a.id=w.agent_id WHERE r.dry_run=0";
+    const pick = 'r.id,r.action,r.status,r.error,r.level,r.approval_id,r.created_at,r.updated_at,a.name agent,a.agent_key agent_key';
+    const label = (x) => ({ ...x, action_label: ACTIONS[x.action]?.label || x.action });
+    const queue = db.prepare(`SELECT ${pick} ${agentRuns} AND r.status IN ('received','queued','executing','approved','held') ORDER BY r.created_at`).all().map(label);
+    const waiting = db.prepare(`SELECT ${pick},p.title,p.summary,p.risk_level,p.policy_level,p.expires_at,p.reference_code ${agentRuns.replace('WHERE', 'JOIN platform_approvals p ON p.id=r.approval_id WHERE')} AND r.status='awaiting_approval' AND p.status IN ('pending','clarification_requested') ORDER BY r.created_at`).all().map(label);
+    const failed = db.prepare(`SELECT ${pick} ${agentRuns} AND r.status IN ('failed','verification_failed','blocked') AND r.updated_at>=? ORDER BY r.updated_at DESC LIMIT 50`).all(week).map(label);
+    const names = new Map([['founder', 'Founder'], ...(() => { try { return db.prepare('SELECT id,name FROM platform_users').all().map((u) => [u.id, u.name]); } catch { return []; } })()]);
+    const escalations = db.prepare("SELECT e.*,a.name agent FROM platform_agent_escalations e JOIN platform_agents a ON a.id=e.agent_id WHERE e.status<>'resolved' OR e.updated_at>=? ORDER BY CASE e.status WHEN 'open' THEN 0 WHEN 'acknowledged' THEN 1 ELSE 2 END, e.created_at DESC LIMIT 100").all(week)
+      .map((e) => ({ id: e.id, agent: e.agent, run_id: e.run_id, kind: e.kind, reason: e.reason, contact: names.get(e.contact_id) || 'Former staff member', status: e.status, note: e.note, created_at: e.created_at, assigned: !!e.assignment_id }));
+    const performance = db.prepare(`SELECT a.id,a.name,a.agent_key key,a.status,
+        SUM(CASE WHEN r.id IS NOT NULL THEN 1 ELSE 0 END) runs,
+        SUM(CASE WHEN r.status IN ('completed','completed_warning','skipped') THEN 1 ELSE 0 END) ok,
+        SUM(CASE WHEN r.status IN ('failed','verification_failed','blocked') THEN 1 ELSE 0 END) bad,
+        AVG(CASE WHEN r.executed_at IS NOT NULL THEN (julianday(r.updated_at)-julianday(r.created_at))*86400 END) avg_seconds,
+        MAX(CASE WHEN r.status IN ('failed','verification_failed','blocked') THEN r.updated_at END) last_failure
+      FROM platform_agents a LEFT JOIN automation_workflows w ON w.agent_id=a.id LEFT JOIN automation_runs r ON r.workflow_id=w.id AND r.dry_run=0 AND r.created_at>=?
+      GROUP BY a.id ORDER BY a.name COLLATE NOCASE`).all(week).map((p) => ({ ...p, success_rate: p.runs ? Math.round(((p.ok || 0) / p.runs) * 100) : null, avg_seconds: p.avg_seconds == null ? null : Math.round(p.avg_seconds * 10) / 10 }));
+    const counts = {
+      queued: queue.filter((r) => r.status !== 'executing').length, running: queue.filter((r) => r.status === 'executing').length,
+      waiting_approval: waiting.length, failed_24h: failed.filter((r) => r.updated_at >= day).length,
+      escalated_open: escalations.filter((e) => e.status === 'open').length,
+      runs_7d: performance.reduce((n, p) => n + (p.runs || 0), 0), success_7d: performance.reduce((n, p) => n + (p.ok || 0), 0)
+    };
+    return { counts, queue, waiting, failed, escalations, performance };
+  }
+
   // TR-41: create any standard agent that does not exist yet, with its jobs switched on. Existing agents are left alone.
   function ensureDefaults(defaults, actor = { id: 'founder', name: 'Founder', role: 'founder' }) {
     const created = [];
@@ -149,5 +224,5 @@ export function createAgentRegistry({ db, engine, clock = () => Date.now() }) {
     return created;
   }
 
-  return { ensureDefaults, guard, create, update, addJob, list, get: (id) => view(row(id)), byKey: (key) => view(db.prepare('SELECT * FROM platform_agents WHERE agent_key=?').get(key)), agentEligible };
+  return { ensureDefaults, guard, escalate, onRunStatus, sweepOverdue, actOnEscalation, center, create, update, addJob, list, get: (id) => view(row(id)), byKey: (key) => view(db.prepare('SELECT * FROM platform_agents WHERE agent_key=?').get(key)), agentEligible };
 }

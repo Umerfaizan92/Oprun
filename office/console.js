@@ -93,8 +93,9 @@
         ["records:cost", "Operating costs", "records:task"],
         ["platform/reliability", "Reliability & backups"],
         ["legacy:connections", "Provider readiness", "platform/reliability"],
+        ["agents/center", "AI agents", null, "Command center"],
+        ["agents/list", "Agents", "agents/center"],
         ["platform/automation", "AI automations"],
-        ["agents/list", "AI agents", "platform/automation"],
         ["platform/localization", "Languages & translation coverage"],
       ],
     ],
@@ -797,10 +798,12 @@
           el("h2", "", "Notifications"),
           button("Close", () => dialog.close()),
         );
+        // TR-42: readable names for the notices that matter most; others keep their technical name.
+        const NOTICE = { "agent.escalated": "An AI agent needs attention (Operations → AI agents → Command center)", "agent.escalation_acknowledged": "AI agent problem acknowledged", "agent.escalation_resolved": "AI agent problem resolved", "assignment.completed": "Assigned work was completed and waits for review" };
         for (const e of d.events)
           dialog.append(
             panel(
-              e.action,
+              NOTICE[e.action] || e.action,
               e.section +
                 " · " +
                 new Date(e.created_at).toLocaleString() +

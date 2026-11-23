@@ -1324,13 +1324,19 @@
           "platform/reliability"
         ],
         [
-          "platform/automation",
-          "AI automations"
+          "agents/center",
+          "AI agents",
+          null,
+          "Command center"
         ],
         [
           "agents/list",
-          "AI agents",
-          "platform/automation"
+          "Agents",
+          "agents/center"
+        ],
+        [
+          "platform/automation",
+          "AI automations"
         ],
         [
           "platform/localization",
