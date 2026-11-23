@@ -1328,6 +1328,11 @@
           "AI automations"
         ],
         [
+          "agents/list",
+          "AI agents",
+          "platform/automation"
+        ],
+        [
           "platform/localization",
           "Languages & translation coverage"
         ]

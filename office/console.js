@@ -94,6 +94,7 @@
         ["platform/reliability", "Reliability & backups"],
         ["legacy:connections", "Provider readiness", "platform/reliability"],
         ["platform/automation", "AI automations"],
+        ["agents/list", "AI agents", "platform/automation"],
         ["platform/localization", "Languages & translation coverage"],
       ],
     ],
@@ -272,6 +273,14 @@
         return;
       }
       // Phase 04 founder tabs (office/console-platform.js): read-only revenue, infrastructure, backups, AI, compliance, configuration.
+      // TR-41: Oprun's AI agents (office/console-agents.js).
+      if (window.OprunConsoleAgents?.handles(route)) {
+        const box = el("div", "cp-view tm-view");
+        await window.OprunConsoleAgents.render(route, box, api, { can, notify });
+        if (seq !== sequence) return;
+        host.replaceChildren(box);
+        return;
+      }
       // TR-32: assignments and My work (office/console-assignments.js).
       if (window.OprunAssignments?.handles(route)) {
         const box = el("div", "cp-view tm-view");

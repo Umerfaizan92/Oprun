@@ -15,7 +15,7 @@ test('crowded groups now have at most four menu pages', () => {
   assert.equal(menu(groups.f06), 3, 'Oprun marketing');
   assert.equal(menu(groups.f07), 4, 'Operations & maintenance');
   for (const g of c.definitions) assert.ok(menu(g) <= 5, `${g[2]} has ${menu(g)} menu pages`);
-  assert.equal(c.definitions.flatMap((g) => g[4]).length, 40, 'no page removed');
+  assert.equal(c.definitions.flatMap((g) => g[4]).length, 41, 'no page removed (40 plus AI agents from TR-41)');
   assert.equal(c.definitions.flatMap((g) => g[4]).filter((t) => !t[2]).length, 30, 'menu pages recorded in docs/navigation/PAGE_COUNT.md');
   assert.match(readFileSync(new URL('../docs/navigation/PAGE_COUNT.md', import.meta.url), 'utf8'), /\| All founder groups \| 40 \| 30 \|/);
 });

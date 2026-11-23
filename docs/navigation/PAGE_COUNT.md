@@ -10,4 +10,6 @@ Crowded console groups were merged into tabbed pages. Every old address still op
 | Operations & maintenance | 7 | 4 | Tasks & incidents → Tasks & releases, Incidents, Operating costs · Reliability & backups → Reliability & backups, Provider readiness |
 | All founder groups | 40 | 30 | 10 pages became tabs; no page or route removed |
 
+TR-41 added one tab, AI agents, on Operations → AI automations (41 pages, still 30 in the menus).
+
 Checked by `scripts/console-page-merge.test.mjs` and `npm run test:navigation-ui`.

@@ -448,7 +448,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     }
   };
   function mark(org, markName, ref) { db.prepare('INSERT OR IGNORE INTO automation_marks(organisation_id,mark,ref,created_at) VALUES (?,?,?,?)').run(org, markName, ref, iso(clock())); }
-  const engineDeps = { ...deps, outputs, mark, notify: (org, opts) => deps.notifyRoles?.(org, ['owner', 'admin'], opts) };
+  const engineDeps = { ...deps, clock, outputs, mark, notify: (org, opts) => deps.notifyRoles?.(org, ['owner', 'admin'], opts) };
 
   // ---------------- schedule ----------------
   function periodKey(trigger, tz, t = clock()) {

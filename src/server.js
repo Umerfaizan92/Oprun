@@ -15,6 +15,7 @@ import { installPlatformTeam } from './platform-team.js';
 import { installPlatformAssignments } from './platform-assignments.js';
 import { createAgentRegistry } from './agents/registry.js';
 import { installAgentRoutes } from './agents/routes.js';
+import { DEFAULT_AGENTS } from './agents/defaults.js';
 import { LEGAL_VERSION as PLATFORM_LEGAL_VERSION } from './legal.js';
 import {installMailCentre} from './mail-centre.js';
 import { createAutomationEngine } from './automation/engine.js';
@@ -39,7 +40,7 @@ import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { z } from 'zod';
 import { createDb, appendAuditLog, verifyAuditChain } from './db.js';
-import { prepareStorage, runStartupDiagnostics, installDiagnosticsRoute } from './diagnostics.js';
+import { prepareStorage, runStartupDiagnostics, runDiagnostics, installDiagnosticsRoute } from './diagnostics.js';
 import { startUploadSync } from './s3-files.js';
 import { installPayments } from './payments.js';
 import { installNotifications } from './notifications.js';
@@ -6305,6 +6306,9 @@ const seoService=createSeoService({db,env,resolveHost:seoPublicHost,profileOf:se
 let agentRegistry=null; // TR-40: set once the engine exists; the engine asks it before every agent run
 const automationEngine=createAutomationEngine({db,queue:jobQueue,generateAiText,aiStatus:aiProviderStatus,timers:env.NODE_ENV!=='test',deps:{
   agentGuard:(run)=>agentRegistry?agentRegistry.guard(run):{ok:true},
+  // TR-41: read-only inputs for the agents' report actions.
+  diagnostics:()=>runDiagnostics({db,env,storage:storagePlan}),
+  qaReport:(name)=>{if(!['accessibility.json','performance.json'].includes(name))return null;try{return JSON.parse(fs.readFileSync(path.join(backendRoot,'qa','reports',name),'utf8'))}catch{return null}},
   seo:seoService,
   comms:commsService,
   finance:subscriberFinance,
@@ -6389,6 +6393,7 @@ websiteHub.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});
 agentRegistry=createAgentRegistry({db,engine:automationEngine});
+try{const made=agentRegistry.ensureDefaults(DEFAULT_AGENTS);if(made.length)console.log(`[agents] created ${made.length} standard agents`)}catch(e){console.warn('[agents] could not create the standard agents:',e.message)}
 installAgentRoutes(app,{registry:agentRegistry,platform:platformIdentity});
 
 app.listen(

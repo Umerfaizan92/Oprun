@@ -11,6 +11,7 @@
 // reports; 'internal_write' changes business records; 'external' reaches customers, staff or the public.
 // Recipients, amounts and record IDs never come from untrusted text: they come from the business's own records.
 import { z } from 'zod';
+import { AGENT_ACTIONS } from './agent-actions.js';
 
 const DAY = 86400000;
 const iso = (t = Date.now()) => new Date(t).toISOString();
@@ -456,6 +457,9 @@ function verifyMail(ctx, p, r) {
   if (!ctx.deps.mail.providerReady()) return { ok: true, warning: true, detail: 'Queued, but no email provider is connected, so it has not been sent.' };
   return { ok: true, detail: `${ids.length} message(s) ${rows.every((m) => ['sent', 'delivered', 'opened'].includes(m.status)) ? 'sent' : 'queued for sending'}.` };
 }
+
+// TR-41: report actions for Oprun's own agents.
+Object.assign(ACTIONS, AGENT_ACTIONS);
 
 export const RULES = {
   routine_acknowledgements: { label: 'Routine acknowledgements', detail: 'Reply to new enquiries with a fixed "we received it" email.', limits: z.object({}).strict() },

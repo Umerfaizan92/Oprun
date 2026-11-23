@@ -104,7 +104,7 @@ export function createAgentRegistry({ db, engine, clock = () => Date.now() }) {
   function addJob(id, { name, action, params = {}, trigger = null, activate = true }, actor) {
     const a = row(id); if (!a) return { ok: false, status: 404, error: 'Agent not found.' };
     if (!safe(a.allowed_actions_json, []).includes(action)) return { ok: false, status: 403, error: `Agent "${a.name}" is not allowed to run "${ACTIONS[action]?.label || action}". Add it to the agent's actions first.` };
-    const t = trigger || (ACTIONS[action].triggers.includes(a.schedule) ? a.schedule : 'manual');
+    const t = trigger || (ACTIONS[action].triggers.includes(a.schedule) ? a.schedule : ACTIONS[action].triggers.find((x) => x.startsWith('schedule.')) || 'manual');
     const w = engine.createWorkflow({ scope: 'platform', org: null, name: String(name || `${a.name}: ${ACTIONS[action].label}`).slice(0, 120), definition: { trigger: t, action, params }, actor, note: `Agent ${a.agent_key}` });
     if (!w.ok) return w;
     db.prepare('UPDATE automation_workflows SET agent_id=? WHERE id=?').run(id, w.id);
@@ -117,8 +117,18 @@ export function createAgentRegistry({ db, engine, clock = () => Date.now() }) {
     const jobs = db.prepare("SELECT id,agent_id,name,action,trigger_type,status,last_run_at,last_status FROM automation_workflows WHERE agent_id IS NOT NULL AND status<>'archived' ORDER BY created_at").all();
     const now = clock();
     for (const a of agents) {
-      a.jobs = jobs.filter((j) => j.agent_id === a.id).map(({ agent_id, ...j }) => j);
+      // Each job shows its own latest result: the report it wrote, or why it did nothing.
+      const lastOf = (wid) => {
+        const r = db.prepare('SELECT id,action,status,error,created_at,updated_at FROM automation_runs WHERE workflow_id=? AND dry_run=0 ORDER BY created_at DESC LIMIT 1').get(wid);
+        if (r) r.output = db.prepare('SELECT kind,title,body FROM automation_outputs WHERE run_id=? ORDER BY created_at DESC LIMIT 1').get(r.id) || null;
+        return r || null;
+      };
+      a.jobs = jobs.filter((j) => j.agent_id === a.id).map(({ agent_id, ...j }) => ({ ...j, action_label: ACTIONS[j.action]?.label || j.action, last_run: lastOf(j.id) }));
       const last = db.prepare('SELECT r.id,r.action,r.status,r.error,r.created_at,r.updated_at FROM automation_runs r JOIN automation_workflows w ON w.id=r.workflow_id WHERE w.agent_id=? AND r.dry_run=0 ORDER BY r.created_at DESC LIMIT 1').get(a.id);
+      if (last) {
+        const out = db.prepare('SELECT kind,title,body FROM automation_outputs WHERE run_id=? ORDER BY created_at DESC LIMIT 1').get(last.id);
+        last.output = out || null;
+      }
       a.last_run = last || null;
       // Past its deadline: a run that is still not finished after deadline_minutes.
       a.overdue_runs = db.prepare("SELECT COUNT(*) n FROM automation_runs r JOIN automation_workflows w ON w.id=r.workflow_id WHERE w.agent_id=? AND r.status IN ('received','queued','executing','approved') AND r.created_at<?").get(a.id, iso(now - a.deadline_minutes * 60000)).n;
@@ -126,5 +136,18 @@ export function createAgentRegistry({ db, engine, clock = () => Date.now() }) {
     return agents;
   }
 
-  return { guard, create, update, addJob, list, get: (id) => view(row(id)), byKey: (key) => view(db.prepare('SELECT * FROM platform_agents WHERE agent_key=?').get(key)), agentEligible };
+  // TR-41: create any standard agent that does not exist yet, with its jobs switched on. Existing agents are left alone.
+  function ensureDefaults(defaults, actor = { id: 'founder', name: 'Founder', role: 'founder' }) {
+    const created = [];
+    for (const d of defaults) {
+      if (db.prepare('SELECT 1 FROM platform_agents WHERE agent_key=?').get(d.key)) continue;
+      const r = create({ key: d.key, name: d.name, owner_id: 'founder', escalation_contact: 'founder', responsibilities: d.responsibilities, allowed_actions: d.jobs, schedule: d.schedule }, actor);
+      if (!r.ok) throw new Error(`Agent ${d.key}: ${r.error}`);
+      for (const action of d.jobs) { const j = addJob(r.id, { action }, actor); if (!j.ok) throw new Error(`Agent ${d.key} job ${action}: ${j.error}`); }
+      created.push(d.key);
+    }
+    return created;
+  }
+
+  return { ensureDefaults, guard, create, update, addJob, list, get: (id) => view(row(id)), byKey: (key) => view(db.prepare('SELECT * FROM platform_agents WHERE agent_key=?').get(key)), agentEligible };
 }
