@@ -68,6 +68,11 @@ Updated: 23 Nov 2026
   is checked against the official register when ABR_GUID is set. Live on oprun-test 23 Nov 02:50 UTC (6465914),
   which also carries TR-21
 
+- [x] TR-22 (T-213): Command Centre already had compact live tiles and tabbed sections on laptop. Phones now show the
+  five figures as one summary card with a tappable row each (first screen: figures card + request box = 2 cards,
+  was 5 + 1). Action Centre "Start with the work that matters" shortcuts now appear only while there is work there
+  (e.g. "2 conversations need a reply"); nothing permanent when queues are clear
+
 ## Pending (in order)
 - [x] Palette decided (D-056): keep the gold identity; purple/cyan rejected after side-by-side samples
 - [x] TR-03 test site: new free Render service **oprun-test** (`srv-dc1keajl550s73eolqk0`,
@@ -90,5 +95,4 @@ Updated: 23 Nov 2026
 - 4 production security warnings need Render settings from the owner.
 
 ## Exact next action
-TR-22 Command Centre: compact cards, real analytics, no permanent suggestion panels; phone shows at most 3 cards above
-the fold.
+TR-23 onwards from 02_BACKLOG.md (next workspace pages in the new system).

@@ -133,7 +133,9 @@ try {
   await page.locator('#cc-feature-filter').fill('invoice');assert.ok(await page.locator('[data-cc-features] .cc-tile').count()>=1);
   await page.locator('#cc-feature-filter').fill('zzzz-nothing');await page.locator('[data-cc-ask]').waitFor();await page.locator('#cc-feature-filter').fill('');
   await openSection('Action Centre');await page.locator('#priorities .cc-brief').waitFor();
-  assert.equal(await page.locator('#workspace-start .workspace-start-link:visible').count(),3,'three next-step cards');
+  // TR-22: shortcuts appear only while there is something to do; a new workspace has clear queues.
+  await page.waitForFunction(()=>[...document.querySelectorAll('#workspace-start .workspace-start-link')].every(a=>a.dataset.ccView!==undefined));
+  assert.equal(await page.locator('#workspace-start .workspace-start-link:visible').count(),0,'no permanent next-step cards when queues are clear');
   assert.ok(await page.locator('#priorities .ai-brief-panel').isVisible());
   await page.waitForFunction(()=>/^Live/.test(document.querySelector('#priorities .status-pill')?.textContent||''));
   for(const hidden of ['.dashboard-heading','#sp-askbar','#workspace-features'])assert.equal(await page.locator(hidden).isVisible(),false,hidden+' hidden on Action Centre');

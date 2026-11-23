@@ -60,3 +60,17 @@ body .gx-tile .gx-spark{width:40%;max-width:112px;height:32px}
 @media(min-width:641px) and (max-width:1199px){body .gx-grid{grid-template-columns:repeat(6,minmax(0,1fr))}body .gx-tile{grid-column:span 2}.gx-board[data-cards="5"] .gx-tile:nth-child(n+4){grid-column:span 3}.gx-board[data-cards="4"] .gx-tile{grid-column:span 3}.gx-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}.gx-shortcut{flex-wrap:wrap}.gx-shortcut-arrow{position:absolute;right:10px;top:10px}}
 @media(max-width:640px){.gx-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}.gx-workspace-links{padding:12px}.gx-shortcut{padding:10px 8px;gap:7px}.gx-shortcut small{font-size:10px}.gx-shortcut-arrow{display:none}.gx-tile-head{gap:7px}.gx-icon{width:28px;height:28px}body .gx-label{font-size:11px}body .gx-tile .gx-main{flex-direction:row}.gx-links-head>span{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.gx-icon svg{animation:none!important}.gx-shortcut{transition:none!important;transform:none!important}}
+/* TR-22: on phones the five figures form one compact summary card (one row each, still tappable), so the first screen
+   shows the figures and the request box instead of five separate cards. */
+@media (max-width:700px){
+html body.portal-workspace #dashboard-view .gx-grid{grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel)}
+html body.portal-workspace #dashboard-view .gx-grid>.gx-tile{grid-column:auto;min-height:60px;margin:0;padding:10px 14px;border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;background:transparent;transform:none;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"head fig" "sub fig";align-items:center;column-gap:12px;row-gap:2px;text-align:left}
+html body.portal-workspace #dashboard-view .gx-grid>.gx-tile:last-child{border-bottom:0}
+html body.portal-workspace #dashboard-view .gx-grid>.gx-tile::before,html body.portal-workspace #dashboard-view .gx-grid>.gx-tile::after{display:none}
+html body.portal-workspace #dashboard-view .gx-tile .gx-tile-head{grid-area:head;margin:0}
+html body.portal-workspace #dashboard-view .gx-tile .gx-main{grid-area:fig;flex-direction:row;align-items:center;margin:0}
+html body.portal-workspace #dashboard-view .gx-tile :is(.gx-spark,.gx-ring){display:none}
+html body.portal-workspace #dashboard-view .gx-tile .gx-sub{grid-area:sub;margin:0}
+html body.portal-workspace #dashboard-view .gx-tile .gx-num{font-size:1.3rem}
+html body.portal-workspace #dashboard-view .gx-tile .gx-figure em{font-size:.72rem}
+}

@@ -107,7 +107,11 @@
       a.querySelector('.cc-step-status')?.remove();
       const st = status[v]; if (st) a.append(el('span', { class: 'cc-step-status cc-' + st[1], text: st[0] }));
       a.dataset.ccView = v;
+      // TR-22: a shortcut is shown only while there is something to do there (no permanent suggestion cards).
+      a.hidden = st?.[1] === 'ok';
     });
+    const links = [...start.querySelectorAll('.workspace-start-link')];
+    start.hidden = links.length > 0 && links.every(a => a.hidden);
   }
 
   // ---------- Action Centre: AI Operations Brief ----------

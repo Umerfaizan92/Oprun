@@ -687,3 +687,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/preview-preflight.js, src/server.js, saas/auth.js, auth.js version refs, scripts/preview-signup.test.mjs
 - Acceptance: Start-up error lists blocked setting names (never values); with PREVIEW_ALLOW_SIGNUP=1 on the isolated test site an account can be created using on-screen codes, ABN checked against ABR when ABR_GUID is set; off by default; other public intake stays closed; tests pass
 - Evidence: preview-signup test 3/3 (blocked names listed without values; sign-up off by default 403; on with PREVIEW_ALLOW_SIGNUP=1: 202 with on-screen codes, verify 201); preflight test 6/6; npm test 73/73. Live: oprun-test start-up named 22 blocked settings; those were blanked on oprun-test only, core test settings restored, PREVIEW_ALLOW_SIGNUP=1 set; deploy of 6465914 live 02:50 UTC (recorded 2026-11-23 on claude/transformation-staging at 6465914)
+
+## T-213 TR-22 Command Centre: one compact figures card on phones; next-step shortcuts only when there is work
+- Added: 2026-11-23
+- Requirement: Backlog TR-22: compact cards, real analytics, no permanent suggestion panels; phone shows at most 3 cards above the fold
+- Files: saas/workspace-gadgets.css, saas/command-centre-sections.js, version refs, scripts/test-redesign-ui.mjs, saas/design-system.html
+- Acceptance: Phone 390: figures in one card + request box above the fold (2 cards); desktop unchanged; Action Centre shortcuts hidden when queues are clear and shown when there is work; tests pass
+- Evidence: Screenshots 390 before (5 tiles + ask) and after (1 summary card + ask); browser check: shortcuts hidden with clear queues, 'Review conversations [2 need a reply]' shown with work; npm test 73/73; test:ui 38; test:redesign-ui pass; test:navigation-ui 614 checks (one flaky timeout on rerun passed); test:mobile-workspace-ui 316 checks (recorded 2026-11-23 on claude/transformation-staging at d37a243)
