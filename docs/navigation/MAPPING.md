@@ -73,6 +73,7 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Platform overview | Infrastructure | /office/#f01/system | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | Storage & backups | /office/#f01/platform/backups | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Platform overview | AI usage | /office/#f01/platform/ai-usage | overview.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | My work | My work | /office/#f10/work/mine | self.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Subscribers | Businesses | /office/#f02/subscribers | subscribers.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Billing & usage | Subscription invoices | /office/#f03/invoices | billing.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Billing & usage | Payment providers | /office/#f03/legacy:subpay | billing.read or founder | Retained maintenance link; no migration |
@@ -83,6 +84,8 @@ Implementation: group → submenu in the left rail; existing page sections/tabs 
 | Founder | Support & success | Support access | /office/#f04/support-access | support.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Oprun team | People & workload | /office/#f05/team/people | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Oprun team | Departments & teams | /office/#f05/team/structure | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | Assignments | /office/#f05/team/assignments | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
+| Founder | Oprun team | Projects | /office/#f05/records:project | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Oprun team | Team work | /office/#f05/records:staff_task | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Oprun team | Hiring requests | /office/#f05/records:hire | team.read or founder | Existing renderer; native section tabs or heading-based section panels |
 | Founder | Oprun marketing | Prospect CRM | /office/#f06/records:prospect | marketing.read or founder | Existing renderer; native section tabs or heading-based section panels |

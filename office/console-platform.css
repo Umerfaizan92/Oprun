@@ -118,3 +118,25 @@ a.ex-tile:focus-visible,.ex-link:focus-visible{outline:2px solid var(--sp-focus,
 .tm-check{justify-content:flex-start;width:auto}
 /* Console dialogs: "height:auto" with inset 0 stretched every dialog to the full window; fit the content instead. */
 dialog.portal-modal{height:fit-content!important}
+/* TR-32: assignments and My work. */
+.as-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.as-tabs .portal-button.is-active{border-color:var(--sp-gold-400,#e6b455);color:var(--sp-gold-300,#f0c46e)}
+.as-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.as-card{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--sp-line,var(--line));border-radius:var(--sp-r-card,14px)}
+.as-card.as-late{border-color:color-mix(in srgb,var(--sp-bad,#e5484d) 45%,transparent)}
+.as-title{font-size:15px;overflow-wrap:anywhere}
+.as-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0;font-size:13px;color:var(--sp-fg-2,var(--text-2))}
+.as-badge{padding:2px 8px;border-radius:var(--sp-r-pill,999px);border:1px solid var(--sp-line,var(--line));font-size:12px;font-weight:700;white-space:nowrap}
+.as-done,.as-blocked,.as-p-high{color:var(--sp-gold-300,#f0c46e);border-color:color-mix(in srgb,var(--sp-gold-400,#e6b455) 50%,transparent)}
+.as-overdue,.as-p-urgent{color:var(--sp-bad,#e5484d);border-color:color-mix(in srgb,var(--sp-bad,#e5484d) 50%,transparent)}
+.as-accepted{color:var(--sp-good,#3fb950);border-color:color-mix(in srgb,var(--sp-good,#3fb950) 45%,transparent)}
+.as-body{white-space:pre-wrap;margin:0;overflow-wrap:anywhere}
+.as-evidence{display:grid;gap:4px;padding:10px 12px;border:1px solid var(--sp-line,var(--line));border-radius:12px}
+.as-evidence h3,.portal-modal h3{margin:6px 0 0;font-size:14px}
+.as-evidence p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.as-history{margin:0;padding-left:18px;display:grid;gap:6px;font-size:13px}
+.as-history p{margin:2px 0 0;color:var(--sp-fg-2,var(--text-2));white-space:pre-wrap}
+.tm-days input[type=radio]{width:18px!important;height:18px!important;min-height:0!important;margin:0;accent-color:var(--sp-gold-400,#e6b455)}
+.as-evidence a{color:var(--sp-gold-300,#f0c46e)}
+/* Light theme: gold text needs the darker shade for contrast. */
+html[data-theme="light"] :is(.as-done,.as-blocked,.as-p-high,.as-tabs .portal-button.is-active,.tm-busy,.ex-warning .ex-level,.as-evidence a){color:var(--sp-gold-700,#7a5a12)}

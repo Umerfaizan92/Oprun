@@ -81,6 +81,12 @@ export function installOperatorExecutive(app, { db, env, platform, policy, now =
     };
   }
 
+  // TR-32: assigned work (Oprun team). Null when assignments are not installed.
+  function assignments(t) {
+    const r = one("SELECT SUM(work_state='done') review,SUM(work_state IN ('assigned','in_progress','blocked','reopened') AND due_on IS NOT NULL AND due_on<?) overdue,SUM(work_state='blocked') blocked FROM platform_records WHERE work_state IS NOT NULL", iso(t).slice(0, 10));
+    return r ? { waiting_review: r.review || 0, overdue: r.overdue || 0, blocked: r.blocked || 0 } : null;
+  }
+
   // Items that need someone, most serious first. Each route is the console address (group/page) where it is handled.
   function attention(s) {
     const out = [];
@@ -92,6 +98,12 @@ export function installOperatorExecutive(app, { db, env, platform, policy, now =
       if (o.open_incidents) add('critical', 'incidents', `${n(o.open_incidents, 'open incident', 'open incidents')}.`, 'f07/records:incident');
       if (o.jobs?.dead) add('warning', 'jobs-dead', `${n(o.jobs.dead, 'background job has', 'background jobs have')} stopped after repeated failures.`, 'f01/system');
       else if (o.jobs?.failed_24_hours) add('warning', 'jobs-failed', `${n(o.jobs.failed_24_hours, 'background job', 'background jobs')} failed in the last 24 hours.`, 'f01/system');
+    }
+    if (s.assignments) {
+      const a = s.assignments;
+      if (a.overdue) add('warning', 'assignments-overdue', `${n(a.overdue, 'assignment is', 'assignments are')} overdue.`, 'f05/team/assignments');
+      if (a.blocked) add('warning', 'assignments-blocked', `${n(a.blocked, 'assignment is', 'assignments are')} blocked.`, 'f05/team/assignments');
+      if (a.waiting_review) add('info', 'assignments-review', `${n(a.waiting_review, 'completed assignment is', 'completed assignments are')} waiting for review.`, 'f05/team/assignments');
     }
     if (s.revenue?.overdue_invoices?.count) add('warning', 'overdue', `${n(s.revenue.overdue_invoices.count, 'invoice is', 'invoices are')} overdue.`, 'f03/invoices');
     if (s.support) {
@@ -111,6 +123,7 @@ export function installOperatorExecutive(app, { db, env, platform, policy, now =
     if (can('billing')) sections.revenue = revenue(t);
     if (can('support')) sections.support = support();
     if (can('operations')) sections.operations = operations(t);
+    if (can('team')) { const a = assignments(t); if (a) sections.assignments = a; }
     res.json({ ok: true, generated_at: iso(t), role: req.platform.role, sections, attention: attention(sections) });
   });
 }

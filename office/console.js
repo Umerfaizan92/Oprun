@@ -20,6 +20,8 @@
         ["platform/ai-usage", "AI usage"],
       ],
     ],
+    // TR-32: every signed-in staff member has "My work" (section "self").
+    ["f10", "self", "My work", "check", [["work/mine", "My work"]]],
     [
       "f02",
       "subscribers",
@@ -58,6 +60,8 @@
       [
         ["team/people", "People & workload"],
         ["team/structure", "Departments & teams"],
+        ["team/assignments", "Assignments"],
+        ["records:project", "Projects"],
         ["records:staff_task", "Team work"],
         ["records:hire", "Hiring requests"],
       ],
@@ -125,6 +129,7 @@
     gear: "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2",
     shield: "M12 2 3 6v6c0 6 9 10 9 10s9-4 9-10V6ZM8 12l3 3 5-6",
     key: "M14 4a6 6 0 1 0 6 6 6 6 0 0 0-6-6M9 14l-7 7M4 19l2 2",
+    check: "M4 4h16v16H4zM8 12l3 3 5-6",
   };
   let me,
     current,
@@ -150,7 +155,7 @@
     return d;
   };
   const can = (section, action = "read") =>
-    me?.role === "founder" || me?.grants?.includes(section + "." + action);
+    (section === "self" && !!me) || me?.role === "founder" || me?.grants?.includes(section + "." + action);
   const notify = (t) => ($("#console-notice").textContent = t);
   const button = (text, fn, primary = false) => {
     const b = el("button", "portal-button" + (primary ? " primary" : ""), text);
@@ -247,6 +252,14 @@
         return;
       }
       // Phase 04 founder tabs (office/console-platform.js): read-only revenue, infrastructure, backups, AI, compliance, configuration.
+      // TR-32: assignments and My work (office/console-assignments.js).
+      if (window.OprunAssignments?.handles(route)) {
+        const box = el("div", "cp-view tm-view");
+        await window.OprunAssignments.render(route, box, api, { can, notify, api, isFounder: me?.role === "founder" });
+        if (seq !== sequence) return;
+        host.replaceChildren(box);
+        return;
+      }
       // TR-31: Oprun's own staff (office/console-team.js).
       if (window.OprunConsoleTeam?.handles(route)) {
         const box = el("div", "cp-view tm-view");
@@ -371,8 +384,12 @@
           };
           host.append(f);
         }
-        for (const r of d.records)
-          host.append(panel(r.title, r.body + " · " + r.status));
+        for (const r of d.records) {
+          const p = panel(r.title, r.body + " · " + r.status);
+          if (window.OprunAssignments?.kinds.includes(kind))
+            window.OprunAssignments.decorate(p, r, kind, { can, notify, api, refresh: show });
+          host.append(p);
+        }
         if (!d.records.length)
           host.append(
             panel(

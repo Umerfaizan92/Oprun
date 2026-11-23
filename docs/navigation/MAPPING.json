@@ -1144,6 +1144,18 @@
       ]
     ],
     [
+      "f10",
+      "self",
+      "My work",
+      "check",
+      [
+        [
+          "work/mine",
+          "My work"
+        ]
+      ]
+    ],
+    [
       "f02",
       "subscribers",
       "Subscribers",
@@ -1212,6 +1224,14 @@
         [
           "team/structure",
           "Departments & teams"
+        ],
+        [
+          "team/assignments",
+          "Assignments"
+        ],
+        [
+          "records:project",
+          "Projects"
         ],
         [
           "records:staff_task",

@@ -395,9 +395,9 @@ try{
   await page.setViewportSize({width:390,height:900});
   page.on('response',r=>{if(r.url().startsWith(base+'/api/admin/')&&r.status()>=400)failedFounderRequests.push(r.status()+' '+new URL(r.url()).pathname)});
   await page.goto(base+'/saas/sign-in.html#operator');await page.locator('#operator-form input[name=key]').fill(adminKey);await page.locator('#operator-link-label').waitFor({state:'visible'});await page.locator('input[name=link_workspace]').check();await page.locator('#operator-form button[type=submit]').click();await page.waitForURL(base+'/office/');await page.locator('#console-nav [data-section]').first().waitFor({state:'attached'});
-  await check('founder uses nine isolated groups and nested pages',async()=>{
-    assert.equal(await page.locator('#console-nav [data-section]').count(),9);
-    for(const section of ['f01','f02','f03','f04','f05','f06','f07','f08','f09']){await page.evaluate(h=>location.hash=h,section);await page.waitForTimeout(120);assert.ok(await page.locator('#console-nav .navigation-page').count()>0);assert.equal(await page.locator('#console-content').getByText('Action unavailable',{exact:true}).count(),0,section)}
+  await check('founder uses ten isolated groups (nine areas plus My work) and nested pages',async()=>{
+    assert.equal(await page.locator('#console-nav [data-section]').count(),10);
+    for(const section of ['f01','f10','f02','f03','f04','f05','f06','f07','f08','f09']){await page.evaluate(h=>location.hash=h,section);await page.waitForTimeout(120);assert.ok(await page.locator('#console-nav .navigation-page').count()>0);assert.equal(await page.locator('#console-content').getByText('Action unavailable',{exact:true}).count(),0,section)}
     await page.evaluate(()=>location.hash='f01');await screenshot(page,'founder-mobile');await page.setViewportSize({width:1440,height:1000});await screenshot(page,'founder-desktop');
   });
   await check('founder API requests succeed across all sections',async()=>assert.deepEqual(failedFounderRequests,[]));

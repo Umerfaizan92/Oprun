@@ -194,5 +194,6 @@
   }
 
   const renderers = { 'team/people': people, 'team/structure': structure };
-  window.OprunConsoleTeam = { handles: (route) => Object.prototype.hasOwnProperty.call(renderers, route), render: (route, host, api, ctx) => renderers[route](host, api, ctx) };
+  // Shared small UI helpers, also used by console-assignments.js.
+  window.OprunConsoleTeam = { ui: { el, dialog, label, select, status, fmtDate, plural }, handles: (route) => Object.prototype.hasOwnProperty.call(renderers, route), render: (route, host, api, ctx) => renderers[route](host, api, ctx) };
 })();

@@ -180,6 +180,7 @@ export function installOperatorConsole(
     content: "marketing",
     hire: "team",
     staff_task: "team",
+    project: "team",
     announcement_draft: "marketing",
   };
   const recordSchema = z
