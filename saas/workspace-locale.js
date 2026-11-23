@@ -1,4 +1,4 @@
-import { message, formatMessage } from './locale-catalog.js?v=20261123.tr21';
+import { message, formatMessage } from './locale-catalog.js?v=20261124.tr50';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');

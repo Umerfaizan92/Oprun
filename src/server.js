@@ -13,6 +13,7 @@ import { installPlatformHealth } from './platform-health.js';
 import { installOperatorExecutive } from './operator-executive.js';
 import { installPlatformTeam } from './platform-team.js';
 import { installPlatformAssignments } from './platform-assignments.js';
+import { installOnboardingInterview } from './onboarding-interview.js';
 import { createAgentRegistry } from './agents/registry.js';
 import { installAgentRoutes } from './agents/routes.js';
 import { DEFAULT_AGENTS } from './agents/defaults.js';
@@ -3072,6 +3073,7 @@ const staffAvailabilitySchema=z.object({
 const staffPresence=installStaffPresence(app,{db,requireSaasUser});
 // TR-24: optional modules per business (industry default + owner switch); must run before the module routes below.
 const moduleRules=installModuleRules(app,{db,requireSaasUser,saasAudit});
+installOnboardingInterview(app,{db,requireSaasUser,requireSaasRole,saasAudit});
 app.get('/api/saas/staff-availability',requireSaasUser,(req,res)=>{
   const manager=seniorRole(req.saas.role);
   const includeInactive=manager&&req.query.include_inactive==='1';
