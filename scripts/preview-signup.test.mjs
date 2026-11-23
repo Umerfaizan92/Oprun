@@ -30,3 +30,18 @@ test('with PREVIEW_ALLOW_SIGNUP=1 an account is created with on-screen codes', a
     assert.equal((await s.call('POST', '/api/public/support-ticket', { body: {} })).status, 403, 'other public intake stays closed');
   } finally { await s.stop(); }
 });
+
+test('with a Telnyx Verify profile present, test sign-up still accepts the latest on-screen codes after resends', async () => {
+  const s = await startServer({ ...preview, PREVIEW_ALLOW_SIGNUP: '1', TELNYX_VERIFY_PROFILE_ID: 'profile-id-from-production-env' });
+  try {
+    const r = await s.call('POST', '/api/saas/registration/start', { body: body('resend@thamestest.example') });
+    assert.equal(r.status, 202, r.text);
+    let email = r.json.delivery.test_codes.email, sms = r.json.delivery.test_codes.sms;
+    for (let i = 0; i < 2; i++) {
+      const e = await s.call('POST', '/api/saas/registration/resend', { body: { pending_id: r.json.pending_id, channel: 'email' } }); assert.equal(e.status, 200, e.text); email = e.json.test_code;
+      const m = await s.call('POST', '/api/saas/registration/resend', { body: { pending_id: r.json.pending_id, channel: 'sms' } }); assert.equal(m.status, 200, m.text); sms = m.json.test_code;
+      assert.match(m.json.message, /Test mode/);
+    }
+    assert.equal((await s.call('POST', '/api/saas/registration/verify', { body: { pending_id: r.json.pending_id, email_code: email, sms_code: sms } })).status, 201);
+  } finally { await s.stop(); }
+});

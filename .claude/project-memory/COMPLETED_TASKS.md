@@ -694,3 +694,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-gadgets.css, saas/command-centre-sections.js, version refs, scripts/test-redesign-ui.mjs, saas/design-system.html
 - Acceptance: Phone 390: figures in one card + request box above the fold (2 cards); desktop unchanged; Action Centre shortcuts hidden when queues are clear and shown when there is work; tests pass
 - Evidence: Screenshots 390 before (5 tiles + ask) and after (1 summary card + ask); browser check: shortcuts hidden with clear queues, 'Review conversations [2 need a reply]' shown with work; npm test 73/73; test:ui 38; test:redesign-ui pass; test:navigation-ui 614 checks (one flaky timeout on rerun passed); test:mobile-workspace-ui 316 checks (recorded 2026-11-23 on claude/transformation-staging at d37a243)
+
+## T-214 Fix: sign-up SMS code always rejected when only TELNYX_VERIFY_PROFILE_ID is set (seen on test site)
+- Added: 2026-11-23
+- Requirement: Owner screenshot: test sign-up rejects the latest on-screen codes with 'One or both verification codes are incorrect'
+- Files: src/server.js, saas/auth.js, auth.js version refs, scripts/preview-signup.test.mjs
+- Acceptance: Registration checks SMS codes the same way they were sent (Telnyx Verify only with API key + profile and not test mode); test mode wording honest; regression test with profile set and two resends passes
+- Evidence: preview-signup test 4/4 incl. profile set + 2 resends then verify 201; npm test 73/73; release validation and secret scan pass (recorded 2026-11-23 on claude/transformation-staging at 00bdca8)

@@ -92,7 +92,8 @@
         row.classList.toggle('good',Boolean(delivery.sent));
         row.classList.toggle('error',delivery.sent===false);
         const status=row.querySelector('span');
-        if(channel==='sms'&&delivery.accepted&&delivery.sent)status.textContent='Telnyx accepted the SMS request — check your mobile';
+        if(state.test_mode)status.textContent='Test mode: not sent. Use the latest code shown below.';
+        else if(channel==='sms'&&delivery.accepted&&delivery.sent)status.textContent='Telnyx accepted the SMS request — check your mobile';
         else status.textContent=delivery.sent?'Sent successfully':delivery.sent===false?'Not delivered yet — use Resend below':'Ready to send / resend';
       }
     };paintDelivery();

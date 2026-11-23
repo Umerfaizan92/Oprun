@@ -2597,7 +2597,7 @@ app.post('/api/saas/registration/resend',otpResendLimiter,async(req,res)=>{
     }
     db.prepare(`UPDATE pending_registrations SET ${parsed.data.channel==='email'?'email_code_hash':'sms_code_hash'}=?,expires_at=?,updated_at=? WHERE id=?`).run(hash,expires.toISOString(),now.toISOString(),row.id);
     logVerificationDelivery({purpose:'registration_resend',subjectId:row.id,channel:parsed.data.channel,destination:parsed.data.channel==='email'?row.email:row.phone,provider:parsed.data.channel==='email'?'resend':'telnyx',messageId:delivery.email_id||delivery.message_id,status:'sent'});
-    res.json({ok:true,channel:parsed.data.channel,expires_at:expires.toISOString(),...(verificationTestMode?{test_code:code}:{}),message:parsed.data.channel==='email'?'New email verification code sent successfully.':'Telnyx accepted a new SMS verification request. Check your mobile; delivery can take a short time.',delivery:{sent:true,accepted:true,provider:delivery.provider||(parsed.data.channel==='email'?'resend':'telnyx_verify'),message_id:delivery.email_id||delivery.message_id||null,timeout_seconds:delivery.timeout_seconds||300}});
+    res.json({ok:true,channel:parsed.data.channel,expires_at:expires.toISOString(),...(verificationTestMode?{test_code:code}:{}),message:verificationTestMode?`New ${parsed.data.channel==='email'?'email':'SMS'} code created. Test mode: it is shown on screen and replaces the previous one.`:parsed.data.channel==='email'?'New email verification code sent successfully.':'Telnyx accepted a new SMS verification request. Check your mobile; delivery can take a short time.',delivery:{sent:true,accepted:true,provider:delivery.provider||(parsed.data.channel==='email'?'resend':'telnyx_verify'),message_id:delivery.email_id||delivery.message_id||null,timeout_seconds:delivery.timeout_seconds||300}});
   }catch(err){
     logVerificationDelivery({purpose:'registration_resend',subjectId:row.id,channel:parsed.data.channel,destination:parsed.data.channel==='email'?row.email:row.phone,provider:parsed.data.channel==='email'?'resend':'telnyx',status:'failed',reason:err.message});
     res.status(503).json({ok:false,error:err.message});
@@ -2609,7 +2609,9 @@ app.post('/api/saas/registration/verify',otpVerifyLimiter,async(req,res)=>{
   const row=db.prepare(`SELECT * FROM pending_registrations WHERE id=?`).get(parsed.data.pending_id);if(!row||row.expires_at<=new Date().toISOString())return res.status(410).json({ok:false,error:'The verification codes expired. Start registration again.'});if(row.verification_attempts>=8)return res.status(429).json({ok:false,error:'Too many incorrect codes. Start registration again for your security.'});
   const emailOk=crypto.timingSafeEqual(Buffer.from(otpHash(row.id,parsed.data.email_code)),Buffer.from(row.email_code_hash));
   let smsOk=false,smsReason='';
-  if(configuredValue(env.TELNYX_VERIFY_PROFILE_ID)){
+  // Check the SMS code the same way it was sent: Telnyx Verify only when it was used to send (API key and profile set,
+  // not test mode); otherwise the code was made here. Before, a profile ID on its own sent every code to Telnyx to check.
+  if(!verificationTestMode&&configuredValue(env.TELNYX_API_KEY)&&configuredValue(env.TELNYX_VERIFY_PROFILE_ID)){
     const verified=await verifySmsVerificationCode(row.phone,parsed.data.sms_code).catch(err=>({ok:false,reason:err.message}));
     smsOk=Boolean(verified.ok);const rawSmsReason=String(verified.reason||verified.response_code||'').trim();smsReason=/^(accepted|ok|verified|success)$/i.test(rawSmsReason)?'':rawSmsReason;
   }else{
