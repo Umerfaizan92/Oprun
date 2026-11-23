@@ -4,27 +4,30 @@
 // versions of each answer are kept. Nothing here changes the workspace: TR-52 turns the answers into a proposal that
 // the owner must approve.
 import { z } from 'zod';
+import { buildQuestions } from './onboarding-questions.js';
 
-// Core questions (TR-51 adds country and industry specific ones). Text for each lives in saas/locale-catalog.js
-// under ob.q.<key> and ob.h.<key>, so the questions appear in the owner's language.
-export const CORE_QUESTIONS = [
-  { key: 'business', required: true, max: 2000 },
-  { key: 'services', required: true, max: 2000 },
-  { key: 'service_area', required: true, max: 500 },
-  { key: 'team', required: true, max: 500 },
-  { key: 'customers', required: false, max: 1000 },
-  { key: 'hours', required: false, max: 500 },
-  { key: 'help_wanted', required: false, max: 1000 }
-];
+// TR-51: the questions come from src/onboarding-questions.js, built from the business's country and industry. These
+// four are always asked and required.
+export const CORE_QUESTIONS = buildQuestions().questions.filter((q) => q.required);
 
 const iso = () => new Date().toISOString();
 const safe = (s, f) => { try { const v = JSON.parse(s); return v && typeof v === 'object' ? v : f; } catch { return f; } };
 
-export function installOnboardingInterview(app, { db, requireSaasUser, requireSaasRole, saasAudit = () => {}, questions = () => CORE_QUESTIONS }) {
+export function installOnboardingInterview(app, { db, requireSaasUser, requireSaasRole, saasAudit = () => {}, build = buildQuestions }) {
   db.exec(`CREATE TABLE IF NOT EXISTS onboarding_sessions(organisation_id TEXT PRIMARY KEY REFERENCES organisations(id),answers_json TEXT NOT NULL DEFAULT '{}',step INTEGER NOT NULL DEFAULT 0,status TEXT NOT NULL DEFAULT 'in_progress' CHECK(status IN ('in_progress','answered')),language TEXT,revision INTEGER NOT NULL DEFAULT 1,started_by TEXT,updated_by TEXT,started_at TEXT NOT NULL,updated_at TEXT NOT NULL);`);
   const manage = [requireSaasUser, requireSaasRole('owner', 'admin', 'manager', 'super_admin', 'director')];
-  const qs = (req) => questions(req);
   const load = (org) => db.prepare('SELECT * FROM onboarding_sessions WHERE organisation_id=?').get(org);
+  // Country from the business record, industry from Business settings; both read fresh on every request so the
+  // questions follow any change (and the first answer, while no industry is chosen).
+  function context(req) {
+    const org = req.saas.organisation_id;
+    let o = {}; try { o = db.prepare('SELECT * FROM organisations WHERE id=?').get(org) || {}; } catch {}
+    let industry = 'custom'; try { industry = db.prepare('SELECT industry_code FROM onboarding_profiles WHERE organisation_id=?').get(org)?.industry_code || 'custom'; } catch {}
+    return build({ country: o.country || 'AU', industry, state: o.state || '', answers: safe(load(org)?.answers_json, {}) });
+  }
+  const qs = (req) => context(req).questions;
+  // Every response carries the current questions: the list can change after the first answer.
+  const payload = (req) => { const ctx = context(req); return { questions: ctx.questions, context: { country: ctx.country, industry: ctx.industry, family: ctx.family, industry_guessed: ctx.guessed, regulators: ctx.regulators }, session: view(load(req.saas.organisation_id), ctx.questions) }; };
   function ensure(req) {
     const org = req.saas.organisation_id, t = iso();
     db.prepare('INSERT OR IGNORE INTO onboarding_sessions(organisation_id,started_by,updated_by,started_at,updated_at) VALUES (?,?,?,?,?)').run(org, req.saas.user_id, req.saas.user_id, t, t);
@@ -44,8 +47,8 @@ export function installOnboardingInterview(app, { db, requireSaasUser, requireSa
 
   app.get('/api/saas/onboarding/interview', ...manage, (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
-    const list = qs(req);
-    res.json({ ok: true, questions: list, session: view(ensure(req), list) });
+    ensure(req);
+    res.json({ ok: true, ...payload(req) });
   });
 
   const answerSchema = z.object({ value: z.string().max(4000), source: z.enum(['text', 'voice']).default('text'), language: z.string().trim().max(35).nullable().default(null), revision: z.number().int().positive() }).strict();
@@ -68,7 +71,7 @@ export function installOnboardingInterview(app, { db, requireSaasUser, requireSa
       .run(JSON.stringify(answers), next, p.data.language, req.saas.user_id, iso(), req.saas.organisation_id, p.data.revision);
     if (!r.changes) return res.status(409).json({ ok: false, error: 'Someone else saved an answer at the same time. Reload to see the latest.', session: view(load(req.saas.organisation_id), list) });
     saasAudit(req, prev?.value ? 'onboarding.answer_corrected' : 'onboarding.answer_saved', 'onboarding_session', req.saas.organisation_id, { question: q.key, source: p.data.source, language: p.data.language });
-    res.json({ ok: true, session: view(load(req.saas.organisation_id), list) });
+    res.json({ ok: true, ...payload(req) });
   });
 
   const stepSchema = z.object({ step: z.number().int().min(0), revision: z.number().int().positive() }).strict();
@@ -78,7 +81,7 @@ export function installOnboardingInterview(app, { db, requireSaasUser, requireSa
     ensure(req);
     const r = db.prepare('UPDATE onboarding_sessions SET step=?,revision=revision+1,updated_by=?,updated_at=? WHERE organisation_id=? AND revision=?').run(p.data.step, req.saas.user_id, iso(), req.saas.organisation_id, p.data.revision);
     if (!r.changes) return res.status(409).json({ ok: false, error: 'This changed somewhere else. Reload to continue.', session: view(load(req.saas.organisation_id), list) });
-    res.json({ ok: true, session: view(load(req.saas.organisation_id), list) });
+    res.json({ ok: true, ...payload(req) });
   });
 
   app.post('/api/saas/onboarding/interview/finish', ...manage, (req, res) => {
@@ -86,7 +89,7 @@ export function installOnboardingInterview(app, { db, requireSaasUser, requireSa
     if (v.missing_required.length) return res.status(400).json({ ok: false, error: 'Answer the required questions first.', missing: v.missing_required });
     db.prepare("UPDATE onboarding_sessions SET status='answered',step=?,revision=revision+1,updated_by=?,updated_at=? WHERE organisation_id=?").run(list.length, req.saas.user_id, iso(), req.saas.organisation_id);
     saasAudit(req, 'onboarding.interview_finished', 'onboarding_session', req.saas.organisation_id, { answered: v.answered });
-    res.json({ ok: true, session: view(load(req.saas.organisation_id), list) });
+    res.json({ ok: true, ...payload(req) });
   });
 
   return { answers: (org) => safe(load(org)?.answers_json, {}), status: (org) => load(org)?.status || null };

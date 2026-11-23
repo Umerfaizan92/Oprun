@@ -32,14 +32,16 @@ try {
     await page.locator('#ob-interview [data-question="services"]').waitFor();
     await page.locator('#ob-interview textarea').fill('Blocked drains, hot water systems, leak repairs');
     await page.locator('#ob-interview').getByRole('button', { name: 'Save answer' }).click();
-    await page.locator('#ob-interview [data-question="service_area"]').waitFor();
-    assert.match(await page.locator('.ob-progress').innerText(), /2 of 7 answered/);
+    await page.locator('#ob-interview [data-question="pricing"]').waitFor();
+    assert.match(await page.locator('.ob-progress').innerText(), /2 of 16 answered/);
+    assert.match(await page.locator('.ob-context').innerText(), /Australia/, 'questions are for the business country');
+    assert.match(await page.locator('.ob-step').innerText(), /Services and pricing/, 'each question shows its topic');
     assert.deepEqual(errors, []);
     await ctx.close(); // the browser is closed: page memory and site storage are gone
   });
   await check('after closing the browser it resumes at question 3 with both answers kept', async () => {
     const { ctx, page, errors } = await open();
-    assert.equal(await page.locator('#ob-interview [data-question]').getAttribute('data-question'), 'service_area');
+    assert.equal(await page.locator('#ob-interview [data-question]').getAttribute('data-question'), 'pricing');
     assert.match(await page.locator('.ob-resume').innerText(), /Carry on from question 3/);
     const answers = await page.locator('.ob-summary li').allInnerTexts();
     assert.match(answers[0], /Residential plumbing/); assert.match(answers[1], /Blocked drains/); assert.match(answers[2], /Not answered yet/);

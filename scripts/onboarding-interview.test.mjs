@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { startServer } from './test-server.mjs';
 import { seedOwner } from './visual/session.mjs';
 import { CORE_QUESTIONS } from '../src/onboarding-interview.js';
+import { buildQuestions } from '../src/onboarding-questions.js';
 import { MESSAGES } from '../saas/locale-catalog.js';
 
 test('answers are saved one by one, corrected, resumed and finished; nothing in the workspace changes', async () => {
@@ -17,7 +18,8 @@ test('answers are saved one by one, corrected, resumed and finished; nothing in 
     assert.equal((await s.call('GET', '/api/saas/onboarding/interview', {})).status, 401, 'signed-in owners only');
     let r = await call('GET', '/api/saas/onboarding/interview');
     assert.equal(r.status, 200);
-    assert.deepEqual(r.json.questions.map((q) => q.key), CORE_QUESTIONS.map((q) => q.key));
+    assert.deepEqual(r.json.questions.map((q) => q.key), buildQuestions({ country: 'AU' }).questions.map((q) => q.key), 'an Australian business with no industry yet');
+    assert.deepEqual(CORE_QUESTIONS.map((q) => q.key), ['business', 'services', 'service_area', 'team'], 'four required questions');
     let session = r.json.session;
     assert.deepEqual([session.step, session.answered, session.status], [0, 0, 'in_progress']);
 
@@ -52,7 +54,7 @@ test('answers are saved one by one, corrected, resumed and finished; nothing in 
     r = await call('POST', '/api/saas/onboarding/interview/finish', {}); assert.equal(r.status, 400);
     assert.deepEqual(r.json.missing, ['service_area', 'team']);
     for (const [k, v] of [['service_area', 'Perth northern suburbs'], ['team', 'Me and two apprentices']]) { r = await put(k, v); session = r.json.session; }
-    assert.equal((await put('hours', 'y'.repeat(600))).status, 400, 'length limits apply');
+    assert.equal((await put('hours', 'y'.repeat(1200))).status, 400, 'length limits apply');
     r = await call('POST', '/api/saas/onboarding/interview/finish', {}); assert.equal(r.status, 200);
     assert.equal(r.json.session.status, 'answered');
     assert.deepEqual(r.json.session.missing_required, []);

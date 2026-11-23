@@ -13,6 +13,10 @@
   const canAnswer = () => ['owner', 'admin', 'manager', 'super_admin', 'director'].includes(window.GDS_SESSION?.user?.role);
 
   let data = null, step = 0, listening = false;
+  // TR-51: a question may use country or industry wording (q.text, q.hint) and placeholders (q.vars).
+  const qText = (q) => t('ob.q.' + (q.text || q.key), q.vars || {});
+  const hText = (q) => t('ob.h.' + (q.hint || q.text || q.key), q.vars || {});
+  const accept = (d) => { data = { ...data, questions: d.questions || data.questions, context: d.context || data.context, session: d.session }; };
 
   function render(host) {
     const { questions, session } = data;
@@ -20,7 +24,9 @@
     const progress = make('div', { class: 'ob-progress' },
       make('span', { text: t('ob.progress', { n: session.answered, total }) }),
       make('progress', { max: String(total), value: String(session.answered), 'aria-label': t('ob.progress', { n: session.answered, total }) }));
-    const head = make('div', { class: 'panel-head' }, make('div', {}, make('h2', { id: 'ob-title', text: t('ob.title') }), make('p', { class: 'muted', text: t('ob.intro') })));
+    const c = data.context;
+    const head = make('div', { class: 'panel-head' }, make('div', {}, make('h2', { id: 'ob-title', text: t('ob.title') }), make('p', { class: 'muted', text: t('ob.intro') }),
+      c ? make('p', { class: 'muted ob-context', text: t(c.industry_guessed ? 'ob.forBusinessGuess' : 'ob.forBusiness', { industry: c.industry.code === 'custom' ? 'your business' : (/^[A-Z][a-z]/.test(c.industry.label) && !/^[A-Z][a-z]+ [A-Z]/.test(c.industry.label) ? c.industry.label[0].toLowerCase() + c.industry.label.slice(1) : c.industry.label), country: c.country.name }) }) : null));
     const body = make('div', { class: 'ob-body' });
     if (step < total) body.append(questionCard(questions[step], step, total));
     else body.append(doneCard());
@@ -50,9 +56,9 @@
       finally { listening = false; mic.setAttribute('aria-pressed', 'false'); mic.textContent = t('ob.speak'); }
     };
     const form = make('form', { class: 'ob-question', 'data-question': q.key },
-      make('p', { class: 'ob-step', text: `${i + 1} / ${total}${q.required ? '' : ' · ' + t('ob.optional')}` }),
-      make('label', { for: id, class: 'ob-label', text: t('ob.q.' + q.key) }),
-      make('p', { class: 'muted ob-hint', id: id + '-hint', text: t('ob.h.' + q.key) }),
+      make('p', { class: 'ob-step', text: `${t('ob.t.' + q.topic)} · ${i + 1} / ${total}${q.required ? '' : ' · ' + t('ob.optional')}` }),
+      make('label', { for: id, class: 'ob-label', text: qText(q) }),
+      make('p', { class: 'muted ob-hint', id: id + '-hint', text: hText(q) }),
       area,
       voice ? null : make('p', { class: 'muted', text: t('ob.voiceUnavailable') }),
       make('div', { class: 'ob-actions' },
@@ -68,7 +74,7 @@
       const button = form.querySelector('[type=submit]'); button.disabled = true;
       try {
         const d = await api('/api/saas/onboarding/interview/answers/' + encodeURIComponent(q.key), { method: 'PUT', body: JSON.stringify({ value, source, language: heardLanguage || locale(), revision: data.session.revision }) });
-        data.session = d.session; status.textContent = t('ob.saved');
+        accept(d); status.textContent = t('ob.saved');
         step = d.session.step; render($('#ob-interview'));
         $('#ob-interview textarea')?.focus();
       } catch (x) { status.textContent = x.message; if (x.data?.session) data.session = x.data.session; button.disabled = false; }
@@ -80,7 +86,7 @@
     const s = data.session, done = s.status === 'answered';
     const status = make('p', { class: 'ob-status', role: 'status', 'aria-live': 'polite', text: done ? t('ob.finished') : '' });
     const finish = make('button', { type: 'button', class: 'primary-button', text: t('ob.finish'), disabled: done || !canAnswer() || s.missing_required.length > 0 });
-    finish.onclick = async () => { finish.disabled = true; try { const d = await api('/api/saas/onboarding/interview/finish', { method: 'POST', body: '{}' }); data.session = d.session; render($('#ob-interview')); } catch (x) { status.textContent = x.message; finish.disabled = false; } };
+    finish.onclick = async () => { finish.disabled = true; try { const d = await api('/api/saas/onboarding/interview/finish', { method: 'POST', body: '{}' }); accept(d); render($('#ob-interview')); } catch (x) { status.textContent = x.message; finish.disabled = false; } };
     return make('div', { class: 'ob-done' }, make('h3', { text: t('ob.allAnswered') }), done ? null : finish, status);
   }
 
@@ -89,8 +95,8 @@
     data.questions.forEach((q, i) => {
       const a = data.session.answers[q.key];
       list.append(make('li', { class: i === step ? 'is-current' : '' },
-        make('div', {}, make('b', { text: t('ob.q.' + q.key) }), make('p', { class: a?.value ? '' : 'muted', text: a?.value ? (a.value.length > 160 ? a.value.slice(0, 160) + '…' : a.value) : t('ob.notAnswered') })),
-        make('button', { type: 'button', class: 'secondary-button', text: t('ob.edit'), 'aria-label': `${t('ob.edit')}: ${t('ob.q.' + q.key)}`, onclick: () => go(i) })));
+        make('div', {}, make('b', { text: qText(q) }), make('p', { class: a?.value ? '' : 'muted', text: a?.value ? (a.value.length > 160 ? a.value.slice(0, 160) + '…' : a.value) : t('ob.notAnswered') })),
+        make('button', { type: 'button', class: 'secondary-button', text: t('ob.edit'), 'aria-label': `${t('ob.edit')}: ${qText(q)}`, onclick: () => go(i) })));
     });
     return make('details', { class: 'ob-answers', open: data.session.answered > 0 }, make('summary', { text: `${t('ob.yourAnswers')} (${data.session.answered})` }), list);
   }
@@ -100,7 +106,7 @@
     step = Math.max(0, Math.min(i, data.questions.length));
     render($('#ob-interview'));
     $('#ob-interview textarea')?.focus();
-    try { const d = await api('/api/saas/onboarding/interview/step', { method: 'PUT', body: JSON.stringify({ step, revision: data.session.revision }) }); data.session = d.session; } catch (x) { if (x.data?.session) data.session = x.data.session; }
+    try { const d = await api('/api/saas/onboarding/interview/step', { method: 'PUT', body: JSON.stringify({ step, revision: data.session.revision }) }); accept(d); } catch (x) { if (x.data?.session) data.session = x.data.session; }
   }
 
   async function show(force = false) {
