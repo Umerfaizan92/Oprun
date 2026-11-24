@@ -87,7 +87,8 @@ try{
     const views=await page.evaluate(()=>window.SuperProNav?.DOMAINS.flatMap(d=>d.items.filter(i=>!i.roles||i.roles.includes('owner')))||[]);
     // Source-driven canonical routes, including the views whose data starts empty.
     const hashes=views.length?views.map(v=>v.path):['today/home','today/approvals','customers/list','customers/stock','customers/inbox','customers/jobs','people/workers','people/staff','people/hiring','marketing/studio','marketing/growth','marketing/search','marketing/connections','money/ledger','money/billing','setup/settings','setup/import','setup/print','setup/trust','setup/help','setup/manual'];
-    for(const hash of hashes){await page.evaluate(h=>{location.hash=h},hash);await page.waitForTimeout(80);assert.equal(await page.locator('#workspace .view:visible').count(),1,hash);const expected=views.find(v=>v.path===hash)?.view;if(expected)assert.ok(await page.locator('#'+expected+'-view').isVisible(),hash)}
+    for(const hash of hashes){await page.evaluate(h=>{location.hash=h},hash);await page.waitForTimeout(80);assert.equal(await page.locator('#workspace .view:visible').count(),1,hash);const found=views.find(v=>v.path===hash),expected=found?.merged||found?.view; // TR-60: a merged address opens the page it became
+    if(expected)assert.ok(await page.locator('#'+expected+'-view').isVisible(),hash)}
     console.log('Business routes checked:',hashes.length);
   });
   await check('AI Receptionist is one self-service section; old phone and calls routes point to it',async()=>{
@@ -105,7 +106,10 @@ try{
     assert.ok(await page.locator('#receptionist-view a[href^="https://portal.telnyx.com"]').count()>=3);
     assert.equal(await page.locator('#receptionist-view').getByText('Save isolated draft').count(),0);
     await screenshot(page,'ai-receptionist-desktop');await page.setViewportSize({width:390,height:844});await page.locator('#receptionist-view .rx-step').first().scrollIntoViewIfNeeded();await screenshot(page,'ai-receptionist-phone');await page.setViewportSize({width:1440,height:900});
-    for(const hash of ['communications/numbers','communications/calls-sms']){const known=await page.evaluate(h=>(window.SuperProNav?.DOMAINS||[]).some(d=>d.items.some(i=>i.path===h)),hash);if(!known)continue;await page.evaluate(h=>{location.hash=h},hash);await page.getByRole('link',{name:'Open AI Receptionist'}).first().waitFor({state:'visible'})}
+    // TR-60: the older addresses open this page at the matching step; the old sections keep their IDs.
+    for(const [hash,step] of [['communications/numbers',1],['communications/calls-sms',3],['communications/call-handling',3],['phone',1],['voiceflow',3]]){await page.evaluate(()=>{location.hash='dashboard'});await page.locator('#dashboard-view').waitFor({state:'visible'});await page.evaluate(h=>{location.hash=h},hash);await page.locator('#receptionist-view').waitFor({state:'visible'});await page.waitForFunction(()=>location.hash==='#communications/receptionist');await page.locator(`#receptionist-view .rx-steps [data-rx-step="${step}"][aria-current=step]`).waitFor();assert.ok(await page.locator('#receptionist-view .rx-step').nth(step-1).isVisible(),hash)}
+    for(const id of ['phone','calls','voiceflow'])assert.equal(await page.locator(`#${id}-view`).count(),1,`#${id}-view kept`);
+    assert.equal(await page.locator('#business-navigation [data-nav-page="phone"], #business-navigation [data-nav-page="calls"], #business-navigation [data-nav-page="voiceflow"]').count(),0,'merged pages leave the menu');
     page.off('pageerror',onError);assert.deepEqual(pageErrors,[]);
   });
   await check('Website is one self-service section; older website, SEO and backlink addresses still open',async()=>{
@@ -193,7 +197,7 @@ try{
     await page.setViewportSize({width:1440,height:900});
   });
   await check('seven groups plus Setup preserve nested submenu pages and selected state',async()=>{
-    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),62); // +1: Website section (T-147), +1 Phone (T-183)
+    const rail=page.locator('#business-navigation'); assert.equal(await rail.locator('[data-domain]').count(),8); assert.equal(await rail.locator('.navigation-page').count(),58); // +1: Website section (T-147), +1 Phone (T-183); -4 merged pages (TR-60)
     await page.locator('.navigation-business-trigger').click();
     await rail.locator('[data-domain=people]').click(); await rail.locator('[data-nav-page=team]').click(); await page.locator('#team-view').waitFor({state:'visible'});
     assert.equal(await rail.locator('[data-nav-page=team]').getAttribute('aria-current'),'page'); assert.equal(await page.locator('.portal-subtabs [data-jump]').count(),0);

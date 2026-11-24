@@ -171,6 +171,7 @@ body.portal-workspace .view>.page-heading .heading-actions :is(button,a){min-hei
 .tip-dismiss:hover{border-color:var(--line);color:var(--text)}
 .tip-dismiss:focus-visible{outline:2px solid var(--sp-gold-400,#e6b455);outline-offset:2px}
 .tip-dismiss.tip-dismiss-text{width:auto;padding:0 12px;font-size:13px;font-weight:700;color:var(--sp-gold-300,#f0c46e)}
+html[data-theme="light"] .tip-dismiss.tip-dismiss-text{color:#7a520c}
 .cc-readiness.tip-dismissible{padding-right:0}
 .cc-readiness>.tip-dismiss{top:0;right:0}
 /* TR-50: Guided setup (Business settings). */

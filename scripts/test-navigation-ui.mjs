@@ -84,7 +84,7 @@ try {
     const p = await ctx.newPage(); p.setDefaultTimeout(10000); p.on('pageerror', e => errors.push(e.message));
     p.on('response', r => { if (r.url().includes('/api/') && r.status() >= 500) errors.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     await p.goto(s.base + '/saas/workspace.html'); await p.locator('#business-navigation .navigation-page').first().waitFor({ state: 'attached' });
-    assert.equal(await p.locator('#business-navigation .navigation-page').count(), 62);
+    assert.equal(await p.locator('#business-navigation .navigation-page').count(), 58); // TR-60: 62 pages, 4 merged into AI Receptionist and the Unified Inbox
     assert.equal(await p.locator('#business-navigation [data-nav-group]').count(), 8);
     assert.equal(await p.locator('.portal-subtabs [data-jump]').count(), 0);
     await p.locator('.topbar-actions .search-button').waitFor();
@@ -99,6 +99,8 @@ try {
 
     for (const g of mapping.business) {
       for (const item of g.items) {
+        // TR-60: a merged page has left the menu; its address opens the page it became.
+        if (item.merged) { await p.evaluate(h => { location.hash = h; }, item.path); await p.locator('#' + item.merged + '-view').waitFor({ state: 'visible' }); assert.equal(await p.locator(`#business-navigation [data-nav-page="${item.view}"]`).count(), 0, item.path); checked('Business', item.path, 'merged into ' + item.merged, width); continue; }
         await p.locator(width<=760?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
         const link = p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
         // TR-21: a merged page is listed under its main page (possibly in another group) once that page is open.

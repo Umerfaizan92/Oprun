@@ -9,14 +9,20 @@ test('seven daily groups plus Setup retain every view, canonical hash, old alias
  const n=nav(),items=n.DOMAINS.flatMap(g=>g.items);
  assert.equal(n.DOMAINS.length,8);assert.equal(n.DOMAINS.filter(g=>!g.utility).length,7);assert.deepEqual([...n.DOMAINS.map(g=>g.label)],['Today','Work','Customers','People','Communications','Growth','Money','Setup']);assert.equal(items.length,62);assert.equal(new Set(items.map(i=>i.view)).size,62); // 61: Website section added (T-147)
  for(const p of baseline.business.flatMap(g=>g.items)) {
-  assert.equal(n.resolve(p.path,'owner'),p.view);
-  assert.equal(n.resolve(p.view,'owner'),p.view);
-  for(const alias of p.alias||[]) assert.equal(n.resolve(alias,'owner'),p.view);
+  const to=n.MERGED[p.view]||p.view; // TR-60: a merged page's addresses open the page it became
+  assert.equal(n.resolve(p.path,'owner'),to);
+  assert.equal(n.resolve(p.view,'owner'),to);
+  for(const alias of p.alias||[]) assert.equal(n.resolve(alias,'owner'),to);
  }
  assert.equal(n.resolve('b06','owner'),'seocentre');assert.equal(n.resolve('b09','owner'),'billing');
  assert.equal(n.pathFor('unifiedinbox'),'communications/inbox');assert.equal(n.DOMAINS.find(g=>g.id==='communications').items[0].view,'unifiedinbox');
  assert.equal(n.resolve('b04/unified','owner'),'unifiedinbox');assert.equal(n.resolve('work','owner'),'enquiries');
  assert.ok(items.filter(i=>i.secondary).length>15);
+ assert.equal(JSON.stringify(n.MERGED),JSON.stringify({phone:'receptionist',calls:'receptionist',voiceflow:'receptionist',comms:'unifiedinbox'}));
+ assert.equal(n.resolve('communications/call-handling','owner'),'receptionist');assert.equal(n.takeRedirect(),null,'a link lookup records no redirect');
+ {const window={GDS_SESSION:{}},location={hash:'#communications/call-handling'};vm.runInNewContext(source,{window,location});const m=window.SuperProNav;
+  assert.equal(m.resolve(location.hash,'owner'),'receptionist');assert.equal(m.redirectPending(),'voiceflow');m.resolve('#work/jobs','owner');assert.equal(m.takeRedirect(),'voiceflow');assert.equal(m.takeRedirect(),null);}
+ assert.equal(n.resolve('communications/channels','owner'),'unifiedinbox');assert.equal(n.resolve('communications/receptionist','owner'),'receptionist');assert.equal(n.takeRedirect(),null);
 });
 test('workflow destinations obey current feature and channel grants without granting founder access',()=>{
  const n=nav({access:{mode:'custom',grants:['jobs.read','dashboard.read']},channel_access:[]});

@@ -151,4 +151,12 @@
     leave(){clearInterval(timer);timer=null;stopSpeech()}
   });
   window.addEventListener('pagehide',()=>{clearInterval(timer);stopSpeech()});
+  // TR-60: the Channel inbox address now opens the Unified Inbox (one inbox with channel filters). The
+  // "Where messages arrive" addresses move with it, below the conversations; the same panel, IDs and API.
+  window.addEventListener('gds:viewchange',e=>{
+    if(e.detail?.view!=='unifiedinbox')return;
+    const panel=$('#comms-channels-panel'),host=document.getElementById('unifiedinbox-view');if(!panel||!host)return;
+    if(panel.parentElement!==host){panel.setAttribute('data-cx-after','');host.append(panel)}
+    loadChannels().catch(()=>{});
+  });
 })();

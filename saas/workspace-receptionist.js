@@ -3,7 +3,8 @@
 // 1. Your number: the business uses its OWN Telnyx account. It buys or ports the number and pays Telnyx directly
 //    (links below); Oprun only connects it. Keys are sent once over HTTPS, stored encrypted, never shown again.
 // 2. What callers hear: greeting, services and facts, opening hours, time zone (existing receptionist profile API).
-// 3. Calls & transfers: answer mode, transfer/emergency number, voicemail (existing Call Handling screen).
+// 3. Call handling: answer mode, transfer/emergency number, voicemail and call history (TR-60: the former Call
+//    Handling page renders inside this step; its address opens it).
 // 4. Alerts: who is told about each call. 5. Test it.
 // Nothing here claims success unless the server confirmed it.
 (() => {
@@ -40,8 +41,8 @@
   const say = (s, text, bad = false) => { const p = s.querySelector('[data-rx-status]'); if (p) { p.textContent = text; p.dataset.tone = bad ? 'bad' : 'good'; } if (!bad) window.SPMotion?.toast?.(text); };
   const busy = async (s, btn, fn) => { if (btn) btn.disabled = true; try { await fn(); } catch (e) { say(s, e.message, true); } finally { if (btn) btn.disabled = false; } };
 
-  async function render() {
-    const s = shell('receptionist', 'AI Receptionist', 'Set up your own AI receptionist: your number, what callers hear, transfers and alerts. Every call lands in your Unified Inbox with the caller saved as a customer and an enquiry.');
+  async function render(startAt = null) {
+    const s = shell('receptionist', 'AI Receptionist', 'Phone, SMS and calls are set up here, in one place: your number, what callers hear, call handling and alerts. Every call lands in your Unified Inbox with the caller saved as a customer and an enquiry.');
     const body = el('div', { class: 'rx-body' }, el('p', { class: 'pl-meta', text: 'Loading…' }));
     s.append(body);
     const owner = role() === 'owner';
@@ -117,13 +118,13 @@
       body.append(card(2, 'What callers hear', f));
     } else body.append(card(2, 'What callers hear', el('p', { class: 'portal-note', text: 'Only the business owner can change the greeting, services and hours.' })));
 
-    // ---------- 3. Calls & transfers ----------
-    const st = voice?.settings;
-    const MODE = { assistant: 'The AI receptionist answers', forward: 'Calls go straight to a person', voicemail: 'Voicemail only' };
-    body.append(card(3, 'Calls, transfers and emergencies',
-      st ? el('p', {}, `${MODE[st.mode] || st.mode}. Transfer number: ${st.transfer_number || 'not set'}. Transfers: ${st.transfer_when === 'fallback' ? 'only if the receptionist fails' : 'when the caller asks or it cannot help'}.`) : el('p', { text: 'Call handling has not been set yet.' }),
+    // ---------- 3. Call handling (TR-60: the former Call Handling page, now a step here) ----------
+    const handling = el('div', { class: 'rx-call-handling' });
+    body.append(card(3, 'Call handling',
       el('p', { class: 'sx-source', text: 'Set your transfer or emergency number here. Transfers happen during opening hours; the number is never read out to callers.' }),
-      el('div', { class: 'pl-actions' }, el('a', { class: 'portal-button primary', href: '#communications/call-handling', text: 'Open call settings and call history' }))));
+      handling));
+    if (window.SuperProComms?.mountCallHandling) window.SuperProComms.mountCallHandling(handling).catch((e) => say(s, e.message, true));
+    else handling.append(el('p', { class: 'portal-note', text: 'Call settings could not load. Refresh the page.' }));
 
     // ---------- 4. Alerts ----------
     body.append(card(4, 'Alerts for every call',
@@ -137,19 +138,19 @@
       el('p', { text: tx.status === 'connected' && tx.number ? `Call ${tx.number} from your mobile. Ask a question, give your name and number, and hang up. Within a minute the call appears below and in the Unified Inbox, and you get an alert.` : 'Connect your number first (step 1), then call it from your mobile.' }),
       calls.length ? el('ul', { class: 'rx-calls' }, calls.slice(0, 5).map((c) => el('li', {}, `${when(c.started_at)} · ${c.from_number || 'Unknown caller'} · ${c.voicemail ? 'Voicemail' : c.transferred_to_human ? 'Transferred' : c.answered_at ? 'Answered' : 'Missed'}${c.failures?.length ? ' · problem: ' + c.failures.map((f) => f.step).join(', ') : ''}`))) : el('p', { class: 'portal-empty', text: 'No calls yet.' }),
       el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Refresh', onclick: (e) => busy(s, e.target, render) }))));
-    stepper(body, tx);
+    stepper(body, tx, startAt);
   }
 
   // T-177 (docs/product-redesign/03 §7): one step at a time instead of one long page. The five cards, their forms,
   // IDs and save buttons are unchanged; the step list lets the owner jump to any step, and the step is remembered.
-  function stepper(body, tx) {
+  function stepper(body, tx, startAt = null) {
     const cards = [...body.querySelectorAll(':scope > .rx-step')];
     if (cards.length < 2) return;
     const key = 'oprun-rx-step:' + (window.GDS_SESSION?.organisation?.id || 'workspace');
     const read = () => { try { return Number(localStorage.getItem(key)); } catch { return NaN; } };
     const write = (v) => { try { localStorage.setItem(key, String(v)); } catch { /* private mode */ } };
     const connected = tx.status === 'connected';
-    let at = Number.isInteger(read()) && read() >= 0 && read() < cards.length ? read() : (connected ? 1 : 0);
+    let at = Number.isInteger(startAt) && startAt >= 0 && startAt < cards.length ? startAt : Number.isInteger(read()) && read() >= 0 && read() < cards.length ? read() : (connected ? 1 : 0);
     const titles = cards.map((c) => c.querySelector('h2')?.textContent.replace(/^\s*\d+\s*/, '').trim() || '');
     const nav = el('nav', { class: 'rx-steps', 'aria-label': 'Receptionist set-up steps' });
     const list = el('ol', {});
@@ -193,7 +194,10 @@
     shell('calls', 'Calls & SMS', 'Phone numbers and calls are now set up in AI Receptionist.');
     window.addEventListener('gds:viewchange', (e) => {
       const v = e.detail?.view;
-      if (v === 'receptionist') render().catch((err) => say(document.getElementById('receptionist-view'), err.message, true));
+      // TR-60: the older Phone Numbers, Calls & SMS and Call Handling addresses open this page at the matching step.
+      const from = window.SuperProNav?.takeRedirect?.();
+      const STEP = { phone: 0, calls: 2, voiceflow: 2 };
+      if (v === 'receptionist') render(from in STEP ? STEP[from] : null).catch((err) => say(document.getElementById('receptionist-view'), err.message, true));
       else if (v === 'phone') pointer('phone', 'Phone Numbers');
       else if (v === 'calls') pointer('calls', 'Calls & SMS');
     });

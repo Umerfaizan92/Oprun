@@ -18,7 +18,7 @@ await new Promise((r) => mock.listen(0, '127.0.0.1', r));
 const mbase = `http://127.0.0.1:${mock.address().port}`;
 const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
 const s = await startServer({ PLATFORM_SMS_FOR_BUSINESSES: '1', TELNYX_API_BASE_URL: mbase + '/telnyx', RESEND_API_BASE_URL: mbase + '/resend', TELNYX_API_KEY: 'test-telnyx-key', TELNYX_PUBLIC_KEY: publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64'), TELNYX_FROM_NUMBER: '+61400000000', TELNYX_AI_ASSISTANT_ID: 'assistant-test', RESEND_API_KEY: 're_test_key', SAAS_VERIFY_FROM: 'Oprun <noreply@example.test>', PLATFORM_MAIL_FROM: 'Oprun <hello@example.test>', SUPERPRO_POSTAL_ADDRESS: 'PO Box 1, Perth WA 6000' });
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.UI_CHROMIUM_PATH ? { executablePath: process.env.UI_CHROMIUM_PATH } : {});
 const errors = [];
 let passed = 0;
 const check = async (name, fn) => { await fn(); passed += 1; console.log('PASS', name); };
@@ -66,6 +66,17 @@ try {
     releaseRefresh();
     await page.waitForFunction(() => document.querySelector('#unifiedinbox-view')?.getAttribute('aria-busy') === 'false');
     await page.unroute('**/api/saas/comms/unified?*', delayRefresh);
+    // TR-60: one inbox with channel filters (SMS and a website form are seeded).
+    const only = async (k, n) => { await v.locator(`[data-cx-channel="${k}"]`).click(); await page.waitForFunction(([k, n]) => document.querySelector(`#unifiedinbox-view [data-cx-channel="${k}"]`)?.getAttribute('aria-pressed') === 'true' && document.querySelector('#unifiedinbox-view')?.getAttribute('aria-busy') === 'false' && document.querySelectorAll('#unifiedinbox-view .cx-item').length === n, [k, n]); };
+    await only('sms', 1); assert.match(await v.locator('.cx-item').first().textContent(), /SMS/);
+    await only('email', 0); await v.getByText('Nothing from this channel in this folder.').waitFor();
+    await only('all', 2);
+    // The older Channel inbox address opens this inbox, with "Where messages arrive" below the conversations for the owner.
+    await page.evaluate(() => { location.hash = 'communications/channels'; });
+    await page.waitForFunction(() => location.hash === '#communications/inbox');
+    await v.locator('#comms-channels-panel').waitFor({ state: 'visible' });
+    assert.ok(await page.evaluate(() => { const p = document.querySelector('#comms-channels-panel'), b = document.querySelector('#unifiedinbox-view [data-cx-body]'); return !!(b.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'addresses sit below the conversations');
+    assert.deepEqual(await axe(page, '#unifiedinbox-view'), [], 'inbox with filters and addresses is accessible');
 
     await v.locator('.cx-item', { hasText: 'Riley Quinn' }).first().click().catch(async () => { await v.locator('.cx-item', { hasText: '+61412345678' }).first().click(); });
     const d = v.locator('.cx-detail'); await d.locator('.cx-msgs').waitFor();
@@ -142,15 +153,18 @@ try {
     assert.equal(sent.filter((x) => x.path === '/resend/emails').length, 0, 'no campaign email before approval');
   });
 
-  await check('Call Handling saves the mode and transfer number and shows the number masked', async () => {
-    const v = await go('b04/voice', 'voiceflow');
+  await check('Call Handling (an AI Receptionist step) saves the mode and transfer number and shows the number masked', async () => {
+    // TR-60: the old Call Handling address opens AI Receptionist at step 3, where the same form and call history live.
+    await page.evaluate(() => { location.hash = 'b04/voice'; });
+    const v = page.locator('#receptionist-view .rx-call-handling'); await v.locator('[data-cx-body] form').waitFor({ state: 'visible' });
+    assert.equal(await page.evaluate(() => location.hash), '#communications/receptionist');
     await v.getByLabel('When a call comes in').selectOption('assistant');
     await v.getByLabel('Transfer number').fill('0400 999 888');
     await v.getByLabel(/Tell callers the call is transcribed/).check();
     await v.getByRole('button', { name: 'Save call handling' }).click();
-    await statusIs('voiceflow', /Call handling saved/);
-    await page.waitForFunction(() => /••• 888/.test(document.querySelector('#voiceflow-view input[type=tel]')?.placeholder || ''));
-    assert.deepEqual(await axe(page, '#voiceflow-view'), [], 'call handling is accessible');
+    await page.waitForFunction(() => /Call handling saved/.test(document.querySelector('#receptionist-view .rx-call-handling [data-cx-status]')?.textContent || ''));
+    await page.waitForFunction(() => /••• 888/.test(document.querySelector('#receptionist-view .rx-call-handling input[type=tel]')?.placeholder || ''));
+    assert.deepEqual(await axe(page, '#receptionist-view'), [], 'AI Receptionist with call handling is accessible');
   });
 
   await check('Website Builder contact section offers the contact form option', async () => {
@@ -165,7 +179,7 @@ try {
   for (const [w, h, label] of [[390, 844, 'phone'], [820, 1180, 'iPad']]) {
     await check(`Communication views fit a ${label} without sideways scrolling`, async () => {
       await page.setViewportSize({ width: w, height: h });
-      for (const [hash, id] of [['b04/unified', 'unifiedinbox'], ['b04/voice', 'voiceflow'], ['b05/campaign-studio', 'campaignstudio'], ['b05/consent', 'consent']]) {
+      for (const [hash, id] of [['b04/unified', 'unifiedinbox'], ['b05/campaign-studio', 'campaignstudio'], ['b05/consent', 'consent']]) {
         await go(hash, id); await page.waitForTimeout(250);
         const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         assert.ok(over <= 1, `${hash} overflows by ${over}px on ${label}`);
@@ -197,5 +211,5 @@ try {
   assert.deepEqual(errors, [], 'no page errors');
   console.log(`\n${passed} checks passed`);
 } catch (e) {
-  console.error('FAIL', e.message); if (errors.length) console.error('page errors:', errors); process.exitCode = 1;
+  console.error('FAIL', e.message, (e.stack || '').split('\n').find((l) => l.includes('test-comms-ui')) || ''); if (errors.length) console.error('page errors:', errors); process.exitCode = 1;
 } finally { await browser.close(); await s.stop(); mock.close(); }

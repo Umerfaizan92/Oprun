@@ -34,6 +34,8 @@ try {
     assert.equal(await p.locator('.app-footer .sp-global-trust-footer').count(),1);
     assert.equal(await p.locator('.app-footer .workspace-trust-links a').count(),4);
     for(const group of groups) for(const item of group.items) {
+      // TR-60: a merged page left the menu; its address opens the page it became, without sideways scrolling.
+      if(item.merged){await p.evaluate(h=>{location.hash=h},item.path);await p.locator('#'+item.merged+'-view').waitFor({state:'visible'});await settle(p);assert.equal(await p.locator(`#business-navigation [data-nav-page="${item.view}"]`).count(),0,item.path);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),item.path+' page overflow '+width);report(item.path,width,'merged into '+item.merged);continue}
       await p.locator(width<761?'#mobile-workspace-dock [data-dock-key=menu]':'.navigation-business-trigger').click();
       const link=p.locator(`#business-navigation [data-nav-page="${item.view}"]`);
       // TR-21: merged pages are listed under their main page once it is open.

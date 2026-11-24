@@ -85,15 +85,19 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
   // ---------------- unified inbox ----------------
   const FOLDERS = ['inbox', 'sent', 'drafts', 'scheduled', 'archived', 'failed', 'spam'];
   const VIEWS = ['all', 'customers', 'enquiries', 'invoices', 'marketing'];
-  function inbox(org, { folder = 'inbox', view = 'all', q = '', limit = 100 } = {}) {
+  // TR-60: one inbox with channel filters. Each filter is a fixed list of stored channel names (never user text in SQL).
+  const CHANNEL_GROUPS = { email: ['email'], sms: ['sms'], whatsapp: ['whatsapp'], calls: ['voice'], website: ['website'], social: ['facebook', 'instagram', 'tiktok', 'x', 'snapchat', 'social'] };
+  function inbox(org, { folder = 'inbox', view = 'all', q = '', channel = 'all', limit = 100 } = {}) {
     if (!FOLDERS.includes(folder)) folder = 'inbox'; if (!VIEWS.includes(view)) view = 'all';
+    const chs = Object.hasOwn(CHANNEL_GROUPS, channel) ? CHANNEL_GROUPS[channel] : null; if (!chs) channel = 'all';
+    const chSql = chs ? ` AND t.channel IN (${chs.map((c) => `'${c}'`).join(',')})` : '';
     const like = q ? `%${String(q).toLowerCase().replace(/[%_\\]/g, (c) => '\\' + c)}%` : null;
     const viewSql = { all: '', customers: ' AND m.customer_id IS NOT NULL', enquiries: " AND (m.enquiry_id IS NOT NULL OR m.category IN ('enquiry','quote'))", invoices: " AND (m.invoice_id IS NOT NULL OR m.category='invoice')", marketing: " AND (m.campaign_id IS NOT NULL OR m.category IN ('marketing_reply','unsubscribe'))" }[view];
     const items = [];
     if (['inbox', 'archived', 'spam'].includes(folder)) {
       const rows = db.prepare(`SELECT t.*, m.folder, m.category, m.sentiment, m.summary, m.lead_score, m.lead_band, m.escalation_level, m.customer_id, m.enquiry_id, m.invoice_id, m.campaign_id, m.duplicates_json,
         (SELECT body FROM comms_messages x WHERE x.thread_id=t.id ORDER BY occurred_at DESC LIMIT 1) last_body, (SELECT direction FROM comms_messages x WHERE x.thread_id=t.id ORDER BY occurred_at DESC LIMIT 1) last_direction
-        FROM comms_threads t LEFT JOIN comms_thread_meta m ON m.thread_id=t.id WHERE t.organisation_id=? AND COALESCE(m.folder,'inbox')=?${viewSql}${like ? " AND (lower(t.contact_address) LIKE @l ESCAPE '\\' OR lower(COALESCE(t.contact_name,'')) LIKE @l ESCAPE '\\' OR lower(COALESCE(t.subject,'')) LIKE @l ESCAPE '\\')" : ''} ORDER BY t.last_message_at DESC LIMIT ?`.replace('@l', '?').replace('@l', '?').replace('@l', '?'))
+        FROM comms_threads t LEFT JOIN comms_thread_meta m ON m.thread_id=t.id WHERE t.organisation_id=? AND COALESCE(m.folder,'inbox')=?${viewSql}${chSql}${like ? " AND (lower(t.contact_address) LIKE @l ESCAPE '\\' OR lower(COALESCE(t.contact_name,'')) LIKE @l ESCAPE '\\' OR lower(COALESCE(t.subject,'')) LIKE @l ESCAPE '\\')" : ''} ORDER BY t.last_message_at DESC LIMIT ?`.replace('@l', '?').replace('@l', '?').replace('@l', '?'))
         .all(...[org, folder, ...(like ? [like, like, like] : []), limit]);
       for (const r of rows) items.push({ type: 'conversation', id: r.id, channel: r.channel, contact: r.contact_name || r.contact_address, address: r.contact_address, subject: r.subject, preview: r.summary || String(r.last_body || '').slice(0, 160), status: r.status, at: r.last_message_at, last_direction: r.last_direction, ai: r.category ? { category: r.category, category_label: CATEGORIES[r.category], sentiment: r.sentiment, lead_score: r.lead_score, lead_band: r.lead_band, escalation: r.escalation_level, duplicates: J(r.duplicates_json, []).length } : null, links: { customer_id: r.customer_id, enquiry_id: r.enquiry_id, invoice_id: r.invoice_id, campaign_id: r.campaign_id } });
     } else {
@@ -111,7 +115,7 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
           items.push({ type: 'campaign', id: r.id, channel: r.channel, contact: `${counts(r.id).recipients} recipient(s)`, subject: r.subject || r.name, preview: String(r.body).slice(0, 160), status: r.status, at: r.sent_at || r.send_at || r.updated_at, scheduled_for: r.send_at || null, source: 'Campaigns' });
       }
     }
-    return { folder, view, items: items.sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, limit) };
+    return { folder, view, channel, channels: Object.keys(CHANNEL_GROUPS), items: items.filter((i) => !chs || chs.includes(i.channel)).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, limit) };
   }
   function folderCounts(org) {
     const one = (sql, ...a) => db.prepare(sql).get(...a).n;

@@ -33,6 +33,7 @@ test('all 62 pages keep main navigation in the sidebar and only one sub-section 
   const f=await fixture();try{
     const nav=f.w.SuperProNav,groups=nav.DOMAINS;let count=0;
     for(const group of groups)for(const item of group.items){
+      if(item.merged){assert.equal(f.w.document.querySelector(`#business-navigation [data-nav-page="${item.view}"]`),null,'merged page left the menu (TR-60)');count++;continue}
       await f.activate(item.view);
       const dock=f.w.document.getElementById('mobile-workspace-dock');assert.equal(dock.hidden,false);
       assert.equal(dock.tagName,'NAV');assert.equal(dock.children.length,2);

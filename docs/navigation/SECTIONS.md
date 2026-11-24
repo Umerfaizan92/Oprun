@@ -40,13 +40,13 @@ Every page below was opened through its sidebar link at 1440 px and 390 px. List
 
 | Page / sidebar submenu | Route | Top sections in displayed order | Navigation |
 |---|---|---|---|
-| Inbox (all channels) | `communications/channels` | Single content view; no additional tablist observed | PASS, both widths |
+| Inbox (all channels) | `communications/channels` | Merged (TR-60): the address opens the Unified Inbox, which filters by channel and shows "Where messages arrive" | PASS, both widths |
 | Unified Inbox | `communications/inbox` | Inbox → Sent → Drafts → Scheduled → Archived → Failed → Spam | PASS, both widths |
-| Call Handling | `communications/call-handling` | Section: Your number → Section: Call handling → Section: Recent calls | PASS, both widths |
+| Call Handling | `communications/call-handling` | Merged (TR-60): the address opens AI Receptionist at step 3, Call handling (call settings and recent calls) | PASS, both widths |
 | Email Centre | `communications/email` | All mail → Received → Drafts & approved → Sent → Scheduled → Marketing → Campaigns → Enquiries → Invoices → Support | PASS, both widths |
-| Phone Numbers | `communications/numbers` | Single content view; no additional tablist observed | PASS, both widths |
-| Calls & SMS | `communications/calls-sms` | Single content view; no additional tablist observed | PASS, both widths |
-| AI Receptionist | `communications/receptionist` | Single content view; no additional tablist observed | PASS, both widths |
+| Phone Numbers | `communications/numbers` | Merged (TR-60): the address opens AI Receptionist at step 1, Your number | PASS, both widths |
+| Calls & SMS | `communications/calls-sms` | Merged (TR-60): the address opens AI Receptionist at step 3, Call handling | PASS, both widths |
+| AI Receptionist | `communications/receptionist` | Single content view with five steps: Your number, What callers hear, Call handling, Alerts, Test | PASS, both widths |
 | Video Meetings | `communications/meetings` | Single content view; no additional tablist observed | PASS, both widths |
 | Team Chat | `communications/team-chat` | Single content view; no additional tablist observed | PASS, both widths |
 

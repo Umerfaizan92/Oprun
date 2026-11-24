@@ -87,6 +87,13 @@
     growth:'campaignstudio',businesscampaigns:'campaignstudio',seocentre:'websitehub',seobuilder:'websitehub',seoaudit:'websitehub',seoclusters:'websitehub',seogoogle:'websitehub',seostudio:'websitehub',seolocal:'websitehub',seoanalytics:'websitehub',seoreports:'websitehub',visibility:'websitehub',searchconsole:'websitehub',backlinks:'websitehub',website:'websitehub',
     finreconcile:'finance',finreports:'finance',finsales:'businessinvoices',automation:'automations',manual:'support',migration:'onboarding',exports:'onboarding',supportaccess:'governance',finplan:'billing'};
   DOMAINS.forEach(d => d.items.forEach(i => { if (i.secondary && PARENT[i.view]) i.parent = PARENT[i.view]; }));
+  // TR-60: pages folded into another page. Phone Numbers and Calls & SMS were pointers to AI Receptionist, Call
+  // Handling is now its step 3, and the Channel inbox is the Unified Inbox with channel filters. They leave the menu,
+  // but their routes, legacy names and aliases still open the page they became (resolve below), and their sections
+  // and element IDs stay in the page. If the new page is not available to a role, the old page shows as before.
+  const MERGED = {phone:'receptionist',calls:'receptionist',voiceflow:'receptionist',comms:'unifiedinbox'};
+  DOMAINS.forEach(d => d.items.forEach(i => { if (MERGED[i.view]) i.merged = MERGED[i.view]; }));
+  let redirectedFrom = null;
   // The main page a view belongs to for this role (itself when it is a main page, or when its main page is not available).
   const parentOf = (view, role) => { const p = PARENT[view]; return p && visibleItems(role).some(i => i.view === p) ? p : null; };
   const childrenOf = (view, role) => visibleItems(role).filter(i => i.parent === view);
@@ -114,15 +121,21 @@
   const icon=name=>`<svg aria-hidden="true"><use href="#${name}"></use></svg>`;
   const ROLE_LABELS={owner:'Owner',admin:'Admin',super_admin:'Super admin',manager:'Manager',director:'Director',employee:'Employee',contractor:'Contractor'};
 
-  function visibleItems(role){return DOMAINS.flatMap(d=>d.items.filter(i=>i.view&&allowed(i,role)))}
+  function openItems(role){return DOMAINS.flatMap(d=>d.items.filter(i=>i.view&&allowed(i,role)))}
+  function visibleItems(role){const all=openItems(role);return all.filter(i=>!i.merged||!all.some(x=>x.view===i.merged))}
   function sequence(role){return visibleItems(role).map(i=>i.view)}
   function pathFor(view){for(const d of DOMAINS){const i=d.items.find(x=>x.view===view);if(i)return i.path}return null}
   // Turn a location hash into a view the role may open: canonical path, legacy view name, or a bare domain id.
   function resolve(hash,role){
     const h=String(hash||'').replace(/^#/,'').split('?')[0].replace(/\/+$/,'').toLowerCase();if(!h)return null;
     const items=visibleItems(role);
-    const hit=items.find(i=>i.path===h||i.view===h||(i.alias||[]).includes(h))||[...DOMAINS,...originalDomains].filter(d=>d.id===h).map(d=>items.find(i=>d.items.some(x=>x.view===i.view))).find(Boolean);
-    return hit?hit.view:null;
+    const match=i=>i.path===h||i.view===h||(i.alias||[]).includes(h);
+    const hit=items.find(match)||[...DOMAINS,...originalDomains].filter(d=>d.id===h).map(d=>items.find(i=>d.items.some(x=>x.view===i.view))).find(Boolean);
+    // Only the router's own lookups of the address bar record a redirect; other code resolving link targets does not.
+    const current=typeof location!=='undefined'&&hash===location.hash;
+    if(hit){if(current)redirectedFrom=null;return hit.view}
+    const old=openItems(role).find(i=>i.merged&&match(i));if(current)redirectedFrom=old?old.view:null;
+    return old?old.merged:null;
   }
   function pageMeta(){
     const meta={};
@@ -214,5 +227,6 @@
   }
   const FLOW_KEYS=['workPipeline', 'unifiedInbox', 'commsSetup', 'growthHub', 'seoCentre', 'docsPayments', 'connections', 'plans', 'people'];
   window.addEventListener?.('oprun:locale-changed',()=>{relabel();if(lastRender)render(...lastRender)});
-  window.SuperProNav={DOMAINS,WORKFLOWS,contexts,parentOf,childrenOf,PARENT,FINANCE_ROLES,SENIOR_ROLES,sequence,pathFor,resolve,pageMeta,render,reveal,setRoleBadge};
+  const takeRedirect=()=>{const v=redirectedFrom;redirectedFrom=null;return v},redirectPending=()=>redirectedFrom;
+  window.SuperProNav={MERGED,takeRedirect,redirectPending,DOMAINS,WORKFLOWS,contexts,parentOf,childrenOf,PARENT,FINANCE_ROLES,SENIOR_ROLES,sequence,pathFor,resolve,pageMeta,render,reveal,setRoleBadge};
 })();

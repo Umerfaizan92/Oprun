@@ -2,6 +2,9 @@
 .cx-panel{display:grid;gap:10px;margin:0 0 14px}
 .cx-panel>h2{margin:0;font-size:18px}
 .cx-panel h3{margin:6px 0 0;font-size:15px}
+.cx-subpanel{display:grid;gap:10px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rf-edge,rgba(127,127,127,.28))}
+.cx-subpanel>h3{margin:0;font-size:16px}
+.cx-channels{flex-wrap:wrap}
 .cx-folders{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .cx-count{display:inline-block;min-width:20px;margin-left:6px;padding:0 6px;border-radius:999px;font-size:12px;line-height:18px;text-align:center;background:color-mix(in srgb,var(--sp-gold,var(--sp-gold-400)) 30%,transparent)}
 .cx-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:0 0 12px}

@@ -21,7 +21,7 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
   const audit = (req, a, id, m) => { try { saasAudit(req, a, 'comms', id, m); } catch { /* best effort */ } };
 
   // ---------------- unified inbox ----------------
-  app.get('/api/saas/comms/unified', ...read, wrap((req, res) => res.json({ ok: true, ...comms.inbox(org(req), { folder: req.query.folder, view: req.query.view, q: String(req.query.q || '').slice(0, 80) }), counts: comms.folderCounts(org(req)) })));
+  app.get('/api/saas/comms/unified', ...read, wrap((req, res) => res.json({ ok: true, ...comms.inbox(org(req), { folder: req.query.folder, view: req.query.view, channel: String(req.query.channel || 'all').slice(0, 20), q: String(req.query.q || '').slice(0, 80) }), counts: comms.folderCounts(org(req)) })));
   app.get('/api/saas/comms/unified/threads/:id', ...read, wrap((req, res) => { const t = comms.thread(org(req), req.params.id); if (!t) return res.status(404).json({ ok: false, error: 'Conversation not found.' }); res.json({ ok: true, ...t }); }));
   app.post('/api/saas/comms/unified/threads/:id/analyse', limiter, ...read, wrap((req, res) => { const a = comms.analyse(org(req), req.params.id); if (!a) return res.status(404).json({ ok: false, error: 'Conversation not found.' }); res.json({ ok: true, analysis: a }); }));
   app.post('/api/saas/comms/unified/threads/:id/move', limiter, ...read, wrap((req, res) => { const b = P(z.object({ folder: z.enum(['inbox', 'archived', 'spam']) }).strict(), req.body); if (!comms.move(org(req), req.params.id, b.folder)) return res.status(404).json({ ok: false, error: 'Conversation not found.' }); audit(req, 'comms.thread_moved', req.params.id, b); res.json({ ok: true }); }));

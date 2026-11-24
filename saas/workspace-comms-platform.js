@@ -21,6 +21,7 @@
   const TONE = { needs_reply: 'pl-issued', pending_approval: 'pl-issued', scheduled: 'pl-issued', failed: 'pl-cancelled', partly_failed: 'pl-cancelled', rejected: 'pl-cancelled', sent: 'pl-paid', delivered: 'pl-paid', approved: 'pl-paid', urgent: 'pl-cancelled', high: 'pl-issued', hot: 'pl-paid', warm: 'pl-issued', negative: 'pl-cancelled', positive: 'pl-paid' };
   const chip = (key, text) => el('span', { class: 'portal-status ' + (TONE[key] || 'pl-draft'), text: text || STATUS[key] || key });
   const FOLDERS = [['inbox', 'Inbox'], ['sent', 'Sent'], ['drafts', 'Drafts'], ['scheduled', 'Scheduled'], ['archived', 'Archived'], ['failed', 'Failed'], ['spam', 'Spam']];
+  const CHANNELS_IN = [['all', 'All channels'], ['email', 'Email'], ['sms', 'SMS'], ['whatsapp', 'WhatsApp'], ['calls', 'Calls and voicemail'], ['website', 'Website forms'], ['social', 'Social']];
   const VIEWS_IN = [['all', 'Everything'], ['customers', 'Customers'], ['enquiries', 'Enquiries'], ['invoices', 'Invoices'], ['marketing', 'Marketing']];
   const VIEWS = {
     unifiedinbox: ['Unified Inbox', 'Email, SMS, WhatsApp, calls, voicemail, website forms and social messages in one place. Oprun sorts and summarises each conversation and drafts replies; nothing is sent until an authorised person approves it.'],
@@ -35,13 +36,14 @@
   const field = (label, input, hint) => { const fid = input.id || (input.id = id('cx')); return el('div', { class: 'cx-field' }, el('label', { for: fid, text: label }), input, hint ? el('small', { text: hint }) : null); };
   const check = (label, attrs = {}) => { const i = el('input', { type: 'checkbox', id: id('cx'), ...attrs }); return el('label', { class: 'cx-check', for: i.id }, i, ' ', label); };
 
-  function Comms(host, { api = defaultApi, founder = false } = {}) {
+  function Comms(host, { api = defaultApi, founder = false, nested = false } = {}) {
     const say = (t, bad = false) => { const p = host.querySelector('[data-cx-status]'); if (p) { p.textContent = t; p.dataset.tone = bad ? 'bad' : 'good'; } if (!bad) window.SPMotion?.toast?.(t); };
     const busy = async (btn, fn) => { if (btn) btn.disabled = true; try { await fn(); } catch (e) { say(e.message, true); } finally { if (btn) btn.disabled = false; } };
     const post = (p, b, m = 'POST') => api(p, { method: m, body: JSON.stringify(b || {}) });
     const body = () => el('div', { 'data-cx-body': '' });
     let renderSequence = 0;
-    const section = (title, ...kids) => el('section', { class: 'portal-panel cx-panel' }, el('h2', { text: title }), ...kids);
+    // TR-60: inside an AI Receptionist step the sections sit one heading level down.
+    const section = (title, ...kids) => el('section', { class: nested ? 'cx-subpanel' : 'portal-panel cx-panel' }, el(nested ? 'h3' : 'h2', { text: title }), ...kids);
     const empty = (t) => el('p', { class: 'portal-empty', text: t });
     const table = (cols, rows, emptyText = 'Nothing yet.') => {
       if (!rows?.length) return empty(emptyText);
@@ -58,26 +60,29 @@
       // Keep the last result visible during refresh. Build its replacement off
       // screen and attach only the latest completed request, so a duplicate
       // navigation event cannot briefly erase the inbox or restore stale data.
-      if (!previous) host.append(b);
+      const place = (node) => { const tail = host.querySelector(':scope > [data-cx-after]'); if (tail) host.insertBefore(node, tail); else host.append(node); };
+      if (!previous) place(b);
       host.setAttribute('aria-busy', 'true');
       try { await R[view](b, arg); b.querySelector(':scope > .pl-meta')?.remove(); } catch (e) { b.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); }
       if (sequence !== renderSequence) return;
       const current = host.querySelector('[data-cx-body]');
-      if (current !== b) { if (current) current.replaceWith(b); else host.append(b); }
+      if (current !== b) { if (current) current.replaceWith(b); else place(b); }
       host.setAttribute('aria-busy', 'false');
     }
 
-    const state = { folder: 'inbox', view: 'all', q: '', open: null };
+    const state = { folder: 'inbox', view: 'all', channel: 'all', q: '', open: null };
     const R = {
       // ---------------- Unified Inbox ----------------
       async unifiedinbox(b) {
-        const qs = new URLSearchParams({ folder: state.folder, view: state.view, q: state.q });
+        const qs = new URLSearchParams({ folder: state.folder, view: state.view, channel: state.channel, q: state.q });
         const [d, s] = await Promise.all([api('/api/saas/comms/unified?' + qs), api('/api/saas/comms/unified/suggestions')]);
         const folders = el('div', { class: 'au-tabs cx-folders', role: 'tablist', 'aria-label': 'Folders' }, FOLDERS.map(([k, t]) => el('button', { type: 'button', role: 'tab', class: 'portal-button', 'aria-selected': String(k === state.folder), onclick: () => { state.folder = k; state.open = null; render('unifiedinbox'); } }, t, d.counts[k] ? el('span', { class: 'cx-count', text: String(d.counts[k]) }) : null)));
         const viewSel = el('select', { id: id('cx'), onchange: (e) => { state.view = e.target.value; render('unifiedinbox'); } }, VIEWS_IN.map(([k, t]) => el('option', { value: k, text: t, selected: k === state.view || null })));
         const search = el('input', { type: 'search', id: id('cx'), value: state.q, placeholder: 'Name, number, email or subject', maxlength: '80' });
         const filters = el('form', { class: 'cx-filters', role: 'search', onsubmit: (e) => { e.preventDefault(); state.q = search.value.trim(); render('unifiedinbox'); } }, field('Show', viewSel), field('Search', search), el('button', { type: 'submit', class: 'portal-button', text: 'Search' }), el('button', { type: 'button', class: 'portal-button', text: 'Refresh', onclick: () => render('unifiedinbox') }));
-        b.append(suggestionsPanel(s), folders, filters);
+        // TR-60: one inbox for every channel (the older Channel inbox address opens here); filter by channel.
+        const channels = el('div', { class: 'au-tabs cx-folders cx-channels', role: 'group', 'aria-label': 'Channel' }, CHANNELS_IN.map(([k, t]) => el('button', { type: 'button', class: 'portal-button', 'data-cx-channel': k, 'aria-pressed': String(k === state.channel), onclick: () => { state.channel = k; state.open = null; render('unifiedinbox'); } }, t)));
+        b.append(suggestionsPanel(s), folders, channels, filters);
         const list = el('ul', { class: 'cx-list', 'aria-label': 'Conversations' });
         const detail = el('div', { class: 'cx-detail', 'aria-live': 'polite' });
         for (const it of d.items) {
@@ -89,14 +94,14 @@
             it.ai ? el('span', { class: 'cx-tags' }, el('span', { class: 'portal-status pl-draft', text: it.ai.category_label || it.ai.category }), ['urgent', 'high'].includes(it.ai.escalation) ? chip(it.ai.escalation, it.ai.escalation === 'urgent' ? 'Urgent' : 'High priority') : null, it.ai.lead_band && it.ai.lead_band !== 'cold' ? chip(it.ai.lead_band, `${it.ai.lead_band === 'hot' ? 'Hot' : 'Warm'} lead (estimate)`) : null, it.ai.duplicates ? el('span', { class: 'portal-status pl-lost', text: 'Possible duplicate' }) : null) : null,
             it.scheduled_for ? el('small', { text: 'Sends ' + when(it.scheduled_for) }) : null, it.error ? el('small', { class: 'cx-error', text: it.error }) : null)));
         }
-        b.append(el('div', { class: 'cx-split' }, d.items.length ? list : empty(state.folder === 'inbox' ? 'No conversations here yet. Messages, calls and website forms appear as they arrive.' : 'Nothing in this folder.'), detail));
+        b.append(el('div', { class: 'cx-split' }, d.items.length ? list : empty(state.channel !== 'all' ? 'Nothing from this channel in this folder.' : state.folder === 'inbox' ? 'No conversations here yet. Messages, calls and website forms appear as they arrive.' : 'Nothing in this folder.'), detail));
         if (state.open) showThread(state.open, detail);
       },
       // ---------------- Call Handling ----------------
       async voiceflow(b) {
         const d = await api('/api/saas/comms/voice');
         const s = d.settings;
-        b.append(section('Your number', d.number ? el('p', { text: `${d.number.address} · ${d.number.status === 'active' ? 'Active' : d.number.status}` }) : el('p', { text: 'No phone number yet. Add one in Communications > Phone Numbers.' }),
+        if (!nested) b.append(section('Your number', d.number ? el('p', { text: `${d.number.address} · ${d.number.status === 'active' ? 'Active' : d.number.status}` }) : el('p', { text: 'No phone number yet. Connect one in AI Receptionist, step 1.' }),
           d.profile ? el('p', { class: 'sx-source', text: `AI Receptionist profile: ${d.profile.status}. Opening hours: ${d.profile.hours || 'not set'}${d.profile.timezone ? ' (' + d.profile.timezone + ')' : ''}.` }) : el('p', { class: 'portal-note', text: 'Set up the AI Receptionist profile (business details, hours and services) so the assistant can answer accurately.' })));
         const mode = el('select', { id: id('cx'), name: 'mode' }, [['assistant', 'AI receptionist answers'], ['forward', 'Transfer straight to a person'], ['voicemail', 'Voicemail only']].map(([k, t]) => el('option', { value: k, text: t, selected: s.mode === k || null })));
         const tnum = el('input', { type: 'tel', id: id('cx'), name: 'transfer_number', autocomplete: 'off', placeholder: s.transfer_number ? `Saved (${s.transfer_number}). Enter a new number to change it.` : '+61 4xx xxx xxx' });
@@ -289,5 +294,6 @@
     for (const vid of Object.keys(VIEWS)) view(vid);
     window.addEventListener('gds:viewchange', (e) => { const vid = e.detail?.view; if (!VIEWS[vid]) return; const s = view(vid); (instances[vid] ||= Comms(s)).render(vid); });
   }
-  window.SuperProComms = { mountFounder: (host, api) => Comms(host, { api, founder: true }), VIEWS };
+  // TR-60: Call handling is a step of the AI Receptionist set-up; the same form and call history render there.
+  window.SuperProComms = { mountFounder: (host, api) => Comms(host, { api, founder: true }), mountCallHandling: (host) => Comms(host, { nested: true }).render('voiceflow'), VIEWS };
 })();

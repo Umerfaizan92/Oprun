@@ -343,7 +343,8 @@
             "b04/voice"
           ],
           "secondary": true,
-          "parent": "receptionist"
+          "parent": "receptionist",
+          "merged": "receptionist"
         },
         {
           "view": "receptionist",
@@ -426,7 +427,8 @@
             "director"
           ],
           "secondary": true,
-          "parent": "unifiedinbox"
+          "parent": "unifiedinbox",
+          "merged": "unifiedinbox"
         },
         {
           "view": "phone",
@@ -444,7 +446,8 @@
             "b04/numbers"
           ],
           "secondary": true,
-          "parent": "dialer"
+          "parent": "dialer",
+          "merged": "receptionist"
         },
         {
           "view": "calls",
@@ -462,7 +465,8 @@
             "b04/calls"
           ],
           "secondary": true,
-          "parent": "dialer"
+          "parent": "dialer",
+          "merged": "receptionist"
         }
       ]
     },

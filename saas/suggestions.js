@@ -57,11 +57,14 @@
     }
     if(!canDismiss(tip))el.querySelector(':scope > [data-tip-dismiss]')?.remove();
   }
-  function scan(scope){(scope||document).querySelectorAll('[data-tip]').forEach(apply)}
+  // Only versioned suggestion ids ("name@1"). A plain data-tip is the hover tooltip text on buttons and links and
+  // must never be hidden or get a dismiss button inside it.
+  const SEL='[data-tip*="@"]';
+  function scan(scope){(scope||document).querySelectorAll(SEL).forEach(apply)}
   function bindSession(){store=makeStore(safeStorage(),storeKey(root.GDS_SESSION));scan()}
   document.addEventListener('click',e=>{
     const b=e.target.closest?.('[data-tip-dismiss]');if(!b)return;
-    const el=b.closest('[data-tip]');if(!el)return;
+    const el=b.closest(SEL);if(!el)return;
     e.preventDefault();
     if(store.dismiss(tipOf(el))){
       el.hidden=true;

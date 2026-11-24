@@ -226,25 +226,7 @@
     {
       "route": "communications/call-handling",
       "width": 390,
-      "detail": "Section: Your number",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/call-handling",
-      "width": 390,
-      "detail": "Section: Call handling",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/call-handling",
-      "width": 390,
-      "detail": "Section: Recent calls",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/call-handling",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into receptionist",
       "result": "PASS"
     },
     {
@@ -298,37 +280,19 @@
     {
       "route": "communications/channels",
       "width": 390,
-      "detail": "Page tab: Unified Inbox",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/channels",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into unifiedinbox",
       "result": "PASS"
     },
     {
       "route": "communications/numbers",
       "width": 390,
-      "detail": "Page tab: Unified Inbox",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/numbers",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into receptionist",
       "result": "PASS"
     },
     {
       "route": "communications/calls-sms",
       "width": 390,
-      "detail": "Page tab: Unified Inbox",
-      "result": "PASS"
-    },
-    {
-      "route": "communications/calls-sms",
-      "width": 390,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into receptionist",
       "result": "PASS"
     },
     {
@@ -1198,7 +1162,7 @@
     {
       "route": "communications/call-handling",
       "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into receptionist",
       "result": "PASS"
     },
     {
@@ -1288,19 +1252,19 @@
     {
       "route": "communications/channels",
       "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into unifiedinbox",
       "result": "PASS"
     },
     {
       "route": "communications/numbers",
       "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into receptionist",
       "result": "PASS"
     },
     {
       "route": "communications/calls-sms",
       "width": 1440,
-      "detail": "Route, permissions-filtered current area, layout and footer",
+      "detail": "merged into receptionist",
       "result": "PASS"
     },
     {
