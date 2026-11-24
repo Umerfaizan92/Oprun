@@ -603,9 +603,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
-## T-231 TR-60 One Phone & SMS setup page, Call handling step, one inbox with filters
-- Status: NOT_STARTED
-- Added: 2026-11-24
-- Requirement: Backlog TR-60: merge Phone Numbers and Calls & SMS into one Phone & SMS setup page (AI Receptionist), Call handling as a Receptionist step, one inbox with channel filters; old routes alias to the new pages
-- Files: saas/workspace-nav.js, saas/app.js, saas/workspace-receptionist.js, saas/workspace-comms-platform.js(.css), saas/workspace-comms.js, src/comms/service.js, src/comms/routes.js, saas/suggestions.js, saas/workspace-redesign.css, tests, docs/navigation
-- Acceptance: Old routes alias to the new pages; all IDs kept; npm test and browser suites pass
