@@ -12,10 +12,10 @@ try{
  const owner=await seedOwner(server);
  browser=await chromium.launch({headless:true,...(process.env.UI_CHROMIUM_PATH?{executablePath:process.env.UI_CHROMIUM_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']}: {})});
  const ctx=await ownerContext(browser,server,owner),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(10000);
- let selected=['test-account'],saved=null,emailSaved=false,metaConfirmed=false;
+ let selected=['test-account'],saved=null,emailSaved=false,metaConfirmed=false,tiktokTest='pass';
  await page.route('**/api/saas/integrations/self-service',async route=>{
   const response=await route.fetch(),data=await response.json(),t=data.integrations.find(x=>x.provider==='tiktok');
-  Object.assign(t,{status:'connected',provider_ready:true,account_label:'Synthetic business',last_test_status:'pass',resources:[{id:'test-account',type:'tiktok_account',label:'Synthetic business'}],selected_resources:selected.map(id=>({id,type:'tiktok_account'})),insights:{fetched_at:'2026-11-01T07:00:00Z',results:[{resource_id:'test-account',type:'tiktok_account',label:'Synthetic business',source:'TikTok',period:'Current provider counters',fetched_at:'2026-11-01T07:00:00Z',status:'available',metrics:[{label:'Followers',value:null,note:'user.info.stats approval required.'},{label:'Public videos',value:0}]}]}});
+  Object.assign(t,{status:'connected',provider_ready:true,account_label:'Synthetic business',last_test_status:tiktokTest,last_tested_at:'2026-11-20T01:00:00.000Z',resources:[{id:'test-account',type:'tiktok_account',label:'Synthetic business'}],selected_resources:selected.map(id=>({id,type:'tiktok_account'})),insights:{fetched_at:'2026-11-01T07:00:00Z',results:[{resource_id:'test-account',type:'tiktok_account',label:'Synthetic business',source:'TikTok',period:'Current provider counters',fetched_at:'2026-11-01T07:00:00Z',status:'available',metrics:[{label:'Followers',value:null,note:'user.info.stats approval required.'},{label:'Public videos',value:0}]}]}});
   // T-070: a fresh Meta sign-in waiting for the owner to confirm the account, then healthy once confirmed.
   Object.assign(data.integrations.find(x=>x.provider==='meta'),{status:'connected',provider_ready:true,account_label:'Alex Morgan',connected_at:'2026-11-10T01:00:00.000Z',needs_confirmation:!metaConfirmed,health:metaConfirmed?{level:'green',title:'Working',detail:'',fix:null,checked_at:'2026-11-10T01:00:00.000Z'}:{level:'amber',title:'Confirm the account',detail:'Check this is the right account for this business before it is used.',fix:'confirm',checked_at:null}});
   if(emailSaved)Object.assign(data.integrations.find(x=>x.provider==='email_sms'),{status:'connected',last_test_status:'pass',transport:{email:{sender:'hello@synthetic-business.org',status:'verified'}}});
@@ -36,6 +36,21 @@ try{
   assert.match(await tk.innerText(),/Not available/);assert.match(await tk.innerText(),/user.info.stats/);
   if(process.env.UI_SCREENSHOT_DIR){fs.mkdirSync(process.env.UI_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:path.join(process.env.UI_SCREENSHOT_DIR,'connections-'+width+'.png'),fullPage:true})}
  }
+ // TR-62: one list with every connection, its live status, Test and Reconnect.
+ const list=page.locator('#connection-status-list');await list.locator('[data-cl-provider="receptionist_phone"]').waitFor();
+ assert.equal(await list.locator('.cl-row').count(),12,'11 providers plus the AI Receptionist phone number');
+ assert.ok(await page.getByRole('tab',{name:'Your business connections',exact:true}).isVisible(),'section tabs stay');
+ const tkRow=list.locator('[data-cl-provider="tiktok"]');assert.match(await tkRow.locator('[data-cl-status]').innerText(),/Connected · checked/);
+ assert.equal(await list.locator('[data-cl-provider="youtube"] [data-cl-test]').count(),0,'no test before a provider is connected');
+ let tests=0;await page.route('**/api/saas/integrations/self-service/tiktok/test',async route=>{tests++;if(tests===1)await route.fulfill({json:{ok:true,provider:'tiktok',status:'connected',partial:false}});else{tiktokTest='fail';await route.fulfill({status:502,json:{ok:false,error:'TikTok did not accept the saved sign-in.',diagnostic:{reference:'REF-1'}}})}});
+ await tkRow.getByRole('button',{name:'Test TikTok connection'}).click();await list.locator('[data-cl-provider="tiktok"] .cl-result').getByText('Test passed.').waitFor();
+ await list.locator('[data-cl-provider="tiktok"]').getByRole('button',{name:'Test TikTok connection'}).click();await list.locator('[data-cl-provider="tiktok"] .cl-result').getByText(/Test did not pass: TikTok did not accept/).waitFor();
+ assert.match(await list.locator('[data-cl-provider="tiktok"] [data-cl-status]').innerText(),/Needs attention/,'status matches the provider test');
+ assert.match(await tk.locator('.connection-state').first().innerText(),/Needs attention/,'the card shows the same status');
+ tiktokTest='pass';await page.unroute('**/api/saas/integrations/self-service/tiktok/test');
+ await list.locator('[data-cl-provider="email_sms"]').getByRole('button',{name:'Details: Email & SMS'}).click();await grid.locator('[data-provider-card="email_sms"]').waitFor({state:'visible'});
+ await pager.getByRole('button',{name:'← Previous',exact:true}).click();if(await pager.getByRole('button',{name:'← Previous',exact:true}).isEnabled())await pager.getByRole('button',{name:'← Previous',exact:true}).click();
+ await page.evaluate(()=>window.SuperProIntegrationManager?.render?.(true));await tk.locator('.connection-state').getByText('Connected · checked').waitFor();
  const meta=grid.locator('[data-provider-card="meta"]');
  assert.match(await meta.locator('.connection-confirm').innerText(),/You signed in as Alex Morgan\. It will be used only for Harbour Plumbing Pty Ltd\./);
  assert.match(await meta.locator('.connection-health').innerText(),/Needs action: Confirm the account/);

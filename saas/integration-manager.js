@@ -115,10 +115,62 @@
         for(const x of d.integrations||[]){records.set(x.provider,x);paintCard(x);}
         let summary=document.getElementById('connection-hub-summary');
         if(!summary){summary=document.createElement('p');summary.id='connection-hub-summary';summary.className='connection-note';grid.before(summary);}
+        await paintList(d.integrations||[],current);
         summary.textContent=`${d.integrations?.length||0} services · ${[...records.values()].filter(x=>x.status==='connected').length} authorised for this workspace. Figures show their source and last refresh. Account passwords are never requested.`;
       }catch(e){grid.replaceChildren();const p=document.createElement('p');p.className='gov-empty';p.textContent=e.message;grid.append(p);}
     })().finally(()=>{loading=null});return loading;
   }
+  // TR-62: one list of every connection with its live status, a test button and reconnect. The status shown is the
+  // provider's own last test result (or a newer automatic check); a test always refreshes the row from the server.
+  function rowStatus(x){
+    const h=x.health,newer=h?.checked_at&&(!x.last_tested_at||h.checked_at>x.last_tested_at);
+    if(newer&&h.level==='red')return ['Reconnect needed','attention'];
+    return status(x);
+  }
+  const RX={not_connected:['Not connected','setup'],connecting:['Connecting','attention'],needs_attention:['Needs attention','attention'],connected:['Connected','connected'],disconnected:['Disconnected','setup']};
+  function rowHtml(x){
+    const [word,tone]=rowStatus(x),name=x.display_name||x.provider,testable=x.status==='connected';
+    const connect=x.status==='connected'?'Reconnect':x.provider_ready?'Connect':'What is needed';
+    return `${logoHtml(x)}<div class="cl-name"><b>${esc(name)}</b><small>Last test: ${esc(x.last_tested_at?stamp(x.last_tested_at)+(x.last_test_status?' · '+({pass:'passed',partial:'partly passed',fail:'did not pass'}[x.last_test_status]||x.last_test_status):''):'not tested yet')}</small></div>`+
+      `<span class="cl-status cl-${esc(tone)}" data-cl-status><span class="cl-dot" aria-hidden="true"></span>${esc(word)}</span>`+
+      `<div class="cl-actions">${testable&&canCheck?`<button type="button" class="secondary-button compact" data-cl-test aria-label="Test ${esc(name)} connection">Test</button>`:''}${canManage?`<button type="button" class="secondary-button compact" data-cl-connect aria-label="${esc(connect)}: ${esc(name)}">${esc(connect)}</button>`:''}<button type="button" class="secondary-button compact" data-cl-open aria-label="Details: ${esc(name)}">Details</button></div>`+
+      `<p class="cl-result" role="status" aria-live="polite"></p>`;
+  }
+  async function paintList(items,current){
+    const grid=document.getElementById('self-service-integration-grid');if(!grid)return;
+    let box=document.getElementById('connection-status-list');
+    if(!box){box=document.createElement('section');box.id='connection-status-list';box.className='connection-status-list';box.setAttribute('aria-labelledby','connection-status-title');
+      box.innerHTML='<h3 id="connection-status-title">All connections</h3><p class="cl-intro">Live status from each provider’s last test. Test any connection, or reconnect it, from here.</p><ul class="cl-rows"></ul>';
+      (document.getElementById('connection-hub-summary')||grid).before(box);}
+    const list=box.querySelector('.cl-rows'),results=new Map([...list.querySelectorAll('[data-cl-provider]')].map(li=>[li.dataset.clProvider,li.querySelector('.cl-result')?.textContent||'']));
+    const rows=items.map(x=>{const li=document.createElement('li');li.className='cl-row';li.dataset.clProvider=x.provider;li.innerHTML=rowHtml(x);li.querySelector('.cl-result').textContent=results.get(x.provider)||'';return li;});
+    // The AI Receptionist phone number is set up on its own page; its status is listed here too.
+    try{const t=(await api('/api/saas/receptionist/telnyx')).telnyx;if(current!==context())return;const [word,tone]=RX[t.status]||[t.status,'setup'];
+      const li=document.createElement('li');li.className='cl-row';li.dataset.clProvider='receptionist_phone';
+      li.innerHTML=`<span class="integration-logo integration-badge" aria-hidden="true">TEL</span><div class="cl-name"><b>Phone number (AI Receptionist)</b><small>${esc(t.number?'Telnyx · '+t.number:'Telnyx, your own account')}</small></div><span class="cl-status cl-${esc(tone)}" data-cl-status><span class="cl-dot" aria-hidden="true"></span>${esc(word)}</span><div class="cl-actions"><a class="secondary-button compact" href="#communications/receptionist" aria-label="Open phone number setup">${t.status==='connected'?'Manage':'Set up'}</a></div><p class="cl-result" role="status" aria-live="polite"></p>`;
+      rows.push(li);}catch{/* not available to this role or build */}
+    list.replaceChildren(...rows);
+  }
+  function openCard(provider){
+    const card=document.querySelector(`[data-provider-card="${CSS.escape(provider)}"]`);if(!card)return null;
+    card.dispatchEvent(new CustomEvent('superpro:reveal-section',{bubbles:true}));
+    card.scrollIntoView?.({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    return card;
+  }
+  document.addEventListener('click',async e=>{
+    const b=e.target.closest('[data-cl-test],[data-cl-connect],[data-cl-open]');if(!b)return;
+    const li=b.closest('[data-cl-provider]'),provider=li?.dataset.clProvider,x=records.get(provider);if(!x)return;
+    const say=(t,bad=false)=>{const r=document.querySelector(`[data-cl-provider="${CSS.escape(provider)}"] .cl-result`);if(r){r.textContent=t;r.classList.toggle('connection-error',bad);}};
+    if(b.hasAttribute('data-cl-open')){const card=openCard(provider);if(card){card.setAttribute('tabindex','-1');card.focus({preventScroll:true});}return;}
+    if(b.hasAttribute('data-cl-connect')){const card=openCard(provider);card?.querySelector('[data-connect-provider]')?.click();return;}
+    b.disabled=true;const original=b.textContent;b.textContent='Testing…';say('');
+    let message='',bad=false;
+    try{const d=await api('/api/saas/integrations/self-service/'+encodeURIComponent(provider)+'/test',{method:'POST',body:'{}'});message=d.partial?'Test finished: some services need attention.':'Test passed.';}
+    catch(error){message='Test did not pass: '+error.message+(error.data?.diagnostic?.reference?' Reference: '+error.data.diagnostic.reference:'');bad=true;}
+    // Always redraw from the server, so the status shown is the one the test just saved.
+    await render();say(message,bad);
+    const again=document.querySelector(`[data-cl-provider="${CSS.escape(provider)}"] [data-cl-test]`);if(again)again.focus();else if(b.isConnected){b.disabled=false;b.textContent=original;}
+  });
   const field=(label,name,type='text',hint='')=>`<label>${esc(label)}<input type="${type}" name="${name}" aria-label="${esc(label)}" autocomplete="off" ${['api_key','sender','number','url'].includes(name)?'required':''}>${hint?`<small>${esc(hint)}</small>`:''}</label>`;
   function configure(card,x){
     let box=card.querySelector('[data-im-config]');if(box){box.hidden=!box.hidden;return;}
@@ -186,7 +238,9 @@
       else if(b.hasAttribute('data-im-save')){const resource_ids=[...card.querySelectorAll('[data-im-resource]:checked')].map(i=>i.dataset.imResource);await api('/api/saas/integrations/self-service/'+provider+'/resources',{method:'POST',body:JSON.stringify({resource_ids})});pendingSelections.delete(provider);}
       else if(b.hasAttribute('data-im-disconnect'))await api('/api/saas/integrations/self-service/'+provider,{method:'DELETE'});
       await render();const fresh=document.querySelector(`[data-provider-card="${CSS.escape(provider)}"]`);announce(fresh,'Connection information updated.');updateInstructions(fresh,records.get(provider));
-    }catch(error){announce(card,error.message+(error.data?.diagnostic?.reference?' Reference: '+error.data.diagnostic.reference:''),true);}
+    }catch(error){const text=error.message+(error.data?.diagnostic?.reference?' Reference: '+error.data.diagnostic.reference:'');
+      // TR-62: a test that did not pass is saved by the server; redraw so the card and list show it.
+      if(b.hasAttribute('data-im-test')){await render().catch(()=>{});announce(document.querySelector(`[data-provider-card="${CSS.escape(provider)}"]`),text,true);}else announce(card,text,true);}
     finally{if(b.isConnected){b.disabled=false;b.textContent=original;}}
   },true);
   // Own developer app keys: loaded when opened; the secret field is write-only and cleared after saving.

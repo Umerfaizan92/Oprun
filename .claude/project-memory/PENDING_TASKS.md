@@ -603,3 +603,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
+## T-233 TR-62 Integrations: one list with live status, test and reconnect
+- Status: NOT_STARTED
+- Added: 2026-11-24
+- Requirement: Backlog TR-62: Integrations page: one list with live status, test button and reconnect for every provider
+- Files: saas/integration-manager.js, saas/integration-manager.css, scripts/test-connections-ui.mjs
+- Acceptance: Status matches the provider test

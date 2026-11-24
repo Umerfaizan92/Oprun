@@ -52,3 +52,28 @@
 html[data-theme="light"] #integrations-view [role="tab"][aria-selected="true"]{color:var(--text);background:var(--panel-2)}
 
 html[data-theme="light"] #integration-self-service-tab{color:var(--text)!important;background:var(--panel)!important;text-shadow:none!important}
+/* TR-62: one list of every connection: live status, Test, Reconnect, Details. Phone: one column. */
+.connection-status-list{display:grid;gap:10px;margin:0 0 18px}
+.connection-status-list>h3{margin:0;font-size:1.05rem}
+.connection-status-list .cl-intro{margin:0;color:var(--sp-fg-muted,inherit);font-size:.875rem}
+.cl-rows{list-style:none;margin:0;padding:0;display:grid;border:1px solid var(--rf-edge,rgba(237,241,248,.09));border-radius:var(--rf-radius-sm,12px);overflow:hidden}
+.cl-row{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(150px,auto) auto;grid-template-areas:"logo name status actions" "logo result result result";align-items:center;gap:4px 14px;padding:10px 14px;border-top:1px solid var(--rf-edge,rgba(237,241,248,.09))}
+.cl-row:first-child{border-top:0}
+.cl-row>.integration-logo{grid-area:logo;min-width:40px;height:40px;flex:none;align-self:center}
+.cl-name{grid-area:name;display:grid;gap:2px;min-width:0}
+.cl-name b{overflow-wrap:anywhere}
+.cl-name small{color:var(--sp-fg-muted,inherit);font-size:.78rem}
+.cl-status{grid-area:status;display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700}
+.cl-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--sp-fg-muted,#8a94a2)}
+.cl-connected .cl-dot{background:#34d399}
+.cl-attention .cl-dot{background:#fbbf24}
+.cl-actions{grid-area:actions;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.cl-actions :is(button,a){min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+.cl-result{grid-area:result;margin:0;font-size:.82rem}
+.cl-result:empty{display:none}
+.cl-result.connection-error{color:#ff8a8a}
+html[data-theme="light"] .cl-result.connection-error{color:#b42318}
+@media (max-width:760px){.cl-row{grid-template-columns:64px minmax(0,1fr);grid-template-areas:"logo name" "logo status" "actions actions" "result result"}.cl-actions{justify-content:flex-start}}
+html body #workspace .cl-row>.integration-logo{width:auto;max-inline-size:64px;justify-self:start;--tile:40px}
+html body #workspace .cl-row>.brand-logo-pair .brand-tile{--tile:28px}
+@media (min-width:1024px){.cl-row{grid-template-columns:64px minmax(0,1fr) 250px 290px}.cl-status{justify-self:start}}
