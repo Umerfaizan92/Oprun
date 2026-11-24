@@ -848,3 +848,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: A test business with services and areas reaches Review in under 10 minutes
 - Evidence: test:website-wizard-ui 2/2 (business with services and areas reaches Review well under 10 minutes; resume; phone fit; axe dark and light; first release waits for approval); website-wizard.test.mjs; test:ui 38; test:mobile-workspace-ui 310; commit 71d7760 (recorded 2026-11-24 on claude/transformation-phase1 at 71d7760)
+
+## T-234 TR-70 Visual baseline of every final page, three widths, both themes, compared on every PR
+- Added: 2026-11-24
+- Requirement: Backlog TR-70: Visual baseline: screenshots of every final page at three widths, both themes
+- Files: scripts/test-visual.mjs, .github/workflows/visual.yml, src/server.js (test-only API limit)
+- Acceptance: Stored and compared on every PR
+- Evidence: test:visual all groups: 678 screens built, second run compared with 0 problems (public 78, business 348, founder 252; reports in qa/reports/visual-regression-*.json); visual.yml validated; npm test 73/73; onboarding UI 5; secrets scan; commit eaeaaed (recorded 2026-11-24 on claude/transformation-phase1 at eaeaaed)

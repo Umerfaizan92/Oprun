@@ -2691,3 +2691,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start Phase 9 QA or W-05 (T-151) per owner
+
+## CP-193 2026-11-24T07:35:54+00:00 T-234 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-234 (COMPLETED)
+- Completed steps: TR-70 visual baseline and PR comparison
+- Incomplete steps: TR-71 security pass; TR-72 performance; TR-73 restore drill
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: test:visual, npm test
+- Test results: all pass
+- Git branch: claude/transformation-phase1
+- Commit: eaeaaed (TR-70: visual baseline of every final page in both themes, compared on every pull request); 57 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start TR-71: tenant isolation across records, files, jobs, agent contexts, caches and logs; dependency alert
