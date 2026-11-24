@@ -589,3 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
+## T-235 TR-71 Security pass: tenant isolation sweep, AI memory isolation, dependency alert
+- Status: NOT_STARTED
+- Added: 2026-11-24
+- Requirement: Backlog TR-71: tenant isolation across records, files, jobs, agent contexts, caches and logs; dependency alert fixed
+- Files: scripts/tenant-sweep.test.mjs, scripts/ai-memory-isolation.test.mjs, src/ai-provider-shim.js, src/server.js, package.json
+- Acceptance: All isolation tests pass; zero open high/critical alerts

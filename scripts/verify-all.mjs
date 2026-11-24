@@ -252,7 +252,7 @@ await stage('suites', 'Contract tests, final validation, quality gate', async ()
     /^(PATH|PATHEXT|SYSTEMROOT|WINDIR|TEMP|TMP|TMPDIR|LITESTREAM_BIN)$/i.test(key)));
   Object.assign(testEnv, { HOME: tempRoot, USERPROFILE: tempRoot, NODE_ENV: 'test', SUPERPRO_SKIP_DOTENV: '1' });
   await check(`${tests.length} contract test files pass`, () => {
-    const r = run(process.execPath, ['--test', '--test-concurrency=1', ...tests], { timeout: 600000, env: testEnv });
+    const r = run(process.execPath, ['--test', '--test-concurrency=1', ...tests], { timeout: 900000, env: testEnv }); // TR-71: the tenant sweep adds a few minutes on slow machines
     if (r.status !== 0) {
       // A file-level failure can print its assertion and stack before its TAP subtest.
       const output = (r.stdout || '') + '\n' + (r.stderr || '');

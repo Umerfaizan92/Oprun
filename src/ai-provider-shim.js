@@ -130,10 +130,6 @@ function cleanupConversations() {
   const oldest = [...conversations.entries()].sort((a,b)=>(a[1].updatedAt||0)-(b[1].updatedAt||0));
   for (const [id] of oldest.slice(0, conversations.size - MAX_CONVERSATIONS)) conversations.delete(id);
 }
-function conversationId(messages=[]) {
-  const text = messages.map(m => String(m?.content || '')).join('\n');
-  return text.match(/Conversation-ID:\s*([A-Za-z0-9._:-]{8,120})/i)?.[1] || null;
-}
 function systemText(messages=[]) {
   return messages.filter(m => m?.role === 'system' || m?.role === 'developer').map(m => String(m.content || '')).join('\n\n');
 }
@@ -307,7 +303,10 @@ async function generateAiTextInner({ messages=[], system='', conversation_id=nul
   const primary = resolveAiProviderConfig();
   if (!primary) throw new Error('AI provider is not configured. Add a Gemini API key for free-first mode, or configure another AI provider.');
   const prepared = system ? [{role:'system',content:String(system)}, ...messages] : messages;
-  const id = conversation_id || conversationId(prepared);
+  // TR-71: remembered conversation turns are keyed ONLY by an id the server chose (for example
+  // "workspace:<organisation>:<thread>"). An id is never read from message text, which a person could type to pull
+  // another business's or visitor's remembered turns into the AI's context.
+  const id = conversation_id ? String(conversation_id) : null;
   const currentUser = [...prepared].reverse().find(m=>m?.role==='user')?.content || '';
   const options={thinking_level,max_output_tokens};
 
@@ -359,7 +358,7 @@ globalThis.fetch = async function superProFetch(input, init={}) {
   if(!primary){
     return new Response(JSON.stringify({error:{message:'AI provider is not configured for the active runtime mode.',code:'ai_not_configured'}}),{status:503,headers:{'content-type':'application/json'}});
   }
-  const id = conversationId(body.messages);
+  const id = null; // TR-71: never an id taken from message text (see generateAiTextInner)
   const currentUser = [...body.messages].reverse().find(m=>m?.role==='user')?.content || '';
 
   try {
