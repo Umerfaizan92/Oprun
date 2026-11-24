@@ -22,3 +22,13 @@ html body .rm-meta small{color:var(--sp-fg-muted,inherit)}
 html body .rm-error{color:#ff8a8a!important}
 html body .rm-actions{display:flex;flex-wrap:wrap;gap:6px}
 @media (max-width:720px){html body .rm-grid{grid-template-columns:1fr}html body .rm-panel .aiv-seg{flex-wrap:wrap}html body .rm-panel .aiv-seg button{flex:1 1 45%}}
+/* TR-61: Reels in the refreshed system. Steps are separated sections; choices use the shared chip size; fields line up. */
+html body .rm-panel{gap:14px}
+html body .rm-step{margin:6px 0 0;padding-top:16px;border-top:1px solid var(--rf-edge,rgba(237,241,248,.09));font-size:.95rem;font-weight:800;letter-spacing:.01em}
+html body .rm-panel > h2.sr-only + .rm-step{margin-top:0;padding-top:0;border-top:0}
+html body .rm-template,html body .rm-hook{min-height:44px;padding:8px 14px;border-radius:var(--rf-radius-sm,12px);font-size:.875rem;color:var(--sp-fg-muted,inherit)}
+html body .rm-template[aria-checked="true"],html body .rm-hook[aria-checked="true"]{color:var(--sp-fg,inherit)}
+html body .rm-template:focus-visible,html body .rm-hook:focus-visible{outline:3px solid var(--sp-focus,var(--sp-gold-400));outline-offset:2px}
+html body .rm-grid{align-items:start;gap:12px 16px}
+html body .rm-card{border-color:var(--rf-edge,rgba(237,241,248,.09));border-radius:var(--rf-radius-sm,12px);background:var(--rf-card,transparent)}
+html[data-theme="light"] body .rm-template[aria-checked="true"],html[data-theme="light"] body .rm-hook[aria-checked="true"]{color:var(--sp-fg,#141820)}

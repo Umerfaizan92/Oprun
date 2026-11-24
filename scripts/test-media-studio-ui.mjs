@@ -74,6 +74,15 @@ try {
       }
     }
   }
+  // TR-61: the restyled tools pass the same checks in the light theme.
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'light'; });
+  for (const t of ['library', 'reels', 'editor', 'ai']) {
+    await page.evaluate((k) => window.OprunStudio.show(k), t); await page.waitForTimeout(600); // let tab colour transitions finish
+    const v = await page.evaluate(async () => (await window.axe.run(document.querySelector('#video-view'), { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa'] } })).violations.filter((x) => ['critical', 'serious'].includes(x.impact)).map((x) => ({ id: x.id, nodes: x.nodes.map((n) => n.target.join(' ')).slice(0, 3) })));
+    assert.deepEqual(v, [], `light ${t}: ` + JSON.stringify(v));
+    if (t === 'reels') await shot(page, 'studio-reels-light.png');
+  }
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
   // Phone: the four tools are in the bottom dock, the app's standard for page sections.
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('#mobile-workspace-dock [aria-label="Reels"]').click();

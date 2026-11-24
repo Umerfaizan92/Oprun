@@ -22,3 +22,17 @@ html body .st-danger{border-color:rgba(255,138,138,.5)!important;color:#ff8a8a!i
 @media (max-width:600px){html body #st-library .library-toolbar{grid-template-columns:1fr}html body #st-library .media-library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 html body #video-view .media-picker .mp-count{color:var(--sp-fg,#edf1f8)}
 html body #video-view .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* TR-61: Media Studio in the refreshed system. One control size (44 px, 14 px text), one chip style for filters and
+   choices, media as cards, compact upload. Layout, IDs and behaviour unchanged (T-202 structure kept). */
+html body #video-view :is(.portal-button,.secondary-button,.primary-button,.source-action){min-height:44px;font-size:.875rem;line-height:1.2}
+html body #video-view .secondary-button.compact{min-height:44px;padding:8px 16px}
+html body #st-library .source-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border:1px solid var(--rf-edge);border-radius:var(--rf-radius-sm);background:transparent;color:var(--sp-fg-muted,inherit);font-weight:700}
+html body #st-library .source-action:is(.active,[aria-pressed=true]){background:var(--sp-gold-soft,color-mix(in srgb,var(--sp-gold-400) 18%,transparent));border-color:var(--rf-edge-strong);color:var(--sp-fg)}
+html body #st-library .source-action:focus-visible{outline:3px solid var(--sp-focus,var(--sp-gold-400));outline-offset:2px}
+html body #st-library .media-drop{border-radius:var(--rf-radius-sm);padding:14px 16px}
+html body #st-library .media-library-grid > *{border:1px solid var(--rf-edge);border-radius:var(--rf-radius-sm);background:var(--rf-card);overflow:hidden}
+html body #st-library .media-pick{border-radius:0}
+html body #st-library .media-meta{padding:8px 10px 10px}
+html body #video-view .media-picker .mp-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+html body #video-view .media-picker .mp-count{font-size:.85rem;color:var(--sp-fg-muted,inherit)}
+@media (hover:hover) and (pointer:fine){html body #st-library .media-library-grid > *:hover{border-color:var(--rf-edge-strong)}}
