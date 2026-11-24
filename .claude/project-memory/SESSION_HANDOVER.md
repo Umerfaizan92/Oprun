@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 06163f4 (TR-71: security pass - tenant isolation sweep, AI memory isolation, dependency alert)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: test site live on c2a7cb2
-FILES MODIFIED: SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md
+LAST COMPLETED STEP: TR-43 done
+FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Read docs/transformation/HANDOVER_FOR_CHATGPT.md section 3 and start TR-43 or TR-72 part 2
+NEXT EXACT ACTION: TR-73 restore drill (small), then TR-72 part 2 per docs/transformation/HANDOVER_FOR_CHATGPT.md section 3
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-196 at 2026-11-24T12:02:02+00:00
+LAST CHECKPOINT: CP-197 at 2026-11-24T12:04:04+00:00
 <!-- handover:end -->
 
 ## Notes

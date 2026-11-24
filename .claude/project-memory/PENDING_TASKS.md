@@ -596,9 +596,3 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/asset-bundles.js, scripts/report-lighthouse.mjs, saas/ds/motion.js, qa/reports/LIGHTHOUSE.md
 - Acceptance: Report saved; every main page >= 85
 
-## T-237 TR-43 Hard limits: no production deploy, destructive change or money movement without human approval
-- Status: NOT_STARTED
-- Added: 2026-11-24
-- Requirement: Backlog TR-43: Hard limits: no production deploys, destructive changes or financial actions without a recorded human approval
-- Files: src/automation/catalogue.js, src/agents/registry.js, scripts/agent-hard-limits.test.mjs
-- Acceptance: Engine refuses them by name (test)

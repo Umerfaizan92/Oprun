@@ -2747,3 +2747,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read docs/transformation/HANDOVER_FOR_CHATGPT.md section 3 and start TR-43 or TR-72 part 2
+
+## CP-197 2026-11-24T12:04:04+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: TR-43 done
+- Incomplete steps: TR-72 part 2; TR-73; TR-80; TR-81
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 85e23e0 (TR-43: hard limits refused by name); 64 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: TR-73 restore drill (small), then TR-72 part 2 per docs/transformation/HANDOVER_FOR_CHATGPT.md section 3

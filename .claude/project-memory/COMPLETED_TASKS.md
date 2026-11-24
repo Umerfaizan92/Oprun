@@ -862,3 +862,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: scripts/tenant-sweep.test.mjs, scripts/ai-memory-isolation.test.mjs, src/ai-provider-shim.js, src/server.js, package.json
 - Acceptance: All isolation tests pass; zero open high/critical alerts
 - Evidence: tenant-sweep.test.mjs (502 routes, ~4000 requests, 0 leaks, 0 changed rows, 0 server errors); ai-memory-isolation.test.mjs (fails on old code, passes now); full contract suite 490/490; npm test 73/73; npm audit 0 vulnerabilities; integration:test; secrets scan; commit 06163f4 (recorded 2026-11-24 on claude/transformation-phase1 at 06163f4)
+
+## T-237 TR-43 Hard limits: no production deploy, destructive change or money movement without human approval
+- Added: 2026-11-24
+- Requirement: Backlog TR-43: Hard limits: no production deploys, destructive changes or financial actions without a recorded human approval
+- Files: src/automation/catalogue.js, src/agents/registry.js, scripts/agent-hard-limits.test.mjs
+- Acceptance: Engine refuses them by name (test)
+- Evidence: agent-hard-limits.test.mjs 2/2 (engine blocks deploy_to_production, reset_or_drop_database, make_payment by name in both scopes; refund/deletion need a person; agent creation refused with restriction reason); agent and automation suites 30/30; npm test 73/73; commit 85e23e0 (recorded 2026-11-24 on claude/transformation-phase1 at 85e23e0)
