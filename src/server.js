@@ -36,6 +36,7 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import express from 'express';
 import compression from 'compression';
+import { createAssetBundler } from './asset-bundles.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -1137,6 +1138,11 @@ app.get('/saas/answers.html',publicPageLimiter,serveSeoPublicHtml('answers.html'
 // Assets requested with a ?v= stamp may be reused briefly and refreshed in the
 // background; pages and unstamped files are always revalidated as before.
 const stampedAssetCache=res=>{if(res.req?.query?.v&&/\.(?:js|css|svg|png|jpg|webp|woff2?)$/i.test(res.req.path))res.setHeader('Cache-Control','public, max-age=300, stale-while-revalidate=3600')};
+// TR-72: the workspace and console pages are served with their many small files joined into a few bundles.
+const assetBundles=createAssetBundler({root:siteRoot,production:env.NODE_ENV==='production',enabled:env.ASSET_BUNDLES!=='0'});
+app.get('/saas/__b/:file',assetBundles.asset);
+app.get(['/saas/workspace.html','/saas/workspace'],assetBundles.page('saas/workspace.html'));
+app.get(['/office/','/office/index.html'],assetBundles.page('office/console.html'));
 app.use('/saas', express.static(path.join(siteRoot, 'saas'), { extensions: ['html'], setHeaders: stampedAssetCache }));
 app.get('/api/public/preview-status',(req,res)=>res.json({ok:true,isolated_preview:env.SUPERPRO_ISOLATED_PREVIEW==='1',storage:env.SUPERPRO_ISOLATED_PREVIEW==='1'?'temporary_test_data_only':'normal',version:'20.0.0-preview'}));
 app.get(['/office/','/office/index.html'],(req,res)=>res.sendFile(path.join(siteRoot,'office','console.html')));

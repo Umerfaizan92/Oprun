@@ -85,7 +85,10 @@
   }
 
   /* One ripple on a live indicator when its value changes. */
-  function pulse(el) { if (!el) return; el.classList.remove('is-updated'); void el.offsetWidth; el.classList.add('is-updated'); }
+  // TR-72: no ripple while the page is still starting (values arrive all at once then) or when motion is reduced;
+  // each ripple forces a layout, and dozens of them made the first load slow on phones.
+  const settledAt = performance.now() + 4000;
+  function pulse(el) { if (!el || performance.now() < settledAt || matchMedia('(prefers-reduced-motion: reduce)').matches) return; el.classList.remove('is-updated'); void el.offsetWidth; el.classList.add('is-updated'); }
 
   let toastEl;
   function toast(message, ms = 3200) {

@@ -589,3 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
+## T-236 TR-72 Performance: workspace first-load budget and Lighthouse mobile >= 85
+- Status: IN_PROGRESS
+- Added: 2026-11-24
+- Requirement: Backlog TR-72: Performance: workspace first load budget; Lighthouse mobile >= 85 on main pages
+- Files: src/asset-bundles.js, scripts/report-lighthouse.mjs, saas/ds/motion.js, qa/reports/LIGHTHOUSE.md
+- Acceptance: Report saved; every main page >= 85

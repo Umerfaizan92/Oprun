@@ -52,7 +52,7 @@ const MASK = ['[data-year]', 'time', '.gx-clock', '[data-live-value]', '.sp-typi
 for (const d of Object.values(DIRS)) fs.mkdirSync(d, { recursive: true });
 for (const f of fs.readdirSync(DIRS.diff)) fs.rmSync(path.join(DIRS.diff, f));
 
-const server = await startServer({ API_RATE_LIMIT_TEST: '50000' }); // hundreds of pages from one address
+const server = await startServer({ API_RATE_LIMIT_TEST: '50000', ...(process.env.ASSET_MINIFY ? { ASSET_MINIFY: process.env.ASSET_MINIFY } : {}), ...(process.env.ASSET_BUNDLES ? { ASSET_BUNDLES: process.env.ASSET_BUNDLES } : {}) }); // hundreds of pages from one address
 const browser = await chromium.launch(process.env.UI_CHROMIUM_PATH ? { executablePath: process.env.UI_CHROMIUM_PATH } : {});
 const results = [];
 const themeScript = (theme) => { try { localStorage.setItem('foai-theme', theme); } catch { /* storage off */ } };

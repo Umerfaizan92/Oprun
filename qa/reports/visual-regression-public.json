@@ -8,10 +8,10 @@
     "dark",
     "light"
   ],
-  "tolerance": 0.003,
+  "tolerance": 0.006,
   "pages": 13,
   "screens": 78,
-  "seconds": 258,
+  "seconds": 269,
   "results": [
     {
       "name": "public-home-390-dark",

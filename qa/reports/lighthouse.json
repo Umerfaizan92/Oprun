@@ -1,0 +1,302 @@
+{
+  "generated_at": "2026-11-24T11:37:59.801Z",
+  "tool": "Lighthouse 12, mobile preset, simulated throttling, best of two cold loads, local test server",
+  "score_min": 85,
+  "workspace_budget": {
+    "lcp_ms": 2500,
+    "tbt_ms": 200,
+    "cls": 0.1,
+    "transfer_kb": 900,
+    "requests": 90
+  },
+  "results": [
+    {
+      "area": "public",
+      "name": "Home",
+      "url": "/",
+      "performance": 99,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 100,
+      "fcp_ms": 1700,
+      "lcp_ms": 1893,
+      "tbt_ms": 43,
+      "cls": 0,
+      "si_ms": 1894,
+      "transfer_kb": 148,
+      "requests": 20,
+      "final_url": "http://127.0.0.1:38547/",
+      "opportunities": []
+    },
+    {
+      "area": "public",
+      "name": "Pricing",
+      "url": "/pricing",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 100,
+      "fcp_ms": 1221,
+      "lcp_ms": 1726,
+      "tbt_ms": 0,
+      "cls": 0.001,
+      "si_ms": 1221,
+      "transfer_kb": 119,
+      "requests": 16,
+      "final_url": "http://127.0.0.1:38547/pricing",
+      "opportunities": [
+        "Eliminate render-blocking resources (~322 ms)"
+      ]
+    },
+    {
+      "area": "public",
+      "name": "Features",
+      "url": "/features",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 100,
+      "fcp_ms": 1262,
+      "lcp_ms": 1712,
+      "tbt_ms": 0,
+      "cls": 0.001,
+      "si_ms": 1262,
+      "transfer_kb": 117,
+      "requests": 15,
+      "final_url": "http://127.0.0.1:38547/features",
+      "opportunities": [
+        "Eliminate render-blocking resources (~572 ms)"
+      ]
+    },
+    {
+      "area": "public",
+      "name": "AI Receptionist",
+      "url": "/receptionist",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 100,
+      "fcp_ms": 1251,
+      "lcp_ms": 1684,
+      "tbt_ms": 0,
+      "cls": 0.002,
+      "si_ms": 1251,
+      "transfer_kb": 120,
+      "requests": 16,
+      "final_url": "http://127.0.0.1:38547/receptionist",
+      "opportunities": [
+        "Eliminate render-blocking resources (~262 ms)"
+      ]
+    },
+    {
+      "area": "public",
+      "name": "Contact",
+      "url": "/contact",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 100,
+      "fcp_ms": 1261,
+      "lcp_ms": 1690,
+      "tbt_ms": 0,
+      "cls": 0.001,
+      "si_ms": 1261,
+      "transfer_kb": 116,
+      "requests": 15,
+      "final_url": "http://127.0.0.1:38547/contact",
+      "opportunities": [
+        "Eliminate render-blocking resources (~360 ms)"
+      ]
+    },
+    {
+      "area": "public",
+      "name": "Sign in",
+      "url": "/saas/sign-in.html",
+      "performance": 97,
+      "accessibility": 100,
+      "best_practices": 93,
+      "seo": 58,
+      "fcp_ms": 1874,
+      "lcp_ms": 2377,
+      "tbt_ms": 0,
+      "cls": 0,
+      "si_ms": 1874,
+      "transfer_kb": 176,
+      "requests": 31,
+      "final_url": "http://127.0.0.1:38547/saas/sign-in.html",
+      "opportunities": [
+        "Eliminate render-blocking resources (~1016 ms)"
+      ]
+    },
+    {
+      "area": "public",
+      "name": "Create account",
+      "url": "/saas/create-account.html",
+      "performance": 97,
+      "accessibility": 100,
+      "best_practices": 96,
+      "seo": 66,
+      "fcp_ms": 1862,
+      "lcp_ms": 2312,
+      "tbt_ms": 13,
+      "cls": 0,
+      "si_ms": 1862,
+      "transfer_kb": 180,
+      "requests": 32,
+      "final_url": "http://127.0.0.1:38547/saas/create-account.html",
+      "opportunities": [
+        "Eliminate render-blocking resources (~966 ms)"
+      ]
+    },
+    {
+      "area": "workspace",
+      "name": "Command Centre",
+      "url": "/saas/workspace.html#today/home",
+      "performance": 46,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1979,
+      "lcp_ms": 6385,
+      "tbt_ms": 1689,
+      "cls": 0.027,
+      "si_ms": 4570,
+      "transfer_kb": 635,
+      "requests": 56,
+      "final_url": "http://127.0.0.1:38547/saas/workspace.html#today/home",
+      "opportunities": [
+        "Reduce unused JavaScript (~1480 ms)",
+        "Eliminate render-blocking resources (~625 ms)",
+        "Reduce unused CSS (~450 ms)"
+      ]
+    },
+    {
+      "area": "workspace",
+      "name": "Enquiries",
+      "url": "/saas/workspace.html#work/enquiries",
+      "performance": 43,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 2017,
+      "lcp_ms": 6068,
+      "tbt_ms": 1850,
+      "cls": 0.111,
+      "si_ms": 4511,
+      "transfer_kb": 646,
+      "requests": 57,
+      "final_url": "http://127.0.0.1:38547/saas/workspace.html#work/enquiries",
+      "opportunities": [
+        "Reduce unused JavaScript (~1420 ms)",
+        "Eliminate render-blocking resources (~691 ms)",
+        "Reduce unused CSS (~300 ms)"
+      ]
+    },
+    {
+      "area": "workspace",
+      "name": "Unified Inbox",
+      "url": "/saas/workspace.html#communications/inbox",
+      "performance": 35,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 2130,
+      "lcp_ms": 6080,
+      "tbt_ms": 1676,
+      "cls": 0.224,
+      "si_ms": 4593,
+      "transfer_kb": 642,
+      "requests": 58,
+      "final_url": "http://127.0.0.1:38547/saas/workspace.html#communications/inbox",
+      "opportunities": [
+        "Reduce unused JavaScript (~1280 ms)",
+        "Eliminate render-blocking resources (~756 ms)",
+        "Reduce unused CSS (~300 ms)"
+      ]
+    },
+    {
+      "area": "workspace",
+      "name": "Money",
+      "url": "/saas/workspace.html#money/ledger",
+      "performance": 44,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1968,
+      "lcp_ms": 6223,
+      "tbt_ms": 1797,
+      "cls": 0.109,
+      "si_ms": 4184,
+      "transfer_kb": 643,
+      "requests": 58,
+      "final_url": "http://127.0.0.1:38547/saas/workspace.html#money/ledger",
+      "opportunities": [
+        "Reduce unused JavaScript (~1500 ms)",
+        "Eliminate render-blocking resources (~648 ms)",
+        "Reduce unused CSS (~450 ms)"
+      ]
+    },
+    {
+      "area": "workspace",
+      "name": "Website",
+      "url": "/saas/workspace.html#website/home",
+      "performance": 47,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 2129,
+      "lcp_ms": 6343,
+      "tbt_ms": 1476,
+      "cls": 0.051,
+      "si_ms": 4142,
+      "transfer_kb": 636,
+      "requests": 56,
+      "final_url": "http://127.0.0.1:38547/saas/workspace.html#website/home",
+      "opportunities": [
+        "Reduce unused JavaScript (~1650 ms)",
+        "Eliminate render-blocking resources (~908 ms)",
+        "Reduce unused CSS (~300 ms)"
+      ]
+    },
+    {
+      "area": "console",
+      "name": "Operator Console",
+      "url": "/office/",
+      "performance": 100,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 54,
+      "fcp_ms": 1084,
+      "lcp_ms": 1234,
+      "tbt_ms": 66,
+      "cls": 0,
+      "si_ms": 1153,
+      "transfer_kb": 146,
+      "requests": 10,
+      "final_url": "http://127.0.0.1:38547/office/",
+      "opportunities": [
+        "Eliminate render-blocking resources (~438 ms)"
+      ]
+    }
+  ],
+  "failures": [
+    "Command Centre: performance 46 < 85",
+    "Command Centre: lcp_ms 6385 over budget 2500",
+    "Command Centre: tbt_ms 1689 over budget 200",
+    "Enquiries: performance 43 < 85",
+    "Enquiries: lcp_ms 6068 over budget 2500",
+    "Enquiries: tbt_ms 1850 over budget 200",
+    "Enquiries: cls 0.111 over budget 0.1",
+    "Unified Inbox: performance 35 < 85",
+    "Unified Inbox: lcp_ms 6080 over budget 2500",
+    "Unified Inbox: tbt_ms 1676 over budget 200",
+    "Unified Inbox: cls 0.224 over budget 0.1",
+    "Money: performance 44 < 85",
+    "Money: lcp_ms 6223 over budget 2500",
+    "Money: tbt_ms 1797 over budget 200",
+    "Money: cls 0.109 over budget 0.1",
+    "Website: performance 47 < 85",
+    "Website: lcp_ms 6343 over budget 2500",
+    "Website: tbt_ms 1476 over budget 200"
+  ]
+}
