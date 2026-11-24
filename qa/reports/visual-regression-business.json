@@ -11,7 +11,7 @@
   "tolerance": 0.006,
   "pages": 58,
   "screens": 348,
-  "seconds": 634,
+  "seconds": 523,
   "results": [
     {
       "name": "business-today-home-390-dark",
@@ -20,7 +20,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.000002733584823137062,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -32,7 +32,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000020512820512820513,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -68,7 +68,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014245014245014244,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -80,7 +80,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000025287007535528246,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -92,7 +92,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014855750661080905,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -116,7 +116,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000022161647053609024,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -140,7 +140,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000020948550360315067,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -164,7 +164,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000028842548527587897,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -212,7 +212,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014245014245014244,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -224,7 +224,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.000002621781762886057,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -248,7 +248,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000023963575365444526,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -284,7 +284,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014245014245014244,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -308,7 +308,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000028940209527116978,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -320,7 +320,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000024466627520062636,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -368,7 +368,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.000002251187501406992,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -380,7 +380,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014245014245014244,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -392,7 +392,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000029745969421143435,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -416,7 +416,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014245014245014244,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -440,7 +440,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014245014245014244,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -500,7 +500,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000015409270216962524,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -512,7 +512,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000028713354581215725,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -584,7 +584,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.004698005698005698,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -596,7 +596,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.000005558025789239662,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -608,7 +608,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.005605176813707619,
+      "ratio": 0.004180337829626929,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -620,7 +620,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000027961860022928725,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -656,7 +656,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0000014577046981822422,
+      "ratio": 0,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -1304,7 +1304,7 @@
       "width": 768,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0023778279622395835,
+      "ratio": 0.002513885498046875,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -2000,7 +2000,7 @@
       "width": 1440,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.0016535493827160494,
+      "ratio": 0.001699074074074074,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -2696,7 +2696,7 @@
       "width": 390,
       "theme": "light",
       "status": "same",
-      "ratio": 0.005486693401385344,
+      "ratio": 0.004152995503706404,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -3392,7 +3392,7 @@
       "width": 768,
       "theme": "light",
       "status": "same",
-      "ratio": 0.0023523966471354165,
+      "ratio": 0.0024566650390625,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -4088,7 +4088,7 @@
       "width": 1440,
       "theme": "light",
       "status": "same",
-      "ratio": 0.0016450617283950617,
+      "ratio": 0.0016959876543209877,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []

@@ -127,8 +127,9 @@
         const box = el('section', { class: 'finder-records', 'data-term': term, 'aria-label': 'Matching records' }, el('h3', { text: list.length ? 'Records' : 'No matching records' }));
         for (const r of list) box.append(el('button', { type: 'button', class: 'finder-result', 'data-record': r.type, onclick: () => {
           dialog.close();
-          if (VIEW_ID[r.view]) window.SuperProPipeline?.prefill(VIEW_ID[r.view], r.title);
-          location.hash = r.view;
+          // The record's page may not have loaded its code yet (TR-72): load it, then fill the filter and open it.
+          const id = VIEW_ID[r.view];
+          Promise.resolve(id && window.OprunLazy ? window.OprunLazy.load(id) : null).catch(() => {}).then(() => { if (id) window.SuperProPipeline?.prefill(id, r.title); location.hash = r.view; });
         } }, el('span', { text: TYPE_LABEL[r.type] || r.type }), el('div', {}, el('b', { text: r.title }), el('small', { text: r.detail || '' }))));
         const answer = results.querySelector('.finder-answer');
         if (answer) results.insertBefore(box, answer); else results.append(box);

@@ -36,6 +36,14 @@ Estimated remaining work: TR-72 part 2 6–10 h, TR-73 15 min after the owner's 
 
 ## 3. Next exact action (TR-72 part 2)
 
+**Stage 1 done (25 Nov, D-072):** page scripts load on first open. `saas/workspace-lazy.js` holds the page → group
+table; 39 scripts in `saas/workspace.html` are `<script type="oprun/lazy" data-lazy="<group>" src="…">`; `showView` in
+`saas/app.js` loads a page's group before showing it; pages not in the table load every group; the server bundles each
+group (`src/asset-bundles.js`). Test: `scripts/workspace-lazy.test.mjs`. Lighthouse workspace now 59–74 (was 35–48).
+**Stage 2 (next):** the blocking head scripts (`workspace-nav.js`, `modal-queue.js`, `ds/platform.js`), the 90 KB
+stylesheet, layout shift on Enquiries/Inbox/Money, and the first-run dialogs that become the largest paint. The notes
+below are the original plan.
+
 Make each Business Workspace page load its code when the page is first opened, so the first load runs only the
 navigation, the Command Centre and shared code. Facts found:
 - `saas/workspace.html` has 85 scripts; 78 are deferred self-contained IIFEs (see `selfContained()` in

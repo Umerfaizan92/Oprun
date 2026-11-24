@@ -2775,3 +2775,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Ask the owner for the output of npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite (Render Shell, live service); then TR-72 part 2 per docs/transformation/HANDOVER_FOR_CHATGPT.md
+
+## CP-199 2026-11-24T23:04:29+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: TR-72 part 2 draft: saas/workspace-lazy.js loader, 39 page scripts marked type=oprun/lazy in groups, showView loads first, per-group bundles in src/asset-bundles.js, ops search loads pipeline first; test:ui 38/38
+- Incomplete steps: visual compare business group, other UI suites, npm test, Lighthouse, docs, commit
+- Files modified (uncommitted at checkpoint): qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-ops.js; saas/workspace.html; scripts/report-lighthouse.mjs; scripts/test-ui.mjs; src/asset-bundles.js; saas/workspace-lazy.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: b941cad (TR-73 (part 1): restore drill on a realistic database passed, report; handover updated); 66 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261124T230429Z (06a3663)
+- Known errors: none
+- Next exact action: UI_CHROMIUM_PATH=/usr/bin/google-chrome npm run test:visual -- --group=business (baselines made on b941cad before the change)
+
+## CP-200 2026-11-24T23:33:43+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 1 of TR-72 part 2 verified: page scripts load on first open; npm test 73/73, test:ui 38, mobile-workspace 310, navigation 638, comms, connections, website wizard, media studio, reel maker, AI video, onboarding, redesign suites passed; visual business group 348 screens 0 problems against baselines from b941cad; Lighthouse workspace 59-74 (was 35-48)
+- Incomplete steps: Stage 2: render-blocking head scripts (workspace-nav, modal-queue, ds/platform), CSS 90 KB, CLS on Enquiries/Inbox/Money, first-run dialogs as LCP; then full Lighthouse report and docs
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-ops.js; saas/workspace.html; scripts/report-lighthouse.mjs; scripts/test-ui.mjs; src/asset-bundles.js; saas/workspace-lazy.js; scripts/workspace-lazy.test.mjs
+- Tests executed: npm test; test:ui; test:mobile-workspace-ui; test:navigation-ui; feature UI suites; test:visual --group=business
+- Test results: 73/73; 38; 310; 638; all passed; 348 screens 0 problems
+- Git branch: claude/transformation-phase1
+- Commit: b941cad (TR-73 (part 1): restore drill on a realistic database passed, report; handover updated); 66 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inspect why saas/workspace-nav.js, modal-queue.js and ds/platform.js load blocking in workspace.html head; try defer with the visual suite as the check

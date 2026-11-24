@@ -67,6 +67,20 @@ export function createAssetBundler({ root, enabled = process.env.ASSET_BUNDLES !
     const edits = [];
     if (css.length > 1) { const href = await build(css.map((t) => localFile(pageFile, ATTR(t.text, 'href'))), 'css'); edits.push({ at: css[0], text: `<link rel="stylesheet" href="${href}" data-bundle="${css.length} stylesheets">` }, ...css.slice(1).map((t) => ({ at: t, text: '' }))); }
     for (const g of groups.filter((x) => x.length > 1)) { const src = await build(g.map((t) => t.file), 'js'); edits.push({ at: g[0], text: `<script defer src="${src}" data-bundle="${g.length} scripts"></script>` }, ...g.slice(1).map((t) => ({ at: t, text: '' }))); }
+    // TR-72: page scripts loaded on first open (type="oprun/lazy", data-lazy="<group>") become one file per group,
+    // when every script of the group is self-contained; the loader (saas/workspace-lazy.js) then fetches one file.
+    const lazy = new Map();
+    for (const t of tags.filter((x) => /^<script/i.test(x.text) && ATTR(x.text, 'type') === 'oprun/lazy')) {
+      const g = ATTR(t.text, 'data-lazy'), src = ATTR(t.text, 'src'), file = src && localFile(pageFile, src);
+      if (!g) continue;
+      if (!lazy.has(g)) lazy.set(g, []);
+      lazy.get(g).push({ ...t, file });
+    }
+    for (const [g, list] of lazy) {
+      if (list.length < 2 || !list.every((t) => t.file && selfContained(fs.readFileSync(path.join(root, t.file), 'utf8')))) continue;
+      const src = await build(list.map((t) => t.file), 'js');
+      edits.push({ at: list[0], text: `<script type="oprun/lazy" data-lazy="${g}" src="${src}" data-bundle="${list.length} scripts"></script>` }, ...list.slice(1).map((t) => ({ at: t, text: '' })));
+    }
     let outHtml = html;
     for (const e of edits.sort((a, b) => b.at.start - a.at.start)) outHtml = outHtml.slice(0, e.at.start) + e.text + outHtml.slice(e.at.end);
     return outHtml;

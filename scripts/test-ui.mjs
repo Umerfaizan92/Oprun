@@ -87,7 +87,8 @@ try{
     const views=await page.evaluate(()=>window.SuperProNav?.DOMAINS.flatMap(d=>d.items.filter(i=>!i.roles||i.roles.includes('owner')))||[]);
     // Source-driven canonical routes, including the views whose data starts empty.
     const hashes=views.length?views.map(v=>v.path):['today/home','today/approvals','customers/list','customers/stock','customers/inbox','customers/jobs','people/workers','people/staff','people/hiring','marketing/studio','marketing/growth','marketing/search','marketing/connections','money/ledger','money/billing','setup/settings','setup/import','setup/print','setup/trust','setup/help','setup/manual'];
-    for(const hash of hashes){await page.evaluate(h=>{location.hash=h},hash);await page.waitForTimeout(80);assert.equal(await page.locator('#workspace .view:visible').count(),1,hash);const found=views.find(v=>v.path===hash),expected=found?.merged||found?.view; // TR-60: a merged address opens the page it became
+    for(const hash of hashes){const found=views.find(v=>v.path===hash),expected=found?.merged||found?.view;await page.evaluate(h=>{location.hash=h},hash);await page.waitForTimeout(80);if(expected)await page.locator('#'+expected+'-view').waitFor({state:'visible',timeout:8000}).catch(()=>{}); // TR-72: a page's code loads on first open
+    assert.equal(await page.locator('#workspace .view:visible').count(),1,hash); // TR-60: a merged address opens the page it became
     if(expected)assert.ok(await page.locator('#'+expected+'-view').isVisible(),hash)}
     console.log('Business routes checked:',hashes.length);
   });
