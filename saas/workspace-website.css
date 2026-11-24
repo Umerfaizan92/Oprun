@@ -19,3 +19,55 @@
 .ws-body .rx-checks{list-style:none;padding:0}
 .ws-body .rx-checks li{margin:4px 0}
 @media (max-width:600px){.ws-table{font-size:.85rem}.ws-tabs .portal-button{flex:1 1 45%}}
+/* W-03 (T-149) Build wizard: one step at a time, progress, summary of what will be created. Phone first. */
+.wz{display:grid;gap:12px}
+.wz-progress{margin:0;font-weight:700}
+.wz-bar{width:100%;height:6px;accent-color:var(--sp-gold-400,#e6b455)}
+.wz-steps ol{margin:0}
+.wz-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+.wz-card{margin:0}
+.wz-card>h2{margin:0;font-size:1.15rem}
+.wz-card>h2:focus{outline:none}
+.wz-summary{padding:14px;border:1px solid var(--rf-edge,rgba(237,241,248,.09));border-radius:var(--rf-radius-sm,12px);font-size:.875rem}
+.wz-summary h3{margin:0 0 6px;font-size:.95rem}
+.wz-summary ul{margin:6px 0;padding-left:18px}
+.wz-choices,.wz-styles,.wz-fieldset{border:0;margin:0;padding:0;display:grid;gap:10px}
+.wz-fieldset legend{font-weight:700;margin-bottom:6px}
+.wz-choice,.wz-style{display:flex;align-items:center;gap:12px;min-height:56px;padding:12px 14px;border:1px solid var(--rf-edge,rgba(237,241,248,.09));border-radius:var(--rf-radius-sm,12px);cursor:pointer}
+.wz-choice:has(input:checked),.wz-style:has(input:checked){border-color:var(--rf-edge-strong);background:var(--sp-gold-soft,transparent)}
+.wz-choice span{display:grid;gap:2px}
+.wz-choice small{color:var(--sp-fg-muted,inherit)}
+.wz-styles{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.wz-swatch{width:28px;height:28px;border-radius:8px;flex:none;border:1px solid rgba(255,255,255,.2)}
+.wz-style-name{font-weight:700}
+.wz-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.wz-row{display:flex;gap:8px;flex-wrap:wrap}
+.wz-row input{flex:1 1 200px;min-width:0}
+.wz-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.wz-chips li{display:inline-flex;align-items:center;gap:4px;padding:2px 2px 2px 12px;border:1px solid var(--rf-edge-strong,rgba(237,241,248,.2));border-radius:999px}
+.wz-chip-x{min-width:44px;min-height:44px;border:0;background:transparent;color:inherit;font-size:1.1rem;cursor:pointer;border-radius:999px}
+.wz-chip-x:focus-visible{outline:3px solid var(--sp-focus,#e6b455);outline-offset:-3px}
+.wz-areas{display:grid;gap:10px}
+.wz-area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;gap:10px;align-items:end}
+.wz-pages{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.wz-page{display:grid;gap:8px;padding:12px;border:1px solid var(--rf-edge,rgba(237,241,248,.09));border-radius:var(--rf-radius-sm,12px)}
+.wz-page-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.wz-tag{font-size:.78rem;padding:2px 8px;border-radius:999px;border:1px solid var(--rf-edge,rgba(237,241,248,.15))}
+.wz-tag.bad{border-color:#f87171}
+.wz-blocks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.wz-blocks li{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.875rem}
+.wz-blocks li span{min-width:0;overflow-wrap:anywhere}
+.wz-removed summary{cursor:pointer;font-size:.85rem}
+.wz-facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.wz-facts dt{font-weight:700}
+.wz-facts dd{margin:0;overflow-wrap:anywhere}
+.wz-results{margin:0;padding-left:18px}
+.wz-results [data-tone=bad]{color:#ff8a8a}
+html[data-theme="light"] .wz-results [data-tone=bad]{color:#b42318}
+@media (max-width:1024px){.wz-layout{grid-template-columns:minmax(0,1fr)}}
+.wz-host,.wz,.wz>*,.wz-layout>*{min-width:0}
+.wz-steps .rx-steps-name{min-width:0}
+@media (max-width:700px){.wz-grid,.wz-area{grid-template-columns:1fr}}
+html body.portal-workspace nav.rx-steps.wz-steps ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}
+html body.portal-workspace nav.rx-steps.wz-steps button{padding:8px}
+@media (max-width:700px){html body.portal-workspace nav.rx-steps.wz-steps .rx-steps-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}html body.portal-workspace nav.rx-steps.wz-steps ol{grid-template-columns:repeat(5,minmax(0,1fr))}html body.portal-workspace nav.rx-steps.wz-steps button{justify-content:center}}

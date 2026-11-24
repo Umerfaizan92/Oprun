@@ -14,8 +14,8 @@ PROGRESS STATE (2026-11-23, brief v2 — [PROMPT_V2_2026-11-23.txt](PROMPT_V2_20
 - [x] Security, compliance, performance covered → [02](02_ARCHITECTURE.md) §4–5, [07](07_SEO_BACKLINKS.md) §4, [00](00_CONTRACT.md) §7
 - [x] MVP scope + implementation plan written → [10](10_IMPLEMENTATION_PLAN.md)
 - [x] Recommended agents, tools, plugins nominated → [09](09_TOOLS.md) (agents table added 23 Nov)
-- Current focus: specification complete; 3 of 20 build items done (W-01, W-09, W-18)
-- Next: W-03/W-04/W-05 behind `website_builder_v2` (T-149, T-150, T-151)
+- Current focus: 5 of 20 build items done (W-01, W-03, W-04, W-09, W-18)
+- Next: W-05 new blocks (T-151), then W-06 cinematic (T-152)
 
 ## Code status (honest, checked in the repository 23 Nov 2026)
 
@@ -23,7 +23,8 @@ PROGRESS STATE (2026-11-23, brief v2 — [PROMPT_V2_2026-11-23.txt](PROMPT_V2_20
 |---|---|---|
 | W-01 one Website section | **Built, live** | T-147; `saas/workspace-website.js`, `src/website/hub.js` |
 | W-02 data | Partly built | `website_domains`, `website_email_setups`, `website_transfers`, `website_redirects`, `website_listings`, `website_link_snapshots`; still to add: generation runs, DNS connections, exports |
-| W-03/W-04 build from Oprun facts | Partly built | `POST /api/saas/website/build` writes draft pages from Oprun facts; full wizard, generation service and metering not yet |
+| W-03 Build wizard (new sites) | **Built** (24 Nov, TR-63), on the working branch | T-149; steps 1–4 and 8–9 work in Website → Build (`saas/workspace-website-wizard.js`, `src/website/wizard.js`); steps 5–7 open the Domain, Business email and Search tabs. State saved per business (`website_wizard`). Switch off with `WEBSITE_BUILDER_V2=0` (default on) |
+| W-04 generation service | **Built** (24 Nov, TR-63) | T-150; `src/website/generate.js`: page plan, one JSON answer per page checked with zod (one retry), unbacked claims removed and listed, FAQ only from owner facts, area pages only with a unique fact, `website_generation_runs`, metered as `usage_events` `website_generation` / `website_generation_section` with a monthly cap (10 / 100) until plan prices are decided |
 | W-09 custom domains | **Built**; switched on only when `CLOUDFLARE_SAAS_*` are set in Render (not confirmed from here) | T-155; `src/website/edge.js` |
 | W-11 email | Partly built | Google/Microsoft/Zoho records + MX/SPF/DMARC checks; automatic writes later |
 | W-12 buy links | Partly built | Spaceship, VentraIP, Cloudflare links; link checker not yet |

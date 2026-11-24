@@ -50,7 +50,7 @@
     const o = await api('/api/saas/website/overview');
     body.replaceChildren();
     if (tab === 'overview') overview(s, body, o);
-    else if (tab === 'build') build(s, body, o);
+    else if (tab === 'build') await build(s, body, o);
     else if (tab === 'domain') domain(s, body, o);
     else if (tab === 'email') email(s, body, o);
     else if (tab === 'growth') await growth(s, body);
@@ -72,9 +72,12 @@
     if (o.audit) body.append(panel('Latest SEO check', el('p', { text: `Score ${o.audit.score}/100 on ${when(o.audit.created_at)}.` }), el('a', { class: 'portal-button', href: '#website/seo-audit', text: 'Open the audit' })));
   }
 
-  function build(s, body, o) {
+  async function build(s, body, o) {
     const f = o.facts;
-    if (o.site) body.append(panel('You already have a website', el('p', { text: `${o.site.name} has ${o.site.pages.length} page(s). Edit, preview and publish them in Pages & editor. Publishing a first version, design changes or new claims asks for approval.` }), el('a', { class: 'portal-button primary', href: '#website/pages', text: 'Open Pages & editor' })));
+    let wizard = null;
+    if (isOwner()) { try { wizard = await api('/api/saas/website/wizard'); } catch { wizard = null; } }
+    const wizardOn = Boolean(wizard?.enabled && wizard.can_generate && window.OprunWebsiteWizard);
+    if (o.site && !wizardOn) body.append(panel('You already have a website', el('p', { text: `${o.site.name} has ${o.site.pages.length} page(s). Edit, preview and publish them in Pages & editor. Publishing a first version, design changes or new claims asks for approval.` }), el('a', { class: 'portal-button primary', href: '#website/pages', text: 'Open Pages & editor' })));
     // ---- A. New website ----
     const name = el('input', { maxlength: '120', value: f.business_name || '', required: true, autocomplete: 'organization' });
     const services = el('textarea', { rows: '3', maxlength: '1200', placeholder: 'One per line, for example:\nAluminium bull bar polishing\nPaint correction' }, (f.services || []).join('\n'));
@@ -95,7 +98,12 @@
       out.replaceChildren(el('p', { text: `Done: ${r.pages.length} draft page(s) created${r.wording === 'ai' ? ' with AI wording from your facts' : ' with plain wording (AI was not available)'}. Check them, then publish.` }), el('a', { class: 'portal-button primary', href: '#website/pages', text: 'Review and publish' }));
       say(s, 'Website drafts created.');
     }); });
-    body.append(panel('A. Build a new website', el('p', { text: 'Oprun writes your pages from your own business details. Nothing goes live until you publish.' }), o.site ? el('p', { class: 'portal-note', text: 'Building is off because you already have a website.' }) : form));
+    // W-03 (T-149): the step-by-step Build wizard replaces the one-form builder when it is switched on (default).
+    if (wizardOn) {
+      const host = el('div', { class: 'wz-host' }, el('p', { class: 'pl-meta', text: 'Loading…' }));
+      body.append(panel('A. Build a new website', el('p', { text: 'Oprun writes your pages from your own business details, one step at a time. Nothing goes live until you publish.' }), host));
+      window.OprunWebsiteWizard.mount(host, { say: (t, bad) => say(s, t, bad), go: (k) => go(k)() }).catch((e) => say(s, e.message, true));
+    } else body.append(panel('A. Build a new website', el('p', { text: 'Oprun writes your pages from your own business details. Nothing goes live until you publish.' }), o.site ? el('p', { class: 'portal-note', text: 'Building is off because you already have a website.' }) : form));
 
     // ---- B. Transfer ----
     const url = el('input', { type: 'url', maxlength: '300', placeholder: 'https://www.yourbusiness.com.au', value: o.website_connection?.url || '' });
@@ -109,11 +117,12 @@
       say(s, 'Website brought in as drafts.');
     }));
     const conn = o.website_connection;
-    body.append(panel('B. Bring in your existing website',
+    const tPanel = panel('B. Bring in your existing website',
       el('p', { text: 'Oprun reads your public pages politely (it follows robots.txt), turns them into editable drafts and keeps every old address working with redirects. It only does this for a website you have proved is yours.' }),
       el('p', { class: 'portal-note', text: conn?.verified ? `Verified: ${conn.hostname}` : 'Step 1: prove you own it in Setup > Connections > Website (add one DNS record). Then come back here.' }),
       conn?.verified ? null : el('a', { class: 'portal-button', href: '#setup/connections', text: 'Open Connections' }),
-      isOwner() ? el('div', { class: 'portal-form' }, field('Your current website', url), el('div', { class: 'pl-actions' }, tBtn), tOut) : el('p', { class: 'portal-note', text: 'Only the owner or an admin can bring a website in.' })));
+      isOwner() ? el('div', { class: 'portal-form' }, field('Your current website', url), el('div', { class: 'pl-actions' }, tBtn), tOut) : el('p', { class: 'portal-note', text: 'Only the owner or an admin can bring a website in.' }));
+    tPanel.id = 'ws-transfer'; body.append(tPanel);
   }
 
   function domain(s, body, o) {

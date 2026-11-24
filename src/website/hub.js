@@ -400,5 +400,5 @@ export function createWebsiteHub({ db, seo, ai = null, edge = null, lookup = cre
     app.get('/api/saas/website/activity', requireSaasUser, can('visibility', 'read'), wrap((req, res) => res.json({ ok: true, activity: activity(O(req)) })));
   }
 
-  return { install, overview, buildNew, transfer, addDomain, checkDomain, removeDomain, refreshHosting, pollHosting, hostSite, redirectFor, emailSetup, emailCheck, emailRecords, listings, saveListing, importLinks, growth, activity, facts };
+  return { STYLES, install, overview, buildNew, transfer, addDomain, checkDomain, removeDomain, refreshHosting, pollHosting, hostSite, redirectFor, emailSetup, emailCheck, emailRecords, listings, saveListing, importLinks, growth, activity, facts };
 }

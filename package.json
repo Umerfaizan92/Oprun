@@ -80,7 +80,8 @@
     "test:ai-video-ui": "node scripts/test-ai-video-ui.mjs",
     "test:reel-maker-ui": "node scripts/test-reel-maker-ui.mjs",
     "test:media-studio-ui": "node scripts/test-media-studio-ui.mjs",
-    "test:onboarding-ui": "node scripts/test-onboarding-interview-ui.mjs"
+    "test:onboarding-ui": "node scripts/test-onboarding-interview-ui.mjs",
+    "test:website-wizard-ui": "node scripts/test-website-wizard-ui.mjs"
   },
   "engines": {
     "node": "22.x"

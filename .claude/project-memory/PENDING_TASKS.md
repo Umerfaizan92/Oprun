@@ -485,14 +485,14 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: `npm test` migration check; no existing row changed
 
 ## T-149 W-03 AI Website: Wizard steps 1–4 and 8–9 for **new** sites, pre-filled from Oprun
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-19
 - Requirement: Wizard steps 1–4 and 8–9 for **new** sites, pre-filled from Oprun (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: A test business with services and areas reaches Review in under 10 minutes
 
 ## T-150 W-04 AI Website: Generation service (`src/website/generate.js`): page plan, per-block JSON, zod validation,
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-19
 - Requirement: Generation service (`src/website/generate.js`): page plan, per-block JSON, zod validation, claim checks, metering `website_generation` (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
 - Files: see docs/ai-website/02_ARCHITECTURE.md

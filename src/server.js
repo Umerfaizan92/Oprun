@@ -57,6 +57,8 @@ import { createReceptionistIntake } from './comms/receptionist-intake.js';
 import { createOutbound } from './comms/outbound.js';
 import { createCustomerLinks } from './customer-links.js';
 import { createWebsiteHub } from './website/hub.js';
+import { createGenerator as createWebsiteGenerator } from './website/generate.js';
+import { createWizard as createWebsiteWizard } from './website/wizard.js';
 import { createEdge, edgeHandler } from './website/edge.js';
 import { createJobLifecycle } from './job-lifecycle.js';
 import { createReceptionistTelnyx } from './comms/receptionist-telnyx.js';
@@ -6396,6 +6398,10 @@ if(siteEdge.ready&&env.NODE_ENV!=='test'){
   setInterval(()=>{websiteHub.pollHosting().catch(e=>console.warn('[WEBSITE]',String(e.message||e).slice(0,160)))},10*60000).unref();
 }
 websiteHub.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
+// W-03/W-04 (T-149/T-150): Build wizard for new sites and the generation service (metered, claim-checked, drafts only).
+const websiteGenerator=createWebsiteGenerator({db,seo:seoService,ai:generateAiText});
+const websiteWizard=createWebsiteWizard({db,hub:websiteHub,seo:seoService,generator:websiteGenerator});
+websiteWizard.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});
 agentRegistry=createAgentRegistry({db,engine:automationEngine,log:(actor,action,section,id)=>platformIdentity.log(actor,action,section,id)});
