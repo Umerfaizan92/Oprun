@@ -2705,3 +2705,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-71: tenant isolation across records, files, jobs, agent contexts, caches and logs; dependency alert
+
+## CP-194 2026-11-24T08:40:37+00:00 T-235 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-235 (COMPLETED)
+- Completed steps: TR-71 security pass
+- Incomplete steps: TR-72 performance budget and Lighthouse report; TR-73 backup restore drill
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: npm test, tenant sweep, ai memory isolation
+- Test results: all pass
+- Git branch: claude/transformation-phase1
+- Commit: 06163f4 (TR-71: security pass - tenant isolation sweep, AI memory isolation, dependency alert); 59 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start TR-72: measure workspace first load and Lighthouse mobile on main pages, save the report

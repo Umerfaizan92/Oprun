@@ -855,3 +855,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: scripts/test-visual.mjs, .github/workflows/visual.yml, src/server.js (test-only API limit)
 - Acceptance: Stored and compared on every PR
 - Evidence: test:visual all groups: 678 screens built, second run compared with 0 problems (public 78, business 348, founder 252; reports in qa/reports/visual-regression-*.json); visual.yml validated; npm test 73/73; onboarding UI 5; secrets scan; commit eaeaaed (recorded 2026-11-24 on claude/transformation-phase1 at eaeaaed)
+
+## T-235 TR-71 Security pass: tenant isolation sweep, AI memory isolation, dependency alert
+- Added: 2026-11-24
+- Requirement: Backlog TR-71: tenant isolation across records, files, jobs, agent contexts, caches and logs; dependency alert fixed
+- Files: scripts/tenant-sweep.test.mjs, scripts/ai-memory-isolation.test.mjs, src/ai-provider-shim.js, src/server.js, package.json
+- Acceptance: All isolation tests pass; zero open high/critical alerts
+- Evidence: tenant-sweep.test.mjs (502 routes, ~4000 requests, 0 leaks, 0 changed rows, 0 server errors); ai-memory-isolation.test.mjs (fails on old code, passes now); full contract suite 490/490; npm test 73/73; npm audit 0 vulnerabilities; integration:test; secrets scan; commit 06163f4 (recorded 2026-11-24 on claude/transformation-phase1 at 06163f4)
