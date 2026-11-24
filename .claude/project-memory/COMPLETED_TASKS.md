@@ -827,3 +827,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-studio.css, saas/workspace-reel-maker.css, scripts/test-media-studio-ui.mjs
 - Acceptance: Existing studio UI tests pass
 - Evidence: test:media-studio-ui (dark + new light accessibility), test:reel-maker-ui, test:ai-video-ui pass; npm test 73/73; secrets scan pass; screenshots before/after compared; commit e5233ad (recorded 2026-11-24 on claude/transformation-phase1 at e5233ad)
+
+## T-233 TR-62 Integrations: one list with live status, test and reconnect
+- Added: 2026-11-24
+- Requirement: Backlog TR-62: Integrations page: one list with live status, test button and reconnect for every provider
+- Files: saas/integration-manager.js, saas/integration-manager.css, scripts/test-connections-ui.mjs
+- Acceptance: Status matches the provider test
+- Evidence: test:connections-ui (list of 12, Test pass then provider rejection shows Needs attention in list and card, dark and light accessibility), test:mobile-workspace-ui, integration:test, npm test 73/73, secrets scan pass; commit 1c633ee (recorded 2026-11-24 on claude/transformation-phase1 at 1c633ee)

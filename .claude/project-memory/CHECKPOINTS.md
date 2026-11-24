@@ -2663,3 +2663,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-62: one Integrations list with live status, test button and reconnect per provider
+
+## CP-191 2026-11-24T03:08:52+00:00 T-233 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-233 (COMPLETED)
+- Completed steps: TR-62 committed and pushed to phase1
+- Incomplete steps: TR-63 website plan (W-03 wizard, W-04 generator); Phase 9 QA
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: connections UI, npm test
+- Test results: all pass
+- Git branch: claude/transformation-phase1
+- Commit: 1c633ee (TR-62: Connections page gets one list with live status, Test and Reconnect); 53 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start TR-63: read docs for W-03/W-04 (T-149/T-150) and build the website wizard
