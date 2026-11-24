@@ -2635,3 +2635,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read Phase 8 in docs/transformation/02_BACKLOG.md and start its first item.
+
+## CP-189 2026-11-24T00:58:39+00:00 T-231 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-231 (COMPLETED)
+- Completed steps: TR-60 merged phone/calls/call-handling into AI Receptionist and Channel inbox into Unified Inbox with channel filters; pushed to claude/transformation-phase1
+- Incomplete steps: TR-61 Media Studio and Reels restyle; TR-62 Integrations live status; TR-63 website plan; Phase 9 QA
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: npm test, test:ui, test:comms-ui, test:mobile-workspace-ui, test:navigation-ui, test:redesign-ui, test:onboarding-ui
+- Test results: all pass
+- Git branch: claude/transformation-phase1
+- Commit: 66efa99 (Record TR-60 evidence); 49 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start TR-61: restyle Media Studio and Reels, keep existing studio UI tests passing
