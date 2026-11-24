@@ -820,3 +820,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/workspace-nav.js, saas/app.js, saas/workspace-receptionist.js, saas/workspace-comms-platform.js(.css), saas/workspace-comms.js, src/comms/service.js, src/comms/routes.js, saas/suggestions.js, saas/workspace-redesign.css, tests, docs/navigation
 - Acceptance: Old routes alias to the new pages; all IDs kept; npm test and browser suites pass
 - Evidence: npm test 73/73; test:ui 38; test:comms-ui 10; test:mobile-workspace-ui 310; test:navigation-ui 638; test:redesign-ui pass; test:onboarding-ui 5; secrets scan and design catalogue pass; commit 7c1a893 (recorded 2026-11-24 on claude/transformation-phase1 at 7c1a893)
+
+## T-232 TR-61 Media Studio and Reels restyled in the refreshed system
+- Added: 2026-11-24
+- Requirement: Backlog TR-61: Media Studio and Reels restyled in the new system (structure from T-202 kept)
+- Files: saas/workspace-studio.css, saas/workspace-reel-maker.css, scripts/test-media-studio-ui.mjs
+- Acceptance: Existing studio UI tests pass
+- Evidence: test:media-studio-ui (dark + new light accessibility), test:reel-maker-ui, test:ai-video-ui pass; npm test 73/73; secrets scan pass; screenshots before/after compared; commit e5233ad (recorded 2026-11-24 on claude/transformation-phase1 at e5233ad)

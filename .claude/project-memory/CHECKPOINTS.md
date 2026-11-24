@@ -2649,3 +2649,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-61: restyle Media Studio and Reels, keep existing studio UI tests passing
+
+## CP-190 2026-11-24T02:09:09+00:00 T-232 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-232 (COMPLETED)
+- Completed steps: TR-61 restyle committed; TR-60 deployed to oprun-test (16e4084 live)
+- Incomplete steps: TR-62 Integrations live status; TR-63 website plan; Phase 9 QA
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: studio UI suites, npm test
+- Test results: all pass
+- Git branch: claude/transformation-phase1
+- Commit: e5233ad (TR-61: Media Studio and Reels restyled in the refreshed system); 51 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start TR-62: one Integrations list with live status, test button and reconnect per provider
