@@ -1,6 +1,6 @@
 # Handover: Oprun transformation (for ChatGPT or any other assistant)
 
-Written 24 Nov 2026 by Claude at the end of a long session. Owner: Faizan (reply in English; he may write in Hindi).
+Written 24 Nov 2026 by Claude at the end of a long session (updated after TR-43 and the TR-73 local drill). Owner: Faizan (reply in English; he may write in Hindi).
 Read this whole file, then `CLAUDE.md` (standing rules), then `.claude/project-memory/SESSION_HANDOVER.md`.
 
 ## 1. Where things are
@@ -17,16 +17,22 @@ Read this whole file, then `CLAUDE.md` (standing rules), then `.claude/project-m
 
 ## 2. Status of the 36-item plan
 
-- **Done (31):** TR-01–03, TR-10–15, TR-20–25, TR-30–33, TR-40–42, TR-50–52, TR-60–63, TR-70, TR-71.
+- **Done (32):** TR-01–03, TR-10–15, TR-20–25, TR-30–33, TR-40–43, TR-50–52, TR-60–63, TR-70, TR-71.
+  TR-43 (24 Nov, after the test-site push): `deploy_to_production`, `reset_or_drop_database`, `make_payment` are
+  restricted actions refused by name; `scripts/agent-hard-limits.test.mjs`.
 - **In progress (1):** TR-72 performance (task T-236). Part 1 done: `src/asset-bundles.js` joins the workspace/console
   stylesheets and self-contained deferred scripts into bundles at request time. Lighthouse mobile (lab):
   public pages 97–100, Operator Console 100, **Business Workspace 35–48 (target 85, not met)**. Report:
   `qa/reports/LIGHTHOUSE.md`.
-- **Not started (4):** TR-43 (agents refuse production deploys, destructive changes and payments without a recorded
-  human approval; the refusal exists for level-4/restricted actions in `src/agents/registry.js` but needs a named
-  test), TR-73 (backup restore drill, record time), TR-80 (owner review on the test site), TR-81 (approved release).
+- **TR-73 restore drill (T-238, in progress):** local drill passed (0.19 s, `qa/reports/RESTORE-DRILL.md`);
+  production backups confirmed running in the live logs. Remaining: the owner runs
+  `npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite` in the live service's Render Shell and
+  shares the output; then record it and complete T-238.
+- **Not started (2):** TR-80 (owner review on the test site), TR-81 (approved release).
+- Note: Render logs on 22 Nov showed builds paused by the workspace build spend limit; the test-site deploy on
+  24 Nov built fine. Check the build spend limit before the release (TR-81).
 
-Estimated remaining work: TR-72 part 2 6–10 h, TR-43 1–2 h, TR-73 1–2 h, TR-81 1–2 h after approval.
+Estimated remaining work: TR-72 part 2 6–10 h, TR-73 15 min after the owner's output, TR-81 1–2 h after approval.
 
 ## 3. Next exact action (TR-72 part 2)
 

@@ -2761,3 +2761,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: TR-73 restore drill (small), then TR-72 part 2 per docs/transformation/HANDOVER_FOR_CHATGPT.md section 3
+
+## CP-198 2026-11-24T12:05:25+00:00 T-238 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-238 (IN_PROGRESS)
+- Completed steps: TR-43 done; TR-73 local drill passed (0.19 s), production backups confirmed in logs
+- Incomplete steps: Owner runs the production restore drill command; TR-72 part 2; TR-80; TR-81
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/RESTORE-DRILL.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 58be02b (Record TR-43 evidence and checkpoint); 65 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Ask the owner for the output of npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite (Render Shell, live service); then TR-72 part 2 per docs/transformation/HANDOVER_FOR_CHATGPT.md

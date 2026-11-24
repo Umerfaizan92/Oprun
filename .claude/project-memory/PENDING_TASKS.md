@@ -596,3 +596,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/asset-bundles.js, scripts/report-lighthouse.mjs, saas/ds/motion.js, qa/reports/LIGHTHOUSE.md
 - Acceptance: Report saved; every main page >= 85
 
+## T-238 TR-73 Backup restore drill before release
+- Status: IN_PROGRESS
+- Added: 2026-11-24
+- Requirement: Backlog TR-73: Backup restore drill before release
+- Files: qa/reports/RESTORE-DRILL.md
+- Acceptance: Restore verified; time recorded
