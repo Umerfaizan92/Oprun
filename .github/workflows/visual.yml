@@ -1,0 +1,75 @@
+name: Visual baseline
+
+# TR-70: every final page at 390, 768 and 1440 px in the dark and the light theme, compared on every pull request.
+# The baseline is built from the target branch in the same run, so it is never stale and nothing large is stored in
+# git. Screens, diffs and the report are kept as an artifact for 30 days. A pull request that changes the look on
+# purpose gets the label "visual-change-approved" after the owner has looked at the diffs.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [public, business, founder]
+    steps:
+      - name: Check out the target branch (baseline)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+      - name: Check out the pull request
+        uses: actions/checkout@v4
+        with:
+          path: head
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install (baseline)
+        working-directory: base
+        run: npm ci
+      - name: Install browser
+        working-directory: base
+        run: npx playwright install chromium
+      - name: Baseline screens from the target branch
+        working-directory: base
+        # The target branch may predate the full-page visual test; then this group starts its baseline here.
+        run: node scripts/test-visual.mjs --update --group=${{ matrix.group }} || true
+      - name: Install (pull request)
+        working-directory: head
+        run: npm ci
+      - name: Compare the pull request with the baseline
+        id: compare
+        working-directory: head
+        run: |
+          mkdir -p qa/visual
+          if [ -d ../base/qa/visual/baseline ]; then cp -r ../base/qa/visual/baseline qa/visual/baseline; fi
+          node scripts/test-visual.mjs --group=${{ matrix.group }}
+        continue-on-error: true
+      - name: Keep screens, diffs and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-${{ matrix.group }}
+          path: |
+            head/qa/visual/current
+            head/qa/visual/diff
+            head/qa/reports/visual-regression-${{ matrix.group }}.json
+          retention-days: 30
+      - name: Fail on an unapproved visual change
+        if: steps.compare.outcome == 'failure' && !contains(github.event.pull_request.labels.*.name, 'visual-change-approved')
+        run: |
+          echo "Pages look different from the target branch, scroll sideways or show browser errors. See the visual-${{ matrix.group }} artifact."
+          exit 1

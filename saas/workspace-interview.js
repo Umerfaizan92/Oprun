@@ -30,9 +30,10 @@
     const body = make('div', { class: 'ob-body' });
     if (step < total) body.append(questionCard(questions[step], step, total));
     else body.append(doneCard());
-    host.replaceChildren(head, progress,
+    // replaceChildren() would print a null as the word "null", so empty parts are left out first.
+    host.replaceChildren(...[head, progress,
       session.answered && step === session.first_unanswered && step < total && !host.dataset.greeted ? make('p', { class: 'ob-resume', role: 'status', text: t('ob.welcomeBack', { n: step + 1 }) }) : null,
-      body, summary());
+      body, summary()].filter(Boolean));
     host.dataset.greeted = '1';
   }
 

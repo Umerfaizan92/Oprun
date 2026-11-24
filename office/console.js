@@ -354,7 +354,7 @@
             o.plan_id + " · " + (o.complimentary ? "Complimentary" : o.status),
           );
           c.append(
-            el("small", "", o.id),
+            el("small", "record-id", o.id),
             button("Account details", async () => {
               const p = await api("/api/operator/subscribers/" + o.id);
               const dlg = el("dialog", "portal-modal");
@@ -428,10 +428,14 @@
             ),
           );
       } else if (route === "audit") {
-        for (const e of d.events)
-          host.append(
-            panel(e.action, e.actor + " · " + e.section + " · " + e.created_at),
-          );
+        // A readable local time in a <time> element (the exact moment stays in its datetime attribute).
+        for (const e of d.events) {
+          const p = panel(e.action, e.actor + " · " + e.section + " · ");
+          const t = el("time", "", new Date(e.created_at).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "medium" }));
+          t.dateTime = e.created_at;
+          p.querySelector("p").append(t);
+          host.append(p);
+        }
       } else if (route === "legacy-inventory") {
         host.append(
           panel(

@@ -27,6 +27,7 @@ try {
   await check('first visit starts at question 1', async () => {
     const { ctx, page, errors } = await open();
     assert.equal(await page.locator('#ob-interview [data-question]').getAttribute('data-question'), 'business');
+    assert.ok(!/(^|\n)\s*(null|undefined)\s*(\n|$)/.test(await page.locator('#ob-interview').innerText()), 'no stray null or undefined text');
     await page.locator('#ob-interview textarea').fill('Residential plumbing and hot water repairs');
     await page.locator('#ob-interview').getByRole('button', { name: 'Save answer' }).click();
     await page.locator('#ob-interview [data-question="services"]').waitFor();

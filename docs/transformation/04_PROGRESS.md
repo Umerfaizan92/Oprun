@@ -122,7 +122,15 @@ Updated: 23 Nov 2026
 - Live oprun.ai screenshots not possible from this workspace (network); needs Claude in Chrome or domain access.
 - 4 production security warnings need Render settings from the owner.
 
+## Done since TR-25 (24 Nov 2026; evidence in .claude/project-memory/COMPLETED_TASKS.md)
+- TR-30…TR-33 Operator Console executive dashboard, team, assignments, merged pages; TR-40…TR-42 AI agents;
+  TR-50…TR-52 guided onboarding interview and proposal; TR-60 one Phone & SMS setup and one inbox; TR-61 Media
+  Studio and Reels restyle; TR-62 Connections list with live status; TR-63 Website Build wizard and generator.
+- TR-70 visual baseline: `npm run test:visual` covers every final page (public, every Business Workspace menu page,
+  every Operator Console page and tab) at 390/768/1440 px in dark and light (113 pages, 678 screens). CI
+  (`.github/workflows/visual.yml`) builds the baseline from the target branch and compares each pull request,
+  keeping screens and diffs as a 30-day artifact; an intended change needs the `visual-change-approved` label.
+
 ## Exact next action
-TR-25 temporary AI suggestions: contextual, dismissible, remembered per user; critical security, billing and
-compliance warnings never auto-hidden. Hold pushes to claude/transformation-staging while the owner
-is testing (each deploy wipes the test site); push to claude/transformation-phase1 only until he says done.
+TR-71 security pass (tenant isolation across records, files, jobs, agent contexts, caches and logs; dependency
+alert). Push to claude/transformation-phase1 only; claude/transformation-staging only when the owner asks.

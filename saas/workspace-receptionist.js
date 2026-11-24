@@ -86,7 +86,7 @@
         if (!window.confirm('Stop sending calls on this number to Oprun? Your number and Telnyx account stay yours; nothing is released.')) return;
         await api('/api/saas/receptionist/telnyx/disconnect', { method: 'POST', body: '{}' }); say(s, 'Disconnected. Calls are no longer sent to Oprun.'); await render();
       }) })));
-      numberCard.append(el('p', { class: 'sx-source', text: `Your receptionist's private webhook address (filled in automatically): ${tx.webhook_url}` }));
+      numberCard.append(el('p', { class: 'sx-source record-id', text: `Your receptionist's private webhook address (filled in automatically): ${tx.webhook_url}` }));
     } else numberCard.append(el('p', { class: 'portal-note', text: 'Only the business owner can connect or change the phone number.' }));
     body.append(numberCard);
 

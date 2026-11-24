@@ -1074,9 +1074,10 @@ app.use(
     // Interactive workspaces poll live status and can make many safe read requests.
     // Keep the broad API limiter high enough for normal operation; sensitive routes
     // (authentication, verification, AI guide and support intake) have their own
-    // substantially stricter dedicated limiters below.
+    // substantially stricter dedicated limiters below. Only the automated visual test (NODE_ENV=test) may raise it,
+    // because it opens hundreds of pages from one address in a few minutes.
     limit:
-      1200,
+      (env.NODE_ENV === 'test' && Number(env.API_RATE_LIMIT_TEST)) || 1200,
 
     standardHeaders:
       true,

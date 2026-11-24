@@ -589,3 +589,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/website/hub.js, saas/workspace-website.js
 - Acceptance: Records shown or written after approval; SPF merged; screen states receive-only; verified by DNS lookup; tests pass
 
+## T-234 TR-70 Visual baseline of every final page, three widths, both themes, compared on every PR
+- Status: NOT_STARTED
+- Added: 2026-11-24
+- Requirement: Backlog TR-70: Visual baseline: screenshots of every final page at three widths, both themes
+- Files: scripts/test-visual.mjs, .github/workflows/visual.yml, src/server.js (test-only API limit)
+- Acceptance: Stored and compared on every PR
