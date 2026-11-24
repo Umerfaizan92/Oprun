@@ -2719,3 +2719,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-72: measure workspace first load and Lighthouse mobile on main pages, save the report
+
+## CP-195 2026-11-24T11:39:18+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Bundling + Lighthouse report: public 97-100, console 100, workspace 35-48
+- Incomplete steps: Load-on-open per workspace page to reach >= 85; then TR-73 restore drill
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 4793f61 (TR-72 (part 1): bundled workspace and console pages, Lighthouse report); 61 commit(s) not on origin/main
+- Recovery snapshot: none (working tree is clean; nothing unfinished to save)
+- Known errors: none
+- Next exact action: Design the per-page loader: map views to modules, keep navigation/Command Centre in the first load, run visual/navigation/UI suites

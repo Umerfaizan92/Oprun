@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 06163f4 (TR-71: security pass - tenant isolation sweep, AI memory isolation, dependency alert)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-235 (COMPLETED)
-LAST COMPLETED STEP: TR-71 security pass
-FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
-TESTS PASSED: npm test, tenant sweep, ai memory isolation all pass
+CURRENT TASK: T-236 (IN_PROGRESS)
+LAST COMPLETED STEP: Bundling + Lighthouse report: public 97-100, console 100, workspace 35-48
+FILES MODIFIED: none
+TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 2 file(s)
+UNCOMMITTED CHANGES: none
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Start TR-72: measure workspace first load and Lighthouse mobile on main pages, save the report
+NEXT EXACT ACTION: Design the per-page loader: map views to modules, keep navigation/Command Centre in the first load, run visual/navigation/UI suites
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-194 at 2026-11-24T08:40:37+00:00
+LAST CHECKPOINT: CP-195 at 2026-11-24T11:39:18+00:00
 <!-- handover:end -->
 
 ## Notes
