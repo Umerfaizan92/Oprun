@@ -2677,3 +2677,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start TR-63: read docs for W-03/W-04 (T-149/T-150) and build the website wizard
+
+## CP-192 2026-11-24T04:06:03+00:00 T-149 COMPLETED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-149 (COMPLETED)
+- Completed steps: TR-63 W-03 wizard and W-04 generation built and pushed to phase1
+- Incomplete steps: W-05 new blocks (T-151); Phase 9 QA; owner: plan prices for website generation
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: npm test, wizard UI, test:ui, mobile workspace
+- Test results: all pass
+- Git branch: claude/transformation-phase1
+- Commit: 71d7760 (TR-63: Website Build wizard (W-03) and generation service (W-04)); 55 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start Phase 9 QA or W-05 (T-151) per owner

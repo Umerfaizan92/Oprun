@@ -834,3 +834,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/integration-manager.js, saas/integration-manager.css, scripts/test-connections-ui.mjs
 - Acceptance: Status matches the provider test
 - Evidence: test:connections-ui (list of 12, Test pass then provider rejection shows Needs attention in list and card, dark and light accessibility), test:mobile-workspace-ui, integration:test, npm test 73/73, secrets scan pass; commit 1c633ee (recorded 2026-11-24 on claude/transformation-phase1 at 1c633ee)
+
+## T-150 W-04 AI Website: Generation service (`src/website/generate.js`): page plan, per-block JSON, zod validation,
+- Added: 2026-11-19
+- Requirement: Generation service (`src/website/generate.js`): page plan, per-block JSON, zod validation, claim checks, metering `website_generation` (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Unit tests: no invented facts with empty inputs; invalid JSON retried once; usage counted
+- Evidence: scripts/website-generate.test.mjs 5/5 (no invented facts with empty inputs, invalid JSON retried once, usage counted and capped, section rewrite metered); npm test 73/73; commit 71d7760 (recorded 2026-11-24 on claude/transformation-phase1 at 71d7760)
+
+## T-149 W-03 AI Website: Wizard steps 1–4 and 8–9 for **new** sites, pre-filled from Oprun
+- Added: 2026-11-19
+- Requirement: Wizard steps 1–4 and 8–9 for **new** sites, pre-filled from Oprun (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: A test business with services and areas reaches Review in under 10 minutes
+- Evidence: test:website-wizard-ui 2/2 (business with services and areas reaches Review well under 10 minutes; resume; phone fit; axe dark and light; first release waits for approval); website-wizard.test.mjs; test:ui 38; test:mobile-workspace-ui 310; commit 71d7760 (recorded 2026-11-24 on claude/transformation-phase1 at 71d7760)
