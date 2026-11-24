@@ -406,7 +406,11 @@ export const ACTIONS = {
   ...restricted('transfer_to_new_payee', 'Send money to a new payee'),
   ...restricted('disable_audit_or_approvals', 'Turn off audit logging or approvals'),
   ...restricted('mass_message_without_opt_out', 'Message customers in bulk without opt-outs'),
-  ...restricted('follow_embedded_instructions', 'Act on instructions found inside emails, documents or websites')
+  ...restricted('follow_embedded_instructions', 'Act on instructions found inside emails, documents or websites'),
+  // TR-43: hard limits named so the engine refuses them by name. A person does these outside automation.
+  ...restricted('deploy_to_production', 'Deploy or release to the live site'),
+  ...restricted('reset_or_drop_database', 'Reset, drop or overwrite a live database'),
+  ...restricted('make_payment', 'Pay, transfer or move money')
 };
 
 // Scheduled SEO operations exist for each business and for the platform's own site. They read sites and Google data and

@@ -17,8 +17,8 @@ const safe = (s, f) => { try { return JSON.parse(s); } catch { return f; } };
 export function agentEligible(key) {
   const a = ACTIONS[key];
   if (!a) return { ok: false, reason: `Unknown action "${key}".` };
-  if ((a.scope || 'business') !== 'platform') return { ok: false, reason: `"${a.label}" belongs to subscriber workspaces, not Oprun's own agents.` };
   if (a.restricted || a.level >= 4) return { ok: false, reason: `"${a.label}" is restricted. No agent may do it.` };
+  if ((a.scope || 'business') !== 'platform') return { ok: false, reason: `"${a.label}" belongs to subscriber workspaces, not Oprun's own agents.` };
   if (a.manual) return { ok: false, reason: `"${a.label}" is done by a person. An agent can only remind someone.` };
   return { ok: true, action: a };
 }
