@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 06163f4 (TR-71: security pass - tenant isolation sweep, AI memory isolation, dependency alert)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Bundling + Lighthouse report: public 97-100, console 100, workspace 35-48
-FILES MODIFIED: none
+LAST COMPLETED STEP: test site live on c2a7cb2
+FILES MODIFIED: SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: none
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Design the per-page loader: map views to modules, keep navigation/Command Centre in the first load, run visual/navigation/UI suites
+NEXT EXACT ACTION: Read docs/transformation/HANDOVER_FOR_CHATGPT.md section 3 and start TR-43 or TR-72 part 2
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-195 at 2026-11-24T11:39:18+00:00
+LAST CHECKPOINT: CP-196 at 2026-11-24T12:02:02+00:00
 <!-- handover:end -->
 
 ## Notes

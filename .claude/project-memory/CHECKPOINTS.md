@@ -2733,3 +2733,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: none (working tree is clean; nothing unfinished to save)
 - Known errors: none
 - Next exact action: Design the per-page loader: map views to modules, keep navigation/Command Centre in the first load, run visual/navigation/UI suites
+
+## CP-196 2026-11-24T12:02:02+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Handover for ChatGPT written (docs/transformation/HANDOVER_FOR_CHATGPT.md); test site live on c2a7cb2
+- Incomplete steps: TR-72 part 2 load-on-open; TR-43; TR-73; TR-80 owner review; TR-81 release
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: c2a7cb2 (Checkpoint TR-72 part 1); 62 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read docs/transformation/HANDOVER_FOR_CHATGPT.md section 3 and start TR-43 or TR-72 part 2

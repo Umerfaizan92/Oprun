@@ -1,0 +1,75 @@
+# Handover: Oprun transformation (for ChatGPT or any other assistant)
+
+Written 24 Nov 2026 by Claude at the end of a long session. Owner: Faizan (reply in English; he may write in Hindi).
+Read this whole file, then `CLAUDE.md` (standing rules), then `.claude/project-memory/SESSION_HANDOVER.md`.
+
+## 1. Where things are
+
+| Item | Value |
+|---|---|
+| Repository | GitHub `Umerfaizan92/Oprun` |
+| Working branch (all new work) | `claude/transformation-phase1` (latest commits are here) |
+| Test site branch | `claude/transformation-staging` → Render service **oprun-test** `srv-dc1keajl550s73eolqk0`, https://oprun-test.onrender.com (auto-deploys; every deploy wipes its temporary test data) |
+| Live site | Render `srv-dbuq98ojo6nc73aro66g` (oprun.ai), branch `main`. **Do not merge to main or deploy production without the owner's written approval.** |
+| Test site state | Commit `c2a7cb2` live since 24 Nov 11:42 UTC; owner is testing it. Do not push to the staging branch until he asks |
+| Plan | `docs/transformation/02_BACKLOG.md` (36 items), progress `docs/transformation/04_PROGRESS.md` |
+| Task register | `.claude/project-memory/` (PENDING_TASKS, COMPLETED_TASKS with evidence, DECISIONS, ERROR_LOG, CHECKPOINTS) |
+
+## 2. Status of the 36-item plan
+
+- **Done (31):** TR-01–03, TR-10–15, TR-20–25, TR-30–33, TR-40–42, TR-50–52, TR-60–63, TR-70, TR-71.
+- **In progress (1):** TR-72 performance (task T-236). Part 1 done: `src/asset-bundles.js` joins the workspace/console
+  stylesheets and self-contained deferred scripts into bundles at request time. Lighthouse mobile (lab):
+  public pages 97–100, Operator Console 100, **Business Workspace 35–48 (target 85, not met)**. Report:
+  `qa/reports/LIGHTHOUSE.md`.
+- **Not started (4):** TR-43 (agents refuse production deploys, destructive changes and payments without a recorded
+  human approval; the refusal exists for level-4/restricted actions in `src/agents/registry.js` but needs a named
+  test), TR-73 (backup restore drill, record time), TR-80 (owner review on the test site), TR-81 (approved release).
+
+Estimated remaining work: TR-72 part 2 6–10 h, TR-43 1–2 h, TR-73 1–2 h, TR-81 1–2 h after approval.
+
+## 3. Next exact action (TR-72 part 2)
+
+Make each Business Workspace page load its code when the page is first opened, so the first load runs only the
+navigation, the Command Centre and shared code. Facts found:
+- `saas/workspace.html` has 85 scripts; 78 are deferred self-contained IIFEs (see `selfContained()` in
+  `src/asset-bundles.js`). `app.js`, `ai-operations.js` (top-level declarations) and `workspace-locale.js` (module)
+  must stay as they are.
+- Router: `saas/app.js` `showView(name)` hides all `.view` sections and shows `#<name>-view`, then dispatches
+  `gds:viewchange`. Many modules create their own `#<view>-view` section at load and render on `gds:viewchange`.
+- Navigation and route data: `saas/workspace-nav.js` (`DOMAINS`, `resolve`, `MERGED`, `pathFor`).
+- Suggested design: a view → script map; scripts for other views get `data-lazy-view="…"` and are not loaded at
+  start; `showView` loads missing scripts for the view first, then shows it and dispatches `gds:viewchange`.
+  Keep every route, element ID and button working.
+- Safety net (all must pass): `npm test`, `npm run test:ui`, `test:mobile-workspace-ui`, `test:navigation-ui`,
+  `test:comms-ui`, `test:connections-ui`, `test:website-wizard-ui`, and `npm run test:visual` (678 screenshots;
+  baselines are made locally with `npm run test:visual:update` on the commit before the change, then compared).
+- Measure with `npm run report:lighthouse` (needs `npm i --prefix ~/.cache/oprun-lighthouse lighthouse@12
+  chrome-launcher puppeteer-core`, and `UI_CHROMIUM_PATH=/usr/bin/google-chrome` in this kind of container).
+
+## 4. How to work in this repo (short)
+
+- Browser tests need `UI_CHROMIUM_PATH=/usr/bin/google-chrome` in the sandbox.
+- After CSS changes: `node scripts/build-design-catalogue.mjs`; after `saas/ds/*` edits: `npm run build:ds`.
+- After navigation/console changes: `npm run navigation:inventory`.
+- Before each commit: `npm run manifest:update && npm run verify:manifest`, `npm run security:secrets`,
+  `node scripts/memory/validate.mjs`.
+- Register work with `node scripts/memory/task.mjs add|status|complete|decision` (the `complete` evidence text must
+  not contain words like "failed"/"failing").
+- Checkpoint: `npm run memory:checkpoint -- --task T-xxx --status … --done … --todo … --next … [--snapshot]`.
+- Commits end with the session's attribution lines; push only to `claude/transformation-phase1` unless the owner
+  asks for the test site.
+
+## 5. Owner inputs still open
+
+1. Render settings on the live service: `OPERATOR_TOTP_SECRET`, `SESSION_MAX_AGE_DAYS=30`, `STRICT_PASSWORD_MATCH=1`.
+2. Decision on the old "Oprun" Render service and its disk (~US$9.50/month).
+3. Pricing for AI website generation (current cap: 10 site generations and 100 section rewrites per business per month).
+4. Sign-off after testing (TR-80), then approval to release (TR-81).
+
+## 6. Standing rules (from CLAUDE.md, never break)
+
+No destructive changes, database resets, credential rotation, production deploys or infrastructure changes without
+approval. Never expose secrets. Keep every route, button, API and element ID working. Keep `#signin-operator-link`
+on the Business sign-in page. Do not touch the Fleet Parlour website or the `enquiries` legacy table data. No invented
+testimonials. Pages fit phone, iPad and laptop. No looping animation. Never force-push or rewrite history.
