@@ -686,6 +686,35 @@ ${d.parent ? `<p>Adjusts ${esc(d.parent.kind === 'invoice' ? (au ? 'tax invoice'
 ${d.body ? `<p>${esc(d.body)}</p>` : ''}${settings(org).footer_note ? `<p>${esc(settings(org).footer_note)}</p>` : ''}
 ${ein && !draft ? `<p><small>${esc(ein.text)}</small></p>` : ''}<p><small>Amounts in ${esc(L.currency)}. Checked against ruleset ${esc(d.ruleset)}.${d.kind === 'estimate' ? ' An estimate is a guide, not a fixed price.' : ''}</small></p><p class="noprint"><button onclick="print()">Print or save as PDF</button></p></body></html>`;
   }
+  // T-041: email an issued quote, estimate or invoice to the customer. The text below is the document itself
+  // (seller, numbers, lines, totals, due date); a person approves every send, and the Email Centre delivers it.
+  const SENDABLE = ['quote', 'estimate', 'invoice', 'deposit'], SENT_STATES = ['sent', 'issued', 'part_paid', 'overdue', 'paid'];
+  function sendProposal(org, id, message = '') {
+    const d = get(org, id); if (!d || !SENDABLE.includes(d.kind) || !SENT_STATES.includes(d.status)) return null;
+    const to = String(d.buyer?.email || '').trim(); if (!to) return null;
+    const s = d.seller, L = locale(org), $ = moneyOf(org), day = (x) => formatDate(x, L.locale), au = L.country === 'AU';
+    const tx = au ? 'GST' : (s.tax_label || taxRulesFor(L.country).label);
+    const idLine = au ? (s.abn ? `ABN ${formatAbn(s.abn)}` : '') : (s.tax_number ? `${s.tax_id_label || taxRulesFor(L.country).id_label} ${s.tax_number}` : '');
+    const first = String(d.buyer?.name || '').trim().split(/\s+/)[0] || 'there';
+    const lines = d.lines.map((l) => `- ${l.description}: ${l.quantity} x ${$(l.unit_cents)}`);
+    const m = d.money;
+    const body = [`Hi ${first},`, '', String(message || '').trim() || `Here is ${d.kind === 'invoice' || d.kind === 'deposit' ? 'your' : 'our'} ${d.heading.toLowerCase()} ${d.number || ''}.`.replace(/\s+\./, '.'), '',
+      `${d.heading} ${d.number || ''}`.trim(), d.issued_at ? `Issued: ${day(d.issued_at)}` : '', d.due_at ? `Due: ${day(d.due_at)}` : '', d.valid_until ? `Valid until: ${day(d.valid_until)}` : '', '',
+      ...lines, '', s.gst_registered && !d.prices_include_gst ? `${tx}: ${$(d.gst_cents || 0)}` : '', `Total: ${$(d.total_cents)}${s.gst_registered && d.prices_include_gst ? ` (includes ${tx} of ${$(d.gst_cents || 0)})` : ''}`,
+      m && m.paid_cents ? `Paid to date: ${$(Math.min(m.paid_cents, d.total_cents))}` : '', m && m.paid_cents ? `Amount owing: ${$(m.owing_cents)}` : '', '',
+      d.kind === 'estimate' ? 'An estimate is a guide, not a fixed price.' : '', settings(org).footer_note || '', '',
+      s.name, idLine, s.address, [s.email, s.phone].filter(Boolean).join(' ')].filter((x, i, a) => x !== '' || (a[i - 1] !== '' && i > 0)).join('\n').trim();
+    return { document_id: d.id, number: d.number || '', heading: d.heading, to, subject: `${d.heading} ${d.number || ''} from ${s.name}`.replace(/\s+/g, ' ').trim().slice(0, 200), body: body.slice(0, 8000), total_cents: d.total_cents };
+  }
+  function requestSend(org, id, actor, { message = '' } = {}) {
+    const d = doc(org, id); if (!d || !SENDABLE.includes(d.kind)) return E(404, 'Document not found.');
+    if (!SENT_STATES.includes(statusOf(org, d))) return E(409, 'Issue the document before emailing it to the customer.');
+    if (d.status === 'cancelled') return E(409, 'This document is cancelled.');
+    const p = sendProposal(org, id, message); if (!p) return E(409, 'Add an email address to the customer before sending.');
+    const r = startLevel3(org, 'send_document_to_customer', `send:${id}:${Date.now()}`, { document_id: id, message: String(message || '').slice(0, 1000) }, actor);
+    audit(org, actor, 'finance.document_send_requested', d.kind, id, { number: d.number, to: p.to });
+    return { ok: true, run_id: r.id, promise: r.promise, to: p.to };
+  }
   function renderReceipt(org, paymentId) {
     const r = receipts(org).find((x) => x.id === paymentId); if (!r) return null;
     const s = seller(org), L = locale(org), esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -698,5 +727,5 @@ ${ein && !draft ? `<p><small>${esc(ein.text)}</small></p>` : ''}<p><small>Amount
     return { settings: settings(org), seller: seller(org), counts: { quotes_open: by('quote', ['draft', 'approved', 'sent']).length, estimates_open: by('estimate', ['draft', 'approved', 'sent']).length, invoices_draft: by('invoice', ['draft', 'approved']).length, invoices_unpaid: by('invoice', ['issued', 'part_paid', 'overdue']).length, overdue: [...by('invoice', ['overdue']), ...by('deposit', ['overdue'])].length, refunds_waiting: db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE organisation_id=? AND status IN ('pending_approval','awaiting_manual')").get(org).n, credit_notes_waiting: by('credit_note', ['pending_approval']).length, bank_unmatched: db.prepare("SELECT COUNT(*) n FROM fin_bank_lines WHERE organisation_id=? AND status='unmatched'").get(org).n, flags_open: db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n }, aged: aged(org).buckets, ruleset: rulesFor().id };
   }
 
-  return { settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
+  return { settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
 }

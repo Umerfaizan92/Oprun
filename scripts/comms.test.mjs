@@ -453,3 +453,46 @@ test('campaigns and posts: several photos and a video travel with a campaign, ap
   assert.deepEqual(r.json.item.media.map((m) => m.id), [p2, p1]);
   assert.equal((await O('PATCH', `/api/saas/growth/calendar/${item.id}`, { media_ids: [foreign] })).status, 400);
 });
+
+test('inbox messages become enquiries only with the owner rule on, once per conversation, never for spam, marketing replies or ambiguous senders (T-040)', async (t) => {
+  const { owner, O, hook, sql, stop } = await setup(); t.after(stop);
+  const enquiries = () => sql("SELECT COUNT(*) n FROM tenant_documents WHERE kind='enquiry'")[0].n;
+  // Rule off (the default): nothing is created, the manual button stays the only way.
+  await hook('message.received', sms('+61411111111', 'Hi, how much for a quote to fix a blocked drain in Fremantle?'));
+  assert.equal(enquiries(), 0, 'rule off: no automatic enquiry');
+  const rules = (await O('GET', '/api/saas/automation/engine')).json.rules || [];
+  assert.ok(rules.some((r) => r.key === 'inbox_enquiries' && r.enabled === false), 'the rule is listed and off by default');
+  assert.equal((await O('PUT', '/api/saas/automation/rules/inbox_enquiries', { enabled: true })).status, 200);
+  // A new sender asking for a quote: lead plus enquiry, linked to the conversation, owner notified.
+  await hook('message.received', sms('+61422222222', 'Hello, can I get a quote to fix a leaking hot water system in Fremantle this week?'));
+  assert.equal(enquiries(), 1, 'one enquiry created');
+  const e = sql("SELECT d.id,d.channel,d.created_by,c.status,c.source,c.phone FROM tenant_documents d JOIN tenant_customers c ON c.id=d.customer_id WHERE d.kind='enquiry'")[0];
+  assert.equal(e.channel, 'sms'); assert.equal(e.status, 'lead'); assert.equal(e.source, 'inbox'); assert.equal(e.created_by, 'inbox_assistant');
+  const th = sql("SELECT m.enquiry_id,m.customer_id FROM comms_thread_meta m JOIN comms_threads t ON t.id=m.thread_id WHERE t.contact_address='+61422222222'")[0];
+  assert.equal(th.enquiry_id, e.id); assert.ok(th.customer_id);
+  assert.equal(sql("SELECT COUNT(*) n FROM user_notifications WHERE organisation_id=? AND kind='inbox_enquiry'", owner.org)[0].n, 1);
+  // A follow-up in the same conversation does not open a second enquiry.
+  await hook('message.received', sms('+61422222222', 'Also could you quote for a new tap while you are there?'));
+  assert.equal(enquiries(), 1, 'once per conversation');
+  // An existing customer is linked, not duplicated.
+  const cid = crypto.randomUUID(), now = new Date().toISOString();
+  sql("INSERT INTO tenant_customers(id,organisation_id,name,phone,status,source,created_at,updated_at) VALUES (?,?,?,?,'current','manual',?,?)", cid, owner.org, 'Sam Lee', '0433 333 333', now, now);
+  await hook('message.received', sms('+61433333333', 'Can you give me a quote for a blocked toilet tomorrow?'));
+  assert.equal(enquiries(), 2);
+  assert.equal(sql("SELECT customer_id FROM tenant_documents WHERE kind='enquiry' ORDER BY created_at DESC LIMIT 1")[0].customer_id, cid, 'linked to the existing customer');
+  assert.equal(sql("SELECT COUNT(*) n FROM tenant_customers WHERE phone LIKE '%433%333%333%'")[0].n, 1, 'no duplicate customer');
+  // Two customers share a number: left for a person to link.
+  for (const n of ['Pat A', 'Pat B']) sql("INSERT INTO tenant_customers(id,organisation_id,name,phone,status,source,created_at,updated_at) VALUES (?,?,?,?,'current','manual',?,?)", crypto.randomUUID(), owner.org, n, '0444 444 444', now, now);
+  await hook('message.received', sms('+61444444444', 'Please quote for a blocked drain repair.'));
+  assert.equal(enquiries(), 2, 'ambiguous sender: no enquiry');
+  // Spam and plain chat: nothing.
+  await hook('message.received', sms('+61455555555', 'Quote: our SEO services will rank #1, investment opportunity, telegram me'));
+  await hook('message.received', sms('+61466666666', 'Thanks, see you then'));
+  assert.equal(enquiries(), 2, 'spam and chat ignored');
+  // A reply to the business's own marketing: nothing.
+  sql("INSERT INTO comms_campaign_recipients(campaign_id,owner_key,address,name,status,token,sent_at) VALUES (?,?,?,?,'sent',?,?)", crypto.randomUUID(), owner.org, '+61477777777', 'Jo', crypto.randomUUID(), now);
+  await hook('message.received', sms('+61477777777', 'Yes please send me a quote for that offer'));
+  assert.equal(enquiries(), 2, 'marketing reply ignored');
+  // Nothing was written for any other business.
+  assert.equal(sql("SELECT COUNT(*) n FROM tenant_documents WHERE kind='enquiry' AND organisation_id<>?", owner.org)[0].n, 0);
+});

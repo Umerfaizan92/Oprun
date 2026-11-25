@@ -55,6 +55,12 @@ export function installFinanceRoutes(app, { db, finance, platformFinance, requir
     if (!r.ok) return send(res, r); await r.promise;
     res.status(201).json({ ok: true, credit_note_id: r.credit_note_id, run_id: r.run_id, message: 'Sent for approval. The adjustment note is issued only when an authorised person approves it.' });
   }));
+  app.post('/api/saas/finance/documents/:id/send', limiter, ...money, wrap(async (req, res) => {
+    const b = P(z.object({ message: z.string().trim().max(1000).optional() }).strict(), req.body || {});
+    const r = finance.requestSend(org(req), req.params.id, me(req), b);
+    if (!r.ok) return send(res, r); await r.promise;
+    res.status(201).json({ ok: true, run_id: r.run_id, to: r.to, message: `Sent for approval. The email goes to ${r.to} once an authorised person approves it.` });
+  }));
   app.get('/api/saas/finance/documents/:id/print', ...read, wrap((req, res) => { const h = finance.render(org(req), req.params.id); res.set('Cache-Control', 'no-store'); h ? res.type('html').send(h) : res.status(404).type('text').send('Document not found.'); }));
   app.post('/api/saas/finance/jobs/:id/draft-invoice', limiter, ...money, wrap((req, res) => send(res, finance.draftFromJob(org(req), req.params.id, me(req)), 201)));
 

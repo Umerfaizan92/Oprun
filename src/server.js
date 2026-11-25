@@ -3,6 +3,8 @@ import {seedIsolatedPreview} from './preview-seed.js';
 import {installBusinessHub} from './business-hub.js';
 import {installModuleRules} from './module-rules.js';
 import { installPipeline } from './pipeline.js';
+import { installDocumentAttachments } from './document-attachments.js';
+import { createPipelineNotices } from './pipeline-notices.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -4909,6 +4911,9 @@ app.delete('/api/saas/job-media/:id',requireSaasUser,requireSaasRole(...SENIOR_J
   res.json({ok:true});
 });
 
+// T-042: photos, plans and signed acceptance on enquiries, quotes and invoices.
+installDocumentAttachments(app,{db,requireSaasUser,staffAccess,saasAudit,objectStorage,uploadRoot,env});
+
 app.get('/api/admin/jobs/:jobId/media/:mediaId', requireAdmin, (req,res)=>{const item=db.prepare(`SELECT * FROM job_media WHERE id=? AND booking_id=?`).get(req.params.mediaId,req.params.jobId);if(!item)return res.status(404).json({ok:false,error:'Media not found'});const absolute=path.resolve(uploadRoot,item.relative_path);if(!absolute.startsWith(path.resolve(uploadRoot)+path.sep)||!fs.existsSync(absolute))return res.status(404).json({ok:false,error:'Stored file not found'});res.type(item.mime_type);res.setHeader('Content-Disposition',`inline; filename="${path.basename(item.original_name).replace(/["\r\n]/g,'')}"`);res.sendFile(absolute)});
 
 app.post('/api/admin/jobs/:id/consents', requireAdmin, (req,res)=>{const parsed=z.object({consent_type:z.enum(['invoice_delivery','marketing_media','review_request']),granted:z.boolean(),evidence:z.string().trim().min(3).max(5000)}).safeParse(req.body);if(!parsed.success)return res.status(400).json({ok:false,error:'Consent type, decision and evidence are required.'});const booking=db.prepare(`SELECT * FROM bookings WHERE id=?`).get(req.params.id);if(!booking)return res.status(404).json({ok:false,error:'Job not found'});const now=new Date().toISOString(),id=crypto.randomUUID();db.prepare(`INSERT INTO job_consents (id,booking_id,customer_id,consent_type,granted,evidence,granted_at,created_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(booking_id,consent_type) DO UPDATE SET granted=excluded.granted,evidence=excluded.evidence,granted_at=excluded.granted_at`).run(id,booking.id,booking.customer_id,parsed.data.consent_type,parsed.data.granted?1:0,parsed.data.evidence,parsed.data.granted?now:null,now);if(parsed.data.consent_type==='marketing_media')db.prepare(`UPDATE job_media SET marketing_approved=? WHERE booking_id=?`).run(parsed.data.granted?1:0,booking.id);res.json({ok:true})});
@@ -6344,6 +6349,10 @@ const automationEngine=createAutomationEngine({db,queue:jobQueue,generateAiText,
     if(/^(1|true|yes)$/i.test(String(env.BACKUP_DISABLED||'')))problems.push('Backups are switched off (BACKUP_DISABLED)');return {problems,facts}}
 }});
 automationEvents.emit=(org,type,payload,opts)=>{try{return automationEngine.emit(org,type,payload,opts)}catch(e){console.warn('[automation] event not processed:',e.message);return []}};
+// T-043: bell notifications for pipeline steps (new enquiry, job ready to invoice, overdue invoice).
+const pipelineNotices=createPipelineNotices({db,notifyRoles:(o,r,opts)=>notifications.notifyRoles(o,r,opts),followUps:o=>subscriberFinance.followUps(o)});
+{const emitBase=automationEvents.emit;automationEvents.emit=(org,type,payload,opts)=>{pipelineNotices.onEvent(org,type,payload);return emitBase(org,type,payload,opts)};}
+{const noticeEvery=Number(env.PIPELINE_NOTICE_INTERVAL_MS)||6*3600000;if(process.env.NODE_ENV!=='test'||env.PIPELINE_NOTICE_INTERVAL_MS){const runOverdue=()=>pipelineNotices.overdueSweep().catch(e=>console.warn('[pipeline] overdue check failed:',e.message));setTimeout(runOverdue,Math.min(noticeEvery,120000)).unref?.();setInterval(runOverdue,noticeEvery).unref?.();}}
 seoEngineRef.current=automationEngine;
 commsEngineRef.current=automationEngine;
 financeEngineRef.current=automationEngine;

@@ -79,7 +79,24 @@ export function createCommsService({ db, env = {}, fetchImpl = globalThis.fetch,
     const a = analyse(m.organisation_id, m.thread_id); if (!a) return;
     if (a.category === 'unsubscribe' && ['sms', 'whatsapp', 'email'].includes(m.channel)) { suppress(m.organisation_id, m.channel === 'email' ? 'email' : 'sms', m.contact_address, m.channel === 'email' ? 'unsubscribe_reply' : 'stop_reply', 'inbound message', null); db.prepare("UPDATE comms_threads SET status='closed' WHERE id=?").run(m.thread_id); }
     if (a.escalation.level === 'urgent' || a.escalation.level === 'high') notify(m.organisation_id, { kind: 'comms_escalation', title: a.escalation.level === 'urgent' ? 'Urgent message' : 'Message needs a personal reply', body: `${m.contact_name || m.contact_address}: ${a.summary}`, link: '#communications/inbox', urgent: a.escalation.level === 'urgent', dedupe: `esc:${m.thread_id}:${a.escalation.level}` });
+    autoEnquiry(m, a);
     emit(m.organisation_id, 'inbox.message', { thread_id: m.thread_id, message_id: m.id }, { key: m.id });
+  }
+  // T-040: with the owner's "Enquiries from new messages" rule on, a clear work request becomes a lead and an enquiry,
+  // once per conversation. Website forms and calls already create their own enquiries; spam, marketing replies and
+  // conversations matching more than one customer are left for a person to link.
+  const AUTO_ENQUIRY_CHANNELS = ['email', 'sms', 'whatsapp', 'facebook', 'instagram', 'tiktok', 'x', 'snapchat', 'social'];
+  function autoEnquiry(m, a) {
+    try {
+      if (!['enquiry', 'quote', 'booking'].includes(a.category) || a.enquiry_id || a.folder !== 'inbox' || a.customers_matched > 1) return null;
+      if (!AUTO_ENQUIRY_CHANNELS.includes(m.channel) || m.kind === 'call_log') return null;
+      if (!db.prepare("SELECT enabled FROM automation_rules WHERE organisation_id=? AND rule_key='inbox_enquiries'").get(m.organisation_id)?.enabled) return null;
+      if (db.prepare('SELECT campaign_id FROM comms_thread_meta WHERE thread_id=? AND organisation_id=?').get(m.thread_id, m.organisation_id)?.campaign_id) return null;
+      const r = link(m.organisation_id, m.thread_id, { create_customer: a.customer_id ? undefined : {}, create_enquiry: {} }, 'inbox_assistant');
+      if (!r?.ok || !r.enquiry_id) return null;
+      notify(m.organisation_id, { kind: 'inbox_enquiry', title: 'New enquiry from a message', body: `${m.contact_name || m.contact_address}: ${String(a.summary || m.body || '').slice(0, 120)}`, link: '#work/enquiries' });
+      return r;
+    } catch (e) { console.error('[comms] automatic enquiry failed', e?.message); return null; }
   }
 
   // ---------------- unified inbox ----------------

@@ -41,3 +41,14 @@ So the latest Litestream copy in S3 (path `oprun-ai/db`) restores in **4.4 secon
 rows verifies, and its row counts match the live database. Restore time for a full recovery is therefore seconds plus
 the time to redeploy the service. A first attempt with the default path `/var/data/super-pro.sqlite`
 could not open that file, because the live database is `/var/data/oprun-ai.sqlite` (E-058); nothing was changed.
+
+## Recording drills in the app (T-045, 25 Nov 2026)
+
+Add `--record` to store the result so Founder Console > Platform overview > Storage & backups shows when the drill
+last ran and whether it passed:
+
+    npm run backup:restore-drill -- --compare /var/data/oprun-ai.sqlite --record
+
+`--record` adds one row to `reliability_restore_tests` (trigger `litestream_drill`) in the live database. That single
+insert is the only write; a failed drill is recorded as failed with its reason. The tab also lists the scheduled
+snapshot restore tests already stored there.

@@ -174,3 +174,50 @@ test('pipeline: the older booking route also creates the job, and staff permissi
   r = await s.call('GET', '/api/saas/pipeline/overview');
   assert.equal(r.status, 401, 'signed-out requests are refused');
 });
+
+test('pipeline notifications: new enquiry, job ready to invoice and overdue invoice, once each, never to the person who did it (T-043)', async (t) => {
+  const s = await startServer({ PIPELINE_NOTICE_INTERVAL_MS: '300' });
+  t.after(() => s.stop());
+  const owner = await seedOwner(s, { business: 'Notice Plumbing Pty Ltd' });
+  const admin = addMember(s, owner.org, 'admin', 'Ada Admin');
+  const O = (method, url, body) => s.call(method, url, { cookie: owner.cookie, body });
+  const A = (method, url, body) => s.call(method, url, { cookie: admin.cookie, body });
+  const q = (sql, ...a) => { const d = new Database(s.dbPath); try { return d.prepare(sql).all(...a); } finally { d.close(); } };
+  const notes = (kind, uid) => q('SELECT title FROM user_notifications WHERE organisation_id=? AND kind=?' + (uid ? ' AND user_id=?' : ''), owner.org, kind, ...(uid ? [uid] : []));
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ownerId = q("SELECT user_id FROM memberships WHERE organisation_id=? AND role='owner'", owner.org)[0].user_id;
+
+  // The admin logs an enquiry: the owner hears about it, the admin does not.
+  let r = await A('POST', '/api/saas/pipeline/enquiries', { title: 'Burst pipe in laundry', channel: 'phone', customer: { name: 'Jo Park', phone: '0400 123 456', email: 'jo@example.test' } });
+  assert.equal(r.status, 201, r.text); const enquiryId = r.json.id;
+  await sleep(100);
+  assert.equal(notes('enquiry_new', ownerId).length, 1); assert.match(notes('enquiry_new', ownerId)[0].title, /Burst pipe/);
+  assert.equal(notes('enquiry_new', admin.uid).length, 0, 'not told about their own step');
+  // A website form enquiry already alerts on its own: no second notice.
+  r = await fetch(`${s.base}/api/public/contact/${owner.slug}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Web Visitor', email: 'web@example.test', message: 'Please quote for a new hot water system' }) });
+  assert.ok(r.status < 400, String(r.status)); await sleep(100);
+  assert.equal(notes('enquiry_new').length, 1, 'website enquiries are not notified twice');
+  assert.equal(notes('website_enquiry', ownerId).length, 1);
+
+  // Quote → accepted → booked → completed: the job is ready to invoice.
+  r = await O('POST', `/api/saas/pipeline/enquiries/${enquiryId}/quote`, { amount: 400, gst_applies: true }); assert.equal(r.status, 201, r.text); const quoteId = r.json.id;
+  await O('POST', `/api/saas/business-hub/quote/${quoteId}/approve`, { revision: 1 });
+  await O('POST', `/api/saas/business-hub/quote/${quoteId}/accept`, { revision: 1, evidence: 'Accepted by phone' });
+  r = await O('POST', `/api/saas/pipeline/quotes/${quoteId}/book`, { start_at: new Date(Date.now() + 30 * 3600000).toISOString(), revision: 1 }); assert.equal(r.status, 201, r.text);
+  const jobId = r.json.work_order_id;
+  r = await O('POST', `/api/saas/pipeline/jobs/${jobId}/complete`, {}); assert.ok(r.status < 300, r.text); await sleep(100);
+  assert.equal(notes('job_ready_to_invoice').length, 2, 'owner and admin each told once');
+
+  // Invoice issued, then it goes overdue: one notice each, however often the check runs.
+  r = await O('POST', `/api/saas/pipeline/jobs/${jobId}/invoice`, {}); assert.ok(r.status < 300, r.text);
+  const invoiceId = r.json.id || q("SELECT id FROM tenant_documents WHERE organisation_id=? AND kind='invoice'", owner.org)[0].id;
+  await O('POST', `/api/saas/business-hub/invoice/${invoiceId}/approve`, { revision: 1 });
+  r = await O('POST', `/api/saas/pipeline/invoices/${invoiceId}/issue`, {}); assert.equal(r.status, 200, r.text);
+  await sleep(700);
+  assert.equal(notes('invoice_overdue').length, 0, 'not overdue yet');
+  { const d = new Database(s.dbPath); d.prepare('UPDATE tenant_documents SET due_at=? WHERE id=?').run(new Date(Date.now() - 3 * 86400000).toISOString(), invoiceId); d.close(); }
+  await sleep(1200);
+  assert.equal(notes('invoice_overdue', ownerId).length, 1, 'owner told once');
+  assert.equal(notes('invoice_overdue').length, 2, 'owner and admin, once each');
+  assert.match(notes('invoice_overdue', ownerId)[0].title, /overdue/);
+});

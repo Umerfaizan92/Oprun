@@ -1030,3 +1030,52 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: codex/navigation-hierarchy-20261031; docs/navigation; repository project memory
 - Acceptance: After explicit authorization, push only the reviewed feature branch and create a draft PR using the prepared description; verify branch contents and report the PR URL. No merge or production deploy.
 - Evidence: The navigation work was merged and released 25 Nov. Closed as superseded with the owner's agreement on 26 Nov 2026 (triage docs/transformation/06_TASK_TRIAGE.md section B); nothing deleted. (recorded 2026-11-25 on claude/transformation-phase1 at 5ee973b)
+
+## T-040 Create enquiries from inbox messages and receptionist calls
+- Added: 2026-10-30
+- Requirement: Phase 04 remaining gap (docs/phase-04/VERIFICATION.md)
+- Files: not known yet
+- Acceptance: Owner approval of scope; tests added; verify:modules clean
+- Evidence: Owner rule 'Enquiries from new messages' (inbox_enquiries, off by default): clear work requests by email/SMS/WhatsApp/social become lead+enquiry once per conversation; spam, marketing replies, website, calls and ambiguous senders skipped; owner notified. comms.test T-040. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-041 Customer-facing quote and invoice documents (PDF or email from the record)
+- Added: 2026-10-30
+- Requirement: Phase 04 remaining gap (docs/phase-04/VERIFICATION.md)
+- Files: not known yet
+- Acceptance: Owner approval of scope; tests added; verify:modules clean
+- Evidence: Email to customer on issued quote/estimate/invoice: send_document_to_customer Level 3 action, POST /api/saas/finance/documents/:id/send, approval then Email Centre; document text with lines, totals, tax, seller id. finance.test T-041. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-042 Attachments on enquiries, quotes and invoices
+- Added: 2026-10-30
+- Requirement: Phase 04 remaining gap (docs/phase-04/VERIFICATION.md)
+- Files: not known yet
+- Acceptance: Owner approval of scope; tests added; verify:modules clean
+- Evidence: src/document-attachments.js: photos/PDF on enquiries, quotes, estimates, invoices; real content check, private S3 when on, staffAccess per kind, business-scoped, audited; Files panel in pipeline history and finance document. document-attachments.test. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-043 Notifications for pipeline events
+- Added: 2026-10-30
+- Requirement: Phase 04 remaining gap (docs/phase-04/VERIFICATION.md)
+- Files: not known yet
+- Acceptance: Owner approval of scope; tests added; verify:modules clean
+- Evidence: src/pipeline-notices.js: new enquiry (not for self-notifying sources, not to the creator), job ready to invoice, overdue invoice sweep (once per invoice). pipeline.test T-043. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-044 Pipeline summary on the Today dashboard
+- Added: 2026-10-30
+- Requirement: Phase 04 remaining gap (docs/phase-04/VERIFICATION.md)
+- Files: not known yet
+- Acceptance: Owner approval of scope; tests added; verify:modules clean
+- Evidence: Already delivered: Today > Workflow Guidance shows live counts from /api/saas/pipeline/overview for all 8 stages (saas/command-centre-sections.js); test:redesign-ui checks it. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-045 Store backup restore-drill results for the Storage & backups tab
+- Added: 2026-10-30
+- Requirement: Phase 04 remaining gap (docs/phase-04/VERIFICATION.md)
+- Files: not known yet
+- Acceptance: Owner approval of scope; tests added; verify:modules clean
+- Evidence: restore-drill --record stores the result in reliability_restore_tests (litestream_drill); /api/operator/platform/backups restore_drill lists stored tests; console tab shows them. platform-health.test, restore-drill.test. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-047 Phase 05 follow-up: inbound Inbox messages as automation triggers
+- Added: 2026-10-30
+- Requirement: Emails, SMS and social messages recorded by recordInbound should emit an inbox.message event (untrusted text) so automations can classify and draft replies
+- Files: src/saas-platform.js, src/automation/*
+- Acceptance: Contract test: inbound email starts an automation, text treated as untrusted, injection forces approval
+- Evidence: inbox.message trigger with facts from stored records only, text untrusted; actions summarise_message, draft_message_reply (outputs), link_message_enquiry (internal write, injection forces approval). automation-governance.test T-047 via signed inbound email. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)

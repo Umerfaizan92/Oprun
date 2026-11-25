@@ -88,6 +88,29 @@ export const ACTIONS = {
     execute(ctx, p) { ctx.db.prepare('UPDATE tenant_documents SET ai_category=?,ai_urgency=?,updated_at=? WHERE id=? AND organisation_id=? AND kind=\'enquiry\'').run(p.category, p.urgency, iso(), ctx.facts.enquiry.id, ctx.org); return { ref: ctx.facts.enquiry.id, summary: `Classified as ${p.category.replace(/_/g, ' ')} (${p.urgency})` }; },
     verify(ctx, p) { const d = ctx.db.prepare('SELECT ai_category,ai_urgency FROM tenant_documents WHERE id=? AND organisation_id=?').get(ctx.facts.enquiry.id, ctx.org); return d?.ai_category === p.category && d?.ai_urgency === p.urgency ? { ok: true, detail: 'Label saved on the enquiry.' } : { ok: false, detail: 'Label not found on the enquiry.' }; } },
 
+  // T-047: inbound inbox messages. The message text is untrusted: it is shown to the AI only inside <untrusted> tags,
+  // and text that looks like instructions forces a person to approve anything beyond a suggestion.
+  summarise_message: { label: 'Summarise new inbox messages', capability: 2, level: 1, effect: 'output', feature: 'mail', triggers: ['inbox.message'], params: P,
+    analyse: (ctx) => { const m = ctx.facts.message; return { from: String(m.from).slice(0, 200), channel: m.channel, category: m.category || 'other', lead_band: m.lead_band || 'none', urgent: ['urgent', 'high'].includes(m.escalation_level) }; },
+    schema: z.object({ from: z.string().max(200), channel: z.string().max(40), category: z.string().max(40), lead_band: z.string().max(20), urgent: z.boolean() }),
+    preview: (ctx, p) => ({ description: `Summarise the ${p.channel} message from ${p.from}`, data_involved: ['Message category and lead score'], expected_outcome: 'A short note in AI suggestions and reports' }),
+    execute(ctx, p) { const r = output(ctx, 'alert', `${p.urgent ? 'Urgent: ' : ''}${p.category.replace(/_/g, ' ')} message from ${p.from}`.slice(0, 200), `Channel: ${p.channel}. Lead: ${p.lead_band}. Open the conversation to reply; replies always need approval before they are sent.`, '#communications/inbox'); return { ...r, summary: 'Summary added to AI suggestions', link: '#communications/inbox' }; },
+    verify: outputVerify },
+
+  draft_message_reply: { label: 'Suggest a reply to new inbox messages', capability: 6, level: 1, effect: 'output', feature: 'mail', triggers: ['inbox.message'], params: z.object({ sign_off: z.string().max(120).default('') }).strict(), ai: { fields: ['body'], instruction: 'Write a short, friendly reply to the message. Do not promise prices, dates or anything not in the message. Plain text, under 120 words.' },
+    analyse(ctx) { const m = ctx.facts.message; if (m.category === 'spam' || m.category === 'unsubscribe') return null; const first = String(ctx.facts.customer?.name || m.from || '').split(/[\s@]/)[0] || 'there'; return { thread_id: m.thread_id, body: `Hi ${first},\n\nThanks for your message. We have it and will get back to you shortly.\n\n${ctx.params.sign_off || ctx.facts.business}` }; },
+    schema: z.object({ thread_id: z.string().uuid(), body: z.string().min(10).max(4000) }),
+    preview: (ctx, p) => ({ description: `Suggest a reply to ${ctx.facts.message.from}`, data_involved: ['Message category', 'Customer name'], expected_outcome: 'A suggested reply in AI suggestions. Nothing is sent.' }),
+    execute(ctx, p) { const r = output(ctx, 'draft', `Suggested reply to ${ctx.facts.message.from}`.slice(0, 200), p.body, '#communications/inbox'); return { ...r, summary: 'Suggested reply ready; nothing was sent', link: '#communications/inbox' }; },
+    verify: outputVerify },
+
+  link_message_enquiry: { label: 'Open an enquiry from a new inbox message', capability: 3, level: 1, effect: 'internal_write', feature: 'customers', triggers: ['inbox.message'], params: P,
+    analyse(ctx) { const m = ctx.facts.message; if (m.enquiry_id || ['spam', 'unsubscribe', 'marketing_reply'].includes(m.category)) return null; return { thread_id: m.thread_id, customer_id: ctx.facts.customer?.id || null, from: String(m.from).slice(0, 200) }; },
+    schema: z.object({ thread_id: z.string().uuid(), customer_id: z.string().uuid().nullable(), from: z.string().max(200) }),
+    preview: (ctx, p) => ({ description: `Open an enquiry for ${p.from}`, data_involved: ['Sender name and address', 'Message text as the enquiry details'], expected_outcome: p.customer_id ? 'An enquiry linked to the existing customer' : 'A new lead and an enquiry, linked to the conversation' }),
+    execute(ctx, p) { const r = ctx.deps.comms.link(ctx.org, p.thread_id, { create_customer: p.customer_id ? undefined : {}, create_enquiry: {} }, 'automation'); if (!r?.ok || !r.enquiry_id) throw Object.assign(new Error(r?.error || 'The enquiry could not be created.'), { permanent: true }); return { ref: r.enquiry_id, summary: 'Enquiry opened from the message', link: '#work/enquiries' }; },
+    verify(ctx, p, r) { const d = ctx.db.prepare("SELECT 1 FROM tenant_documents WHERE id=? AND organisation_id=? AND kind='enquiry'").get(r?.ref, ctx.org); return d ? { ok: true, detail: 'Enquiry is in Customers & Work.' } : { ok: false, detail: 'Enquiry not found.' }; } },
+
   extract_customer_info: { label: 'Fill in missing customer details from the enquiry', capability: 3, level: 1, effect: 'internal_write', feature: 'customers', triggers: ['enquiry.created'], params: P,
     analyse(ctx) {
       const c = ctx.facts.customer || {}, found = extractContact(ctx.untrusted), fill = {};
@@ -301,6 +324,12 @@ export const ACTIONS = {
     preview: (ctx, p) => ({ description: `Email the quote "${ctx.facts.quote.title}" to ${ctx.facts.customer?.name}`, data_involved: ['Customer name and email', 'Quote amounts and details'], expected_outcome: `Email to ${p.to} with the quote total`, cost_cents: null }),
     execute: (ctx, p) => sendMail(ctx, p, 'general'), verify: verifyMail },
 
+  send_document_to_customer: { label: 'Email a quote or invoice to the customer', capability: 4, level: 3, effect: 'external', feature: 'mail', triggers: ['manual'], params: z.object({ document_id: z.string().uuid(), message: z.string().max(1000).optional() }).strict(),
+    analyse: (ctx) => ctx.deps.finance.sendProposal(ctx.org, ctx.params.document_id, ctx.params.message),
+    schema: z.object({ document_id: z.string().uuid(), number: z.string(), heading: z.string(), to: z.string().email(), subject: z.string().min(2).max(200), body: z.string().min(10).max(8000), total_cents: z.number().int() }),
+    preview: (ctx, p) => ({ description: `Email ${p.heading.toLowerCase()} ${p.number} to ${p.to}`, data_involved: ['Customer name and email', 'Document lines and totals'], expected_outcome: `Email to ${p.to} showing the total of ${money(p.total_cents)}`, cost_cents: null }),
+    execute: (ctx, p) => sendMail(ctx, p, 'general'), verify: verifyMail },
+
   sensitive_message: { label: 'Reply to a sensitive message (complaint)', capability: 6, level: 3, effect: 'external', feature: 'mail', triggers: ['enquiry.created'], params: P,
     analyse(ctx) { const c = ctx.facts.customer; if (!c?.email || classify(`${ctx.facts.enquiry.title} ${ctx.untrusted}`).category !== 'complaint') return null; return { to: c.email, subject: `Re: ${ctx.facts.enquiry.title}`.slice(0, 200), body: `Hi ${c.name.split(' ')[0]},\n\nThank you for letting us know. We are sorry to hear about your experience and will call you to sort it out.\n\n${ctx.facts.business}` }; },
     schema: z.object({ to: z.string().email(), subject: z.string().min(2).max(200), body: z.string().min(10).max(4000) }),
@@ -470,11 +499,12 @@ export const RULES = {
   appointment_reminders: { label: 'Appointment reminders', detail: 'Email customers the day before a booked job.', limits: z.object({}).strict() },
   approved_follow_ups: { label: 'Quote follow-ups', detail: 'Email customers whose approved quote has had no answer for a few days.', limits: z.object({ max_per_day: z.number().int().min(1).max(20).default(10) }).strict() },
   low_risk_site_updates: { label: 'Low-risk website updates', detail: 'Publish small wording fixes to pages that are already live, with no new claims, design, image or address changes. Everything else waits for approval.', limits: z.object({}).strict() },
+  inbox_enquiries: { label: 'Enquiries from new messages', detail: 'When a new email, text, WhatsApp or social message asks for a quote, a booking or a job, add the sender as a lead and open an enquiry. Spam, replies to your marketing, website forms and calls are left alone.', limits: z.object({}).strict() },
   internal_transitions: { label: 'Offer booked jobs to workers', detail: 'Offer each new booking to eligible workers straight away.', limits: z.object({}).strict() }
 };
 
 export const TRIGGERS = {
-  'enquiry.created': 'A new enquiry arrives', 'quote.approved': 'A quote is approved', 'quote.accepted': 'A customer accepts a quote',
+  'enquiry.created': 'A new enquiry arrives', 'inbox.message': 'A message arrives in the inbox (email, text, WhatsApp, social)', 'quote.approved': 'A quote is approved', 'quote.accepted': 'A customer accepts a quote',
   'job.booked': 'A job is booked', 'job.completed': 'A job is marked complete', 'invoice.issued': 'An invoice is issued', 'payment.received': 'A payment is received',
   'schedule.hourly': 'Every hour', 'schedule.daily': 'Every day (7am)', 'schedule.weekly': 'Every Monday (7am)', 'schedule.monthly': 'First day of each month', manual: 'Only when run by hand'
 };

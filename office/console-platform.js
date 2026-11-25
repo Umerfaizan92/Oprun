@@ -67,7 +67,14 @@
         section('Customer files', table([['k', 'Check'], ['v', 'Status', (v) => (typeof v === 'boolean' ? yes(v) : String(v))]], [
           { k: 'Storage mode', v: d.primary_files.mode === 's3' ? 'Private S3 bucket' : 'Server disk' }, { k: 'Ready', v: d.primary_files.ready }, { k: 'Separate from the backup bucket', v: d.primary_files.separate_from_backup }]),
           d.primary_files.problems?.length ? el('ul', {}, d.primary_files.problems.map((p) => el('li', { text: p }))) : null),
-        section('Restore drill', note(d.restore_drill.how))
+        section('Restore drill', (() => {
+          const rd = d.restore_drill, at = (v) => (v ? new Date(v).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' }) : '');
+          const st = (v) => el('span', { class: 'portal-status' + (v === 'passed' ? ' good' : ''), text: v === 'passed' ? 'Passed' : v === 'running' ? 'Running' : 'Failed' });
+          return [
+            rd.recorded ? note(`Last test ${at(rd.last?.started_at)}: ${rd.last?.status === 'passed' ? 'passed' : rd.last?.status || 'unknown'}.${rd.last_passed && rd.last?.status !== 'passed' ? ` Last pass ${at(rd.last_passed.started_at)}.` : ''}`) : note('No restore test has been recorded yet.'),
+            table([['started_at', 'When', at], ['kind', 'Test'], ['status', 'Result', st], ['tables', 'Tables'], ['seconds', 'Seconds'], ['error', 'Problem', (v) => v || '']], rd.history || [], 'No restore test has been recorded yet.'),
+            note(rd.how)];
+        })())
       );
     },
     async 'platform/ai-usage'(host, api) {

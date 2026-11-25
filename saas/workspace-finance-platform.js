@@ -34,6 +34,33 @@
   };
   const HASH = { finsales: 'money/sales', finpayments: 'money/payments', finreconcile: 'money/reconcile', finreports: 'money/reports', fincompliance: 'money/settings', finplan: 'setup/change-plan' };
 
+  // T-042: photos, plans and signed acceptance on a record. The server checks the business, the person's permission
+  // and the real file content; this only lists, adds and removes.
+  function docFiles(id, el) {
+    const box = el('section', { class: 'pl-files', 'data-doc-files': id, 'aria-label': 'Files on this record' });
+    const hdrs = () => ({ ...(window.SuperProWorkspaceContext?.headers?.() || {}) });
+    const call = async (path, opt = {}) => { const r = await fetch(path, { credentials: 'same-origin', ...opt, headers: { ...hdrs(), ...(opt.headers || {}) } }); let d = {}; try { d = await r.json(); } catch { /* not JSON */ } if (!r.ok || d.ok === false) throw new Error(d.error || `The server refused this action (${r.status}).`); return d; };
+    const status = el('p', { class: 'pl-meta', 'aria-live': 'polite' });
+    const listEl = el('ul', { class: 'pl-file-list' });
+    const size = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+    let labels = {};
+    const draw = (items) => {
+      listEl.replaceChildren(...items.map((a) => el('li', {}, el('a', { href: `/api/saas/document-attachments/${encodeURIComponent(a.id)}/file`, target: '_blank', rel: 'noopener', text: a.original_name }), ` · ${labels[a.label] || a.label} · ${size(a.size_bytes)} `,
+        el('button', { type: 'button', class: 'portal-button', text: 'Remove', 'aria-label': `Remove ${a.original_name}`, onclick: async (e) => { e.target.disabled = true; try { draw((await call(`/api/saas/document-attachments/${encodeURIComponent(a.id)}`, { method: 'DELETE' })).attachments); status.textContent = 'Removed.'; } catch (err) { status.textContent = err.message; e.target.disabled = false; } } }))));
+      if (!items.length) listEl.append(el('li', { class: 'pl-meta', text: 'No files yet.' }));
+    };
+    const kind = el('select', { 'aria-label': 'What the file is' });
+    const input = el('input', { type: 'file', multiple: true, accept: 'image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf', 'aria-label': 'Choose photos or PDFs' });
+    input.addEventListener('change', async () => {
+      if (!input.files.length) return; const fd = new FormData(); fd.append('label', kind.value); [...input.files].slice(0, 10).forEach((f) => fd.append('files', f));
+      status.textContent = 'Uploading…';
+      try { draw((await call(`/api/saas/documents/${encodeURIComponent(id)}/attachments`, { method: 'POST', body: fd })).attachments); status.textContent = 'Added.'; } catch (err) { status.textContent = err.message; } finally { input.value = ''; }
+    });
+    box.append(el('h3', { text: 'Files' }), listEl, el('div', { class: 'pl-actions' }, kind, input), status);
+    call(`/api/saas/documents/${encodeURIComponent(id)}/attachments`).then((d) => { labels = d.labels || {}; kind.replaceChildren(...Object.entries(labels).map(([v, t]) => el('option', { value: v, text: t }))); draw(d.attachments || []); })
+      .catch((err) => { if (/not found/i.test(err.message)) box.remove(); else box.replaceChildren(el('h3', { text: 'Files' }), el('p', { class: 'pl-meta', text: err.message })); });
+    return box;
+  }
   function Finance(host, { api = defaultApi, founder = false } = {}) {
     const say = (t, bad = false) => { const p = host.querySelector('[data-fx-status]'); if (p) { p.textContent = t; p.dataset.tone = bad ? 'bad' : 'good'; } if (!bad) window.SPMotion?.toast?.(t); };
     const busy = async (btn, fn) => { if (btn) btn.disabled = true; try { await fn(); } catch (e) { say(e.message, true); } finally { if (btn && btn.isConnected) btn.disabled = false; } };
@@ -216,6 +243,7 @@
       let cancelForm = null;
       if (editable || ['draft', 'approved', 'sent'].includes(d.stored_status)) { const why = el('input', { maxlength: '300', id: nid() }); cancelForm = el('details', {}, el('summary', { text: 'Cancel this document' }), el('form', { class: 'fx-inline', onsubmit: (e) => { e.preventDefault(); busy(e.submitter, async () => { await post(`/api/saas/finance/documents/${id}/cancel`, { reason: why.value.trim() }); say('Cancelled.'); refresh(); }); } }, field('Reason (kept in the record)', why), el('button', { type: 'submit', class: 'portal-button', text: 'Cancel document' }))); }
       acts.append(el('a', { class: 'portal-button', href: `/api/saas/finance/documents/${encodeURIComponent(id)}/print`, target: '_blank', rel: 'noopener', text: 'Print or PDF' }));
+      if (['quote', 'estimate', 'invoice', 'deposit'].includes(d.kind) && ['sent', 'issued', 'part_paid', 'overdue', 'paid'].includes(d.status)) acts.append(act('Email to customer', async () => { const r = await post(`/api/saas/finance/documents/${id}/send`, {}); say(r.message || 'Sent for approval.'); }));
       const linkOut = el('div', { 'aria-live': 'polite' });
       const cmp = d.compliance;
       const lines = el('div', { class: 'au-tablewrap' }, el('table', { class: 'au-table' }, el('thead', {}, el('tr', {}, ['Item', 'Qty', 'Unit price', 'Tax', 'GST', 'Amount'].map((h) => el('th', { scope: 'col', text: h })))), el('tbody', {}, d.lines.map((l) => el('tr', {}, el('th', { scope: 'row', text: l.description }), el('td', { text: String(l.quantity) }), el('td', { text: $(l.unit_cents) }), el('td', { text: o.tax_codes[l.tax_code] || l.tax_code }), el('td', { text: $(l.gst_cents) }), el('td', { text: $(l.inc_cents) }))))));
@@ -233,7 +261,7 @@
         lines, el('p', { class: 'fx-total' }, `Ex GST ${$(d.ex_cents)} · GST ${$(d.gst_cents)} · Total ${$(d.total_cents)}`),
         m ? el('p', { text: `Paid ${$(Math.min(m.paid_cents, m.job_price_cents ?? m.total_cents))} · Owing ${$(m.owing_cents)}${m.credited_cents ? ' · Credited ' + $(m.credited_cents) : ''}` }) : null,
         cmp ? el('div', { class: 'fx-checks' }, el('h3', { text: cmp.ok ? 'Tax invoice checks pass' : 'Fix before issuing' }), el('ul', { class: 'sx-list' }, [...cmp.issues.map((x) => el('li', { class: 'fx-bad', text: x })), ...cmp.notes.map((x) => el('li', { text: x }))]), note(`Checked against ruleset ${cmp.ruleset}.`)) : null,
-        acts, linkOut, editor, credit, cancelForm,
+        acts, linkOut, editor, credit, cancelForm, founder ? null : docFiles(id, el),
         d.credit_notes?.length ? [el('h3', { text: 'Adjustment notes' }), table([['number', 'Number', (v) => v || 'Not issued'], ['status', 'Status', (v) => chip(v)], ['total_cents', 'Amount', (v) => $(v)], ['reason', 'Reason']], d.credit_notes)] : null,
         d.refunds?.length ? [el('h3', { text: 'Refunds on this job' }), table([['created_at', 'Requested', day], ['amount_cents', 'Amount', (v) => $(v)], ['status', 'Status', (v) => chip(v)], ['reason', 'Reason']], d.refunds)] : null,
         m?.payments?.length ? [el('h3', { text: 'Payments' }), table([['created_at', 'Created', day], ['provider', 'How'], ['amount_cents', 'Amount', (v) => $(v)], ['status', 'Status', (v) => chip(v)], ['receipt_no', 'Receipt']], m.payments)] : null));

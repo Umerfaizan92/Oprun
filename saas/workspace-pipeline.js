@@ -183,6 +183,33 @@
     return host;
   }
 
+  // T-042: photos, plans and signed acceptance on a record. The server checks the business, the person's permission
+  // and the real file content; this only lists, adds and removes.
+  function docFiles(id, el) {
+    const box = el('section', { class: 'pl-files', 'data-doc-files': id, 'aria-label': 'Files on this record' });
+    const hdrs = () => ({ ...(window.SuperProWorkspaceContext?.headers?.() || {}) });
+    const call = async (path, opt = {}) => { const r = await fetch(path, { credentials: 'same-origin', ...opt, headers: { ...hdrs(), ...(opt.headers || {}) } }); let d = {}; try { d = await r.json(); } catch { /* not JSON */ } if (!r.ok || d.ok === false) throw new Error(d.error || `The server refused this action (${r.status}).`); return d; };
+    const status = el('p', { class: 'pl-meta', 'aria-live': 'polite' });
+    const listEl = el('ul', { class: 'pl-file-list' });
+    const size = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+    let labels = {};
+    const draw = (items) => {
+      listEl.replaceChildren(...items.map((a) => el('li', {}, el('a', { href: `/api/saas/document-attachments/${encodeURIComponent(a.id)}/file`, target: '_blank', rel: 'noopener', text: a.original_name }), ` · ${labels[a.label] || a.label} · ${size(a.size_bytes)} `,
+        el('button', { type: 'button', class: 'portal-button', text: 'Remove', 'aria-label': `Remove ${a.original_name}`, onclick: async (e) => { e.target.disabled = true; try { draw((await call(`/api/saas/document-attachments/${encodeURIComponent(a.id)}`, { method: 'DELETE' })).attachments); status.textContent = 'Removed.'; } catch (err) { status.textContent = err.message; e.target.disabled = false; } } }))));
+      if (!items.length) listEl.append(el('li', { class: 'pl-meta', text: 'No files yet.' }));
+    };
+    const kind = el('select', { 'aria-label': 'What the file is' });
+    const input = el('input', { type: 'file', multiple: true, accept: 'image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf', 'aria-label': 'Choose photos or PDFs' });
+    input.addEventListener('change', async () => {
+      if (!input.files.length) return; const fd = new FormData(); fd.append('label', kind.value); [...input.files].slice(0, 10).forEach((f) => fd.append('files', f));
+      status.textContent = 'Uploading…';
+      try { draw((await call(`/api/saas/documents/${encodeURIComponent(id)}/attachments`, { method: 'POST', body: fd })).attachments); status.textContent = 'Added.'; } catch (err) { status.textContent = err.message; } finally { input.value = ''; }
+    });
+    box.append(el('h3', { text: 'Files' }), listEl, el('div', { class: 'pl-actions' }, kind, input), status);
+    call(`/api/saas/documents/${encodeURIComponent(id)}/attachments`).then((d) => { labels = d.labels || {}; kind.replaceChildren(...Object.entries(labels).map(([v, t]) => el('option', { value: v, text: t }))); draw(d.attachments || []); })
+      .catch((err) => { if (/not found/i.test(err.message)) box.remove(); else box.replaceChildren(el('h3', { text: 'Files' }), el('p', { class: 'pl-meta', text: err.message })); });
+    return box;
+  }
   // ---------- trail ----------
   async function showTrail(section, id) {
     const box = section.querySelector('.pl-trail') || section.appendChild(el('aside', { class: 'pl-trail portal-panel', 'aria-live': 'polite' }));
@@ -197,7 +224,7 @@
           c.job ? el('small', { text: ` Job: ${JOB_STATUS[c.job.status] || c.job.status}${c.job.completed_at ? ', completed ' + day(c.job.completed_at) : ''}` }) : null));
       }
       for (const p of t.payments) ol.append(el('li', {}, el('b', { text: 'Payment' }), ` ${money(p.amount_cents)} · ${p.status === 'paid' ? 'received ' + day(p.paid_at) : p.status}${p.receipt_no ? ' · receipt ' + p.receipt_no : ''}`));
-      box.append(ol);
+      box.append(ol, docFiles(id, el));
       if (t.events.length) box.append(el('details', {}, el('summary', { text: `Activity log (${t.events.length})` }), el('ul', { class: 'pl-events' }, t.events.map((e) => el('li', { text: `${date(e.created_at)} · ${e.action.replace(/[._]/g, ' ')}${e.user_name ? ' · ' + e.user_name : ''}` })))));
       box.scrollIntoView({ block: 'nearest', behavior: window.SPMotion?.allowed?.() ? 'smooth' : 'auto' });
     } catch (e) { box.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); }

@@ -150,6 +150,19 @@ Automation in dark and light themes with real data, or on the six new founder ta
 
 ## Remaining gaps (proposed next tasks)
 
+Status on 25 November 2026 (owner's standing approval, D-082):
+- 1 done (T-040): with the owner's "Enquiries from new messages" rule on, a clear work request by email, text,
+  WhatsApp or social becomes a lead and an enquiry once per conversation (calls already did, T-141). `comms.test`.
+- 2 done (T-041): "Email to customer" on an issued quote, estimate or invoice; every send waits for approval and
+  goes through the Email Centre. `finance.test`.
+- 3 done (T-042): Files on enquiries, quotes and invoices (photos and PDFs, real content checked, private storage
+  when switched on). `document-attachments.test`.
+- 4 done (T-043): bell notices for a new enquiry, a job ready to invoice and an overdue invoice (quote accepted by
+  the customer already notified). `pipeline.test`.
+- 5 already delivered by the redesign: Today > Workflow Guidance shows live pipeline counts. `test:redesign-ui`.
+- 7 done (T-045): `backup:restore-drill -- --compare <db> --record` stores the result; the Storage & backups tab
+  lists stored restore tests. `platform-health.test`, `restore-drill.test`.
+
 1. Create enquiries from inbox messages and receptionist calls (the channel is recorded, but entry is manual).
 2. Customer-facing quote and invoice documents (PDF or email from the record), using the Email Centre approval flow.
 3. Attachments on enquiries, quotes and invoices (photos, plans, signed acceptance).

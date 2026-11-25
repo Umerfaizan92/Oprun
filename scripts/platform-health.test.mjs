@@ -41,6 +41,17 @@ test('founder console platform data', async (t) => {
   assert.equal(bk.database_backup.configured, true);
   assert.equal(bk.database_backup.encryption, 'aws:kms');
   assert.equal(bk.restore_drill.recorded, false);
+  assert.match(bk.restore_drill.how, /--record/);
+  // T-045: a recorded Litestream drill and a failed snapshot test appear, newest first, with the last pass kept.
+  { const d = new Database(s.dbPath);
+    d.prepare("INSERT INTO reliability_restore_tests (id,started_at,finished_at,status,backup_key,seconds,integrity,audit_ok,tables,gaps_json,error,trigger) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)").run(randomUUID(), '2026-11-20T01:00:00.000Z', '2026-11-20T01:00:09.000Z', 'passed', 's3://bucket/db', 9.1, 'ok', 1, 120, '[]', null, 'litestream_drill');
+    d.prepare("INSERT INTO reliability_restore_tests (id,started_at,finished_at,status,seconds,error,trigger) VALUES (?,?,?,?,?,?,?)").run(randomUUID(), '2026-11-21T01:00:00.000Z', '2026-11-21T01:00:03.000Z', 'failed', 3, 'checksum mismatch', 'schedule');
+    d.close(); }
+  const bk2 = (await F('/api/operator/platform/backups')).json.restore_drill;
+  assert.equal(bk2.recorded, true); assert.equal(bk2.last.status, 'failed'); assert.equal(bk2.last.kind, 'Snapshot restore test');
+  assert.equal(bk2.last_passed.kind, 'Litestream drill'); assert.equal(bk2.last_passed.tables, 120); assert.equal(bk2.last_passed.audit_chain_ok, true);
+  assert.equal(bk2.last_litestream_drill.status, 'passed'); assert.equal(bk2.history.length, 2);
+  assert.ok(!JSON.stringify(bk2).includes('AKIA'), 'no keys in the result');
   const cfg = (await F('/api/operator/platform/configuration')).json;
   assert.equal(cfg.providers.email, true);
   assert.ok(Array.isArray(cfg.feature_access.plans) && cfg.feature_access.plans.length > 0);

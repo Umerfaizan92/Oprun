@@ -64,3 +64,10 @@
 .ls-actions :is(button,a){min-height:44px;display:inline-flex;align-items:center}
 .ls-new{margin-top:12px}.ls-new>summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
 .ls-form{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}.ls-form small{color:var(--muted)}
+
+/* T-042: files on a record */
+.pl-files{margin-top:1rem;border-top:1px solid var(--line);padding-top:.75rem}
+.pl-file-list{list-style:none;margin:.25rem 0 .5rem;padding:0}
+.pl-file-list li{padding:.35rem 0;overflow-wrap:anywhere}
+.pl-file-list .portal-button{margin-inline-start:.25rem}
+.pl-files input[type=file]{max-width:100%}

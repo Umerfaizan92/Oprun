@@ -1,5 +1,5 @@
 {
-  "routes": 502,
+  "routes": 507,
   "list_routes": 149,
   "a_tables_names": [
     "workers (3)",
@@ -12,7 +12,7 @@
     "tenant_media (1)",
     "tenant_customers (7)",
     "stock_items (3)",
-    "user_notifications (6)",
+    "user_notifications (7)",
     "finance_overheads (2)",
     "audit_logs (43)",
     "comms_threads (1)",
@@ -30,13 +30,13 @@
     "303": 3,
     "400": 984,
     "401": 1,
-    "404": 2924,
+    "404": 3034,
     "409": 33
   },
   "positive_control_lists": 49,
-  "param_routes": 199,
+  "param_routes": 204,
   "a_tables": 22,
-  "requests": 4164,
+  "requests": 4274,
   "leaks": [],
   "a_rows_changed": [],
   "server_errors": [],

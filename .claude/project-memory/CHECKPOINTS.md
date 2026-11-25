@@ -3027,3 +3027,45 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: When the owner confirms the live check, complete T-240 (TR-81)
+
+## CP-217 2026-11-25T18:00:17+00:00 T-041 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-041 (IN_PROGRESS)
+- Completed steps: T-040 auto enquiries rule + test; T-041 email quote/invoice to customer with approval + test; targeted suites pass
+- Incomplete steps: full verification, visual baselines for automations/finance screens, commit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; qa/reports/tenant-sweep.json; saas/workspace-finance-platform.js; scripts/automation-governance.test.mjs; scripts/comms.test.mjs; scripts/finance.test.mjs; src/automation/catalogue.js; src/comms/service.js; src/finance/routes.js; src/finance/service.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 70ce450 (Close 9 superseded tasks with the owner's agreement; next: pipeline follow-ups); 5 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T180017Z (ed830ec)
+- Known errors: none
+- Next exact action: Read /tmp/verify-all.log; accept intended visual diffs; commit T-040+T-041
+
+## CP-218 2026-11-25T18:20:54+00:00 T-047 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-047 (IN_PROGRESS)
+- Completed steps: T-040,T-041,T-042,T-043,T-045,T-047 implemented with contract tests passing; T-044 already delivered
+- Incomplete steps: full verification (/tmp/verify-all.sh), accept intended visual changes, commit, complete tasks
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/phase-04/VERIFICATION.md; office/console-platform.js; office/console.html; qa/reports/RESTORE-DRILL.md; qa/reports/tenant-sweep.json; saas/design-system.html; saas/workspace-finance-platform.js; saas/workspace-pipeline.css; saas/workspace-pipeline.js; saas/workspace.html; scripts/automation-governance.test.mjs; scripts/comms.test.mjs; scripts/finance.test.mjs; scripts/pipeline.test.mjs; scripts/platform-health.test.mjs; scripts/restore-drill.mjs; scripts/restore-drill.test.mjs; src/automation/catalogue.js; src/automation/engine.js; src/comms/service.js; src/finance/routes.js; src/finance/service.js; src/platform-health.js; src/server.js; scripts/document-attachments.test.mjs; src/document-attachments.js; src/pipeline-notices.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 70ce450 (Close 9 superseded tasks with the owner's agreement; next: pipeline follow-ups); 5 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T182054Z (ba4128a)
+- Known errors: none
+- Next exact action: Check /tmp/verify-all.log; if all pass commit and complete T-040..T-047
+
+## CP-219 2026-11-25T18:28:27+00:00 T-047 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-047 (IN_PROGRESS)
+- Completed steps: All six tasks implemented; ui, redesign-ui, mobile-workspace-ui pass
+- Incomplete steps: remaining browser suites, visual check, npm test, commit
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/phase-04/VERIFICATION.md; office/console-platform.js; office/console.html; qa/reports/RESTORE-DRILL.md; qa/reports/tenant-sweep.json; saas/design-system.html; saas/workspace-finance-platform.js; saas/workspace-pipeline.css; saas/workspace-pipeline.js; saas/workspace.html; scripts/automation-governance.test.mjs; scripts/comms.test.mjs; scripts/finance.test.mjs; scripts/pipeline.test.mjs; scripts/platform-health.test.mjs; scripts/restore-drill.mjs; scripts/restore-drill.test.mjs; src/automation/catalogue.js; src/automation/engine.js; src/comms/service.js; src/finance/routes.js; src/finance/service.js; src/platform-health.js; src/server.js; scripts/document-attachments.test.mjs; src/document-attachments.js; src/pipeline-notices.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 70ce450 (Close 9 superseded tasks with the owner's agreement; next: pipeline follow-ups); 5 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T182827Z (350ba96)
+- Known errors: none
+- Next exact action: Run remaining suites from navigation-ui onward in foreground chunks

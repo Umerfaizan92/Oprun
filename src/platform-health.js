@@ -40,6 +40,16 @@ export function installPlatformHealth(app, { db, env, platform, policy, legalVer
     });
   });
 
+  // T-045: stored restore results: the scheduled snapshot restore test and the Litestream drill (run with --record).
+  const DRILL_HOW = 'Run npm run backup:restore-drill -- --compare <live database path> --record in a shell on the live service. It restores the latest Litestream copy into a temporary file, checks it, and records the result here.';
+  function drillSummary() {
+    const pick = (r) => (r ? { started_at: r.started_at, finished_at: r.finished_at, status: r.status, kind: r.trigger === 'litestream_drill' ? 'Litestream drill' : 'Snapshot restore test', seconds: r.seconds, tables: r.tables, integrity: r.integrity, audit_chain_ok: r.audit_ok === null ? null : Boolean(r.audit_ok), error: r.error || null } : null);
+    let rows = [];
+    try { rows = db.prepare('SELECT * FROM reliability_restore_tests ORDER BY started_at DESC LIMIT 10').all(); } catch { rows = []; }
+    const latest = (trig) => rows.find((r) => (trig === 'litestream_drill' ? r.trigger === 'litestream_drill' : r.trigger !== 'litestream_drill')) || null;
+    return { recorded: rows.length > 0, last: pick(rows[0]), last_passed: pick(rows.find((r) => r.status === 'passed')), last_litestream_drill: pick(latest('litestream_drill')), last_snapshot_test: pick(latest('snapshot')), history: rows.map(pick), how: DRILL_HOW };
+  }
+
   // Where files and the database are kept, and whether backups are configured. Names and yes/no only.
   app.get('/api/operator/platform/backups', ...guard('operations'), (req, res) => {
     const primary = storageConfig(env), bucket = backupBucket(env);
@@ -52,7 +62,7 @@ export function installPlatformHealth(app, { db, env, platform, policy, legalVer
         uploads_included: has(env.BACKUP_S3_UPLOADS_PREFIX), region: env.BACKUP_S3_REGION || env.AWS_REGION || null
       },
       persistent_disk: has(env.DATABASE_PATH) && String(env.DATABASE_PATH).startsWith('/var/data'),
-      restore_drill: { recorded: false, how: 'Run npm run backup:restore-drill against a copy (never production). Results are printed by the script and are not stored in the app yet.' }
+      restore_drill: drillSummary()
     });
   });
 

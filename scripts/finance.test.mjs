@@ -324,3 +324,33 @@ test('platform billing: price changes need approval and notice, subscriber upgra
   const rev = (await F('GET', '/api/operator/finance/revenue')).json; assert.equal(rev.months.length, 6); assert.ok(rev.mrr_cents > 0); assert.equal(rev.arr_cents, rev.mrr_cents * 12); assert.match(rev.note, /Stripe/);
   void s;
 });
+
+test('quotes and invoices can be emailed to the customer from the record, only once issued and only after approval (T-041)', async (t) => {
+  const { s, owner, O, sql, cust, job, approve, stop } = await setup(); t.after(stop);
+  await O('PUT', '/api/saas/finance/settings', { gst_registered: true, prices_include_gst: true, accounting_basis: 'accrual', bas_period: 'quarterly', quote_valid_days: 30, deposit_percent: 0 });
+  const jobId = job('Hot water service', 0);
+  let inv = (await O('POST', '/api/saas/finance/documents', { kind: 'invoice', title: 'Hot water service', work_order_id: jobId, lines: [L('Replace hot water valve', 1, 330)] })).json.document;
+  let r = await O('POST', `/api/saas/finance/documents/${inv.id}/send`, {});
+  assert.equal(r.status, 409, 'a draft cannot be emailed'); assert.match(r.json.error, /Issue the document/);
+  await O('POST', `/api/saas/finance/documents/${inv.id}/approve`, { revision: inv.revision });
+  assert.equal((await O('POST', `/api/saas/finance/documents/${inv.id}/issue`)).status, 200);
+  const mails = () => sql("SELECT recipient,subject,body,status FROM portal_mail WHERE owner_id=? AND recipient='riley@example.test'", owner.org);
+  r = await O('POST', `/api/saas/finance/documents/${inv.id}/send`, { message: 'Thanks for having us out today.' });
+  assert.equal(r.status, 201, r.text); assert.equal(r.json.to, 'riley@example.test');
+  assert.equal(mails().length, 0, 'nothing is sent before approval');
+  await approve(r.json.run_id); await sleep(300);
+  const m = mails(); assert.equal(m.length, 1, 'one email queued after approval'); if (process.env.SHOW_MAIL) console.log(m[0].subject + '\n' + m[0].body);
+  inv = (await O('GET', `/api/saas/finance/documents/${inv.id}`)).json.document;
+  assert.match(m[0].subject, new RegExp(`${inv.number} from`)); assert.match(m[0].body, /Thanks for having us out today\./);
+  assert.match(m[0].body, /Replace hot water valve/); assert.match(m[0].body, /Total: \$330\.00 \(includes GST of \$30\.00\)/); assert.match(m[0].body, /ABN 51 824 753 556/);
+  // No customer email: a clear message, no run.
+  const noMail = crypto.randomUUID(), now = new Date().toISOString();
+  sql("INSERT INTO tenant_customers(id,organisation_id,name,phone,status,source,created_at,updated_at) VALUES (?,?,?,?,'current','manual',?,?)", noMail, owner.org, 'Alex No Email', '0400 111 222', now, now);
+  const q = (await O('POST', '/api/saas/finance/documents', { kind: 'quote', title: 'Gutter clean', customer_id: noMail, lines: [L('Clean gutters', 1, 220)] })).json.document;
+  await O('POST', `/api/saas/finance/documents/${q.id}/approve`, { revision: q.revision }); await O('POST', `/api/saas/finance/documents/${q.id}/issue`);
+  r = await O('POST', `/api/saas/finance/documents/${q.id}/send`, {}); assert.equal(r.status, 409); assert.match(r.json.error, /email address/);
+  // Another business cannot send this business's invoice.
+  const other = await seedOwner(s, { business: 'Other Trades', email: 'other-fin@other.example.test' });
+  r = await s.call('POST', `/api/saas/finance/documents/${inv.id}/send`, { cookie: other.cookie, body: {} }); assert.equal(r.status, 404);
+  assert.ok(cust);
+});

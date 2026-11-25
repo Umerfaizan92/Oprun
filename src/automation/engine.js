@@ -38,6 +38,7 @@ export const definitionSchema = z.object({
 // Fields a condition may test, per trigger (shown in the builder; anything else is rejected).
 export const CONDITION_FIELDS = {
   'enquiry.created': ['enquiry.title', 'enquiry.category', 'enquiry.urgency', 'customer.has_email', 'customer.has_phone'],
+  'inbox.message': ['message.channel', 'message.category', 'message.sentiment', 'message.lead_band', 'message.urgent', 'customer.has_email', 'customer.has_phone'],
   'quote.approved': ['quote.title', 'quote.total', 'customer.has_email'],
   'quote.accepted': ['quote.title', 'quote.total', 'customer.has_email'],
   'job.booked': ['job.title', 'job.price', 'job.workers_needed'],
@@ -170,6 +171,14 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     const cust = (id) => (id ? db.prepare('SELECT id,name,email,phone,address FROM tenant_customers WHERE id=? AND organisation_id=?').get(id, org) : null);
     const job = (id) => (id ? db.prepare('SELECT * FROM work_orders WHERE id=? AND organisation_id=?').get(id, org) : null);
     if (trigger === 'enquiry.created') { facts.enquiry = doc(payload.enquiry_id, 'enquiry'); if (!facts.enquiry) return null; facts.customer = cust(facts.enquiry.customer_id); untrusted = facts.enquiry.body || ''; }
+    if (trigger === 'inbox.message') {
+      const m = payload.message_id ? db.prepare("SELECT id,thread_id,body FROM comms_messages WHERE id=? AND organisation_id=? AND direction='inbound'").get(payload.message_id, org) : null; if (!m) return null;
+      const t = db.prepare('SELECT id,channel,contact_address,contact_name,subject FROM comms_threads WHERE id=? AND organisation_id=?').get(m.thread_id, org); if (!t) return null;
+      const meta = db.prepare('SELECT folder,category,sentiment,lead_band,escalation_level,customer_id,enquiry_id FROM comms_thread_meta WHERE thread_id=? AND organisation_id=?').get(t.id, org) || {};
+      if (meta.folder === 'spam') return null;
+      facts.message = { id: m.id, thread_id: t.id, channel: t.channel, from: t.contact_name || t.contact_address, subject: t.subject || '', category: meta.category || 'other', sentiment: meta.sentiment || 'neutral', lead_band: meta.lead_band || 'none', escalation_level: meta.escalation_level || 'none', enquiry_id: meta.enquiry_id || null };
+      facts.customer = cust(meta.customer_id); untrusted = `${t.subject || ''}\n${m.body || ''}`.trim();
+    }
     if (trigger === 'quote.approved' || trigger === 'quote.accepted') { facts.quote = doc(payload.quote_id, 'quote'); if (!facts.quote) return null; facts.customer = cust(facts.quote.customer_id); }
     if (trigger === 'job.booked' || trigger === 'job.completed') { facts.job = job(payload.work_order_id); if (!facts.job) return null; facts.customer = cust(facts.job.customer_id); facts.invoiced = Boolean(db.prepare("SELECT 1 FROM tenant_documents WHERE organisation_id=? AND kind='invoice' AND work_order_id=? AND status<>'cancelled'").get(org, facts.job.id)); }
     if (trigger === 'invoice.issued') { facts.invoice = doc(payload.invoice_id, 'invoice'); if (!facts.invoice) return null; facts.job = job(facts.invoice.work_order_id); facts.customer = cust(facts.invoice.customer_id); }
@@ -179,6 +188,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
   function conditionView(trigger, facts, untrusted) {
     const v = {};
     if (facts.enquiry) { const c = classify(`${facts.enquiry.title} ${untrusted}`); Object.assign(v, { 'enquiry.title': facts.enquiry.title, 'enquiry.category': facts.enquiry.ai_category || c.category, 'enquiry.urgency': facts.enquiry.ai_urgency || c.urgency }); }
+    if (facts.message) Object.assign(v, { 'message.channel': facts.message.channel, 'message.category': facts.message.category, 'message.sentiment': facts.message.sentiment, 'message.lead_band': facts.message.lead_band, 'message.urgent': ['urgent', 'high'].includes(facts.message.escalation_level) });
     if (facts.customer !== undefined) Object.assign(v, { 'customer.has_email': Boolean(facts.customer?.email), 'customer.has_phone': Boolean(facts.customer?.phone) });
     if (facts.quote) Object.assign(v, { 'quote.title': facts.quote.title, 'quote.total': (facts.quote.amount_cents + (facts.quote.gst_cents || 0)) / 100 });
     if (facts.job) Object.assign(v, { 'job.title': facts.job.title, 'job.price': facts.job.price_cents / 100, 'job.workers_needed': facts.job.required_workers || 1, 'job.invoiced': Boolean(facts.invoiced), 'job.fully_paid': facts.job.paid_cents >= facts.job.price_cents + (facts.job.late_fee_cents || 0) });
