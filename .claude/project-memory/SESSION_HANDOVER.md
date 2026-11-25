@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: TR-73 complete (production drill passed)
-FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; qa/reports/RESTORE-DRILL.md
+CURRENT TASK: T-240 (IN_PROGRESS)
+LAST COMPLETED STEP: Pre-merge checks: candidate unchanged since owner review (only docs/memory/manifest), main contained, rollback point recorded
+FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 4 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: On 'release approved': follow docs/transformation/05_RELEASE_PLAN.md section 4 (production auto-deploys on merge to main)
+NEXT EXACT ACTION: git push origin HEAD:main (fast-forward), then watch deploys of srv-dbuq98ojo6nc73aro66g
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-213 at 2026-11-25T15:34:53+00:00
+LAST CHECKPOINT: CP-214 at 2026-11-25T15:38:04+00:00
 <!-- handover:end -->
 
 ## Notes

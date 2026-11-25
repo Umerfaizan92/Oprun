@@ -2985,3 +2985,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: On 'release approved': follow docs/transformation/05_RELEASE_PLAN.md section 4 (production auto-deploys on merge to main)
+
+## CP-214 2026-11-25T15:38:04+00:00 T-240 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-240 (IN_PROGRESS)
+- Completed steps: Pre-merge checks: candidate unchanged since owner review (only docs/memory/manifest), main contained, rollback point recorded
+- Incomplete steps: push to main (production auto-deploys), watch build and start-up, check health/diagnostics/env warnings, screenshots
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: e1a1cc1 (TR-73: record the production drill output (253 tables, 4.4 s, audit chain 553 rows)); 83 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: git push origin HEAD:main (fast-forward), then watch deploys of srv-dbuq98ojo6nc73aro66g

@@ -596,3 +596,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/asset-bundles.js, scripts/report-lighthouse.mjs, saas/ds/motion.js, qa/reports/LIGHTHOUSE.md
 - Acceptance: Report saved; every main page >= 85
 
+## T-240 TR-81 Approved release to production
+- Status: IN_PROGRESS
+- Added: 2026-11-25
+- Requirement: Backlog TR-81: approved release: merge, confirm live SHA on srv-dbuq98ojo6nc73aro66g, check caching, screenshot public site, Business Workspace and Operator Console on phone and laptop
+- Files: docs/transformation/05_RELEASE_PLAN.md
+- Acceptance: Merge on main, live deploy succeeded on the merge commit, health and start-up diagnostics checked, live screenshots compared with the test site
