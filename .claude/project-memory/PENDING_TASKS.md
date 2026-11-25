@@ -177,7 +177,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Approve → booking doc + job; reject → hold released, follow-up returns to AWAITING_CUSTOMER
 
 ## T-132 R-12 AI Receptionist: warm_transfer with whisper briefing and return-to-receptionist
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: warm_transfer with whisper briefing and return-to-receptionist (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-12)
 - Files: docs/ai-receptionist/
