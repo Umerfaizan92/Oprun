@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-240 (IN_PROGRESS)
-LAST COMPLETED STEP: no errors
-FILES MODIFIED: .claude/project-memory/PROGRESS.md
+LAST COMPLETED STEP: owner's security settings in effect (diagnostics 15/16)
+FILES MODIFIED: .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 1 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Wait for the owner's live check; if anything differs from the test site, fix through a new tested commit
+NEXT EXACT ACTION: When the owner confirms the live check, complete T-240 (TR-81)
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-215 at 2026-11-25T15:54:19+00:00
+LAST CHECKPOINT: CP-216 at 2026-11-25T17:16:49+00:00
 <!-- handover:end -->
 
 ## Notes

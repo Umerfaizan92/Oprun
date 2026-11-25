@@ -3013,3 +3013,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Wait for the owner's live check; if anything differs from the test site, fix through a new tested commit
+
+## CP-216 2026-11-25T17:16:49+00:00 T-240 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-240 (IN_PROGRESS)
+- Completed steps: Release live; owner's security settings in effect (diagnostics 15/16)
+- Incomplete steps: Owner: quick live check on phone/laptop; top up Gemini and OpenAI credits; optionally SESSION_TTL_DAYS=30
+- Files modified (uncommitted at checkpoint): .claude/project-memory/ERROR_LOG.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 24a5a0c (TR-81: release live on www.oprun.ai (9074580)); 1 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: When the owner confirms the live check, complete T-240 (TR-81)
