@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Stylesheet trimming assessed (D-079): not worthwhile. TR-72 code work complete at 1feb0b2 unless the owner asks for a structural change (server-rendered first page).
-FILES MODIFIED: .claude/project-memory/DECISIONS.md; qa/reports/LIGHTHOUSE.md
+LAST COMPLETED STEP: Release plan for TR-80/TR-81 written and checked against the code
+FILES MODIFIED: .claude/project-memory/PROGRESS.md; SHA256SUMS.txt; docs/transformation/05_RELEASE_PLAN.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 2 file(s)
+UNCOMMITTED CHANGES: 3 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Wait for owner input; offer to update the test site to the latest commit
+NEXT EXACT ACTION: When the owner says so: push the candidate to claude/transformation-staging for the TR-80 review
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-210 at 2026-11-25T07:23:01+00:00
+LAST CHECKPOINT: CP-211 at 2026-11-25T08:38:09+00:00
 <!-- handover:end -->
 
 ## Notes

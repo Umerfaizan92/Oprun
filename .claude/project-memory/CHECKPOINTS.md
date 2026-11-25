@@ -2943,3 +2943,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Wait for owner input; offer to update the test site to the latest commit
+
+## CP-211 2026-11-25T08:38:09+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Release plan for TR-80/TR-81 written and checked against the code
+- Incomplete steps: Owner: update test site to the candidate for TR-80 review; TR-73 output; TR-81 approval and env settings
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; SHA256SUMS.txt; docs/transformation/05_RELEASE_PLAN.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 8f0cdb4 (Handover: TR-72 status after stages 5-7); 76 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: When the owner says so: push the candidate to claude/transformation-staging for the TR-80 review

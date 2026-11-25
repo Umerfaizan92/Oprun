@@ -113,3 +113,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-22: T-204 gold scale and hard-coded gold clean-up done (no visual change on 105 screenshots); pushed to oprun-test.
 - 2026-11-22: T-205 design-system catalogue + shared component styles done; on oprun-test.
 - 2026-11-25: 25 Nov: test site (oprun-test, srv-dc1keajl550s73eolqk0) updated to d017ea0 at the owner's request (deploy dep-dc36j5s9v7es73fmo88g live 04:53 UTC; test data reset). Continuing TR-72 stage 5.
+- 2026-11-25: 25 Nov: release plan prepared (docs/transformation/05_RELEASE_PLAN.md): database changes since main 6cbbe20 reviewed (15 new tables, new columns, 7 indexes, all additive; 13 standard agents created once on first start), owner pre-release steps, release and rollback steps, TR-80 review checklist. No production change made.
