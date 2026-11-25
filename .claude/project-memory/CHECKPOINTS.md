@@ -3125,3 +3125,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: R-16 (T-136) knowledge auto-load then R-15 UI
+
+## CP-224 2026-11-25T21:49:46+00:00 T-140 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-140 (NOT_STARTED)
+- Completed steps: R-15/R-18 owner set-up steps built and released behind RECEPTIONIST_ENABLED (off). Release R-3 live, diagnostics 16/16. Public receptionist page checked: its claims match what is live today.
+- Incomplete steps: R-20 wording when the new receptionist goes live; R-01/R-02 need owner provider keys; R-17 needs Telnyx staging; then AI Website plan W-05 (T-151).
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 145ead2 (Release R-3 started: AI receptionist behind its flag; rollback point dep-dc3jq0e0tbcc73bu4e4g)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start AI Website plan W-05 (T-151) from docs; receptionist work waits on owner keys.

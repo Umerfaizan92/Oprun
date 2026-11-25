@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-134 (TESTING)
-LAST COMPLETED STEP: R-03,R-04,R-07,R-08,R-09,R-10,R-11,R-13,R-14 web side built and tested
-FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md
+CURRENT TASK: T-140 (NOT_STARTED)
+LAST COMPLETED STEP: R-15/R-18 owner set-up steps built and released behind RECEPTIONIST_ENABLED (off). Release R-3 live, diagnostics 16/16. Public receptionist page checked: its claims match what is live today.
+FILES MODIFIED: .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: R-16 (T-136) knowledge auto-load then R-15 UI
+NEXT EXACT ACTION: Start AI Website plan W-05 (T-151) from docs; receptionist work waits on owner keys.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-223 at 2026-11-25T20:33:30+00:00
+LAST CHECKPOINT: CP-224 at 2026-11-25T21:49:46+00:00
 <!-- handover:end -->
 
 ## Notes
