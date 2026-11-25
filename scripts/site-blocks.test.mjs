@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import Database from 'better-sqlite3';
-import { renderPage, prePublishChecks, BLOCK_TYPES } from '../src/seo/builder.js';
+import fs from 'node:fs';
+import { renderPage, prePublishChecks, BLOCK_TYPES, siteCsp, CINEMATIC_LOADER } from '../src/seo/builder.js';
 import { startServer } from './test-server.mjs';
 import { seedOwner } from './visual/session.mjs';
 
@@ -74,4 +75,31 @@ test('the quote form sends service and suburb into the enquiry', async (t) => {
   const d = new Database(s.dbPath); t.after(() => d.close());
   const row = JSON.stringify(d.prepare("SELECT * FROM tenant_documents WHERE organisation_id=? AND kind='enquiry'").all(owner.org));
   assert.match(row, /Service: Hot water INJECT\\nSuburb: Fremantle\\n\\nNo hot water/, 'service and suburb are on the enquiry, on one line each');
+});
+
+test('W-06: only a page with a cinematic hero loads the scene script, and only that page may run scripts', async (t) => {
+  const plain = renderPage(page([{ type: 'hero', heading: 'Plumber' }]), { site });
+  const cine = renderPage(page([{ type: 'cinematic_hero', heading: 'Plumber', preset: 'tools', poster: '/m/p', poster_alt: '' }]), { site: { ...site, brand: { primary_color: '#0b6e4f' } } });
+  assert.ok(!plain.includes('<script type="module"'), 'no script on a plain page');
+  assert.equal((cine.match(/<script type="module"/g) || []).length, 1);
+  assert.ok(cine.includes(`src="${CINEMATIC_LOADER}"`)); assert.match(cine, /data-cinematic="tools" data-color="#0b6e4f"/);
+  assert.doesNotMatch(siteCsp(plain), /script-src/); assert.match(siteCsp(cine), /; script-src 'self'$/);
+  assert.match(siteCsp(cine), /^default-src 'none'/, 'everything else stays closed');
+  const s = await startServer(); t.after(() => s.stop());
+  for (const [name, enc, want] of [['cinematic-loader.js', 'br', 'br'], ['cinematic.js', 'gzip', 'gzip'], ['cinematic.js', '', null]]) {
+    const r = await fetch(`${s.base}/_site/${name}?v=1`, { headers: { 'accept-encoding': enc || 'identity' } });
+    assert.equal(r.status, 200, name); assert.match(r.headers.get('content-type'), /javascript/); assert.equal(r.headers.get('x-content-type-options'), 'nosniff');
+    if (want === null) assert.match(await r.text(), /WebGL|webgl|three/i);
+  }
+  for (const bad of ['hero-3d.js', '..%2Fsrc%2Fserver.js', 'cinematic.mjs']) assert.equal((await fetch(`${s.base}/_site/${bad}`)).status, 404, bad);
+});
+
+test('W-06 speed budget: tiny loader, scene within budget, poster loads first', () => {
+  const size = (f) => fs.statSync(new URL(`../saas/site-runtime/${f}`, import.meta.url)).size;
+  assert.ok(size('cinematic-loader.js') <= 2048, `loader ${size('cinematic-loader.js')} bytes`);
+  assert.ok(size('cinematic.js.br') <= 130 * 1024, `scene ${Math.round(size('cinematic.js.br') / 1024)} KB compressed`);
+  const src = fs.readFileSync(new URL('../saas/site-runtime/src/cinematic.mjs', import.meta.url), 'utf8');
+  assert.match(src, /DURATION_MS = 3[0-9]{3}\b/, 'plays for under four seconds'); assert.match(src, /setAnimationLoop\(null\)/, 'rendering stops');
+  const html = renderPage(page([{ type: 'cinematic_hero', heading: 'Plumber', poster: '/m/p', poster_alt: 'Van' }]), { site });
+  assert.match(html, /<img[^>]+fetchpriority="high"/); assert.doesNotMatch(html.match(/<div class="poster">.*?<\/div>/)[0], /loading="lazy"/, 'the poster is not lazy-loaded');
 });

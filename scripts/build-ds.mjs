@@ -11,6 +11,18 @@ const result = await build({
 const bytes = Object.values(result.metafile.outputs)[0].bytes;
 console.log(`saas/ds/hero-3d.js ${(bytes / 1024).toFixed(1)} KB (minified)`);
 
+// W-06: the cinematic hero for business websites, served from /_site/ on oprun.ai and on custom domains.
+const site = await build({
+  entryPoints: ['saas/site-runtime/src/cinematic.mjs'], outfile: 'saas/site-runtime/cinematic.js', bundle: true, format: 'esm', minify: true,
+  target: ['es2020'], legalComments: 'eof', metafile: true, logLevel: 'warning'
+});
+console.log(`saas/site-runtime/cinematic.js ${(Object.values(site.metafile.outputs)[0].bytes / 1024).toFixed(1)} KB (minified)`);
+for (const name of ['cinematic.js', 'cinematic-loader.js']) {
+  const src = fs.readFileSync(`saas/site-runtime/${name}`);
+  fs.writeFileSync(`saas/site-runtime/${name}.br`, zlib.brotliCompressSync(src, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }));
+  fs.writeFileSync(`saas/site-runtime/${name}.gz`, zlib.gzipSync(src, { level: 9 }));
+}
+
 // Pre-compressed copies for every design-system file, served by src/public-site.js. Rebuilt every time so they never go stale.
 for (const name of fs.readdirSync('saas/ds').filter((f) => /\.(js|css)$/.test(f))) {
   const src = fs.readFileSync(`saas/ds/${name}`);

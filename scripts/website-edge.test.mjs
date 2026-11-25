@@ -123,6 +123,10 @@ test('a live domain shows only its own published pages at the root, with sitemap
   assert.equal(call(s.handle, { url: '/sites/other/', headers: H }).out.status, 404, 'another business site is not reachable');
   r = call(s.handle, { url: '/sites/fleet-parlour/services?form=sent', headers: H }).out; assert.equal(r.status, 301); assert.equal(r.redirect, '/services?form=sent');
   assert.match(call(s.handle, { url: '/robots.txt', headers: H }).out.body, /Sitemap: https:\/\/www\.fleetparlour\.com\.au\/sitemap\.xml/);
+  // W-06: the cinematic hero files come from the business's own domain; nothing else under /_site/ is served.
+  r = call(s.handle, { url: '/_site/cinematic-loader.js?v=1', headers: H }).out; assert.equal(r.status, 200); assert.match(String(r.body), /data-cinematic/); assert.equal(r.headers['X-Content-Type-Options'], 'nosniff');
+  assert.equal(call(s.handle, { url: '/_site/cinematic.js', headers: H }).out.status, 200);
+  assert.equal(call(s.handle, { url: '/_site/hero-3d.js', headers: H }).out.status, 404);
   assert.match(call(s.handle, { url: '/sitemap.xml', headers: H }).out.body, /fleetparlour/);
   s.db.prepare("INSERT INTO website_redirects VALUES ('site-a','org-a','/old-page','/services',301,'transfer','now')").run();
   r = call(s.handle, { url: '/old-page/', headers: H }).out; assert.equal(r.status, 301); assert.equal(r.redirect, '/services');

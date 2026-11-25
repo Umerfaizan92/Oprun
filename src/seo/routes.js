@@ -5,7 +5,22 @@ import crypto from 'node:crypto';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { CONTENT_KINDS } from './content.js';
-import { TEMPLATES, BLOCK_TYPES } from './builder.js';
+import { TEMPLATES, BLOCK_TYPES, siteCsp } from './builder.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+// W-06: the cinematic hero files for business websites. Only these two names are served from /_site/.
+const RUNTIME_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../saas/site-runtime');
+const RUNTIME_FILES = new Set(['cinematic-loader.js', 'cinematic.js']);
+export function sendSiteRuntime(req, res, name = req.params.file) {
+  if (!RUNTIME_FILES.has(name)) return res.status(404).type('text').send('Not found');
+  const enc = String(req.get('accept-encoding') || ''), variant = /\bbr\b/.test(enc) ? ['.br', 'br'] : /\bgzip\b/.test(enc) ? ['.gz', 'gzip'] : ['', null];
+  const file = path.join(RUNTIME_DIR, name + variant[0]);
+  if (!fs.existsSync(file)) return res.status(404).type('text').send('Not found');
+  res.set({ 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin', Vary: 'Accept-Encoding' });
+  if (variant[1]) res.set('Content-Encoding', variant[1]);
+  res.type('text/javascript').send(fs.readFileSync(file));
+}
 import { GOOGLE_SERVICES } from './google.js';
 import { AUDIT_CATEGORIES } from './audit.js';
 
@@ -119,7 +134,8 @@ export function installSeoRoutes(app, { db, service, engine, requireSaasUser, re
   });
 
   // ---------- published websites built with the Website Builder ----------
-  const send = (res, r) => { if (!r) return res.status(404).type('html').send('<!doctype html><title>Not found</title><h1>Page not found</h1>'); if (r.status === 403) return res.status(403).type('text').send('This preview link is not valid or has expired.'); res.set('Cache-Control', r.preview ? 'no-store' : 'public, max-age=300'); if (r.preview) res.set('X-Robots-Tag', 'noindex, nofollow'); res.set('Content-Security-Policy', "default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'"); res.type('html').send(r.html); };
+  const send = (res, r) => { if (!r) return res.status(404).type('html').send('<!doctype html><title>Not found</title><h1>Page not found</h1>'); if (r.status === 403) return res.status(403).type('text').send('This preview link is not valid or has expired.'); res.set('Cache-Control', r.preview ? 'no-store' : 'public, max-age=300'); if (r.preview) res.set('X-Robots-Tag', 'noindex, nofollow'); res.set('Content-Security-Policy', siteCsp(r.html)); res.type('html').send(r.html); };
+  app.get('/_site/:file', (req, res) => sendSiteRuntime(req, res));
   app.get('/sites/:site/robots.txt', (req, res) => { const x = service.siteRobots(req.params.site); if (!x) return res.status(404).end(); res.set('Cache-Control', 'public, max-age=3600').type('text/plain').send(x); });
   app.get('/sites/:site/llms.txt', (req, res) => { const x = service.siteLlms(req.params.site); if (!x) return res.status(404).type('text/plain').send('Not found'); res.set({ 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' }).type('text/markdown; charset=utf-8').send(x); });
   app.get('/sites/:site/sitemap.xml', (req, res) => { const x = service.siteSitemap(req.params.site); if (!x) return res.status(404).end(); res.type('application/xml').send(x); });

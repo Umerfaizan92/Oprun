@@ -9,6 +9,8 @@
 // Nothing here runs unless CLOUDFLARE_SAAS_TOKEN, CLOUDFLARE_SAAS_ZONE_ID, CLOUDFLARE_ACCOUNT_ID and
 // CLOUDFLARE_SAAS_DOMAIN are set. Secrets are never logged.
 import crypto from 'node:crypto';
+import { siteCsp } from '../seo/builder.js';
+import { sendSiteRuntime } from '../seo/routes.js';
 
 export const WORKER_NAME = 'oprun-sites-edge';
 
@@ -111,7 +113,6 @@ export function createEdge({ env, fetchImpl = globalThis.fetch, log = console })
   return { config: c, ready: c.ready, setup, addHostname, getHostname, deleteHostname, summarise, fromEdge };
 }
 
-const SITE_CSP = "default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'";
 const notFound = (res) => res.status(404).set('Cache-Control', 'no-store').type('html').send('<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Not found</title><h1>Page not found</h1>');
 
 /**
@@ -139,12 +140,14 @@ export function edgeHandler({ edge, hub, seo }) {
     if (path === '/robots.txt') { const x = seo.siteRobots ? seo.siteRobots(site.slug, mount) : null; return res.set('Cache-Control', 'public, max-age=3600').type('text/plain').send(x || `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`); }
     if (path === '/llms.txt') { const x = seo.siteLlms?.(site.slug, mount); return x ? res.set({ 'Cache-Control': 'public, max-age=3600', 'X-Content-Type-Options': 'nosniff' }).type('text/markdown; charset=utf-8').send(x) : notFound(res); }
     if (path === '/sitemap.xml') { const x = seo.siteSitemap(site.slug, mount); return x ? res.set('Cache-Control', 'public, max-age=3600').type('application/xml').send(x) : notFound(res); }
+    // W-06: the cinematic hero files are served from the business's own domain, so the page keeps script-src 'self'.
+    if (/^\/_site\/(cinematic-loader|cinematic)\.js$/.test(path)) return sendSiteRuntime(req, res, path.slice(7));
     const m = /^\/([a-z0-9][a-z0-9-]{0,79})?\/?$/.exec(path);
     if (!m) return notFound(res);
     const form = ['sent', 'error'].includes(req.query.form) ? req.query.form : null;
     const r = seo.renderPublic(site.slug, m[1] || 'home', null, form, mount);
     if (!r || r.status !== 200) return notFound(res);
-    res.set({ 'Cache-Control': form ? 'no-store' : 'public, max-age=300', 'Content-Security-Policy': SITE_CSP, 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
+    res.set({ 'Cache-Control': form ? 'no-store' : 'public, max-age=300', 'Content-Security-Policy': siteCsp(r.html), 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
     return res.type('html').send(r.html);
   };
 }
