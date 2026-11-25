@@ -132,6 +132,46 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
   const state = (o) => Buffer.from(JSON.stringify({ v: 'sp-voice', ...o })).toString('base64');
   const readState = (s) => { try { const o = JSON.parse(Buffer.from(String(s || ''), 'base64').toString()); return o?.v === 'sp-voice' ? o : null; } catch { return null; } };
 
+  // R-12 (T-132): warm transfer. Team numbers stay on the server: they are stored only on the transfer leg's row.
+  const legMeta = (leg) => { try { return JSON.parse(leg?.summary_json || '{}'); } catch { return {}; } };
+  function setTransfer(parentId, t) {
+    const c = call(parentId); if (!c) return;
+    let sj = {}; try { sj = JSON.parse(c.summary_json || '{}'); } catch { sj = {}; }
+    db.prepare('UPDATE voice_calls SET summary_json=?,updated_at=? WHERE call_control_id=?').run(JSON.stringify({ ...sj, transfer: { ...(sj.transfer || {}), ...t, at: iso() } }), iso(), parentId);
+  }
+  async function hangupLeg(id) { try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/hangup`, { command_id: cmdId(id, 'hangup-leg') }); } catch (e) { fail(id, 'hangup', e); } }
+  async function dialTarget(parentId, targets, index, whisper) {
+    const parent = call(parentId);
+    if (!parent || parent.ended_at) return setTransfer(parentId, { status: 'failed', reason: 'caller left' });
+    if (index >= targets.length) return setTransfer(parentId, { status: 'failed', reason: 'nobody answered' });
+    setTransfer(parentId, { status: 'ringing', attempt: index + 1, of: targets.length });
+    try {
+      const r = await fetchImpl(base() + '/calls', { method: 'POST', headers: { authorization: `Bearer ${env.TELNYX_API_KEY}`, 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify({ connection_id: env.TELNYX_CONNECTION_ID, to: targets[index], from: parent.to_number, timeout_secs: 25, client_state: state({ stage: 'rx_whisper', parent: parentId }) }) });
+      const j = await r.json().catch(() => ({})), id = j?.data?.call_control_id;
+      if (!r.ok || !id) throw new Error(j?.errors?.[0]?.detail || 'Telnyx did not start the call.');
+      db.prepare("INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,route,account,started_at,updated_at,summary_json) VALUES (?,?,?,?,?,?,'rx_whisper','transfer_leg',?,?,?,?)")
+        .run(id, j.data.call_session_id || null, parent.organisation_id, 'transfer_leg', parent.to_number, targets[index], parent.account || 'platform', iso(), iso(), JSON.stringify({ parent: parentId, targets, index, whisper }));
+    } catch (e) { fail(parentId, 'transfer_dial', e); return dialTarget(parentId, targets, index + 1, whisper); }
+  }
+  async function advanceTransfer(legId) {
+    const leg = call(legId), meta = legMeta(leg);
+    if (!meta.parent || meta.advanced) return;
+    db.prepare('UPDATE voice_calls SET summary_json=? WHERE call_control_id=?').run(JSON.stringify({ ...meta, advanced: true }), legId);
+    const parent = call(meta.parent); let pt = {}; try { pt = JSON.parse(parent?.summary_json || '{}').transfer || {}; } catch { pt = {}; }
+    if (pt.status === 'connected') return;
+    await dialTarget(meta.parent, meta.targets || [], (meta.index || 0) + 1, meta.whisper);
+  }
+  // Starts the transfer and returns at once; the worker asks for the status while it keeps the caller company.
+  function warmTransfer(parentId, { targets = [], whisper = '' } = {}) {
+    const c = call(parentId);
+    if (!c || c.ended_at) return { ok: false, reason: 'call ended' };
+    if (c.account === 'tenant' || !env.TELNYX_CONNECTION_ID || !env.TELNYX_API_KEY) return { ok: false, reason: 'transfer not available on this line' };
+    if (!targets.length) return { ok: false, reason: 'no transfer targets' };
+    void dialTarget(parentId, targets, 0, String(whisper).slice(0, 300));
+    return { ok: true };
+  }
+  const transferStatus = (parentId) => { try { return JSON.parse(call(parentId)?.summary_json || '{}').transfer || { status: 'none' }; } catch { return { status: 'none' }; } };
+
   // R-05 (T-125): a business with a live AI receptionist is answered by the voice worker over a media stream. If the
   // stream cannot start, or the worker has not loaded the call within the time limit, or it drops mid-call, the call
   // moves down the existing chain: Telnyx assistant -> transfer -> voicemail -> apology. A caller is never left in silence.
@@ -179,6 +219,7 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     const c = call(id); if (!c || c.stage === 'ended') return;
     // An outgoing click-to-call is not a missed incoming call: record its end only.
     if (String(c.stage).startsWith('c2c')) { update(id, { stage: 'ended', ended_at: iso(), hangup_cause: payload.hangup_cause || null }); return; }
+    if (String(c.stage).startsWith('rx_')) { const was = c.stage; update(id, { stage: 'ended', ended_at: iso(), hangup_cause: payload.hangup_cause || null }); if (was !== 'rx_bridged') await advanceTransfer(id); return; }
     const start = Date.parse(payload.start_time || c.answered_at || c.started_at), end = Date.parse(payload.end_time || iso());
     const duration = Number.isFinite(start) && Number.isFinite(end) && end >= start ? Math.round((end - start) / 1000) : null;
     update(id, { stage: 'ended', ended_at: iso(), hangup_cause: payload.hangup_cause || null, duration_seconds: duration });
@@ -223,6 +264,26 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
       try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/transfer`, { to: cs.to, from: c.to_number, timeout_secs: 30, command_id: cmdId(id, 'c2c') }); } catch (e) { fail(id, 'c2c', e); }
       return { stage: 'c2c_connecting' };
     }
+    // R-12: the team member's phone leg of a warm transfer.
+    if (cs?.stage === 'rx_whisper' && type === 'call.answered') {
+      const leg = call(id), meta = legMeta(leg); update(id, { stage: 'rx_whisper', answered_at: iso() });
+      try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/gather_using_speak`, { payload: meta.whisper, voice: env.TELNYX_TTS_VOICE || 'Telnyx.KokoroTTS.af_heart', language: 'en', valid_digits: '1', minimum_digits: 1, maximum_digits: 1, timeout_millis: 8000, command_id: cmdId(id, 'whisper'), client_state: state({ stage: 'rx_whisper', parent: meta.parent }) }); }
+      catch (e) { fail(id, 'whisper', e); await hangupLeg(id); }
+      return { whisper: true };
+    }
+    if (cs?.stage === 'rx_whisper' && type === 'call.gather.ended') {
+      const leg = call(id), meta = legMeta(leg);
+      if (String(p.digits || '') !== '1') { await hangupLeg(id); return { declined: true }; }
+      const parent = call(meta.parent);
+      if (!parent || parent.ended_at) { await hangupLeg(id); setTransfer(meta.parent, { status: 'failed', reason: 'caller left' }); return { caller_gone: true }; }
+      try {
+        if (['streaming', 'streaming_live'].includes(parent.stage)) await telnyx(`/calls/${encodeURIComponent(parent.call_control_id)}/actions/streaming_stop`, { command_id: cmdId(parent.call_control_id, 'stream-stop-transfer') }).catch((e) => fail(parent.call_control_id, 'streaming_stop', e));
+        await telnyx(`/calls/${encodeURIComponent(parent.call_control_id)}/actions/bridge`, { call_control_id: id, command_id: cmdId(parent.call_control_id, 'bridge-' + id) });
+        update(id, { stage: 'rx_bridged' }); update(parent.call_control_id, { stage: 'transferring', route: 'warm_transfer', transferred_to_human: 1 });
+        setTransfer(parent.call_control_id, { status: 'connected' });
+        return { bridged: true };
+      } catch (e) { fail(parent.call_control_id, 'bridge', e); await hangupLeg(id); return { bridged: false }; }
+    }
     if (type === 'call.answered') { await onAnswered(id); return { stage: call(id).stage }; }
     if (type === 'call.transcription') {
       const d = p.transcription_data || {};
@@ -263,6 +324,6 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     db.prepare('INSERT OR IGNORE INTO voice_calls(call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,route,account,started_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(id, j.data.call_session_id || null, org, 'business', customer, cr.number, 'c2c', 'outgoing', 'tenant', iso(), iso());
     return { call_id: id };
   }
-  return { handle, transfer, settings, businessNumber, clickToCall, setSettings: (k, s, by) => db.prepare('INSERT INTO voice_settings(owner_key,mode,transfer_number,recording_notice,voicemail_greeting,transfer_when,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner_key) DO UPDATE SET mode=excluded.mode,transfer_number=COALESCE(excluded.transfer_number,voice_settings.transfer_number),recording_notice=excluded.recording_notice,voicemail_greeting=excluded.voicemail_greeting,transfer_when=excluded.transfer_when,updated_by=excluded.updated_by,updated_at=excluded.updated_at').run(k, s.mode, s.transfer_number || null, s.recording_notice ? 1 : 0, s.voicemail_greeting || null, s.transfer_when || 'on_request', by, iso()),
+  return { handle, transfer, warmTransfer, transferStatus, settings, businessNumber, clickToCall, setSettings: (k, s, by) => db.prepare('INSERT INTO voice_settings(owner_key,mode,transfer_number,recording_notice,voicemail_greeting,transfer_when,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(owner_key) DO UPDATE SET mode=excluded.mode,transfer_number=COALESCE(excluded.transfer_number,voice_settings.transfer_number),recording_notice=excluded.recording_notice,voicemail_greeting=excluded.voicemail_greeting,transfer_when=excluded.transfer_when,updated_by=excluded.updated_by,updated_at=excluded.updated_at').run(k, s.mode, s.transfer_number || null, s.recording_notice ? 1 : 0, s.voicemail_greeting || null, s.transfer_when || 'on_request', by, iso()),
     publicSettings: (k) => { const s = settings(k); return { mode: s.mode, recording_notice: Boolean(s.recording_notice), voicemail_greeting: s.voicemail_greeting || '', transfer_when: s.transfer_when, transfer_number: s.transfer_number ? '••• ' + String(s.transfer_number).slice(-3) : null }; }, calls: (org, limit = 50) => db.prepare('SELECT call_control_id,from_number,to_number,stage,route,voicemail,transferred_to_human,recording_url,transcript,failures_json,started_at,answered_at,ended_at,duration_seconds,hangup_cause FROM voice_calls WHERE organisation_id IS ? ORDER BY started_at DESC LIMIT ?').all(org, limit).map((c) => ({ ...c, failures: JSON.parse(c.failures_json), failures_json: undefined })), call };
 }

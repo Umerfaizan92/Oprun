@@ -45,14 +45,15 @@ const SCHEMAS = {
   take_message: z.object({ message: z.string().trim().min(3).max(1000), callback_window: z.string().max(120).optional() }).strict(),
   check_availability: z.object({ service_id: z.string().max(80).optional(), service: z.string().max(120).optional(), date_from: z.string().max(10), date_to: z.string().max(10), suburb: z.string().max(80).optional(), duration_minutes: z.number().int().min(15).max(600).optional() }).strict().refine((x) => x.service_id || x.service, { message: 'service', path: ['service'] }),
   propose_booking: z.object({ slot_id: z.string().max(1000), service: z.string().max(120), address: z.string().trim().min(3).max(300), notes: z.string().max(1000).optional() }).strict(),
+  warm_transfer: z.object({ reason: z.enum(['caller_asked', 'urgent', 'complaint', 'cannot_help', 'existing_job']), summary: z.string().trim().min(5).max(200), target: z.enum(['owner', 'team', 'specific']), target_user_id: z.string().max(80).optional() }).strict(),
   draft_followup: z.object({ message_class: z.enum(['post_call_ack', 'booking_confirmation', 'followup_nudge', 'free_text_reply']), channel: z.enum(['sms', 'email']), intent: z.string().trim().min(3).max(500) }).strict(),
   merge_to_unibox: z.object({ note: z.string().max(500).optional() }).strict(),
   end_call: z.object({ reason: z.enum(['completed', 'caller_hung_up', 'spam', 'wrong_number', 'transferred', 'silence']) }).strict()
 };
 // Tools defined in 04_TOOLS.md that arrive in later steps (R-08, R-10 to R-14).
-const LATER = new Set(['warm_transfer']);
+const LATER = new Set();
 
-export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, followups = null, knowledge = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
+export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, followups = null, knowledge = null, voice = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
   const iso = () => new Date(clock()).toISOString();
   const rate = new Map(); // call_control_id -> [windowStart, count]
   const RATE_PER_MIN = Number(env.VOICE_TOOL_RATE_PER_MIN || 120);
@@ -127,6 +128,20 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
     const recent = db.prepare("SELECT m.summary FROM comms_thread_meta m JOIN comms_threads t ON t.id=m.thread_id WHERE m.organisation_id=? AND m.customer_id=? AND t.status<>'closed' AND t.last_message_at>=? AND m.summary IS NOT NULL ORDER BY t.last_message_at DESC LIMIT 2").all(org, c.id, new Date(clock() - 14 * 86400000).toISOString()).map((x) => String(x.summary).slice(0, 140));
     return [`First name: ${caller.first_name || ''}`, `Customer status: ${c.status}`, jobs.length ? `Recent jobs: ${jobs.join('; ')}` : '', enq ? `Open enquiry: ${enq.title}${enq.state ? ` (${enq.state.toLowerCase().replace(/_/g, ' ')})` : ''}` : '', caller.caller_note ? `Staff note: ${caller.caller_note}` : '', recent.length ? `Recent messages: ${recent.join(' | ')}` : ''].filter(Boolean).join('\n').slice(0, 1600);
   }
+
+  // Open now by the receptionist's weekly hours ({mon:[["07:00","17:00"]],...}); unknown hours count as open.
+  function openByHours(cfg) {
+    let h; try { h = JSON.parse(cfg.hours_json || '{}'); } catch { h = {}; }
+    const keys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    if (!keys.some((k) => Array.isArray(h[k]))) return true;
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-AU', { timeZone: cfg.timezone || 'Australia/Perth', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(clock())).map((x) => [x.type, x.value]));
+    const day = keys[['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(p.weekday)], now = `${p.hour}:${p.minute}`;
+    return (h[day] || []).some(([a, b]) => now >= a && now < b);
+  }
+  app.get('/api/internal/voice/transfer-status', guard, (req, res) => {
+    const t = voice?.transferStatus ? voice.transferStatus(req.voice.call.call_control_id) : { status: 'none' };
+    res.set('cache-control', 'no-store').json({ ok: true, code: 'OK', data: { status: t.status || 'none' }, speak: t.status === 'failed' ? "They're tied up right now. Let me take a message and they'll call you straight back." : t.status === 'connected' ? 'Putting you through now.' : '' });
+  });
 
   // ------------------------------------------------------------------ tools
   app.post('/api/internal/voice/tools/:tool', guard, async (req, res) => {
@@ -219,6 +234,24 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
 
     check_availability(org, call, a) { return booking ? booking.checkAvailability(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: "I'll get the team to call you to confirm a time." }; },
     propose_booking(org, call, a) { return booking ? booking.proposeBooking(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: "I'll get the team to call you to confirm a time." }; },
+    // R-12 (T-132): rules from 04 §3.5; numbers are chosen here and never returned.
+    warm_transfer(org, call, a) {
+      const cfg = db.prepare('SELECT transfer_when,transfer_targets_json,hours_json,timezone FROM receptionist_config WHERE organisation_id=?').get(org) || {};
+      const no = { status: 409, code: 'ERR_NOT_ALLOWED', speak: "They're tied up right now. Let me take a message and they'll call you straight back." };
+      if (!voice?.warmTransfer || cfg.transfer_when === 'never') return no;
+      if (cfg.transfer_when === 'urgent' && !['urgent', 'complaint'].includes(a.reason)) return no;
+      const targets = (() => { try { return JSON.parse(cfg.transfer_targets_json || '[]'); } catch { return []; } })().filter((x) => x && x.e164);
+      const open = openByHours(cfg);
+      if (!open && !(a.reason === 'urgent' && targets.some((x) => x.after_hours_urgent))) return no;
+      let pick = a.target === 'owner' ? targets.filter((x) => x.role === 'owner' || x.is_owner) : a.target === 'specific' ? targets.filter((x) => String(x.user_id || '') === String(a.target_user_id || '')) : targets.filter((x) => x.role !== 'owner' || targets.length === 1);
+      if (a.target === 'owner' && !pick.length) pick = targets.slice(0, 1);
+      if (!open) pick = pick.filter((x) => x.after_hours_urgent);
+      if (!pick.length) return a.target === 'specific' ? { status: 400, code: 'ERR_VALIDATION', data: { missing: ['target_user_id'] }, speak: 'Who would you like to speak to?' } : no;
+      const first = String(db.prepare('SELECT name FROM tenant_customers WHERE id=(SELECT customer_id FROM voice_calls WHERE call_control_id=? AND organisation_id=?) AND organisation_id=?').get(call.call_control_id, org, org)?.name || 'A caller').split(/\s+/)[0];
+      const whisper = `AI receptionist: ${first} about ${String(a.summary).replace(/[<>]/g, '')}. Press 1 to take the call, or hang up to let me take a message.`;
+      const r = voice.warmTransfer(call.call_control_id, { targets: pick.map((x) => x.e164), whisper });
+      return r.ok ? { data: { status: 'ringing' }, speak: "I'll just see if they're free, one moment." } : no;
+    },
     draft_followup(org, call, a) { return followups ? followups.draftFollowup(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: 'The team will send that through shortly.' }; },
     // Live use only adds a note the caller asked for; the call itself is filed once after it ends (R-08).
     merge_to_unibox(org, call, a) {

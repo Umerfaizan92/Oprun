@@ -157,3 +157,27 @@ test('spam and metering: block list, short and silent calls are free, one usage 
   assert.equal(data.usage.cap_reached, true); assert.equal(data.usage.cap_action, 'voicemail'); assert.equal(data.usage.billable_calls_this_month, 5);
   assert.equal(data.spam.close_politely, true, 'a blocked caller is closed politely at answer');
 });
+
+test('warm_transfer tool: business rules, numbers never returned, status for the worker (T-132)', async (t) => {
+  const s = await startServer({ ...ENV, TELNYX_CONNECTION_ID: 'conn-x', TELNYX_API_KEY: 'key-x', TELNYX_API_BASE_URL: 'http://127.0.0.1:9/v2' }); t.after(() => s.stop());
+  const owner = await seedOwner(s, { business: 'Transfer Plumbing' });
+  const sql = (q, ...a) => { const d = new Database(s.dbPath); try { return /^\s*select/i.test(q) ? d.prepare(q).all(...a) : d.prepare(q).run(...a); } finally { d.close(); } };
+  const now = new Date().toISOString();
+  sql("INSERT INTO voice_calls (call_control_id,organisation_id,scope,from_number,to_number,stage,started_at,updated_at) VALUES ('t1',?,'business','+61412000000','+61862891786','streaming_live',?,?)", owner.org, now, now);
+  const allDay = Object.fromEntries(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((d) => [d, [['00:00', '23:59']]]));
+  const cfg = (when, targets, hours = allDay) => sql("INSERT INTO receptionist_config (organisation_id,status,transfer_when,transfer_targets_json,hours_json,updated_at) VALUES (?,'live',?,?,?,?) ON CONFLICT(organisation_id) DO UPDATE SET transfer_when=excluded.transfer_when,transfer_targets_json=excluded.transfer_targets_json,hours_json=excluded.hours_json", owner.org, when, JSON.stringify(targets), JSON.stringify(hours), now);
+  const T = issueCallToken(ENV, { org: owner.org, call_control_id: 't1' }); let turn = 0;
+  const tool = async (args) => { const r = await fetch(s.base + '/api/internal/voice/tools/warm_transfer', { method: 'POST', headers: { 'content-type': 'application/json', 'x-voice-service-key': ENV.VOICE_SERVICE_KEY, authorization: 'Bearer ' + T }, body: JSON.stringify({ args, turn_index: ++turn, idempotency_key: 'wt-' + turn }) }); return r.json(); };
+  const team = [{ name: 'Sam', e164: '+61400555666', role: 'owner', user_id: 'u-sam' }, { name: 'Lee', e164: '+61400777888', user_id: 'u-lee' }];
+  cfg('never', team); assert.equal((await tool({ reason: 'caller_asked', summary: 'Wants to talk about a quote', target: 'team' })).code, 'ERR_NOT_ALLOWED');
+  cfg('urgent', team); assert.equal((await tool({ reason: 'caller_asked', summary: 'Wants to talk about a quote', target: 'team' })).code, 'ERR_NOT_ALLOWED');
+  cfg('on_request', team, { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });
+  assert.equal((await tool({ reason: 'caller_asked', summary: 'Wants to talk about a quote', target: 'team' })).code, 'ERR_NOT_ALLOWED', 'closed now');
+  cfg('on_request', team);
+  assert.equal((await tool({ reason: 'caller_asked', summary: 'Wants to talk', target: 'specific', target_user_id: 'u-nobody' })).code, 'ERR_VALIDATION', 'only people on the list');
+  const ok = await tool({ reason: 'caller_asked', summary: 'Wants to talk about a quote', target: 'owner' });
+  assert.equal(ok.code, 'OK'); assert.equal(ok.data.status, 'ringing'); assert.ok(!JSON.stringify(ok).includes('+614'), 'no numbers to the worker');
+  // The dial cannot reach the (fake) Telnyx here, so the status ends as failed and the worker is told to take a message.
+  let st; for (let i = 0; i < 40; i++) { st = await (await fetch(s.base + '/api/internal/voice/transfer-status', { headers: { 'x-voice-service-key': ENV.VOICE_SERVICE_KEY, authorization: 'Bearer ' + T } })).json(); if (st.data.status === 'failed') break; await new Promise((r) => setTimeout(r, 100)); }
+  assert.equal(st.data.status, 'failed'); assert.match(st.speak, /take a message/);
+});

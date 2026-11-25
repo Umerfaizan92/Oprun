@@ -128,7 +128,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Contract tests: wrong org token rejected; expired token rejected; idempotent replays
 
 ## T-125 R-05 AI Receptionist: voice.js: route via receptionist_numbers; on answer start streaming to oprun-voice with ca
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: voice.js: route via receptionist_numbers; on answer start streaming to oprun-voice with call token; fallback_assistant → transfer → voicemail → apology chain (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-05)
 - Files: docs/ai-receptionist/
