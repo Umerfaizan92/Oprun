@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-169 (IN_PROGRESS)
-LAST COMPLETED STEP: T-059 monthly copies (reliability.test pass)
-FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/phase-09/BACKUP_AND_RECOVERY.md; saas/app.js; saas/workspace-finance-platform.js; saas/workspace.html; scripts/reliability.test.mjs; scripts/test-finance-ui.mjs; src/reliability/backup.js
+CURRENT TASK: T-077 (IN_PROGRESS)
+LAST COMPLETED STEP: Pipeline follow-ups, T-169, T-059, T-050, T-051 released live (R-2)
+FILES MODIFIED: .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 9 file(s), saved in refs/recovery/claude/transformation-phase1/20261125T191012Z
+UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Start T-050: read docs/phase-06/REPORT.md findings
+NEXT EXACT ACTION: Review T-052 against the W-plan, then continue T-077
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-220 at 2026-11-25T19:10:12+00:00
+LAST CHECKPOINT: CP-221 at 2026-11-25T20:08:58+00:00
 <!-- handover:end -->
 
 ## Notes

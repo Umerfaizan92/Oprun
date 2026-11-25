@@ -3083,3 +3083,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T191012Z (7cb2f1c)
 - Known errors: none
 - Next exact action: Start T-050: read docs/phase-06/REPORT.md findings
+
+## CP-221 2026-11-25T20:08:58+00:00 T-077 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-077 (IN_PROGRESS)
+- Completed steps: Pipeline follow-ups, T-169, T-059, T-050, T-051 released live (R-2)
+- Incomplete steps: T-052 (custom domains, likely superseded by W-plan), T-077, AI Receptionist R-01..R-20, AI Website W-05..W-20
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 3ecf849 (Release R-2 started: tasks completed with verification evidence; rollback point dep-dc3ha1q9lscs73aumpfg)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Review T-052 against the W-plan, then continue T-077
