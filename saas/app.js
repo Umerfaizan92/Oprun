@@ -128,6 +128,8 @@ async function boot(){
     console.warn('Workspace modules failed after retry:',failed.map(x=>({module:x.name,error:x.error?.message||String(x.error)})));
     note('Signed in successfully. '+failed.map(x=>x.name).join(', ')+' is temporarily unavailable; the rest of the workspace is ready.',true);
   }
+  /* TR-72: the footer and the phone's bottom bar appear once the first page has stopped changing size (0.4 s without a change, at most 2.5 s), so they do not jump while its data arrives. */
+  window.addEventListener('gds:viewchange',()=>{const body=document.body,wrap=$('.content-wrap');if(!wrap||!window.ResizeObserver){body.classList.add('ws-settled');return}let quiet=0;const done=()=>{ro.disconnect();clearTimeout(quiet);clearTimeout(cap);body.classList.add('ws-settled')},ro=new ResizeObserver(()=>{clearTimeout(quiet);quiet=setTimeout(done,400)}),cap=setTimeout(done,2500);ro.observe(wrap)},{once:true});
   currentRole=role;{const r=NAV.resolve(location.hash,role);if(r)showView(r,{instant:true});else if(!explainSwitchedOff())showView('dashboard',{instant:true});}
   try{
     const approvals=await api('/api/saas/approvals?status=pending');

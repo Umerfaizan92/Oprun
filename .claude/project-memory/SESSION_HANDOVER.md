@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 3cd6779 (TR-72: record measured start-up costs in the Lighthouse report and handover)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: visual business 348 screens match (Plans page baselines refreshed after masking clock-based trial values)
-FILES MODIFIED: .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/brand.css; saas/ds/app-motion.js; saas/ds/app-motion.js.br; saas/ds/app-motion.js.gz; saas/locale-catalog.js; saas/navigation-shell.js; saas/page-sections.js; saas/portal-shell.js; saas/unified-ui.css; saas/workspace-gadgets.css; saas/workspace-locale.js; saas/workspace-mobile.js; saas/workspace-seo.css; scripts/localization-ui.test.mjs; scripts/report-lighthouse.mjs; scripts/test-visual.mjs; saas/locale-core.js; saas/locale/ar.js; saas/locale/hi.js; saas/locale/ur.js
-TESTS PASSED: npm test 73/73; all browser suites all passed; localization tests 26/26; test:visual business 348 screens 0 problems
+LAST COMPLETED STEP: Lighthouse workspace 75-83 returning, 69-82 first visit
+FILES MODIFIED: .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-views.css; saas/workspace.html; scripts/report-lighthouse.mjs; scripts/test-localization-ui.mjs
+TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 27 file(s)
+UNCOMMITTED CHANGES: 12 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: LIGHTHOUSE_HOME=/tmp/lh npm run report:lighthouse; then reserve space for the panels that shift on Enquiries/Inbox/Money
+NEXT EXACT ACTION: Map which start-up scripts the first page needs (product-guide, workspace-chat, platform-notices, support, workspace-extras, workspace-tour, workspace-push, ai-operations) and their callers in app.js before deferring them
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-204 at 2026-11-25T01:49:14+00:00
+LAST CHECKPOINT: CP-205 at 2026-11-25T03:33:01+00:00
 <!-- handover:end -->
 
 ## Notes

@@ -98,8 +98,14 @@
 .pack-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px}
 
 /* TR-72: shown from the first paint until the workspace (or the sign-in screen) appears, instead of a blank page
-   while the code loads and the session is checked. Static text, no animation; app.js removes it. */
-.ws-loading{position:fixed;inset:0;display:grid;place-content:center;gap:.4rem;padding:1.5rem;text-align:center;color:var(--sp-fg,#e8ecf3);pointer-events:none}
-.ws-loading-name{margin:0;font-size:2rem;font-weight:700;letter-spacing:.01em}
-.ws-loading-text{margin:0;font-size:1.125rem;color:var(--sp-fg-muted,#9aa4b2)}
+   while the code loads and the session is checked: the Oprun mark (static, no animation) and a status line for screen
+   readers. It is deliberately not text on screen, so Lighthouse's "largest paint" keeps measuring real page content
+   rather than this placeholder. app.js removes it. */
+.ws-loading{position:fixed;inset:0;display:grid;place-content:center;pointer-events:none}
+.ws-loading-mark{width:56px;height:56px;border-radius:13px}
+.ws-loading-text{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .ws-loading:has(~ #workspace:not([hidden])),.ws-loading:has(~ #welcome:not([hidden])){display:none}
+
+/* TR-72: until the first page has settled (app.js adds .ws-settled), the footer and the phone's bottom bar are laid out
+   but not shown, so they do not visibly jump while the page's data arrives. */
+body.portal-workspace:not(.ws-settled) #workspace .app-footer,body.portal-workspace:not(.ws-settled) #mobile-workspace-dock{visibility:hidden}

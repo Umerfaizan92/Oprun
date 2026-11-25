@@ -5,7 +5,8 @@ import path from 'node:path';
 import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
 // On phones the language button sits in the top bar's "More" menu (owner request 2026-11-14).
-const openLanguage=async page=>{if(!await page.locator('#workspace-language').isVisible())await page.locator('.topbar-more-toggle').click();await page.locator('#workspace-language').click();};
+// Waits for the signed-in workspace first: checking before it appears sent the helper down the phone-only path.
+const openLanguage=async page=>{await page.locator('#workspace').waitFor({state:'visible'});if(!await page.locator('#workspace-language').isVisible())await page.locator('.topbar-more-toggle').click();await page.locator('#workspace-language').click();};
 const server = await startServer(); let browser;
 try {
   const owner = await seedOwner(server);

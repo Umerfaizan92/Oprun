@@ -2859,3 +2859,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: LIGHTHOUSE_HOME=/tmp/lh npm run report:lighthouse; then reserve space for the panels that shift on Enquiries/Inbox/Money
+
+## CP-205 2026-11-25T03:33:01+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 4 verified: layout shift 0 on every workspace page; honest opening screen (logo only); npm test 73/73; test:ui 38, mobile-workspace 310, navigation 633, redesign, comms, connections, website wizard, media studio, reel maker, AI video, onboarding, localization (6/6 after helper fix) passed; visual business 348 screens 0 problems; Lighthouse workspace 75-83 returning, 69-82 first visit
+- Incomplete steps: Stage 5: load non-first-page start-up scripts after first page; frame before data calls; CSS size
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-views.css; saas/workspace.html; scripts/report-lighthouse.mjs; scripts/test-localization-ui.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 9c68494 (TR-72 (part 2, stage 3): quieter start-up and idle workspace); 70 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Map which start-up scripts the first page needs (product-guide, workspace-chat, platform-notices, support, workspace-extras, workspace-tour, workspace-push, ai-operations) and their callers in app.js before deferring them

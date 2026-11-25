@@ -6,90 +6,86 @@ Target: performance ≥ 85 on every main page. Workspace pages are measured as a
 
 | Area | Page | Perf | A11y | Best pr. | SEO | FCP ms | LCP ms | Ready (TTI) ms | TBT ms | CLS | Transfer KB | Requests | Largest paint |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| public | Home | 99 | 100 | 100 | 100 | 1263 | 1899 | 1899 | 33 | 0 | 148 | 20 | Run your world. |
-| public | Pricing | 100 | 100 | 100 | 100 | 1244 | 1694 | 1694 | 0 | 0.001 | 119 | 16 | Every plan starts with a 14-day free trial. Prices are in AU |
-| public | Features | 100 | 100 | 100 | 100 | 1204 | 1654 | 1654 | 0 | 0.001 | 117 | 15 | Enquiries from calls, email and your website land in one pla |
-| public | AI Receptionist | 100 | 100 | 100 | 100 | 1227 | 1677 | 1677 | 0 | 0.002 | 120 | 16 | The AI receptionist add-on answers your business number, tak |
-| public | Contact | 100 | 100 | 100 | 100 | 1224 | 1666 | 1666 | 0 | 0.001 | 116 | 15 | Questions before you start, a walkthrough, or help setting u |
-| public | Sign in | 99 | 100 | 93 | 58 | 1532 | 1703 | 1703 | 0 | 0 | 176 | 31 | Sign in to your workspace |
-| public | Create account | 97 | 100 | 96 | 66 | 1854 | 2154 | 2154 | 0 | 0.069 | 180 | 32 | Before a workspace is created, Oprun verifies the owner’s em |
-| workspace | Command Centre | 70 | 100 | 100 | 66 | 1683 | 4074 | 4615 | 621 | 0.028 | 453 | 51 | Subscription: trialing · External services require configure |
-| workspace-first | Command Centre (first visit) | 70 | 100 | 100 | 66 | 1559 | 4363 | 4371 | 549 | 0.028 | 475 | 51 | This quick tour shows you where everything is. It takes abou |
-| workspace | Enquiries | 77 | 100 | 100 | 66 | 1512 | 3617 | 4115 | 398 | 0.111 | 463 | 54 | Subscription: trialing · External services require configure |
-| workspace-first | Enquiries (first visit) | 64 | 100 | 100 | 66 | 1822 | 4283 | 4330 | 659 | 0.112 | 466 | 57 | This quick tour shows you where everything is. It takes abou |
-| workspace | Unified Inbox | 63 | 100 | 100 | 66 | 1527 | 4252 | 4266 | 457 | 0.224 | 459 | 56 | Email, SMS, WhatsApp, calls, voicemail, website forms and so |
-| workspace-first | Unified Inbox (first visit) | 57 | 100 | 100 | 66 | 1707 | 4608 | 4616 | 540 | 0.225 | 481 | 55 | Email, SMS, WhatsApp, calls, voicemail, website forms and so |
-| workspace | Money | 73 | 100 | 100 | 66 | 1669 | 4236 | 4252 | 374 | 0.109 | 479 | 55 | Enter what a job is worth and what the customer paid. Oprun  |
-| workspace-first | Money (first visit) | 75 | 100 | 100 | 66 | 1816 | 4277 | 4285 | 289 | 0.11 | 481 | 55 | This quick tour shows you where everything is. It takes abou |
-| workspace | Website | 73 | 100 | 100 | 66 | 1821 | 4071 | 4248 | 502 | 0.051 | 472 | 52 | Subscription: trialing · External services require configure |
-| workspace-first | Website (first visit) | 76 | 100 | 100 | 66 | 1513 | 4253 | 4253 | 380 | 0.051 | 458 | 53 | This quick tour shows you where everything is. It takes abou |
-| console | Operator Console | 100 | 100 | 100 | 54 | 911 | 911 | 911 | 0 | 0 | 146 | 10 | Oprun · Platform records stay separate from subscriber busin |
+| public | Home | 100 | 100 | 100 | 100 | 1219 | 1760 | 1766 | 0 | 0 | 148 | 20 | Your office runs. You approve. Oprun answers enquiries, drafts quotes  |
+| public | Pricing | 100 | 100 | 100 | 100 | 1205 | 1659 | 1659 | 0 | 0.001 | 119 | 16 | Simple plans. Change any time. |
+| public | Features | 100 | 100 | 100 | 100 | 1222 | 1672 | 1672 | 0 | 0.001 | 117 | 15 | Enquiries from calls, email and your website land in one place. Turn o |
+| public | AI Receptionist | 100 | 100 | 100 | 100 | 1230 | 1680 | 1680 | 0 | 0.002 | 120 | 16 | The AI receptionist add-on answers your business number, takes the det |
+| public | Contact | 100 | 100 | 100 | 100 | 1235 | 1685 | 1685 | 0 | 0.001 | 116 | 15 | Questions before you start, a walkthrough, or help setting up. A perso |
+| public | Sign in | 99 | 100 | 93 | 58 | 1522 | 1925 | 1932 | 0 | 0 | 176 | 31 | Sign in to your workspace |
+| public | Create account | 98 | 100 | 96 | 66 | 1504 | 2069 | 2069 | 0 | 0.069 | 180 | 32 | Before a workspace is created, Oprun verifies the owner’s email and mo |
+| workspace | Command Centre | 82 | 100 | 100 | 66 | 1821 | 3921 | 3921 | 239 | 0 | 445 | 49 | an element replaced before the end (such as a loading message) |
+| workspace-first | Command Centre (first visit) | 78 | 100 | 100 | 66 | 1807 | 4057 | 4057 | 341 | 0 | 448 | 50 | This quick tour shows you where everything is. It takes about a minute |
+| workspace | Enquiries | 82 | 100 | 100 | 66 | 1845 | 3945 | 4042 | 249 | 0 | 455 | 55 | Good day, Alex. |
+| workspace-first | Enquiries (first visit) | 69 | 100 | 100 | 66 | 1821 | 4218 | 4218 | 611 | 0 | 439 | 57 | This quick tour shows you where everything is. It takes about a minute |
+| workspace | Unified Inbox | 77 | 100 | 100 | 66 | 1523 | 4308 | 4316 | 323 | 0 | 451 | 55 | Email, SMS, WhatsApp, calls, voicemail, website forms and social messa |
+| workspace-first | Unified Inbox (first visit) | 69 | 100 | 100 | 66 | 1825 | 4175 | 4207 | 644 | 0 | 434 | 56 | Email, SMS, WhatsApp, calls, voicemail, website forms and social messa |
+| workspace | Money | 83 | 100 | 100 | 66 | 1515 | 3772 | 3772 | 260 | 0 | 433 | 56 | Good day, Alex. |
+| workspace-first | Money (first visit) | 80 | 100 | 100 | 66 | 1541 | 4213 | 4221 | 274 | 0 | 454 | 56 | This quick tour shows you where everything is. It takes about a minute |
+| workspace | Website | 75 | 100 | 100 | 66 | 1955 | 3755 | 3755 | 481 | 0 | 427 | 51 | an element replaced before the end (such as a loading message) |
+| workspace-first | Website (first visit) | 82 | 100 | 100 | 66 | 1841 | 4364 | 4364 | 165 | 0 | 462 | 51 | This quick tour shows you where everything is. It takes about a minute |
+| console | Operator Console | 100 | 100 | 100 | 54 | 1055 | 1787 | 1787 | 4 | 0 | 146 | 10 | Oprun · Platform records stay separate from subscriber business record |
 
 ## Result
 
-- Command Centre: performance 70 < 85
-- Command Centre: lcp_ms 4074 over budget 2500
-- Command Centre: tbt_ms 621 over budget 200
-- Enquiries: performance 77 < 85
-- Enquiries: lcp_ms 3617 over budget 2500
-- Enquiries: tbt_ms 398 over budget 200
-- Enquiries: cls 0.111 over budget 0.1
-- Unified Inbox: performance 63 < 85
-- Unified Inbox: lcp_ms 4252 over budget 2500
-- Unified Inbox: tbt_ms 457 over budget 200
-- Unified Inbox: cls 0.224 over budget 0.1
-- Money: performance 73 < 85
-- Money: lcp_ms 4236 over budget 2500
-- Money: tbt_ms 374 over budget 200
-- Money: cls 0.109 over budget 0.1
-- Website: performance 73 < 85
-- Website: lcp_ms 4071 over budget 2500
-- Website: tbt_ms 502 over budget 200
+- Command Centre: performance 82 < 85
+- Command Centre: lcp_ms 3921 over budget 2500
+- Command Centre: tbt_ms 239 over budget 200
+- Enquiries: performance 82 < 85
+- Enquiries: lcp_ms 3945 over budget 2500
+- Enquiries: tbt_ms 249 over budget 200
+- Unified Inbox: performance 77 < 85
+- Unified Inbox: lcp_ms 4308 over budget 2500
+- Unified Inbox: tbt_ms 323 over budget 200
+- Money: performance 83 < 85
+- Money: lcp_ms 3772 over budget 2500
+- Money: tbt_ms 260 over budget 200
+- Website: performance 75 < 85
+- Website: lcp_ms 3755 over budget 2500
+- Website: tbt_ms 481 over budget 200
 
 ## Largest remaining opportunities
 
-- Pricing: Eliminate render-blocking resources (~585 ms)
-- Features: Eliminate render-blocking resources (~532 ms)
-- AI Receptionist: Eliminate render-blocking resources (~579 ms)
-- Contact: Eliminate render-blocking resources (~319 ms)
-- Sign in: Eliminate render-blocking resources (~705 ms)
-- Create account: Eliminate render-blocking resources (~1036 ms)
-- Command Centre: Eliminate render-blocking resources (~533 ms)
-- Command Centre (first visit): Reduce unused CSS (~410 ms); Eliminate render-blocking resources (~366 ms)
-- Enquiries: Eliminate render-blocking resources (~538 ms); Reduce unused CSS (~170 ms)
-- Enquiries (first visit): Eliminate render-blocking resources (~542 ms)
-- Unified Inbox: Eliminate render-blocking resources (~392 ms); Reduce unused CSS (~160 ms)
-- Unified Inbox (first visit): Reduce unused CSS (~330 ms); Eliminate render-blocking resources (~241 ms); Defer offscreen images (~150 ms)
-- Money: Eliminate render-blocking resources (~513 ms); Reduce unused CSS (~230 ms)
-- Money (first visit): Eliminate render-blocking resources (~560 ms); Reduce unused CSS (~310 ms)
-- Website: Eliminate render-blocking resources (~710 ms); Defer offscreen images (~300 ms); Reduce unused CSS (~300 ms)
-- Website (first visit): Eliminate render-blocking resources (~375 ms); Reduce unused CSS (~310 ms); Reduce unused JavaScript (~180 ms)
-- Operator Console: Eliminate render-blocking resources (~290 ms); Reduce unused CSS (~150 ms)
+- Home: Eliminate render-blocking resources (~416 ms)
+- Pricing: Eliminate render-blocking resources (~373 ms)
+- Features: Eliminate render-blocking resources (~582 ms)
+- AI Receptionist: Eliminate render-blocking resources (~571 ms)
+- Contact: Eliminate render-blocking resources (~596 ms)
+- Sign in: Eliminate render-blocking resources (~649 ms)
+- Create account: Eliminate render-blocking resources (~657 ms)
+- Command Centre: Eliminate render-blocking resources (~544 ms); Reduce unused CSS (~270 ms); Defer offscreen images (~150 ms)
+- Command Centre (first visit): Eliminate render-blocking resources (~561 ms); Reduce unused CSS (~370 ms); Defer offscreen images (~150 ms)
+- Enquiries: Eliminate render-blocking resources (~562 ms); Reduce unused CSS (~340 ms); Defer offscreen images (~150 ms)
+- Enquiries (first visit): Eliminate render-blocking resources (~550 ms); Reduce unused CSS (~310 ms); Reduce unused JavaScript (~150 ms)
+- Unified Inbox: Eliminate render-blocking resources (~389 ms)
+- Unified Inbox (first visit): Eliminate render-blocking resources (~514 ms); Reduce unused CSS (~150 ms)
+- Money: Eliminate render-blocking resources (~408 ms); Reduce unused CSS (~310 ms); Reduce unused JavaScript (~150 ms)
+- Money (first visit): Eliminate render-blocking resources (~357 ms); Reduce unused CSS (~170 ms)
+- Website: Eliminate render-blocking resources (~373 ms); Reduce unused CSS (~190 ms); Reduce unused JavaScript (~150 ms)
+- Website (first visit): Eliminate render-blocking resources (~551 ms); Reduce unused JavaScript (~270 ms); Reduce unused CSS (~160 ms)
+- Operator Console: Eliminate render-blocking resources (~440 ms); Reduce unused JavaScript (~430 ms); Reduce unused CSS (~150 ms)
 
 ## History (same machine)
 
 - 24 Nov 2026, before TR-72: workspace 26–35 (LCP 8.9–10.0 s, about 990 KB in 179–183 requests).
 - 24 Nov, part 1 (bundles, D-071): workspace 35–48, about 640 KB in 56 requests.
-- 25 Nov, part 2 (D-072, D-073): page code loads when a page is first opened, the navigation table and the dialog
-  queue no longer block the page, and a static "Opening your workspace…" screen replaces the blank page while the
-  session is checked. Workspace 63–77 on a returning visit, about 460 KB in 51–56 requests. Scores move by about ±8
-  between runs on this machine. The opening screen is not the largest paint: real content still is, so LCP and
-  "Ready (TTI)" show the actual wait.
+- 25 Nov, part 2 stages 1–2 (D-072, D-073): page code loads when a page is first opened; the navigation table and the
+  dialog queue no longer block the page. Workspace 63–77.
+- 25 Nov, stages 3–4 (D-074, D-075): a hidden per-second countdown no longer makes every page redo its layout work;
+  decorative animations stop after a few plays (owner rule); observers stopped forcing layouts; English readers no
+  longer download the other languages' text (about 30 KB); layout shift removed (the footer and the phone's bottom
+  bar appear once the first page has settled). Workspace 75–83 returning visit, 69–82 first visit; layout shift 0 on
+  every page.
+- Honesty note: while the page loads, the opening screen shows only the Oprun mark (status text is for screen readers),
+  so Lighthouse's largest paint is always real page content. A text version briefly made Lighthouse credit the opening
+  screen as the largest paint; it was replaced before these numbers were taken. Scores move by about ±6 between runs.
 
 ## What is left for the workspace (not done yet)
 
-The 85 target is not met. On the simulated phone the workspace content appears at about 3.6–4.3 s. What remains, in
-order of size:
-1. Measured on 25 Nov with the browser's performance counters (phone-speed CPU, Command Centre): before the first page
-   is ready the browser spends about 0.7 s running scripts and about 0.9–1.0 s recalculating styles, in about 170
-   separate passes, plus about 0.2 s of layout. The page has about 4,200 elements, which is moderate, and switching
-   off every `:has()` style rule made no difference. The cost comes from start-up scripts adding their parts piece by
-   piece, each change triggering another style pass (several also read computed styles while the page is changing).
-   Drawing the first page in fewer, larger steps (one shared start-up pass instead of each script reacting on its
-   own) is the main remaining change; it touches most start-up scripts and needs its own careful stage.
-2. The first page waits for the session check and the start-up data calls before anything is drawn; drawing the
-   navigation rail and page frame from the session cookie first would move the largest paint earlier.
-3. Layout shift on Enquiries (0.11), Unified Inbox (0.22) and Money (0.11): panels that change height when their data
-   arrives need reserved space.
-4. The 90 KB stylesheet bundle blocks the first paint for about 0.8–1 s; only about 12 KB of it is page-only, so
-   splitting it saves little.
+The 85 target is met by no workspace page yet (best 83). Real content appears at about 3.8–4.3 s on the simulated slow
+phone; the remaining time is mostly the download before the first page can draw (about 440 KB: the 90 KB stylesheet
+bundle and about 250 KB of start-up scripts on a slow 4G link), then the session and start-up data calls. The next
+steps, in order of size:
+1. Load the start-up scripts that the first page does not need (assistant, product guide, staff chat, notices panel,
+   support widget, tour) after the first page is shown instead of before it.
+2. Draw the first page's frame before the start-up data calls return.
+3. Shrink the stylesheet bundle (474 KB unpacked): most rules belong to pages that are not open.

@@ -66,28 +66,31 @@ try {
   for (const [area, name, url] of LIST.filter(([a, n]) => !only.length || only.includes(a) || only.includes(a.split('-')[0]) || only.includes(n.toLowerCase()) || only.includes(n.toLowerCase().replace(' (first visit)', '')))) {
     const cookie = area.startsWith('workspace') ? owner.cookie : '';
     if (area === 'workspace') await warmUp(); // again for each page: the first-visit runs clear local storage
-    const runs = [];
+    const runs = []; let retries = 0;
     for (let i = 0; i < 2; i++) { // best of two cold loads, like the lab report
       const page = await browser.newPage();
       if (area === 'console') { await page.evaluateOnNewDocument((t) => { try { sessionStorage.setItem('fp-admin-key', t); } catch { /* */ } }, opToken); const cdp = await page.createCDPSession(); await cdp.send('Network.clearBrowserCache'); } // storage is kept for the token, so the cache is cleared by hand: a cold load
       const r = await lighthouse(server.base + url, { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'], formFactor: 'mobile', screenEmulation: { mobile: true, width: 412, height: 823, deviceScaleFactor: 1.75, disabled: false }, extraHeaders: cookie ? { Cookie: cookie } : undefined, disableStorageReset: area === 'console', clearStorageTypes: ['file_systems', 'shader_cache', 'service_workers', 'cache_storage', ...(area === 'workspace-first' ? ['local_storage', 'indexeddb'] : [])] }, undefined, page);
       await page.close();
       const lhr = r.lhr, a = lhr.audits;
+      // Lighthouse occasionally returns a run without one of its core numbers; such a run is measured again (at most twice).
+      if (['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift', 'speed-index'].some((k) => typeof a[k]?.numericValue !== 'number')) { retries = (retries || 0) + 1; if (retries <= 2) { i--; continue; } throw new Error(`${name}: Lighthouse returned incomplete results three times`); }
       runs.push({ performance: Math.round((lhr.categories.performance.score || 0) * 100), accessibility: Math.round((lhr.categories.accessibility.score || 0) * 100), best_practices: Math.round((lhr.categories['best-practices'].score || 0) * 100), seo: Math.round((lhr.categories.seo.score || 0) * 100),
-        fcp_ms: Math.round(a['first-contentful-paint'].numericValue), lcp_ms: Math.round(a['largest-contentful-paint'].numericValue), tbt_ms: Math.round(a['total-blocking-time'].numericValue), cls: +a['cumulative-layout-shift'].numericValue.toFixed(3), si_ms: Math.round(a['speed-index'].numericValue), tti_ms: Math.round(a['interactive']?.numericValue || 0), lcp_node: (a['largest-contentful-paint-element']?.details?.items?.[0]?.items?.[0]?.node?.nodeLabel || '').slice(0, 60),
+        fcp_ms: Math.round(a['first-contentful-paint'].numericValue), lcp_ms: Math.round(a['largest-contentful-paint'].numericValue), tbt_ms: Math.round(a['total-blocking-time'].numericValue), cls: +a['cumulative-layout-shift'].numericValue.toFixed(3), si_ms: Math.round(a['speed-index'].numericValue), tti_ms: Math.round(a['interactive']?.numericValue || 0), lcp_node: (a['largest-contentful-paint-element']?.details?.items?.[0]?.items?.[0]?.node?.nodeLabel || 'an element replaced before the end (such as a loading message)').slice(0, 70),
         transfer_kb: Math.round(a['total-byte-weight'].numericValue / 1024), requests: a['network-requests']?.details?.items?.length || 0, final_url: lhr.finalDisplayedUrl,
         bootup: (a['bootup-time']?.details?.items || []).slice(0, 8).map((x) => `${String(x.url).replace(server.base, '')} ${Math.round(x.scripting)}ms`),
         lcp_element: JSON.stringify(a['largest-contentful-paint-element']?.details?.items || []).slice(0, 900),
         blocking: (a['render-blocking-resources']?.details?.items || []).map((x) => `${String(x.url).replace(server.base, '')} ${Math.round(x.wastedMs)}ms ${Math.round(x.totalBytes / 1024)}KB`),
         net_top: (a['network-requests']?.details?.items || []).sort((x, y) => (y.transferSize || 0) - (x.transferSize || 0)).slice(0, 12).map((x) => `${String(x.url).replace(server.base, '').slice(0, 60)} ${Math.round((x.transferSize || 0) / 1024)}KB/${Math.round((x.resourceSize || 0) / 1024)}KB`),
         long_tasks: (a['long-tasks']?.details?.items || []).slice(0, 10).map((x) => `${String(x.url).replace(server.base, '').split('?')[0]}@${Math.round(x.startTime)} ${Math.round(x.duration)}ms`),
+        shifts: (a['layout-shifts']?.details?.items || []).slice(0, 6).map((x) => `${x.node?.selector || '?'} [${(x.node?.nodeLabel || '').slice(0, 40)}] ${Number(x.score).toFixed(3)}`),
         main_thread: (a['mainthread-work-breakdown']?.details?.items || []).map((x) => `${x.group} ${Math.round(x.duration)}ms`),
         opportunities: Object.values(a).filter((x) => x.details?.type === 'opportunity' && (x.details.overallSavingsMs || 0) >= 150).sort((p, q) => q.details.overallSavingsMs - p.details.overallSavingsMs).slice(0, 3).map((x) => `${x.title} (~${Math.round(x.details.overallSavingsMs)} ms)`) });
     }
     const best = runs.sort((p, q) => q.performance - p.performance)[0];
     results.push({ area, name, url, ...best });
     console.log(`${String(best.performance).padStart(3)}  ${area.padEnd(9)} ${name.padEnd(18)} LCP ${best.lcp_ms} ms  TTI ${best.tti_ms} ms  TBT ${best.tbt_ms} ms  CLS ${best.cls}  ${best.transfer_kb} KB  ${best.requests} req${best.final_url.includes('sign-in') && area !== 'public' ? '  (REDIRECTED TO SIGN-IN)' : ''}`);
-    if (process.env.LH_DEBUG) console.log('   main thread: ' + best.main_thread.join(', ') + '\n   scripts: ' + best.bootup.join(', ') + '\n   long tasks: ' + best.long_tasks.join(', ') + '\n   network: ' + best.net_top.join(', ') + '\n   blocking: ' + best.blocking.join(', ') + '\n   lcp: ' + best.lcp_element);
+    if (process.env.LH_DEBUG) console.log('   main thread: ' + best.main_thread.join(', ') + '\n   scripts: ' + best.bootup.join(', ') + '\n   shifts: ' + best.shifts.join(' | ') + '\n   long tasks: ' + best.long_tasks.join(', ') + '\n   network: ' + best.net_top.join(', ') + '\n   blocking: ' + best.blocking.join(', ') + '\n   lcp: ' + best.lcp_element);
   }
   await browser.disconnect();
 } finally { await chrome.kill(); await server.stop(); }

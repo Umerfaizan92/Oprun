@@ -20,7 +20,7 @@ Read this whole file, then `CLAUDE.md` (standing rules), then `.claude/project-m
 - **Done (32):** TR-01–03, TR-10–15, TR-20–25, TR-30–33, TR-40–43, TR-50–52, TR-60–63, TR-70, TR-71.
   TR-43 (24 Nov, after the test-site push): `deploy_to_production`, `reset_or_drop_database`, `make_payment` are
   restricted actions refused by name; `scripts/agent-hard-limits.test.mjs`.
-- **In progress (1):** TR-72 performance (task T-236). Part 2 stages 1–2 done 25 Nov (workspace 63–77, see section 3). Part 1 done: `src/asset-bundles.js` joins the workspace/console
+- **In progress (1):** TR-72 performance (task T-236). Part 2 stages 1–4 done 25 Nov (workspace 75–83, layout shift 0; see section 3). Part 1 done: `src/asset-bundles.js` joins the workspace/console
   stylesheets and self-contained deferred scripts into bundles at request time. Lighthouse mobile (lab):
   public pages 97–100, Operator Console 100, **Business Workspace 35–48 (target 85, not met)**. Report:
   `qa/reports/LIGHTHOUSE.md`.
@@ -40,6 +40,7 @@ Estimated remaining work: TR-72 part 2 6–10 h, TR-73 15 min after the owner's 
 table; 39 scripts in `saas/workspace.html` are `<script type="oprun/lazy" data-lazy="<group>" src="…">`; `showView` in
 `saas/app.js` loads a page's group before showing it; pages not in the table load every group; the server bundles each
 group (`src/asset-bundles.js`). Test: `scripts/workspace-lazy.test.mjs`. Lighthouse workspace now 59–74 (was 35–48).
+**Stages 3–4 done (25 Nov, D-074, D-075):** quieter start-up (hidden countdown, bounded animations, no forced layouts, English-only text download), layout shift 0 everywhere, honest opening screen (logo only). Workspace 75–83 returning, 69–82 first visit; 85 not met. Next: load non-first-page start-up scripts (assistant, guide, chat, notices, support, tour) after the first page shows; see `qa/reports/LIGHTHOUSE.md` → "What is left".
 **Stage 2 done (25 Nov, D-073):** navigation table and dialog queue no longer block the page; a static opening screen
 replaces the blank page; the Lighthouse report measures a returning visit plus first-visit rows and a Ready (TTI)
 column. Workspace now 63–77 (returning visit), target 85 **not met**. What is left, in order: drawing the first page in fewer
