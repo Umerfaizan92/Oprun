@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-047 (IN_PROGRESS)
-LAST COMPLETED STEP: ui, redesign-ui, mobile-workspace-ui pass
-FILES MODIFIED: .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/phase-04/VERIFICATION.md; office/console-platform.js; office/console.html; qa/reports/RESTORE-DRILL.md; qa/reports/tenant-sweep.json; saas/design-system.html; saas/workspace-finance-platform.js; saas/workspace-pipeline.css; saas/workspace-pipeline.js; saas/workspace.html; scripts/automation-governance.test.mjs; scripts/comms.test.mjs; scripts/finance.test.mjs; scripts/pipeline.test.mjs; scripts/platform-health.test.mjs; scripts/restore-drill.mjs; scripts/restore-drill.test.mjs; src/automation/catalogue.js; src/automation/engine.js; src/comms/service.js; src/finance/routes.js; src/finance/service.js; src/platform-health.js; src/server.js; scripts/document-attachments.test.mjs; src/document-attachments.js; src/pipeline-notices.js
+CURRENT TASK: T-169 (IN_PROGRESS)
+LAST COMPLETED STEP: T-059 monthly copies (reliability.test pass)
+FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/phase-09/BACKUP_AND_RECOVERY.md; saas/app.js; saas/workspace-finance-platform.js; saas/workspace.html; scripts/reliability.test.mjs; scripts/test-finance-ui.mjs; src/reliability/backup.js
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 32 file(s), saved in refs/recovery/claude/transformation-phase1/20261125T182827Z
+UNCOMMITTED CHANGES: 9 file(s), saved in refs/recovery/claude/transformation-phase1/20261125T191012Z
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Run remaining suites from navigation-ui onward in foreground chunks
+NEXT EXACT ACTION: Start T-050: read docs/phase-06/REPORT.md findings
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-219 at 2026-11-25T18:28:27+00:00
+LAST CHECKPOINT: CP-220 at 2026-11-25T19:10:12+00:00
 <!-- handover:end -->
 
 ## Notes

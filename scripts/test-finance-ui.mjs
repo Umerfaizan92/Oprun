@@ -164,6 +164,33 @@ try {
     });
   }
 
+  await check('A UK business sees VAT wording, a VAT summary and international address labels (T-169)', async () => {
+    const uk = await seedOwner(s, { business: 'Thames Window Cleaning Ltd', email: 'thames@uk.example.test' });
+    const U = (m, u, b) => s.call(m, u, { cookie: uk.cookie, body: b });
+    sql("UPDATE organisations SET country='GB', verification_level='contact_verified', abn=NULL, business_identifier=NULL, address_formatted='12 River Road, London SE1 9AA', timezone='Europe/London' WHERE id=?", uk.org);
+    sql("UPDATE organisation_subscriptions SET plan_id='starter',status='active',payment_status='paid' WHERE organisation_id=?", uk.org);
+    const c2 = crypto.randomUUID(), j2 = crypto.randomUUID(), at = new Date().toISOString();
+    sql("INSERT INTO tenant_customers(id,organisation_id,name,email,status,source,created_at,updated_at) VALUES (?,?,?,?,'current','manual',?,?)", c2, uk.org, 'Riley Quinn', 'riley@uk.example.test', at, at);
+    sql("INSERT INTO work_orders(id,organisation_id,title,start_at,required_skills,status,created_at,updated_at,customer_id,price_cents,gst_applies,completed_at) VALUES (?,?,?,?,'[]','completed',?,?,?,0,1,?)", j2, uk.org, 'Window cleaning', at, at, at, c2, at);
+    assert.equal((await U('PUT', '/api/saas/finance/settings', { gst_registered: true, prices_include_gst: false, accounting_basis: 'accrual', bas_period: 'quarterly', quote_valid_days: 30, deposit_percent: 0, tax_number: 'GB123456789', tax_rate_percent: 20 })).status, 200);
+    let inv = (await U('POST', '/api/saas/finance/documents', { kind: 'invoice', title: 'Window cleaning', work_order_id: j2, lines: [{ description: 'Window cleaning', quantity: 2, unit_price: 50, tax_code: 'GST' }] })).json.document;
+    await U('POST', `/api/saas/finance/documents/${inv.id}/approve`, { revision: inv.revision }); assert.equal((await U('POST', `/api/saas/finance/documents/${inv.id}/issue`)).status, 200);
+    const uctx = await ownerContext(browser, s, uk, { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const up = await uctx.newPage(); up.on('pageerror', (e) => errors.push('UK: ' + e.message));
+    await up.goto(s.base + '/saas/workspace.html'); await up.locator('#workspace').waitFor({ state: 'visible' });
+    await up.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close()));
+    await up.evaluate(() => { location.hash = 'b07/reports'; }); const rv = up.locator('#finreports-view'); await rv.waitFor({ state: 'visible' });
+    await rv.getByText('VAT summary').first().waitFor(); await rv.getByText('VAT on sales').first().waitFor();
+    assert.equal(await rv.locator('h2', { hasText: 'GST (BAS draft)' }).count(), 0, 'no BAS for a UK business'); assert.doesNotMatch(await rv.locator('.page-heading').textContent(), /GST|BAS|ATO/, 'introduction has no Australian wording');
+    await up.evaluate(() => { location.hash = 'b07/sales'; }); const sv = up.locator('#finsales-view'); await sv.waitFor({ state: 'visible' });
+    await sv.getByRole('button', { name: 'Open' }).first().click(); await sv.getByText(/Ex VAT .* VAT .* Total/).first().waitFor();
+    assert.equal(await sv.locator('th', { hasText: /^GST$/ }).count(), 0, 'no GST column');
+    await up.evaluate(() => { location.hash = 'b08/settings'; });
+    await up.locator('#onboarding-form [name=address_postcode]').waitFor({ state: 'attached' });
+    await up.waitForFunction(() => document.querySelector('#onboarding-form [name=address_postcode]')?.closest('label')?.textContent.includes('Postal code'));
+    await uctx.close();
+  });
+
   await check('Founder Console: plan prices need approval; renewals, payment problems and revenue shown', async () => {
     const fctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
     const p = await fctx.newPage(); p.on('pageerror', (e) => errors.push('console: ' + e.message));

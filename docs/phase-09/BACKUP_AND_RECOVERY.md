@@ -49,7 +49,12 @@ Use a bucket only for backups. It must be different from primary file storage; t
    - daily snapshots for 35 days and monthly copies for about 13 months;
    - configuration backups for 90 days.
    Litestream manages its own 72 h retention under `super-pro/db/`.
-   Monthly copies: copy the first snapshot of each month to `super-pro/monthly/` (follow-up T-059).
+   Monthly copies (T-059, done 25 Nov 2026): the app writes the first good snapshot of each month a second time
+   under `<backup root>/monthly/YYYY/MM/` with its manifest (put-only; nothing is copied server-side or deleted), and
+   records it in `reliability_monthly_copies`. The lifecycle rule for the monthly prefix keeps them about 13 months.
+   Note: the rule files use the `super-pro/` root. The live service writes under its own root (`oprun-ai/` on
+   25 Nov 2026), so the lifecycle rules must name that root's prefixes before they apply to live backups (owner
+   action in the AWS console).
 5. **IAM.** Apply [`infra/aws/backup-iam-policy.json`](../../infra/aws/backup-iam-policy.json) to the backup user.
    - It allows delete **only** under `super-pro/db/`, where Litestream needs it to manage its own retention.
    - Snapshots, configuration and upload copies are get and put only, with no delete.

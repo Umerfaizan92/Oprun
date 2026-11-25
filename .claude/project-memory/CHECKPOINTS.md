@@ -3069,3 +3069,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T182827Z (350ba96)
 - Known errors: none
 - Next exact action: Run remaining suites from navigation-ui onward in foreground chunks
+
+## CP-220 2026-11-25T19:10:12+00:00 T-169 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-169 (IN_PROGRESS)
+- Completed steps: T-169 VAT/tax wording in finance UI + intl address labels (finance-ui pass); T-059 monthly copies (reliability.test pass)
+- Incomplete steps: commit after next batch verification; T-050 SEO findings
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; docs/phase-09/BACKUP_AND_RECOVERY.md; saas/app.js; saas/workspace-finance-platform.js; saas/workspace.html; scripts/reliability.test.mjs; scripts/test-finance-ui.mjs; src/reliability/backup.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: d1a7664 (Pipeline follow-ups: inbox enquiries, emailed documents, attachments, notices, drill records, inbox trigger); 6 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T191012Z (7cb2f1c)
+- Known errors: none
+- Next exact action: Start T-050: read docs/phase-06/REPORT.md findings

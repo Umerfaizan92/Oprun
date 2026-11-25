@@ -32,6 +32,13 @@
     fincompliance: ['Finance Settings & Compliance', 'GST registration and invoice settings, a compliance review against published Australian rules, flagged activity and the finance audit trail.'],
     finplan: ['Change Plan', 'Move to another Oprun plan. Upgrades start now and are prorated on your next invoice; downgrades start at your next billing month.']
   };
+  // T-169: outside Australia the page introductions do not mention the ATO, GST or BAS.
+  const INTRO_INTL = {
+    finsales: 'Quotations, estimates, deposit invoices, invoices and credit notes. Every invoice is checked against the invoice rules for your country before it is issued, and issued invoices cannot be changed.',
+    finreports: 'Profit and loss, a tax summary, money owed to you, overdue follow-ups and a summary of your records. Reports are drafts for checking, not tax advice.',
+    fincompliance: 'Tax registration and invoice settings, a compliance review against the published rules for your country, flagged activity and the finance audit trail.'
+  };
+  const intro = (vid) => ((document.documentElement.dataset.country || 'AU') !== 'AU' && INTRO_INTL[vid]) || VIEWS[vid][1];
   const HASH = { finsales: 'money/sales', finpayments: 'money/payments', finreconcile: 'money/reconcile', finreports: 'money/reports', fincompliance: 'money/settings', finplan: 'setup/change-plan' };
 
   // T-042: photos, plans and signed acceptance on a record. The server checks the business, the person's permission
@@ -80,7 +87,7 @@
       const b = body(); b.append(el('p', { class: 'pl-meta', text: 'Loading…' }));
       try { await R[view](b, arg); b.querySelector(':scope > .pl-meta')?.remove(); } catch (e) { b.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); }
     }
-    const setupNote = (o) => (o.seller.gst_status_set ? null : el('p', { class: 'portal-note', 'data-tone': 'bad' }, 'Say whether your business is registered for GST before issuing invoices: ', el('a', { href: '#' + HASH.fincompliance, text: 'Finance settings' }), '.'));
+    const setupNote = (o) => (o.seller.gst_status_set ? null : el('p', { class: 'portal-note', 'data-tone': 'bad' }, `Say whether your business is registered for ${o.seller.country && o.seller.country !== 'AU' ? (o.seller.tax_label || 'tax') : 'GST'} before issuing invoices: `, el('a', { href: '#' + HASH.fincompliance, text: 'Finance settings' }), '.'));
 
     // ---------------- line editor ----------------
     function linesEditor(lines, codes) {
@@ -158,8 +165,9 @@
         b.append(section('Summary', el('ul', { class: 'sx-list' }, ins.summary.points.map((p) => el('li', { text: p }))), note(ins.summary.basis)));
         const p = pl.report;
         b.append(section('Profit and loss', table([['category', 'Income'], ['amount_cents', 'Amount', (v) => $(v)]], p.income, 'No income recorded.'), table([['category', 'Expenses'], ['amount_cents', 'Amount', (v) => $(v)]], p.expenses, 'No expenses recorded.'), el('p', { class: 'fx-total' }, `Income ${$(p.total_income_cents)} · Expenses ${$(p.total_expenses_cents)} · ${p.profit_cents >= 0 ? 'Profit' : 'Loss'} ${$(Math.abs(p.profit_cents))}`), note(p.note), el('p', { class: 'pl-actions' }, el('a', { class: 'portal-button', href: '/api/saas/finance/reports/pl.csv' + q, text: 'Download CSV' }))));
-        const g = gst.report;
-        b.append(section('GST (BAS draft)', g.registered ? table([['k', 'Label'], ['v', 'Amount', (v) => $(v)]], [{ k: 'G1 Total sales (inc GST)', v: g.G1_total_sales_cents }, { k: 'G3 GST-free sales', v: g.G3_gst_free_sales_cents }, { k: '1A GST on sales', v: g['1A_gst_on_sales_cents'] }, { k: '1B GST on purchases', v: g['1B_gst_on_purchases_cents'] }, { k: 'Net GST (1A less 1B)', v: g.net_gst_cents }]) : el('p', { text: g.note }), g.registered ? note(`${g.basis === 'cash' ? 'Cash' : 'Accrual'} basis, ${g.counts.sales} sale(s), ${g.counts.purchases} purchase(s). ${g.note}`) : null));
+        const g = gst.report, auReport = !g.tax_label, TXL = g.tax_label || 'GST';
+        if (!auReport) b.append(section(`${TXL} summary`, g.registered ? table([['k', 'Label'], ['v', 'Amount', (v) => $(v)]], [{ k: `Sales (inc ${TXL})`, v: g.total_sales_cents }, { k: `${TXL} on sales`, v: g.tax_on_sales_cents }, { k: `${TXL} on purchases`, v: g.tax_on_purchases_cents }, { k: `Net ${TXL}`, v: g.net_tax_cents }]) : el('p', { text: g.note }), g.registered ? note(g.note) : null));
+        else b.append(section('GST (BAS draft)', g.registered ? table([['k', 'Label'], ['v', 'Amount', (v) => $(v)]], [{ k: 'G1 Total sales (inc GST)', v: g.G1_total_sales_cents }, { k: 'G3 GST-free sales', v: g.G3_gst_free_sales_cents }, { k: '1A GST on sales', v: g['1A_gst_on_sales_cents'] }, { k: '1B GST on purchases', v: g['1B_gst_on_purchases_cents'] }, { k: 'Net GST (1A less 1B)', v: g.net_gst_cents }]) : el('p', { text: g.note }), g.registered ? note(`${g.basis === 'cash' ? 'Cash' : 'Accrual'} basis, ${g.counts.sales} sale(s), ${g.counts.purchases} purchase(s). ${g.note}`) : null));
         b.append(section('Owed to you', table([['k', 'Age'], ['v', 'Owing', (v) => $(v)]], [{ k: 'Not yet due', v: aged.report.buckets.current }, { k: '1 to 30 days overdue', v: aged.report.buckets.d1_30 }, { k: '31 to 60 days', v: aged.report.buckets.d31_60 }, { k: '61 to 90 days', v: aged.report.buckets.d61_90 }, { k: 'Over 90 days', v: aged.report.buckets.d90_plus }]), el('p', { class: 'pl-actions' }, el('a', { class: 'portal-button', href: '/api/saas/finance/reports/aged.csv', text: 'Download CSV' }))));
         b.append(section('Overdue: suggested follow-ups', table([['number', 'Invoice'], ['customer', 'Customer'], ['days_overdue', 'Days overdue'], ['owing_cents', 'Owing', (v) => $(v)], ['reminders_sent', 'Reminders sent'], ['recommendation', 'Suggestion'], ['document_id', '', (id) => el('a', { class: 'portal-button', href: '#' + HASH.finsales, onclick: () => { pendingOpen = id; }, text: 'Open' })]], ins.follow_ups, 'Nothing is overdue.'), note('Oprun suggestions from your records. Automatic customer reminders are set in Money > Payment settings.')));
         if (ins.discrepancies.length) b.append(section('Discrepancies found', el('ul', { class: 'sx-list' }, ins.discrepancies.map((x) => el('li', {}, chip(x.severity), ' ', x.message)))));
@@ -232,6 +240,7 @@
       box.replaceChildren(el('p', { class: 'pl-meta', text: 'Loading…' }));
       let d; try { d = (await api('/api/saas/finance/documents/' + encodeURIComponent(id))).document; } catch (e) { box.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })); return; }
       const refresh = () => render('finsales', id);
+      const docTax = d.seller?.country && d.seller.country !== 'AU' ? (d.seller.tax_label || 'Tax') : 'GST';
       const act = (text, fn, primary = false) => el('button', { type: 'button', class: 'portal-button' + (primary ? ' primary' : ''), text, onclick: (e) => busy(e.target, fn) });
       const acts = el('div', { class: 'pl-actions' });
       const editable = ['draft', 'approved'].includes(d.stored_status) && d.kind !== 'credit_note';
@@ -246,7 +255,7 @@
       if (['quote', 'estimate', 'invoice', 'deposit'].includes(d.kind) && ['sent', 'issued', 'part_paid', 'overdue', 'paid'].includes(d.status)) acts.append(act('Email to customer', async () => { const r = await post(`/api/saas/finance/documents/${id}/send`, {}); say(r.message || 'Sent for approval.'); }));
       const linkOut = el('div', { 'aria-live': 'polite' });
       const cmp = d.compliance;
-      const lines = el('div', { class: 'au-tablewrap' }, el('table', { class: 'au-table' }, el('thead', {}, el('tr', {}, ['Item', 'Qty', 'Unit price', 'Tax', 'GST', 'Amount'].map((h) => el('th', { scope: 'col', text: h })))), el('tbody', {}, d.lines.map((l) => el('tr', {}, el('th', { scope: 'row', text: l.description }), el('td', { text: String(l.quantity) }), el('td', { text: $(l.unit_cents) }), el('td', { text: o.tax_codes[l.tax_code] || l.tax_code }), el('td', { text: $(l.gst_cents) }), el('td', { text: $(l.inc_cents) }))))));
+      const lines = el('div', { class: 'au-tablewrap' }, el('table', { class: 'au-table' }, el('thead', {}, el('tr', {}, ['Item', 'Qty', 'Unit price', 'Tax', docTax, 'Amount'].map((h) => el('th', { scope: 'col', text: h })))), el('tbody', {}, d.lines.map((l) => el('tr', {}, el('th', { scope: 'row', text: l.description }), el('td', { text: String(l.quantity) }), el('td', { text: $(l.unit_cents) }), el('td', { text: o.tax_codes[l.tax_code] || l.tax_code }), el('td', { text: $(l.gst_cents) }), el('td', { text: $(l.inc_cents) }))))));
       let editor = null;
       if (editable) { const ed = linesEditor(d.lines, o.tax_codes); editor = el('details', {}, el('summary', { text: 'Edit items' }), ed.node, el('div', { class: 'pl-actions' }, act('Save changes', async () => { await post(`/api/saas/finance/documents/${id}`, { lines: ed.value() }, 'PUT'); say(d.stored_status === 'approved' ? 'Saved. It went back to draft; approve it again.' : 'Saved.'); refresh(); }))); }
       let credit = null;
@@ -258,7 +267,7 @@
       box.replaceChildren(section(`${d.heading}${d.number ? ' ' + d.number : ''}`,
         el('p', { class: 'pl-meta' }, chip(d.status), ` ${d.title}${d.customer ? ' · ' + d.customer : ''}${d.issued_at ? ' · issued ' + day(d.issued_at) : ''}${d.due_at ? ' · due ' + day(d.due_at) : ''}${d.ai_prepared ? ' · prepared by Oprun' : ''}`),
         d.parent ? el('p', { text: `From ${KIND[d.parent.kind] || d.parent.kind} ${d.parent.number || d.parent.title}${d.reason ? '. Reason: ' + d.reason : ''}` }) : null,
-        lines, el('p', { class: 'fx-total' }, `Ex GST ${$(d.ex_cents)} · GST ${$(d.gst_cents)} · Total ${$(d.total_cents)}`),
+        lines, el('p', { class: 'fx-total' }, `Ex ${docTax} ${$(d.ex_cents)} · ${docTax} ${$(d.gst_cents)} · Total ${$(d.total_cents)}`),
         m ? el('p', { text: `Paid ${$(Math.min(m.paid_cents, m.job_price_cents ?? m.total_cents))} · Owing ${$(m.owing_cents)}${m.credited_cents ? ' · Credited ' + $(m.credited_cents) : ''}` }) : null,
         cmp ? el('div', { class: 'fx-checks' }, el('h3', { text: cmp.ok ? 'Tax invoice checks pass' : 'Fix before issuing' }), el('ul', { class: 'sx-list' }, [...cmp.issues.map((x) => el('li', { class: 'fx-bad', text: x })), ...cmp.notes.map((x) => el('li', { text: x }))]), note(`Checked against ruleset ${cmp.ruleset}.`)) : null,
         acts, linkOut, editor, credit, cancelForm, founder ? null : docFiles(id, el),
@@ -288,7 +297,7 @@
   function view(vid) {
     let s = document.getElementById(vid + '-view');
     if (!s) { s = el('section', { class: 'view', id: vid + '-view', hidden: true }); (document.querySelector('.content-wrap') || document.body).append(s); }
-    if (!s.dataset.fxReady) { s.dataset.fxReady = '1'; s.replaceChildren(el('div', { class: 'page-heading' }, el('div', {}, el('h1', { text: VIEWS[vid][0] }), el('p', { text: VIEWS[vid][1] })))); }
+    if (!s.dataset.fxReady) { s.dataset.fxReady = '1'; s.replaceChildren(el('div', { class: 'page-heading' }, el('div', {}, el('h1', { text: vid === 'finreports' && (document.documentElement.dataset.country || 'AU') !== 'AU' ? 'Reports & Tax' : VIEWS[vid][0] }), el('p', { text: intro(vid) })))); }
     return s;
   }
   if (document.getElementById('workspace') || document.querySelector('.content-wrap')) {

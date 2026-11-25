@@ -60,7 +60,7 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Acceptance: Evidence recorded in docs/phase-08/REPORT.md
 
 ## T-059 Monthly snapshot copies for long-term retention
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-10-30
 - Requirement: Copy the first daily snapshot of each month to super-pro/monthly/ (S3 Batch Operations or a put-only scheduled copy)
 - Files: src/reliability/backup.js, docs/phase-09/BACKUP_AND_RECOVERY.md
@@ -373,7 +373,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Owner approves wording; no claims beyond what is built
 
 ## T-169 Phase 1b: invoice tax labels and Business setup fields per country
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-20
 - Requirement: Invoices and Money settings use countryProfile tax label and optional tax number for non-AU; Business setup shows the international address fields; per docs/product-redesign/02 §5.
 - Files: src/finance/*, saas/workspace-*.js

@@ -326,9 +326,11 @@ async function loadOnboarding(){
   await loadWorkspaceBranding();
   for(const k of ['business_type','industry_code','business_structure','team_mode','ai_setup_mode','phone','website','service_area','address_unit','address_street_number','address_street_name','address_suburb','address_state','address_postcode','address_formatted','address_source','brand_voice','approval_mode','ai_instructions'])if(f.elements[k])f.elements[k].value=p[k]||'';
   f.elements.services.value=(p.services||[]).join('\n');if(f.elements.custom_sections)f.elements.custom_sections.value=(p.custom_sections||[]).join('\n');if(f.elements.complete)f.elements.complete.checked=!!p.complete;
-    applyIndustryModules(p.workspace_modules||d.industry?.modules||[]);
+    applyIndustryModules(p.workspace_modules||d.industry?.modules||[]);localiseAddressLabels(f);
   await loadRegulatorySources();
 }
+// T-169: businesses outside Australia see international address labels (Australian labels are left untouched).
+function localiseAddressLabels(f){if((document.documentElement.dataset.country||'AU')==='AU')return;for(const[n,t]of[['address_suburb','Town or city'],['address_state','State, province or region'],['address_postcode','Postal code']]){const i=f.elements[n],s=i?.closest('label')?.querySelector('span');if(!i||!s)continue;s.textContent=t;i.placeholder=''}const pc=f.elements.address_postcode;if(pc)pc.inputMode='text'}
 $('#onboarding-form').onsubmit=async e=>{e.preventDefault();const b=obj(e.target);b.services=b.services.split('\n').map(x=>x.trim()).filter(Boolean);b.custom_sections=String(b.custom_sections||'').split('\n').map(x=>x.trim()).filter(Boolean);b.complete=e.target.elements.complete.checked;try{const d=await api('/api/saas/onboarding',{method:'PUT',body:JSON.stringify(b)});note('Workspace settings saved successfully. Industry-specific modules and official-source guidance have been refreshed.');applyIndustryModules(d.industry?.modules||[]);renderRegulatoryProfile({...d.industry,sources:(industryRegistryCache.find(x=>x.code===d.industry?.code)?.sources||[])});}catch(x){note(x.message,true)}};
 // Brand colour: the platform default stays on the built-in theme; a custom colour recolours the accent live.
 const PLATFORM_DEFAULT_PRIMARY='#f59e0b';

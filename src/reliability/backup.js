@@ -42,6 +42,7 @@ export function createBackups({ db, env = process.env, databasePath, clientFacto
   db.exec(`
     CREATE TABLE IF NOT EXISTS reliability_backups (id TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK (kind IN ('snapshot','config')), started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, target TEXT, key TEXT, bytes INTEGER, sha256 TEXT, tables INTEGER, integrity TEXT, audit_ok INTEGER, error TEXT, trigger TEXT NOT NULL DEFAULT 'schedule');
     CREATE INDEX IF NOT EXISTS reliability_backups_kind ON reliability_backups(kind, started_at);
+    CREATE TABLE IF NOT EXISTS reliability_monthly_copies (month TEXT PRIMARY KEY, key TEXT NOT NULL, source_key TEXT NOT NULL, bytes INTEGER, sha256 TEXT, created_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS reliability_restore_tests (id TEXT PRIMARY KEY, started_at TEXT NOT NULL, finished_at TEXT, status TEXT NOT NULL, backup_key TEXT, seconds REAL, checksum_ok INTEGER, integrity TEXT, audit_ok INTEGER, tables INTEGER, gaps_json TEXT, error TEXT, trigger TEXT NOT NULL DEFAULT 'schedule');`);
   const now = () => iso(clock());
   const bucket = () => backupBucket(env);
@@ -117,7 +118,20 @@ export function createBackups({ db, env = process.env, databasePath, clientFacto
       await put(key.replace(/\.sqlite\.gz$/, '.manifest.json'), Buffer.from(JSON.stringify(manifest, null, 2)), 'application/json');
       db.prepare("UPDATE reliability_backups SET status='ok',finished_at=?,key=?,bytes=?,sha256=?,tables=?,integrity=?,audit_ok=? WHERE id=?").run(now(), key, gz.length, hash, tables.length, integrity, audit.ok ? 1 : 0, id);
       log.log?.(`[backup] snapshot saved to ${where} (${Math.round(gz.length / 1024)} KB, ${((clock() - t0) / 1000).toFixed(1)}s)`);
-      return { ok: true, id, key, bytes: gz.length, sha256: hash, tables: tables.length, audit_ok: audit.ok, where };
+      // T-059: the first good snapshot of each month is also written to the monthly prefix, which the bucket keeps for
+      // about 13 months (lifecycle rule). Put-only: nothing is copied server-side or deleted by the app.
+      let monthly = null;
+      const month = started.slice(0, 7);
+      if (!db.prepare('SELECT 1 FROM reliability_monthly_copies WHERE month=?').get(month)) {
+        try {
+          const mKey = `${prefix('monthly')}/${month.slice(0, 4)}/${month.slice(5, 7)}/${started.replace(/[:.]/g, '-')}.sqlite.gz`;
+          await put(mKey, gz, 'application/gzip');
+          await put(mKey.replace(/\.sqlite\.gz$/, '.manifest.json'), Buffer.from(JSON.stringify({ ...manifest, key: mKey, monthly_copy_of: key }, null, 2)), 'application/json');
+          db.prepare('INSERT OR IGNORE INTO reliability_monthly_copies (month,key,source_key,bytes,sha256,created_at) VALUES (?,?,?,?,?,?)').run(month, mKey, key, gz.length, hash, now());
+          monthly = mKey;
+        } catch (e) { resetClient(); log.warn?.('[backup] monthly copy failed (the daily snapshot is safe):', e.message); }
+      }
+      return { ok: true, id, key, bytes: gz.length, sha256: hash, tables: tables.length, audit_ok: audit.ok, where, monthly_key: monthly };
     } catch (e) {
       db.prepare("UPDATE reliability_backups SET status='failed',finished_at=?,error=? WHERE id=?").run(now(), String(e.message).slice(0, 500), id);
       log.error?.('[backup] snapshot failed:', e.message);
@@ -236,7 +250,8 @@ export function createBackups({ db, env = process.env, databasePath, clientFacto
     const lastTest = db.prepare('SELECT * FROM reliability_restore_tests ORDER BY started_at DESC LIMIT 1').get() || null;
     const lastPass = db.prepare("SELECT * FROM reliability_restore_tests WHERE status='passed' ORDER BY started_at DESC LIMIT 1").get() || null;
     const okSnap = last('snapshot', 'ok'), age = okSnap ? (clock() - Date.parse(okSnap.started_at)) / HOUR : null;
-    return { target: target(), configured: Boolean(target()), offsite: Boolean(bucket()), litestream: env.SUPER_PRO_LITESTREAM === '1', last_snapshot: last('snapshot'), last_good_snapshot: okSnap, snapshot_age_hours: age, last_config: last('config'), last_restore_test: lastTest, last_passed_restore_test: lastPass, restore_test_age_hours: lastPass ? (clock() - Date.parse(lastPass.started_at)) / HOUR : null, history: db.prepare('SELECT id,kind,started_at,finished_at,status,key,bytes,tables,integrity,audit_ok,error,trigger FROM reliability_backups ORDER BY started_at DESC LIMIT 30').all(), tests: db.prepare('SELECT * FROM reliability_restore_tests ORDER BY started_at DESC LIMIT 20').all(), policy: BACKUP_POLICY };
+    const lastMonthly = db.prepare('SELECT month,key,bytes,created_at FROM reliability_monthly_copies ORDER BY month DESC LIMIT 1').get() || null;
+    return { target: target(), configured: Boolean(target()), offsite: Boolean(bucket()), litestream: env.SUPER_PRO_LITESTREAM === '1', last_monthly_copy: lastMonthly, last_snapshot: last('snapshot'), last_good_snapshot: okSnap, snapshot_age_hours: age, last_config: last('config'), last_restore_test: lastTest, last_passed_restore_test: lastPass, restore_test_age_hours: lastPass ? (clock() - Date.parse(lastPass.started_at)) / HOUR : null, history: db.prepare('SELECT id,kind,started_at,finished_at,status,key,bytes,tables,integrity,audit_ok,error,trigger FROM reliability_backups ORDER BY started_at DESC LIMIT 30').all(), tests: db.prepare('SELECT * FROM reliability_restore_tests ORDER BY started_at DESC LIMIT 20').all(), policy: BACKUP_POLICY };
   }
 
   return { snapshot, verify, configBackup, configSnapshot, storageChecks, inventory, status, latestSnapshotKey, get, resetClient, policy: BACKUP_POLICY };

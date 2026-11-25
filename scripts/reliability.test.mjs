@@ -59,6 +59,13 @@ test('backups: encrypted snapshot with manifest, restore verification, tamper de
   const key = r.json.key; assert.match(key, /^super-pro\/snapshots\/\d{4}\/\d{2}\/\d{2}\/.+\.sqlite\.gz$/);
   const snap = s3.objects.get('sp-backups/' + key), man = s3.objects.get('sp-backups/' + key.replace('.sqlite.gz', '.manifest.json'));
   assert.ok(snap && man, 'snapshot and manifest uploaded');
+  // T-059: the first snapshot of the month is also kept under the monthly prefix (13-month lifecycle rule), once a month.
+  assert.match(r.json.monthly_key, /^super-pro\/monthly\/\d{4}\/\d{2}\/.+\.sqlite\.gz$/);
+  const mon = s3.objects.get('sp-backups/' + r.json.monthly_key); assert.ok(mon, 'monthly copy uploaded'); assert.equal(mon.sse, 'AES256');
+  assert.equal(Buffer.compare(mon.body, snap.body), 0, 'monthly copy is the same snapshot');
+  assert.equal(JSON.parse(s3.objects.get('sp-backups/' + r.json.monthly_key.replace('.sqlite.gz', '.manifest.json')).body.toString()).monthly_copy_of, key);
+  { const again = await F('POST', '/api/operator/reliability/backups/snapshot'); assert.equal(again.status, 201, again.text); assert.equal(again.json.monthly_key, null, 'one monthly copy per month');
+    assert.equal([...s3.objects.keys()].filter((k) => k.includes('/monthly/')).length, 2, 'only the first snapshot of the month is copied'); }
   assert.equal(snap.sse, 'AES256', 'uploaded with server-side encryption');
   const manifest = JSON.parse(man.body.toString());
   assert.equal(manifest.sha256, crypto.createHash('sha256').update(snap.body).digest('hex')); assert.equal(manifest.sqlite_integrity, 'ok'); assert.equal(manifest.audit_chain.ok, true);
@@ -87,7 +94,8 @@ test('backups: encrypted snapshot with manifest, restore verification, tamper de
   assert.equal(by2.Versioning, 'fail'); assert.equal(by2['Retention rules'], 'warn'); assert.equal(by2['Public access blocked'], 'fail');
   // History is recorded; nothing in the code deletes backups.
   const hist = sql("SELECT kind,status FROM reliability_backups ORDER BY started_at");
-  assert.deepEqual(hist.map((h) => `${h.kind}:${h.status}`), ['snapshot:ok', 'config:ok']);
+  assert.deepEqual(hist.map((h) => `${h.kind}:${h.status}`), ['snapshot:ok', 'snapshot:ok', 'config:ok']);
+  assert.equal(sql('SELECT COUNT(*) n FROM reliability_monthly_copies')[0].n, 1);
   assert.equal(sql("SELECT COUNT(*) n FROM reliability_restore_tests WHERE status='passed'")[0].n, 1);
   assert.equal(sql("SELECT COUNT(*) n FROM reliability_restore_tests WHERE status='failed'")[0].n, 2);
 });
