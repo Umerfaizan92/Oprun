@@ -33,6 +33,7 @@ export function spokenLabel(at, tz) {
 }
 
 export function createReceptionistBooking({ db, env, pipeline, createApproval, audit = () => {}, actorFor, clock = () => Date.now() }) {
+  const hooks = {}; // set by the follow-up module: onBooked, onBookingPending, onBookingRejected
   const secret = () => String(env.VOICE_CALL_TOKEN_SECRET || '');
   const signSlot = (payload) => { const b = Buffer.from(JSON.stringify(payload)).toString('base64url'); return `${b}.${crypto.createHmac('sha256', secret()).update(b).digest('base64url')}`; };
   function readSlot(id) {
@@ -137,7 +138,8 @@ export function createReceptionistBooking({ db, env, pipeline, createApproval, a
       try { pipeline.createBookingFromEnquiry(org, 'ai_receptionist', fresh.enquiry_id, { start_at: p.start_at, end_at: p.end_at, address: a.address, notes: a.notes || '' }); }
       catch (err) { db.prepare('DELETE FROM receptionist_slot_holds WHERE id=?').run(holdId); return { status: 409, code: 'ERR_CONFLICT', data: { alternatives: [] }, speak: "I'm not able to book that one, the team will call you." }; }
       db.prepare('DELETE FROM receptionist_slot_holds WHERE id=?').run(holdId);
-      db.prepare("UPDATE receptionist_followups SET state='BOOKED',updated_at=? WHERE enquiry_id=? AND organisation_id=?").run(now, fresh.enquiry_id, org);
+      if (hooks.onBooked) hooks.onBooked(org, fresh.enquiry_id, { via: 'receptionist', label, address: a.address });
+      else db.prepare("UPDATE receptionist_followups SET state='BOOKED',updated_at=? WHERE enquiry_id=? AND organisation_id=?").run(now, fresh.enquiry_id, org);
       audit(actor, 'receptionist.booking_created', 'enquiry', fresh.enquiry_id, { start_at: p.start_at });
       return { data: { status: 'booked', label }, speak: `You're booked in for ${label}.` };
     }
@@ -158,14 +160,24 @@ export function createReceptionistBooking({ db, env, pipeline, createApproval, a
     const payload = { ...draft, ...edited };
     const now = new Date(clock()).toISOString();
     db.prepare('DELETE FROM receptionist_slot_holds WHERE id=? AND organisation_id=?').run(draft.hold_id, org);
-    if (status !== 'approved') { db.prepare("UPDATE receptionist_followups SET state='AWAITING_CUSTOMER',updated_at=? WHERE enquiry_id=? AND organisation_id=? AND state='BOOKING_PENDING_APPROVAL'").run(now, row.entity_id, org); return; }
+    if (status !== 'approved') { if (hooks.onBookingRejected) hooks.onBookingRejected(org, row.entity_id); else db.prepare("UPDATE receptionist_followups SET state='AWAITING_CUSTOMER',updated_at=? WHERE enquiry_id=? AND organisation_id=? AND state='BOOKING_PENDING_APPROVAL'").run(now, row.entity_id, org); return; }
     if (payload.start_at !== draft.start_at || payload.end_at !== draft.end_at) {
       const cfg = config(org), rules = rulesOf(cfg), s = Date.parse(payload.start_at), e = Date.parse(payload.end_at);
       if (!(e > s) || overlaps(busy(org, s, e, (e - s) / 60000), s, e) >= capacityAt(org, rules, s, tzOf(org, cfg))) throw Object.assign(new Error('That time is no longer free.'), { status: 409 });
     }
     pipeline.createBookingFromEnquiry(org, 'ai_receptionist', row.entity_id, { start_at: payload.start_at, end_at: payload.end_at, address: payload.address, notes: payload.notes || '' });
-    db.prepare("UPDATE receptionist_followups SET state='BOOKED',updated_at=? WHERE enquiry_id=? AND organisation_id=?").run(now, row.entity_id, org);
+    if (hooks.onBooked) hooks.onBooked(org, row.entity_id, { via: 'receptionist', label: label(org, payload.start_at), address: payload.address });
+    else db.prepare("UPDATE receptionist_followups SET state='BOOKED',updated_at=? WHERE enquiry_id=? AND organisation_id=?").run(now, row.entity_id, org);
   }
 
-  return { checkAvailability, proposeBooking, applyApproval, readSlot, candidateSlots };
+  const label = (org, startAt) => spokenLabel(new Date(startAt), tzOf(org, config(org)));
+  // Up to two open times for a follow-up message (no hold: the hold happens when the customer accepts).
+  function offerTimes(org, enquiryId) {
+    const cfg = config(org), rules = rulesOf(cfg); if (!cfg || cfg.status !== 'live' || !rules.services.length) return [];
+    const title = db.prepare('SELECT title FROM tenant_documents WHERE id=? AND organisation_id=?').get(enquiryId, org)?.title || '';
+    const svc = resolveService(rules, { service: title.split(' – ')[0] }); if (!svc) return [];
+    const from = new Date(clock()).toISOString().slice(0, 10), to = new Date(clock() + 7 * 86400000).toISOString().slice(0, 10);
+    return spread(candidateSlots(org, cfg, rules, svc, { date_from: from, date_to: to }), 2).map(([x]) => label(org, x));
+  }
+  return { checkAvailability, proposeBooking, applyApproval, readSlot, candidateSlots, label, offerTimes, hooks };
 }

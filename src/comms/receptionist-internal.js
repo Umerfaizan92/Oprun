@@ -45,13 +45,14 @@ const SCHEMAS = {
   take_message: z.object({ message: z.string().trim().min(3).max(1000), callback_window: z.string().max(120).optional() }).strict(),
   check_availability: z.object({ service_id: z.string().max(80).optional(), service: z.string().max(120).optional(), date_from: z.string().max(10), date_to: z.string().max(10), suburb: z.string().max(80).optional(), duration_minutes: z.number().int().min(15).max(600).optional() }).strict().refine((x) => x.service_id || x.service, { message: 'service', path: ['service'] }),
   propose_booking: z.object({ slot_id: z.string().max(1000), service: z.string().max(120), address: z.string().trim().min(3).max(300), notes: z.string().max(1000).optional() }).strict(),
+  draft_followup: z.object({ message_class: z.enum(['post_call_ack', 'booking_confirmation', 'followup_nudge', 'free_text_reply']), channel: z.enum(['sms', 'email']), intent: z.string().trim().min(3).max(500) }).strict(),
   merge_to_unibox: z.object({ note: z.string().max(500).optional() }).strict(),
   end_call: z.object({ reason: z.enum(['completed', 'caller_hung_up', 'spam', 'wrong_number', 'transferred', 'silence']) }).strict()
 };
 // Tools defined in 04_TOOLS.md that arrive in later steps (R-08, R-10 to R-14).
-const LATER = new Set(['warm_transfer', 'draft_followup']);
+const LATER = new Set(['warm_transfer']);
 
-export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
+export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, followups = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
   const iso = () => new Date(clock()).toISOString();
   const rate = new Map(); // call_control_id -> [windowStart, count]
   const RATE_PER_MIN = Number(env.VOICE_TOOL_RATE_PER_MIN || 120);
@@ -198,6 +199,7 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
 
     check_availability(org, call, a) { return booking ? booking.checkAvailability(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: "I'll get the team to call you to confirm a time." }; },
     propose_booking(org, call, a) { return booking ? booking.proposeBooking(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: "I'll get the team to call you to confirm a time." }; },
+    draft_followup(org, call, a) { return followups ? followups.draftFollowup(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: 'The team will send that through shortly.' }; },
     // Live use only adds a note the caller asked for; the call itself is filed once after it ends (R-08).
     merge_to_unibox(org, call, a) {
       if (!a.note) return { speak: '' };
@@ -305,6 +307,13 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
     db.prepare('UPDATE voice_calls SET inbox_message_id=COALESCE(inbox_message_id,?),thread_id=COALESCE(thread_id,?),summary_json=?,updated_at=? WHERE call_control_id=? AND organisation_id=?')
       .run(messageId, threadId, JSON.stringify({ ...meta, summary, filed: true }), iso(), callId, org);
     if (c.enquiry_id && threadId) db.prepare('UPDATE receptionist_followups SET thread_id=COALESCE(thread_id,?),updated_at=? WHERE enquiry_id=? AND organisation_id=?').run(threadId, iso(), c.enquiry_id, org);
+    if (c.enquiry_id && followups && !fin?.spam) {
+      const emergency = /Urgency: emergency/.test(db.prepare('SELECT body FROM tenant_documents WHERE id=? AND organisation_id=?').get(c.enquiry_id, org)?.body || '');
+      try { followups.onCallEnded(org, c.enquiry_id, { emergency }); } catch (e) { log.warn?.('[receptionist] follow-up start failed:', e.message); }
+      // Nothing to reply to when a time is booked or waiting for approval: the voice thread is set to open.
+      const st = db.prepare('SELECT state FROM receptionist_followups WHERE enquiry_id=? AND organisation_id=?').get(c.enquiry_id, org)?.state;
+      if (threadId && ['BOOKED', 'BOOKING_PENDING_APPROVAL'].includes(st)) db.prepare("UPDATE comms_threads SET status='open' WHERE id=? AND organisation_id=?").run(threadId, org);
+    }
     if (fin?.spam && threadId) { try { comms?.move?.(org, threadId, 'spam'); } catch (e) { log.warn?.('[receptionist] could not file as spam:', e.message); } }
     if (!fin?.spam) await Promise.resolve(notify(org, { kind: 'receptionist_call', title: `Call from ${c.from_number || 'a withheld number'}`.slice(0, 180), body: summary, link: '#communications/inbox', dedupe: `receptionist:call:${callId}` })).catch(() => {});
     return { filed: true, thread_id: threadId };

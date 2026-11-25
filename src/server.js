@@ -8,6 +8,7 @@ import { createPipelineNotices } from './pipeline-notices.js';
 import { migrateReceptionist } from './comms/receptionist-store.js';
 import { installReceptionistInternal, receptionistActor } from './comms/receptionist-internal.js';
 import { createReceptionistBooking } from './comms/receptionist-booking.js';
+import { createReceptionistFollowups } from './comms/receptionist-followups.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -6338,7 +6339,14 @@ const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notificatio
 migrateReceptionist(db);
 // R-04/R-07 (T-124, T-127): internal API for the voice worker. Off until VOICE_SERVICE_KEY and VOICE_CALL_TOKEN_SECRET are set.
 const receptionistBooking=createReceptionistBooking({db,env,pipeline:businessHubHooks,createApproval:(req,o)=>createWorkspaceApproval(req,o),audit:(req,...a)=>{try{saasAudit(req,...a)}catch{}},actorFor:receptionistActor});
-const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,booking:receptionistBooking,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
+// R-13/R-14 (T-133, T-134): follow-up after receptionist calls, on the durable job queue with a safety sweep.
+const receptionistFollowups=createReceptionistFollowups({db,comms:commsService,booking:receptionistBooking,createApproval:(req,o)=>createWorkspaceApproval(req,o),actorFor:receptionistActor,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),queue:jobQueue});
+Object.assign(receptionistBooking.hooks,{onBooked:receptionistFollowups.onBooked,onBookingRejected:receptionistFollowups.onBookingRejected});
+jobQueue.register('receptionist.followup',async(p)=>receptionistFollowups.runAttempt(p));
+{const every=Number(env.RECEPTIONIST_FOLLOWUP_SWEEP_MS)||5*60000;if(process.env.NODE_ENV!=='test'||env.RECEPTIONIST_FOLLOWUP_SWEEP_MS)setInterval(()=>receptionistFollowups.sweep().catch(e=>console.warn('[receptionist] sweep failed:',e.message)),every).unref?.();}
+// A reply on a thread linked to a receptionist enquiry pauses the follow-up; STOP ends it (suppression is done by onInbound).
+inboundHooks.add(m=>{if(!m?.organisation_id||!m.thread_id||m.kind==='call_log')return;const t=db.prepare('SELECT enquiry_id FROM comms_thread_meta WHERE thread_id=? AND organisation_id=?').get(m.thread_id,m.organisation_id);if(!t?.enquiry_id)return;receptionistFollowups.onCustomerReplied(m.organisation_id,t.enquiry_id,{stop:/^\s*(stop|unsubscribe|stop all|end|cancel|quit)\s*$/i.test(String(m.body||''))})});
+const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,booking:receptionistBooking,followups:receptionistFollowups,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();
@@ -6375,7 +6383,7 @@ const automationEngine=createAutomationEngine({db,queue:jobQueue,generateAiText,
 automationEvents.emit=(org,type,payload,opts)=>{try{return automationEngine.emit(org,type,payload,opts)}catch(e){console.warn('[automation] event not processed:',e.message);return []}};
 // T-043: bell notifications for pipeline steps (new enquiry, job ready to invoice, overdue invoice).
 const pipelineNotices=createPipelineNotices({db,notifyRoles:(o,r,opts)=>notifications.notifyRoles(o,r,opts),followUps:o=>subscriberFinance.followUps(o)});
-{const emitBase=automationEvents.emit;automationEvents.emit=(org,type,payload,opts)=>{pipelineNotices.onEvent(org,type,payload);return emitBase(org,type,payload,opts)};}
+{const emitBase=automationEvents.emit;automationEvents.emit=(org,type,payload,opts)=>{pipelineNotices.onEvent(org,type,payload);if(type==='job.booked'&&payload?.via!=='receptionist')try{let d=db.prepare('SELECT source_id,kind FROM tenant_documents WHERE id=? AND organisation_id=?').get(payload.booking_id,org);for(let i=0;i<3&&d&&d.kind!=='enquiry';i++)d=d.source_id?{...db.prepare('SELECT id,source_id,kind FROM tenant_documents WHERE id=? AND organisation_id=?').get(d.source_id,org)}:null;if(d?.kind==='enquiry'&&d.id)receptionistFollowups.onBooked(org,d.id,{via:payload.via||'staff'})}catch(e){console.warn('[receptionist] booked event:',e.message)}return emitBase(org,type,payload,opts)};}
 {const noticeEvery=Number(env.PIPELINE_NOTICE_INTERVAL_MS)||6*3600000;if(process.env.NODE_ENV!=='test'||env.PIPELINE_NOTICE_INTERVAL_MS){const runOverdue=()=>pipelineNotices.overdueSweep().catch(e=>console.warn('[pipeline] overdue check failed:',e.message));setTimeout(runOverdue,Math.min(noticeEvery,120000)).unref?.();setInterval(runOverdue,noticeEvery).unref?.();}}
 seoEngineRef.current=automationEngine;
 commsEngineRef.current=automationEngine;
