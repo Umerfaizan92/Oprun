@@ -2901,3 +2901,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Wait for the owner: TR-80 review of the test site (now at d017ea0) and the TR-73 restore-drill output
+
+## CP-208 2026-11-25T06:38:33+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 7 (uncommitted): first page waits only for its own start-up data and the account status; other start-up calls finish in the background with the same retry and notice. Paired runs: ready time 0.2-0.3 s sooner on Command Centre, Enquiries and Money; scores +1 to +6.
+- Incomplete steps: Full verification running (/tmp/verify-all.sh → /tmp/verify-all.log); then commit
+- Files modified (uncommitted at checkpoint): saas/app.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077)); 73 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T063833Z (e6b45c2)
+- Known errors: none
+- Next exact action: Check /tmp/verify-all.log for ALLDONE; investigate any non-zero exit; commit if all pass
+
+## CP-209 2026-11-25T07:12:26+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 7 verified and committed: 24 browser suites passed, visual 348 screens 0 problems, npm test 73/73
+- Incomplete steps: Owner: TR-80 review, TR-73 restore output, TR-81 approval; optional: stylesheet size
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; qa/reports/LIGHTHOUSE.md; saas/app.js
+- Tests executed: 24 browser suites; test:visual business; npm test
+- Test results: all passed; 348 screens 0 problems; 73/73
+- Git branch: claude/transformation-phase1
+- Commit: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077)); 73 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Report to owner; next optional TR-72 step is trimming the 474 KB stylesheet (needs a coverage-based plan)

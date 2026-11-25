@@ -92,6 +92,8 @@ steps, in order of size:
 2. Draw the first page sooner. Tried on 25 Nov and not kept (D-077): fetching the opened page's code while the session
    is checked and loading branding alongside the start-up data cut Enquiries' largest paint by about 0.2 s in two
    paired runs, but run-to-run noise on this machine (blocking time 490–1,000 ms for the same code) hid any score gain,
-   so it was not worth another full verification round. Showing the first page before the six unrelated start-up data
-   calls finish is the bigger version of this idea and needs its own careful change.
+   so it was not worth another full verification round. The bigger version was then done (D-078): the first page now
+   waits only for its own start-up data and the account status, and the other start-up calls finish in the background.
+   In alternating paired runs the page was ready 0.2–0.3 s sooner on Command Centre, Enquiries and Money and scores
+   rose by 1–6 points.
 3. Shrink the stylesheet bundle (474 KB unpacked): most rules belong to pages that are not open.
