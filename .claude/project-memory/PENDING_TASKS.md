@@ -17,20 +17,6 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Files: src/automation/engine.js, render.yaml (needs owner approval)
 - Acceptance: Owner-approved plan; schedules still run once per period
 
-## T-050 Phase 06 follow-up: fix the public-site SEO findings
-- Status: TESTING
-- Added: 2026-10-30
-- Requirement: Owner decision: legal pages noindex vs sitemap; shorten 7 long titles; add 3 meta descriptions; trim 3 long descriptions; responsive images; complete structured data; permanent redirect for /start (see docs/phase-06/REPORT.md)
-- Files: site/, src/server.js sitemap
-- Acceptance: Platform audit shows none of these findings; test:visual and site tests pass
-
-## T-051 Phase 06 follow-up: image re-encoding for the Website Builder
-- Status: TESTING
-- Added: 2026-10-30
-- Requirement: Add an image library (sharp) to convert uploads to WebP/AVIF with sizes; needs owner approval for the new dependency on Render
-- Files: package.json, src/seo/*
-- Acceptance: Uploaded JPEG becomes WebP with srcset; Render build passes
-
 ## T-052 Phase 06 follow-up: custom domains for builder sites
 - Status: NOT_STARTED
 - Added: 2026-10-30
@@ -58,13 +44,6 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Requirement: With a business's Stripe test keys: create a payment link, pay it, request and approve a partial and a full refund; confirm webhooks and job balances
 - Files: src/payments.js, src/finance/service.js
 - Acceptance: Evidence recorded in docs/phase-08/REPORT.md
-
-## T-059 Monthly snapshot copies for long-term retention
-- Status: TESTING
-- Added: 2026-10-30
-- Requirement: Copy the first daily snapshot of each month to super-pro/monthly/ (S3 Batch Operations or a put-only scheduled copy)
-- Files: src/reliability/backup.js, docs/phase-09/BACKUP_AND_RECOVERY.md
-- Acceptance: Monthly copies present and covered by the 400-day lifecycle rule
 
 ## T-060 Live reliability check after deploy (Phase 09)
 - Status: NOT_STARTED
@@ -372,13 +351,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: Owner approves wording; no claims beyond what is built
 
-## T-169 Phase 1b: invoice tax labels and Business setup fields per country
-- Status: IN_PROGRESS
-- Added: 2026-11-20
-- Requirement: Invoices and Money settings use countryProfile tax label and optional tax number for non-AU; Business setup shows the international address fields; per docs/product-redesign/02 §5.
-- Files: src/finance/*, saas/workspace-*.js
-- Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
-
 ## T-200 W-19 AI Website: Buy a domain inside Oprun with the business's own Cloudflare account (Registrar API beta, D-W15)
 - Status: NOT_STARTED
 - Added: 2026-11-22
@@ -406,3 +378,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Backlog TR-81: approved release: merge, confirm live SHA on srv-dbuq98ojo6nc73aro66g, check caching, screenshot public site, Business Workspace and Operator Console on phone and laptop
 - Files: docs/transformation/05_RELEASE_PLAN.md
 - Acceptance: Merge on main, live deploy succeeded on the merge commit, health and start-up diagnostics checked, live screenshots compared with the test site
+
+## T-241 AWS lifecycle rules for the live backup root (oprun-ai/)
+- Status: NOT_STARTED
+- Added: 2026-11-25
+- Requirement: Infra rule files use super-pro/ prefixes; live writes under oprun-ai/. Owner applies lifecycle rules (snapshots 35 days, monthly ~13 months) for oprun-ai/ in AWS.
+- Files: infra/aws/backup-lifecycle.json
+- Acceptance: Owner confirms rules applied to oprun-ai/ prefixes

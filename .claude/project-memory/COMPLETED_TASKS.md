@@ -1079,3 +1079,31 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/saas-platform.js, src/automation/*
 - Acceptance: Contract test: inbound email starts an automation, text treated as untrusted, injection forces approval
 - Evidence: inbox.message trigger with facts from stored records only, text untrusted; actions summarise_message, draft_message_reply (outputs), link_message_enquiry (internal write, injection forces approval). automation-governance.test T-047 via signed inbound email. npm test 73/73; 24 browser suites pass; visual 348 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 70ce450)
+
+## T-169 Phase 1b: invoice tax labels and Business setup fields per country
+- Added: 2026-11-20
+- Requirement: Invoices and Money settings use countryProfile tax label and optional tax number for non-AU; Business setup shows the international address fields; per docs/product-redesign/02 §5.
+- Files: src/finance/*, saas/workspace-*.js
+- Acceptance: Non-AU invoice shows no ABN/GST wording; AU unchanged; tests pass.
+- Evidence: Non-AU finance UI: tax summary instead of BAS, tax label in document view/totals, neutral page intros, Reports & Tax heading; intl address labels in Business setup; AU unchanged. finance-ui UK check, country-rules.test. npm test 73/73; all 24 browser suites; visual business 348 and public 78 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 9b20339)
+
+## T-059 Monthly snapshot copies for long-term retention
+- Added: 2026-10-30
+- Requirement: Copy the first daily snapshot of each month to super-pro/monthly/ (S3 Batch Operations or a put-only scheduled copy)
+- Files: src/reliability/backup.js, docs/phase-09/BACKUP_AND_RECOVERY.md
+- Acceptance: Monthly copies present and covered by the 400-day lifecycle rule
+- Evidence: First good snapshot each month written under <root>/monthly/ with manifest (put-only), reliability_monthly_copies, status last_monthly_copy. reliability.test. Lifecycle prefix for the live root is an owner AWS step (documented). npm test 73/73; all 24 browser suites; visual business 348 and public 78 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 9b20339)
+
+## T-050 Phase 06 follow-up: fix the public-site SEO findings
+- Added: 2026-10-30
+- Requirement: Owner decision: legal pages noindex vs sitemap; shorten 7 long titles; add 3 meta descriptions; trim 3 long descriptions; responsive images; complete structured data; permanent redirect for /start (see docs/phase-06/REPORT.md)
+- Files: site/, src/server.js sitemap
+- Acceptance: Platform audit shows none of these findings; test:visual and site tests pass
+- Evidence: SEO titles 20-60, descriptions trimmed, legal pages noindex+description+canonical, /start 301, WebP logo srcset, @graph context fix in audit; founder audit 54->78. public-site.test, release SEO check. npm test 73/73; all 24 browser suites; visual business 348 and public 78 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 9b20339)
+
+## T-051 Phase 06 follow-up: image re-encoding for the Website Builder
+- Added: 2026-10-30
+- Requirement: Add an image library (sharp) to convert uploads to WebP/AVIF with sizes; needs owner approval for the new dependency on Render
+- Files: package.json, src/seo/*
+- Acceptance: Uploaded JPEG becomes WebP with srcset; Render build passes
+- Evidence: sharp 0.35.5 (0 vulns); /m/<link>?w= WebP copies; builder photo picker and srcset. image-variants.test. npm test 73/73; all 24 browser suites; visual business 348 and public 78 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 9b20339)

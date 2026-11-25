@@ -1,5 +1,5 @@
 {
-  "routes": 507,
+  "routes": 508,
   "list_routes": 149,
   "a_tables_names": [
     "workers (3)",
@@ -30,13 +30,13 @@
     "303": 3,
     "400": 984,
     "401": 1,
-    "404": 3034,
+    "404": 3056,
     "409": 33
   },
   "positive_control_lists": 49,
-  "param_routes": 204,
+  "param_routes": 205,
   "a_tables": 22,
-  "requests": 4274,
+  "requests": 4296,
   "leaks": [],
   "a_rows_changed": [],
   "server_errors": [],
