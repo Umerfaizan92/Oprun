@@ -57,6 +57,13 @@ try {
     await blocks.nth(1).getByLabel('Heading').fill('How we work');
     await blocks.nth(1).getByLabel('Text (blank line between paragraphs)').fill(lorem.repeat(3));
     await blocks.nth(4).getByLabel('Questions and answers').fill('Do you give quotes?\nYes, a written quote before any work starts.\n\nWhich areas?\nFremantle and Cottesloe.');
+    // W-05: add two of the new sections through the editor.
+    await ed.getByLabel('Section type').selectOption('pricing'); await ed.getByRole('button', { name: 'Add section' }).click();
+    const prices = ed.locator('.sx-editblock').last(); assert.match(await prices.locator('legend').textContent(), /Prices/);
+    await prices.getByLabel('Heading').fill('Prices'); await prices.getByLabel('Prices', { exact: true }).fill('Call-out | $99 | flat\nBlocked drain | from $180');
+    await prices.getByLabel('GST').selectOption('inc');
+    await ed.getByLabel('Section type').selectOption('quote_form'); await ed.getByRole('button', { name: 'Add section' }).click();
+    await ed.locator('.sx-editblock').last().getByLabel('Services to choose from').fill('Hot water\nBlocked drain');
     await ed.getByLabel('Meta description').fill('Blocked drains and hot water repairs in Fremantle and Cottesloe. Written quotes before any work starts.');
     await ed.getByRole('button', { name: 'Save version' }).click();
     await page.waitForFunction(() => /Saved as a new version/.test(document.querySelector('#seobuilder-view [data-sx-status]')?.textContent || ''));
@@ -72,6 +79,9 @@ try {
     const live = await ctx.newPage(); await live.goto(s.base + '/sites/harbour-ui/');
     assert.equal(await live.locator('h1').textContent(), 'Plumbers in Fremantle');
     assert.equal(await live.locator('details').count(), 2);
+    assert.equal(await live.locator('h1').count(), 1);
+    assert.match(await live.locator('.pricing').textContent(), /Call-out\$99 flat.*Prices include GST\./s);
+    assert.deepEqual(await live.locator('.quote select[name="service"] option').allTextContents(), ['Choose a service', 'Hot water', 'Blocked drain']);
     if (shots) await live.screenshot({ path: shots + '/published-site.png', fullPage: true });
     const liveAxe = await axe(live, 'body'); assert.deepEqual(liveAxe, [], 'the published page is accessible');
     await live.setViewportSize({ width: 390, height: 844 }); assert.ok(await live.evaluate(() => document.documentElement.scrollWidth - innerWidth) <= 1, 'published page fits a phone');

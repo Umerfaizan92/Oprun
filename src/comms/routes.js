@@ -120,6 +120,9 @@ export function installCommsRoutes(app, { db, comms, voice, engine, requireSaasU
     if (b.data.website) { if (isForm && back('form=sent')) return; return res.status(201).json({ ok: true }); }
     // T-071: a visitor who arrived through a tracked link carries its code in the form or in the page address.
     let spSrc = typeof b.data.sp_src === 'string' ? b.data.sp_src : ''; if (!spSrc) { try { spSrc = new URL(req.get('referer') || '').searchParams.get('sp_src') || ''; } catch { /* no usable referrer */ } }
+    // W-05 quote form: service and suburb are added to the top of the message so the enquiry shows them.
+    const extra = [['Service', b.data.service], ['Suburb', b.data.suburb]].map(([k, v]) => [k, typeof v === 'string' ? v.replace(/[\r\n]+/g, ' ').trim().slice(0, 120) : '']).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n');
+    if (extra) b.data.message = `${extra}\n\n${b.data.message}`.slice(0, 5300);
     const r = comms.contactForm(req.params.slug, { ...b.data, sp_src: /^[a-z0-9]{8}$/i.test(spSrc) ? spSrc.toLowerCase() : null, email: b.data.email || null, phone: b.data.phone || null, marketing_consent: [true, 'on', 'yes'].includes(b.data.marketing_consent) });
     if (!r.ok) { if (isForm && back('form=error')) return; return res.status(r.status).json(r); }
     if (isForm && back('form=sent')) return;

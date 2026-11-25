@@ -97,7 +97,7 @@ export function schemaFor(kind, facts, draft = {}) {
 }
 
 export function draftText(draft) {
-  return [draft.title, draft.meta_description, ...(draft.blocks || []).flatMap((b) => [b.heading, b.text, ...(b.items || []).flatMap((i) => (typeof i === 'string' ? [i] : [i.q, i.a]))])].filter(Boolean).join('\n');
+  return [draft.title, draft.meta_description, ...(draft.blocks || []).flatMap((b) => [b.heading, b.text, ...(b.items || []).flatMap((i) => (typeof i === 'string' ? [i] : [i.q, i.a, i.title, i.text, i.label, i.value, i.name, i.note, i.caption]).filter((x) => typeof x === 'string' || typeof x === 'number'))])].filter(Boolean).join('\n');
 }
 
 // Generate a draft. With AI, only the wording fields come from the model; structure, facts and schema stay ours.
