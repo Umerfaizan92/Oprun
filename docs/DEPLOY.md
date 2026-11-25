@@ -2,11 +2,29 @@
 
 This is the only deployment guide. Older release notes and checklists were archived by `scripts/purge-legacy.*`.
 
+## The live service as it actually runs (checked 25 Nov 2026)
+
+The blueprint below describes the defaults. The live service was set up in the Render dashboard and differs; these
+are its real values, read from the Render API and its start-up log:
+
+| | Live service |
+|---|---|
+| Name / ID | **Oprun AI**, `srv-dbuq98ojo6nc73aro66g` (`www.oprun.ai`); the test site is `oprun-test`, a free service with no Shell |
+| Branch | `main` |
+| Auto-deploy | **On, for every commit on `main`**: pushing to `main` releases to production. Nothing goes to `main` without the owner's release approval; work happens on other branches. |
+| Disk | `disk`, 10 GB at `/var/data` |
+| Database file | **`/var/data/oprun-ai.sqlite`** (not the blueprint default `super-pro.sqlite`) |
+| Backups | Litestream to the owner's S3 bucket, path `oprun-ai/db`, plus daily snapshots under `oprun-ai/snapshots/` |
+| Build | `npm ci --include=dev && npm test` (about 10 minutes) |
+
+Use the live file name in the commands below; check it again in the start-up log (`initialized db path=…`) if the
+service is ever recreated.
+
 ## 1. Before you deploy
 
 1. **Back up the live database.** Render dashboard → your service → **Shell** tab, then run this one line (a plain file copy can miss recent changes because the database uses a write-ahead log, so this uses SQLite's own backup):
    ```bash
-   node -e "const D=require('better-sqlite3');new D('/var/data/super-pro.sqlite').backup('/var/data/backup-'+new Date().toISOString().slice(0,10)+'.sqlite').then(()=>console.log('backup done'))"
+   node -e "const D=require('better-sqlite3');new D('/var/data/oprun-ai.sqlite').backup('/var/data/backup-'+new Date().toISOString().slice(0,10)+'.sqlite').then(()=>console.log('backup done'))"
    ```
    It prints `backup done`. Releases 19.x change the database schema. The changes only add things, but a backup costs nothing.
 2. Run the whole verification suite on your machine:
@@ -27,11 +45,11 @@ The blueprint `render.yaml` creates one web service on Node 22 with a persistent
 | Start | `npm start` |
 | Health check | `/healthz` |
 | Disk | `super-pro-data` mounted at `/var/data` |
-| Database | `DATABASE_PATH=/var/data/super-pro.sqlite` |
+| Database | `DATABASE_PATH=/var/data/super-pro.sqlite` (blueprint default; the live file is `oprun-ai.sqlite`) |
 | Uploads | `UPLOAD_DIR=/var/data/uploads` |
 | Safety | `REQUIRE_PERSISTENT_DISK=1` (the server refuses to start on non-durable storage) |
 
-Keep `numInstances: 1` while SQLite is the datastore, and keep a paid plan (free instances cannot attach a disk). Auto-deploy is off on purpose: deploy manually after checking the build.
+Keep `numInstances: 1` while SQLite is the datastore, and keep a paid plan (free instances cannot attach a disk). The blueprint sets auto-deploy off, but the live service has it **on** (see the table at the top): there, merging to `main` is the deploy.
 
 ## 3. Environment variables
 
@@ -65,7 +83,7 @@ On every start the server proves the data folder is writable, opens the database
 
 ## 6. Rollback
 
-Render → Deploys → pick the last good deploy → Rollback. The database is additive-only, so earlier code keeps working against it. To restore data, stop the service and copy the backup file from step 1 over `super-pro.sqlite` (delete any `super-pro.sqlite-wal` and `-shm` files next to it first).
+Render → Deploys → pick the last good deploy → Rollback. The database is additive-only, so earlier code keeps working against it. To restore data, stop the service and copy the backup file from step 1 over the live database file (`oprun-ai.sqlite` on the live service) (delete any `-wal` and `-shm` files next to it first, e.g. `oprun-ai.sqlite-wal`).
 
 ## Permanent storage on AWS S3 (no Render disk needed)
 
