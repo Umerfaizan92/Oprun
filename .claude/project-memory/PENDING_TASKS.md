@@ -253,13 +253,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
-## T-151 W-05 AI Website: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility
-- Status: NOT_STARTED
-- Added: 2026-11-19
-- Requirement: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
-- Files: see docs/ai-website/02_ARCHITECTURE.md
-- Acceptance: Renderer tests for each block; one H1; axe-clean in `report:a11y-perf`
-
 ## T-152 W-06 AI Website: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion
 - Status: NOT_STARTED
 - Added: 2026-11-19

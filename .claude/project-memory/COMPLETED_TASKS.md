@@ -1121,3 +1121,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/integration-*, src/channel-*, src/staff-access.js, src/server.js, saas/integration-manager.*, saas/workspace*, scripts, docs/connections
 - Acceptance: Tenant and member permission attack tests pass; one organized hub integrates existing pages and actual supported provider workflows; unsupported permissions/APIs labelled accurately; campaigns persist local targeting and approvals; AI output requires review; CI and browser tests pass; publish and verify production where access permits
 - Evidence: Channel operations hub is on main and live (www.oprun.ai, release R-2 dep-dc3jq0e0tbcc73bu4e4g): channel-operations.test 20/20 (tenant and member permission attacks), test:channels-ui passes at 390/768/1440 incl. assigned-worker visibility, npm test 73/73. Live provider consent/delivery needs real subscriber accounts: moved to owner task. (recorded 2026-11-25 on claude/transformation-phase1 at 25fc4f0)
+
+## T-151 W-05 AI Website: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility
+- Added: 2026-11-19
+- Requirement: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Renderer tests for each block; one H1; axe-clean in `report:a11y-perf`
+- Evidence: Commit eb03467. scripts/site-blocks.test.mjs 5/5 (each block rendered and escaped, one H1, customer names hidden, approved FAQ only, banner needs receptionist247, map link without embed, GST check, quote service/suburb reach the enquiry). scripts/test-site-blocks-ui.mjs: axe WCAG 2.1 AA clean, one H1, no sideways scroll at 390/820/1440 px (business sites are not in report:a11y-perf's page list, so the same axe check runs here). test-seo-ui adds Prices and Quote form in the editor and checks the published page. seo, comms, website-edge, release-security, website-wizard-ui, site-ui pass. (recorded 2026-11-25 on claude/transformation-phase1 at eb03467)
