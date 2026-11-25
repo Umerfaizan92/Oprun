@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: b941cad (TR-73 (part 1): restore drill on a realistic database passed, report; handover updated)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Lighthouse workspace 63-77 returning, 57-76 first visit
-FILES MODIFIED: .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-views.css; saas/workspace.html; scripts/report-lighthouse.mjs
+LAST COMPLETED STEP: report and handover corrected
+FILES MODIFIED: SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 11 file(s)
+UNCOMMITTED CHANGES: 3 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Count whole-document MutationObservers in start-up scripts (grep MutationObserver saas/*.js) and measure their cost with LH_DEBUG=1 LH_ONLY=workspace
+NEXT EXACT ACTION: Owner decision: continue the deeper start-up refactor toward 85, or accept 63-77 for now and move to TR-80 review
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-201 at 2026-11-25T00:25:02+00:00
+LAST CHECKPOINT: CP-202 at 2026-11-25T00:27:57+00:00
 <!-- handover:end -->
 
 ## Notes

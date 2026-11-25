@@ -2817,3 +2817,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Count whole-document MutationObservers in start-up scripts (grep MutationObserver saas/*.js) and measure their cost with LH_DEBUG=1 LH_ONLY=workspace
+
+## CP-202 2026-11-25T00:27:57+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 3 investigation: profiled start-up (0.7 s script, ~1 s style recalculation in ~170 passes, 0.2 s layout, ~4,200 elements); :has() rules ruled out by experiment; report and handover corrected
+- Incomplete steps: Reduce style passes during start-up (batch first-page drawing); reserved space for CLS on Enquiries/Inbox/Money; frame before data calls
+- Files modified (uncommitted at checkpoint): SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 7c1d5a0 (TR-72 (part 2, stage 2): no blocking navigation script, opening screen, honest workspace measurement); 68 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Owner decision: continue the deeper start-up refactor toward 85, or accept 63-77 for now and move to TR-80 review

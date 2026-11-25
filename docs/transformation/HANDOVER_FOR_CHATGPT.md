@@ -42,8 +42,9 @@ table; 39 scripts in `saas/workspace.html` are `<script type="oprun/lazy" data-l
 group (`src/asset-bundles.js`). Test: `scripts/workspace-lazy.test.mjs`. Lighthouse workspace now 59–74 (was 35–48).
 **Stage 2 done (25 Nov, D-073):** navigation table and dialog queue no longer block the page; a static opening screen
 replaces the blank page; the Lighthouse report measures a returning visit plus first-visit rows and a Ready (TTI)
-column. Workspace now 63–77 (returning visit), target 85 **not met**. What is left, in order: one shared page watcher
-instead of ~10 whole-document MutationObservers, drawing the frame before the start-up data calls, reserved space for
+column. Workspace now 63–77 (returning visit), target 85 **not met**. What is left, in order: drawing the first page in fewer
+steps (measured: ~1 s of style recalculation in ~170 passes while start-up scripts add their parts; `:has()` rules
+ruled out), drawing the frame before the start-up data calls, reserved space for
 panels that cause layout shift (Enquiries, Inbox, Money). Details: `qa/reports/LIGHTHOUSE.md` → "What is left". The
 notes below are the original plan.
 

@@ -80,9 +80,13 @@ Target: performance ≥ 85 on every main page. Workspace pages are measured as a
 
 The 85 target is not met. On the simulated phone the workspace content appears at about 3.6–4.3 s. What remains, in
 order of size:
-1. Start-up code still runs about 1 s of script and about 1 s of style/layout work before the first page shows: many
-   page-wide change watchers (MutationObserver on the whole document in about ten start-up scripts) react to every
-   element the first page adds. Merging them into one shared watcher would cut most of the "other" main-thread time.
+1. Measured on 25 Nov with the browser's performance counters (phone-speed CPU, Command Centre): before the first page
+   is ready the browser spends about 0.7 s running scripts and about 0.9–1.0 s recalculating styles, in about 170
+   separate passes, plus about 0.2 s of layout. The page has about 4,200 elements, which is moderate, and switching
+   off every `:has()` style rule made no difference. The cost comes from start-up scripts adding their parts piece by
+   piece, each change triggering another style pass (several also read computed styles while the page is changing).
+   Drawing the first page in fewer, larger steps (one shared start-up pass instead of each script reacting on its
+   own) is the main remaining change; it touches most start-up scripts and needs its own careful stage.
 2. The first page waits for the session check and the start-up data calls before anything is drawn; drawing the
    navigation rail and page frame from the session cookie first would move the largest paint earlier.
 3. Layout shift on Enquiries (0.11), Unified Inbox (0.22) and Money (0.11): panels that change height when their data
