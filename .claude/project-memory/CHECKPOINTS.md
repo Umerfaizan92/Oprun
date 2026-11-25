@@ -2999,3 +2999,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: git push origin HEAD:main (fast-forward), then watch deploys of srv-dbuq98ojo6nc73aro66g
+
+## CP-215 2026-11-25T15:54:19+00:00 T-240 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-240 (IN_PROGRESS)
+- Completed steps: Release live on www.oprun.ai (9074580); start-up clean; no errors
+- Incomplete steps: Owner: quick live check on phone and laptop (sign in, Command Centre, Operator Console agents); live security settings on Oprun AI; then close T-240 and TR-81
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 9074580 (TR-81: release started (rollback point recorded))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Wait for the owner's live check; if anything differs from the test site, fix through a new tested commit

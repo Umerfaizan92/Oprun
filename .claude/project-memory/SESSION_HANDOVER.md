@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-240 (IN_PROGRESS)
-LAST COMPLETED STEP: Pre-merge checks: candidate unchanged since owner review (only docs/memory/manifest), main contained, rollback point recorded
-FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+LAST COMPLETED STEP: no errors
+FILES MODIFIED: .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 2 file(s)
+UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: git push origin HEAD:main (fast-forward), then watch deploys of srv-dbuq98ojo6nc73aro66g
+NEXT EXACT ACTION: Wait for the owner's live check; if anything differs from the test site, fix through a new tested commit
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-214 at 2026-11-25T15:38:04+00:00
+LAST CHECKPOINT: CP-215 at 2026-11-25T15:54:19+00:00
 <!-- handover:end -->
 
 ## Notes
