@@ -114,7 +114,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: p50 ≤ 700 ms and p95 ≤ 1000 ms caller-stop → first audio; barge-in stop ≤ 80 ms (p95 ≤ 120 ms); **D-R5 closed and recorded** with memory:task -- decision
 
 ## T-123 R-03 AI Receptionist: Data model: new tables and voice_calls columns from [00_CONTRACT.md §5](00_CONTRACT.md#5-
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: Data model: new tables and voice_calls columns from [00_CONTRACT.md §5](00_CONTRACT.md#5-new-and-changed-data-sqlite-oprun-web), migration + backfill dry-run (absorbs the receptionist half of T-040) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-03)
 - Files: docs/ai-receptionist/

@@ -6,6 +6,7 @@ import { installPipeline } from './pipeline.js';
 import { installDocumentAttachments } from './document-attachments.js';
 import { createPipelineNotices } from './pipeline-notices.js';
 import { migrateReceptionist } from './comms/receptionist-store.js';
+import { installReceptionistInternal } from './comms/receptionist-internal.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -6332,6 +6333,8 @@ const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notificatio
   profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};return receptionistProfileFor(org)}});
 // R-03 (T-123): AI Receptionist tables and columns (additive; legacy tables kept for rollback).
 migrateReceptionist(db);
+// R-04/R-07 (T-124, T-127): internal API for the voice worker. Off until VOICE_SERVICE_KEY and VOICE_CALL_TOKEN_SECRET are set.
+const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();
