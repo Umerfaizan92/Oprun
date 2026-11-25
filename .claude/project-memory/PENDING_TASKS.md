@@ -156,7 +156,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Call appears in Unibox with summary, transcript, recording, linked customer and enquiry within 30 s of hang-up
 
 ## T-129 R-09 AI Receptionist: Spam filter and metering: billable, usage_events kind='receptionist_call', spend cap modes
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: Spam filter and metering: billable, usage_events kind='receptionist_call', spend cap modes ([08](08_SECURITY_COMPLIANCE_METERING.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-09)
 - Files: docs/ai-receptionist/

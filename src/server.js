@@ -6,7 +6,8 @@ import { installPipeline } from './pipeline.js';
 import { installDocumentAttachments } from './document-attachments.js';
 import { createPipelineNotices } from './pipeline-notices.js';
 import { migrateReceptionist } from './comms/receptionist-store.js';
-import { installReceptionistInternal } from './comms/receptionist-internal.js';
+import { installReceptionistInternal, receptionistActor } from './comms/receptionist-internal.js';
+import { createReceptionistBooking } from './comms/receptionist-booking.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -3733,6 +3734,7 @@ app.post('/api/saas/approvals/:id/decision',requireSaasUser,(req,res)=>{
     db.prepare(`UPDATE workspace_approvals SET status='expired',updated_at=? WHERE id=? AND organisation_id=?`).run(now,row.id,req.saas.organisation_id);
     addWorkspaceApprovalEvent(req,row.id,'expired',{});
     if(row.source_module==='automation')automationEngine.onDecision(row,{status:'expired'});
+    if(row.source_module==='receptionist')try{receptionistBooking.applyApproval(row,'expired',null)}catch(e){console.warn('[receptionist] expiry:',e.message)}
     return res.status(409).json({ok:false,error:'This approval request has expired.'});
   }
   const status=parsed.data.decision==='approve'?'approved':'rejected',now=new Date().toISOString();
@@ -3751,7 +3753,8 @@ app.post('/api/saas/approvals/:id/decision',requireSaasUser,(req,res)=>{
     if(changed!==1)throw Object.assign(new Error('already decided'),{code:'ALREADY_DECIDED'});
     addWorkspaceApprovalEvent(req,row.id,status,{note:parsed.data.note||'',source_module:row.source_module,entity_type:row.entity_type,entity_id:row.entity_id});
     applyApprovalToComms(db,row,status,edited);
-  })()}catch(error){if(error.code==='ALREADY_DECIDED')return res.status(409).json({ok:false,error:'This approval was already decided.'});throw error}
+    if(row.source_module==='receptionist')receptionistBooking.applyApproval(row,status,edited);
+  })()}catch(error){if(error.code==='ALREADY_DECIDED')return res.status(409).json({ok:false,error:'This approval was already decided.'});if(error.status===409||error.code==='CONFLICT')return res.status(409).json({ok:false,error:error.message});throw error}
   if(row.source_module==='automation'){
     const r=automationEngine.onDecision(row,{status,edited:automationEdit,actor:{id:req.saas.user_id,name:req.saas.full_name,role:req.saas.role},executeAfter:row.execute_after});
     return res.json({ok:true,status,executed:false,queued:Boolean(status==='approved'&&r.ok),scheduled_for:r.scheduled_for||null,run_id:row.automation_run_id,message:status==='approved'?(r.scheduled_for?'Approved. It will run at the scheduled time; the result appears in Automations.':'Approved. The automation is running now; its result appears in Automations.'):'Rejected. Nothing was done.'});
@@ -6334,7 +6337,8 @@ const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notificatio
 // R-03 (T-123): AI Receptionist tables and columns (additive; legacy tables kept for rollback).
 migrateReceptionist(db);
 // R-04/R-07 (T-124, T-127): internal API for the voice worker. Off until VOICE_SERVICE_KEY and VOICE_CALL_TOKEN_SECRET are set.
-const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
+const receptionistBooking=createReceptionistBooking({db,env,pipeline:businessHubHooks,createApproval:(req,o)=>createWorkspaceApproval(req,o),audit:(req,...a)=>{try{saasAudit(req,...a)}catch{}},actorFor:receptionistActor});
+const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,booking:receptionistBooking,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();

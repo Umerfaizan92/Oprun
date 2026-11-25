@@ -288,5 +288,23 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
     res.json({ ok: true, issued_at: now, due_at: due, total_cents: totalCents });
   });
 
-  return { createJobForBooking, bookQuote, refreshInvoice, gstFor, createQuoteFromEnquiry, createInvoiceFromJob, createEnquiry, enquiryReference: (org, id) => { const d = doc(org, id); return d ? enquiryReference(org, d) : null; } };
+  // R-11 (T-131): a booking straight from an enquiry (AI receptionist, after approval or in auto mode). Price is 0 until
+  // a quote or invoice sets it. The enquiry must still be open; the caller's customer becomes 'current'.
+  function createBookingFromEnquiry(org, actor, enquiryId, { start_at, end_at, address = null, notes = '' }) {
+    const enq = db.prepare("SELECT * FROM tenant_documents WHERE id=? AND organisation_id=? AND kind='enquiry'").get(enquiryId, org);
+    if (!enq || !['open', 'draft', 'quoted'].includes(enq.status)) throw Object.assign(new Error('This enquiry is no longer open for booking.'), { code: 'CONFLICT' });
+    const start = new Date(start_at), end = new Date(end_at);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) throw Object.assign(new Error('Choose a valid time.'), { code: 'VALIDATION' });
+    const bookingId = crypto.randomUUID(), now = iso();
+    let jobId;
+    db.transaction(() => {
+      db.prepare(`INSERT INTO tenant_documents (id,organisation_id,kind,customer_id,title,body,amount_cents,gst_applies,gst_cents,start_at,source_id,status,channel,created_by,created_at,updated_at) VALUES (?,?,'booking',?,?,?,0,1,0,?,?,'booked','receptionist',?,?,?)`)
+        .run(bookingId, org, enq.customer_id, enq.title, String(notes || '').slice(0, 4000), start.toISOString(), enq.id, actor, now, now);
+      jobId = createJobForBooking(org, actor, { title: enq.title, customer_id: enq.customer_id, amount_cents: 0, gst_cents: 0, gst_applies: 1, source_id: enq.id }, bookingId, { start_at: start.toISOString(), address, estimated_hours: Math.round(((end - start) / 3600000) * 100) / 100 });
+      if (enq.customer_id) db.prepare("UPDATE tenant_customers SET status='current',updated_at=? WHERE id=? AND organisation_id=? AND status IN ('lead','past')").run(now, enq.customer_id, org);
+    })();
+    events.emit(org, 'job.booked', { booking_id: bookingId, work_order_id: jobId, via: 'receptionist' }, { key: bookingId });
+    return { booking_id: bookingId, work_order_id: jobId };
+  }
+  return { createBookingFromEnquiry, createJobForBooking, bookQuote, refreshInvoice, gstFor, createQuoteFromEnquiry, createInvoiceFromJob, createEnquiry, enquiryReference: (org, id) => { const d = doc(org, id); return d ? enquiryReference(org, d) : null; } };
 }

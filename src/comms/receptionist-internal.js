@@ -43,12 +43,15 @@ const SCHEMAS = {
   create_or_update_customer: z.object({ name: z.string().trim().min(1).max(160), phone: z.string().max(40).optional(), email: z.string().max(254).optional(), address: z.string().max(300).optional(), notes: z.string().max(1000).optional(), sms_consent: z.boolean().optional(), email_consent: z.boolean().optional() }).strict(),
   create_enquiry_lead: z.object({ service: z.string().trim().min(2).max(120), details: z.string().max(4000), urgency: z.enum(['normal', 'soon', 'emergency']), suburb: z.string().max(80).optional(), preferred_times: z.string().max(300).optional() }).strict(),
   take_message: z.object({ message: z.string().trim().min(3).max(1000), callback_window: z.string().max(120).optional() }).strict(),
+  check_availability: z.object({ service_id: z.string().max(80).optional(), service: z.string().max(120).optional(), date_from: z.string().max(10), date_to: z.string().max(10), suburb: z.string().max(80).optional(), duration_minutes: z.number().int().min(15).max(600).optional() }).strict().refine((x) => x.service_id || x.service, { message: 'service', path: ['service'] }),
+  propose_booking: z.object({ slot_id: z.string().max(1000), service: z.string().max(120), address: z.string().trim().min(3).max(300), notes: z.string().max(1000).optional() }).strict(),
+  merge_to_unibox: z.object({ note: z.string().max(500).optional() }).strict(),
   end_call: z.object({ reason: z.enum(['completed', 'caller_hung_up', 'spam', 'wrong_number', 'transferred', 'silence']) }).strict()
 };
 // Tools defined in 04_TOOLS.md that arrive in later steps (R-08, R-10 to R-14).
-const LATER = new Set(['check_availability', 'propose_booking', 'warm_transfer', 'merge_to_unibox', 'draft_followup']);
+const LATER = new Set(['warm_transfer', 'draft_followup']);
 
-export function installReceptionistInternal(app, { db, env, pipeline, comms, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
+export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
   const iso = () => new Date(clock()).toISOString();
   const rate = new Map(); // call_control_id -> [windowStart, count]
   const RATE_PER_MIN = Number(env.VOICE_TOOL_RATE_PER_MIN || 120);
@@ -193,6 +196,16 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
       return { speak: "Done, I'll pass that straight on." };
     },
 
+    check_availability(org, call, a) { return booking ? booking.checkAvailability(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: "I'll get the team to call you to confirm a time." }; },
+    propose_booking(org, call, a) { return booking ? booking.proposeBooking(org, call, a) : { status: 409, code: 'ERR_NOT_ALLOWED', speak: "I'll get the team to call you to confirm a time." }; },
+    // Live use only adds a note the caller asked for; the call itself is filed once after it ends (R-08).
+    merge_to_unibox(org, call, a) {
+      if (!a.note) return { speak: '' };
+      const cur = JSON.parse(db.prepare('SELECT summary_json FROM voice_calls WHERE call_control_id=? AND organisation_id=?').get(call.call_control_id, org)?.summary_json || '{}');
+      cur.notes = [...(cur.notes || []), String(a.note).slice(0, 500)].slice(-10);
+      db.prepare('UPDATE voice_calls SET summary_json=?,updated_at=? WHERE call_control_id=? AND organisation_id=?').run(JSON.stringify(cur), iso(), call.call_control_id, org);
+      return { speak: "I've added that note." };
+    },
     end_call(org, call, a) {
       // A goodbye after a message or a transfer keeps that more useful outcome.
       db.prepare(`UPDATE voice_calls SET outcome=CASE WHEN ?='completed' AND outcome IN ('message_taken','transferred') THEN outcome ELSE ? END,${a.reason === 'spam' ? 'spam_score=100,billable=0,' : ''}updated_at=? WHERE call_control_id=? AND organisation_id=?`).run(a.reason, a.reason, iso(), call.call_control_id, org);
@@ -284,7 +297,7 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
     let messageId = c.inbox_message_id, threadId = c.thread_id;
     if (!messageId && recordInbound) {
       const caller = normPhone(c.from_number), valid = caller && /^\+\d{8,15}$/.test(caller);
-      const lines = [`Call answered by the AI receptionist${c.duration_seconds ? ` · ${c.duration_seconds} s` : ''}`, meta.message?.text ? `Message: ${meta.message.text}${meta.message.callback_window ? ` (call back: ${meta.message.callback_window})` : ''}` : '', transcript ? `Transcript:\n${transcript}` : ''].filter(Boolean).join('\n');
+      const lines = [`Call answered by the AI receptionist${c.duration_seconds ? ` · ${c.duration_seconds} s` : ''}`, meta.message?.text ? `Message: ${meta.message.text}${meta.message.callback_window ? ` (call back: ${meta.message.callback_window})` : ''}` : '', meta.notes?.length ? `Notes: ${meta.notes.join('; ')}` : '', transcript ? `Transcript:\n${transcript}` : ''].filter(Boolean).join('\n');
       const r = recordInbound(db, { organisation_id: org, channel: 'voice', contact_address: valid ? caller : `withheld:${c.call_session_id || c.call_control_id}`, kind: 'call_log', body: lines, summary, provider: 'telnyx', external_message_id: c.call_session_id || c.call_control_id, duration_seconds: c.duration_seconds || null });
       messageId = r?.id || null; threadId = r?.thread_id || null;
     } else if (messageId && !threadId) threadId = db.prepare('SELECT thread_id FROM comms_messages WHERE id=? AND organisation_id=?').get(messageId, org)?.thread_id || null;
