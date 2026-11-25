@@ -5,6 +5,7 @@ import {installModuleRules} from './module-rules.js';
 import { installPipeline } from './pipeline.js';
 import { installDocumentAttachments } from './document-attachments.js';
 import { createPipelineNotices } from './pipeline-notices.js';
+import { migrateReceptionist } from './comms/receptionist-store.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -6329,6 +6330,8 @@ const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime
 const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.callCredentials(org),repairOutbound:org=>receptionistTelnyx.repairOutbound(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
   orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
   profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};return receptionistProfileFor(org)}});
+// R-03 (T-123): AI Receptionist tables and columns (additive; legacy tables kept for rollback).
+migrateReceptionist(db);
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();

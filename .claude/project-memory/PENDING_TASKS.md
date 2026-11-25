@@ -17,13 +17,6 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Files: src/automation/engine.js, render.yaml (needs owner approval)
 - Acceptance: Owner-approved plan; schedules still run once per period
 
-## T-052 Phase 06 follow-up: custom domains for builder sites
-- Status: NOT_STARTED
-- Added: 2026-10-30
-- Requirement: Serve a business site on its own domain: DNS verification and certificates on Render (infrastructure change, owner approval)
-- Files: render.yaml, src/seo/routes.js
-- Acceptance: Owner-approved plan; domain ownership verified before serving
-
 ## T-053 Phase 06: record live Google evidence after deploy
 - Status: NOT_STARTED
 - Added: 2026-10-30
@@ -91,13 +84,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-11: fix all problems identified in the public website audit and make Oprun ready for Android and Apple stores. Owner selected Primary Render connection for deployment in My Workspace. Preserve data and credentials; verify release readiness honestly.
 - Files: saas/auth.js, saas/product-guide.js, saas/registration-layout.css, saas/sw.js, scripts/site, src/product-guide-knowledge.js, src/mobile-association.js, mobile/, .github/workflows/mobile-builds.yml
 - Acceptance: Plan selection and contextual guide answers verified; registration layout and install guidance tested; public website deployed after checks; native projects compile in CI; signing, device testing and store approvals tracked as owner release gates rather than falsely completed.
-
-## T-077 Subscriber channel operations hub, owner-controlled access and local campaigns
-- Status: IN_PROGRESS
-- Added: 2026-11-11
-- Requirement: Owner 2026-11-11 requests organize and upgrade every Connections provider across social email WhatsApp YouTube and Google; subscriber-owned sign-in, posts videos text comments replies messaging subscribers viewers ads campaign overviews progress local-area targeting and AI recommendations; enforce tenant isolation and owner-controlled team access, exclude other businesses and platform operators; preserve resumable checkpoints, update related pages consistently, test then push and live-test. Owner additionally requests relevant tools/plugins including Elementor where available.
-- Files: src/integration-*, src/channel-*, src/staff-access.js, src/server.js, saas/integration-manager.*, saas/workspace*, scripts, docs/connections
-- Acceptance: Tenant and member permission attack tests pass; one organized hub integrates existing pages and actual supported provider workflows; unsupported permissions/APIs labelled accurately; campaigns persist local targeting and approvals; AI output requires review; CI and browser tests pass; publish and verify production where access permits
 
 ## T-079 Channel content is viewable: media previews, links, per-item detail and measured totals
 - Status: TESTING
@@ -385,3 +371,10 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Infra rule files use super-pro/ prefixes; live writes under oprun-ai/. Owner applies lifecycle rules (snapshots 35 days, monthly ~13 months) for oprun-ai/ in AWS.
 - Files: infra/aws/backup-lifecycle.json
 - Acceptance: Owner confirms rules applied to oprun-ai/ prefixes
+
+## T-242 Live provider check for the channel hub (real accounts)
+- Status: NOT_STARTED
+- Added: 2026-11-25
+- Requirement: With a real subscriber account: connect one provider (e.g. Facebook or Gmail), confirm consent screen, a synced item, and one approved reply delivered. Synthetic tests cannot cover real provider consent.
+- Files: docs/connections/OWNER-SETUP.md
+- Acceptance: Owner or tester records one successful live consent and one approved delivery per provider used

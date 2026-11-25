@@ -1107,3 +1107,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: package.json, src/seo/*
 - Acceptance: Uploaded JPEG becomes WebP with srcset; Render build passes
 - Evidence: sharp 0.35.5 (0 vulns); /m/<link>?w= WebP copies; builder photo picker and srcset. image-variants.test. npm test 73/73; all 24 browser suites; visual business 348 and public 78 screens 0 problems (recorded 2026-11-25 on claude/transformation-phase1 at 9b20339)
+
+## T-052 Phase 06 follow-up: custom domains for builder sites
+- Added: 2026-10-30
+- Requirement: Serve a business site on its own domain: DNS verification and certificates on Render (infrastructure change, owner approval)
+- Files: render.yaml, src/seo/routes.js
+- Acceptance: Owner-approved plan; domain ownership verified before serving
+- Evidence: Superseded and delivered by T-155 (D-W4): custom domains through Cloudflare for SaaS in front of the Render origin, no render.yaml change; host middleware serves only verified website_domains; website-edge and website-hub tests pass. Live switch-on needs the owner's CLOUDFLARE_SAAS_* settings. (recorded 2026-11-25 on claude/transformation-phase1 at 25fc4f0)
+
+## T-077 Subscriber channel operations hub, owner-controlled access and local campaigns
+- Added: 2026-11-11
+- Requirement: Owner 2026-11-11 requests organize and upgrade every Connections provider across social email WhatsApp YouTube and Google; subscriber-owned sign-in, posts videos text comments replies messaging subscribers viewers ads campaign overviews progress local-area targeting and AI recommendations; enforce tenant isolation and owner-controlled team access, exclude other businesses and platform operators; preserve resumable checkpoints, update related pages consistently, test then push and live-test. Owner additionally requests relevant tools/plugins including Elementor where available.
+- Files: src/integration-*, src/channel-*, src/staff-access.js, src/server.js, saas/integration-manager.*, saas/workspace*, scripts, docs/connections
+- Acceptance: Tenant and member permission attack tests pass; one organized hub integrates existing pages and actual supported provider workflows; unsupported permissions/APIs labelled accurately; campaigns persist local targeting and approvals; AI output requires review; CI and browser tests pass; publish and verify production where access permits
+- Evidence: Channel operations hub is on main and live (www.oprun.ai, release R-2 dep-dc3jq0e0tbcc73bu4e4g): channel-operations.test 20/20 (tenant and member permission attacks), test:channels-ui passes at 390/768/1440 incl. assigned-worker visibility, npm test 73/73. Live provider consent/delivery needs real subscriber accounts: moved to owner task. (recorded 2026-11-25 on claude/transformation-phase1 at 25fc4f0)
