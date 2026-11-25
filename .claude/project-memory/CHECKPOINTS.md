@@ -3153,3 +3153,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T220828Z (c6f7cc5)
 - Known errors: none
 - Next exact action: Run: node --test scripts/site-blocks.test.mjs and npm run test:seo-ui; then commit the gate.
+
+## CP-226 2026-11-25T22:10:01+00:00 T-153 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-153 (NOT_STARTED)
+- Completed steps: W-05 and W-06 completed and committed (eb03467, 237fafd, 408bb1c). New sections gated by WEBSITE_BUILDER_V2_ORGS.
+- Incomplete steps: Push branch; W-07 (T-153) live data sync; W-08 speed budget in prePublishChecks; release batch after full verification.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 408bb1c (AI Website: new sections only for businesses in WEBSITE_BUILDER_V2_ORGS); 5 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read docs/ai-website for W-07 (T-153) and start it.

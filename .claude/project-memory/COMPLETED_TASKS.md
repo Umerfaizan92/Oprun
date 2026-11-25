@@ -1128,3 +1128,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: Renderer tests for each block; one H1; axe-clean in `report:a11y-perf`
 - Evidence: Commit eb03467. scripts/site-blocks.test.mjs 5/5 (each block rendered and escaped, one H1, customer names hidden, approved FAQ only, banner needs receptionist247, map link without embed, GST check, quote service/suburb reach the enquiry). scripts/test-site-blocks-ui.mjs: axe WCAG 2.1 AA clean, one H1, no sideways scroll at 390/820/1440 px (business sites are not in report:a11y-perf's page list, so the same axe check runs here). test-seo-ui adds Prices and Quote form in the editor and checks the published page. seo, comms, website-edge, release-security, website-wizard-ui, site-ui pass. (recorded 2026-11-25 on claude/transformation-phase1 at eb03467)
+
+## T-152 W-06 AI Website: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion
+- Added: 2026-11-19
+- Requirement: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion and low-power rules (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: LCP is the poster; no animation after 4 s; reduced-motion shows the poster only; budget check passes
+- Evidence: Commits 237fafd, 408bb1c. test-site-blocks-ui with real WebGL (SwiftShader): scene plays and is done within 4.5 s, zero draw calls in the 1.2 s after (no loop), LCP element is the poster IMG, reduced motion and 2-core devices keep the poster and never download the scene, axe clean at 390/820/1440 px. site-blocks 8/8: loader only on cinematic pages, CSP adds script-src 'self' only there, /_site serves only the two files, budget (loader <=2 KB, scene 110 KB brotli <=130 KB, 3.6 s play, setAnimationLoop(null)), poster fetchpriority high and not lazy. website-edge: files served on custom domains. Gated by WEBSITE_BUILDER_V2_ORGS (D-085). (recorded 2026-11-25 on claude/transformation-phase1 at 408bb1c)

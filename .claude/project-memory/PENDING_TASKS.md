@@ -253,13 +253,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
-## T-152 W-06 AI Website: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion
-- Status: IN_PROGRESS
-- Added: 2026-11-19
-- Requirement: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion and low-power rules (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
-- Files: see docs/ai-website/02_ARCHITECTURE.md
-- Acceptance: LCP is the poster; no animation after 4 s; reduced-motion shows the poster only; budget check passes
-
 ## T-153 W-07 AI Website: Live Oprun data sync (nightly diff → drafts / low-risk updates)
 - Status: NOT_STARTED
 - Added: 2026-11-19
