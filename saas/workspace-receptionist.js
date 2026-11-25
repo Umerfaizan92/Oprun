@@ -138,7 +138,72 @@
       el('p', { text: tx.status === 'connected' && tx.number ? `Call ${tx.number} from your mobile. Ask a question, give your name and number, and hang up. Within a minute the call appears below and in the Unified Inbox, and you get an alert.` : 'Connect your number first (step 1), then call it from your mobile.' }),
       calls.length ? el('ul', { class: 'rx-calls' }, calls.slice(0, 5).map((c) => el('li', {}, `${when(c.started_at)} · ${c.from_number || 'Unknown caller'} · ${c.voicemail ? 'Voicemail' : c.transferred_to_human ? 'Transferred' : c.answered_at ? 'Answered' : 'Missed'}${c.failures?.length ? ' · problem: ' + c.failures.map((f) => f.step).join(', ') : ''}`))) : el('p', { class: 'portal-empty', text: 'No calls yet.' }),
       el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Refresh', onclick: (e) => busy(s, e.target, render) }))));
+    // R-15/R-16/R-18: the live AI receptionist steps. Shown only once Oprun's voice service is switched on.
+    const rx = await api('/api/saas/receptionist').catch(() => null);
+    if (rx?.enabled && ['owner', 'admin', 'manager', 'super_admin', 'director'].includes(role())) liveSteps(s, body, rx);
     stepper(body, tx, startAt);
+  }
+
+  function liveSteps(s, body, rx) {
+    const ta = (attrs, value) => { const t = el('textarea', attrs); t.value = value; return t; };
+    const c = rx.config || {}, put = (part, values) => api('/api/saas/receptionist/config', { method: 'PUT', body: JSON.stringify({ part, values, updated_at: c.updated_at }) });
+    const reload = (msg) => render(null).then(() => { if (msg) say(document.getElementById('receptionist-view'), msg); }).catch((e) => say(s, e.message, true));
+    // 6. What it knows (07): build from your records, add answers, approve.
+    const know = el('div', { class: 'rx-knowledge' }, el('p', { class: 'pl-meta', text: 'Loading what your receptionist knows…' }));
+    body.append(card(6, 'What your receptionist knows', know));
+    api('/api/saas/receptionist/knowledge').then((k) => {
+      const d = k.draft, a = k.approved;
+      const faqs = ta({ rows: 6, 'aria-label': 'Questions and answers' }, (d?.facts?.faqs || a?.facts?.faqs || []).map((f) => `${f.q}\n${f.a}`).join('\n\n'));
+      know.replaceChildren(
+        el('p', {}, a ? `Live: version ${a.revision}, approved ${when(a.approved_at)}.` : 'Nothing approved yet: the receptionist will not use any facts until you approve them.', k.stale ? ' Your records changed since you last approved.' : ''),
+        d ? el('details', { open: true }, el('summary', { text: `Draft version ${d.revision} (not live)` }), el('pre', { class: 'rx-facts', text: d.prompt_block })) : null,
+        field('Common questions and your answers (question on one line, answer below, blank line between)', faqs, 'Phone numbers, emails and street addresses of other people are removed automatically.'),
+        el('div', { class: 'pl-actions' },
+          el('button', { type: 'button', class: 'portal-button', text: d ? 'Rebuild from my records' : 'Build from my records', onclick: (e) => busy(s, e.target, async () => { await api('/api/saas/receptionist/knowledge/build', { method: 'POST', body: '{}' }); reload('Draft built. Check it, then approve.'); }) }),
+          d ? el('button', { type: 'button', class: 'portal-button', text: 'Save answers', onclick: (e) => busy(s, e.target, async () => { await api('/api/saas/receptionist/knowledge/draft', { method: 'PUT', body: JSON.stringify({ faqs: faqs.value.split(/\n\s*\n/).map((x) => { const [q, ...rest] = x.split('\n'); return { q: (q || '').trim(), a: rest.join(' ').trim() }; }).filter((x) => x.q.length >= 3) }) }); reload('Answers saved in the draft.'); }) }) : null,
+          d && ['owner', 'admin', 'super_admin'].includes(role()) ? el('button', { type: 'button', class: 'portal-button primary', text: 'Approve what it knows', onclick: (e) => busy(s, e.target, async () => { await api(`/api/saas/receptionist/knowledge/${d.revision}/approve`, { method: 'POST', body: '{}' }); reload('Approved. Calls use these facts from now on.'); }) }) : null));
+    }).catch((e) => know.replaceChildren(el('p', { class: 'portal-note', 'data-tone': 'bad', text: e.message })));
+    // 7. Booking rules (02 step 4).
+    const rules = c.booking_rules || { services: [] };
+    // Opening hours as plain lines, e.g. "Mon-Fri 07:00-17:00" and "Sat 08:00-12:00".
+    const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], cap = (d) => d[0].toUpperCase() + d.slice(1);
+    const hoursText = (h) => { const out = []; let i = 0; while (i < 7) { const k = JSON.stringify(h?.[DAYS[i]] || []); let j = i; while (j < 6 && JSON.stringify(h?.[DAYS[j + 1]] || []) === k) j++; const r = JSON.parse(k); if (r.length) out.push(`${cap(DAYS[i])}${j > i ? '-' + cap(DAYS[j]) : ''} ${r.map(([a, b]) => `${a}-${b}`).join(', ')}`); i = j + 1; } return out.join('\n'); };
+    const parseHours = (txt) => { const h = {}; for (const line of txt.split('\n').map((x) => x.trim()).filter(Boolean)) { const m = line.toLowerCase().match(/^([a-z]{3})(?:\s*-\s*([a-z]{3}))?\s+(.+)$/); if (!m || !DAYS.includes(m[1]) || (m[2] && !DAYS.includes(m[2]))) throw new Error(`Could not read "${line}". Use lines like "Mon-Fri 07:00-17:00".`); const ranges = m[3].split(',').map((x) => x.trim().match(/^(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})$/)).map((x) => { if (!x) throw new Error(`Could not read the times in "${line}".`); return [x[1], x[2]]; }); for (let d = DAYS.indexOf(m[1]); d <= DAYS.indexOf(m[2] || m[1]); d++) h[DAYS[d]] = ranges; } for (const d of DAYS) h[d] ||= []; return h; };
+    const hours = ta({ rows: 3, 'aria-label': 'Hours callers can book' }, hoursText(c.hours));
+    const svc = ta({ rows: 4, 'aria-label': 'Bookable services' }, (rules.services || []).map((x) => `${x.name}, ${x.duration_min}${x.price_from_dollars !== null && x.price_from_dollars !== undefined ? ', ' + x.price_from_dollars : ''}`).join('\n'));
+    const mode = el('select', { 'aria-label': 'How bookings are confirmed' }, el('option', { value: 'approve', text: 'I approve each booking (recommended)' }), el('option', { value: 'auto', text: 'Book straight into my jobs (only if my diary is always up to date)' })); mode.value = c.booking_mode || 'approve';
+    const area = el('input', { 'aria-label': 'Service area', value: (rules.service_area || []).join(', ') });
+    const buffer = el('input', { type: 'number', min: 0, max: 240, value: rules.buffer_min ?? 30, 'aria-label': 'Minutes between bookings' }), lead = el('input', { type: 'number', min: 0, max: 336, value: rules.lead_time_hours ?? 24, 'aria-label': 'Earliest booking in hours' }), win = el('input', { type: 'number', min: 1, max: 90, value: rules.window_days ?? 14, 'aria-label': 'Days ahead' }), crews = el('input', { type: 'number', min: 1, max: 50, value: rules.crews ?? 1, 'aria-label': 'Crews' });
+    body.append(card(7, 'When callers can book', el('form', { onsubmit: (e) => { e.preventDefault(); busy(s, e.submitter, async () => {
+      const services = svc.value.split('\n').map((l) => l.split(',').map((x) => x.trim())).filter((x) => x[0]).map(([name, dur, price]) => ({ name, duration_min: Number(dur) || 60, price_from_dollars: price === undefined || price === '' ? null : Number(price) }));
+      if (hours.value.trim()) { const r = await put('settings', { hours: parseHours(hours.value) }); c.updated_at = r.config.updated_at; }
+      await api('/api/saas/receptionist/config', { method: 'PUT', body: JSON.stringify({ part: 'booking', updated_at: c.updated_at, values: { booking_mode: mode.value, services, buffer_min: Number(buffer.value) || 0, lead_time_hours: Number(lead.value) || 0, window_days: Number(win.value) || 14, service_area: area.value.split(',').map((x) => x.trim()).filter(Boolean), crews: Number(crews.value) || 1 } }) });
+      reload('Booking rules saved.'); }); } },
+      field('Services callers can book (one per line: name, minutes, optional "from" price in dollars)', svc, 'Leave empty for "no bookings on calls, take a message". The receptionist only ever says the "from" price you enter here.'),
+      field('Opening hours (one line each, like "Mon-Fri 07:00-17:00")', hours, 'Bookings are offered inside these hours, in your time zone.'),
+      field('How bookings are confirmed', mode), field('Suburbs or postcodes you cover (comma separated)', area),
+      el('div', { class: 'rx-grid' }, field('Minutes between bookings', buffer), field('Earliest booking (hours ahead)', lead), field('Book up to (days ahead)', win), field('Crews', crews)),
+      el('div', { class: 'pl-actions' }, el('button', { type: 'submit', class: 'portal-button primary', text: 'Save booking rules' })))));
+    // 8. Approvals and transfers (02 step 5).
+    const level = el('select', { 'aria-label': 'What can go out without you checking' }, el('option', { value: 'approve_all', text: 'Check everything: every text and email waits for my OK' }), el('option', { value: 'auto_confirmations', text: "Send standard confirmations ('thanks for calling' and booking confirmations)" }), el('option', { value: 'auto_followups', text: 'Also send standard reminders' })); level.value = c.approval_level || 'approve_all';
+    const when2 = el('select', { 'aria-label': 'When to transfer calls' }, el('option', { value: 'on_request', text: 'When the caller asks for a person' }), el('option', { value: 'urgent', text: 'Only urgent calls and complaints' }), el('option', { value: 'never', text: 'Never: always take a message' })); when2.value = c.transfer_when || 'on_request';
+    const team = ta({ rows: 3, 'aria-label': 'Transfer list' }, (c.transfer_targets || []).map((x) => `${x.name}, ${x.number}`).join('\n'));
+    body.append(card(8, 'Approvals and transfers', el('form', { onsubmit: (e) => { e.preventDefault(); busy(s, e.submitter, async () => {
+      const targets = team.value.split('\n').map((l) => l.split(',').map((x) => x.trim())).filter((x) => x[0]).slice(0, 5).map(([name, num], i) => ({ name, ...(num && !num.startsWith('•') ? { e164: num } : {}), role: i === 0 ? 'owner' : 'team' }));
+      await put('approvals', { approval_level: level.value, transfer_when: when2.value, transfer_targets: targets });
+      reload('Saved.'); }); } },
+      field('What can go out without you checking', level, 'Texts never go out between 8 pm and 8 am, and every text has an opt-out. Prices, promises and complaint replies always wait for you.'),
+      field('When to put callers through', when2),
+      field('Who to try, in order (one per line: name, mobile as +614…)', team, 'Numbers are never read out to callers and show only their last three digits here.'),
+      el('div', { class: 'pl-actions' }, el('button', { type: 'submit', class: 'portal-button primary', text: 'Save approvals' })))));
+    // 9. Go live.
+    const live = c.status === 'live', paused = c.status === 'paused';
+    body.append(card(9, 'Go live', el('p', {}, live ? 'Your AI receptionist is answering calls.' : paused ? 'Paused: calls follow your call handling settings.' : 'When everything above is done, switch it on.'),
+      rx.usage ? el('p', { class: 'pl-meta', text: `Billable calls this month: ${rx.usage.billable_calls_this_month}${rx.usage.spend_cap_cents ? ` · spend cap $${(rx.usage.spend_cap_cents / 100).toFixed(0)}` : ''}` }) : null,
+      el('div', { class: 'pl-actions' },
+        !live && !paused ? el('button', { type: 'button', class: 'portal-button primary', text: 'Go live', onclick: (e) => busy(s, e.target, async () => { await api('/api/saas/receptionist/go-live', { method: 'POST', body: '{}' }); reload('Your AI receptionist is live.'); }) }) : null,
+        live ? el('button', { type: 'button', class: 'portal-button', text: 'Pause receptionist', onclick: (e) => busy(s, e.target, async () => { await api('/api/saas/receptionist/pause', { method: 'POST', body: '{}' }); reload('Paused.'); }) }) : null,
+        paused ? el('button', { type: 'button', class: 'portal-button primary', text: 'Resume', onclick: (e) => busy(s, e.target, async () => { await api('/api/saas/receptionist/resume', { method: 'POST', body: '{}' }); reload('Live again.'); }) }) : null)));
   }
 
   // T-177 (docs/product-redesign/03 §7): one step at a time instead of one long page. The five cards, their forms,

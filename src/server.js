@@ -10,6 +10,7 @@ import { installReceptionistInternal, receptionistActor, issueCallToken } from '
 import { createReceptionistBooking } from './comms/receptionist-booking.js';
 import { createReceptionistFollowups } from './comms/receptionist-followups.js';
 import { createReceptionistKnowledge, installReceptionistKnowledgeRoutes } from './comms/receptionist-knowledge.js';
+import { installReceptionistRoutes } from './comms/receptionist-routes.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -6351,6 +6352,7 @@ jobQueue.register('receptionist.followup',async(p)=>receptionistFollowups.runAtt
 // A reply on a thread linked to a receptionist enquiry pauses the follow-up; STOP ends it (suppression is done by onInbound).
 inboundHooks.add(m=>{if(!m?.organisation_id||!m.thread_id||m.kind==='call_log')return;const t=db.prepare('SELECT enquiry_id FROM comms_thread_meta WHERE thread_id=? AND organisation_id=?').get(m.thread_id,m.organisation_id);if(!t?.enquiry_id)return;receptionistFollowups.onCustomerReplied(m.organisation_id,t.enquiry_id,{stop:/^\s*(stop|unsubscribe|stop all|end|cancel|quit)\s*$/i.test(String(m.body||''))})});
 const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,booking:receptionistBooking,followups:receptionistFollowups,knowledge:receptionistKnowledge,voice:voiceFlow,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
+installReceptionistRoutes(app,{db,env,requireSaasUser,requireSaasRole,knowledge:receptionistKnowledge,capState:o=>receptionistInternal.capState(o),audit:(req,...a)=>{try{saasAudit(req,...a)}catch{}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();
