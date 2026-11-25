@@ -3097,3 +3097,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Review T-052 against the W-plan, then continue T-077
+
+## CP-222 2026-11-25T20:23:59+00:00 T-128 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-128 (TESTING)
+- Completed steps: R-03, R-04, R-07, R-08 web side built and tested (committed)
+- Incomplete steps: R-09 metering, R-10/R-11 availability+booking, R-13/R-14 follow-ups, R-15/R-16 UI+knowledge, R-05 voice routing; R-01/R-02/R-12/R-17/R-18 need owner accounts
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: db74153 (R-08 (T-128): after-call filing for receptionist calls); 4 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: R-09 (T-129): spam filter and metering

@@ -149,7 +149,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: New caller → customer lead + enquiry; existing caller matched by phone; no duplicate customer in tests
 
 ## T-128 R-08 AI Receptionist: After-call: summary (generateAiText), Unibox call log on the caller's voice thread, comms_
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: After-call: summary (generateAiText), Unibox call log on the caller's voice thread, comms_thread_meta links, owner push + SMS summary (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-08)
 - Files: docs/ai-receptionist/

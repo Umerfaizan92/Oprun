@@ -117,3 +117,43 @@ test('without the service settings the internal API is switched off', async (t) 
   const r = await fetch(s.base + '/api/internal/voice/call-context');
   assert.equal(r.status, 503);
 });
+
+test('spam and metering: block list, short and silent calls are free, one usage row per billable call, cap alerts at 80 and 100 per cent (T-129)', async (t) => {
+  const s = await startServer({ ...ENV, RECEPTIONIST_CALL_PRICE_CENTS: '100' }); t.after(() => s.stop());
+  const owner = await seedOwner(s, { business: 'Cap Plumbing' });
+  const sql = (q, ...a) => { const d = new Database(s.dbPath); try { return /^\s*select/i.test(q) ? d.prepare(q).all(...a) : d.prepare(q).run(...a); } finally { d.close(); } };
+  const iso = (ms = 0) => new Date(Date.now() + ms).toISOString();
+  sql("INSERT INTO receptionist_config (organisation_id,status,spend_cap_cents,cap_action,updated_at) VALUES (?,'live',500,'voicemail',?)", owner.org, iso());
+  const end = async (id, from, secs, transcript) => {
+    sql("INSERT INTO voice_calls (call_control_id,call_session_id,organisation_id,scope,from_number,to_number,stage,started_at,answered_at,duration_seconds,transcript,updated_at) VALUES (?,?,?,'business',?,'+61862891786','answered',?,?,?,?,?)", id, 's-' + id, owner.org, from, iso(-60000), iso(-60000), secs, transcript, iso());
+    const token = issueCallToken(ENV, { org: owner.org, call_control_id: id });
+    sql('UPDATE voice_calls SET ended_at=? WHERE call_control_id=?', iso(), id);
+    const r = await fetch(s.base + '/api/internal/voice/call-ended', { method: 'POST', headers: { 'content-type': 'application/json', 'x-voice-service-key': ENV.VOICE_SERVICE_KEY, authorization: 'Bearer ' + token }, body: JSON.stringify({ idempotency_key: 'end-' + id }) });
+    assert.equal(r.status, 200);
+    for (let i = 0; i < 40; i++) { const row = sql('SELECT billable FROM voice_calls WHERE call_control_id=?', id)[0]; if (row.billable !== null) return row; await new Promise((res) => setTimeout(res, 75)); }
+    throw new Error('call not finished');
+  };
+  const talk = 'Caller: Hi, I need a plumber for a leaking tap please\nReceptionist: Sure, I can help.';
+  // A blocked number: spam, free, filed in the spam folder, no owner alert.
+  sql("INSERT INTO receptionist_blocklist (id,organisation_id,e164,created_at) VALUES (?,?,?,?)", crypto.randomUUID(), owner.org, '+61411000111', iso());
+  await end('c-spam', '+61411000111', 40, talk);
+  let v = sql("SELECT outcome,billable,spam_score,thread_id FROM voice_calls WHERE call_control_id='c-spam'")[0];
+  assert.equal(v.outcome, 'spam'); assert.equal(v.billable, 0); assert.ok(v.spam_score >= 70);
+  for (let i = 0; i < 20 && !(v = sql("SELECT thread_id FROM voice_calls WHERE call_control_id='c-spam'")[0]).thread_id; i++) await new Promise((res) => setTimeout(res, 75));
+  assert.equal(sql('SELECT folder FROM comms_thread_meta WHERE thread_id=?', v.thread_id)[0]?.folder, 'spam');
+  assert.equal(sql("SELECT COUNT(*) n FROM user_notifications WHERE organisation_id=? AND kind='receptionist_call'", owner.org)[0].n, 0, 'no alert for spam');
+  // Short call: free. Long real call: billable, counted once even if reported twice.
+  assert.equal((await end('c-short', '+61422000222', 9, talk)).billable, 0);
+  assert.equal((await end('c-real-1', '+61433000333', 75, talk)).billable, 1);
+  assert.equal(sql("SELECT COUNT(*) n FROM usage_events WHERE organisation_id=? AND kind='receptionist_call'", owner.org)[0].n, 1);
+  // Four more billable calls: 5 x A$1 = the A$5 cap. 80% alert at the 4th, 100% at the 5th; calls keep being answered.
+  for (const n of [2, 3, 4, 5]) await end(`c-real-${n}`, `+6144400044${n}`, 60, talk);
+  const alerts = sql("SELECT title,urgent FROM user_notifications WHERE organisation_id=? AND kind='receptionist_cap' ORDER BY created_at", owner.org);
+  assert.ok(alerts.some((a) => /80%/.test(a.title))); assert.ok(alerts.some((a) => /cap reached/.test(a.title) && a.urgent === 1));
+  const ctx = await fetch(s.base + '/api/internal/voice/call-context', { headers: { 'x-voice-service-key': ENV.VOICE_SERVICE_KEY, authorization: 'Bearer ' + issueCallToken(ENV, { org: owner.org, call_control_id: 'c-new' }) } });
+  assert.equal(ctx.status, 401, 'unknown call');
+  sql("INSERT INTO voice_calls (call_control_id,organisation_id,scope,from_number,stage,started_at,updated_at) VALUES ('c-new',?,'business','+61411000111','answered',?,?)", owner.org, iso(), iso());
+  const data = (await (await fetch(s.base + '/api/internal/voice/call-context', { headers: { 'x-voice-service-key': ENV.VOICE_SERVICE_KEY, authorization: 'Bearer ' + issueCallToken(ENV, { org: owner.org, call_control_id: 'c-new' }) } })).json()).data;
+  assert.equal(data.usage.cap_reached, true); assert.equal(data.usage.cap_action, 'voicemail'); assert.equal(data.usage.billable_calls_this_month, 5);
+  assert.equal(data.spam.close_politely, true, 'a blocked caller is closed politely at answer');
+});

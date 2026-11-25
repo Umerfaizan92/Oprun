@@ -85,8 +85,6 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
     const k = db.prepare("SELECT revision,prompt_block FROM receptionist_knowledge WHERE organisation_id=? AND status='approved' ORDER BY revision DESC LIMIT 1").get(org);
     const J = (v, d) => { try { return JSON.parse(v); } catch { return d; } };
     const caller = callerMatch(org, call.from_number);
-    const month = new Date(clock()).toISOString().slice(0, 7);
-    const used = db.prepare("SELECT COUNT(*) n FROM usage_events WHERE organisation_id=? AND kind='receptionist_call' AND substr(created_at,1,7)=?").get(org, month)?.n || 0;
     res.set('cache-control', 'no-store').json({ ok: true, code: 'OK', data: {
       business: { name: o.name || '', timezone: cfg.timezone || o.timezone || 'Australia/Perth' },
       config: { status: cfg.status || 'draft', greeting: cfg.greeting || '', hours: J(cfg.hours_json, {}), languages: J(cfg.languages_json, ['en-AU']), voice_id: cfg.voice_id || null, voice_provider: cfg.voice_provider || null, voice_speed: cfg.voice_speed || 'normal',
@@ -95,7 +93,7 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
         transfer_targets: J(cfg.transfer_targets_json, []).map((x, i) => ({ id: String(x.user_id || i), name: x.name || 'Team member' })),
         recording_notice: Boolean(cfg.recording_notice ?? 1), recording_enabled: Boolean(cfg.recording_enabled), cap_action: cfg.cap_action || 'take_message' },
       knowledge: k ? { revision: k.revision, prompt_block: k.prompt_block } : { revision: null, prompt_block: '' },
-      caller, usage: { billable_calls_this_month: used, spend_cap_cents: cfg.spend_cap_cents ?? null }
+      caller, usage: capState(org), spam: (() => { const sc = spamScore(org, call); return { score: sc.score, close_politely: sc.score >= 70 }; })()
     } });
   });
   // The receptionist may use the caller's name and the one staff-written caller_note; other notes stay private.
@@ -197,7 +195,7 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
 
     end_call(org, call, a) {
       // A goodbye after a message or a transfer keeps that more useful outcome.
-      db.prepare(`UPDATE voice_calls SET outcome=CASE WHEN ?='completed' AND outcome IN ('message_taken','transferred') THEN outcome ELSE ? END,${a.reason === 'spam' ? 'spam_score=1.0,billable=0,' : ''}updated_at=? WHERE call_control_id=? AND organisation_id=?`).run(a.reason, a.reason, iso(), call.call_control_id, org);
+      db.prepare(`UPDATE voice_calls SET outcome=CASE WHEN ?='completed' AND outcome IN ('message_taken','transferred') THEN outcome ELSE ? END,${a.reason === 'spam' ? 'spam_score=100,billable=0,' : ''}updated_at=? WHERE call_control_id=? AND organisation_id=?`).run(a.reason, a.reason, iso(), call.call_control_id, org);
       return { speak: '' };
     }
   };
@@ -206,6 +204,47 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
     const lines = String(text).split('\n');
     while (lines.join('\n').length > 4000) { const i = lines.findIndex((l) => /^\[\d{4}-\d{2}-\d{2} AI call\]/.test(l)); if (i < 0) break; lines.splice(i, 1); }
     return lines.join('\n').slice(-4000);
+  }
+
+  // ------------------------------------------------------------------ R-09 (T-129): spam score and metering
+  // 08 §7: score 0-100. Block lists and the provider's flag weigh most; a withheld number never blocks by itself.
+  function spamScore(org, c, { after = false } = {}) {
+    let score = 0; const reasons = [];
+    const e164 = normPhone(c.from_number), valid = e164 && /^\+\d{8,15}$/.test(e164);
+    if (valid && db.prepare('SELECT 1 FROM receptionist_blocklist WHERE e164=? AND (organisation_id=? OR organisation_id IS NULL)').get(e164, org)) { score += 80; reasons.push('block list'); }
+    if (valid) { const n = db.prepare('SELECT COUNT(DISTINCT organisation_id) n FROM voice_calls WHERE from_number=? AND organisation_id<>? AND started_at>=?').get(c.from_number, org, new Date(clock() - 3600000).toISOString()).n; if (n >= 3) { score += 35; reasons.push('called many businesses this hour'); } }
+    if (!valid) { score += 10; reasons.push('withheld number'); }
+    if (after) {
+      if ((c.duration_seconds ?? 0) < 15) { score += 25; reasons.push('under 15 seconds'); }
+      if (!String(c.transcript || '').replace(/^Receptionist:.*$/gm, '').trim()) { score += 25; reasons.push('caller said nothing'); }
+    }
+    return { score: Math.min(100, score), reasons };
+  }
+  const monthOf = () => new Date(clock()).toISOString().slice(0, 7);
+  function capState(org) {
+    const cfg = db.prepare('SELECT spend_cap_cents,cap_action FROM receptionist_config WHERE organisation_id=?').get(org) || {};
+    const used = db.prepare("SELECT COUNT(*) n FROM usage_events WHERE organisation_id=? AND kind='receptionist_call' AND substr(created_at,1,7)=?").get(org, monthOf()).n;
+    let included = 0; try { included = db.prepare("SELECT COALESCE(SUM(quantity),0) n FROM organisation_addons WHERE organisation_id=? AND addon_id='ai_receptionist' AND status='active'").get(org).n; } catch { included = 0; }
+    const price = Number(env.RECEPTIONIST_CALL_PRICE_CENTS);
+    // The founder's own workspace (RECEPTIONIST_EXEMPT_ORGS) is counted for reporting but never capped.
+    const exempt = String(env.RECEPTIONIST_EXEMPT_ORGS || '').split(',').map((x) => x.trim()).includes(org);
+    // The overage price is set by the owner; until it is, spend (and so the cap) cannot be worked out and is not guessed.
+    const spend = Number.isFinite(price) && price >= 0 ? Math.max(0, used - included) * price : null;
+    const cap = cfg.spend_cap_cents ?? null;
+    const ratio = !exempt && cap && spend !== null ? spend / cap : 0;
+    return { billable_calls_this_month: used, included_calls: included, spend_cents: spend, spend_cap_cents: cap, cap_reached: ratio >= 1, near_cap: ratio >= 0.8, cap_action: cfg.cap_action || 'take_message', price_set: spend !== null, exempt };
+  }
+  // Runs once when a call ends: final spam check, billable flag, one usage row per billable call, cap alerts.
+  async function finishCall(org, callId) {
+    const c = db.prepare('SELECT * FROM voice_calls WHERE call_control_id=? AND organisation_id=?').get(callId, org); if (!c) return null;
+    const { score, reasons } = spamScore(org, c, { after: true });
+    const spam = c.outcome === 'spam' || score >= 70;
+    const billable = !spam && Boolean(c.answered_at) && (c.duration_seconds ?? 0) >= 15 && c.outcome !== 'test' && c.route !== 'paused' ? 1 : 0;
+    db.prepare(`UPDATE voice_calls SET spam_score=MAX(COALESCE(spam_score,0),?),billable=?,outcome=CASE WHEN ? THEN 'spam' ELSE outcome END,updated_at=? WHERE call_control_id=? AND organisation_id=?`).run(score, billable, spam ? 1 : 0, iso(), callId, org);
+    if (billable) db.prepare("INSERT OR IGNORE INTO usage_events (id,organisation_id,kind,created_at) VALUES (?,?,'receptionist_call',?)").run(`rc:${callId}`, org, iso());
+    const cap = capState(org);
+    if (billable && cap.near_cap) await Promise.resolve(notify(org, { kind: 'receptionist_cap', urgent: cap.cap_reached, title: cap.cap_reached ? 'AI receptionist spend cap reached' : 'AI receptionist at 80% of its spend cap', body: cap.cap_reached ? `Calls are still answered, in ${cap.cap_action === 'voicemail' ? 'voicemail' : 'take-a-message'} mode, until next month or until you raise the cap.` : 'You can raise the cap in AI Receptionist settings.', link: '#communications/ai-receptionist', dedupe: `receptionist:cap:${cap.cap_reached ? 100 : 80}:${monthOf()}` })).catch(() => {});
+    return { spam, billable, score, reasons };
   }
 
   // ------------------------------------------------------------------ events and call end
@@ -235,6 +274,7 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
     const c = db.prepare('SELECT * FROM voice_calls WHERE call_control_id=? AND organisation_id=?').get(callId, org); if (!c) return { skipped: 'no call' };
     const meta = (() => { try { return JSON.parse(c.summary_json || '{}'); } catch { return {}; } })();
     if (meta.filed) return { skipped: 'already filed' };
+    const fin = await finishCall(org, callId);
     const transcript = String(c.transcript || '').trim();
     let summary = '';
     if (transcript && generateAiText) {
@@ -252,9 +292,10 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, rec
     db.prepare('UPDATE voice_calls SET inbox_message_id=COALESCE(inbox_message_id,?),thread_id=COALESCE(thread_id,?),summary_json=?,updated_at=? WHERE call_control_id=? AND organisation_id=?')
       .run(messageId, threadId, JSON.stringify({ ...meta, summary, filed: true }), iso(), callId, org);
     if (c.enquiry_id && threadId) db.prepare('UPDATE receptionist_followups SET thread_id=COALESCE(thread_id,?),updated_at=? WHERE enquiry_id=? AND organisation_id=?').run(threadId, iso(), c.enquiry_id, org);
-    if (c.outcome !== 'spam') await Promise.resolve(notify(org, { kind: 'receptionist_call', title: `Call from ${c.from_number || 'a withheld number'}`.slice(0, 180), body: summary, link: '#communications/inbox', dedupe: `receptionist:call:${callId}` })).catch(() => {});
+    if (fin?.spam && threadId) { try { comms?.move?.(org, threadId, 'spam'); } catch (e) { log.warn?.('[receptionist] could not file as spam:', e.message); } }
+    if (!fin?.spam) await Promise.resolve(notify(org, { kind: 'receptionist_call', title: `Call from ${c.from_number || 'a withheld number'}`.slice(0, 180), body: summary, link: '#communications/inbox', dedupe: `receptionist:call:${callId}` })).catch(() => {});
     return { filed: true, thread_id: threadId };
   }
 
-  return { issueToken: (org, callId) => issueCallToken(env, { org, call_control_id: callId, now: clock() }), callerMatch, tools: TOOLS, afterCall };
+  return { issueToken: (org, callId) => issueCallToken(env, { org, call_control_id: callId, now: clock() }), callerMatch, tools: TOOLS, afterCall, finishCall, spamScore, capState };
 }

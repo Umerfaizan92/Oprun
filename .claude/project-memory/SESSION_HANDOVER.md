@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-077 (IN_PROGRESS)
-LAST COMPLETED STEP: Pipeline follow-ups, T-169, T-059, T-050, T-051 released live (R-2)
-FILES MODIFIED: .claude/project-memory/PROGRESS.md
+CURRENT TASK: T-128 (TESTING)
+LAST COMPLETED STEP: R-03, R-04, R-07, R-08 web side built and tested (committed)
+FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Review T-052 against the W-plan, then continue T-077
+NEXT EXACT ACTION: R-09 (T-129): spam filter and metering
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-221 at 2026-11-25T20:08:58+00:00
+LAST CHECKPOINT: CP-222 at 2026-11-25T20:23:59+00:00
 <!-- handover:end -->
 
 ## Notes
