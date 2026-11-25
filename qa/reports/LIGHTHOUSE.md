@@ -96,4 +96,8 @@ steps, in order of size:
    waits only for its own start-up data and the account status, and the other start-up calls finish in the background.
    In alternating paired runs the page was ready 0.2–0.3 s sooner on Command Centre, Enquiries and Money and scores
    rose by 1–6 points.
-3. Shrink the stylesheet bundle (474 KB unpacked): most rules belong to pages that are not open.
+3. Stylesheet bundle (474 KB unpacked, 90 KB sent) — checked on 25 Nov (D-079), not worth doing: only about 4% of the
+   rules use class names that appear nowhere in the code (about 3 KB once compressed); page-only stylesheets are about
+   13% (about 12 KB compressed), and loading them per page while keeping the exact style order would need extra
+   blocking requests that cancel most of that. The remaining large item is the start-up script and style download on
+   a slow connection, which only a structural change (for example rendering the first page on the server) would cut.

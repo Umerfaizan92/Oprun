@@ -2929,3 +2929,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Report to owner; next optional TR-72 step is trimming the 474 KB stylesheet (needs a coverage-based plan)
+
+## CP-210 2026-11-25T07:23:01+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stylesheet trimming assessed (D-079): not worthwhile. TR-72 code work complete at 1feb0b2 unless the owner asks for a structural change (server-rendered first page).
+- Incomplete steps: Owner: TR-80 review, TR-73 restore output, TR-81 approval and production env settings
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; qa/reports/LIGHTHOUSE.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 1feb0b2 (TR-72 (part 2, stage 7): show the first page once its own data is ready); 74 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Wait for owner input; offer to update the test site to the latest commit

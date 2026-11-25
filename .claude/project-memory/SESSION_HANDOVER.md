@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Stage 7 verified and committed: 24 browser suites passed, visual 348 screens 0 problems, npm test 73/73
-FILES MODIFIED: .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; qa/reports/LIGHTHOUSE.md; saas/app.js
-TESTS PASSED: 24 browser suites all passed; test:visual business 348 screens 0 problems; npm test 73/73
+LAST COMPLETED STEP: Stylesheet trimming assessed (D-079): not worthwhile. TR-72 code work complete at 1feb0b2 unless the owner asks for a structural change (server-rendered first page).
+FILES MODIFIED: .claude/project-memory/DECISIONS.md; qa/reports/LIGHTHOUSE.md
+TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 6 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Report to owner; next optional TR-72 step is trimming the 474 KB stylesheet (needs a coverage-based plan)
+NEXT EXACT ACTION: Wait for owner input; offer to update the test site to the latest commit
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-209 at 2026-11-25T07:12:26+00:00
+LAST CHECKPOINT: CP-210 at 2026-11-25T07:23:01+00:00
 <!-- handover:end -->
 
 ## Notes
