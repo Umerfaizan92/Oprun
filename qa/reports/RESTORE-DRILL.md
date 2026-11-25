@@ -20,7 +20,7 @@
 The drill against the real S3 backup needs the backup keys, which only the live service has. In Render → live
 service → Shell, run (read-only towards S3; it never touches the live database file):
 
-    npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite
+    npm run backup:restore-drill -- --compare /var/data/oprun-ai.sqlite
 
 and paste the last lines (they show the time taken and whether counts match). If the database path differs, use
 the value of `DATABASE_PATH` from the service's Environment page.

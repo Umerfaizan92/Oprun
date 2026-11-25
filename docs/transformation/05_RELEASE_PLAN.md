@@ -44,8 +44,9 @@ first, that is one action in the Operator Console after the release.
    say "approved" or list what to change.
 2. **TR-73:** in Render open the service **Oprun AI** (`srv-dbuq98ojo6nc73aro66g`, paid plan with a disk), not
    `oprun-test` (free services have no Shell), then **Shell** in its menu, and run
-   `npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite`; share the output. The command and its
-   script are already in the live code (unchanged by this release).
+   `npm run backup:restore-drill -- --compare /var/data/oprun-ai.sqlite`; share the output. The command and its
+   script are already in the live code (unchanged by this release). The live database file is
+   `/var/data/oprun-ai.sqlite` (from the live start-up log, 22 Nov), not the default `super-pro.sqlite`.
 3. Set on the live service (Render → Environment): `OPERATOR_TOTP_SECRET` (enter it in an authenticator app first),
    `SESSION_MAX_AGE_DAYS=30`, `STRICT_PASSWORD_MATCH=1`. These values are never written to the repository.
 4. Decide the old Oprun service and its disk (keep, suspend or delete: the owner's call; nothing is touched without it).
@@ -55,8 +56,9 @@ first, that is one action in the Operator Console after the release.
 ## 4. Release steps (Claude, only after the owner says "release approved")
 
 1. Record the live deploy ID and commit of `srv-dbuq98ojo6nc73aro66g` (for rollback).
-2. Owner takes the one-line database backup from `docs/DEPLOY.md` section 1 (or confirms the Litestream snapshot of
-   the day exists).
+2. Owner takes the one-line database backup from `docs/DEPLOY.md` section 1, **with the live file name
+   `/var/data/oprun-ai.sqlite`** (the guide's `super-pro.sqlite` is the default, not the live name), or confirms the
+   Litestream snapshot of the day exists.
 3. Open a pull request `claude/transformation-phase1` → `main` with the summary of sections 1–2; merge it without
    rewriting history (no force-push).
 4. **The live service deploys by itself when `main` changes.** Checked on 25 Nov: "Oprun AI"

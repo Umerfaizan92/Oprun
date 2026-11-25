@@ -26,7 +26,7 @@ Read this whole file, then `CLAUDE.md` (standing rules), then `.claude/project-m
   `qa/reports/LIGHTHOUSE.md`.
 - **TR-73 restore drill (T-238, in progress):** local drill passed (0.19 s, `qa/reports/RESTORE-DRILL.md`);
   production backups confirmed running in the live logs. Remaining: the owner runs
-  `npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite` in the live service's Render Shell and
+  `npm run backup:restore-drill -- --compare /var/data/oprun-ai.sqlite` in the live service's Render Shell and
   shares the output; then record it and complete T-238.
 - **Not started (2):** TR-80 (owner review on the test site), TR-81 (approved release).
 - Note: Render logs on 22 Nov showed builds paused by the workspace build spend limit; the test-site deploy on
