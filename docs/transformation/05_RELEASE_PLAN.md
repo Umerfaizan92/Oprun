@@ -42,8 +42,10 @@ first, that is one action in the Operator Console after the release.
 
 1. **TR-80:** review the candidate on the test site on a phone, a tablet and a laptop (checklist in section 6) and
    say "approved" or list what to change.
-2. **TR-73:** in Render → the live service → Shell, run
-   `npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite` and share the output.
+2. **TR-73:** in Render open the service **Oprun AI** (`srv-dbuq98ojo6nc73aro66g`, paid plan with a disk), not
+   `oprun-test` (free services have no Shell), then **Shell** in its menu, and run
+   `npm run backup:restore-drill -- --compare /var/data/super-pro.sqlite`; share the output. The command and its
+   script are already in the live code (unchanged by this release).
 3. Set on the live service (Render → Environment): `OPERATOR_TOTP_SECRET` (enter it in an authenticator app first),
    `SESSION_MAX_AGE_DAYS=30`, `STRICT_PASSWORD_MATCH=1`. These values are never written to the repository.
 4. Decide the old Oprun service and its disk (keep, suspend or delete: the owner's call; nothing is touched without it).
@@ -57,8 +59,12 @@ first, that is one action in the Operator Console after the release.
    the day exists).
 3. Open a pull request `claude/transformation-phase1` → `main` with the summary of sections 1–2; merge it without
    rewriting history (no force-push).
-4. Trigger a manual deploy of the merge commit on `srv-dbuq98ojo6nc73aro66g` (auto-deploy is off on purpose) and watch
-   the build (`npm ci && npm test`) and start-up logs.
+4. **The live service deploys by itself when `main` changes.** Checked on 25 Nov: "Oprun AI"
+   (`srv-dbuq98ojo6nc73aro66g`) has auto-deploy on, for every commit on `main` (`docs/DEPLOY.md` says it is off; the
+   service setting is what counts). So the merge in step 3 starts the production deploy; nothing is merged to `main`
+   before the owner's release approval. Watch the build (`npm ci --include=dev && npm test`) and start-up logs. If the
+   owner prefers to deploy by hand, they switch auto-deploy off first (Render → Oprun AI → Settings), and Claude then
+   triggers the deploy after the merge.
 5. After it is live: `/healthz` returns `{"ok":true}`; the start-up diagnostics show no new failure; the deploy record
    shows the merge commit; static files carry the new version stamps and bundles (`/saas/__b/…`) load.
 6. Screenshots of the public site, the Business Workspace and the Operator Console at phone and laptop width, compared
