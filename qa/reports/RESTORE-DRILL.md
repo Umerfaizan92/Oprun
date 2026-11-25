@@ -31,8 +31,13 @@ Run by the owner in the Render Shell of the live service "Oprun AI" (`srv-dbuq98
 
     npm run backup:restore-drill -- --compare /var/data/oprun-ai.sqlite
 
-Result reported by the owner: **RESTORE DRILL PASSED** (the latest Litestream copy in the S3 bucket, path `oprun-ai/db`,
-restored into a temporary file, passed SQLite's integrity check and the audit-chain check, and its row counts matched
-the live database within the last few seconds of writes). The detailed lines (table count, restore time, audit rows)
-were not shared, so they are not recorded here. A first attempt with the default path `/var/data/super-pro.sqlite`
+Output (owner's screenshot from the Render Shell, instance `4st6b`, 25 Nov 2026):
+
+    Restored 253 tables in 4.4s. integrity_check=ok. audit chain verified (553 rows).
+    Row counts match the live database (within the last few seconds of writes).
+    RESTORE DRILL PASSED.
+
+So the latest Litestream copy in S3 (path `oprun-ai/db`) restores in **4.4 seconds**, is intact, its audit chain of 553
+rows verifies, and its row counts match the live database. Restore time for a full recovery is therefore seconds plus
+the time to redeploy the service. A first attempt with the default path `/var/data/super-pro.sqlite`
 could not open that file, because the live database is `/var/data/oprun-ai.sqlite` (E-058); nothing was changed.
