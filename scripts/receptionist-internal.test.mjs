@@ -96,6 +96,18 @@ test('internal voice API: auth, isolation, idempotency, and the customer, enquir
   const vc = sql("SELECT * FROM voice_calls WHERE call_control_id='cc-1'")[0];
   assert.equal(vc.latency_p50_ms, 640); assert.match(vc.transcript, /Caller: Hi\nReceptionist: Hello/); assert.equal(vc.outcome, 'message_taken');
   assert.equal((await tool('take_message', { message: 'late' }, 99)).status, 401, 'tools stop at call end');
+  // R-08: the call is filed once in the Unibox on the caller's voice thread, linked to the customer and enquiry.
+  let filed; for (let i = 0; i < 40 && !(filed = sql("SELECT thread_id,summary_json FROM voice_calls WHERE call_control_id='cc-1'")[0]).thread_id; i++) await new Promise((res) => setTimeout(res, 100));
+  assert.ok(filed.thread_id, 'thread recorded'); assert.equal(JSON.parse(filed.summary_json).filed, true); assert.equal(JSON.parse(filed.summary_json).message.text, 'Please call before 3');
+  const logs = sql("SELECT m.kind,m.body,t.channel,t.contact_address FROM comms_messages m JOIN comms_threads t ON t.id=m.thread_id WHERE m.organisation_id=? AND m.kind='call_log'", owner.org);
+  assert.equal(logs.length, 1); assert.equal(logs[0].channel, 'voice'); assert.equal(logs[0].contact_address, '+61412345678'); assert.match(logs[0].body, /Message: Please call before 3/);
+  const meta = sql('SELECT customer_id,enquiry_id FROM comms_thread_meta WHERE thread_id=?', filed.thread_id)[0];
+  assert.equal(meta.customer_id, cust.id); assert.equal(meta.enquiry_id, enq[0].id);
+  assert.equal(sql("SELECT thread_id FROM receptionist_followups WHERE enquiry_id=?", enq[0].id)[0].thread_id, filed.thread_id);
+  assert.equal(sql("SELECT COUNT(*) n FROM user_notifications WHERE organisation_id=? AND kind='receptionist_call'", owner.org)[0].n, 1);
+  // Reporting the end again changes nothing.
+  assert.equal((await api('POST', 'call-ended', { body: { idempotency_key: 'end-cc-1b' } })).status, 200); await new Promise((res) => setTimeout(res, 300));
+  assert.equal(sql("SELECT COUNT(*) n FROM comms_messages WHERE organisation_id=? AND kind='call_log'", owner.org)[0].n, 1);
   // Nothing reached the other business.
   assert.equal(sql('SELECT COUNT(*) n FROM tenant_customers WHERE organisation_id=?', other.org)[0].n, 0);
 });

@@ -188,6 +188,8 @@ export function createReceptionistIntake({ db, pipeline, comms, notify = async (
     const fresh = db.prepare('SELECT * FROM voice_calls WHERE call_control_id=? AND organisation_id=?').get(call.call_control_id, org);
     if (!fresh) return { skipped: 'call not found' };
     if (fresh.summary_json) return { skipped: 'already processed' };
+    // R-08: calls handled by the live AI receptionist already have their customer and enquiry.
+    if (fresh.worker_session_id || fresh.customer_id || fresh.enquiry_id) return { skipped: 'handled by the live receptionist' };
     const transcript = String(fresh.transcript || '').trim();
     if (!transcript) return { skipped: 'no conversation (missed call or voicemail already alerted)' };
     if (!fresh.inbox_message_id) return { skipped: 'call log not in the inbox' };

@@ -121,7 +121,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: npm test migration checks pass; dry-run report reviewed by the owner
 
 ## T-124 R-04 AI Receptionist: Internal API /api/internal/voice/* with service key + call token; call-context endpoint
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: Internal API /api/internal/voice/* with service key + call token; call-context endpoint (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-04)
 - Files: docs/ai-receptionist/
@@ -142,7 +142,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: The 10 scenarios pass the robotic-behaviour checklist in staging
 
 ## T-127 R-07 AI Receptionist: Tools create_or_update_customer, create_enquiry_lead, take_message, end_call ([04](04_TOOL
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: Tools create_or_update_customer, create_enquiry_lead, take_message, end_call ([04](04_TOOLS.md), [06](06_CUSTOMER_MANAGEMENT.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-07)
 - Files: docs/ai-receptionist/
