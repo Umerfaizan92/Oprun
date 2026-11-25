@@ -11,7 +11,7 @@
   "tolerance": 0.006,
   "pages": 58,
   "screens": 348,
-  "seconds": 523,
+  "seconds": 520,
   "results": [
     {
       "name": "business-today-home-390-dark",
@@ -608,7 +608,7 @@
       "width": 390,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.004180337829626929,
+      "ratio": 0.004074006562158221,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -1304,7 +1304,7 @@
       "width": 768,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.002513885498046875,
+      "ratio": 0.0023345947265625,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -2000,7 +2000,7 @@
       "width": 1440,
       "theme": "dark",
       "status": "same",
-      "ratio": 0.001699074074074074,
+      "ratio": 0.0016373456790123456,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -2696,7 +2696,7 @@
       "width": 390,
       "theme": "light",
       "status": "same",
-      "ratio": 0.004152995503706404,
+      "ratio": 0.0040588163810912625,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -3392,7 +3392,7 @@
       "width": 768,
       "theme": "light",
       "status": "same",
-      "ratio": 0.0024566650390625,
+      "ratio": 0.0023371378580729165,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []
@@ -4088,7 +4088,7 @@
       "width": 1440,
       "theme": "light",
       "status": "same",
-      "ratio": 0.0016959876543209877,
+      "ratio": 0.0016435185185185185,
       "sidewaysScroll": false,
       "overflow": [],
       "errors": []

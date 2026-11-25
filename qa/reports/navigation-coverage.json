@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T23:21:37.172Z",
+  "generated_at": "2026-11-25T00:04:21.249Z",
   "baseline": "6615f960c357009a409a912b89e02b3af8fa617d",
   "coverage": [
     {
@@ -3406,30 +3406,6 @@
       "portal": "Founder",
       "route": "f10/work/mine",
       "section": "",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f10/work/mine",
-      "section": "To do (0)",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f10/work/mine",
-      "section": "Waiting for review (0)",
-      "width": 1440,
-      "result": "PASS",
-      "detail": "Screen navigation and rendered panel passed; business writes untested"
-    },
-    {
-      "portal": "Founder",
-      "route": "f10/work/mine",
-      "section": "Accepted in the last 14 days (0)",
       "width": 1440,
       "result": "PASS",
       "detail": "Screen navigation and rendered panel passed; business writes untested"

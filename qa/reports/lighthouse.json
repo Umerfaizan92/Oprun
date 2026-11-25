@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T11:37:59.801Z",
+  "generated_at": "2026-11-25T00:24:17.148Z",
   "tool": "Lighthouse 12, mobile preset, simulated throttling, best of two cold loads, local test server",
   "score_min": 85,
   "workspace_budget": {
@@ -18,14 +18,36 @@
       "accessibility": 100,
       "best_practices": 100,
       "seo": 100,
-      "fcp_ms": 1700,
-      "lcp_ms": 1893,
-      "tbt_ms": 43,
+      "fcp_ms": 1263,
+      "lcp_ms": 1899,
+      "tbt_ms": 33,
       "cls": 0,
-      "si_ms": 1894,
+      "si_ms": 1263,
+      "tti_ms": 1899,
+      "lcp_node": "Run your world.",
       "transfer_kb": 148,
       "requests": 20,
-      "final_url": "http://127.0.0.1:38547/",
+      "final_url": "http://127.0.0.1:43911/",
+      "bootup": [
+        "Unattributable 11ms",
+        "/ 8ms",
+        "/saas/ds/motion.js?v=20261123.tr14 10ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-1-H1\",\"path\":\"1,HTML,1,BODY,2,MAIN,0,SECTION,2,DIV,0,DIV,0,H1\",\"selector\":\"section.sp-hero > div.sp-page > div.sp-hero__copy > h1#hero-title\",\"boundingRect\":{\"top\":494,\"bottom\":544,\"left\":18,\"right\":394,\"width\":376,\"height\":50},\"snippet\":\"<h1 class=\\\"sp-display\\\" id=\\\"hero-title\\\">\",\"nodeLabel\":\"Run your world.\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":471.06135,\"percent\":\"25%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":1428.1840499999998,\"percent\":\"75%\"}]}]",
+      "blocking": [
+        "/saas/ds/components.css?v=20261123.tr14 321ms 5KB",
+        "/saas/ds/tokens.css?v=20261123.tr14 171ms 3KB",
+        "/saas/ds/site.css?v=20261123.tr14 321ms 5KB",
+        "/saas/brand-presence.css?v=20261123.tr14 321ms 2KB"
+      ],
+      "main_thread": [
+        "other 568ms",
+        "styleLayout 189ms",
+        "paintCompositeRender 59ms",
+        "scriptEvaluation 46ms",
+        "parseHTML 33ms",
+        "scriptParseCompile 11ms"
+      ],
       "opportunities": []
     },
     {
@@ -36,16 +58,37 @@
       "accessibility": 100,
       "best_practices": 100,
       "seo": 100,
-      "fcp_ms": 1221,
-      "lcp_ms": 1726,
+      "fcp_ms": 1244,
+      "lcp_ms": 1694,
       "tbt_ms": 0,
       "cls": 0.001,
-      "si_ms": 1221,
+      "si_ms": 1244,
+      "tti_ms": 1694,
+      "lcp_node": "Every plan starts with a 14-day free trial. Prices are in AU",
       "transfer_kb": 119,
       "requests": 16,
-      "final_url": "http://127.0.0.1:38547/pricing",
+      "final_url": "http://127.0.0.1:43911/pricing",
+      "bootup": [
+        "Unattributable 7ms",
+        "/pricing 8ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,2,MAIN,1,SECTION,0,DIV,0,DIV,1,P\",\"selector\":\"section#pricing > div.sp-page > div.sp-section-head > p.sp-lede\",\"boundingRect\":{\"top\":398,\"bottom\":453,\"left\":18,\"right\":394,\"width\":376,\"height\":55},\"snippet\":\"<p class=\\\"sp-lede\\\">\",\"nodeLabel\":\"Every plan starts with a 14-day free trial. Prices are in AUD and exclude GST.\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":464.70795,\"percent\":\"27%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":1229.4159,\"percent\":\"73%\"}]}]",
+      "blocking": [
+        "/saas/ds/site.css?v=20261123.tr14 315ms 5KB",
+        "/saas/ds/tokens.css?v=20261123.tr14 165ms 3KB",
+        "/saas/ds/components.css?v=20261123.tr14 315ms 5KB",
+        "/saas/brand-presence.css?v=20261123.tr14 315ms 2KB"
+      ],
+      "main_thread": [
+        "other 514ms",
+        "styleLayout 61ms",
+        "paintCompositeRender 42ms",
+        "scriptEvaluation 31ms",
+        "parseHTML 13ms",
+        "scriptParseCompile 6ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~322 ms)"
+        "Eliminate render-blocking resources (~585 ms)"
       ]
     },
     {
@@ -56,16 +99,37 @@
       "accessibility": 100,
       "best_practices": 100,
       "seo": 100,
-      "fcp_ms": 1262,
-      "lcp_ms": 1712,
+      "fcp_ms": 1204,
+      "lcp_ms": 1654,
       "tbt_ms": 0,
       "cls": 0.001,
-      "si_ms": 1262,
+      "si_ms": 1204,
+      "tti_ms": 1654,
+      "lcp_node": "Enquiries from calls, email and your website land in one pla",
       "transfer_kb": 117,
       "requests": 15,
-      "final_url": "http://127.0.0.1:38547/features",
+      "final_url": "http://127.0.0.1:43911/features",
+      "bootup": [
+        "Unattributable 5ms",
+        "/features 7ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,2,MAIN,1,SECTION,0,DIV,0,ARTICLE,1,DIV,1,P\",\"selector\":\"div.sp-page > article#customers > div > p.sp-lede\",\"boundingRect\":{\"top\":491,\"bottom\":600,\"left\":18,\"right\":394,\"width\":376,\"height\":109},\"snippet\":\"<p class=\\\"sp-lede\\\" style=\\\"margin-top:var(--sp-3)\\\">\",\"nodeLabel\":\"Enquiries from calls, email and your website land in one place. Turn one into a…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":451.36675,\"percent\":\"27%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":1202.733",
+      "blocking": [
+        "/saas/brand-presence.css?v=20261123.tr14 301ms 2KB",
+        "/saas/ds/components.css?v=20261123.tr14 301ms 5KB",
+        "/saas/ds/site.css?v=20261123.tr14 301ms 5KB",
+        "/saas/ds/tokens.css?v=20261123.tr14 151ms 3KB"
+      ],
+      "main_thread": [
+        "other 438ms",
+        "styleLayout 89ms",
+        "paintCompositeRender 38ms",
+        "parseHTML 36ms",
+        "scriptEvaluation 27ms",
+        "scriptParseCompile 8ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~572 ms)"
+        "Eliminate render-blocking resources (~532 ms)"
       ]
     },
     {
@@ -76,16 +140,37 @@
       "accessibility": 100,
       "best_practices": 100,
       "seo": 100,
-      "fcp_ms": 1251,
-      "lcp_ms": 1684,
+      "fcp_ms": 1227,
+      "lcp_ms": 1677,
       "tbt_ms": 0,
       "cls": 0.002,
-      "si_ms": 1251,
+      "si_ms": 1227,
+      "tti_ms": 1677,
+      "lcp_node": "The AI receptionist add-on answers your business number, tak",
       "transfer_kb": 120,
       "requests": 16,
-      "final_url": "http://127.0.0.1:38547/receptionist",
+      "final_url": "http://127.0.0.1:43911/receptionist",
+      "bootup": [
+        "Unattributable 5ms",
+        "/receptionist 8ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,2,MAIN,0,SECTION,0,DIV,0,DIV,1,P\",\"selector\":\"section.sp-section > div.sp-page > div > p.sp-lede\",\"boundingRect\":{\"top\":274,\"bottom\":383,\"left\":18,\"right\":394,\"width\":376,\"height\":109},\"snippet\":\"<p class=\\\"sp-lede\\\" style=\\\"margin-top:var(--sp-4)\\\">\",\"nodeLabel\":\"The AI receptionist add-on answers your business number, takes the details, off…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":459.08275,\"percent\":\"27%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":1218.1655,\"percen",
+      "blocking": [
+        "/saas/ds/site.css?v=20261123.tr14 309ms 5KB",
+        "/saas/ds/components.css?v=20261123.tr14 309ms 5KB",
+        "/saas/brand-presence.css?v=20261123.tr14 309ms 2KB",
+        "/saas/ds/tokens.css?v=20261123.tr14 159ms 3KB"
+      ],
+      "main_thread": [
+        "other 472ms",
+        "styleLayout 90ms",
+        "paintCompositeRender 40ms",
+        "scriptEvaluation 27ms",
+        "parseHTML 9ms",
+        "scriptParseCompile 5ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~262 ms)"
+        "Eliminate render-blocking resources (~579 ms)"
       ]
     },
     {
@@ -96,36 +181,91 @@
       "accessibility": 100,
       "best_practices": 100,
       "seo": 100,
-      "fcp_ms": 1261,
-      "lcp_ms": 1690,
+      "fcp_ms": 1224,
+      "lcp_ms": 1666,
       "tbt_ms": 0,
       "cls": 0.001,
-      "si_ms": 1261,
+      "si_ms": 1224,
+      "tti_ms": 1666,
+      "lcp_node": "Questions before you start, a walkthrough, or help setting u",
       "transfer_kb": 116,
       "requests": 15,
-      "final_url": "http://127.0.0.1:38547/contact",
+      "final_url": "http://127.0.0.1:43911/contact",
+      "bootup": [
+        "Unattributable 6ms",
+        "/contact 9ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,2,MAIN,0,SECTION,0,DIV,0,DIV,1,P\",\"selector\":\"section.sp-section > div.sp-page > div > p.sp-lede\",\"boundingRect\":{\"top\":186,\"bottom\":268,\"left\":18,\"right\":394,\"width\":376,\"height\":82},\"snippet\":\"<p class=\\\"sp-lede\\\" style=\\\"margin-top:var(--sp-4)\\\">\",\"nodeLabel\":\"Questions before you start, a walkthrough, or help setting up. A person reads e…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":457.93785,\"percent\":\"27%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":1207.93785,\"percen",
+      "blocking": [
+        "/saas/ds/site.css?v=20261123.tr14 308ms 5KB",
+        "/saas/ds/components.css?v=20261123.tr14 308ms 5KB",
+        "/saas/brand-presence.css?v=20261123.tr14 308ms 2KB",
+        "/saas/ds/tokens.css?v=20261123.tr14 158ms 3KB"
+      ],
+      "main_thread": [
+        "other 509ms",
+        "styleLayout 55ms",
+        "scriptEvaluation 31ms",
+        "parseHTML 27ms",
+        "paintCompositeRender 25ms",
+        "scriptParseCompile 10ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~360 ms)"
+        "Eliminate render-blocking resources (~319 ms)"
       ]
     },
     {
       "area": "public",
       "name": "Sign in",
       "url": "/saas/sign-in.html",
-      "performance": 97,
+      "performance": 99,
       "accessibility": 100,
       "best_practices": 93,
       "seo": 58,
-      "fcp_ms": 1874,
-      "lcp_ms": 2377,
+      "fcp_ms": 1532,
+      "lcp_ms": 1703,
       "tbt_ms": 0,
       "cls": 0,
-      "si_ms": 1874,
+      "si_ms": 1532,
+      "tti_ms": 1703,
+      "lcp_node": "Sign in to your workspace",
       "transfer_kb": 176,
       "requests": 31,
-      "final_url": "http://127.0.0.1:38547/saas/sign-in.html",
+      "final_url": "http://127.0.0.1:43911/saas/sign-in.html",
+      "bootup": [
+        "/saas/sign-in.html 4ms",
+        "Unattributable 3ms",
+        "/saas/ds/platform.js?v=20261121 13ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-H2\",\"path\":\"1,HTML,1,BODY,2,MAIN,1,SECTION,0,DIV,1,DIV,1,H2\",\"selector\":\"section.auth-form-side > div.auth-form-card > div.auth-title > h2\",\"boundingRect\":{\"top\":168,\"bottom\":192,\"left\":29,\"right\":383,\"width\":354,\"height\":24},\"snippet\":\"<h2>\",\"nodeLabel\":\"Sign in to your workspace\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":460.6072,\"percent\":\"27%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":1242.4288000000001,\"percent\":\"73%\"}]}]",
+      "blocking": [
+        "/saas/modal-queue.js?v=20261026 161ms 2KB",
+        "/saas/ds/retheme.css?v=20261123.tr15 311ms 5KB",
+        "/saas/ds/layout.css?v=20261121 161ms 2KB",
+        "/saas/unified-ui.css?v=20261123.gold 461ms 12KB",
+        "/saas/premium-ui.css?v=20261123.gold 311ms 5KB",
+        "/saas/public-design.css?v=20261123.gold 311ms 4KB",
+        "/saas/sign-in-layout.css?v=20261123.gold 311ms 4KB",
+        "/saas/ds/tokens.css?v=20261123.gold 161ms 3KB",
+        "/saas/experience.css?v=20261123.t23b 461ms 6KB",
+        "/saas/ds/platform.js?v=20261121 161ms 3KB",
+        "/saas/app.css?v=20261123.gold 611ms 14KB",
+        "/saas/brand.css?v=20261123.gold 461ms 8KB",
+        "/saas/adaptive.css?v=20261123.gold 311ms 4KB",
+        "/saas/auth.css?v=20261123.gold 311ms 4KB",
+        "/saas/support.css?v=20261123.gold 311ms 3KB"
+      ],
+      "main_thread": [
+        "other 3268ms",
+        "styleLayout 1053ms",
+        "paintCompositeRender 548ms",
+        "garbageCollection 91ms",
+        "scriptEvaluation 72ms",
+        "parseHTML 24ms",
+        "scriptParseCompile 21ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~1016 ms)"
+        "Eliminate render-blocking resources (~705 ms)"
       ]
     },
     {
@@ -136,126 +276,513 @@
       "accessibility": 100,
       "best_practices": 96,
       "seo": 66,
-      "fcp_ms": 1862,
-      "lcp_ms": 2312,
-      "tbt_ms": 13,
-      "cls": 0,
-      "si_ms": 1862,
+      "fcp_ms": 1854,
+      "lcp_ms": 2154,
+      "tbt_ms": 0,
+      "cls": 0.069,
+      "si_ms": 1854,
+      "tti_ms": 2154,
+      "lcp_node": "Before a workspace is created, Oprun verifies the owner’s em",
       "transfer_kb": 180,
       "requests": 32,
-      "final_url": "http://127.0.0.1:38547/saas/create-account.html",
+      "final_url": "http://127.0.0.1:43911/saas/create-account.html",
+      "bootup": [
+        "/saas/create-account.html 4ms",
+        "Unattributable 5ms",
+        "/saas/ds/platform.js?v=20261121 19ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-1-P\",\"path\":\"1,HTML,1,BODY,2,MAIN,0,SECTION,1,DIV,2,P\",\"selector\":\"main#sp-main-content > section.auth-story > div.auth-story-copy > p\",\"boundingRect\":{\"top\":247,\"bottom\":331,\"left\":20,\"right\":391,\"width\":371,\"height\":84},\"snippet\":\"<p data-au=\\\"Before a workspace is created, Oprun checks the Australian business identi…\\\">\",\"nodeLabel\":\"Before a workspace is created, Oprun verifies the owner’s email and mobile. The…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":463.60135,\"percent\":\"22%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"p",
+      "blocking": [
+        "/saas/modal-queue.js?v=20261026 164ms 2KB",
+        "/saas/unified-ui.css?v=20261123.gold 464ms 12KB",
+        "/saas/ds/layout.css?v=20261121 164ms 2KB",
+        "/saas/premium-ui.css?v=20261123.gold 314ms 5KB",
+        "/saas/registration-layout.css?v=20261111.1 164ms 3KB",
+        "/saas/ds/retheme.css?v=20261123.tr15 314ms 5KB",
+        "/saas/ds/tokens.css?v=20261123.gold 164ms 3KB",
+        "/saas/public-design.css?v=20261123.gold 314ms 4KB",
+        "/saas/support.css?v=20261123.gold 314ms 3KB",
+        "/saas/experience.css?v=20261123.t23b 464ms 6KB",
+        "/saas/brand.css?v=20261123.gold 464ms 8KB",
+        "/saas/adaptive.css?v=20261123.gold 314ms 4KB",
+        "/saas/auth.css?v=20261123.gold 314ms 4KB",
+        "/saas/app.css?v=20261123.gold 614ms 14KB",
+        "/saas/ds/platform.js?v=20261121 164ms 3KB"
+      ],
+      "main_thread": [
+        "other 4982ms",
+        "paintCompositeRender 1251ms",
+        "styleLayout 1190ms",
+        "garbageCollection 179ms",
+        "scriptEvaluation 121ms",
+        "parseHTML 30ms",
+        "scriptParseCompile 11ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~966 ms)"
+        "Eliminate render-blocking resources (~1036 ms)"
       ]
     },
     {
       "area": "workspace",
       "name": "Command Centre",
       "url": "/saas/workspace.html#today/home",
-      "performance": 46,
+      "performance": 70,
       "accessibility": 100,
       "best_practices": 100,
       "seo": 66,
-      "fcp_ms": 1979,
-      "lcp_ms": 6385,
-      "tbt_ms": 1689,
-      "cls": 0.027,
-      "si_ms": 4570,
-      "transfer_kb": 635,
-      "requests": 56,
-      "final_url": "http://127.0.0.1:38547/saas/workspace.html#today/home",
+      "fcp_ms": 1683,
+      "lcp_ms": 4074,
+      "tbt_ms": 621,
+      "cls": 0.028,
+      "si_ms": 2979,
+      "tti_ms": 4615,
+      "lcp_node": "Subscription: trialing · External services require configure",
+      "transfer_kb": 453,
+      "requests": 51,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#today/home",
+      "bootup": [
+        "Unattributable 20ms",
+        "/saas/__b/60473d1557090d14.js 599ms",
+        "/saas/workspace.html 21ms",
+        "/saas/__b/cba57a3c8cb327e7.js 326ms",
+        "/saas/app.js?v=20261123.tr24 152ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 55ms",
+        "/saas/ai-operations.js?v=20261028.2 38ms",
+        "/saas/ds/platform.js?v=20261121 9ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-SPAN\",\"path\":\"1,HTML,1,BODY,4,SECTION,2,DIV,3,FOOTER,1,SPAN\",\"selector\":\"section#workspace > div#sp-main-content > footer.app-footer > span#subscription-footer\",\"boundingRect\":{\"top\":848,\"bottom\":863,\"left\":12,\"right\":376,\"width\":364,\"height\":16},\"snippet\":\"<span id=\\\"subscription-footer\\\" data-i18n-phrases=\\\"notices\\\">\",\"nodeLabel\":\"Subscription: trialing · External services require configured providers\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":461.09225,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Ren",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 761ms 90KB",
+        "/saas/ds/platform.js?v=20261121 311ms 3KB"
+      ],
+      "main_thread": [
+        "other 2608ms",
+        "styleLayout 1501ms",
+        "scriptEvaluation 1266ms",
+        "paintCompositeRender 221ms",
+        "garbageCollection 118ms",
+        "parseHTML 91ms",
+        "scriptParseCompile 64ms"
+      ],
       "opportunities": [
-        "Reduce unused JavaScript (~1480 ms)",
-        "Eliminate render-blocking resources (~625 ms)",
-        "Reduce unused CSS (~450 ms)"
+        "Eliminate render-blocking resources (~533 ms)"
+      ]
+    },
+    {
+      "area": "workspace-first",
+      "name": "Command Centre (first visit)",
+      "url": "/saas/workspace.html#today/home",
+      "performance": 70,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1559,
+      "lcp_ms": 4363,
+      "tbt_ms": 549,
+      "cls": 0.028,
+      "si_ms": 2847,
+      "tti_ms": 4371,
+      "lcp_node": "This quick tour shows you where everything is. It takes abou",
+      "transfer_kb": 475,
+      "requests": 51,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#today/home",
+      "bootup": [
+        "Unattributable 24ms",
+        "/saas/workspace.html 15ms",
+        "/saas/__b/60473d1557090d14.js 635ms",
+        "/saas/__b/cba57a3c8cb327e7.js 387ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 89ms",
+        "/saas/app.js?v=20261123.tr24 78ms",
+        "/saas/ds/platform.js?v=20261121 8ms",
+        "/saas/workspace-locale.js?v=20261124.tr52 48ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,37,DIV,1,DIV,2,P\",\"selector\":\"body.portal-workspace > div.sp-tour > div.sp-tour-card > p\",\"boundingRect\":{\"top\":381,\"bottom\":448,\"left\":49,\"right\":363,\"width\":314,\"height\":67},\"snippet\":\"<p>\",\"nodeLabel\":\"This quick tour shows you where everything is. It takes about a minute, and you…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":479.34825,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":3883.6965,\"percent\":\"89%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 779ms 90KB",
+        "/saas/ds/platform.js?v=20261121 329ms 3KB"
+      ],
+      "main_thread": [
+        "other 2296ms",
+        "scriptEvaluation 1302ms",
+        "styleLayout 1117ms",
+        "paintCompositeRender 235ms",
+        "garbageCollection 88ms",
+        "parseHTML 63ms",
+        "scriptParseCompile 46ms"
+      ],
+      "opportunities": [
+        "Reduce unused CSS (~410 ms)",
+        "Eliminate render-blocking resources (~366 ms)"
       ]
     },
     {
       "area": "workspace",
       "name": "Enquiries",
       "url": "/saas/workspace.html#work/enquiries",
-      "performance": 43,
+      "performance": 77,
       "accessibility": 100,
       "best_practices": 100,
       "seo": 66,
-      "fcp_ms": 2017,
-      "lcp_ms": 6068,
-      "tbt_ms": 1850,
+      "fcp_ms": 1512,
+      "lcp_ms": 3617,
+      "tbt_ms": 398,
       "cls": 0.111,
-      "si_ms": 4511,
-      "transfer_kb": 646,
-      "requests": 57,
-      "final_url": "http://127.0.0.1:38547/saas/workspace.html#work/enquiries",
+      "si_ms": 2027,
+      "tti_ms": 4115,
+      "lcp_node": "Subscription: trialing · External services require configure",
+      "transfer_kb": 463,
+      "requests": 54,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#work/enquiries",
+      "bootup": [
+        "/saas/__b/60473d1557090d14.js 361ms",
+        "Unattributable 22ms",
+        "/saas/workspace.html 18ms",
+        "/saas/__b/cba57a3c8cb327e7.js 153ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 82ms",
+        "/saas/app.js?v=20261123.tr24 79ms",
+        "/saas/workspace-locale.js?v=20261124.tr52 55ms",
+        "/saas/ds/platform.js?v=20261121 6ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-SPAN\",\"path\":\"1,HTML,1,BODY,4,SECTION,2,DIV,3,FOOTER,1,SPAN\",\"selector\":\"section#workspace > div#sp-main-content > footer.app-footer > span#subscription-footer\",\"boundingRect\":{\"top\":2532,\"bottom\":2548,\"left\":12,\"right\":376,\"width\":364,\"height\":16},\"snippet\":\"<span id=\\\"subscription-footer\\\" data-i18n-phrases=\\\"notices\\\">\",\"nodeLabel\":\"Subscription: trialing · External services require configured providers\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":455.7823,\"percent\":\"13%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Re",
+      "blocking": [
+        "/saas/ds/platform.js?v=20261121 306ms 3KB",
+        "/saas/__b/e1aec91615b6b3dd.css 756ms 90KB"
+      ],
+      "main_thread": [
+        "other 1809ms",
+        "styleLayout 916ms",
+        "scriptEvaluation 810ms",
+        "paintCompositeRender 154ms",
+        "garbageCollection 128ms",
+        "parseHTML 63ms",
+        "scriptParseCompile 49ms"
+      ],
       "opportunities": [
-        "Reduce unused JavaScript (~1420 ms)",
-        "Eliminate render-blocking resources (~691 ms)",
-        "Reduce unused CSS (~300 ms)"
+        "Eliminate render-blocking resources (~538 ms)",
+        "Reduce unused CSS (~170 ms)"
+      ]
+    },
+    {
+      "area": "workspace-first",
+      "name": "Enquiries (first visit)",
+      "url": "/saas/workspace.html#work/enquiries",
+      "performance": 64,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1822,
+      "lcp_ms": 4283,
+      "tbt_ms": 659,
+      "cls": 0.112,
+      "si_ms": 2755,
+      "tti_ms": 4330,
+      "lcp_node": "This quick tour shows you where everything is. It takes abou",
+      "transfer_kb": 466,
+      "requests": 57,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#work/enquiries",
+      "bootup": [
+        "Unattributable 20ms",
+        "/saas/workspace.html 44ms",
+        "/saas/__b/60473d1557090d14.js 543ms",
+        "/saas/__b/cba57a3c8cb327e7.js 344ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 121ms",
+        "/saas/workspace-locale.js?v=20261124.tr52 120ms",
+        "/saas/app.js?v=20261123.tr24 64ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,37,DIV,1,DIV,2,P\",\"selector\":\"body.portal-workspace > div.sp-tour > div.sp-tour-card > p\",\"boundingRect\":{\"top\":381,\"bottom\":448,\"left\":49,\"right\":363,\"width\":314,\"height\":67},\"snippet\":\"<p>\",\"nodeLabel\":\"This quick tour shows you where everything is. It takes about a minute, and you…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":457.25165,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":3825.384075,\"percent\":\"89%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 757ms 90KB",
+        "/saas/ds/platform.js?v=20261121 307ms 3KB"
+      ],
+      "main_thread": [
+        "other 2244ms",
+        "scriptEvaluation 1323ms",
+        "styleLayout 697ms",
+        "paintCompositeRender 144ms",
+        "garbageCollection 77ms",
+        "parseHTML 59ms",
+        "scriptParseCompile 48ms"
+      ],
+      "opportunities": [
+        "Eliminate render-blocking resources (~542 ms)"
       ]
     },
     {
       "area": "workspace",
       "name": "Unified Inbox",
       "url": "/saas/workspace.html#communications/inbox",
-      "performance": 35,
+      "performance": 63,
       "accessibility": 100,
       "best_practices": 100,
       "seo": 66,
-      "fcp_ms": 2130,
-      "lcp_ms": 6080,
-      "tbt_ms": 1676,
+      "fcp_ms": 1527,
+      "lcp_ms": 4252,
+      "tbt_ms": 457,
       "cls": 0.224,
-      "si_ms": 4593,
-      "transfer_kb": 642,
-      "requests": 58,
-      "final_url": "http://127.0.0.1:38547/saas/workspace.html#communications/inbox",
+      "si_ms": 2242,
+      "tti_ms": 4266,
+      "lcp_node": "Email, SMS, WhatsApp, calls, voicemail, website forms and so",
+      "transfer_kb": 459,
+      "requests": 56,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#communications/inbox",
+      "bootup": [
+        "/saas/workspace.html 16ms",
+        "/saas/__b/60473d1557090d14.js 468ms",
+        "Unattributable 17ms",
+        "/saas/__b/cba57a3c8cb327e7.js 202ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 60ms",
+        "/saas/app.js?v=20261123.tr24 67ms",
+        "/saas/ai-operations.js?v=20261028.2 61ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,4,SECTION,2,DIV,1,MAIN,31,SECTION,0,DIV,0,DIV,1,P\",\"selector\":\"section#unifiedinbox-view > div.page-heading > div > p\",\"boundingRect\":{\"top\":96,\"bottom\":135,\"left\":12,\"right\":400,\"width\":388,\"height\":39},\"snippet\":\"<p>\",\"nodeLabel\":\"Email, SMS, WhatsApp, calls, voicemail, website forms and social messages in on…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":463.65485,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":3788.601674999999,\"percent\":\"89%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 764ms 90KB",
+        "/saas/ds/platform.js?v=20261121 314ms 3KB"
+      ],
+      "main_thread": [
+        "other 2401ms",
+        "scriptEvaluation 971ms",
+        "styleLayout 929ms",
+        "garbageCollection 158ms",
+        "paintCompositeRender 149ms",
+        "parseHTML 62ms",
+        "scriptParseCompile 44ms"
+      ],
       "opportunities": [
-        "Reduce unused JavaScript (~1280 ms)",
-        "Eliminate render-blocking resources (~756 ms)",
-        "Reduce unused CSS (~300 ms)"
+        "Eliminate render-blocking resources (~392 ms)",
+        "Reduce unused CSS (~160 ms)"
+      ]
+    },
+    {
+      "area": "workspace-first",
+      "name": "Unified Inbox (first visit)",
+      "url": "/saas/workspace.html#communications/inbox",
+      "performance": 57,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1707,
+      "lcp_ms": 4608,
+      "tbt_ms": 540,
+      "cls": 0.225,
+      "si_ms": 2775,
+      "tti_ms": 4616,
+      "lcp_node": "Email, SMS, WhatsApp, calls, voicemail, website forms and so",
+      "transfer_kb": 481,
+      "requests": 55,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#communications/inbox",
+      "bootup": [
+        "/saas/workspace.html 21ms",
+        "/saas/__b/60473d1557090d14.js 657ms",
+        "Unattributable 50ms",
+        "/saas/__b/cba57a3c8cb327e7.js 238ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 106ms",
+        "/saas/app.js?v=20261123.tr24 81ms",
+        "/saas/__b/121fbfa83836d3ac.js 75ms",
+        "/saas/workspace-locale.js?v=20261124.tr52 46ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-1-P\",\"path\":\"1,HTML,1,BODY,4,SECTION,2,DIV,1,MAIN,31,SECTION,0,DIV,0,DIV,1,P\",\"selector\":\"section#unifiedinbox-view > div.page-heading > div > p\",\"boundingRect\":{\"top\":96,\"bottom\":135,\"left\":12,\"right\":400,\"width\":388,\"height\":39},\"snippet\":\"<p>\",\"nodeLabel\":\"Email, SMS, WhatsApp, calls, voicemail, website forms and social messages in on…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":478.27235,\"percent\":\"10%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":4129.45115,\"percent\":\"90%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 928ms 90KB",
+        "/saas/ds/platform.js?v=20261121 328ms 3KB"
+      ],
+      "main_thread": [
+        "other 2933ms",
+        "scriptEvaluation 1307ms",
+        "styleLayout 1053ms",
+        "paintCompositeRender 213ms",
+        "parseHTML 60ms",
+        "scriptParseCompile 55ms"
+      ],
+      "opportunities": [
+        "Reduce unused CSS (~330 ms)",
+        "Eliminate render-blocking resources (~241 ms)",
+        "Defer offscreen images (~150 ms)"
       ]
     },
     {
       "area": "workspace",
       "name": "Money",
       "url": "/saas/workspace.html#money/ledger",
-      "performance": 44,
+      "performance": 73,
       "accessibility": 100,
       "best_practices": 100,
       "seo": 66,
-      "fcp_ms": 1968,
-      "lcp_ms": 6223,
-      "tbt_ms": 1797,
+      "fcp_ms": 1669,
+      "lcp_ms": 4236,
+      "tbt_ms": 374,
       "cls": 0.109,
-      "si_ms": 4184,
-      "transfer_kb": 643,
-      "requests": 58,
-      "final_url": "http://127.0.0.1:38547/saas/workspace.html#money/ledger",
+      "si_ms": 2420,
+      "tti_ms": 4252,
+      "lcp_node": "Enter what a job is worth and what the customer paid. Oprun ",
+      "transfer_kb": 479,
+      "requests": 55,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#money/ledger",
+      "bootup": [
+        "Unattributable 37ms",
+        "/saas/workspace.html 16ms",
+        "/saas/__b/60473d1557090d14.js 617ms",
+        "/saas/__b/cba57a3c8cb327e7.js 175ms",
+        "/saas/app.js?v=20261123.tr24 146ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 63ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,4,SECTION,2,DIV,1,MAIN,8,SECTION,0,DIV,0,DIV,1,P\",\"selector\":\"section#finance-view > div.page-heading > div > p#fin-intro\",\"boundingRect\":{\"top\":96,\"bottom\":135,\"left\":12,\"right\":400,\"width\":388,\"height\":39},\"snippet\":\"<p id=\\\"fin-intro\\\">\",\"nodeLabel\":\"Enter what a job is worth and what the customer paid. Oprun works out income, c…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":456.3098,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":3779.2392,\"percent\":\"89%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 756ms 90KB",
+        "/saas/ds/platform.js?v=20261121 306ms 3KB"
+      ],
+      "main_thread": [
+        "other 2250ms",
+        "scriptEvaluation 1142ms",
+        "styleLayout 916ms",
+        "paintCompositeRender 207ms",
+        "garbageCollection 125ms",
+        "parseHTML 63ms",
+        "scriptParseCompile 46ms"
+      ],
       "opportunities": [
-        "Reduce unused JavaScript (~1500 ms)",
-        "Eliminate render-blocking resources (~648 ms)",
-        "Reduce unused CSS (~450 ms)"
+        "Eliminate render-blocking resources (~513 ms)",
+        "Reduce unused CSS (~230 ms)"
+      ]
+    },
+    {
+      "area": "workspace-first",
+      "name": "Money (first visit)",
+      "url": "/saas/workspace.html#money/ledger",
+      "performance": 75,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1816,
+      "lcp_ms": 4277,
+      "tbt_ms": 289,
+      "cls": 0.11,
+      "si_ms": 2625,
+      "tti_ms": 4285,
+      "lcp_node": "This quick tour shows you where everything is. It takes abou",
+      "transfer_kb": 481,
+      "requests": 55,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#money/ledger",
+      "bootup": [
+        "/saas/workspace.html 29ms",
+        "/saas/__b/60473d1557090d14.js 440ms",
+        "Unattributable 18ms",
+        "/saas/__b/cba57a3c8cb327e7.js 144ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 72ms",
+        "/saas/app.js?v=20261123.tr24 63ms",
+        "/saas/ai-operations.js?v=20261028.2 83ms",
+        "/saas/__b/80259ed351b80de9.js 60ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,37,DIV,1,DIV,2,P\",\"selector\":\"body.portal-workspace > div.sp-tour > div.sp-tour-card > p\",\"boundingRect\":{\"top\":381,\"bottom\":448,\"left\":49,\"right\":363,\"width\":314,\"height\":67},\"snippet\":\"<p>\",\"nodeLabel\":\"This quick tour shows you where everything is. It takes about a minute, and you…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":455.4352,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":3821.264000000001,\"percent\":\"89%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 755ms 90KB",
+        "/saas/ds/platform.js?v=20261121 305ms 3KB"
+      ],
+      "main_thread": [
+        "other 1860ms",
+        "scriptEvaluation 961ms",
+        "styleLayout 870ms",
+        "paintCompositeRender 214ms",
+        "parseHTML 65ms",
+        "scriptParseCompile 41ms"
+      ],
+      "opportunities": [
+        "Eliminate render-blocking resources (~560 ms)",
+        "Reduce unused CSS (~310 ms)"
       ]
     },
     {
       "area": "workspace",
       "name": "Website",
       "url": "/saas/workspace.html#website/home",
-      "performance": 47,
+      "performance": 73,
       "accessibility": 100,
       "best_practices": 100,
       "seo": 66,
-      "fcp_ms": 2129,
-      "lcp_ms": 6343,
-      "tbt_ms": 1476,
+      "fcp_ms": 1821,
+      "lcp_ms": 4071,
+      "tbt_ms": 502,
       "cls": 0.051,
-      "si_ms": 4142,
-      "transfer_kb": 636,
-      "requests": 56,
-      "final_url": "http://127.0.0.1:38547/saas/workspace.html#website/home",
+      "si_ms": 2412,
+      "tti_ms": 4248,
+      "lcp_node": "Subscription: trialing · External services require configure",
+      "transfer_kb": 472,
+      "requests": 52,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#website/home",
+      "bootup": [
+        "/saas/__b/60473d1557090d14.js 544ms",
+        "/saas/workspace.html 19ms",
+        "Unattributable 20ms",
+        "/saas/__b/cba57a3c8cb327e7.js 318ms",
+        "/saas/app.js?v=20261123.tr24 85ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 66ms",
+        "/saas/ds/platform.js?v=20261121 11ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-1-SPAN\",\"path\":\"1,HTML,1,BODY,4,SECTION,2,DIV,3,FOOTER,1,SPAN\",\"selector\":\"section#workspace > div#sp-main-content > footer.app-footer > span#subscription-footer\",\"boundingRect\":{\"top\":890,\"bottom\":905,\"left\":12,\"right\":376,\"width\":364,\"height\":16},\"snippet\":\"<span id=\\\"subscription-footer\\\" data-i18n-phrases=\\\"notices\\\">\",\"nodeLabel\":\"Subscription: trialing · External services require configured providers\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":456.9021,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Rend",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 757ms 90KB",
+        "/saas/ds/platform.js?v=20261121 307ms 3KB"
+      ],
+      "main_thread": [
+        "other 1720ms",
+        "scriptEvaluation 1155ms",
+        "styleLayout 800ms",
+        "paintCompositeRender 114ms",
+        "parseHTML 75ms",
+        "scriptParseCompile 52ms"
+      ],
       "opportunities": [
-        "Reduce unused JavaScript (~1650 ms)",
-        "Eliminate render-blocking resources (~908 ms)",
+        "Eliminate render-blocking resources (~710 ms)",
+        "Defer offscreen images (~300 ms)",
         "Reduce unused CSS (~300 ms)"
+      ]
+    },
+    {
+      "area": "workspace-first",
+      "name": "Website (first visit)",
+      "url": "/saas/workspace.html#website/home",
+      "performance": 76,
+      "accessibility": 100,
+      "best_practices": 100,
+      "seo": 66,
+      "fcp_ms": 1513,
+      "lcp_ms": 4253,
+      "tbt_ms": 380,
+      "cls": 0.051,
+      "si_ms": 2681,
+      "tti_ms": 4253,
+      "lcp_node": "This quick tour shows you where everything is. It takes abou",
+      "transfer_kb": 458,
+      "requests": 53,
+      "final_url": "http://127.0.0.1:43911/saas/workspace.html#website/home",
+      "bootup": [
+        "Unattributable 49ms",
+        "/saas/workspace.html 26ms",
+        "/saas/__b/60473d1557090d14.js 647ms",
+        "/saas/__b/cba57a3c8cb327e7.js 221ms",
+        "/saas/__b/a4dae5b8e4fd8daf.js 71ms",
+        "/saas/app.js?v=20261123.tr24 129ms",
+        "/saas/workspace-locale.js?v=20261124.tr52 44ms",
+        "/saas/ds/platform.js?v=20261121 7ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-P\",\"path\":\"1,HTML,1,BODY,37,DIV,1,DIV,2,P\",\"selector\":\"body.portal-workspace > div.sp-tour > div.sp-tour-card > p\",\"boundingRect\":{\"top\":381,\"bottom\":448,\"left\":49,\"right\":363,\"width\":314,\"height\":67},\"snippet\":\"<p>\",\"nodeLabel\":\"This quick tour shows you where everything is. It takes about a minute, and you…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":456.56235,\"percent\":\"11%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":3796.936450000001,\"percent\":\"89%\"}]}]",
+      "blocking": [
+        "/saas/__b/e1aec91615b6b3dd.css 757ms 90KB",
+        "/saas/ds/platform.js?v=20261121 307ms 3KB"
+      ],
+      "main_thread": [
+        "other 2529ms",
+        "scriptEvaluation 1243ms",
+        "styleLayout 680ms",
+        "paintCompositeRender 124ms",
+        "parseHTML 81ms",
+        "garbageCollection 76ms",
+        "scriptParseCompile 40ms"
+      ],
+      "opportunities": [
+        "Eliminate render-blocking resources (~375 ms)",
+        "Reduce unused CSS (~310 ms)",
+        "Reduce unused JavaScript (~180 ms)"
       ]
     },
     {
@@ -266,37 +793,57 @@
       "accessibility": 100,
       "best_practices": 100,
       "seo": 54,
-      "fcp_ms": 1084,
-      "lcp_ms": 1234,
-      "tbt_ms": 66,
+      "fcp_ms": 911,
+      "lcp_ms": 911,
+      "tbt_ms": 0,
       "cls": 0,
-      "si_ms": 1153,
+      "si_ms": 911,
+      "tti_ms": 911,
+      "lcp_node": "Oprun · Platform records stay separate from subscriber busin",
       "transfer_kb": 146,
       "requests": 10,
-      "final_url": "http://127.0.0.1:38547/office/",
+      "final_url": "http://127.0.0.1:43911/office/",
+      "bootup": [
+        "Unattributable 8ms",
+        "/office/ 7ms",
+        "/saas/__b/112aa6da90f3167a.js 47ms"
+      ],
+      "lcp_element": "[{\"type\":\"table\",\"headings\":[{\"key\":\"node\",\"valueType\":\"node\",\"label\":\"Element\"}],\"items\":[{\"node\":{\"type\":\"node\",\"lhId\":\"page-0-FOOTER\",\"path\":\"1,HTML,1,BODY,3,MAIN,2,FOOTER\",\"selector\":\"body > main#console-main > footer.portal-footer\",\"boundingRect\":{\"top\":1734,\"bottom\":1822,\"left\":12,\"right\":400,\"width\":388,\"height\":89},\"snippet\":\"<footer class=\\\"portal-footer\\\">\",\"nodeLabel\":\"Oprun · Platform records stay separate from subscriber business records. Deploy…\"}}]},{\"type\":\"table\",\"headings\":[{\"key\":\"phase\",\"valueType\":\"text\",\"label\":\"Phase\"},{\"key\":\"percent\",\"valueType\":\"text\",\"label\":\"% of LCP\"},{\"key\":\"timing\",\"valueType\":\"ms\",\"label\":\"Timing\"}],\"items\":[{\"phase\":\"TTFB\",\"timing\":455.4439,\"percent\":\"50%\"},{\"phase\":\"Load Delay\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Load Time\",\"timing\":0,\"percent\":\"0%\"},{\"phase\":\"Render Delay\",\"timing\":455.4439,\"percent\":\"50%\"}]}]",
+      "blocking": [
+        "/saas/__b/3250b7daf7cfacf6.css 305ms 31KB"
+      ],
+      "main_thread": [
+        "other 338ms",
+        "styleLayout 72ms",
+        "scriptEvaluation 64ms",
+        "paintCompositeRender 20ms",
+        "scriptParseCompile 19ms",
+        "parseHTML 9ms"
+      ],
       "opportunities": [
-        "Eliminate render-blocking resources (~438 ms)"
+        "Eliminate render-blocking resources (~290 ms)",
+        "Reduce unused CSS (~150 ms)"
       ]
     }
   ],
   "failures": [
-    "Command Centre: performance 46 < 85",
-    "Command Centre: lcp_ms 6385 over budget 2500",
-    "Command Centre: tbt_ms 1689 over budget 200",
-    "Enquiries: performance 43 < 85",
-    "Enquiries: lcp_ms 6068 over budget 2500",
-    "Enquiries: tbt_ms 1850 over budget 200",
+    "Command Centre: performance 70 < 85",
+    "Command Centre: lcp_ms 4074 over budget 2500",
+    "Command Centre: tbt_ms 621 over budget 200",
+    "Enquiries: performance 77 < 85",
+    "Enquiries: lcp_ms 3617 over budget 2500",
+    "Enquiries: tbt_ms 398 over budget 200",
     "Enquiries: cls 0.111 over budget 0.1",
-    "Unified Inbox: performance 35 < 85",
-    "Unified Inbox: lcp_ms 6080 over budget 2500",
-    "Unified Inbox: tbt_ms 1676 over budget 200",
+    "Unified Inbox: performance 63 < 85",
+    "Unified Inbox: lcp_ms 4252 over budget 2500",
+    "Unified Inbox: tbt_ms 457 over budget 200",
     "Unified Inbox: cls 0.224 over budget 0.1",
-    "Money: performance 44 < 85",
-    "Money: lcp_ms 6223 over budget 2500",
-    "Money: tbt_ms 1797 over budget 200",
+    "Money: performance 73 < 85",
+    "Money: lcp_ms 4236 over budget 2500",
+    "Money: tbt_ms 374 over budget 200",
     "Money: cls 0.109 over budget 0.1",
-    "Website: performance 47 < 85",
-    "Website: lcp_ms 6343 over budget 2500",
-    "Website: tbt_ms 1476 over budget 200"
+    "Website: performance 73 < 85",
+    "Website: lcp_ms 4071 over budget 2500",
+    "Website: tbt_ms 502 over budget 200"
   ]
 }

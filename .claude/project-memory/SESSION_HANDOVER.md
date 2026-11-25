@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: b941cad (TR-73 (part 1): restore drill on a realistic database passed, report; handover updated)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Lighthouse workspace 59-74 (was 35-48)
-FILES MODIFIED: .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-ops.js; saas/workspace.html; scripts/report-lighthouse.mjs; scripts/test-ui.mjs; src/asset-bundles.js; saas/workspace-lazy.js; scripts/workspace-lazy.test.mjs
-TESTS PASSED: npm test 73/73; test:ui 38; test:mobile-workspace-ui 310; test:navigation-ui 638; feature UI suites all passed; test:visual --group=business 348 screens 0 problems
+LAST COMPLETED STEP: Lighthouse workspace 63-77 returning, 57-76 first visit
+FILES MODIFIED: .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-views.css; saas/workspace.html; scripts/report-lighthouse.mjs
+TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 14 file(s)
+UNCOMMITTED CHANGES: 11 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Inspect why saas/workspace-nav.js, modal-queue.js and ds/platform.js load blocking in workspace.html head; try defer with the visual suite as the check
+NEXT EXACT ACTION: Count whole-document MutationObservers in start-up scripts (grep MutationObserver saas/*.js) and measure their cost with LH_DEBUG=1 LH_ONLY=workspace
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-200 at 2026-11-24T23:33:43+00:00
+LAST CHECKPOINT: CP-201 at 2026-11-25T00:25:02+00:00
 <!-- handover:end -->
 
 ## Notes

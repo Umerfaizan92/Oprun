@@ -2803,3 +2803,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Inspect why saas/workspace-nav.js, modal-queue.js and ds/platform.js load blocking in workspace.html head; try defer with the visual suite as the check
+
+## CP-201 2026-11-25T00:25:02+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: TR-72 part 2 stage 2 verified: deferred nav and dialog queue, opening screen, returning-visit Lighthouse measurement; npm test 73/73, test:ui 38, mobile-workspace 310, navigation 635 (one rerun: Campaigns sections counted late once), redesign, comms, onboarding passed; visual business 348 screens 0 problems; Lighthouse workspace 63-77 returning, 57-76 first visit
+- Incomplete steps: Reach 85: shared MutationObserver for start-up scripts, frame before data calls, reserved space for CLS on Enquiries/Inbox/Money
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-views.css; saas/workspace.html; scripts/report-lighthouse.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 1278bf1 (TR-72 (part 2, stage 1): workspace pages load their code on first open); 67 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Count whole-document MutationObservers in start-up scripts (grep MutationObserver saas/*.js) and measure their cost with LH_DEBUG=1 LH_ONLY=workspace

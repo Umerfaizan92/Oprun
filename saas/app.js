@@ -97,12 +97,12 @@ async function boot(){
   try{d=await api('/api/saas/me')}
   catch(x){
     if(x.status===401){window.SuperProWorkspaceContext?.clear();location.replace('sign-in.html');return}
-    $('#welcome').hidden=false;$('#workspace').hidden=true;
+    $('#welcome').hidden=false;$('#workspace').hidden=true;$('#workspace-loading')?.remove();
     if(x.status&&x.status!==401)note('The workspace service is temporarily unavailable. Please try again.',true);
     return;
   }
   window.SuperProWorkspaceContext?.bind(d.organisation.id);
-  $('#welcome').hidden=true;$('#workspace').hidden=false;window.GDS_SESSION=d;
+  $('#welcome').hidden=true;$('#workspace').hidden=false;$('#workspace-loading')?.remove();window.GDS_SESSION=d;
   window.dispatchEvent(new CustomEvent('superpro:workspace-ready'));
   loadBusinessSwitcher().catch(err=>note(err.message,true));
   document.documentElement.dataset.userRole=String(d.user.role||'user').toLowerCase();
