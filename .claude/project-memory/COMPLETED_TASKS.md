@@ -876,3 +876,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: docs/transformation/05_RELEASE_PLAN.md
 - Acceptance: Owner reviews the release candidate on the test site and says approved
 - Evidence: Owner replied 'Approved' on 25 Nov 2026 after the test site (oprun-test, srv-dc1keajl550s73eolqk0) was updated to release candidate f678118 (deploy dep-dc3eqblg1s2s73eiq9qg, live 14:15 UTC). Review checklist: docs/transformation/05_RELEASE_PLAN.md section 6. (recorded 2026-11-25 on claude/transformation-phase1 at 8044116)
+
+## T-238 TR-73 Backup restore drill before release
+- Added: 2026-11-24
+- Requirement: Backlog TR-73: Backup restore drill before release
+- Files: qa/reports/RESTORE-DRILL.md
+- Acceptance: Restore verified; time recorded
+- Evidence: Local drill on 24 Nov (0.19 s, 267 tables, audit chain 126 rows, counts match). Production drill on 25 Nov run by the owner in the Render Shell of Oprun AI (srv-dbuq98ojo6nc73aro66g) with --compare /var/data/oprun-ai.sqlite: owner reported RESTORE DRILL PASSED (integrity, audit chain and row counts checked by the script). Detailed output not shared. Report: qa/reports/RESTORE-DRILL.md. (recorded 2026-11-25 on claude/transformation-phase1 at 7b134ce)

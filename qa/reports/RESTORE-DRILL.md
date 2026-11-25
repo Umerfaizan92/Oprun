@@ -24,3 +24,15 @@ service → Shell, run (read-only towards S3; it never touches the live database
 
 and paste the last lines (they show the time taken and whether counts match). If the database path differs, use
 the value of `DATABASE_PATH` from the service's Environment page.
+
+## Production drill (25 Nov 2026)
+
+Run by the owner in the Render Shell of the live service "Oprun AI" (`srv-dbuq98ojo6nc73aro66g`):
+
+    npm run backup:restore-drill -- --compare /var/data/oprun-ai.sqlite
+
+Result reported by the owner: **RESTORE DRILL PASSED** (the latest Litestream copy in the S3 bucket, path `oprun-ai/db`,
+restored into a temporary file, passed SQLite's integrity check and the audit-chain check, and its row counts matched
+the live database within the last few seconds of writes). The detailed lines (table count, restore time, audit rows)
+were not shared, so they are not recorded here. A first attempt with the default path `/var/data/super-pro.sqlite`
+could not open that file, because the live database is `/var/data/oprun-ai.sqlite` (E-058); nothing was changed.

@@ -2971,3 +2971,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Ask the owner for 'release approved' and the TR-73 output; then follow docs/transformation/05_RELEASE_PLAN.md section 4
+
+## CP-213 2026-11-25T15:34:53+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: TR-73 complete (production drill passed)
+- Incomplete steps: TR-81: owner's explicit 'release approved'; live env settings (OPERATOR_TOTP_SECRET by the owner; SESSION_MAX_AGE_DAYS=30 and STRICT_PASSWORD_MATCH=1 by the owner or by Claude with permission)
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; qa/reports/RESTORE-DRILL.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 7b134ce (TR-73: correct the live database path for the restore drill); 81 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: On 'release approved': follow docs/transformation/05_RELEASE_PLAN.md section 4 (production auto-deploys on merge to main)
