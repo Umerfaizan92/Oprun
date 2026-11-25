@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-140 (NOT_STARTED)
-LAST COMPLETED STEP: R-15/R-18 owner set-up steps built and released behind RECEPTIONIST_ENABLED (off). Release R-3 live, diagnostics 16/16. Public receptionist page checked: its claims match what is live today.
-FILES MODIFIED: .claude/project-memory/PROGRESS.md
+CURRENT TASK: T-152 (IN_PROGRESS)
+LAST COMPLETED STEP: W-05 committed eb03467 (T-151 completed). W-06 cinematic island committed 237fafd. Uncommitted: WEBSITE_BUILDER_V2_ORGS gate (builder.js V2_BLOCK_TYPES/v2Enabled, routes.js typesFor + 403 on save), test-seo-ui sets the env.
+FILES MODIFIED: scripts/test-seo-ui.mjs; src/seo/builder.js; src/seo/routes.js
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 1 file(s)
+UNCOMMITTED CHANGES: 3 file(s), saved in refs/recovery/claude/transformation-phase1/20261125T220828Z
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Start AI Website plan W-05 (T-151) from docs; receptionist work waits on owner keys.
+NEXT EXACT ACTION: Run: node --test scripts/site-blocks.test.mjs and npm run test:seo-ui; then commit the gate.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-224 at 2026-11-25T21:49:46+00:00
+LAST CHECKPOINT: CP-225 at 2026-11-25T22:08:28+00:00
 <!-- handover:end -->
 
 ## Notes

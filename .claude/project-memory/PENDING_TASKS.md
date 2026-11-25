@@ -254,7 +254,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
 ## T-152 W-06 AI Website: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-19
 - Requirement: Cinematic island: Three.js bundled, 4 presets, plays once, poster fallback, reduced-motion and low-power rules (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
 - Files: see docs/ai-website/02_ARCHITECTURE.md

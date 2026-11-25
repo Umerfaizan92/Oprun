@@ -9,7 +9,7 @@ import { chromium } from 'playwright';
 import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
 
-const s = await startServer();
+const s = await startServer({ WEBSITE_BUILDER_V2_ORGS: '*' });
 const browser = await chromium.launch();
 const errors = [];
 let passed = 0;

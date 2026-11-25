@@ -3139,3 +3139,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start AI Website plan W-05 (T-151) from docs; receptionist work waits on owner keys.
+
+## CP-225 2026-11-25T22:08:28+00:00 T-152 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-152 (IN_PROGRESS)
+- Completed steps: W-05 committed eb03467 (T-151 completed). W-06 cinematic island committed 237fafd. Uncommitted: WEBSITE_BUILDER_V2_ORGS gate (builder.js V2_BLOCK_TYPES/v2Enabled, routes.js typesFor + 403 on save), test-seo-ui sets the env.
+- Incomplete steps: Add gate test to site-blocks.test, run seo-ui/seo-platform/site-blocks, manifest, commit; complete T-152 with evidence; then W-07 (T-153).
+- Files modified (uncommitted at checkpoint): scripts/test-seo-ui.mjs; src/seo/builder.js; src/seo/routes.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 237fafd (AI Website: cinematic hero island for business sites (W-06)); 4 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T220828Z (c6f7cc5)
+- Known errors: none
+- Next exact action: Run: node --test scripts/site-blocks.test.mjs and npm run test:seo-ui; then commit the gate.

@@ -103,3 +103,20 @@ test('W-06 speed budget: tiny loader, scene within budget, poster loads first', 
   const html = renderPage(page([{ type: 'cinematic_hero', heading: 'Plumber', poster: '/m/p', poster_alt: 'Van' }]), { site });
   assert.match(html, /<img[^>]+fetchpriority="high"/); assert.doesNotMatch(html.match(/<div class="poster">.*?<\/div>/)[0], /loading="lazy"/, 'the poster is not lazy-loaded');
 });
+
+test('W-03..W-06 gate: new sections only for businesses listed in WEBSITE_BUILDER_V2_ORGS', async (t) => {
+  const { v2Enabled } = await import('../src/seo/builder.js');
+  assert.equal(v2Enabled('org-a', {}), false); assert.equal(v2Enabled('org-a', { WEBSITE_BUILDER_V2_ORGS: 'org-b, org-a' }), true); assert.equal(v2Enabled('org-z', { WEBSITE_BUILDER_V2_ORGS: '*' }), true);
+  const s = await startServer(); t.after(() => s.stop());
+  const owner = await seedOwner(s, { business: 'Gate Co', email: 'gate@gate.example.test' });
+  const O = (m, u, b) => s.call(m, u, { cookie: owner.cookie, body: b });
+  const types = (await O('GET', '/api/saas/seo/sites')).json.block_types;
+  assert.ok(types.includes('hero') && !types.includes('pricing') && !types.includes('cinematic_hero'), 'not offered without the flag');
+  let r = await O('POST', '/api/saas/seo/sites', { name: 'Gate Co', slug: 'gate-co' }); assert.equal(r.status, 201, r.text);
+  r = await O('POST', `/api/saas/seo/sites/${r.json.site.id}/pages`, { title: 'Home page here', slug: 'home', template: 'home' }); assert.equal(r.status, 201, r.text);
+  const id = r.json.page.id;
+  r = await O('PUT', `/api/saas/seo/pages/${id}`, { content: { title: 'Home page here', blocks: [{ type: 'hero', heading: 'Hi' }, { type: 'pricing', gst: 'inc', items: [] }] } });
+  assert.equal(r.status, 403); assert.match(r.json.error, /not switched on/);
+  r = await O('PUT', `/api/saas/seo/pages/${id}`, { content: { title: 'Home page here', blocks: [{ type: 'hero', heading: 'Hi' }] } });
+  assert.equal(r.status, 200, r.text);
+});

@@ -8,6 +8,9 @@ import { responsiveAttrs } from '../image-variants.js';
 export const BLOCK_TYPES = ['hero', 'text', 'services', 'areas', 'faq', 'cta', 'contact', 'image', 'gallery', 'reviews',
   // W-05 (docs/ai-website/00_CONTRACT.md §6). Every value comes from the owner; nothing is invented by the renderer.
   'cinematic_hero', 'stats', 'process', 'projects', 'pricing', 'quote_form', 'emergency_banner', 'map', 'logos', 'faq_ai'];
+// W-03..W-06 sections are offered only to businesses listed in WEBSITE_BUILDER_V2_ORGS ("*" for all) until tried live.
+export const V2_BLOCK_TYPES = ['cinematic_hero', 'stats', 'process', 'projects', 'pricing', 'quote_form', 'emergency_banner', 'map', 'logos', 'faq_ai'];
+export const v2Enabled = (owner, env = process.env) => { const list = String(env.WEBSITE_BUILDER_V2_ORGS || '').split(',').map((x) => x.trim()).filter(Boolean); return list.includes('*') || list.includes(String(owner)); };
 export const TEMPLATES = {
   service: { name: 'Service page', blocks: ['hero', 'text', 'services', 'areas', 'faq', 'contact'] },
   home: { name: 'Home page', blocks: ['hero', 'services', 'text', 'areas', 'reviews', 'cta', 'contact'] },
