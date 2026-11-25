@@ -23,7 +23,7 @@ before they are closed (as the TR-01 audit proposed).
 | T-094 Global language preferences | Localization unit tests (26/26) and the browser suite (Urdu right-to-left, save, reload, English fallback) passed 25 Nov; released |
 | T-148 W-02 Website data migration | `seo_sites` gained all six contract columns and `website_generation_runs` exists (TR-63, D-069); the other contract tables belong to later website phases (W-10, W-15, W-16), which create them when built, as the plan says ("lazy and additive") |
 
-## B. Looks replaced by later work: close only with the owner's agreement
+## B. Replaced by later work: closed on 26 Nov with the owner's agreement
 
 | Task | Why it looks replaced |
 |---|---|

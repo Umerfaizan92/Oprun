@@ -122,38 +122,10 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Files: docs/phase-09/REPORT.md
 - Acceptance: Results recorded; all bucket checks OK
 
-## T-062 Final consolidation on consolidated-improvements-2026
-- Status: IN_PROGRESS
-- Added: 2026-10-30
-- Requirement: Owner prompt 2026-10-30 23:25 (attachment): recover history, verify Phases 00-10 and the six earlier design/development prompts, preserve every feature, consolidate on branch consolidated-improvements-2026, run all checks, write docs/release/* (9 files), commit, push, record SHA, stop before deploy
-- Files: docs/release/*
-- Acceptance: Branch pushed with exact SHA; 9 release docs with evidence; all suites pass; no deploy
-
-## T-063 Recover the Claude eleven-prompt release and reconcile security fixes
-- Status: TESTING
-- Added: 2026-10-30
-- Requirement: Owner completed Prompt 00 through Prompt 10 in Claude and transferred SUPER_PRO_AI_EMERGENCY_HANDOVER.zip. The previous preview deployed the older baseline. Preserve consolidated-improvements-2026 and all 470 matching archive files; verify and release the actual implementation with the tested storage/isolation fixes.
-- Files: src; saas; office; scripts; docs/release
-- Acceptance: Correct source proved by archive hashes; release tests and preview acceptance pass; production data and credentials preserved
-
 ## Roadmap correction
 The eleven prompts 00–10 were received and implemented in Claude. The former "P04 onwards not received" placeholder was stale. Phase completion evidence is in MASTER_PLAN.md; the concrete unfinished tasks above remain open.
 
 T-062 historical stop-before-deploy instruction is superseded operationally by the owner's later explicit requests to push to Render. Its consolidation evidence is carried forward in T-063; neither task is marked complete before the correct-source CI and hosted acceptance pass.
-
-## T-065 Publish reviewed navigation branch after explicit source-publication authorization
-- Status: BLOCKED
-- Added: 2026-10-31
-- Requirement: Automatic approval review rejected the earlier source push because export permission was not explicit. The implementation is complete locally. Ask the owner to authorize publishing this source branch to the existing public GitHub repository and opening a draft PR. Do not bypass the rejection through another connector. No deployment authorization is included.
-- Files: codex/navigation-hierarchy-20261031; docs/navigation; repository project memory
-- Acceptance: After explicit authorization, push only the reviewed feature branch and create a draft PR using the prepared description; verify branch contents and report the PR URL. No merge or production deploy.
-
-## T-066 Navigation audit, unsaved-form save acknowledgement and release prep
-- Status: TESTING
-- Added: 2026-10-31
-- Requirement: Owner prompts 2026-10-31: audit restored navigation (60 business, 34 founder pages), fix reproducible defects incl. superpro:form-saved never emitted, re-run checks with pinned browser, prepare release; no merge/deploy without authorisation
-- Files: saas/navigation-shell.js, scripts/test-navigation-ui.mjs
-- Acceptance: Full suite incl. test:navigation-ui passes on the final commit; CI green on PR #54
 
 ## T-067 Audit and repair isolated subscriber connections and measured insights
 - Status: TESTING
@@ -210,41 +182,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-12: improve performance on all Connections sections; comments still cannot be clicked to read and reply; close button not appropriate; add hover/overlay on each section like the rest of the site.
 - Files: saas/channel-operations.js; saas/channel-operations.css; src/channel-providers.js; src/server.js; scripts
 - Acceptance: Fewer and parallel requests, panels drawn on demand, versioned assets cached; Comments opens a comments section with text and reply where the provider gives it and an honest link-out where it does not; icon close; hover matches site; tests pass
-
-## T-081 Implement uploaded final redesign and security audit prompts
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner authorizes reading Oprun_Final_Redesign_Audit_Prompts_2026-11-12.pdf, implementing its four prompts step by step, auditing and fixing, preserving all routes features data and resumable ChatGPT/Claude checkpoints, publishing and deploying existing Render service after passing checks. PDF requires complete 6-7 group navigation mapping; design tokens accessible responsive command centre unified communications; concrete security audit and cross-tenant tests; prioritised 90-day feature roadmap with stories acceptance security complexity. Keep visible Operator sign-in and no Install on business sign-in. External provider/store/user-research gates must remain truthful.
-- Files: saas/workspace-nav.js,saas/portal-shell.js,saas/workspace.html,saas/workspace-redesign.css,src/growth.js,src/channel-operations.js,scripts,docs/redesign
-- Acceptance: All 60 business views retain routes roles controls; seven main groups and contextual navigation work; responsive design and security regressions pass; all PDF prompt outputs and exact resumption steps committed; CI passes before deployment; deployed revision verified and external-only limitations recorded
-
-## T-087 Rebuild ChatGPT f039490 changes: footer brand, mobile bottom nav, sidebar sign-out, finder/chat fixes
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: Owner's ChatGPT commit f039490 never reached GitHub (push blocked). Rebuild: Oprun logo/name in compact footer with organised policy links; fixed bottom navigation with icons on mobile; Sign out at bottom of sidebar; remove duplicate finder; fix chat badges, permissions and panel overlap. Deploy for live test.
-- Files: saas/workspace.html,saas/portal-shell.js,saas/workspace-redesign.css,saas/app.js
-- Acceptance: Visible at 390/768/1440; all routes/IDs kept; operator link kept; npm test + UI suites pass; deployed live
-
-## T-088 Restore saved ChatGPT workspace design over Claude PR82 and deploy
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: User dislikes Claude replacement; restore ChatGPT f039490 mobile page and section dock, integrated chat actions, compact four-link footer, final sidebar signout; deploy for live testing
-- Files: not known yet
-- Acceptance: Original visual files restored; security guards retained; targeted tests and full release checks pass; saved remote changes; Render release live; served assets match
-
-## T-091 Prompt 01: Final Command Centre refinement
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: Owner prompt 'OPRUN FINAL COMMAND CENTRE REFINEMENT' (12 Nov 2026): 1 greeting keep, remove name/role/email under it; 2 Open Job Pool + Ask AI side by side compact; 3 remove '<name> right now' line, keep/enhance live status; 4 five live sections compact; 5 move Your Workspace menu to dedicated features destination; 6 remove Your Next Step section; 7 enhance AI command bar; 8 premium minimal footer reusable; 9 fix bottom nav movement (scroll/resize/keyboard, safe area, no overlap); 10 rename bottom Menu to All Features. Preserve colours, routes, RBAC, tenant isolation. PR only, no merge/deploy without approval. Await Prompt 02.
-- Files: saas/workspace.html,saas/workspace-gadgets.js,saas/workspace-mobile.*,saas/app.js,saas/*.css
-- Acceptance: All 10 changes verified at 320-1920px; npm test + UI suites; PR opened, not merged
-
-## T-092 Prompt 02: Your Workspace section and Priorities (renamed Attention items)
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: Owner Prompt 02 (12 Nov): Your Workspace after Business overview with all features compact and connected; rename Attention items, keep only Your Next Step (3 cards) and AI Operations Brief, enhanced; hide header/chatbot/AI bar there; preserve routes; PR only
-- Files: saas/command-centre-sections.js,saas/command-centre.css,saas/workspace.html,saas/focused-workspace.js,saas/page-sections.js,saas/workspace-mobile.js
-- Acceptance: Both sections verified 320-1440 incl. axe; npm test; PR opened, not merged
 
 ## T-121 R-01 AI Receptionist: oprun-voice skeleton: Pipecat + TelnyxFrameSerializer + Deepgram Flux + ElevenLabs Flash (
 - Status: NOT_STARTED
