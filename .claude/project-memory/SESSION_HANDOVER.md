@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 3cd6779 (TR-72: record measured start-up costs in the Lighthouse report and handover)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Test site updated to d017ea0. Stage 5 (after-start group) tried, measured worse, reverted (D-076). All 23 browser suites run and passed on the stage 5 code, including pipeline, console, automations, seo, finance, reliability, site, channels, lead sources, meetings, webphone, localization (those six needed PLAYWRIGHT_CHROMIUM_EXECUTABLE or a link at /opt/pw-browsers/... to /usr/bin/google-chrome in this machine).
-FILES MODIFIED: .claude/project-memory/DECISIONS.md; .claude/project-memory/PROGRESS.md; qa/reports/LIGHTHOUSE.md
+LAST COMPLETED STEP: Stage 6 (prefetch page code, parallel branding) measured, inconclusive under machine noise, reverted (D-077). TR-72 stands at d017ea0 state: workspace 75-83 returning (earlier full run), layout shift 0.
+FILES MODIFIED: .claude/project-memory/DECISIONS.md; qa/reports/LIGHTHOUSE.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 3 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Report to owner: test site live; stage 5 reverted; ask whether to stop TR-72 at 75-83 and move to TR-80
+NEXT EXACT ACTION: Wait for the owner: TR-80 review of the test site (now at d017ea0) and the TR-73 restore-drill output
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-206 at 2026-11-25T05:49:40+00:00
+LAST CHECKPOINT: CP-207 at 2026-11-25T06:06:11+00:00
 <!-- handover:end -->
 
 ## Notes

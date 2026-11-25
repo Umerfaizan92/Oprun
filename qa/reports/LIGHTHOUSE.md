@@ -89,5 +89,9 @@ steps, in order of size:
    tour just after the first page saved about 20 KB but scored lower (67–80), because their loading still falls inside
    the measured start-up window and adds a request. The notices panel cannot move later at all: it finds the bell by
    its English label before the page is translated.
-2. Draw the first page's frame before the start-up data calls return.
+2. Draw the first page sooner. Tried on 25 Nov and not kept (D-077): fetching the opened page's code while the session
+   is checked and loading branding alongside the start-up data cut Enquiries' largest paint by about 0.2 s in two
+   paired runs, but run-to-run noise on this machine (blocking time 490–1,000 ms for the same code) hid any score gain,
+   so it was not worth another full verification round. Showing the first page before the six unrelated start-up data
+   calls finish is the bigger version of this idea and needs its own careful change.
 3. Shrink the stylesheet bundle (474 KB unpacked): most rules belong to pages that are not open.

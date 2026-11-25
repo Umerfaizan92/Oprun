@@ -2887,3 +2887,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Report to owner: test site live; stage 5 reverted; ask whether to stop TR-72 at 75-83 and move to TR-80
+
+## CP-207 2026-11-25T06:06:11+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 6 (prefetch page code, parallel branding) measured, inconclusive under machine noise, reverted (D-077). TR-72 stands at d017ea0 state: workspace 75-83 returning (earlier full run), layout shift 0.
+- Incomplete steps: Owner decision: close TR-72 at current level or plan the larger first-page change; TR-73 owner Render Shell output; TR-80 owner review on the test site
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; qa/reports/LIGHTHOUSE.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: ab5d033 (TR-72: record the reverted after-start loading attempt (D-076)); 72 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Wait for the owner: TR-80 review of the test site (now at d017ea0) and the TR-73 restore-drill output
