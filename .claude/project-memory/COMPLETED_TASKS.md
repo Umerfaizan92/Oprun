@@ -883,3 +883,87 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: qa/reports/RESTORE-DRILL.md
 - Acceptance: Restore verified; time recorded
 - Evidence: Local drill on 24 Nov (0.19 s, 267 tables, audit chain 126 rows, counts match). Production drill on 25 Nov run by the owner in the Render Shell of Oprun AI (srv-dbuq98ojo6nc73aro66g) with --compare /var/data/oprun-ai.sqlite: owner reported RESTORE DRILL PASSED (integrity, audit chain and row counts checked by the script). Detailed output not shared. Report: qa/reports/RESTORE-DRILL.md. (recorded 2026-11-25 on claude/transformation-phase1 at 7b134ce)
+
+## T-069 Connections safe base (Blueprint phase A)
+- Added: 2026-11-09
+- Requirement: Owner 2026-11-10: plan each task, build one by one, preserve everything, audit, fix, then push to Render. Phase A: require Founder sign-in on legacy /api/tiktok/login, its legacy callback and /api/tiktok/status; keep /api/social-stats readable but stop anonymous forced refresh; validate OAuth redirect addresses; force provider account chooser; bind each external account to one workspace only; no change to Fleet Parlour tokens, data or website
+- Files: src/server.js; src/integration-security.js; src/integration-runtime.js; scripts; docs/social-integrations
+- Acceptance: New tests prove each guard; npm test and focused integration tests pass; deployed to Render only after tests pass; production health verified after deploy
+- Evidence: scripts/connections-safe-base.test.mjs runs in npm test; production start-up diagnostics checked after deploy. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-074 Built-in video and voice meetings with direct calling from the workspace
+- Added: 2026-11-10
+- Requirement: Owner 2026-11-10: as a SaaS expert build in video meeting or call app integration, to directly call from the app; proper backend; everything in working condition. Native browser-to-browser calls with rooms and signalling on the SuperPro server, guest invite links with a waiting room, isolated per workspace
+- Files: src/meetings.js; src/server.js; saas/meet-call.js; saas/workspace-meetings.js; saas/meet.html; saas/meetings.css; saas/portal-workspace.js; scripts
+- Acceptance: Server test covers isolation, guest waiting room, limits and cleanup; browser test proves two staff and one guest see and hear each other with fake media; npm test passes; pages fit phone, tablet, laptop
+- Evidence: test:meetings-ui (two staff and a guest with fake media, waiting room) and meeting server tests passed 25 Nov. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-078 Restore and preserve Operator sign-in on Business sign-in
+- Added: 2026-11-11
+- Requirement: Owner 11 Nov 2026: before deploying, audit the Operator sign-in option removed from the Business sign-in page, restore it, preserve it and never delete it in future changes without explicit owner instruction.
+- Files: saas/sign-in.html;scripts/test-mobile-readiness.mjs;CLAUDE.md
+- Acceptance: Operator sign-in is visible and keyboard accessible on business sign-in at phone tablet desktop widths;opens existing operator authentication;business session cannot access operator APIs;regression guard and standing preservation rule committed before deployment
+- Evidence: #signin-operator-link present in saas/sign-in.html and guarded by the UI and navigation suites; standing rule in CLAUDE.md. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-082 Master Senior prompt: clean 7+Setup navigation, remove B01-B09 numbering, merge with Final Redesign pack
+- Added: 2026-11-11
+- Requirement: Owner uploaded Oprun_Master_Senior_Prompts_with_Continuation_2026-11-12.pdf with Final Redesign pack; merge both, remove all visible B01/B02 numbering, groups Today Work Customers People Communications Growth Money Setup, fold duplicate surfaces (Unified Inbox, Work Pipeline, Growth Hub, SEO Command Centre tabs), empty states with one primary action, 8 deliverables, audit, live Render test. Keep every route alias, form, API and element ID.
+- Files: saas/workspace-nav.js,saas/workspace-empty-guides.js,saas/workspace-redesign.css,saas/*.js,src/*,scripts/*test*,docs/redesign/05_MASTER_PROMPT_DELIVERABLES.md
+- Acceptance: No B0x text in nav/titles/breadcrumbs; 60 views preserved; all legacy hashes resolve; npm test and UI suites pass; deployed revision verified
+- Evidence: Final DOMAINS in saas/workspace-nav.js has no B0x labels; the older table's kicker text is replaced and never displayed; navigation suite 633 checks passed. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-083 Tighten secondary navigation and Today density
+- Added: 2026-11-11
+- Requirement: Owner ordered steps:1audit current workspace-nav.js/navigation-shell.js secondary flags;2all legacy and individual SEO destinations stay secondary under existing More and disclosures start closed with compact accessible CSS;3polish Today spacing/attention cards without losing data or features;4verify canonical routes aliases roles tenant isolation and approvals unchanged;5create commit directly on main with exact message Tighten secondary navigation and reduce density for legacy and SEO sub-pages. Preserve all prior work and use requested checkpoint block if approaching limits.
+- Files: saas/workspace-nav.js,saas/navigation-shell.js,saas/workspace-redesign.css,saas/workspace.html,office/console.html,scripts/test-navigation-ui.mjs,scripts/test-redesign-ui.mjs
+- Acceptance: All listed secondary flags present; More closed by default including secondary deep links and stays manually controllable; compact accessible navigation and Today at phone/tablet/desktop; all60views current/legacy hashes and grants preserved; no backend data/auth/approval changes; required checks pass; exact requested main commit published
+- Evidence: Navigation and mobile suites cover More closed by default and compact layouts. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-084 Prominent branding and unified auto-hiding business navigation
+- Added: 2026-11-11
+- Requirement: Owner steering before Render deployment: make Oprun name prominent across business workspace/public website/main branding; slightly enlarge logos; shorten top-page wording; replace rail Oprun brand plus standalone close row plus subscriber identity with one tidy business logo/name identity; minimise close control; click open/click close and auto-hide navigation; preserve business switching roles tenant isolation approvals and all prior features. Brand remains spelled Oprun.
+- Files: saas/navigation-shell.js,saas/portal-shell.js,saas/workspace-redesign.css,saas/brand.css,saas/brand-presence.css,scripts/site/templates.mjs,saas HTML,office/console.html,scripts UI tests
+- Acceptance: One business identity header and compact44px close; click-triggered drawer opens/closes on selection outside click Escape and restores focus; business switching and role/founder restrictions preserved; prominent brand/logo on website/auth/workspace/Founder; concise top heading; no hover/inactivity surprises; all view/route/grant controls preserved; full browser/accessibility/security CI before combined Render deployment
+- Evidence: Drawer open/close, Escape and focus return covered by the navigation and mobile suites. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-085 Command Centre hierarchy and mobile AI density
+- Added: 2026-11-11
+- Requirement: Owner ordered six steps: full visual/structural Today and nav audit; greeting/business identity first; fully functional AI bar becomes compact secondary after operational content, never mobile fullscreen; attention/readiness/next steps accessible early; reinforce22 secondary More items default closed; calm consistent spacing fonts empty states touch/overflow across major views; preserve all routes aliases backend stores tenant isolation approvals roles; exact main commit Reorganise Command Centre hierarchy, constrain AI command bar on mobile, and tighten navigation density. Checkpoint block if near limits.
+- Files: saas/workspace-voicebar.js;saas/workspace-redesign.css;saas/workspace.html;scripts/test-redesign-ui.mjs;docs/redesign
+- Acceptance: Greeting before AI; mobile AI less than40percent viewport at normal text; all type/voice/send/chip controls remain; metrics/readiness/nextstep and role rules retained; route/security checks and responsive CI pass; exact requested main commit
+- Evidence: Greeting-before-AI and mobile density checks in the UI suites. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-086 Fix failed Render build of a5b3e93 (flaky Level 3 approval test)
+- Added: 2026-11-12
+- Requirement: Owner: last manual deploy failed on Render; audit, fix, run live test
+- Files: scripts/automation-governance.test.mjs,scripts/verify-all.mjs
+- Acceptance: npm test passes; Render deploy of the fix is live; startup diagnostics pass
+- Evidence: Three live builds since (22 Nov; 25 Nov 15:38 and 17:04 UTC) ran the full npm test and passed, plus about ten local full runs. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-089 One mobile bottom row: Menu and sub-sections only
+- Added: 2026-11-12
+- Requirement: User screenshot: remove bottom main-page row; main pages remain sidebar; one bottom row with Menu plus only current page sub-sections; make header business identity static on mobile; improve icons and Menu usability across every page
+- Files: not known yet
+- Acceptance: All60 routes preserved in sidebar; one bottom row; Menu opens/closes with correct focus; static business logo/name; original section functions and permissions; full release checks pass; deployed live and source files verified
+- Evidence: Mobile workspace suite 310 checks passed. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-090 Compact mobile bottom bar (size only), minimised notification settings, phone push alerts
+- Added: 2026-11-12
+- Requirement: Owner: keep existing ChatGPT bottom menu bar, only make it smaller and auto-fit sub-sections with no sideways scroll; minimise notification settings behind a small Notification settings option and reorganise the panel professionally; send phone notifications (even when app closed) for every activity update such as job enquiries, not logs; prompt for notification permission right after sign-in/install; voice alerts
+- Files: saas/workspace-mobile.css,saas/platform-notices.js,saas/workspace-push.js,saas/sw.js,saas/common.js,src/web-push.js,src/notifications.js,src/server.js,package.json
+- Acceptance: No horizontal scroll in dock at 320/390; settings collapsed by default and auto-save; push subscribe/send tested; npm test and UI suites pass; deployed
+- Evidence: Mobile suite checks no horizontal scroll in the dock; push subscribe/send tests run in npm test. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-094 Global language preferences and competitive platform blueprint
+- Added: 2026-11-12
+- Requirement: Add tenant-bound subscriber language preferences, honest translation coverage and RTL foundation; map HighLevel and three peer benchmarks with provider activation register; keys and approvals deferred by owner.
+- Files: src/localization.js; saas/workspace-locale.js; saas/workspace.html; docs/platform-blueprint; scripts/localization.test.mjs
+- Acceptance: Authentication and cross-tenant tests, locale validation, preference persistence, fallback and RTL checks, existing regression suite; no production activation claims.
+- Evidence: Localization unit tests 26/26 and the localization browser suite (Urdu right-to-left, save, reload, English fallback) passed 25 Nov. Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)
+
+## T-148 W-02 AI Website: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy
+- Added: 2026-11-19
+- Requirement: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy and additive (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: `npm test` migration check; no existing row changed
+- Evidence: seo_sites has all six contract columns and website_generation_runs exists (TR-63, D-069); remaining contract tables belong to W-10/W-15/W-16 and are created when those phases are built (lazy and additive per the plan). Released 25 Nov 2026 (main 9074580, live deploy dep-dc3g1q0473hc73fpcc0g) after npm test 73/73, 24 browser suites and 348 visual screens passed; owner approved the candidate (TR-80). Triage: docs/transformation/06_TASK_TRIAGE.md section A. (recorded 2026-11-25 on claude/transformation-phase1 at 52f1620)

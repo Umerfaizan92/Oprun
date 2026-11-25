@@ -169,13 +169,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: docs/social-integrations/STATUS.md; docs/social-integrations/HANDOVER.md
 - Acceptance: Findings with file and line evidence; unknowns and external blockers listed; prioritised plan; STATUS.md and HANDOVER.md delivered; owner supplies blockers B1 to B3 before any implementation
 
-## T-069 Connections safe base (Blueprint phase A)
-- Status: TESTING
-- Added: 2026-11-09
-- Requirement: Owner 2026-11-10: plan each task, build one by one, preserve everything, audit, fix, then push to Render. Phase A: require Founder sign-in on legacy /api/tiktok/login, its legacy callback and /api/tiktok/status; keep /api/social-stats readable but stop anonymous forced refresh; validate OAuth redirect addresses; force provider account chooser; bind each external account to one workspace only; no change to Fleet Parlour tokens, data or website
-- Files: src/server.js; src/integration-security.js; src/integration-runtime.js; scripts; docs/social-integrations
-- Acceptance: New tests prove each guard; npm test and focused integration tests pass; deployed to Render only after tests pass; production health verified after deploy
-
 ## T-072 Provider-dependent phases C, D, E, G, H, I, J of the Connections blueprint
 - Status: BLOCKED
 - Added: 2026-11-09
@@ -190,13 +183,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/server.js; src/integration-runtime.js; scripts/connections-safe-base.test.mjs; docs/social-integrations/STATUS.md
 - Acceptance: Tests pass; deployed; owner sets the real App ID and registers redirect addresses with Meta and Google
 
-## T-074 Built-in video and voice meetings with direct calling from the workspace
-- Status: TESTING
-- Added: 2026-11-10
-- Requirement: Owner 2026-11-10: as a SaaS expert build in video meeting or call app integration, to directly call from the app; proper backend; everything in working condition. Native browser-to-browser calls with rooms and signalling on the SuperPro server, guest invite links with a waiting room, isolated per workspace
-- Files: src/meetings.js; src/server.js; saas/meet-call.js; saas/workspace-meetings.js; saas/meet.html; saas/meetings.css; saas/portal-workspace.js; scripts
-- Acceptance: Server test covers isolation, guest waiting room, limits and cleanup; browser test proves two staff and one guest see and hear each other with fake media; npm test passes; pages fit phone, tablet, laptop
-
 ## T-076 Oprun public-site fixes and mobile release preparation
 - Status: BLOCKED
 - Added: 2026-11-11
@@ -210,13 +196,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-11 requests organize and upgrade every Connections provider across social email WhatsApp YouTube and Google; subscriber-owned sign-in, posts videos text comments replies messaging subscribers viewers ads campaign overviews progress local-area targeting and AI recommendations; enforce tenant isolation and owner-controlled team access, exclude other businesses and platform operators; preserve resumable checkpoints, update related pages consistently, test then push and live-test. Owner additionally requests relevant tools/plugins including Elementor where available.
 - Files: src/integration-*, src/channel-*, src/staff-access.js, src/server.js, saas/integration-manager.*, saas/workspace*, scripts, docs/connections
 - Acceptance: Tenant and member permission attack tests pass; one organized hub integrates existing pages and actual supported provider workflows; unsupported permissions/APIs labelled accurately; campaigns persist local targeting and approvals; AI output requires review; CI and browser tests pass; publish and verify production where access permits
-
-## T-078 Restore and preserve Operator sign-in on Business sign-in
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner 11 Nov 2026: before deploying, audit the Operator sign-in option removed from the Business sign-in page, restore it, preserve it and never delete it in future changes without explicit owner instruction.
-- Files: saas/sign-in.html;scripts/test-mobile-readiness.mjs;CLAUDE.md
-- Acceptance: Operator sign-in is visible and keyboard accessible on business sign-in at phone tablet desktop widths;opens existing operator authentication;business session cannot access operator APIs;regression guard and standing preservation rule committed before deployment
 
 ## T-079 Channel content is viewable: media previews, links, per-item detail and measured totals
 - Status: TESTING
@@ -239,41 +218,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: saas/workspace-nav.js,saas/portal-shell.js,saas/workspace.html,saas/workspace-redesign.css,src/growth.js,src/channel-operations.js,scripts,docs/redesign
 - Acceptance: All 60 business views retain routes roles controls; seven main groups and contextual navigation work; responsive design and security regressions pass; all PDF prompt outputs and exact resumption steps committed; CI passes before deployment; deployed revision verified and external-only limitations recorded
 
-## T-082 Master Senior prompt: clean 7+Setup navigation, remove B01-B09 numbering, merge with Final Redesign pack
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner uploaded Oprun_Master_Senior_Prompts_with_Continuation_2026-11-12.pdf with Final Redesign pack; merge both, remove all visible B01/B02 numbering, groups Today Work Customers People Communications Growth Money Setup, fold duplicate surfaces (Unified Inbox, Work Pipeline, Growth Hub, SEO Command Centre tabs), empty states with one primary action, 8 deliverables, audit, live Render test. Keep every route alias, form, API and element ID.
-- Files: saas/workspace-nav.js,saas/workspace-empty-guides.js,saas/workspace-redesign.css,saas/*.js,src/*,scripts/*test*,docs/redesign/05_MASTER_PROMPT_DELIVERABLES.md
-- Acceptance: No B0x text in nav/titles/breadcrumbs; 60 views preserved; all legacy hashes resolve; npm test and UI suites pass; deployed revision verified
-
-## T-083 Tighten secondary navigation and Today density
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner ordered steps:1audit current workspace-nav.js/navigation-shell.js secondary flags;2all legacy and individual SEO destinations stay secondary under existing More and disclosures start closed with compact accessible CSS;3polish Today spacing/attention cards without losing data or features;4verify canonical routes aliases roles tenant isolation and approvals unchanged;5create commit directly on main with exact message Tighten secondary navigation and reduce density for legacy and SEO sub-pages. Preserve all prior work and use requested checkpoint block if approaching limits.
-- Files: saas/workspace-nav.js,saas/navigation-shell.js,saas/workspace-redesign.css,saas/workspace.html,office/console.html,scripts/test-navigation-ui.mjs,scripts/test-redesign-ui.mjs
-- Acceptance: All listed secondary flags present; More closed by default including secondary deep links and stays manually controllable; compact accessible navigation and Today at phone/tablet/desktop; all60views current/legacy hashes and grants preserved; no backend data/auth/approval changes; required checks pass; exact requested main commit published
-
-## T-084 Prominent branding and unified auto-hiding business navigation
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner steering before Render deployment: make Oprun name prominent across business workspace/public website/main branding; slightly enlarge logos; shorten top-page wording; replace rail Oprun brand plus standalone close row plus subscriber identity with one tidy business logo/name identity; minimise close control; click open/click close and auto-hide navigation; preserve business switching roles tenant isolation approvals and all prior features. Brand remains spelled Oprun.
-- Files: saas/navigation-shell.js,saas/portal-shell.js,saas/workspace-redesign.css,saas/brand.css,saas/brand-presence.css,scripts/site/templates.mjs,saas HTML,office/console.html,scripts UI tests
-- Acceptance: One business identity header and compact44px close; click-triggered drawer opens/closes on selection outside click Escape and restores focus; business switching and role/founder restrictions preserved; prominent brand/logo on website/auth/workspace/Founder; concise top heading; no hover/inactivity surprises; all view/route/grant controls preserved; full browser/accessibility/security CI before combined Render deployment
-
-## T-085 Command Centre hierarchy and mobile AI density
-- Status: TESTING
-- Added: 2026-11-11
-- Requirement: Owner ordered six steps: full visual/structural Today and nav audit; greeting/business identity first; fully functional AI bar becomes compact secondary after operational content, never mobile fullscreen; attention/readiness/next steps accessible early; reinforce22 secondary More items default closed; calm consistent spacing fonts empty states touch/overflow across major views; preserve all routes aliases backend stores tenant isolation approvals roles; exact main commit Reorganise Command Centre hierarchy, constrain AI command bar on mobile, and tighten navigation density. Checkpoint block if near limits.
-- Files: saas/workspace-voicebar.js;saas/workspace-redesign.css;saas/workspace.html;scripts/test-redesign-ui.mjs;docs/redesign
-- Acceptance: Greeting before AI; mobile AI less than40percent viewport at normal text; all type/voice/send/chip controls remain; metrics/readiness/nextstep and role rules retained; route/security checks and responsive CI pass; exact requested main commit
-
-## T-086 Fix failed Render build of a5b3e93 (flaky Level 3 approval test)
-- Status: NOT_STARTED
-- Added: 2026-11-12
-- Requirement: Owner: last manual deploy failed on Render; audit, fix, run live test
-- Files: scripts/automation-governance.test.mjs,scripts/verify-all.mjs
-- Acceptance: npm test passes; Render deploy of the fix is live; startup diagnostics pass
-
 ## T-087 Rebuild ChatGPT f039490 changes: footer brand, mobile bottom nav, sidebar sign-out, finder/chat fixes
 - Status: TESTING
 - Added: 2026-11-12
@@ -288,20 +232,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: not known yet
 - Acceptance: Original visual files restored; security guards retained; targeted tests and full release checks pass; saved remote changes; Render release live; served assets match
 
-## T-089 One mobile bottom row: Menu and sub-sections only
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: User screenshot: remove bottom main-page row; main pages remain sidebar; one bottom row with Menu plus only current page sub-sections; make header business identity static on mobile; improve icons and Menu usability across every page
-- Files: not known yet
-- Acceptance: All60 routes preserved in sidebar; one bottom row; Menu opens/closes with correct focus; static business logo/name; original section functions and permissions; full release checks pass; deployed live and source files verified
-
-## T-090 Compact mobile bottom bar (size only), minimised notification settings, phone push alerts
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: Owner: keep existing ChatGPT bottom menu bar, only make it smaller and auto-fit sub-sections with no sideways scroll; minimise notification settings behind a small Notification settings option and reorganise the panel professionally; send phone notifications (even when app closed) for every activity update such as job enquiries, not logs; prompt for notification permission right after sign-in/install; voice alerts
-- Files: saas/workspace-mobile.css,saas/platform-notices.js,saas/workspace-push.js,saas/sw.js,saas/common.js,src/web-push.js,src/notifications.js,src/server.js,package.json
-- Acceptance: No horizontal scroll in dock at 320/390; settings collapsed by default and auto-save; push subscribe/send tested; npm test and UI suites pass; deployed
-
 ## T-091 Prompt 01: Final Command Centre refinement
 - Status: TESTING
 - Added: 2026-11-12
@@ -315,13 +245,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner Prompt 02 (12 Nov): Your Workspace after Business overview with all features compact and connected; rename Attention items, keep only Your Next Step (3 cards) and AI Operations Brief, enhanced; hide header/chatbot/AI bar there; preserve routes; PR only
 - Files: saas/command-centre-sections.js,saas/command-centre.css,saas/workspace.html,saas/focused-workspace.js,saas/page-sections.js,saas/workspace-mobile.js
 - Acceptance: Both sections verified 320-1440 incl. axe; npm test; PR opened, not merged
-
-## T-094 Global language preferences and competitive platform blueprint
-- Status: TESTING
-- Added: 2026-11-12
-- Requirement: Add tenant-bound subscriber language preferences, honest translation coverage and RTL foundation; map HighLevel and three peer benchmarks with provider activation register; keys and approvals deferred by owner.
-- Files: src/localization.js; saas/workspace-locale.js; saas/workspace.html; docs/platform-blueprint; scripts/localization.test.mjs
-- Acceptance: Authentication and cross-tenant tests, locale validation, preference persistence, fallback and RTL checks, existing regression suite; no production activation claims.
 
 ## T-121 R-01 AI Receptionist: oprun-voice skeleton: Pipecat + TelnyxFrameSerializer + Deepgram Flux + ElevenLabs Flash (
 - Status: NOT_STARTED
@@ -476,13 +399,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Owner 2026-11-19: one AI Receptionist section any subscriber sets up alone; connect own number (buy/port/pay directly in Telnyx via links), greeting, services, hours, transfers/emergency, alerts, test; remove duplicate placeholder screens; secure, logged, no liability for Oprun
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
-
-## T-148 W-02 AI Website: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy
-- Status: NOT_STARTED
-- Added: 2026-11-19
-- Requirement: Data migration: new columns on `seo_sites` and new tables ([00](00_CONTRACT.md) §5), lazy and additive (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
-- Files: see docs/ai-website/02_ARCHITECTURE.md
-- Acceptance: `npm test` migration check; no existing row changed
 
 ## T-151 W-05 AI Website: New blocks ([00](00_CONTRACT.md) §6) in the renderer with escaping and accessibility
 - Status: NOT_STARTED
