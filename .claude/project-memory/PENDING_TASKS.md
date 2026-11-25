@@ -198,7 +198,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Default level sends nothing without approval; STOP → OPTED_OUT + suppression; no sends 8 pm–8 am
 
 ## T-135 R-15 AI Receptionist: One AI Receptionist section + aliases for old views ([02](02_SETUP_WIZARD.md))
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: One AI Receptionist section + aliases for old views ([02](02_SETUP_WIZARD.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-15)
 - Files: docs/ai-receptionist/
@@ -219,7 +219,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Number bought on a test account and live in < 10 min; forward verified by test call; port order reaches submitted in staging
 
 ## T-138 R-18 AI Receptionist: Voice choice, booking rules, approval level, one-tap test call, go-live
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: Voice choice, booking rules, approval level, one-tap test call, go-live (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-18)
 - Files: docs/ai-receptionist/
