@@ -32,7 +32,7 @@ export function installPublicSite(app, { env, siteRoot }) {
   app.get('/start', (req, res) => {
     const q = new URLSearchParams();
     if (/^(starter|operations|scale)$/.test(String(req.query.plan || ''))) q.set('plan', req.query.plan);
-    res.redirect(302, '/saas/create-account.html' + (q.toString() ? '?' + q : ''));
+    res.redirect(301, '/saas/create-account.html' + (q.toString() ? '?' + q : ''));
   });
   // Pre-compressed design-system assets (built by npm run build:ds); everything else falls through to express.static.
   app.get('/saas/ds/:file', (req, res, next) => {

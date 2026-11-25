@@ -54,7 +54,7 @@ test('public site served by the real server', async (t) => {
 
   await t.test('/start keeps a known plan and drops anything else', async () => {
     const ok = await s.call('GET', '/start?plan=operations');
-    assert.equal(ok.status, 302);
+    assert.equal(ok.status, 301, 'a permanent redirect (T-050)');
     const loc = (await fetch(s.base + '/start?plan=scale', { redirect: 'manual' })).headers.get('location');
     assert.equal(loc, '/saas/create-account.html?plan=scale');
     const bad = (await fetch(s.base + '/start?plan=%3Cscript%3E', { redirect: 'manual' })).headers.get('location');

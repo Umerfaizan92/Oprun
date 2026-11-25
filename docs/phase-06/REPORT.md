@@ -142,6 +142,18 @@ The site was audited on this server over http, so the "not https" finding does n
 
 I did not change the public website. These are recorded as task T-050 for your decision.
 
+**T-050 done on 25 November 2026** (owner's standing approval, D-082). Founder SEO audit score on a local server
+went from 54 to 78:
+- Legal pages stay noindex and out of the sitemap (decided); they now have meta descriptions and a canonical link.
+- Search titles are 20 to 60 characters (pages may give a longer search title than their short name).
+- Long descriptions trimmed to 160 characters or less.
+- The site logo is WebP with 1x/2x/3x sizes (was a 192 px PNG on every page).
+- `/start` is a permanent (301) redirect.
+- "No @context" was a false finding in Oprun's own audit: items inside `@graph` now inherit the wrapper's
+  `@context`. This also corrects the audit Oprun runs for subscribers' websites.
+- Still listed, as intended: the sign-up page behind `/start` (noindex, blocked in robots.txt), contact page
+  variants that point to /contact as canonical, and "not https", which applies only to the local test server.
+
 ## Not done, or limited
 
 1. No live Google responses have been tested yet (explained at the top).

@@ -16,8 +16,9 @@ const BRAND = (() => { try { const src = fs.readFileSync(new URL('../../saas/bra
 const brandMark = (name) => { const b = BRAND[name]; return b ? `<svg class="sp-int__logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="${esc(b.hex)}" d="${esc(b.path)}"/></svg>` : ''; };
 const offers = () => PLANS.map((p) => ({ '@type': 'Offer', name: p.name, price: String(p.price), priceCurrency: 'AUD', description: 'Monthly plan price, plus GST.' }));
 
-export function page({ path, title, description, body, graph = [], scripts = [], current = path, bodyClass = '' }) {
-  const fullTitle = path === '/' ? `${SITE.name}: ${SITE.tagline}` : `${title} | ${SITE.name}`;
+export function page({ path, title, seoTitle = null, description, body, graph = [], scripts = [], current = path, bodyClass = '' }) {
+  // T-050: search titles between 20 and 60 characters; a page can give a longer search title than its short name.
+  const fullTitle = path === '/' ? `${SITE.name}: ${SITE.tagline}` : `${seoTitle || title} | ${SITE.name}`;
   return `<!doctype html>
 <html lang="en-AU" data-theme="dark">
 <head>
@@ -65,7 +66,7 @@ function nav(current) {
   const link = (n) => `<li><a href="${n.href}"${current === n.href || (n.href !== '/' && current.startsWith(n.href + '/')) ? ' aria-current="page"' : ''}>${esc(n.label)}</a></li>`;
   return `<header class="sp-nav" data-nav>
   <div class="sp-nav__inner">
-    <a class="sp-brand" href="/"><img src="/saas/oprun-icon-192.png" alt="" width="34" height="34">${esc(SITE.name)}</a>
+    <a class="sp-brand" href="/"><img src="/saas/oprun-icon-34.webp" srcset="/saas/oprun-icon-34.webp 1x, /saas/oprun-icon-68.webp 2x, /saas/oprun-icon-102.webp 3x" alt="" width="34" height="34">${esc(SITE.name)}</a>
     <nav aria-label="Main"><ul class="sp-nav__links" id="sp-nav-links">${NAV.map(link).join('')}<li class="sp-nav__signin"><a href="/saas/sign-in.html">Sign in</a></li></ul></nav>
     <div class="sp-nav__actions">
       <a class="sp-btn sp-btn--ghost" href="/saas/sign-in.html">Sign in</a>
@@ -81,7 +82,7 @@ function footer() {
   return `<footer class="sp-footer">
   <div class="sp-page">
     <div class="sp-footer__grid">
-      <div><a class="sp-brand" href="/"><img src="/saas/oprun-icon-192.png" alt="" width="34" height="34" loading="lazy">${esc(SITE.name)}</a><p style="margin-top:var(--sp-3);max-width:32ch"><strong>${esc(SITE.tagline)}</strong> The AI office manager for Australian service businesses. Prices in AUD, plus GST.</p></div>
+      <div><a class="sp-brand" href="/"><img src="/saas/oprun-icon-34.webp" srcset="/saas/oprun-icon-34.webp 1x, /saas/oprun-icon-68.webp 2x, /saas/oprun-icon-102.webp 3x" alt="" width="34" height="34" loading="lazy">${esc(SITE.name)}</a><p style="margin-top:var(--sp-3);max-width:32ch"><strong>${esc(SITE.tagline)}</strong> The AI office manager for Australian service businesses. Prices in AUD, plus GST.</p></div>
       ${col('Product', [['Features', '/features'], ['AI receptionist', '/receptionist'], ['Pricing', '/pricing'], ['Integrations', '/integrations'], ['Install Oprun', '/install'], ['Example scenarios', '/stories']])}
       ${col('Industries', INDUSTRIES.map((i) => [i.name, `/for/${i.slug}`]))}
       ${col('Help', [['Help centre', '/help'], ['Product answers', '/saas/answers.html'], ['Contact us', '/contact'], ['Sign in', '/saas/sign-in.html']])}
@@ -258,7 +259,7 @@ ${storiesSection(true)}
 
 ${newsletter()}
 ${cta()}`;
-  return page({ path: '/', title: SITE.tagline, description: 'Oprun is the AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with every outgoing action approved by you.', body, scripts: ['/saas/product-guide.js?v=20261111.1'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
+  return page({ path: '/', title: SITE.tagline, description: 'The AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with you approving what goes out.', body, scripts: ['/saas/product-guide.js?v=20261111.1'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
 }
 
 function workflowDemo() {
@@ -351,7 +352,7 @@ export function features() {
   </article>`).join('')}
 </div></section>
 ${cta()}`;
-  return page({ path: '/features', title: 'Features', description: 'Customers and work, money, communications, growth, people and compliance, and AI with human approval: everything Oprun does for an Australian service business.', body, graph: [crumbs([['Home', '/'], ['Features', '/features']])] });
+  return page({ path: '/features', title: 'Features', seoTitle: 'Features for Australian service businesses', description: 'Customers and work, money, communications, growth, people and compliance, and AI with human approval: everything Oprun does for an Australian service business.', body, graph: [crumbs([['Home', '/'], ['Features', '/features']])] });
 }
 
 export function domainPage(d) {
@@ -367,7 +368,7 @@ export function domainPage(d) {
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page sp-split sp-split--top"><div class="sp-section-head"><h2 class="sp-h2">Questions</h2></div>${faqList(d.faq)}</div></section>
 ${cta()}`;
-  return page({ path: `/features/${d.slug}`, current: '/features', title: d.name, description: d.lede, body, graph: [crumbs([['Home', '/'], ['Features', '/features'], [d.name, `/features/${d.slug}`]]), faqLd(d.faq)] });
+  return page({ path: `/features/${d.slug}`, current: '/features', title: d.name, seoTitle: d.name.length < 12 ? `${d.name} features for service businesses` : null, description: d.lede, body, graph: [crumbs([['Home', '/'], ['Features', '/features'], [d.name, `/features/${d.slug}`]]), faqLd(d.faq)] });
 }
 
 export function industriesIndex() {
@@ -377,7 +378,7 @@ export function industriesIndex() {
   ${INDUSTRIES.map((i) => `<a class="sp-card sp-card--lit sp-industry sp-industry--tall" href="/for/${i.slug}" data-reveal>${icon(i.icon, 'sp-icon sp-icon--lg')}<strong>${esc(i.name)}</strong><span class="sp-muted">${esc(i.title)}</span></a>`).join('')}
 </div></section>
 ${cta()}`;
-  return page({ path: '/for', title: 'Industries', description: 'Oprun for trades, allied health and clinics, retail, agencies and cleaning businesses in Australia.', body, graph: [crumbs([['Home', '/'], ['Industries', '/for']])] });
+  return page({ path: '/for', title: 'Industries', seoTitle: 'Industries Oprun is built for', description: 'Oprun for trades, allied health and clinics, retail, agencies and cleaning businesses in Australia.', body, graph: [crumbs([['Home', '/'], ['Industries', '/for']])] });
 }
 
 export function industryPage(i) {
@@ -395,7 +396,7 @@ export function industryPage(i) {
   <ul class="sp-domain-list">${DOMAINS.slice(0, 5).map((d) => `<li><a class="sp-domain" href="/features/${d.slug}"><span class="sp-domain__icon">${icon(d.icon, 'sp-icon sp-icon--lg')}</span><span><strong>${esc(d.name)}</strong><span class="sp-muted">${esc(d.title)}</span></span>${icon('arrow')}</a></li>`).join('')}</ul>
 </div></section>
 ${cta(`Try it on your own ${i.name.toLowerCase()} business`)}`;
-  return page({ path: `/for/${i.slug}`, current: '/for', title: i.name, description: i.lede, body, graph: [crumbs([['Home', '/'], ['Industries', '/for'], [i.name, `/for/${i.slug}`]])] });
+  return page({ path: `/for/${i.slug}`, current: '/for', title: i.name, seoTitle: i.name.length < 12 ? `${i.name}: your AI office manager` : null, description: i.lede, body, graph: [crumbs([['Home', '/'], ['Industries', '/for'], [i.name, `/for/${i.slug}`]])] });
 }
 
 export function pricing() {
@@ -410,7 +411,7 @@ ${pricingSection(false)}
 </div></section>
 <section class="sp-section sp-section--tight"><div class="sp-page sp-split sp-split--top"><div class="sp-section-head"><h2 class="sp-h2">Pricing questions</h2></div>${faqList(pf)}</div></section>
 ${cta()}`;
-  return page({ path: '/pricing', title: 'Pricing', description: 'Oprun plans: Starter A$49, Operations A$99 and Scale A$149 a month, plus GST, with a 14-day free trial.', body, graph: [crumbs([['Home', '/'], ['Pricing', '/pricing']]), { '@type': 'Product', name: SITE.name, offers: offers() }, faqLd(pf)] });
+  return page({ path: '/pricing', title: 'Pricing', seoTitle: 'Pricing and plans with a 14-day free trial', description: 'Oprun plans: Starter A$49, Operations A$99 and Scale A$149 a month, plus GST, with a 14-day free trial.', body, graph: [crumbs([['Home', '/'], ['Pricing', '/pricing']]), { '@type': 'Product', name: SITE.name, offers: offers() }, faqLd(pf)] });
 }
 
 export function receptionist() {
@@ -450,7 +451,7 @@ ${INTEGRATIONS.map((g) => `<section class="sp-section sp-section--tight" aria-la
 </div></section>`).join('')}
 <section class="sp-section sp-section--tight"><div class="sp-page"><p class="sp-small sp-muted">Service names and logos belong to their owners and are shown only to identify the service you connect. Each connection needs that service's own account and permissions.</p></div></section>
 ${cta('Connect your own accounts', `Try every integration free for ${SITE.trialDays} days.`)}`;
-  return page({ path: '/integrations', title: 'Integrations', description: 'Connect Facebook, Instagram, WhatsApp, Gmail, Google Business Profile, TikTok, YouTube, Stripe, PayPal, Zoom and more to Oprun. Everything that leaves your business waits for your approval.', body, graph: [crumbs([['Home', '/'], ['Integrations', '/integrations']])] });
+  return page({ path: '/integrations', title: 'Integrations', seoTitle: 'Integrations and connected apps', description: 'Connect Facebook, Instagram, WhatsApp, Gmail, Google Business Profile, YouTube, Stripe, PayPal, Zoom and more. Anything that goes out waits for your approval.', body, graph: [crumbs([['Home', '/'], ['Integrations', '/integrations']])] });
 }
 
 export function security() {
@@ -464,7 +465,7 @@ export function security() {
   <div class="sp-actions"><a class="sp-btn sp-btn--primary" href="/saas/trust-center.html">Trust centre</a><a class="sp-btn sp-btn--ghost" href="/saas/subprocessors.html">Subprocessors</a><a class="sp-btn sp-btn--ghost" href="/saas/complaints.html">Report a concern</a></div>
 </div></section>
 ${cta()}`;
-  return page({ path: '/security', title: 'Security', description: 'How Oprun protects your business: approvals before anything leaves, separate business data, staff permissions, protected sign-in, encrypted keys, an action log and data export.', body, graph: [crumbs([['Home', '/'], ['Security', '/security']])] });
+  return page({ path: '/security', title: 'Security', seoTitle: 'Security and data protection', description: 'How Oprun protects your business: approval before anything leaves, separate business data, staff permissions, secure sign-in, encrypted keys and an action log.', body, graph: [crumbs([['Home', '/'], ['Security', '/security']])] });
 }
 
 export function stories() {
@@ -492,7 +493,7 @@ export function help() {
   <p class="sp-help__empty" data-help-empty hidden>No answers match that search. <a href="/contact">Ask us directly</a>.</p></div>
 </div></section>
 ${cta('Still stuck?', 'Send us a message and a person will reply.')}`;
-  return page({ path: '/help', title: 'Help centre', description: 'Help with Oprun: getting started, AI approvals, plans and billing, staff and compliance, security and privacy.', body, graph: [crumbs([['Home', '/'], ['Help', '/help']]), faqLd(all)] });
+  return page({ path: '/help', title: 'Help centre', seoTitle: 'Help centre and guides', description: 'Help with Oprun: getting started, AI approvals, plans and billing, staff and compliance, security and privacy.', body, graph: [crumbs([['Home', '/'], ['Help', '/help']]), faqLd(all)] });
 }
 
 export function contact() {
@@ -518,7 +519,7 @@ export function contact() {
     <p class="sp-form-status" data-status role="status"></p>
   </form>
 </div></section>`;
-  return page({ path: '/contact', title: 'Contact', description: 'Contact Oprun for a walkthrough, questions before you start, the AI receptionist add-on, or help with your account.', body, graph: [crumbs([['Home', '/'], ['Contact', '/contact']])] });
+  return page({ path: '/contact', title: 'Contact', seoTitle: 'Contact Oprun and book a walkthrough', description: 'Contact Oprun for a walkthrough, questions before you start, the AI receptionist add-on, or help with your account.', body, graph: [crumbs([['Home', '/'], ['Contact', '/contact']])] });
 }
 
 export function install() {

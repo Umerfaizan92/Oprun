@@ -1137,6 +1137,8 @@ app.get(['/saas','/saas/'],(req,res)=>res.redirect(302,'/'));
 const publicPageLimiter=rateLimit({windowMs:60*1000,limit:300,standardHeaders:true,legacyHeaders:false});
 app.get('/saas/index.html',publicPageLimiter,serveSeoPublicHtml('index.html'));
 app.get('/saas/answers.html',publicPageLimiter,serveSeoPublicHtml('answers.html'));
+// T-050: legal pages carry a canonical address (they stay noindex and out of the sitemap).
+for(const f of ['trust-center','privacy','terms','complaints','subprocessors','policy-center'])app.get(`/saas/${f}.html`,publicPageLimiter,serveSeoPublicHtml(`${f}.html`));
 // Assets requested with a ?v= stamp may be reused briefly and refreshed in the
 // background; pages and unstamped files are always revalidated as before.
 const stampedAssetCache=res=>{if(res.req?.query?.v&&/\.(?:js|css|svg|png|jpg|webp|woff2?)$/i.test(res.req.path))res.setHeader('Cache-Control','public, max-age=300, stale-while-revalidate=3600')};

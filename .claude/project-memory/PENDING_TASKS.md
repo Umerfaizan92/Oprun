@@ -18,7 +18,7 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Acceptance: Owner-approved plan; schedules still run once per period
 
 ## T-050 Phase 06 follow-up: fix the public-site SEO findings
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-10-30
 - Requirement: Owner decision: legal pages noindex vs sitemap; shorten 7 long titles; add 3 meta descriptions; trim 3 long descriptions; responsive images; complete structured data; permanent redirect for /start (see docs/phase-06/REPORT.md)
 - Files: site/, src/server.js sitemap

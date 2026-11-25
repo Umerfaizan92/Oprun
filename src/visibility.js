@@ -20,7 +20,8 @@ const metaBy = (html, key, val) => { for (const m of metas(html)) if (String(att
 export function extractJsonLd(html) {
   const out = []; let bad = 0;
   for (const m of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
-    try { const j = JSON.parse(m[1]); (Array.isArray(j) ? j : j['@graph'] || [j]).forEach((x) => out.push(x)); } catch { bad += 1; }
+    // Items inside @graph share the wrapper's @context, so each one carries it (otherwise audits report "no @context").
+    try { const j = JSON.parse(m[1]); const ctx = !Array.isArray(j) && j['@graph'] ? j['@context'] : undefined; (Array.isArray(j) ? j : j['@graph'] || [j]).forEach((x) => out.push(ctx && x && typeof x === 'object' && !x['@context'] ? { '@context': ctx, ...x } : x)); } catch { bad += 1; }
   }
   return { items: out, invalid: bad, types: out.flatMap((x) => [].concat(x?.['@type'] || [])) };
 }
