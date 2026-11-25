@@ -163,14 +163,14 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Spam and < 15 s calls not billed; cap reached → take-message mode, never dropped calls
 
 ## T-130 R-10 AI Receptionist: check_availability + receptionist_slot_holds
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: check_availability + receptionist_slot_holds (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-10)
 - Files: docs/ai-receptionist/
 - Acceptance: Two parallel calls never get the same held slot
 
 ## T-131 R-11 AI Receptionist: propose_booking + createBookingFromEnquiry + receptionist_booking approval
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: propose_booking + createBookingFromEnquiry + receptionist_booking approval (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-11)
 - Files: docs/ai-receptionist/

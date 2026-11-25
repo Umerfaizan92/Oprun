@@ -80,7 +80,7 @@ test('internal voice API: auth, isolation, idempotency, and the customer, enquir
   assert.equal(sql("SELECT outcome FROM voice_calls WHERE call_control_id='cc-1'")[0].outcome, 'message_taken');
   assert.equal(sql("SELECT COUNT(*) n FROM user_notifications WHERE organisation_id=? AND kind='receptionist_message'", owner.org)[0].n, 1);
   r = await tool('end_call', { reason: 'completed' }, 8); assert.equal(r.status, 200);
-  r = await tool('propose_booking', {}, 9); assert.equal(r.json.code, 'ERR_NOT_ALLOWED', 'later tools say no honestly');
+  r = await tool('warm_transfer', {}, 9); assert.equal(r.json.code, 'ERR_NOT_ALLOWED', 'later tools say no honestly');
 
   // A returning caller from the same number is recognised by name only; staff notes stay private.
   sql("UPDATE tenant_customers SET caller_note='Prefers mornings' WHERE id=?", cust.id);
