@@ -2957,3 +2957,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: When the owner says so: push the candidate to claude/transformation-staging for the TR-80 review
+
+## CP-212 2026-11-25T15:03:11+00:00 T-238 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-238 (IN_PROGRESS)
+- Completed steps: TR-80 approved by the owner
+- Incomplete steps: TR-73 production drill output from the owner; TR-81 explicit release approval; live env settings
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 8044116 (Progress: test site on the release candidate); 78 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Ask the owner for 'release approved' and the TR-73 output; then follow docs/transformation/05_RELEASE_PLAN.md section 4

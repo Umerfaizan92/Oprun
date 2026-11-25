@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Release plan for TR-80/TR-81 written and checked against the code
-FILES MODIFIED: .claude/project-memory/PROGRESS.md; SHA256SUMS.txt; docs/transformation/05_RELEASE_PLAN.md
+CURRENT TASK: T-238 (IN_PROGRESS)
+LAST COMPLETED STEP: TR-80 approved by the owner
+FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 3 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: When the owner says so: push the candidate to claude/transformation-staging for the TR-80 review
+NEXT EXACT ACTION: Ask the owner for 'release approved' and the TR-73 output; then follow docs/transformation/05_RELEASE_PLAN.md section 4
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-211 at 2026-11-25T08:38:09+00:00
+LAST CHECKPOINT: CP-212 at 2026-11-25T15:03:11+00:00
 <!-- handover:end -->
 
 ## Notes

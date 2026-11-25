@@ -869,3 +869,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/automation/catalogue.js, src/agents/registry.js, scripts/agent-hard-limits.test.mjs
 - Acceptance: Engine refuses them by name (test)
 - Evidence: agent-hard-limits.test.mjs 2/2 (engine blocks deploy_to_production, reset_or_drop_database, make_payment by name in both scopes; refund/deletion need a person; agent creation refused with restriction reason); agent and automation suites 30/30; npm test 73/73; commit 85e23e0 (recorded 2026-11-24 on claude/transformation-phase1 at 85e23e0)
+
+## T-239 TR-80 Owner review of the release candidate on the test site
+- Added: 2026-11-25
+- Requirement: Backlog TR-80: full review on staging by the owner; owner sign-off
+- Files: docs/transformation/05_RELEASE_PLAN.md
+- Acceptance: Owner reviews the release candidate on the test site and says approved
+- Evidence: Owner replied 'Approved' on 25 Nov 2026 after the test site (oprun-test, srv-dc1keajl550s73eolqk0) was updated to release candidate f678118 (deploy dep-dc3eqblg1s2s73eiq9qg, live 14:15 UTC). Review checklist: docs/transformation/05_RELEASE_PLAN.md section 6. (recorded 2026-11-25 on claude/transformation-phase1 at 8044116)
