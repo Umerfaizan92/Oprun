@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 3cd6779 (TR-72: record measured start-up costs in the Lighthouse report and handover)
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-236 (IN_PROGRESS)
-LAST COMPLETED STEP: Lighthouse workspace 75-83 returning, 69-82 first visit
-FILES MODIFIED: .claude/project-memory/DECISIONS.md; SHA256SUMS.txt; docs/transformation/HANDOVER_FOR_CHATGPT.md; qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/workspace-views.css; saas/workspace.html; scripts/report-lighthouse.mjs; scripts/test-localization-ui.mjs
+LAST COMPLETED STEP: Test site updated to d017ea0. Stage 5 (after-start group) tried, measured worse, reverted (D-076). All 23 browser suites run and passed on the stage 5 code, including pipeline, console, automations, seo, finance, reliability, site, channels, lead sources, meetings, webphone, localization (those six needed PLAYWRIGHT_CHROMIUM_EXECUTABLE or a link at /opt/pw-browsers/... to /usr/bin/google-chrome in this machine).
+FILES MODIFIED: .claude/project-memory/DECISIONS.md; .claude/project-memory/PROGRESS.md; qa/reports/LIGHTHOUSE.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 12 file(s)
+UNCOMMITTED CHANGES: 3 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Map which start-up scripts the first page needs (product-guide, workspace-chat, platform-notices, support, workspace-extras, workspace-tour, workspace-push, ai-operations) and their callers in app.js before deferring them
+NEXT EXACT ACTION: Report to owner: test site live; stage 5 reverted; ask whether to stop TR-72 at 75-83 and move to TR-80
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-205 at 2026-11-25T03:33:01+00:00
+LAST CHECKPOINT: CP-206 at 2026-11-25T05:49:40+00:00
 <!-- handover:end -->
 
 ## Notes

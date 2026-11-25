@@ -85,7 +85,9 @@ The 85 target is met by no workspace page yet (best 83). Real content appears at
 phone; the remaining time is mostly the download before the first page can draw (about 440 KB: the 90 KB stylesheet
 bundle and about 250 KB of start-up scripts on a slow 4G link), then the session and start-up data calls. The next
 steps, in order of size:
-1. Load the start-up scripts that the first page does not need (assistant, product guide, staff chat, notices panel,
-   support widget, tour) after the first page is shown instead of before it.
+1. Tried on 25 Nov and reverted (D-076): loading the support panel, staff chat, live toasts, phone notifications and
+   tour just after the first page saved about 20 KB but scored lower (67–80), because their loading still falls inside
+   the measured start-up window and adds a request. The notices panel cannot move later at all: it finds the bell by
+   its English label before the page is translated.
 2. Draw the first page's frame before the start-up data calls return.
 3. Shrink the stylesheet bundle (474 KB unpacked): most rules belong to pages that are not open.

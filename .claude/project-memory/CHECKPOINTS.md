@@ -2873,3 +2873,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Map which start-up scripts the first page needs (product-guide, workspace-chat, platform-notices, support, workspace-extras, workspace-tour, workspace-push, ai-operations) and their callers in app.js before deferring them
+
+## CP-206 2026-11-25T05:49:40+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Test site updated to d017ea0. Stage 5 (after-start group) tried, measured worse, reverted (D-076). All 23 browser suites run and passed on the stage 5 code, including pipeline, console, automations, seo, finance, reliability, site, channels, lead sources, meetings, webphone, localization (those six needed PLAYWRIGHT_CHROMIUM_EXECUTABLE or a link at /opt/pw-browsers/... to /usr/bin/google-chrome in this machine).
+- Incomplete steps: Decide next TR-72 step (frame before data calls; CSS size) or close TR-72 at 75-83
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; .claude/project-memory/PROGRESS.md; qa/reports/LIGHTHOUSE.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: d017ea0 (TR-72 (part 2, stage 4): no layout shift, honest opening screen); 71 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Report to owner: test site live; stage 5 reverted; ask whether to stop TR-72 at 75-83 and move to TR-80

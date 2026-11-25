@@ -112,3 +112,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-22: Palette kept gold (D-056). TR-03 done: oprun-test free isolated-preview service live on claude/transformation-staging. Next TR-10/TR-12.
 - 2026-11-22: T-204 gold scale and hard-coded gold clean-up done (no visual change on 105 screenshots); pushed to oprun-test.
 - 2026-11-22: T-205 design-system catalogue + shared component styles done; on oprun-test.
+- 2026-11-25: 25 Nov: test site (oprun-test, srv-dc1keajl550s73eolqk0) updated to d017ea0 at the owner's request (deploy dep-dc36j5s9v7es73fmo88g live 04:53 UTC; test data reset). Continuing TR-72 stage 5.
