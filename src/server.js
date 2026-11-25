@@ -78,6 +78,7 @@ import { createSocialStatsService } from './social-stats.js';
 import { INDUSTRY_REGISTRY, GENERAL_REGULATORY_SOURCES, industryByCode, industrySources } from './industry-registry.js';
 import { installGrowth } from './growth.js';
 import { mediaToken, readMediaToken } from './media-link.js';
+import { createImageVariants } from './image-variants.js';
 import { installMeetingExtras } from './meeting-extras.js';
 import { installAppointments } from './appointments.js';
 import { installAiVideo } from './ai-video.js';
@@ -4780,6 +4781,7 @@ const studioUpload=multer({
   fileFilter(req,file,cb){STUDIO_TYPES[file.mimetype]?cb(null,true):cb(new Error('Use a photo (JPG, PNG, WebP, HEIC), a video (MP4, MOV, WebM) or audio file.'))}
 });
 const studioRoles=['owner','admin','manager','super_admin','director'];
+const imageVariants=createImageVariants({uploadRoot});
 app.get('/api/saas/media',requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{
   const media=db.prepare(`SELECT id,original_name,mime_type,kind,size_bytes,source,tags,created_at FROM tenant_media WHERE organisation_id=? ORDER BY created_at DESC LIMIT 300`).all(req.saas.organisation_id);
   res.json({ok:true,media});
@@ -4802,8 +4804,17 @@ app.get('/m/:token',(req,res)=>{
   if(!m)return res.status(404).type('text/plain').send('Not found');
   const file=path.join(uploadRoot,'studio',String(m.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name);
   if(!fs.existsSync(file))return res.status(404).type('text/plain').send('Not found');
-  res.set({'content-type':m.mime_type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'public, max-age=86400','x-robots-tag':'noindex'});
-  res.sendFile(file);
+  const send=(f,type)=>{res.set({'content-type':type,'x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; sandbox",'cache-control':'public, max-age=86400','x-robots-tag':'noindex'});res.sendFile(f)};
+  // T-051: ?w=320|640|960|1280|1920 serves a WebP copy of a photo at that width (the original if it cannot be made).
+  if(req.query.w!==undefined&&m.kind==='photo')return imageVariants.variant(m,Number(req.query.w)).then(v=>v?send(v,'image/webp'):send(file,m.mime_type)).catch(()=>send(file,m.mime_type));
+  send(file,m.mime_type);
+});
+// T-051: a public link to one of the business's photos for its website. The link names one file of this business only.
+app.post('/api/saas/media/:id/site-link',requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{
+  const m=db.prepare(`SELECT id,kind,original_name FROM tenant_media WHERE id=? AND organisation_id=?`).get(req.params.id,req.saas.organisation_id);
+  if(!m)return res.status(404).json({ok:false,error:'Media not found.'});
+  if(m.kind!=='photo')return res.status(400).json({ok:false,error:'Choose a photo for a website image.'});
+  res.json({ok:true,url:`/m/${mediaToken(env,req.saas.organisation_id,m.id)}`,name:m.original_name});
 });
 app.get('/api/saas/media/:id/file',requireSaasUser,requireSaasRole(...studioRoles),(req,res)=>{
   const m=db.prepare(`SELECT * FROM tenant_media WHERE id=? AND organisation_id=?`).get(req.params.id,req.saas.organisation_id);
@@ -4818,6 +4829,7 @@ app.delete('/api/saas/media/:id',requireSaasUser,requireSaasRole('owner','admin'
   if(!m)return res.status(404).json({ok:false,error:'Media not found.'});
   db.prepare(`DELETE FROM tenant_media WHERE id=? AND organisation_id=?`).run(m.id,req.saas.organisation_id);
   fs.rmSync(path.join(uploadRoot,'studio',String(req.saas.organisation_id).replace(/[^a-zA-Z0-9-]/g,''),m.stored_name),{force:true});
+  imageVariants.removeAll(m);
   saasAudit(req,'media.deleted','tenant_media',m.id,{});
   res.json({ok:true});
 });

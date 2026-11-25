@@ -25,7 +25,7 @@ BLOCKED, TESTING, COMPLETED. When a task is verified, move it to COMPLETED_TASKS
 - Acceptance: Platform audit shows none of these findings; test:visual and site tests pass
 
 ## T-051 Phase 06 follow-up: image re-encoding for the Website Builder
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-10-30
 - Requirement: Add an image library (sharp) to convert uploads to WebP/AVIF with sizes; needs owner approval for the new dependency on Render
 - Files: package.json, src/seo/*

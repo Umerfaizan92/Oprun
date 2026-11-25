@@ -3,6 +3,7 @@
 // every value, produces one h1, accessible markup and responsive CSS from the business's brand colours. Reviews blocks
 // show only reviews the business imported from a real source, with that source named.
 import { checkClaims, draftText } from './content.js';
+import { responsiveAttrs } from '../image-variants.js';
 
 export const BLOCK_TYPES = ['hero', 'text', 'services', 'areas', 'faq', 'cta', 'contact', 'image', 'gallery', 'reviews'];
 export const TEMPLATES = {
@@ -35,7 +36,8 @@ export function renderPage(page, { site = {}, theme = themeFrom(site.brand), can
   const blocks = page.blocks || [];
   let h1Done = false;
   const H = (text) => { if (!h1Done) { h1Done = true; return `<h1>${esc(text)}</h1>`; } return `<h2>${esc(text)}</h2>`; };
-  const img = (b) => { const src = safeUrl(b.src, { allowHash: false }); if (!src) return ''; return `<img src="${esc(src)}" alt="${esc(b.alt ?? '')}"${b.width ? ` width="${Number(b.width) | 0}"` : ''}${b.height ? ` height="${Number(b.height) | 0}"` : ''} loading="lazy" decoding="async">`; };
+  // T-051: photos from the media library get WebP copies at several widths (srcset); other addresses are used as given.
+  const img = (b) => { const src = safeUrl(b.src, { allowHash: false }); if (!src) return ''; const r = responsiveAttrs(src); return `<img src="${esc(r ? r.src : src)}"${r ? ` srcset="${esc(r.srcset)}" sizes="${esc(r.sizes)}"` : ''} alt="${esc(b.alt ?? '')}"${b.width ? ` width="${Number(b.width) | 0}"` : ''}${b.height ? ` height="${Number(b.height) | 0}"` : ''} loading="lazy" decoding="async">`; };
   const body = blocks.map((b) => {
     switch (b.type) {
       case 'hero': return `<section class="hero">${H(b.heading || page.title)}${b.text ? `<p class="lead">${esc(b.text)}</p>` : ''}${safeUrl(b.cta_href) && b.cta_label ? `<p><a class="btn" href="${esc(safeUrl(b.cta_href))}">${esc(b.cta_label)}</a></p>` : ''}</section>`;

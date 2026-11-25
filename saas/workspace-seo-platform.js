@@ -214,6 +214,19 @@
           const field = (bl, key, label, multi = false) => { const i = multi ? el('textarea', { rows: 4, 'aria-label': label, value: bl[key] || '' }) : el('input', { 'aria-label': label, value: bl[key] || '' }); i.addEventListener('input', () => { bl[key] = i.value; }); return el('label', {}, label, i); };
           const listField = (bl, label) => { const i = el('textarea', { rows: 3, 'aria-label': label, value: (bl.items || []).join('\n') }); i.addEventListener('input', () => { bl.items = i.value.split('\n').map((x) => x.trim()).filter(Boolean); }); return el('label', {}, label + ' (one per line)', i); };
           const faqField = (bl) => { const i = el('textarea', { rows: 5, 'aria-label': 'Questions and answers', value: (bl.items || []).map((x) => `${x.q}\n${x.a}`).join('\n\n') }); i.addEventListener('input', () => { bl.items = i.value.split(/\n\s*\n/).map((x) => { const [q, ...a] = x.split('\n'); return { q: (q || '').trim(), a: a.join(' ').trim() }; }).filter((x) => x.q); }); return el('label', {}, 'Question on the first line, answer below, blank line between', i); };
+          // T-051: choose a photo from the media library; the website then gets WebP copies at several widths.
+          const photoPick = (bl) => {
+            const box = el('div', { class: 'sx-photo-pick' }), list = el('select', { 'aria-label': 'Photo from your media library' }), msg = el('small', { 'aria-live': 'polite' });
+            const load = el('button', { type: 'button', class: 'portal-button', text: 'Choose from your photos', onclick: (e) => busy(e.target, async () => {
+              const photos = ((await api('/api/saas/media')).media || []).filter((m) => m.kind === 'photo');
+              if (!photos.length) { msg.textContent = 'No photos yet. Add some in Studio > Media library.'; return; }
+              list.replaceChildren(el('option', { value: '', text: 'Choose a photo' }), ...photos.map((m) => el('option', { value: m.id, text: m.original_name })));
+              list.hidden = false; list.focus();
+            }) });
+            list.hidden = true;
+            list.addEventListener('change', () => { if (!list.value) return; busy(list, async () => { const r = await api(`/api/saas/media/${encodeURIComponent(list.value)}/site-link`, { method: 'POST', body: '{}' }); bl.src = r.url; const i = box.closest('fieldset')?.querySelector('input[aria-label="Image address (https://)"]'); if (i) i.value = r.url; msg.textContent = `${r.name} added. The website shows smaller WebP copies of it.`; }); });
+            box.append(load, list, msg); return box;
+          };
           function drawBlocks() {
             blocksBox.replaceChildren(...c.blocks.map((bl, i) => el('fieldset', { class: 'sx-editblock' }, el('legend', { text: `${i + 1}. ${bl.type}` }),
               bl.type === 'hero' ? [field(bl, 'heading', 'Main heading'), field(bl, 'text', 'Intro', true), field(bl, 'cta_label', 'Button label'), field(bl, 'cta_href', 'Button link (#contact, /sites/…, https://, tel:)')] : null,
@@ -222,7 +235,7 @@
               bl.type === 'faq' ? [field(bl, 'heading', 'Heading'), faqField(bl)] : null,
               bl.type === 'cta' ? [field(bl, 'heading', 'Heading'), field(bl, 'text', 'Text', true), field(bl, 'label', 'Button label'), field(bl, 'href', 'Button link')] : null,
               bl.type === 'contact' ? [field(bl, 'heading', 'Heading'), field(bl, 'phone', 'Phone'), field(bl, 'email', 'Email'), field(bl, 'address', 'Address (leave empty if you have no shopfront)'), (() => { const i = el('input', { type: 'checkbox' }); i.checked = Boolean(bl.form); i.addEventListener('change', () => { bl.form = i.checked; }); return el('label', { class: 'sx-check' }, i, ' Show a contact form (messages arrive in the Unified Inbox as enquiries)'); })()] : null,
-              bl.type === 'image' ? [field(bl, 'src', 'Image address (https://)'), field(bl, 'alt', 'Alt text (describe the image)'), field(bl, 'width', 'Width (px)'), field(bl, 'height', 'Height (px)'), field(bl, 'caption', 'Caption')] : null,
+              bl.type === 'image' ? [field(bl, 'src', 'Image address (https://)'), founder ? null : photoPick(bl), field(bl, 'alt', 'Alt text (describe the image)'), field(bl, 'width', 'Width (px)'), field(bl, 'height', 'Height (px)'), field(bl, 'caption', 'Caption')] : null,
               bl.type === 'reviews' ? [field(bl, 'heading', 'Heading'), el('p', { class: 'pl-meta', text: 'Shows real 4 and 5-star Google reviews synced from your Business Profile, with the source named. Nothing is shown if there are none.' })] : null,
               el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: 'Move up', disabled: i === 0 ? true : null, onclick: () => { [c.blocks[i - 1], c.blocks[i]] = [c.blocks[i], c.blocks[i - 1]]; drawBlocks(); } }), el('button', { type: 'button', class: 'portal-button', text: 'Move down', disabled: i === c.blocks.length - 1 ? true : null, onclick: () => { [c.blocks[i + 1], c.blocks[i]] = [c.blocks[i], c.blocks[i + 1]]; drawBlocks(); } }), el('button', { type: 'button', class: 'portal-button', text: 'Remove', onclick: () => { c.blocks.splice(i, 1); drawBlocks(); } })))));
           }

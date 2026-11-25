@@ -159,7 +159,9 @@ went from 54 to 78:
 1. No live Google responses have been tested yet (explained at the top).
 2. **Image optimisation is checks only.** Super Pro reports size, format, dimensions and lazy loading, but does not
    re-encode images, because that needs an image library (for example `sharp`) as a new dependency on Render.
-   Recorded as T-051.
+   Recorded as T-051. **Done 25 Nov 2026:** `sharp` 0.35.5 (no known vulnerabilities) converts library photos to
+   WebP at 320-1920 px on first request (`/m/<link>?w=`); the Website Builder can pick a library photo and writes a
+   srcset for it. Originals are never changed; if conversion fails the original is served.
 3. **Custom domains** for builder sites are not set up. Sites are served at `/sites/<name>/` on the Super Pro domain.
    Using a business's own domain needs DNS and certificate work on Render (infrastructure, so it needs your approval).
    Recorded as T-052.
