@@ -3111,3 +3111,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: R-09 (T-129): spam filter and metering
+
+## CP-223 2026-11-25T20:33:30+00:00 T-134 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-134 (TESTING)
+- Completed steps: R-03,R-04,R-07,R-08,R-09,R-10,R-11,R-13,R-14 web side built and tested
+- Incomplete steps: R-15 section+aliases, R-16 knowledge autoload, R-05 voice routing+stream start, R-12 transfer; R-01/R-02/R-17/R-18 need owner accounts
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 05ad0da (R-13/R-14 (T-133, T-134): receptionist follow-up state machine and messages); 8 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: R-16 (T-136) knowledge auto-load then R-15 UI

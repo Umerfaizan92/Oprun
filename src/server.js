@@ -9,6 +9,7 @@ import { migrateReceptionist } from './comms/receptionist-store.js';
 import { installReceptionistInternal, receptionistActor } from './comms/receptionist-internal.js';
 import { createReceptionistBooking } from './comms/receptionist-booking.js';
 import { createReceptionistFollowups } from './comms/receptionist-followups.js';
+import { createReceptionistKnowledge, installReceptionistKnowledgeRoutes } from './comms/receptionist-knowledge.js';
 import { installLeadSources } from './lead-sources.js';
 import { installMeetings } from './meetings.js';
 import { installBusinessOps } from './business-ops.js';
@@ -6338,6 +6339,8 @@ const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notificatio
 // R-03 (T-123): AI Receptionist tables and columns (additive; legacy tables kept for rollback).
 migrateReceptionist(db);
 // R-04/R-07 (T-124, T-127): internal API for the voice worker. Off until VOICE_SERVICE_KEY and VOICE_CALL_TOKEN_SECRET are set.
+const receptionistKnowledge=createReceptionistKnowledge({db,audit:(req,...a)=>{try{saasAudit(req,...a)}catch{}}});
+installReceptionistKnowledgeRoutes(app,{knowledge:receptionistKnowledge,requireSaasUser,requireSaasRole});
 const receptionistBooking=createReceptionistBooking({db,env,pipeline:businessHubHooks,createApproval:(req,o)=>createWorkspaceApproval(req,o),audit:(req,...a)=>{try{saasAudit(req,...a)}catch{}},actorFor:receptionistActor});
 // R-13/R-14 (T-133, T-134): follow-up after receptionist calls, on the durable job queue with a safety sweep.
 const receptionistFollowups=createReceptionistFollowups({db,comms:commsService,booking:receptionistBooking,createApproval:(req,o)=>createWorkspaceApproval(req,o),actorFor:receptionistActor,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),queue:jobQueue});
@@ -6346,7 +6349,7 @@ jobQueue.register('receptionist.followup',async(p)=>receptionistFollowups.runAtt
 {const every=Number(env.RECEPTIONIST_FOLLOWUP_SWEEP_MS)||5*60000;if(process.env.NODE_ENV!=='test'||env.RECEPTIONIST_FOLLOWUP_SWEEP_MS)setInterval(()=>receptionistFollowups.sweep().catch(e=>console.warn('[receptionist] sweep failed:',e.message)),every).unref?.();}
 // A reply on a thread linked to a receptionist enquiry pauses the follow-up; STOP ends it (suppression is done by onInbound).
 inboundHooks.add(m=>{if(!m?.organisation_id||!m.thread_id||m.kind==='call_log')return;const t=db.prepare('SELECT enquiry_id FROM comms_thread_meta WHERE thread_id=? AND organisation_id=?').get(m.thread_id,m.organisation_id);if(!t?.enquiry_id)return;receptionistFollowups.onCustomerReplied(m.organisation_id,t.enquiry_id,{stop:/^\s*(stop|unsubscribe|stop all|end|cancel|quit)\s*$/i.test(String(m.body||''))})});
-const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,booking:receptionistBooking,followups:receptionistFollowups,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
+const receptionistInternal=installReceptionistInternal(app,{db,env,pipeline:businessHubHooks,comms:commsService,booking:receptionistBooking,followups:receptionistFollowups,knowledge:receptionistKnowledge,recordInbound,generateAiText,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts),audit:(req,...a)=>{try{saasAudit(req,...a)}catch(e){console.warn('[receptionist] audit failed:',e.message)}}});
 commsService.enqueueSend=(owner,id,runAt=null)=>{const r=jobQueue.enqueue('campaign.send',{owner,id},{organisationId:owner==='platform'?null:owner,idempotencyKey:`campaign.send:${id}:${Date.now()}:${Math.random().toString(36).slice(2,8)}`,runAt,maxAttempts:3});if(!runAt)setImmediate(()=>jobQueue.drain(20).catch(()=>{}));return r};
 jobQueue.register('campaign.send',async({owner,id})=>{const r=await commsService.sendBatch(owner,id,{isPaused:()=>automationEngine.pauseState(owner==='platform'?null:owner).paused});if(!r.done)commsService.enqueueSend(owner,id,r.wait_until||new Date(Date.now()+(r.paused?60000:1000)).toISOString());return r},{maxAttempts:3,baseDelayMs:30000,timeoutMs:120000});
 if(env.NODE_ENV!=='test')setInterval(()=>{commsService.sendDue().catch(e=>console.warn('[comms] scheduled send:',e.message))},30000).unref();

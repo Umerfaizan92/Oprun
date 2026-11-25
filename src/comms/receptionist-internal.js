@@ -52,7 +52,7 @@ const SCHEMAS = {
 // Tools defined in 04_TOOLS.md that arrive in later steps (R-08, R-10 to R-14).
 const LATER = new Set(['warm_transfer']);
 
-export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, followups = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
+export function installReceptionistInternal(app, { db, env, pipeline, comms, booking = null, followups = null, knowledge = null, recordInbound = null, generateAiText = null, notify = async () => {}, audit = () => {}, clock = () => Date.now(), log = console }) {
   const iso = () => new Date(clock()).toISOString();
   const rate = new Map(); // call_control_id -> [windowStart, count]
   const RATE_PER_MIN = Number(env.VOICE_TOOL_RATE_PER_MIN || 120);
@@ -86,7 +86,9 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
     const { org, call } = req.voice;
     const o = db.prepare('SELECT COALESCE(display_name,name) name,timezone FROM organisations WHERE id=?').get(org) || {};
     const cfg = db.prepare('SELECT * FROM receptionist_config WHERE organisation_id=?').get(org) || {};
-    const k = db.prepare("SELECT revision,prompt_block FROM receptionist_knowledge WHERE organisation_id=? AND status='approved' ORDER BY revision DESC LIMIT 1").get(org);
+    const k = knowledge ? knowledge.liveBlock(org) : db.prepare("SELECT revision,prompt_block FROM receptionist_knowledge WHERE organisation_id=? AND status='approved' ORDER BY revision DESC LIMIT 1").get(org);
+    // Each call records which approved facts it was given (07 §8).
+    if (k?.revision) { const sj = (() => { try { return JSON.parse(call.summary_json || '{}'); } catch { return {}; } })(); if (sj.knowledge_revision !== k.revision) db.prepare('UPDATE voice_calls SET summary_json=? WHERE call_control_id=? AND organisation_id=?').run(JSON.stringify({ ...sj, knowledge_revision: k.revision }), call.call_control_id, org); }
     const J = (v, d) => { try { return JSON.parse(v); } catch { return d; } };
     const caller = callerMatch(org, call.from_number);
     res.set('cache-control', 'no-store').json({ ok: true, code: 'OK', data: {
@@ -96,7 +98,8 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
         // Team members by name only: their phone numbers never reach the worker or the caller.
         transfer_targets: J(cfg.transfer_targets_json, []).map((x, i) => ({ id: String(x.user_id || i), name: x.name || 'Team member' })),
         recording_notice: Boolean(cfg.recording_notice ?? 1), recording_enabled: Boolean(cfg.recording_enabled), cap_action: cfg.cap_action || 'take_message' },
-      knowledge: k ? { revision: k.revision, prompt_block: k.prompt_block } : { revision: null, prompt_block: '' },
+      knowledge: k?.revision ? { revision: k.revision, prompt_block: k.prompt_block } : { revision: null, prompt_block: '' },
+      caller_context: callerContext(org, caller, call.from_number),
       caller, usage: capState(org), spam: (() => { const sc = spamScore(org, call); return { score: sc.score, close_politely: sc.score >= 70 }; })()
     } });
   });
@@ -106,6 +109,21 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
     const rows = db.prepare("SELECT id,name,phone,caller_note FROM tenant_customers WHERE organisation_id=? AND phone IS NOT NULL AND replace(replace(replace(phone,' ',''),'-',''),'+','') LIKE ?").all(org, `%${digits9(e164)}`).filter((c) => normPhone(c.phone) === e164);
     if (rows.length !== 1) return { withheld: false, known: false, shared_number: rows.length > 1 };
     return { withheld: false, known: true, first_name: String(rows[0].name || '').split(/\s+/)[0] || null, caller_note: rows[0].caller_note ? String(rows[0].caller_note).slice(0, 300) : null };
+  }
+
+  // 07 §7: the one per-caller block. Name, status, last three jobs (title and month), open enquiry and its follow-up,
+  // the staff-written caller_note, two recent open inbox items. Never other notes, prices or other people.
+  function callerContext(org, caller, from) {
+    if (caller.shared_number) return 'Number shared by more than one customer: ask the caller\'s name.';
+    if (!caller.known) return 'Caller not recognised.';
+    const e164 = normPhone(from);
+    const c = db.prepare("SELECT id,name,status,phone FROM tenant_customers WHERE organisation_id=? AND phone IS NOT NULL AND replace(replace(replace(phone,' ',''),'-',''),'+','') LIKE ?").all(org, `%${digits9(e164)}`).find((x) => normPhone(x.phone) === e164) || null;
+    if (!c) return 'Caller not recognised.';
+    const month = (d) => new Date(d).toLocaleString('en-AU', { month: 'long', timeZone: 'UTC' });
+    const jobs = db.prepare("SELECT title,start_at,created_at FROM work_orders WHERE organisation_id=? AND customer_id=? AND status<>'cancelled' ORDER BY COALESCE(start_at,created_at) DESC LIMIT 3").all(org, c.id).map((j) => `${j.title}, ${month(j.start_at || j.created_at)}`);
+    const enq = db.prepare("SELECT d.title,f.state FROM tenant_documents d LEFT JOIN receptionist_followups f ON f.enquiry_id=d.id WHERE d.organisation_id=? AND d.customer_id=? AND d.kind='enquiry' AND d.status IN ('open','quoted') ORDER BY d.created_at DESC LIMIT 1").get(org, c.id);
+    const recent = db.prepare("SELECT m.summary FROM comms_thread_meta m JOIN comms_threads t ON t.id=m.thread_id WHERE m.organisation_id=? AND m.customer_id=? AND t.status<>'closed' AND t.last_message_at>=? AND m.summary IS NOT NULL ORDER BY t.last_message_at DESC LIMIT 2").all(org, c.id, new Date(clock() - 14 * 86400000).toISOString()).map((x) => String(x.summary).slice(0, 140));
+    return [`First name: ${caller.first_name || ''}`, `Customer status: ${c.status}`, jobs.length ? `Recent jobs: ${jobs.join('; ')}` : '', enq ? `Open enquiry: ${enq.title}${enq.state ? ` (${enq.state.toLowerCase().replace(/_/g, ' ')})` : ''}` : '', caller.caller_note ? `Staff note: ${caller.caller_note}` : '', recent.length ? `Recent messages: ${recent.join(' | ')}` : ''].filter(Boolean).join('\n').slice(0, 1600);
   }
 
   // ------------------------------------------------------------------ tools

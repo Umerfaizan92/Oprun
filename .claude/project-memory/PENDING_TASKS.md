@@ -184,14 +184,14 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Staff hears the briefing; no answer in 25 s → caller back with the receptionist → message taken
 
 ## T-133 R-13 AI Receptionist: receptionist_followups state machine + scheduler ([05](05_LEAD_TO_BOOKING_FLOW.md))
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: receptionist_followups state machine + scheduler ([05](05_LEAD_TO_BOOKING_FLOW.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-13)
 - Files: docs/ai-receptionist/
 - Acceptance: Every transition in the table has a test; scheduler ticks are idempotent
 
 ## T-134 R-14 AI Receptionist: draft_followup + message classes + approval levels + consent/opt-out
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: draft_followup + message classes + approval levels + consent/opt-out (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-14)
 - Files: docs/ai-receptionist/
