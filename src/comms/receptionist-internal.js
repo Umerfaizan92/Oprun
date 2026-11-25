@@ -84,6 +84,8 @@ export function installReceptionistInternal(app, { db, env, pipeline, comms, boo
   // ------------------------------------------------------------------ call context
   app.get('/api/internal/voice/call-context', guard, (req, res) => {
     const { org, call } = req.voice;
+    // R-05: the worker has loaded the call, so the answer-time fallback timer stands down.
+    if (call.stage === 'streaming') db.prepare("UPDATE voice_calls SET stage='streaming_live',updated_at=? WHERE call_control_id=? AND organisation_id=? AND stage='streaming'").run(iso(), call.call_control_id, org);
     const o = db.prepare('SELECT COALESCE(display_name,name) name,timezone FROM organisations WHERE id=?').get(org) || {};
     const cfg = db.prepare('SELECT * FROM receptionist_config WHERE organisation_id=?').get(org) || {};
     const k = knowledge ? knowledge.liveBlock(org) : db.prepare("SELECT revision,prompt_block FROM receptionist_knowledge WHERE organisation_id=? AND status='approved' ORDER BY revision DESC LIMIT 1").get(org);

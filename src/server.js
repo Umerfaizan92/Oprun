@@ -6,7 +6,7 @@ import { installPipeline } from './pipeline.js';
 import { installDocumentAttachments } from './document-attachments.js';
 import { createPipelineNotices } from './pipeline-notices.js';
 import { migrateReceptionist } from './comms/receptionist-store.js';
-import { installReceptionistInternal, receptionistActor } from './comms/receptionist-internal.js';
+import { installReceptionistInternal, receptionistActor, issueCallToken } from './comms/receptionist-internal.js';
 import { createReceptionistBooking } from './comms/receptionist-booking.js';
 import { createReceptionistFollowups } from './comms/receptionist-followups.js';
 import { createReceptionistKnowledge, installReceptionistKnowledgeRoutes } from './comms/receptionist-knowledge.js';
@@ -6333,8 +6333,9 @@ jobLifecycle.install(app,{requireSaasUser,requireSaasRole,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{jobLifecycle.runReminders().catch(e=>console.warn('[REMINDERS]',String(e.message||e).slice(0,160)))},10*60000).unref();
 // D-R12: each business connects its own Telnyx account (it buys/ports and pays Telnyx directly).
 const receptionistTelnyx=createReceptionistTelnyx({db,runtime:integrationRuntime,env});
-const voiceFlow=createVoice({db,env,recordInbound,notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.callCredentials(org),repairOutbound:org=>receptionistTelnyx.repairOutbound(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
-  orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
+const voiceFlow=createVoice({db,env,recordInbound,receptionist:{live:org=>{try{return db.prepare("SELECT status FROM receptionist_config WHERE organisation_id=?").get(org)?.status==='live'}catch{return false}},token:(org,id)=>issueCallToken(env,{org,call_control_id:id})},notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),credentialsFor:org=>receptionistTelnyx.callCredentials(org),repairOutbound:org=>receptionistTelnyx.repairOutbound(org),onCallEnded:c=>{if(c?.organisation_id)void receptionistIntake.processCall(c).then(r=>console.log('[RECEPTIONIST] intake',JSON.stringify(r))).catch(e=>console.error('[RECEPTIONIST] intake failed:',e.message))},
+  // R-05: numbers listed for the AI receptionist route first; the display number in comms_channels still works.
+  orgForNumber:to=>{const d=voiceDigits(to);if(!d)return null;try{const r=db.prepare("SELECT organisation_id,e164 FROM receptionist_numbers WHERE status='active'").all().find(r=>voiceDigits(r.e164)===d);if(r)return r.organisation_id}catch{}return db.prepare("SELECT organisation_id,address FROM comms_channels WHERE channel='voice' AND status='active'").all().find(r=>voiceDigits(r.address)===d)?.organisation_id||null},
   profileFor:org=>{if(!org)return {business_name:'Oprun',greeting:'Thanks for calling Oprun. How can I help?',knowledge:'',hours:'',timezone:'Australia/Perth'};return receptionistProfileFor(org)}});
 // R-03 (T-123): AI Receptionist tables and columns (additive; legacy tables kept for rollback).
 migrateReceptionist(db);

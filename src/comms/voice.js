@@ -38,7 +38,7 @@ export function openNow(hoursText, timezone = 'Australia/Perth', at = Date.now()
   return { open: false, parsed: true };
 }
 
-export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbound, notify = () => {}, orgForNumber, profileFor, onCallEnded = () => {}, repairOutbound = async () => false, credentialsFor = () => null, log = console }) {
+export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbound, notify = () => {}, orgForNumber, profileFor, onCallEnded = () => {}, repairOutbound = async () => false, credentialsFor = () => null, receptionist = {}, log = console }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS voice_calls (call_control_id TEXT PRIMARY KEY, call_session_id TEXT, organisation_id TEXT, scope TEXT NOT NULL, from_number TEXT, to_number TEXT, stage TEXT NOT NULL, route TEXT, transcript TEXT NOT NULL DEFAULT '', recording_url TEXT, voicemail INTEGER NOT NULL DEFAULT 0, transferred_to_human INTEGER NOT NULL DEFAULT 0, failures_json TEXT NOT NULL DEFAULT '[]', started_at TEXT NOT NULL, answered_at TEXT, ended_at TEXT, hangup_cause TEXT, duration_seconds INTEGER, inbox_message_id TEXT, updated_at TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS voice_calls_org ON voice_calls(organisation_id, started_at);
@@ -132,12 +132,37 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
   const state = (o) => Buffer.from(JSON.stringify({ v: 'sp-voice', ...o })).toString('base64');
   const readState = (s) => { try { const o = JSON.parse(Buffer.from(String(s || ''), 'base64').toString()); return o?.v === 'sp-voice' ? o : null; } catch { return null; } };
 
+  // R-05 (T-125): a business with a live AI receptionist is answered by the voice worker over a media stream. If the
+  // stream cannot start, or the worker has not loaded the call within the time limit, or it drops mid-call, the call
+  // moves down the existing chain: Telnyx assistant -> transfer -> voicemail -> apology. A caller is never left in silence.
+  const streamingOn = (c) => env.RECEPTIONIST_ENABLED === '1' && String(env.VOICE_WORKER_WSS_URL || '').startsWith('wss://') && c.organisation_id && c.scope === 'business' && receptionist.live?.(c.organisation_id) && receptionist.token;
+  async function startStreaming(id, c) {
+    update(id, { stage: 'streaming', route: 'streaming' });
+    const url = `${String(env.VOICE_WORKER_WSS_URL).replace(/\/$/, '')}?token=${encodeURIComponent(receptionist.token(c.organisation_id, id))}`;
+    try {
+      await telnyx(`/calls/${encodeURIComponent(id)}/actions/streaming_start`, { stream_url: url, stream_track: 'both_tracks', stream_bidirectional_mode: 'rtp', stream_bidirectional_codec: 'PCMU', command_id: cmdId(id, 'streaming'), client_state: state({ stage: 'streaming' }) });
+    } catch (e) { fail(id, 'streaming_start', e); return false; }
+    // The worker must load the call (GET call-context marks stage 'streaming_live') within the limit.
+    const t = setTimeout(() => { const now = call(id); if (now && now.stage === 'streaming') { fail(id, 'worker_timeout', new Error('The voice worker did not load the call in time.')); void fallbackFromStream(id); } }, Number(env.VOICE_WORKER_CONNECT_MS || 2000));
+    t.unref?.();
+    return true;
+  }
+  async function fallbackFromStream(id) {
+    const c = call(id); if (!c || c.stage === 'ended' || c.ended_at) return;
+    update(id, { stage: 'fallback', route: 'fallback_assistant' });
+    return answerWithAssistant(id, c, { fallback: true });
+  }
   async function onAnswered(id) {
     const c = call(id); if (!c) return;
     update(id, { stage: 'answered', answered_at: iso() });
-    const s = settings(ownerKey(c)), p = profileFor(c.organisation_id), business = p?.business_name || 'the business';
+    const s = settings(ownerKey(c));
     if (s.mode === 'voicemail') return voicemail(id, 'mode');
     if (s.mode === 'forward' && await transfer(id, 'mode')) return;
+    if (streamingOn(c) && await startStreaming(id, c)) return;
+    return answerWithAssistant(id, call(id));
+  }
+  async function answerWithAssistant(id, c, { fallback = false } = {}) {
+    const s = settings(ownerKey(c)), p = profileFor(c.organisation_id), business = p?.business_name || 'the business';
     const notice = s.recording_notice ? ' This call is transcribed so we can handle your enquiry.' : '';
     const greeting = (p?.greeting ? String(p.greeting).slice(0, 300) : `Thanks for calling ${business}. How can I help?`) + notice;
     const jobs = [];
@@ -213,6 +238,10 @@ export function createVoice({ db, env, fetchImpl = globalThis.fetch, recordInbou
     if (type === 'call.speak.ended' && cs?.stage === 'apology') { try { await telnyx(`/calls/${encodeURIComponent(id)}/actions/hangup`, { command_id: cmdId(id, 'hangup-apology') }); } catch (e) { fail(id, 'hangup', e); } return { hungup: true }; }
     if (type === 'call.recording.saved') { const url = p.recording_urls?.mp3 || p.public_recording_urls?.mp3 || null; update(id, { recording_url: url }); return { recording_url: url }; }
     if (type === 'call.ai_gather.ended' || type === 'call.conversation.ended') { const msgs = p.message_history || p.messages || []; if (Array.isArray(msgs) && msgs.length && !call(id).transcript.trim()) update(id, { transcript: msgs.map((m) => `${m.role === 'assistant' ? 'Receptionist' : 'Caller'}: ${m.content}`).join('\n').slice(-40000) }); return { conversation: true }; }
+    // R-05: the media stream ended while the call is still up and the worker did not report the end: fall back.
+    if ((type === 'streaming.stopped' || type === 'streaming.failed' || type === 'call.streaming.stopped' || type === 'call.streaming.failed') && ['streaming', 'streaming_live'].includes(call(id)?.stage)) {
+      fail(id, 'stream_ended', new Error(p.failure_reason || type)); await fallbackFromStream(id); return { stage: call(id).stage };
+    }
     if (type === 'call.hangup') { await onHangup(id, p); return { ended: true }; }
     return { ignored: type };
   }

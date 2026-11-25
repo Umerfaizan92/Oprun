@@ -205,7 +205,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Navigation inventory test: every old route opens the new section; phone/iPad/laptop checks pass
 
 ## T-136 R-16 AI Receptionist: Knowledge auto-load + review + approval ([07](07_KNOWLEDGE_AUTOLOAD.md))
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-19
 - Requirement: Knowledge auto-load + review + approval ([07](07_KNOWLEDGE_AUTOLOAD.md)) (spec: docs/ai-receptionist/10_IMPLEMENTATION_PLAN.md R-16)
 - Files: docs/ai-receptionist/
