@@ -79,13 +79,15 @@ try {
         bootup: (a['bootup-time']?.details?.items || []).slice(0, 8).map((x) => `${String(x.url).replace(server.base, '')} ${Math.round(x.scripting)}ms`),
         lcp_element: JSON.stringify(a['largest-contentful-paint-element']?.details?.items || []).slice(0, 900),
         blocking: (a['render-blocking-resources']?.details?.items || []).map((x) => `${String(x.url).replace(server.base, '')} ${Math.round(x.wastedMs)}ms ${Math.round(x.totalBytes / 1024)}KB`),
+        net_top: (a['network-requests']?.details?.items || []).sort((x, y) => (y.transferSize || 0) - (x.transferSize || 0)).slice(0, 12).map((x) => `${String(x.url).replace(server.base, '').slice(0, 60)} ${Math.round((x.transferSize || 0) / 1024)}KB/${Math.round((x.resourceSize || 0) / 1024)}KB`),
+        long_tasks: (a['long-tasks']?.details?.items || []).slice(0, 10).map((x) => `${String(x.url).replace(server.base, '').split('?')[0]}@${Math.round(x.startTime)} ${Math.round(x.duration)}ms`),
         main_thread: (a['mainthread-work-breakdown']?.details?.items || []).map((x) => `${x.group} ${Math.round(x.duration)}ms`),
         opportunities: Object.values(a).filter((x) => x.details?.type === 'opportunity' && (x.details.overallSavingsMs || 0) >= 150).sort((p, q) => q.details.overallSavingsMs - p.details.overallSavingsMs).slice(0, 3).map((x) => `${x.title} (~${Math.round(x.details.overallSavingsMs)} ms)`) });
     }
     const best = runs.sort((p, q) => q.performance - p.performance)[0];
     results.push({ area, name, url, ...best });
     console.log(`${String(best.performance).padStart(3)}  ${area.padEnd(9)} ${name.padEnd(18)} LCP ${best.lcp_ms} ms  TTI ${best.tti_ms} ms  TBT ${best.tbt_ms} ms  CLS ${best.cls}  ${best.transfer_kb} KB  ${best.requests} req${best.final_url.includes('sign-in') && area !== 'public' ? '  (REDIRECTED TO SIGN-IN)' : ''}`);
-    if (process.env.LH_DEBUG) console.log('   main thread: ' + best.main_thread.join(', ') + '\n   scripts: ' + best.bootup.join(', ') + '\n   blocking: ' + best.blocking.join(', ') + '\n   lcp: ' + best.lcp_element);
+    if (process.env.LH_DEBUG) console.log('   main thread: ' + best.main_thread.join(', ') + '\n   scripts: ' + best.bootup.join(', ') + '\n   long tasks: ' + best.long_tasks.join(', ') + '\n   network: ' + best.net_top.join(', ') + '\n   blocking: ' + best.blocking.join(', ') + '\n   lcp: ' + best.lcp_element);
   }
   await browser.disconnect();
 } finally { await chrome.kill(); await server.stop(); }

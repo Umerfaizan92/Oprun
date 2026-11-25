@@ -93,7 +93,8 @@
       // Prompt 01 #9: the bar is a direct child of <body>. Inside .app-main it inherited transformed/animated ancestors,
       // which turn position:fixed into 'fixed to that ancestor' and made the bar drift while scrolling.
       dock.append(menu, sections); document.body.append(dock);
-      resize = new ResizeObserver(() => document.body.style.setProperty('--mobile-workspace-dock-height', Math.ceil(dock.getBoundingClientRect().height) + 'px'));
+      // TR-72: the size the observer reports (no forced layout), written only when it changes.
+      resize = new ResizeObserver(entries => { const box = entries[0]?.borderBoxSize?.[0], h = Math.ceil(box ? box.blockSize : dock.getBoundingClientRect().height) + 'px'; if (document.body.style.getPropertyValue('--mobile-workspace-dock-height') !== h) document.body.style.setProperty('--mobile-workspace-dock-height', h); });
       resize.observe(dock);
     }
     dock.hidden = !media.matches;
@@ -111,7 +112,7 @@
     if (next === signature && sameSources) return;
     signature = next; dock._sources = sources;
     const focused = dock.contains(document.activeElement) || actions?.contains(document.activeElement) ? document.activeElement.dataset.dockKey : null;
-    const sectionScroll = sections.scrollLeft;
+    const sectionScroll = sections.childElementCount ? sections.scrollLeft : 0; // TR-72: an empty bar has nothing to keep (reading it forces a layout)
     // AI/chat remain available inside Menu; the bottom bar contains only Menu and sub-sections.
     if (rail && !actions) {
       actions = make('div','mobile-workspace-actions'); actions.setAttribute('role','group'); actions.setAttribute('aria-label','Workspace help and chat');
@@ -152,9 +153,10 @@
       }
     }
     sections.hidden = !sections.children.length;
-    sections.scrollLeft = sectionScroll;
+    if (sectionScroll) sections.scrollLeft = sectionScroll;
     if (focused) { const selector = `[data-dock-key="${CSS.escape(focused)}"]`; (dock.querySelector(selector) || actions?.querySelector(selector) || (rail?.dataset.drawer === 'true' ? rail.querySelector('.business-navigation-close') : menu))?.focus({preventScroll:true}); }
-    else sections.querySelector('[aria-current]')?.scrollIntoView({block:'nearest',inline:'nearest'});
+    // TR-72: on the next frame, when the browser has already laid the bar out (doing it here forced an extra full layout).
+    else if (!dock.hidden) requestAnimationFrame(() => sections.querySelector('[aria-current]')?.scrollIntoView({block:'nearest',inline:'nearest'}));
   }
   // T-175: a tap on a bottom-bar tab shows its result. The page scrolls to the content that tab controls (or the
   // first visible block after the hidden tab list) and the tab's name is announced briefly above the bar.
@@ -190,7 +192,8 @@
     // different moments while the address bar shows/hides, which made the old keyboard offset jump during scrolling.
     // When the on-screen keyboard is open the bar is hidden instead, and returns when typing ends.
     const typing = () => { const a = document.activeElement; return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) && !/^(checkbox|radio|button|submit|range|color|file)$/.test(a.type || ''); };
-    const viewport = () => { const v = window.visualViewport, h = v?.height || innerHeight; document.body.style.setProperty('--mobile-workspace-viewport-height', h + 'px'); document.body.style.setProperty('--mobile-workspace-keyboard-offset', '0px'); document.body.classList.toggle('mobile-keyboard-open', typing() && (screen.height - h > 220 || innerHeight - h > 150)); };
+    const setVar = (k, v) => { if (document.body.style.getPropertyValue(k) !== v) document.body.style.setProperty(k, v); }; // TR-72: unchanged values are not written again
+    const viewport = () => { const v = window.visualViewport, h = v?.height || innerHeight; setVar('--mobile-workspace-viewport-height', h + 'px'); setVar('--mobile-workspace-keyboard-offset', '0px'); document.body.classList.toggle('mobile-keyboard-open', typing() && (screen.height - h > 220 || innerHeight - h > 150)); };
     document.addEventListener('focusin', () => setTimeout(viewport, 250)); document.addEventListener('focusout', () => setTimeout(viewport, 120));
     window.visualViewport?.addEventListener('resize', viewport); window.visualViewport?.addEventListener('scroll', viewport); window.addEventListener('resize', viewport); viewport();
     for (const event of ['gds:viewchange','superpro:nav-ready','superpro:access-changed','superpro:sectionchange','hashchange','popstate']) window.addEventListener(event, queue);

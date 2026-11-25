@@ -47,7 +47,7 @@ const PAGES = [...PUBLIC, ...BUSINESS, ...FOUNDER]
   .filter((p) => !ONLY || (ONLY === 'portals' ? p.group !== 'public' : p.name.includes(ONLY)));
 
 // Things that change by themselves (clocks, relative times, live counters) are hidden from the comparison.
-const MASK = ['[data-year]', 'time', '.gx-clock', '[data-live-value]', '.sp-typing', '.toast', '.sp-toast', '[data-relative-time]', '#workspace-clock', '.live-clock', '.notification-badge', '.record-id'];
+const MASK = ['[data-year]', 'time', '.gx-clock', '[data-live-value]', '.sp-typing', '.toast', '.sp-toast', '[data-relative-time]', '#workspace-clock', '.live-clock', '.notification-badge', '.record-id', '#trial-clock', '#trial-copy']; // trial end and countdown depend on when the test data was made
 
 for (const d of Object.values(DIRS)) fs.mkdirSync(d, { recursive: true });
 for (const f of fs.readdirSync(DIRS.diff)) fs.rmSync(path.join(DIRS.diff, f));

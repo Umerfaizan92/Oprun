@@ -2831,3 +2831,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Owner decision: continue the deeper start-up refactor toward 85, or accept 63-77 for now and move to TR-80 review
+
+## CP-203 2026-11-25T01:12:50+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 3 in progress (uncommitted): trial countdown ticks only while visible; decorative looping animations bounded (owner rule); forced layouts removed in workspace-mobile/portal-shell/page-sections observers; repeated root writes guarded; locale catalogue split (saas/locale-core.js + saas/locale/{hi,ur,ar}.js, catalog API unchanged, 6194 outputs identical); locale helpers cached and translation writes only on change; localization tests 26/26 + browser suite pass
+- Incomplete steps: re-profile scripts; run visual business + browser suites + npm test; Lighthouse; commit
+- Files modified (uncommitted at checkpoint): saas/app.js; saas/brand.css; saas/locale-catalog.js; saas/navigation-shell.js; saas/page-sections.js; saas/portal-shell.js; saas/unified-ui.css; saas/workspace-gadgets.css; saas/workspace-locale.js; saas/workspace-mobile.js; saas/workspace-seo.css; scripts/localization-ui.test.mjs; scripts/report-lighthouse.mjs; saas/locale-core.js; saas/locale/ar.js; saas/locale/hi.js; saas/locale/ur.js
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 3cd6779 (TR-72: record measured start-up costs in the Lighthouse report and handover); 69 commit(s) not on origin/main
+- Recovery snapshot: refs/recovery/claude/transformation-phase1/20261125T011250Z (a8a6784)
+- Known errors: none
+- Next exact action: timeout 300 node /tmp/prof/profile.mjs today/home (ASSET_BUNDLES=0) to find remaining heavy start-up functions
+
+## CP-204 2026-11-25T01:49:14+00:00 T-236 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-236 (IN_PROGRESS)
+- Completed steps: Stage 3 verified: npm test 73/73; all browser suites passed (ui 38, mobile-workspace 310, navigation 635, redesign, comms, connections, website wizard, media studio, reel maker, AI video, onboarding, localization); localization unit tests 26/26; visual business 348 screens match (Plans page baselines refreshed after masking clock-based trial values)
+- Incomplete steps: Full Lighthouse report; layout shift on Enquiries/Inbox/Money; remaining start-up style passes
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; qa/reports/navigation-coverage.json; qa/reports/visual-regression-business.json; saas/app.js; saas/brand.css; saas/ds/app-motion.js; saas/ds/app-motion.js.br; saas/ds/app-motion.js.gz; saas/locale-catalog.js; saas/navigation-shell.js; saas/page-sections.js; saas/portal-shell.js; saas/unified-ui.css; saas/workspace-gadgets.css; saas/workspace-locale.js; saas/workspace-mobile.js; saas/workspace-seo.css; scripts/localization-ui.test.mjs; scripts/report-lighthouse.mjs; scripts/test-visual.mjs; saas/locale-core.js; saas/locale/ar.js; saas/locale/hi.js; saas/locale/ur.js
+- Tests executed: npm test; all browser suites; localization tests; test:visual business
+- Test results: 73/73; all passed; 26/26; 348 screens 0 problems
+- Git branch: claude/transformation-phase1
+- Commit: 3cd6779 (TR-72: record measured start-up costs in the Lighthouse report and handover); 69 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: LIGHTHOUSE_HOME=/tmp/lh npm run report:lighthouse; then reserve space for the panels that shift on Enquiries/Inbox/Money

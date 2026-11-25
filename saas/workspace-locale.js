@@ -1,4 +1,5 @@
-import { message, formatMessage } from './locale-catalog.js?v=20261124.tr52';
+// TR-72: the core catalogue holds English; the reader's language loads on demand (loadLanguage).
+import { message, formatMessage, loadLanguage } from './locale-core.js?v=20261125.tr72';
 const trigger = document.getElementById('workspace-language');
 const dialog = document.getElementById('workspace-language-dialog');
 const form = dialog?.querySelector('form');
@@ -15,10 +16,10 @@ const api = async (options = {}) => {
 function translateOne(element, locale) {
   const inLanguage = key => message(locale, key) !== message('en', key) || /^en\b/.test(locale);
   const key = element.dataset.i18n;
-  if (key && message('en', key) !== key) { const text = message(locale, key); if (element.textContent !== text) element.textContent = text; element.lang = inLanguage(key) ? locale : 'en'; }
+  if (key && message('en', key) !== key) { const text = message(locale, key); if (element.textContent !== text) element.textContent = text; const lang = inLanguage(key) ? locale : 'en'; if (element.lang !== lang) element.lang = lang; } // TR-72: unchanged values are not written again
   for (const pair of (element.dataset.i18nAttr || '').split(';')) {
     const [attr, attrKey] = pair.split('=').map(x => x?.trim());
-    if (attr && attrKey && message('en', attrKey) !== attrKey && /^(aria-label|placeholder|title|data-tip)$/.test(attr)) element.setAttribute(attr, message(locale, attrKey));
+    if (attr && attrKey && message('en', attrKey) !== attrKey && /^(aria-label|placeholder|title|data-tip)$/.test(attr)) { const value = message(locale, attrKey); if (element.getAttribute(attr) !== value) element.setAttribute(attr, value); }
   }
 }
 function translateTree(root, locale) {
@@ -90,7 +91,7 @@ function apply(data) {
 }
 async function load() {
   const requestRevision = ++revision;
-  try { const data = await api(); if (requestRevision === revision) apply(data); }
+  try { const data = await api(); await loadLanguage(data.locale).catch(() => {}); if (requestRevision === revision) apply(data); }
   catch { if (requestRevision === revision) trigger.setAttribute('title', 'Language preferences are temporarily unavailable. Try again.'); }
 }
 if (trigger && dialog && form) {
@@ -105,6 +106,7 @@ if (trigger && dialog && form) {
     const current = () => mine === revision && ctx === context;
     try {
       const data = await api({ method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locale: form.elements.locale.value }) });
+      await loadLanguage(data.locale).catch(() => {});
       if (current()) { apply(data); dialog.querySelector('[role="status"]').textContent = message(data.locale, 'notice'); }
     } catch { if (current()) dialog.querySelector('[role="status"]').textContent = message(preference?.locale || 'en', 'error'); }
     finally { if (activeSave === mine) { activeSave = 0; save.disabled = false; } }

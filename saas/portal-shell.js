@@ -96,7 +96,8 @@
       if (context) new MutationObserver(syncIdentity).observe(context,{childList:true,subtree:true,characterData:true,attributes:true});
       syncIdentity();
       const header = document.querySelector('.app-topbar');
-      if (header && window.ResizeObserver) new ResizeObserver(() => document.body.style.setProperty('--navigation-header-height', Math.ceil(header.getBoundingClientRect().height) + 'px')).observe(header);
+      // TR-72: the size the observer reports (no forced layout), written only when it changes.
+      if (header && window.ResizeObserver) new ResizeObserver(entries => { const box = entries[0]?.borderBoxSize?.[0], h = Math.ceil(box ? box.blockSize : header.getBoundingClientRect().height) + 'px'; if (document.body.style.getPropertyValue('--navigation-header-height') !== h) document.body.style.setProperty('--navigation-header-height', h); }).observe(header);
       new MutationObserver(syncBadges).observe(document.querySelector('.workspace-nav'), { childList: true, subtree: true, characterData: true });
     }
     const key = `sp-nav:business:${session.user.id || session.user.email}:${session.organisation.id}`;

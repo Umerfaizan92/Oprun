@@ -44,4 +44,4 @@
 .sv-empty{display:grid;gap:4px}.sv-body{white-space:pre-wrap}
 @media(max-width:980px){.sv-layout{grid-template-columns:1fr}.sv-hub{position:static}.sv-pillar:before{display:none}}
 @media(max-width:560px){.sv-check>summary{grid-template-columns:24px 1fr}.sv-check-state{grid-column:2;justify-self:start}.sv-check-body{padding-left:12px}.sv-badge{font-size:1.1rem}}
-@media(prefers-reduced-motion:no-preference){.sv-badge .sv-icon svg{animation:sv-bob 3.6s ease-in-out infinite}.sv-p-aeo .sv-icon svg{animation-delay:.4s}.sv-p-geo .sv-icon svg{animation-delay:.8s}.sv-p-aio .sv-icon svg{animation-delay:1.2s}.sv-p-sxo .sv-icon svg{animation-delay:1.6s}@keyframes sv-bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-6deg)}}}
+@media(prefers-reduced-motion:no-preference){.sv-badge .sv-icon svg{animation:sv-bob 3.6s ease-in-out 2}.sv-p-aeo .sv-icon svg{animation-delay:.4s}.sv-p-geo .sv-icon svg{animation-delay:.8s}.sv-p-aio .sv-icon svg{animation-delay:1.2s}.sv-p-sxo .sv-icon svg{animation-delay:1.6s}@keyframes sv-bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-6deg)}}}

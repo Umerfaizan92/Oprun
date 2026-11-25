@@ -113,9 +113,9 @@ body.sp-operator{--bg:var(--sp-canvas);--panel:var(--sp-surface);--panel2:var(--
 /* Flowstate-inspired depth and motion, rendered with the existing palette.
    No WebGL, video, fonts, animation libraries or remote assets are added. */
 .sp-motion-target{transform-origin:center;transform-box:fill-box}
-.sp-motion-enabled .sp-motion-visible:is(.sp-logo,.ai-ico){animation:sp-live-icon 6s ease-in-out infinite}
-.sp-motion-enabled .sp-motion-visible:is(.sp-nav-icon,.nav-step svg){animation:sp-icon-breathe 5s ease-in-out infinite}
-.sp-motion-enabled .sp-motion-visible.integration-logo{animation:sp-icon-breathe 6s ease-in-out infinite}
+.sp-motion-enabled .sp-motion-visible:is(.sp-logo,.ai-ico){animation:sp-live-icon 6s ease-in-out 2}
+.sp-motion-enabled .sp-motion-visible:is(.sp-nav-icon,.nav-step svg){animation:sp-icon-breathe 5s ease-in-out 2}
+.sp-motion-enabled .sp-motion-visible.integration-logo{animation:sp-icon-breathe 6s ease-in-out 2}
 .sp-page-hidden *,.sp-page-hidden *::before,.sp-page-hidden *::after{animation-play-state:paused!important}
 html:not(.sp-motion-enabled) :is(.sv-icon svg,.gx-live i,.sc-launch-icon),html:not(.sp-motion-enabled) .pulse-dot::after{animation:none!important}
 .sp-motion-enabled.sp-view-arriving .view:not([hidden])>.page-heading{animation:sp-view-enter 280ms var(--sp-ease) both}
@@ -123,7 +123,7 @@ html:not(.sp-motion-enabled) :is(.sv-icon svg,.gx-live i,.sc-launch-icon),html:n
 .hero{position:relative}
 .hero::before{content:"";position:absolute;inset:2% 5%;z-index:-1;pointer-events:none;border-radius:50%;background:radial-gradient(ellipse at 70% 35%,var(--brand-soft),transparent 65%);opacity:.7}
 .auth-page .auth-story::after{content:"";position:absolute;inset:8% -10%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 30% 35%,var(--brand-soft),transparent 65%);opacity:.75;transform:rotate(-8deg)}
-.sp-motion-enabled .auth-story.sp-motion-visible::after,.sp-motion-enabled .hero.sp-motion-visible::before{animation:sp-fluid-drift 16s ease-in-out infinite alternate}
+.sp-motion-enabled .auth-story.sp-motion-visible::after,.sp-motion-enabled .hero.sp-motion-visible::before{animation:sp-fluid-drift 16s ease-in-out 2 alternate both}
 .sp-page-hidden .auth-story::after,.sp-page-hidden .hero::before{animation-play-state:paused!important}
 :is(.feature-card,.metric-card,.integration-card,.office-premium-cards article){position:relative}
 @media(hover:hover) and (pointer:fine){
@@ -301,7 +301,7 @@ html body .topbar-actions #logout{display:inline-flex!important;visibility:visib
 .sp-access-dialog{width:min(760px,calc(100vw - 24px));height:auto!important;min-height:0!important;max-height:85dvh;overflow:auto;padding:20px;border:1px solid #bfa15b55;border-radius:18px;background:var(--panel,#111820);color:var(--text,#eee)}
 .sp-access-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}.sp-access-dialog h2{margin:0;font-size:20px}.sp-access-dialog p{font-size:13px;line-height:1.5}.sp-access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}.sp-access-grid fieldset{border:1px solid #bfa15b44;border-radius:10px;padding:10px;min-width:0}.sp-access-grid legend{font-size:12px}.sp-access-grid label{display:inline-flex;align-items:center;gap:5px;margin:4px 10px 4px 0;font-size:12px}.sp-access-grid input[type=checkbox]{width:16px!important;height:16px!important;min-height:0!important;margin:0}.sp-access-log article{border-bottom:1px solid #8884;padding:10px 0}.sp-access-log small{overflow-wrap:anywhere}
 /* Shared original gold atmosphere: two compositor layers, no video or WebGL. */
-.sp-cinematic-backdrop{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}.sp-cinematic-backdrop:before,.sp-cinematic-backdrop:after{content:"";position:absolute;inset:-15%;background:radial-gradient(ellipse at 85% 15%,color-mix(in srgb,var(--sp-gold-500) 12.5%,transparent),transparent 45%),radial-gradient(ellipse at 10% 80%,#3d738218,transparent 45%);will-change:auto}.sp-cinematic-backdrop:after{background:repeating-linear-gradient(120deg,transparent 0 120px,#bd9c3910 121px,transparent 122px);opacity:.35}body{isolation:isolate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:before{animation:sp-atmosphere 24s ease-in-out infinite alternate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:after{animation:sp-atmosphere 32s ease-in-out infinite alternate-reverse}@keyframes sp-atmosphere{to{transform:translate3d(-3%,2%,0) rotate(2deg)}}
+.sp-cinematic-backdrop{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}.sp-cinematic-backdrop:before,.sp-cinematic-backdrop:after{content:"";position:absolute;inset:-15%;background:radial-gradient(ellipse at 85% 15%,color-mix(in srgb,var(--sp-gold-500) 12.5%,transparent),transparent 45%),radial-gradient(ellipse at 10% 80%,#3d738218,transparent 45%);will-change:auto}.sp-cinematic-backdrop:after{background:repeating-linear-gradient(120deg,transparent 0 120px,#bd9c3910 121px,transparent 122px);opacity:.35}body{isolation:isolate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:before{animation:sp-atmosphere 24s ease-in-out 2 alternate}.sp-motion-enabled:not(.sp-page-hidden) .sp-cinematic-backdrop:after{animation:sp-atmosphere 32s ease-in-out 1 alternate-reverse}@keyframes sp-atmosphere{to{transform:translate3d(-3%,2%,0) rotate(2deg)}}
 @media(prefers-reduced-motion:reduce){.sp-cinematic-backdrop:before,.sp-cinematic-backdrop:after{animation:none!important}}
 
 /* Auto height plus inset:0 stretches absolutely positioned dialogs. Use intrinsic size. */
@@ -362,7 +362,7 @@ html body .setup-list>li{min-width:0;border-radius:12px;background:linear-gradie
 #workspace-context .sp-founder-shortcut:hover,#workspace-context .sp-founder-shortcut:focus-visible{background:color-mix(in srgb,var(--sp-gold-300) 6.3%,transparent);border-color:var(--sp-accent)}
 
 .sp-card-icon{width:26px;height:26px;padding:4px;border:1px solid color-mix(in srgb,var(--sp-gold-300) 22%,transparent);border-radius:8px;fill:none;stroke:var(--sp-accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;background:color-mix(in srgb,var(--sp-gold-300) 3.5%,transparent)}
-.sp-motion-enabled .sp-motion-visible.sp-card-icon{animation:sp-icon-breathe 6s ease-in-out infinite}
+.sp-motion-enabled .sp-motion-visible.sp-card-icon{animation:sp-icon-breathe 6s ease-in-out 2}
 @media(prefers-reduced-motion:reduce){.sp-card-icon{animation:none!important}}
 
 .sp-operator .stat .sp-card-icon{position:absolute;top:16px;right:14px}.sp-operator .stat{padding-right:52px!important}
@@ -376,7 +376,7 @@ html body :is(#workspace,#app) .sp-surface-card{border-top:2px solid color-mix(i
 @media(hover:hover) and (pointer:fine){:where(#workspace,#app) :where(.sp-surface-card){position:relative}html body :is(#workspace,#app) .sp-surface-card:hover::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:5px}}
 html body :is(#workspace,#app) .sp-surface-card:focus-within{border-color:var(--sp-accent);box-shadow:inset 0 1px #ffffff12,0 0 0 1px color-mix(in srgb,var(--sp-gold-300) 25.1%,transparent),0 10px 28px #00000030!important}
 @media(hover:none){html body :is(#workspace,#app) .sp-surface-card:active{border-color:var(--sp-accent);background-image:radial-gradient(ellipse at top left,color-mix(in srgb,var(--sp-gold-300) 18.8%,transparent),transparent 70%)}}
-.sp-motion-enabled .sp-motion-visible:is(.signin-feature-icon svg,.sp-section-icon){animation:sp-icon-breathe 5s ease-in-out infinite}
+.sp-motion-enabled .sp-motion-visible:is(.signin-feature-icon svg,.sp-section-icon){animation:sp-icon-breathe 5s ease-in-out 2}
 @media(prefers-reduced-motion:reduce){html body :is(#workspace,#app) .sp-surface-card{transition:none!important;translate:none!important}.sp-section-icon,.signin-feature-icon svg{animation:none!important}}
 /* Founder authentication uses the same compact surfaces, without viewport-height columns. */
 body.auth-page[data-auth-page=operator]{min-height:100svh;display:grid;align-items:center;padding:24px}
@@ -428,3 +428,5 @@ body.auth-page[data-auth-page="recover"] .auth-form-side { min-height: 0; }
   body.auth-page[data-auth-page="recover"] .auth-form-side { padding: 18px; }
   body.auth-page[data-auth-page="recover"] .auth-form-card { padding-block: 8px; }
 }
+
+/* TR-72 / owner rule "no looping animation": the backdrop drift, the live pulses (brand.css, workspace-gadgets.css), the shortcut icon float, the icon breathe/bob effects (also workspace-seo.css) and the hero drift play a few times on arrival and then rest at their normal look. Busy indicators (spinners, typing dots, listening mic) still run while the work lasts. */

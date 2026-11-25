@@ -111,7 +111,7 @@
         const anchor = this.parentOf?.[this.active] || this.active;
         children.querySelectorAll('.navigation-subpages').forEach(sub => { sub.hidden = sub.dataset.navParent !== anchor; sub.previousElementSibling?.classList.toggle('has-active-child', anchor !== this.active && sub.dataset.navParent === anchor); });
       });
-      document.body.dataset.navigationCompact = String(this.collapsed && !media.matches);
+      const compact = String(this.collapsed && !media.matches); if (document.body.dataset.navigationCompact !== compact) document.body.dataset.navigationCompact = compact; // TR-72: written only when it changes
     }
     search(q) { q = String(q).trim().toLowerCase(); this.nav.querySelectorAll('.navigation-group').forEach(box => { const group = box.querySelector('[data-nav-group]'); const groupMatch = group.textContent.toLowerCase().includes(q); let hit = groupMatch; for (const a of box.querySelectorAll('a')) { a.hidden = !!q && !groupMatch && !a.textContent.toLowerCase().includes(q); if (!a.hidden) hit = true; } box.hidden = !hit; if (q && hit) { box.querySelectorAll('details').forEach(d => { d.open = true; }); box.querySelectorAll('.navigation-subpages').forEach(s => { s.hidden = false; }); box.lastElementChild.hidden = false; group.setAttribute('aria-expanded', 'true'); } }); if (!q) this.paint(); }
   }

@@ -79,7 +79,7 @@ html:not([data-theme="light"]) .tilt.is-tilting{transition:transform .06s linear
 .metric-icon.warning{background:color-mix(in srgb,var(--sp-gold-300) 10%,transparent);color:var(--sp-gold-300);box-shadow:0 0 0 1px color-mix(in srgb,var(--sp-gold-300) 28%,transparent)}
 .metric-icon svg,.nav-step svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .pulse-dot{--dot:#64d7a1;display:inline-block;position:relative;width:8px;height:8px;border-radius:50%;background:var(--dot);vertical-align:middle;flex:none}
-.pulse-dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--dot);opacity:0;animation:pulse-ring 2.2s ease-out infinite}
+.pulse-dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--dot);opacity:0;animation:pulse-ring 2.2s ease-out 3}
 .pulse-dot.warn{--dot:var(--sp-gold-300)}.pulse-dot.info{--dot:var(--gold)}.pulse-dot.off{--dot:var(--muted-2)}.pulse-dot.off::after{animation:none}
 @keyframes pulse-ring{0%{transform:scale(.5);opacity:.75}80%,100%{transform:scale(1.6);opacity:0}}
 .status-line{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-xs);color:var(--text-2);padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03)}

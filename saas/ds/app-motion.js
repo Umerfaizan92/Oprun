@@ -24,14 +24,15 @@
   // Live values: when any dashboard figure changes after a refresh, the Live indicator ripples once.
   let snapshot = '', pending = 0;
   const figures = () => [...document.querySelectorAll('.gx-num, .gx-figure, [data-live-value]')].map((e) => e.textContent.trim()).join('|');
+  // TR-72: checked once changes pause (not every frame), so start-up drawing is not re-scanned again and again.
   const mo = new MutationObserver(() => {
-    if (pending) return;
-    pending = requestAnimationFrame(() => {
+    clearTimeout(pending);
+    pending = setTimeout(() => {
       pending = 0;
       const now = figures();
       if (snapshot && now !== snapshot) document.querySelectorAll('.gx-live i, .sp-live').forEach((dot) => { dot.classList.add('sp-live'); M()?.pulse(dot); });
       snapshot = now;
-    });
+    }, 250);
   });
   const start = () => { snapshot = figures(); mo.observe(document.body, { subtree: true, characterData: true, childList: true }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
