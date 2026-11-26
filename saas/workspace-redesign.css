@@ -55,7 +55,9 @@ body.portal-workspace{--status-ok:var(--green,#24875b);--status-attention:var(--
 .view-empty-guide p{margin:0;max-width:640px}
 .view-empty-guide a{display:inline-flex;align-items:center;min-height:var(--touch-min,44px);padding:8px 16px;border-radius:8px;background:var(--brand);color:var(--brand-ink,#111);font-weight:700;text-decoration:none}
 .view-empty-guide a:focus-visible{outline:3px solid var(--work-focus);outline-offset:3px}
-@media(max-width:760px){.view-empty-guide a{width:100%;justify-content:center}}
+@media(max-width:760px){.view-empty-guide a{width:100%;justify-content:center}
+/* MB-23: when the page has its own primary action, the guide link is a plain (secondary) button */
+.view-empty-guide a.is-secondary{background:transparent;border:1px solid var(--line);color:var(--text)}}
 
 /* T-083: quieter secondary tools; native details stays keyboard/touch accessible. */
 .portal-workspace .navigation-more>summary{min-height:44px;padding:8px 10px;font-size:13px;line-height:1.4}

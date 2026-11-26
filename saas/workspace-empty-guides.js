@@ -63,6 +63,9 @@
       if (heading) heading.after(box); else host.prepend(box);
     }
     box.hidden = false;
+    // MB-23: one gold action per screen. When the page has its own primary action, the guide's link is a plain button.
+    const demote = () => { const link = box.querySelector('a'); if (!link) return; const own = [...host.querySelectorAll('.primary,.portal-button.primary,button.primary,.btn-primary')].some(e => !box.contains(e) && e.offsetParent); link.classList.toggle('is-secondary', own); };
+    demote(); setTimeout(demote, 700);
   }
   // A saved record changes emptiness; re-check on the next visit.
   document.addEventListener('submit', () => seen.clear(), true);

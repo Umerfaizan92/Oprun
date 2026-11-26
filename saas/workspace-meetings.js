@@ -103,7 +103,7 @@
       el('label', {}, 'Date and time (optional)', el('input', { name: 'starts_at', type: 'datetime-local' })),
       zoomInfo?.connected ? el('label', {}, 'Where', el('select', { name: 'where' }, el('option', { value: 'oprun', text: 'Oprun video (in the browser)' }), el('option', { value: 'zoom', text: 'Zoom' }))) : null,
       el('label', { class: 'mt-check' }, el('input', { name: 'guests_allowed', type: 'checkbox', checked: true }), ' Allow guests with a private link (they wait until you let them in)'),
-      el('button', { type: 'submit', class: 'portal-button primary', text: 'Create meeting' }));
+      el('button', { type: 'submit', class: 'portal-button', text: 'Create meeting' })); // MB-23: Start video call is the page's one gold action
     form.addEventListener('submit', async (e) => {
       e.preventDefault(); const b = form.querySelector('[type=submit]'); b.disabled = true;
       const v = new FormData(form), at = v.get('starts_at') ? new Date(v.get('starts_at')).toISOString() : undefined;
@@ -165,7 +165,7 @@
           el('label', {}, 'Account ID', el('input', { name: 'account_id', required: true, minlength: 6, maxlength: 80 })),
           el('label', {}, 'Client ID', el('input', { name: 'client_id', required: true, minlength: 6, maxlength: 120 })),
           el('label', {}, 'Client Secret', el('input', { name: 'client_secret', type: 'password', required: true, minlength: 8, maxlength: 200 })),
-          el('button', { type: 'submit', class: 'portal-button primary', text: 'Connect Zoom' }),
+          el('button', { type: 'submit', class: 'portal-button', text: 'Connect Zoom' }),
           el('small', { class: 'mt-hint', text: 'Stored encrypted and never shown again. Oprun checks the details with Zoom before saving.' }));
         zf.addEventListener('submit', async (e) => { e.preventDefault(); const b = zf.querySelector('[type=submit]'); b.disabled = true; const v = new FormData(zf);
           try { await api('/api/saas/zoom/connect', { method: 'POST', body: JSON.stringify({ account_id: v.get('account_id'), client_id: v.get('client_id'), client_secret: v.get('client_secret') }) }); say('Zoom connected.'); await draw(host); } catch (err) { say(err.message, true); b.disabled = false; } });

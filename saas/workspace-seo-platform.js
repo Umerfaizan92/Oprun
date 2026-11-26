@@ -152,7 +152,7 @@
             g.last_check ? el('p', { class: 'pl-meta', 'data-tone': g.last_check.ok ? null : 'bad', text: `Last live check ${when(g.last_check.at)}: ${g.last_check.detail}` }) : null,
             !g.ready ? el('p', { class: 'pl-meta', text: 'Needs a Google Ads developer token on this deployment.' }) : null);
           const acts = el('div', { class: 'pl-actions' });
-          if (!founder && g.connection === 'not_connected' && g.service !== 'pagespeed') acts.append(el('a', { class: 'portal-button primary', href: '#setup/connections', text: g.service === 'business_profile' ? 'Connect Google Business Profile' : 'Connect Google' }));
+          if (!founder && g.connection === 'not_connected' && g.service !== 'pagespeed') acts.append(el('a', { class: 'portal-button', href: '#setup/connections', text: g.service === 'business_profile' ? 'Connect Google Business Profile' : 'Connect Google' })); // MB-23: per-service links are secondary
           acts.append(el('button', { type: 'button', class: 'portal-button', text: g.service === 'pagespeed' ? 'Measure now' : 'Check connection', onclick: (e) => busy(e.target, async () => { const r = await post(`/google/${g.service}/verify`, {}); say(r.detail); await render('seogoogle'); }) }));
           if (!['pagespeed'].includes(g.service)) acts.append(el('button', { type: 'button', class: 'portal-button', text: g.linked ? 'Change' : 'Choose ' + (g.service === 'search_console' ? 'property' : g.service === 'analytics' ? 'GA4 property' : g.service === 'business_profile' ? 'location' : 'account'), onclick: (e) => busy(e.target, async () => {
             const r = await get(`/google/${g.service}/resources`); c.querySelector('.pl-inline')?.remove();

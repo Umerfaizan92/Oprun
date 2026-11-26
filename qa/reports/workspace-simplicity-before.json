@@ -1,0 +1,1956 @@
+{
+  "generated": "2026-11-26T06:48:07.870Z",
+  "rows": [
+    {
+      "width": 390,
+      "group": "Today",
+      "label": "Command Centre",
+      "path": "today/home",
+      "height": 694,
+      "primary_first_screen": 2,
+      "primary_total": 2,
+      "primary_labels": [
+        "Ask AI Operations",
+        "Send"
+      ],
+      "sections": 1,
+      "content_starts": 132,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Today",
+      "label": "AI Assistant",
+      "path": "today/assistant",
+      "height": 983,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "➜"
+      ],
+      "sections": 1,
+      "content_starts": 118,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Today",
+      "label": "Approvals",
+      "path": "today/approvals",
+      "height": 570,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "+ New approval request"
+      ],
+      "sections": 1,
+      "content_starts": 168,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Today",
+      "label": "AI Automations",
+      "path": "today/automations",
+      "height": 351,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "New automation"
+      ],
+      "sections": 0,
+      "content_starts": 189,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Work",
+      "label": "Enquiries",
+      "path": "work/enquiries",
+      "height": 1816,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save enquiry"
+      ],
+      "sections": 1,
+      "content_starts": 575,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Work",
+      "label": "Quotes",
+      "path": "work/quotes",
+      "height": 769,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Capture an enquiry"
+      ],
+      "sections": 0,
+      "content_starts": 655,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Work",
+      "label": "Bookings",
+      "path": "work/bookings",
+      "height": 1481,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "New appointment"
+      ],
+      "sections": 1,
+      "content_starts": 1367,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Work",
+      "label": "Jobs & Dispatch",
+      "path": "work/jobs",
+      "height": 554,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Capture an enquiry"
+      ],
+      "sections": 1,
+      "content_starts": 263,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Work",
+      "label": "Stock & Supplies",
+      "path": "work/stock",
+      "height": 913,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Add item"
+      ],
+      "sections": 1,
+      "content_starts": 128,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Work",
+      "label": "Archived records",
+      "path": "work/archive",
+      "height": 246,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Customers",
+      "label": "Customer Directory",
+      "path": "customers/directory",
+      "height": 980,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Add customer"
+      ],
+      "sections": 0,
+      "content_starts": 124,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Customers",
+      "label": "Consent & Unsubscribes",
+      "path": "growth/consent",
+      "height": 1368,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Record consent"
+      ],
+      "sections": 4,
+      "content_starts": 145,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "People",
+      "label": "Workers & Compliance",
+      "path": "people/workers",
+      "height": 645,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "+ Add worker"
+      ],
+      "sections": 1,
+      "content_starts": 266,
+      "undismissable_tips": 1,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "People",
+      "label": "Staff Accounts & Roles",
+      "path": "people/staff",
+      "height": 450,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 114,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "People",
+      "label": "Hiring",
+      "path": "people/hiring",
+      "height": 479,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "New role"
+      ],
+      "sections": 0,
+      "content_starts": 409,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "People",
+      "label": "Offshore Staff",
+      "path": "people/offshore",
+      "height": 958,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Add team member"
+      ],
+      "sections": 1,
+      "content_starts": 116,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Unified Inbox",
+      "path": "communications/inbox",
+      "height": 2872,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Connect a channel"
+      ],
+      "sections": 2,
+      "content_starts": 416,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Phone",
+      "path": "communications/phone",
+      "height": 733,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Call Handling",
+      "path": "communications/call-handling",
+      "height": 1218,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Save call handling",
+        "Next: Alerts for every call"
+      ],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "AI Receptionist",
+      "path": "communications/receptionist",
+      "height": 1218,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Save call handling",
+        "Next: Alerts for every call"
+      ],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Video Meetings",
+      "path": "communications/meetings",
+      "height": 825,
+      "primary_first_screen": 2,
+      "primary_total": 3,
+      "primary_labels": [
+        "Start video call",
+        "Create meeting",
+        "Connect Zoom"
+      ],
+      "sections": 0,
+      "content_starts": 122,
+      "undismissable_tips": 1,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Team Chat",
+      "path": "communications/team-chat",
+      "height": 128,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Email folder",
+      "path": "communications/email",
+      "height": 340,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Compose"
+      ],
+      "sections": 0,
+      "content_starts": 226,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Channel inbox",
+      "path": "communications/channels",
+      "height": 2872,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Connect a channel"
+      ],
+      "sections": 2,
+      "content_starts": 416,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Phone numbers setup",
+      "path": "communications/numbers",
+      "height": 1398,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Connect",
+        "Next: What callers hear"
+      ],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Communications",
+      "label": "Calls & SMS setup",
+      "path": "communications/calls-sms",
+      "height": 1218,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Save call handling",
+        "Next: Alerts for every call"
+      ],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Growth Hub",
+      "path": "growth/hub",
+      "height": 1601,
+      "primary_first_screen": 2,
+      "primary_total": 7,
+      "primary_labels": [
+        "Create a campaign draft",
+        "Create"
+      ],
+      "sections": 0,
+      "content_starts": 425,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Campaign Studio",
+      "path": "growth/campaigns",
+      "height": 1836,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save draft"
+      ],
+      "sections": 2,
+      "content_starts": 145,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Media Studio",
+      "path": "growth/media",
+      "height": 641,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": 41,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Website",
+      "path": "website/home",
+      "height": 740,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Build my website"
+      ],
+      "sections": 1,
+      "content_starts": 277,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Search & AI visibility",
+      "path": "website/search",
+      "height": 1733,
+      "primary_first_screen": 1,
+      "primary_total": 2,
+      "primary_labels": [
+        "Run technical audit",
+        "Turn scheduled jobs on"
+      ],
+      "sections": 3,
+      "content_starts": 1012,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Pages & editor",
+      "path": "website/pages",
+      "height": 450,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Create site"
+      ],
+      "sections": 0,
+      "content_starts": 116,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Audit",
+      "path": "website/seo-audit",
+      "height": 280,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Run audit"
+      ],
+      "sections": 0,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Keywords",
+      "path": "website/seo-keywords",
+      "height": 878,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Build clusters"
+      ],
+      "sections": 0,
+      "content_starts": 116,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Google",
+      "path": "website/seo-google",
+      "height": 2680,
+      "primary_first_screen": 2,
+      "primary_total": 6,
+      "primary_labels": [
+        "Connect Google",
+        "Connect Google Business Profile",
+        "Sync Google data now"
+      ],
+      "sections": 1,
+      "content_starts": 138,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Content",
+      "path": "website/seo-content",
+      "height": 604,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Write draft"
+      ],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Local",
+      "path": "website/seo-local",
+      "height": 1405,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 3,
+      "content_starts": 145,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Analytics",
+      "path": "website/seo-analytics",
+      "height": 1673,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 8,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "SEO · Reports",
+      "path": "website/seo-reports",
+      "height": 404,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Create monthly report"
+      ],
+      "sections": 1,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Search readiness",
+      "path": "website/search-readiness",
+      "height": 3465,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Run first check"
+      ],
+      "sections": 0,
+      "content_starts": 592,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Search connection",
+      "path": "website/search-connection",
+      "height": 242,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Website"
+      ],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Links & listings",
+      "path": "website/backlinks",
+      "height": 242,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Website"
+      ],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Website & domain",
+      "path": "website/domain",
+      "height": 242,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Website"
+      ],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Growth",
+      "label": "Campaign drafts",
+      "path": "growth/drafts",
+      "height": 510,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save draft"
+      ],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Profit & Payments",
+      "path": "money/ledger",
+      "height": 1401,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 2,
+      "content_starts": 118,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Invoices",
+      "path": "money/invoices",
+      "height": 648,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": 510,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Payments & Refunds",
+      "path": "money/payments",
+      "height": 594,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 2,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Bank Reconciliation",
+      "path": "money/reconcile",
+      "height": 763,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Import statement"
+      ],
+      "sections": 2,
+      "content_starts": 145,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Reports & GST",
+      "path": "money/reports",
+      "height": 1736,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 5,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Finance Settings & Compliance",
+      "path": "money/settings",
+      "height": 2266,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save finance settings"
+      ],
+      "sections": 4,
+      "content_starts": 145,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Money",
+      "label": "Sales documents",
+      "path": "money/sales",
+      "height": 739,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save draft"
+      ],
+      "sections": 1,
+      "content_starts": 420,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Brand & Settings",
+      "path": "setup/settings",
+      "height": 4701,
+      "primary_first_screen": 1,
+      "primary_total": 3,
+      "primary_labels": [
+        "Save answer",
+        "Save and continue",
+        "Save modules"
+      ],
+      "sections": 4,
+      "content_starts": 114,
+      "undismissable_tips": 1,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Connections (social, WhatsApp, website)",
+      "path": "setup/connections",
+      "height": 1139,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Go to your connections"
+      ],
+      "sections": 1,
+      "content_starts": 118,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Plans, Billing & Add-ons",
+      "path": "setup/plans",
+      "height": 290,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 118,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Trust & Security",
+      "path": "setup/trust",
+      "height": 623,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 128,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Automation Settings",
+      "path": "setup/automation",
+      "height": 1551,
+      "primary_first_screen": 1,
+      "primary_total": 2,
+      "primary_labels": [
+        "Open AI Automations",
+        "Turn on"
+      ],
+      "sections": 8,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Help & Complaints",
+      "path": "setup/help",
+      "height": 391,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Help Desk"
+      ],
+      "sections": 1,
+      "content_starts": 128,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "User Manual",
+      "path": "setup/manual",
+      "height": 1451,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 84,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Import Your Data",
+      "path": "setup/import",
+      "height": 542,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 80,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Print & Export Hub",
+      "path": "setup/export",
+      "height": 419,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Download full backup"
+      ],
+      "sections": 1,
+      "content_starts": 100,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Support Access",
+      "path": "setup/support-access",
+      "height": 246,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 390,
+      "group": "Setup",
+      "label": "Change Plan",
+      "path": "setup/change-plan",
+      "height": 512,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Change to Founder Trial"
+      ],
+      "sections": 2,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Today",
+      "label": "Command Centre",
+      "path": "today/home",
+      "height": 514,
+      "primary_first_screen": 2,
+      "primary_total": 2,
+      "primary_labels": [
+        "Ask AI Operations",
+        "Send"
+      ],
+      "sections": 1,
+      "content_starts": 157,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Today",
+      "label": "AI Assistant",
+      "path": "today/assistant",
+      "height": 832,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "➜"
+      ],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Today",
+      "label": "Approvals",
+      "path": "today/approvals",
+      "height": 430,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "+ New approval request"
+      ],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Today",
+      "label": "AI Automations",
+      "path": "today/automations",
+      "height": 381,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "New automation"
+      ],
+      "sections": 0,
+      "content_starts": 219,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Work",
+      "label": "Enquiries",
+      "path": "work/enquiries",
+      "height": 1121,
+      "primary_first_screen": 1,
+      "primary_total": 2,
+      "primary_labels": [
+        "Capture an enquiry",
+        "Save enquiry"
+      ],
+      "sections": 1,
+      "content_starts": 277,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Work",
+      "label": "Quotes",
+      "path": "work/quotes",
+      "height": 438,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Capture an enquiry"
+      ],
+      "sections": 0,
+      "content_starts": 324,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Work",
+      "label": "Bookings",
+      "path": "work/bookings",
+      "height": 1024,
+      "primary_first_screen": 2,
+      "primary_total": 2,
+      "primary_labels": [
+        "Capture an enquiry",
+        "New appointment"
+      ],
+      "sections": 1,
+      "content_starts": 910,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Work",
+      "label": "Jobs & Dispatch",
+      "path": "work/jobs",
+      "height": 518,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Capture an enquiry"
+      ],
+      "sections": 1,
+      "content_starts": 216,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Work",
+      "label": "Stock & Supplies",
+      "path": "work/stock",
+      "height": 592,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Add item"
+      ],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Work",
+      "label": "Archived records",
+      "path": "work/archive",
+      "height": 186,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Customers",
+      "label": "Customer Directory",
+      "path": "customers/directory",
+      "height": 488,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Add customer"
+      ],
+      "sections": 0,
+      "content_starts": 68,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Customers",
+      "label": "Consent & Unsubscribes",
+      "path": "growth/consent",
+      "height": 1005,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Record consent"
+      ],
+      "sections": 4,
+      "content_starts": 226,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "People",
+      "label": "Workers & Compliance",
+      "path": "people/workers",
+      "height": 612,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "+ Add worker"
+      ],
+      "sections": 1,
+      "content_starts": 222,
+      "undismissable_tips": 1,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "People",
+      "label": "Staff Accounts & Roles",
+      "path": "people/staff",
+      "height": 421,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "People",
+      "label": "Hiring",
+      "path": "people/hiring",
+      "height": 389,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "New role"
+      ],
+      "sections": 0,
+      "content_starts": 340,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "People",
+      "label": "Offshore Staff",
+      "path": "people/offshore",
+      "height": 756,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Add team member"
+      ],
+      "sections": 1,
+      "content_starts": 125,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Unified Inbox",
+      "path": "communications/inbox",
+      "height": 1402,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Connect a channel"
+      ],
+      "sections": 2,
+      "content_starts": 537,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Phone",
+      "path": "communications/phone",
+      "height": 778,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Call Handling",
+      "path": "communications/call-handling",
+      "height": 1093,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Save call handling",
+        "Next: Alerts for every call"
+      ],
+      "sections": 1,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "AI Receptionist",
+      "path": "communications/receptionist",
+      "height": 1093,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Save call handling",
+        "Next: Alerts for every call"
+      ],
+      "sections": 1,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Video Meetings",
+      "path": "communications/meetings",
+      "height": 647,
+      "primary_first_screen": 2,
+      "primary_total": 3,
+      "primary_labels": [
+        "Start video call",
+        "Create meeting",
+        "Connect Zoom"
+      ],
+      "sections": 0,
+      "content_starts": 110,
+      "undismissable_tips": 1,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Team Chat",
+      "path": "communications/team-chat",
+      "height": 116,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Email folder",
+      "path": "communications/email",
+      "height": 339,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Compose"
+      ],
+      "sections": 0,
+      "content_starts": 225,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Channel inbox",
+      "path": "communications/channels",
+      "height": 1402,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Connect a channel"
+      ],
+      "sections": 2,
+      "content_starts": 537,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Phone numbers setup",
+      "path": "communications/numbers",
+      "height": 1059,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Connect",
+        "Next: What callers hear"
+      ],
+      "sections": 1,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Communications",
+      "label": "Calls & SMS setup",
+      "path": "communications/calls-sms",
+      "height": 1093,
+      "primary_first_screen": 0,
+      "primary_total": 2,
+      "primary_labels": [
+        "Save call handling",
+        "Next: Alerts for every call"
+      ],
+      "sections": 1,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Growth Hub",
+      "path": "growth/hub",
+      "height": 862,
+      "primary_first_screen": 4,
+      "primary_total": 7,
+      "primary_labels": [
+        "Create a campaign draft",
+        "Create"
+      ],
+      "sections": 0,
+      "content_starts": 335,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Campaign Studio",
+      "path": "growth/campaigns",
+      "height": 1620,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save draft"
+      ],
+      "sections": 2,
+      "content_starts": 226,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Media Studio",
+      "path": "growth/media",
+      "height": 601,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": 113,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Website",
+      "path": "website/home",
+      "height": 664,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Build my website"
+      ],
+      "sections": 1,
+      "content_starts": 331,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Search & AI visibility",
+      "path": "website/search",
+      "height": 1150,
+      "primary_first_screen": 1,
+      "primary_total": 2,
+      "primary_labels": [
+        "Run technical audit",
+        "Turn scheduled jobs on"
+      ],
+      "sections": 3,
+      "content_starts": 666,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Pages & editor",
+      "path": "website/pages",
+      "height": 233,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Create site"
+      ],
+      "sections": 0,
+      "content_starts": 125,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Audit",
+      "path": "website/seo-audit",
+      "height": 237,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Run audit"
+      ],
+      "sections": 0,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Keywords",
+      "path": "website/seo-keywords",
+      "height": 551,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Build clusters"
+      ],
+      "sections": 0,
+      "content_starts": 125,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Google",
+      "path": "website/seo-google",
+      "height": 1115,
+      "primary_first_screen": 4,
+      "primary_total": 6,
+      "primary_labels": [
+        "Connect Google",
+        "Connect Google Business Profile",
+        "Sync Google data now"
+      ],
+      "sections": 1,
+      "content_starts": 111,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Content",
+      "path": "website/seo-content",
+      "height": 384,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Write draft"
+      ],
+      "sections": 1,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Local",
+      "path": "website/seo-local",
+      "height": 1182,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 3,
+      "content_starts": 226,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Analytics",
+      "path": "website/seo-analytics",
+      "height": 1386,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 8,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "SEO · Reports",
+      "path": "website/seo-reports",
+      "height": 308,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Create monthly report"
+      ],
+      "sections": 1,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Search readiness",
+      "path": "website/search-readiness",
+      "height": 1976,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Run first check"
+      ],
+      "sections": 0,
+      "content_starts": 177,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Search connection",
+      "path": "website/search-connection",
+      "height": 202,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Website"
+      ],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Links & listings",
+      "path": "website/backlinks",
+      "height": 202,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Website"
+      ],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Website & domain",
+      "path": "website/domain",
+      "height": 202,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Website"
+      ],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Growth",
+      "label": "Campaign drafts",
+      "path": "growth/drafts",
+      "height": 497,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save draft"
+      ],
+      "sections": 1,
+      "content_starts": 72,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Profit & Payments",
+      "path": "money/ledger",
+      "height": 1006,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 2,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Invoices",
+      "path": "money/invoices",
+      "height": 363,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": 225,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Payments & Refunds",
+      "path": "money/payments",
+      "height": 603,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 2,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Bank Reconciliation",
+      "path": "money/reconcile",
+      "height": 700,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Import statement"
+      ],
+      "sections": 2,
+      "content_starts": 226,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Reports & GST",
+      "path": "money/reports",
+      "height": 1604,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 5,
+      "content_starts": 166,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Finance Settings & Compliance",
+      "path": "money/settings",
+      "height": 1769,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save finance settings"
+      ],
+      "sections": 4,
+      "content_starts": 226,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Money",
+      "label": "Sales documents",
+      "path": "money/sales",
+      "height": 732,
+      "primary_first_screen": 0,
+      "primary_total": 1,
+      "primary_labels": [
+        "Save draft"
+      ],
+      "sections": 1,
+      "content_starts": 396,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Brand & Settings",
+      "path": "setup/settings",
+      "height": 2946,
+      "primary_first_screen": 1,
+      "primary_total": 4,
+      "primary_labels": [
+        "Save answer",
+        "Save and continue",
+        "Save workspace settings",
+        "Save modules"
+      ],
+      "sections": 4,
+      "content_starts": 68,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Connections (social, WhatsApp, website)",
+      "path": "setup/connections",
+      "height": 905,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Go to your connections"
+      ],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Plans, Billing & Add-ons",
+      "path": "setup/plans",
+      "height": 311,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Trust & Security",
+      "path": "setup/trust",
+      "height": 399,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Automation Settings",
+      "path": "setup/automation",
+      "height": 745,
+      "primary_first_screen": 2,
+      "primary_total": 2,
+      "primary_labels": [
+        "Open AI Automations",
+        "Turn on"
+      ],
+      "sections": 8,
+      "content_starts": 93,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Help & Complaints",
+      "path": "setup/help",
+      "height": 335,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Open Help Desk"
+      ],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "User Manual",
+      "path": "setup/manual",
+      "height": 633,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 159,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Import Your Data",
+      "path": "setup/import",
+      "height": 523,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 1,
+      "content_starts": 89,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Print & Export Hub",
+      "path": "setup/export",
+      "height": 379,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Download full backup"
+      ],
+      "sections": 1,
+      "content_starts": 155,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Support Access",
+      "path": "setup/support-access",
+      "height": 186,
+      "primary_first_screen": 0,
+      "primary_total": 0,
+      "primary_labels": [],
+      "sections": 0,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    },
+    {
+      "width": 1440,
+      "group": "Setup",
+      "label": "Change Plan",
+      "path": "setup/change-plan",
+      "height": 593,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Change to Founder Trial"
+      ],
+      "sections": 2,
+      "content_starts": null,
+      "undismissable_tips": 0,
+      "sideways": false
+    }
+  ]
+}

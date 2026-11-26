@@ -22,7 +22,7 @@
   }
   function planCard(k){
     const p=O.plans[k.kind],extra=k.kind==='competitor_study'?el('textarea',{placeholder:'Paste the text of 3 to 5 top posts from similar pages here (optional). Oprun cannot browse other pages for you.',maxlength:'12000'}):null;
-    const run=el('button',{class:'primary-button compact',type:'button',text:p?'Create again':'Create'});
+    const run=el('button',{class:'secondary-button compact',type:'button',text:p?'Create again':'Create'}); // MB-23: card actions are secondary; one gold action per screen
     run.onclick=async()=>{run.disabled=true;run.textContent='Working…';try{await api('/api/saas/growth/generate',{method:'POST',body:JSON.stringify({kind:k.kind,samples:extra?.value||''})});await load()}catch(e){note(e.message,true);run.disabled=false;run.textContent=p?'Create again':'Create'}};
     const all=p?p.content.sections.map(s=>s.title+'\n'+s.items.join('\n')).join('\n\n'):'';
     return el('article',{class:'panel gr-plan'},el('h3',{text:k.title}),...(p?[badge(p.source==='ai'?'Written by AI':'Starter template',p.source==='ai'?'ok':'neutral'),renderContent(p.content)]:[el('p',{class:'muted',text:'Not created yet.'})]),...(extra?[extra]:[]),el('div',{class:'gr-actions'},run,...(p?[el('button',{class:'secondary-button compact',type:'button',text:'Copy',onclick:()=>copy(p.content.summary+'\n\n'+all)})]:[])));
