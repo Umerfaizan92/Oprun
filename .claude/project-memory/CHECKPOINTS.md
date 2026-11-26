@@ -3335,3 +3335,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Inventory the Setup group pages (Brand & Settings, Connections, Plans, Trust & Security, Help) and pick the first page for the grouped-row pattern from 08_VISUAL_GUIDE_REFERENCE.md.
+
+## CP-239 2026-11-26T06:54:19+00:00 T-260 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-260 (IN_PROGRESS)
+- Completed steps: MB-23 steps 1-2 (a3b3f28).
+- Incomplete steps: MB-23 step 3: Bookings content position (1367 px), settings page length (4701 px) and undismissable tips; then Google-style rows on Setup.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: a3b3f28 (MB-23 step 2: one gold action per screen (measured)); 18 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inspect work/bookings at 390 px to see what pushes the calendar 1367 px down, then fix.

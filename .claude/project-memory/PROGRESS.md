@@ -131,3 +131,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-26: Release R-5 live: dep-dc3pif29lscs73dddga0 (b4880d3), startup diagnostics 16/16. Rollback point dep-dc3o9159el5s73aib3c0.
 - 2026-11-26: Found during MB-10: the home page 3D hero uses cyan accents; the 26 Nov brief requires gold and black with no cyan. Fix in MB-23 (T-260).
 - 2026-11-26: MB-23 step 1 (96dc529): cyan/purple accents replaced by silver via tokens; live dots green; hero signals silver; guard test added. Next MB-23 step: Google-style row pattern (icon in round tile + title + one line) on Setup and settings pages.
+- 2026-11-26: MB-23 step 2 (a3b3f28): measured simplicity report; pages with 2+ gold actions in the first screen 6 -> 1; issues 12 -> 9. Remaining: settings page length 4701 px with an undismissable tip, Bookings content starts 1367 px down, Quotes 655 px, two tips (workers, meetings), website/search and setup/automation 2 gold each.
