@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-155 (NOT_STARTED)
-LAST COMPLETED STEP: W-05..W-08 completed (T-151..T-154), commits up to 5de0f08 on the branch, not released.
-FILES MODIFIED: none
+LAST COMPLETED STEP: Release R-4 live (W-05..W-08). New sections stay hidden until WEBSITE_BUILDER_V2_ORGS is set.
+FILES MODIFIED: .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: none
+UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Run npm test, then the browser suites in batches, then release R-4.
+NEXT EXACT ACTION: Read W-09 in docs/ai-website/10_IMPLEMENTATION_PLAN.md and start T-155.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-228 at 2026-11-26T00:20:11+00:00
+LAST CHECKPOINT: CP-229 at 2026-11-26T01:12:20+00:00
 <!-- handover:end -->
 
 ## Notes

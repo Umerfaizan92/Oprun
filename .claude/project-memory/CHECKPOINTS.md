@@ -3195,3 +3195,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Run npm test, then the browser suites in batches, then release R-4.
+
+## CP-229 2026-11-26T01:12:20+00:00 T-155 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-155 (NOT_STARTED)
+- Completed steps: Release R-4 live (W-05..W-08). New sections stay hidden until WEBSITE_BUILDER_V2_ORGS is set.
+- Incomplete steps: Next website task T-155 (W-09) from docs/ai-website/10_IMPLEMENTATION_PLAN.md; owner items unchanged.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 2c37457 (Release R-4 started: AI Website W-05..W-08; rollback point dep-dc3n8kmc6qcc73bafqrg)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read W-09 in docs/ai-website/10_IMPLEMENTATION_PLAN.md and start T-155.

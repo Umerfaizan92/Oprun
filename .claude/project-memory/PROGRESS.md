@@ -127,3 +127,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-25: Release R-2 live: deploy dep-dc3jq0e0tbcc73bu4e4g (3ecf849), Render build tests passed, startup diagnostics 16/16, no errors in logs. Rollback point dep-dc3ha1q9lscs73aumpfg.
 - 2026-11-25: R-15/R-18 owner set-up steps committed 121f58f; receptionist-ui, ui, navigation-ui, mobile-workspace-ui pass.
 - 2026-11-25: Release R-3 live: dep-dc3l96rbc2fs738mkr1g (145ead2), startup diagnostics 16/16. Rollback point dep-dc3jq0e0tbcc73bu4e4g.
+- 2026-11-26: Release R-4 live: dep-dc3o9159el5s73aib3c0 (2c37457), startup diagnostics 16/16. Rollback point dep-dc3n8kmc6qcc73bafqrg.
