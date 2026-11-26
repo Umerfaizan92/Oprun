@@ -18,6 +18,7 @@ try{
   Object.assign(t,{status:'connected',provider_ready:true,account_label:'Synthetic business',last_test_status:tiktokTest,last_tested_at:'2026-11-20T01:00:00.000Z',resources:[{id:'test-account',type:'tiktok_account',label:'Synthetic business'}],selected_resources:selected.map(id=>({id,type:'tiktok_account'})),insights:{fetched_at:'2026-11-01T07:00:00Z',results:[{resource_id:'test-account',type:'tiktok_account',label:'Synthetic business',source:'TikTok',period:'Current provider counters',fetched_at:'2026-11-01T07:00:00Z',status:'available',metrics:[{label:'Followers',value:null,note:'user.info.stats approval required.'},{label:'Public videos',value:0}]}]}});
   // T-070: a fresh Meta sign-in waiting for the owner to confirm the account, then healthy once confirmed.
   Object.assign(data.integrations.find(x=>x.provider==='meta'),{status:'connected',provider_ready:true,account_label:'Alex Morgan',connected_at:'2026-11-10T01:00:00.000Z',needs_confirmation:!metaConfirmed,health:metaConfirmed?{level:'green',title:'Working',detail:'',fix:null,checked_at:'2026-11-10T01:00:00.000Z'}:{level:'amber',title:'Confirm the account',detail:'Check this is the right account for this business before it is used.',fix:'confirm',checked_at:null}});
+  Object.assign(data.integrations.find(x=>x.provider==='website'),{status:'setup_ready',website:{url:'https://synthetic-business.org',hostname:'synthetic-business.org',verification_name:'_superpro.synthetic-business.org',verification_value:'superpro-verification=synthetic',verified:false}});
   if(emailSaved)Object.assign(data.integrations.find(x=>x.provider==='email_sms'),{status:'connected',last_test_status:'pass',transport:{email:{sender:'hello@synthetic-business.org',status:'verified'}}});
   await route.fulfill({response,json:data});
  });
@@ -84,6 +85,14 @@ try{
  assert.match(await email.locator('[data-im-webhook]').innerText(),new RegExp('/resend/'+owner.org));
  assert.equal(await page.evaluate(()=>JSON.stringify({...localStorage}).includes('test-write-only-key')),false);
  await email.getByRole('button',{name:'Troubleshoot',exact:true}).click();await email.locator('[data-im-assistant]').waitFor();assert.match(await email.locator('[data-im-assistant]').innerText(),/cannot approve provider apps/);
+ // Website card: the saved address is shown in the box, and the TXT name is given as the short host first.
+ const web=grid.locator('[data-provider-card="website"]');
+ for(let n=0;n<3&&!await web.isVisible();n++){const prev=pager.getByRole('button',{name:'← Previous',exact:true});if(await prev.isDisabled())break;await prev.click();}
+ for(let n=0;n<3&&!await web.isVisible();n++)await pager.getByRole('button',{name:'Next →',exact:true}).click();
+ await web.getByRole('button',{name:'Set up my website',exact:true}).click();
+ assert.equal(await web.getByLabel('Website address',{exact:true}).inputValue(),'https://synthetic-business.org','the saved address is filled in');
+ const proofText=await web.locator('[data-im-website-proof]').innerText();
+ assert.match(proofText,/Name \(Host\)\s*_superpro\s/);assert.match(proofText,/type only _superpro/);assert.match(proofText,/_superpro\.synthetic-business\.org/);
  await page.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8'));
  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await page.waitForTimeout(450);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))).then(()=>Promise.race([Promise.all(document.getAnimations().filter(a=>a instanceof CSSTransition).map(a=>a.finished.catch(()=>{}))),new Promise(r=>setTimeout(r,3000))])));const violations=await page.evaluate(async()=>{const result=await axe.run(document.querySelector('#integrations-view'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary,html:n.html}))}))});assert.deepEqual(violations,[],theme+' Connections accessibility');}
  assert.deepEqual(errors,[]);console.log('PASS Connections: 11 providers, pagination, three viewport sizes, truthful metrics, account confirm step, health light, capability list, resource save, switch account, own app keys, write-only credential form, clearing secrets, tenant webhook instructions and diagnostics.');

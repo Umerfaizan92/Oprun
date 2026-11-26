@@ -156,3 +156,23 @@ test('email and SMS keys that the provider refuses get a clear, key-free explana
  assert.equal(t.environment('a',{}).TELNYX_MESSAGING_PROFILE_ID,'40017f8e-1111-2222-3333-444455556666');
  db.close();
 });
+
+test('website proof: new records use _oprun, older _superpro records still verify, and the not-found message names the short host',async()=>{
+ const db=new Database(':memory:');db.exec(`CREATE TABLE organisation_integrations(organisation_id TEXT,provider TEXT,status TEXT,settings_json TEXT,account_label TEXT,connected_at TEXT,updated_at TEXT,PRIMARY KEY(organisation_id,provider))`);
+ for(const org of ['new','old'])db.prepare("INSERT INTO organisation_integrations VALUES (?,'website','not_connected','{}',NULL,NULL,NULL)").run(org);
+ const dns=new Map(),asked=[];
+ const t=createTenantTransports({db,runtime:createIntegrationRuntime({env:{INTEGRATION_ENCRYPTION_KEY:'test-encryption-only'},fetchImpl:async()=>Response.json({})}),lookupTxt:async(n)=>{asked.push(n);if(!dns.has(n))throw Object.assign(new Error('ENOTFOUND'),{code:'ENOTFOUND'});return dns.get(n);}});
+ const a=t.saveWebsite('new','https://plumber-new.org.au');
+ assert.equal(a.verification_name,'_oprun.plumber-new.org.au');assert.match(a.verification_value,/^oprun-verification=/);
+ await assert.rejects(()=>t.verifyWebsite('new'),(e)=>e.status===409&&/Name\/Host is just _oprun \(the dashboard adds \.plumber-new\.org\.au itself\)/.test(e.message));
+ dns.set('_oprun.plumber-new.org.au',[[a.verification_value]]);assert.equal((await t.verifyWebsite('new')).verified,true);
+ // A record saved before the rename keeps its _superpro name and verifies unchanged.
+ const old={url:'https://plumber-old.org.au',hostname:'plumber-old.org.au',verification_name:'_superpro.plumber-old.org.au',verification_value:'superpro-verification=abc123',verified:false};
+ db.prepare("UPDATE organisation_integrations SET settings_json=? WHERE organisation_id='old'").run(JSON.stringify({website:old}));
+ assert.equal(t.saveWebsite('old','https://plumber-old.org.au').verification_name,'_superpro.plumber-old.org.au','saving the same address keeps the existing record');
+ dns.set('_superpro.plumber-old.org.au',[['superpro-verification=abc123']]);assert.equal((await t.verifyWebsite('old')).verified,true);
+ // The other workspace's value under either name never verifies this one.
+ db.prepare("UPDATE organisation_integrations SET settings_json=? WHERE organisation_id='old'").run(JSON.stringify({website:{...old,verified:false,verification_value:'superpro-verification=zzz'}}));
+ await assert.rejects(()=>t.verifyWebsite('old'),/does not match/);
+ db.close();
+});

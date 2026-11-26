@@ -98,7 +98,7 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
     const record=db.prepare("SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider='website'").get(org);
     if(!record)throw invalid('Open Connections before configuring the website.');
     const old=parse(record.settings_json),same=old.website?.url===u.origin;
-    const website=same?old.website:{url:u.origin,hostname:u.hostname,verification_name:'_superpro.'+u.hostname,verification_value:'superpro-verification='+crypto.randomBytes(24).toString('base64url'),verified:false};
+    const website=same?old.website:{url:u.origin,hostname:u.hostname,verification_name:'_oprun.'+u.hostname,verification_value:'oprun-verification='+crypto.randomBytes(24).toString('base64url'),verified:false};
     const at=new Date().toISOString();
     db.prepare("UPDATE organisation_integrations SET settings_json=?,status=?,account_label=?,updated_at=? WHERE organisation_id=? AND provider='website'")
       .run(JSON.stringify({...old,...(!same?{last_test_status:null,last_tested_at:null,diagnostic:null}:{}),website}),website.verified?'connected':'setup_ready',u.hostname,at,org);
@@ -108,7 +108,11 @@ export function createTenantTransports({db,runtime,lookupTxt=resolveTxt}) {
     const record=db.prepare("SELECT * FROM organisation_integrations WHERE organisation_id=? AND provider='website'").get(org),settings=parse(record?.settings_json),site=settings.website;
     if(!site)throw invalid('Save your website address first.');
     let entries=[];
-    try{entries=await Promise.race([lookupTxt(site.verification_name),new Promise((_,reject)=>{const t=setTimeout(()=>reject(new Error('DNS verification timed out.')),10000);t.unref?.()})])}catch{throw Object.assign(new Error('The verification TXT record is not visible yet. Check the record name/value in your domain dashboard and retry after DNS propagation.'),{status:409})}
+    // Records made before the rename use _superpro; newer ones _oprun. Either name is accepted, as long as the value is this workspace's.
+    const names=[...new Set([site.verification_name,'_oprun.'+site.hostname,'_superpro.'+site.hostname])];
+    const look=(n)=>Promise.race([lookupTxt(n),new Promise((_,reject)=>{const t=setTimeout(()=>reject(new Error('DNS verification timed out.')),10000);t.unref?.()})]).catch(()=>[]);
+    entries=(await Promise.all(names.map(look))).flat();
+    if(!entries.length)throw Object.assign(new Error(`The verification TXT record is not visible yet. In most domain dashboards the Name/Host is just ${site.verification_name.slice(0,-(site.hostname.length+1))} (the dashboard adds .${site.hostname} itself). Changes can take a few minutes to a few hours to appear; then choose Verify website again.`),{status:409});
     if(!entries.some(entry=>entry.join('')===site.verification_value))throw Object.assign(new Error('The website verification TXT record does not match this workspace.'),{status:409});
     const at=new Date().toISOString(),website={...site,verified:true,verified_at:at};
     db.prepare("UPDATE organisation_integrations SET settings_json=?,status='connected',connected_at=COALESCE(connected_at,?),updated_at=? WHERE organisation_id=? AND provider='website'").run(JSON.stringify({...settings,website,last_test_status:'pass',last_tested_at:at}),at,at,org);
