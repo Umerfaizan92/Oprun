@@ -1,3 +1,4 @@
+import { BRAND } from './brand.js';
 import { assertIsolatedPreview } from './preview-preflight.js';
 import {seedIsolatedPreview} from './preview-seed.js';
 import {installBusinessHub} from './business-hub.js';
@@ -1155,6 +1156,8 @@ const assetBundles=createAssetBundler({root:siteRoot,production:env.NODE_ENV==='
 app.get('/saas/__b/:file',assetBundles.asset);
 app.get(['/saas/workspace.html','/saas/workspace'],assetBundles.page('saas/workspace.html'));
 app.get(['/office/','/office/index.html'],assetBundles.page('office/console.html'));
+// MB-12: retired duplicate icon names redirect to the brand library (old installs and links keep working).
+for(const [from,to] of Object.entries(BRAND.retired))app.get(from,(req,res)=>res.redirect(301,to));
 app.use('/saas', express.static(path.join(siteRoot, 'saas'), { extensions: ['html'], setHeaders: stampedAssetCache }));
 app.get('/api/public/preview-status',(req,res)=>res.json({ok:true,isolated_preview:env.SUPERPRO_ISOLATED_PREVIEW==='1',storage:env.SUPERPRO_ISOLATED_PREVIEW==='1'?'temporary_test_data_only':'normal',version:'20.0.0-preview'}));
 app.get(['/office/','/office/index.html'],(req,res)=>res.sendFile(path.join(siteRoot,'office','console.html')));

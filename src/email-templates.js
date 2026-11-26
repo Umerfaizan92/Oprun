@@ -16,10 +16,11 @@ const communicationLinks = (base) => [
   ['Privacy', '/saas/privacy.html'],
   ['Trust Center', '/saas/trust-center.html']
 ].map(([label, route]) => [label, publicBase(base) + route]);
+import { BRAND } from './brand.js';
 export const PLATFORM_NAME = 'Oprun';
 export const platformBrand = (env) => ({
   name: PLATFORM_NAME,
-  color: '#e2bd72',
+  color: BRAND.colors.gold, // MB-12: the token gold, from the one brand source
   // T-189: the Oprun mark is drawn in HTML (visible with images blocked); no remote image is needed.
   logoSrc: '',
   site: String(publicBase(env.PUBLIC_BASE_URL)).replace(/^https?:\/\/(www\.)?/, ''),

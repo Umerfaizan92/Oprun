@@ -1,6 +1,6 @@
 {
   "id": "/saas/",
-  "name": "Oprun — AI Office Manager",
+  "name": "Oprun AI",
   "short_name": "Oprun",
   "start_url": "/saas/workspace.html",
   "scope": "/saas/",
@@ -10,8 +10,8 @@
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#080b10",
-  "theme_color": "#080b10",
+  "background_color": "#070B14",
+  "theme_color": "#070B14",
   "description": "Run your world. The AI office manager for service businesses: your office runs, you approve.",
   "icons": [
     {
