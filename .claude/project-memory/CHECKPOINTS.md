@@ -3279,3 +3279,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start MB-12: inventory every logo, icon, favicon, manifest and email logo reference, then make one asset folder.
+
+## CP-235 2026-11-26T05:43:15+00:00 T-249 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-249 (NOT_STARTED)
+- Completed steps: MB-12 brand library done (0e6bee1). Done on branch: MB-04, MB-11, MB-15, MB-13, MB-12.
+- Incomplete steps: MB-10 retire /saas/index.html (move product-guide tests first); MB-20..22 navigation merges; MB-05 after the backup check at 17:20 UTC.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 0e6bee1 (MB-12: one brand library (src/brand.js) with a drift test); 10 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: MB-10: list what test-ui, quality-check, validate-release, smoke-test, test-visual and report-a11y-perf check on /saas/index.html and find a current page that carries the same product guide.

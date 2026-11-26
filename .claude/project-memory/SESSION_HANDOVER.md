@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-251 (NOT_STARTED)
-LAST COMPLETED STEP: MB-13 AI Supervisor done (af69dda). Done on branch so far: MB-04, MB-11, MB-15, MB-13.
+CURRENT TASK: T-249 (NOT_STARTED)
+LAST COMPLETED STEP: MB-12 brand library done (0e6bee1). Done on branch: MB-04, MB-11, MB-15, MB-13, MB-12.
 FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Start MB-12: inventory every logo, icon, favicon, manifest and email logo reference, then make one asset folder.
+NEXT EXACT ACTION: MB-10: list what test-ui, quality-check, validate-release, smoke-test, test-visual and report-a11y-perf check on /saas/index.html and find a current page that carries the same product guide.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-234 at 2026-11-26T05:31:29+00:00
+LAST CHECKPOINT: CP-235 at 2026-11-26T05:43:15+00:00
 <!-- handover:end -->
 
 ## Notes

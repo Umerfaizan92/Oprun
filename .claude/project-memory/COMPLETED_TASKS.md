@@ -1184,3 +1184,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-13 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Commit af69dda. agent-supervisor.test 4/4 (duplicate skipped without escalation and nothing approved; paused agent still blocked; dead job and repeated-failure findings raised once and cleared automatically; heartbeat stale after 5 min; one daily summary per day). test-agent-supervisor-ui PASS (Check now, finding, daily summary, axe clean, no sideways scroll 390/768/1440). Agent and automation suites, console-ui, reliability-ui pass. Evidence image docs/transformation/evidence/MB-13_before-after_390.jpg. Not released. (recorded 2026-11-26 on claude/transformation-phase1 at af69dda)
+
+## T-251 MB-12 One brand asset library (logo, icons, favicon, PWA, email)
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-12.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-12 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Commit 0e6bee1. brand-library.test 6/6 (tokens = brand colours; library files exist, no retired copies; manifest name/colours/icons; every page's icons and theme-color; platform email gold; retired names 301). email-templates, legacy-branding, brand-assets, quality-check, validate-release, smoke-test, ui, site-ui, onboarding-ui pass; visual public 0 problems. Evidence docs/transformation/evidence/MB-12_email-before-after_390.jpg. New logo artwork not drawn (existing mark kept); legacy #080b10 in 4 stylesheets left for MB-23. Not released. (recorded 2026-11-26 on claude/transformation-phase1 at 0e6bee1)
