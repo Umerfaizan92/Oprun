@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-254 (NOT_STARTED)
-LAST COMPLETED STEP: notes in docs/transformation/08_VISUAL_GUIDE_REFERENCE.md. Render MCP cannot change health check or suspend services: MB-01, MB-05, MB-06 need the owner in the Render dashboard. Legacy service 'Oprun' (srv-dan4rdqjnfac73fceor0) daily S3 snapshot fails since at least 19 Nov (IAM user oprun-ai-app lacks s3:PutObject on bucket super-pro-ai-office-manager-prod-...).
-FILES MODIFIED: none
+CURRENT TASK: T-252 (NOT_STARTED)
+LAST COMPLETED STEP: backup check scheduled 17:20 UTC (trig_01WGN25fmWhx2AAdRHf8oapJ).
+FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: none
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Start MB-15 (T-254): fix the console-ui Feature access wait, then 5 consecutive passes.
+NEXT EXACT ACTION: Design MB-13: read src/agents/registry.js and src/automation/engine.js run states, then build the Supervisor.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-232 at 2026-11-26T05:01:55+00:00
+LAST CHECKPOINT: CP-233 at 2026-11-26T05:24:40+00:00
 <!-- handover:end -->
 
 ## Notes

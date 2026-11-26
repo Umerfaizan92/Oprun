@@ -1170,3 +1170,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-11 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Commit 522ed55. Before/after at 390/768/1440 via scripts/capture-pages.mjs (verification page captured mid sign-up with a synthetic pending registration; first attempt showed the redirect target and was rejected). Evidence image docs/transformation/evidence/MB-11_before-after_390.jpg. legacy-branding 2/2, quality-check, validate-release, smoke-test, seo-units, seo-platform, ui, site-ui, onboarding-ui, visual legacy page 0 problems. Not released (needs owner approval). (recorded 2026-11-26 on claude/transformation-phase1 at 522ed55)
+
+## T-254 MB-15 Fix the console-ui timing wait
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-15.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-15 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Commit b1e2cc1. Cause: tab content loads after the click; the test read it immediately and swallowed the earlier wait's timeout. Fix waits for the tab text (15 s). test:console-ui passed 5 consecutive runs. (recorded 2026-11-26 on claude/transformation-phase1 at b1e2cc1)

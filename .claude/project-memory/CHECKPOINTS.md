@@ -3251,3 +3251,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Start MB-15 (T-254): fix the console-ui Feature access wait, then 5 consecutive passes.
+
+## CP-233 2026-11-26T05:24:40+00:00 T-252 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-252 (NOT_STARTED)
+- Completed steps: MB-15 done (b1e2cc1). Owner created the AWS inline policy legacy-oprun-backup-write for oprun-ai-app; backup check scheduled 17:20 UTC (trig_01WGN25fmWhx2AAdRHf8oapJ).
+- Incomplete steps: MB-13 AI Supervisor (T-252); MB-10 retire /saas/index.html after moving its tests; MB-05 after the backup check.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: b1e2cc1 (MB-15: console test waits for each tab's content before reading it); 6 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Design MB-13: read src/agents/registry.js and src/automation/engine.js run states, then build the Supervisor.
