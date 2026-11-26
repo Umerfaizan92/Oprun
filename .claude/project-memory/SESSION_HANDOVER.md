@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-260 (IN_PROGRESS)
-LAST COMPLETED STEP: Release R-6 live and verified. MB-01 closed.
-FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+LAST COMPLETED STEP: R-6 live.
+FILES MODIFIED: .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 3 file(s)
+UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Inspect website/search (Run technical audit, Turn scheduled jobs on) and setup/automation (Open AI Automations, Turn on).
+NEXT EXACT ACTION: Design the settings page: grouped rows linking to its sections (Guided setup, Workspace checklist, Business profile, Modules, Brand, Locations) so the page opens compact.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-241 at 2026-11-26T08:34:11+00:00
+LAST CHECKPOINT: CP-242 at 2026-11-26T08:40:45+00:00
 <!-- handover:end -->
 
 ## Notes

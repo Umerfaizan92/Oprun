@@ -3377,3 +3377,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Inspect website/search (Run technical audit, Turn scheduled jobs on) and setup/automation (Open AI Automations, Turn on).
+
+## CP-242 2026-11-26T08:40:45+00:00 T-260 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-260 (IN_PROGRESS)
+- Completed steps: MB-23 steps 1-4; R-6 live.
+- Incomplete steps: MB-23 step 5: business settings page length (4701 px) with Google-style grouped rows; then founder console simplicity pass; then MB-25, MB-26, MB-24, MB-27, MB-28.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 52d7d8e (MB-23 step 4: one gold action on Website search and Automation settings; Search analytics starts with the next step); 2 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Design the settings page: grouped rows linking to its sections (Guided setup, Workspace checklist, Business profile, Modules, Brand, Locations) so the page opens compact.
