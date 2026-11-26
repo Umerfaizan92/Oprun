@@ -1163,3 +1163,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-04 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Commit b7aca3e: docs/transformation/HANDOVER_FOR_CHATGPT.md section 0 is the one handover (live deploy, SHA, releases, next action, resume prompt); docs/chatgpt-emergency-handover/00_START_HERE.md marked superseded. (recorded 2026-11-26 on claude/transformation-phase1 at b7aca3e)
+
+## T-250 MB-11 Oprun AI name on verification page, crawler and /healthz
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-11.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-11 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Commit 522ed55. Before/after at 390/768/1440 via scripts/capture-pages.mjs (verification page captured mid sign-up with a synthetic pending registration; first attempt showed the redirect target and was rejected). Evidence image docs/transformation/evidence/MB-11_before-after_390.jpg. legacy-branding 2/2, quality-check, validate-release, smoke-test, seo-units, seo-platform, ui, site-ui, onboarding-ui, visual legacy page 0 problems. Not released (needs owner approval). (recorded 2026-11-26 on claude/transformation-phase1 at 522ed55)
