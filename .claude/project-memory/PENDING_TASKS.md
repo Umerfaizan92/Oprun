@@ -393,13 +393,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-12 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
-## T-252 MB-13 AI Supervisor over the agent registry
-- Status: NOT_STARTED
-- Added: 2026-11-26
-- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-13.
-- Files: see 07_MASTER_BACKLOG.md
-- Acceptance: As written for MB-13 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
-
 ## T-253 MB-14 Decision: background work architecture
 - Status: NOT_STARTED
 - Added: 2026-11-26

@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-252 (NOT_STARTED)
-LAST COMPLETED STEP: backup check scheduled 17:20 UTC (trig_01WGN25fmWhx2AAdRHf8oapJ).
+CURRENT TASK: T-251 (NOT_STARTED)
+LAST COMPLETED STEP: MB-13 AI Supervisor done (af69dda). Done on branch so far: MB-04, MB-11, MB-15, MB-13.
 FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Design MB-13: read src/agents/registry.js and src/automation/engine.js run states, then build the Supervisor.
+NEXT EXACT ACTION: Start MB-12: inventory every logo, icon, favicon, manifest and email logo reference, then make one asset folder.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-233 at 2026-11-26T05:24:40+00:00
+LAST CHECKPOINT: CP-234 at 2026-11-26T05:31:29+00:00
 <!-- handover:end -->
 
 ## Notes

@@ -3265,3 +3265,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Design MB-13: read src/agents/registry.js and src/automation/engine.js run states, then build the Supervisor.
+
+## CP-234 2026-11-26T05:31:29+00:00 T-251 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-251 (NOT_STARTED)
+- Completed steps: MB-13 AI Supervisor done (af69dda). Done on branch so far: MB-04, MB-11, MB-15, MB-13.
+- Incomplete steps: MB-12 brand asset library (T-251); MB-10 after moving tests; MB-05 after the 17:20 UTC backup check.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: af69dda (MB-13: AI Supervisor over the agent registry); 8 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start MB-12: inventory every logo, icon, favicon, manifest and email logo reference, then make one asset folder.

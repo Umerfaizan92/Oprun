@@ -1177,3 +1177,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-15 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Commit b1e2cc1. Cause: tab content loads after the click; the test read it immediately and swallowed the earlier wait's timeout. Fix waits for the tab text (15 s). test:console-ui passed 5 consecutive runs. (recorded 2026-11-26 on claude/transformation-phase1 at b1e2cc1)
+
+## T-252 MB-13 AI Supervisor over the agent registry
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-13.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-13 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Commit af69dda. agent-supervisor.test 4/4 (duplicate skipped without escalation and nothing approved; paused agent still blocked; dead job and repeated-failure findings raised once and cleared automatically; heartbeat stale after 5 min; one daily summary per day). test-agent-supervisor-ui PASS (Check now, finding, daily summary, axe clean, no sideways scroll 390/768/1440). Agent and automation suites, console-ui, reliability-ui pass. Evidence image docs/transformation/evidence/MB-13_before-after_390.jpg. Not released. (recorded 2026-11-26 on claude/transformation-phase1 at af69dda)
