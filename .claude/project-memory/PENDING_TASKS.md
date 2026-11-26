@@ -350,3 +350,4 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: With a real subscriber account: connect one provider (e.g. Facebook or Gmail), confirm consent screen, a synced item, and one approved reply delivered. Synthetic tests cannot cover real provider consent.
 - Files: docs/connections/OWNER-SETUP.md
 - Acceptance: Owner or tester records one successful live consent and one approved delivery per provider used
+

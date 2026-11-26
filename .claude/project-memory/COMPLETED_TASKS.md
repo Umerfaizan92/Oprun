@@ -1149,3 +1149,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: Over-budget pages cannot publish without the owner accepting the warning
 - Evidence: Commit 8f6b666. site-blocks.test 9/9: normal page within budget; 41 images and >60 KB compressed HTML reported; over-budget page blocked (level budget) until speed_accepted, then shown as 'Accepted:' warning; unsized images advice only; API publish refused 409 with the speed message, then 201 awaiting first-release approval after accepting. test-seo-ui 12 checks incl. the editor tickbox. seo-platform, seo-units, site-sync, website-edge, release-security, website-wizard-ui, site-ui pass. (recorded 2026-11-26 on claude/transformation-phase1 at 8f6b666)
+
+## T-243 Website connection card fixes (owner request 26 Nov)
+- Added: 2026-11-26
+- Requirement: Owner screenshot: website card showed an empty address box after saving, the TXT record name only in full (owners type it into dashboards that add the domain again), and the old SuperPro name. Fix: fill in the saved address, show the short host with a note, use _oprun for new records while existing _superpro records still verify, and say the short host in the not-found message.
+- Files: src/integration-transports.js, saas/integration-manager.js, saas/workspace.html, scripts/integration-tenant.test.mjs, scripts/test-connections-ui.mjs
+- Acceptance: integration-tenant test covers _oprun for new records, _superpro still verifying, another workspace's value refused, short-host message; connections-ui shows the saved address and the short host
+- Evidence: Commit 9ca541e. integration-tenant 10/10 incl. new test (_oprun for new records, _superpro record verifies unchanged, other workspace value refused, message names the short host). test-connections-ui PASS with saved address and short host checks. comms, ui, navigation-ui, mobile-workspace-ui pass. (recorded 2026-11-26 on claude/transformation-phase1 at 9ca541e)
