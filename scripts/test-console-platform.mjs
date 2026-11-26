@@ -28,7 +28,9 @@ try {
       await p.waitForFunction((t) => [...document.querySelectorAll('[role=tab]')].some((e) => e.textContent.trim() === t) || (document.querySelector('#console-content')?.innerText || '').includes(t), text, { timeout: 8000 }).catch(() => {});
       const section = p.getByRole('tab', { name: text, exact: true });
       if (await section.count()) await section.click();
-      assert.ok((await p.locator('#console-content').innerText()).includes(text), `${hash} shows ${text}`);
+      // A tab's content loads after the click (MB-15): wait for it instead of reading the page at once.
+      const shown = await p.waitForFunction((t) => (document.querySelector('#console-content')?.innerText || '').includes(t), text, { timeout: 15000 }).then(() => true, () => false);
+      assert.ok(shown, `${hash} shows ${text}`);
       assert.ok(!(await p.locator('#console-content').innerText()).includes('[object Object]'), `${hash} prints raw data`);
       const over = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       assert.ok(over <= 1, `${hash} scrolls sideways at ${width}px`);
