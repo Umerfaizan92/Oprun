@@ -10,6 +10,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
+import { seedSampleBusiness } from './visual/sample-data.mjs';
 
 const [out, ...paths] = process.argv.slice(2);
 if (!out || !paths.length) { console.error('Usage: node scripts/capture-pages.mjs <out-dir> <path> [<path> ...]'); process.exit(2); }
@@ -18,6 +19,8 @@ const server = await startServer();
 const browser = await chromium.launch({ headless: true, ...(process.env.UI_CHROMIUM_PATH ? { executablePath: process.env.UI_CHROMIUM_PATH, args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'] } : {}) });
 try {
   const owner = paths.some((p) => p.startsWith('~')) ? await seedOwner(server) : null;
+  // SAMPLE=1 fills the business with synthetic customers, jobs and messages, so pages look as they do in use.
+  if (owner && process.env.SAMPLE === '1') await seedSampleBusiness(server, owner);
   const page = owner ? await (await ownerContext(browser, server, owner)).newPage() : await browser.newPage();
   // The verification step only shows mid sign-up; give it a synthetic pending registration (no real person).
   await page.addInitScript(() => sessionStorage.setItem('gds-pending-registration', JSON.stringify({ registration_id: 'reg-synthetic', email: 'owner@example-business.test', phone: '+61 400 000 000', delivery: { email: { sent: true }, sms: { sent: true } } })));

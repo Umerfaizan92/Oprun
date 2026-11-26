@@ -427,3 +427,4 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-29.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-29 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+

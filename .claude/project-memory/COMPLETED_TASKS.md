@@ -1226,3 +1226,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-01 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Render service Oprun AI shows healthCheckPath /healthz (set by the owner in the dashboard, 26 Nov ~05:07 UTC); live /healthz returns 200 {ok:true, service:'oprun-ai'} after release R-6. (recorded 2026-11-26 on claude/transformation-phase1 at 591c8cb)
+
+## T-265 Command Centre Google-style rows (MB-23 continuation)
+- Added: 2026-11-26
+- Requirement: Owner said the live site looks unchanged. Redesign the Command Centre live figures as Google Account style rows: round gold icon, bold title, one line of detail, figure, chevron. Keep all IDs, data-jump buttons and text.
+- Files: saas/command-centre-rows.css, saas/workspace.html
+- Acceptance: Before/after at 390/768/1440; command-centre-loading, redesign, mobile-workspace, localization, navigation, ui suites pass; visual business no overflow; npm test passes
+- Evidence: Command Centre rows redesign: npm test 73/73; command-centre-loading, redesign, mobile-workspace, localization, navigation, ui suites pass; visual business 348 screens 0 overflow (baselines accepted); before/after docs/transformation/evidence/command-centre-before-after.jpg (recorded 2026-11-26 on claude/transformation-phase1 at ef90ff5)
