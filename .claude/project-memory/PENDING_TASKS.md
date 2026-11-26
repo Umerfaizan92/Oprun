@@ -386,13 +386,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-14 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
-## T-257 MB-22 Quotes and plan/billing in one place each
-- Status: NOT_STARTED
-- Added: 2026-11-26
-- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-22.
-- Files: see 07_MASTER_BACKLOG.md
-- Acceptance: As written for MB-22 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
-
 ## T-258 MB-23 Google-style simplicity pass on every page
 - Status: NOT_STARTED
 - Added: 2026-11-26

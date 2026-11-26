@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-255 (NOT_STARTED)
-LAST COMPLETED STEP: MB-10 done (ac22301). Done on branch: MB-04, MB-10, MB-11, MB-12, MB-13, MB-15.
-FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+CURRENT TASK: T-260 (NOT_STARTED)
+LAST COMPLETED STEP: MB-22 one quote flow done (132ea1e). Done on branch: MB-04, 10, 11, 12, 13, 15, 20, 21, 22.
+FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 3 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: MB-20: read MAPPING.json Communications items and their views; design one Phone & AI Receptionist page with tabs and aliases.
+NEXT EXACT ACTION: MB-23 step 1: remove cyan from saas/ds/src/hero-3d.mjs (gold and black only), rebuild ds, before/after screenshots of / at 3 widths.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-236 at 2026-11-26T05:50:15+00:00
+LAST CHECKPOINT: CP-237 at 2026-11-26T06:07:10+00:00
 <!-- handover:end -->
 
 ## Notes

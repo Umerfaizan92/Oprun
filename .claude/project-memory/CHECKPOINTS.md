@@ -3307,3 +3307,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: MB-20: read MAPPING.json Communications items and their views; design one Phone & AI Receptionist page with tabs and aliases.
+
+## CP-237 2026-11-26T06:07:10+00:00 T-260 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-260 (NOT_STARTED)
+- Completed steps: MB-20/MB-21 closed (already done by TR-21, audit corrected); MB-22 one quote flow done (132ea1e). Done on branch: MB-04, 10, 11, 12, 13, 15, 20, 21, 22.
+- Incomplete steps: MB-23 simplicity pass (T-260, about 4 sessions) incl. removing cyan from the home 3D hero; MB-25, MB-26, MB-24, MB-27, MB-28; MB-05 after the backup check.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 132ea1e (MB-22: one quote flow (Work -> Quotes); Money makes invoices); 14 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: MB-23 step 1: remove cyan from saas/ds/src/hero-3d.mjs (gold and black only), rebuild ds, before/after screenshots of / at 3 widths.

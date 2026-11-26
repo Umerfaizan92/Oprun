@@ -1212,3 +1212,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-21 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Already delivered by TR-21. Browser check 26 Nov as an owner (window.SuperProNav visible items): Communications shows 5 entries (Unified Inbox, Phone, AI Receptionist, Video Meetings, Team Chat); Growth shows 3 (Campaign Studio, Media Studio, Website); merged pages open as tabs and old addresses redirect (workspace-nav.js MERGED, takeRedirect). Audit A6/A7 corrected in 07_MASTER_BACKLOG.md. (recorded 2026-11-26 on claude/transformation-phase1 at 5b512ef)
+
+## T-257 MB-22 Quotes and plan/billing in one place each
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-22.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-22 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Commit 132ea1e. one-quote-flow.test 2/2 (Work quote gets number, valid-until and a line equal to its own amounts; totals unchanged; listed in Money; printable; GST-free quote gets FRE line; finance API still accepts quotations). pipeline, finance, automation suites, finance-ui (asserts the 'Quotes are made in Work' note), pipeline-ui, navigation-ui (sections updated), mobile-workspace-ui, localization pass. Evidence docs/transformation/evidence/MB-22_money-sales_before-after_1440.jpg. Not released. (recorded 2026-11-26 on claude/transformation-phase1 at 132ea1e)
