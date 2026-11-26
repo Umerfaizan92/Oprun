@@ -24,6 +24,7 @@ import { installPlatformAssignments } from './platform-assignments.js';
 import { installOnboardingInterview } from './onboarding-interview.js';
 import { installOnboardingProposal } from './onboarding-proposal.js';
 import { createAgentRegistry } from './agents/registry.js';
+import { createSupervisor } from './agents/supervisor.js';
 import { installAgentRoutes } from './agents/routes.js';
 import { DEFAULT_AGENTS } from './agents/defaults.js';
 import { LEGAL_VERSION as PLATFORM_LEGAL_VERSION } from './legal.js';
@@ -6360,11 +6361,12 @@ const seoEngineRef={current:null};
 const seoService=createSeoService({db,env,resolveHost:seoPublicHost,profileOf:seoCluster.profileOf,connections:integrationConnections,
   ai:async({system,user})=>(await generateAiText({system,messages:[{role:'user',content:user}],remember_conversation:false,max_output_tokens:1800})).text,
   aiAvailable:()=>aiProviderStatus().configured,ownBase:()=>String(env.PUBLIC_BASE_URL||'').replace(/\/$/,''),engineRef:seoEngineRef});
+let agentSupervisor=null; // MB-13: the AI Supervisor over the agents (set with the registry)
 let agentRegistry=null; // TR-40: set once the engine exists; the engine asks it before every agent run
 const automationEngine=createAutomationEngine({db,queue:jobQueue,generateAiText,aiStatus:aiProviderStatus,timers:env.NODE_ENV!=='test',deps:{
-  agentGuard:(run)=>agentRegistry?agentRegistry.guard(run):{ok:true},
+  agentGuard:(run)=>agentSupervisor?agentSupervisor.guard(run):agentRegistry?agentRegistry.guard(run):{ok:true},
   onRunStatus:(run,status)=>agentRegistry?.onRunStatus(run,status),
-  onTick:()=>agentRegistry?.sweepOverdue(),
+  onTick:()=>agentSupervisor?agentSupervisor.tick():agentRegistry?.sweepOverdue(),
   // TR-41: read-only inputs for the agents' report actions.
   diagnostics:()=>runDiagnostics({db,env,storage:storagePlan}),
   qaReport:(name)=>{if(!['accessibility.json','performance.json'].includes(name))return null;try{return JSON.parse(fs.readFileSync(path.join(backendRoot,'qa','reports',name),'utf8'))}catch{return null}},
@@ -6462,8 +6464,9 @@ if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){c
 if(env.NODE_ENV!=='test'){const runSiteSync=()=>seoService.syncAllSiteFacts().then((r)=>{if(r.changed)console.log(`[seo] site sync: ${r.changed} page(s) updated from Oprun details`)}).catch(e=>console.warn('[seo] site sync:',e.message));setTimeout(runSiteSync,15*60000).unref?.();setInterval(runSiteSync,24*3600000).unref();}
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});
 agentRegistry=createAgentRegistry({db,engine:automationEngine,log:(actor,action,section,id)=>platformIdentity.log(actor,action,section,id)});
+agentSupervisor=createSupervisor({db,registry:agentRegistry,log:(actor,action,section,id)=>platformIdentity.log(actor,action,section,id)});
 try{const made=agentRegistry.ensureDefaults(DEFAULT_AGENTS);if(made.length)console.log(`[agents] created ${made.length} standard agents`)}catch(e){console.warn('[agents] could not create the standard agents:',e.message)}
-installAgentRoutes(app,{registry:agentRegistry,platform:platformIdentity});
+installAgentRoutes(app,{registry:agentRegistry,platform:platformIdentity,supervisor:agentSupervisor});
 
 app.listen(
   port,

@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { publicCatalogue } from '../automation/catalogue.js';
 
-export function installAgentRoutes(app, { registry, platform }) {
+export function installAgentRoutes(app, { registry, platform, supervisor = null }) {
   const actor = (req) => ({ id: req.platform.id, name: req.platform.name || 'Founder', role: req.platform.role });
   const send = (res, r, ok = 200) => (r.ok ? res.status(ok).json(r) : res.status(r.status || 400).json({ ok: false, error: r.error }));
   const read = [platform.identity, platform.permit('operations', 'read')];
@@ -27,7 +27,13 @@ export function installAgentRoutes(app, { registry, platform }) {
   // TR-42: Agent Command Center data and escalation handling.
   app.get('/api/operator/agents/center', ...read, (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
-    res.json({ ok: true, ...registry.center(), can_approve: platform.can(req, 'operations', 'approve'), can_run: platform.can(req, 'operations', 'edit') });
+    res.json({ ok: true, ...registry.center(), supervisor: supervisor ? supervisor.status() : null, can_approve: platform.can(req, 'operations', 'approve'), can_run: platform.can(req, 'operations', 'edit') });
+  });
+  // MB-13: run the AI Supervisor's checks now (it also runs on every automation tick). It only reads and records.
+  app.post('/api/operator/agents/supervisor/check', platform.identity, platform.permit('operations', 'edit'), (req, res) => {
+    if (!supervisor) return res.status(404).json({ ok: false, error: 'The AI Supervisor is not available.' });
+    const r = supervisor.tick();
+    res.json({ ok: true, result: { overdue: r.overdue.length, dead_jobs: r.dead_jobs, failing_agents: r.failing_agents }, supervisor: supervisor.status() });
   });
   app.post('/api/operator/agents/escalations/:id', platform.identity, platform.permit('operations', 'edit'), (req, res) => {
     const p = z.object({ action: z.enum(['acknowledge', 'resolve']), note: z.string().trim().max(1000).default('') }).strict().safeParse(req.body ?? {});

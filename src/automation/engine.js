@@ -298,6 +298,8 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     if (!a || a.restricted) return transition(run, 'blocked', { level: 4, policy_json: { level: 4, reasons: ['Restricted: automation never does this.'] } });
     // TR-40: a workflow owned by an agent may only run actions on that agent's list (and only while it is active).
     const agentCheck = agentGuard(run);
+    // MB-13: the supervisor skips a duplicate (an earlier run of the same agent job is still in progress); not a failure.
+    if (!agentCheck.ok && agentCheck.skip) { audit(run.organisation_id, 'agent.duplicate_skipped', id, { action: run.action, reason: agentCheck.reason }); return transition(run, 'skipped', { error: agentCheck.reason }); }
     if (!agentCheck.ok) { audit(run.organisation_id, 'agent.denied', id, { action: run.action, agent: agentCheck.agent || null, reason: agentCheck.reason }); return transition(run, 'blocked', { level: 4, error: agentCheck.reason, policy_json: { level: 4, reasons: [agentCheck.reason] } }); }
     const ctx = context(run);
     if (!ctx) return transition(run, 'skipped', { error: 'The record this event refers to no longer exists.' });
@@ -369,6 +371,7 @@ export function createAutomationEngine({ db, queue, deps, generateAiText = null,
     const a = ACTIONS[run.action];
     // TR-40: checked again just before acting, in case the agent was paused or its list changed while waiting.
     const agentCheck = agentGuard(run);
+    if (!agentCheck.ok && agentCheck.skip) { audit(run.organisation_id, 'agent.duplicate_skipped', run.id, { action: run.action, reason: agentCheck.reason }); transition(run, 'skipped', { error: agentCheck.reason }); return { skipped: true }; }
     if (!agentCheck.ok) { audit(run.organisation_id, 'agent.denied', run.id, { action: run.action, agent: agentCheck.agent || null, reason: agentCheck.reason }); transition(run, 'blocked', { level: 4, error: agentCheck.reason }); return { blocked: true }; }
     const proposal = safe(run.edited_json, null) || safe(run.proposal_json, {});
     const accountable = run.approver_id || (a.rule ? rule(run.organisation_id, a.rule).configured_by : null);

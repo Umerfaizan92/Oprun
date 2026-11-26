@@ -72,6 +72,7 @@
     "test:navigation-ui": "node scripts/test-navigation-ui.mjs",
     "test:receptionist-ui": "node scripts/test-receptionist-ui.mjs",
     "test:site-blocks-ui": "node scripts/test-site-blocks-ui.mjs",
+    "test:agent-supervisor-ui": "node scripts/test-agent-supervisor-ui.mjs",
     "navigation:inventory": "node scripts/navigation-inventory.mjs",
     "test:mobile-readiness": "node scripts/test-mobile-readiness.mjs",
     "test:channels-ui": "node scripts/test-channel-operations-ui.mjs",

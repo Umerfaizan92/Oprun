@@ -55,7 +55,13 @@
     const refresh = () => { host.replaceChildren(); return center(host, api, ctx); };
     const c = d.counts, rate = c.runs_7d ? Math.round((c.success_7d / c.runs_7d) * 100) + '%' : '—';
     const tile = (lab, n, tone) => el('div', { class: 'ex-tile' + (n && tone && n !== '—' ? ' ex-' + tone : '') }, el('span', { class: 'ex-label', text: lab }), el('b', { class: 'ex-value', text: String(n) }));
-    host.append(el('div', { class: 'ex-tiles' }, tile('Escalated', c.escalated_open, 'critical'), tile('Waiting for approval', c.waiting_approval, 'warning'), tile('Failed (24 h)', c.failed_24h, 'critical'),
+    // MB-13: the AI Supervisor's own status first, so a stopped supervisor is never missed.
+    const sv = d.supervisor;
+    if (sv) host.append(el('p', { class: 'sv-status ' + (sv.running ? 'sv-ok' : 'sv-stopped'), role: 'status', 'data-supervisor-status': sv.running ? 'running' : 'stopped' },
+      el('span', { class: 'sv-dot', 'aria-hidden': 'true' }), el('b', { text: sv.running ? 'AI Supervisor is checking' : 'AI Supervisor needs attention' }), ' ',
+      el('span', { text: sv.message + (sv.last_check_at ? ` Last check ${time(sv.last_check_at)}.` : '') }),
+      d.can_run ? el('button', { type: 'button', class: 'portal-button', text: 'Check now', onclick: async (e) => { e.target.disabled = true; try { await api('/api/operator/agents/supervisor/check', { method: 'POST', body: '{}' }); ctx.notify('The AI Supervisor checked the agents and background jobs.'); await refresh(); } catch (err) { e.target.disabled = false; ctx.notify(err.message || 'The check did not run.'); } } }) : null));
+    host.append(el('div', { class: 'ex-tiles' }, ...(sv ? [tile('Open findings', sv.open_findings, 'critical')] : []), tile('Escalated', c.escalated_open, 'critical'), tile('Waiting for approval', c.waiting_approval, 'warning'), tile('Failed (24 h)', c.failed_24h, 'critical'),
       tile('Queued', c.queued), tile('Running', c.running), tile('Success (7 days)', rate)));
     const STATUS = { received: 'Starting', queued: 'Queued', executing: 'Running', approved: 'Approved, waiting to run', held: 'Held (automation paused)', failed: 'Failed', verification_failed: 'Check failed', blocked: 'Blocked' };
     const runItem = (r, extra = []) => el('li', { class: 'as-card', 'data-run': r.id },
@@ -66,6 +72,16 @@
     const act = (e, action) => () => dialog(`${action === 'resolve' ? 'Resolve' : 'Acknowledge'}: ${e.agent}`, [label(action === 'resolve' ? 'What was done?' : 'Note (optional)', el('textarea', { name: 'note', rows: '2', maxlength: '1000', required: action === 'resolve', minlength: action === 'resolve' ? '5' : null }))],
       async (f) => { await api(`/api/operator/agents/escalations/${e.id}`, { method: 'POST', body: JSON.stringify({ action, note: f.get('note') || '' }) }); ctx.notify(action === 'resolve' ? 'Marked resolved.' : 'Acknowledged.'); await refresh(); });
     const KIND = { failed: 'Failed', blocked: 'Blocked', overdue: 'Late' };
+    if (sv) {
+      const KIND = { dead_job: 'Background job gave up', repeated_failures: 'Agent keeps failing' };
+      const items = sv.findings.map((f) => el('li', { class: 'as-card' + (f.status === 'open' ? ' as-late' : ''), 'data-finding': f.id },
+        el('div', { class: 'tm-bar' }, el('b', { class: 'as-title', text: f.title }), el('span', { class: 'as-badge' + (f.status === 'open' ? ' as-overdue' : ''), text: f.status === 'open' ? KIND[f.kind] || 'Open' : 'Resolved' })),
+        el('p', { class: 'tm-note', text: f.detail }), el('p', { class: 'as-meta' }, el('span', { text: f.status === 'open' ? `First seen ${time(f.first_seen)}` : `Resolved ${time(f.resolved_at)}` }))));
+      const day = sv.daily;
+      const panel = section('Supervisor findings', items, 'Nothing needs attention. Findings clear by themselves once the cause is fixed.');
+      if (day) panel.append(el('p', { class: 'portal-note', 'data-supervisor-daily': day.day, text: `Daily summary ${day.day}: ${day.runs_7d} agent runs in 7 days (${day.runs_7d ? Math.round((day.success_7d / day.runs_7d) * 100) + '% succeeded' : 'none yet'}), ${day.failed_24h} failed in 24 h, ${day.waiting_approval} waiting for approval, ${day.escalated_open} open escalations.` }));
+      host.append(panel);
+    }
     host.append(section('Escalations', d.escalations.map((e) => el('li', { class: 'as-card' + (e.status === 'open' ? ' as-late' : ''), 'data-escalation': e.id },
       el('div', { class: 'tm-bar' }, el('b', { class: 'as-title', text: `${e.agent}: ${KIND[e.kind]}` }), el('span', { class: 'as-badge ' + (e.status === 'open' ? 'as-overdue' : e.status === 'resolved' ? 'as-accepted' : 'as-blocked'), text: e.status === 'open' ? 'Open' : e.status === 'resolved' ? 'Resolved' : 'Acknowledged' })),
       el('p', { class: 'tm-note', text: e.reason }),

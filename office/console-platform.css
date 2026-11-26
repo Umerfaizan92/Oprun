@@ -160,3 +160,9 @@ html[data-theme="light"] .console-pages .portal-button.is-active{color:var(--sp-
 .ag-perf thead th{color:var(--sp-fg-muted,var(--muted));font-weight:600}
 .ag-perf tbody th{font-weight:600}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* MB-13: AI Supervisor status line in the agent command centre */
+.sv-status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 12px;padding:10px 14px;border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;font-size:14px;line-height:1.4}
+.sv-status b{font-weight:650}
+.sv-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--sp-good,#2fb67c)}
+.sv-stopped{border-color:color-mix(in srgb,var(--sp-bad,#e5484d) 55%,transparent)}
+.sv-stopped .sv-dot{background:var(--sp-bad,#e5484d)}
