@@ -1135,3 +1135,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: LCP is the poster; no animation after 4 s; reduced-motion shows the poster only; budget check passes
 - Evidence: Commits 237fafd, 408bb1c. test-site-blocks-ui with real WebGL (SwiftShader): scene plays and is done within 4.5 s, zero draw calls in the 1.2 s after (no loop), LCP element is the poster IMG, reduced motion and 2-core devices keep the poster and never download the scene, axe clean at 390/820/1440 px. site-blocks 8/8: loader only on cinematic pages, CSP adds script-src 'self' only there, /_site serves only the two files, budget (loader <=2 KB, scene 110 KB brotli <=130 KB, 3.6 s play, setAnimationLoop(null)), poster fetchpriority high and not lazy. website-edge: files served on custom domains. Gated by WEBSITE_BUILDER_V2_ORGS (D-085). (recorded 2026-11-25 on claude/transformation-phase1 at 408bb1c)
+
+## T-153 W-07 AI Website: Live Oprun data sync (nightly diff → drafts / low-risk updates)
+- Added: 2026-11-19
+- Requirement: Live Oprun data sync (nightly diff → drafts / low-risk updates) (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: A changed phone number appears after approval; a new review appears automatically when allowed
+- Evidence: Commit 5c46665. scripts/site-sync.test.mjs 2/2: phone changed in Oprun -> new version awaiting approval, live page unchanged until approved, then tel:0411999000 live; second run does not stack versions; with low_risk_site_updates on the next change publishes alone (run completed); unpublished edits are skipped; website email untouched; an approved 4+ review appears on the live page with no new version. seo-platform, seo-units, site-blocks, automation pass. Hours sync not included: Oprun keeps no hours in the profile facts (facts.hours is empty); recorded for later. (recorded 2026-11-26 on claude/transformation-phase1 at 5c46665)

@@ -3167,3 +3167,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read docs/ai-website for W-07 (T-153) and start it.
+
+## CP-227 2026-11-26T00:14:49+00:00 T-154 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-154 (NOT_STARTED)
+- Completed steps: W-07 committed 5c46665 (T-153 completed).
+- Incomplete steps: W-08 speed budget in prePublishChecks (T-154); then push; release batch after full verification.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 5c46665 (AI Website: keep live pages in step with Oprun details (W-07)); 7 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Read docs for W-08 and add the speed budget check to prePublishChecks.

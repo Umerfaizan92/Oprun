@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-153 (NOT_STARTED)
-LAST COMPLETED STEP: W-05 and W-06 completed and committed (eb03467, 237fafd, 408bb1c). New sections gated by WEBSITE_BUILDER_V2_ORGS.
+CURRENT TASK: T-154 (NOT_STARTED)
+LAST COMPLETED STEP: W-07 committed 5c46665 (T-153 completed).
 FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Read docs/ai-website for W-07 (T-153) and start it.
+NEXT EXACT ACTION: Read docs for W-08 and add the speed budget check to prePublishChecks.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-226 at 2026-11-25T22:10:01+00:00
+LAST CHECKPOINT: CP-227 at 2026-11-26T00:14:49+00:00
 <!-- handover:end -->
 
 ## Notes
