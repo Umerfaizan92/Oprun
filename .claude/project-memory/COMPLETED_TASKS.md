@@ -1142,3 +1142,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see docs/ai-website/02_ARCHITECTURE.md
 - Acceptance: A changed phone number appears after approval; a new review appears automatically when allowed
 - Evidence: Commit 5c46665. scripts/site-sync.test.mjs 2/2: phone changed in Oprun -> new version awaiting approval, live page unchanged until approved, then tel:0411999000 live; second run does not stack versions; with low_risk_site_updates on the next change publishes alone (run completed); unpublished edits are skipped; website email untouched; an approved 4+ review appears on the live page with no new version. seo-platform, seo-units, site-blocks, automation pass. Hours sync not included: Oprun keeps no hours in the profile facts (facts.hours is empty); recorded for later. (recorded 2026-11-26 on claude/transformation-phase1 at 5c46665)
+
+## T-154 W-08 AI Website: Speed budget check added to `prePublishChecks`
+- Added: 2026-11-19
+- Requirement: Speed budget check added to `prePublishChecks` (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
+- Files: see docs/ai-website/02_ARCHITECTURE.md
+- Acceptance: Over-budget pages cannot publish without the owner accepting the warning
+- Evidence: Commit 8f6b666. site-blocks.test 9/9: normal page within budget; 41 images and >60 KB compressed HTML reported; over-budget page blocked (level budget) until speed_accepted, then shown as 'Accepted:' warning; unsized images advice only; API publish refused 409 with the speed message, then 201 awaiting first-release approval after accepting. test-seo-ui 12 checks incl. the editor tickbox. seo-platform, seo-units, site-sync, website-edge, release-security, website-wizard-ui, site-ui pass. (recorded 2026-11-26 on claude/transformation-phase1 at 8f6b666)

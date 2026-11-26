@@ -253,13 +253,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: src/comms/receptionist-telnyx.js; src/comms/voice.js; src/server.js; saas/workspace-receptionist.js; saas/portal-workspace.js; saas/workspace-nav.js; saas/workspace.html; scripts/receptionist-telnyx.test.mjs; scripts/test-ui.mjs; docs/ai-receptionist/00_CONTRACT.md
 - Acceptance: receptionist-telnyx tests 9/9; npm test 73/73; test:ui 35/35 incl. new section check; owner connects a real Telnyx number live and a test call lands in Unibox
 
-## T-154 W-08 AI Website: Speed budget check added to `prePublishChecks`
-- Status: NOT_STARTED
-- Added: 2026-11-19
-- Requirement: Speed budget check added to `prePublishChecks` (docs/ai-website/10_IMPLEMENTATION_PLAN.md)
-- Files: see docs/ai-website/02_ARCHITECTURE.md
-- Acceptance: Over-budget pages cannot publish without the owner accepting the warning
-
 ## T-156 W-10 AI Website: DNS connections (Cloudflare token, Porkbun key), diff + approval + write + verify
 - Status: NOT_STARTED
 - Added: 2026-11-19
