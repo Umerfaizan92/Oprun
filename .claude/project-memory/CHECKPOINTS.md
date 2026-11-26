@@ -3181,3 +3181,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read docs for W-08 and add the speed budget check to prePublishChecks.
+
+## CP-228 2026-11-26T00:20:11+00:00 T-155 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-155 (NOT_STARTED)
+- Completed steps: W-05..W-08 completed (T-151..T-154), commits up to 5de0f08 on the branch, not released.
+- Incomplete steps: Full verification (npm test, all browser suites incl. site-blocks-ui and receptionist-ui, visual) then release R-4 with rollback point dep-dc3l96rbc2fs738mkr1g; then the next website task.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 5de0f08 (Project memory: W-08 completed with evidence); 10 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Run npm test, then the browser suites in batches, then release R-4.
