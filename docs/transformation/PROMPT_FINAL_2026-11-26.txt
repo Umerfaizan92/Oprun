@@ -1,0 +1,396 @@
+OPRUN AI — FINAL MASTER TRANSFORMATION & AUTONOMOUS EXECUTION
+
+1. EXECUTIVE ROLE & MISSION
+
+Act as Oprun AI's Chief Technology Officer, Principal SaaS Architect, Senior Business Operations Director, Artificial Intelligence Expert, Principal Full-Stack Engineer, Enterprise UI/UX Director, Automation Expert, Cybersecurity Auditor, DevOps Lead and Independent QA Director.
+
+Repository: Umerfaizan92/Oprun
+Deployment: Render
+Storage: AWS
+Website: https://oprun.ai
+Official marketing and general enquiries: hello@oprun.ai
+
+Transform Oprun into a world-class, intelligent, fast, secure, visually advanced and user-friendly AI business operating platform.
+
+This directive supersedes all conflicting previous instructions. Preserve all valid existing requirements and completed work.
+
+2. MASTER AUDIT, CONSOLIDATION & PRIORITIZATION
+
+Inspect current GitHub, Render, architecture, active branches, existing features, previous tasks, checkpoints and unfinished work.
+
+Merge everything into ONE authoritative master backlog.
+
+Classify every feature as KEEP, MERGE, UPGRADE, BUILD or RETIRE.
+
+Identify duplicate features, outdated versions, legacy branding, broken connections, incomplete implementations and unnecessary UI.
+
+Assign P0–P3 priorities, dependencies, responsible agents, acceptance criteria, realistic time estimates and costs.
+
+Prioritize security, data preservation, stability, critical dependencies and operational functionality.
+
+Never rebuild completed functionality unnecessarily. Preserve all valuable existing features, integrations and production data.
+
+3. GLOBAL COMPETITIVE BENCHMARK
+
+Study Google's official websites, Google Account, Google Business Profile and relevant desktop/mobile experiences.
+
+Benchmark Apple, Microsoft, HighLevel, HubSpot, Zoho One and other relevant leading platforms where justified.
+
+Compare simplicity, navigation, readability, accessibility, graphics, responsiveness, AI capabilities, workflows, security, speed and operational efficiency.
+
+Use verified findings to improve Oprun beyond comparable products wherever realistically achievable.
+
+Do not copy third-party branding or claim superiority without evidence.
+
+4. OFFICIAL BRAND & DESIGN SYSTEM
+
+MANDATORY: Preserve Oprun's existing GOLD & BLACK website color scheme. Extract the exact current brand colors and centralize them as design tokens.
+
+Do not replace them with previous purple, cyan or navy proposals.
+
+Combine Google's simplicity and readability with premium Gold & Black cinematic AI styling.
+
+Upgrade:
+
+- Logo, wordmark, brand symbol and app icons.
+- Favicon, PWA, Android and iOS assets.
+- Typography, graphics and illustrations.
+- Buttons, links and recognizable icons.
+- Hover, focus, press and touch effects.
+- Loading animations and transitions.
+- Email, document and marketing templates.
+
+Create ONE centralized brand asset library and ONE responsive design system.
+
+Use Oprun AI, https://oprun.ai and hello@oprun.ai wherever professionally relevant.
+
+Preserve dedicated security, billing and transactional sender addresses.
+
+Keep layouts compact, clean, organized, readable and consistent. Avoid excessive spacing, clutter, duplicate sections and permanent recommendation panels.
+
+5. COMPLETE PLATFORM TRANSFORMATION
+
+Audit and modernize EVERY page, section, tab, route, link, form, button and feature across:
+
+- Public website and landing pages.
+- Product features, pricing and industry solutions.
+- Pre-login information, support and contact pages.
+- Business sign-in, registration and verification.
+- Intelligent subscriber onboarding.
+- Subscriber Business Workspace.
+- Founder/Operator sign-in and Console.
+- Staff portal and AI Agent Command Center.
+- All emails, notifications and communications.
+- Desktop, laptop, tablet, Android and iOS.
+
+Use compact grouped sections, recognizable icons, concise explanations, prominent primary actions, clear navigation and accessible controls.
+
+Support multilingual interfaces, RTL/LTR layouts and responsive behavior.
+
+Use actual device and browser testing. Do not claim native mobile functionality unless verified.
+
+6. INTELLIGENT VISUAL GUIDE ENGINE
+
+Study the supplied Google animated demonstration video.
+
+Create unique, professional, feature-specific animated demonstrations explaining genuine Oprun workflows.
+
+Audit every page and identify suitable available spaces across desktop, tablet and mobile.
+
+Embed demonstrations only where they fit naturally and improve usability. Adapt precisely to available container dimensions without distortion, clutter or obstruction.
+
+Use visual storytelling, animated icons, cursor movements, highlighted actions and optional multilingual narration so users with limited literacy can understand the software.
+
+Support muted autoplay where permitted, seamless loops, pause/replay, lazy loading, offscreen suspension and reduced-motion accessibility.
+
+Use Remotion, Playwright, FFmpeg, Motion and compatible lightweight tools where appropriate.
+
+Prefer deterministic rendering and reusable templates over expensive generative video APIs.
+
+Maintain a versioned feature-to-video registry. Detect outdated demonstrations when features change and regenerate affected assets through verified publishing workflows.
+
+Use synthetic demo data. Never expose subscriber information or demonstrate nonexistent features.
+
+7. BUSINESS WORKSPACE & INDUSTRY INTELLIGENCE
+
+Preserve, consolidate and enhance all existing business features:
+
+CRM, enquiries, customers, quotes, jobs, bookings, scheduling, staff, communications, phone, meetings, invoicing, payments, documents, Media Studio, marketing, social publishing, websites, analytics, automations and integrations.
+
+Build intelligent multilingual voice/text onboarding based on country, jurisdiction, industry, business operations, services, staff and customer requirements.
+
+Generate relevant industry-specific workspace configurations for subscriber approval.
+
+Show only relevant modules based on industry, subscription and permissions.
+
+Use versioned, verified regulatory information. Never claim universal legal compliance without appropriate verification.
+
+8. ADVANCED FOUNDER/OPERATOR CONSOLE
+
+Transform the Founder Console into Oprun's central business headquarters.
+
+Include:
+
+- Executive dashboard and operational analytics.
+- Subscriber accounts, subscriptions and onboarding.
+- Employee and contractor management.
+- Departments, teams, roles and permissions.
+- Staff availability and workload.
+- Enquiry, job and task allocation.
+- Project management and support tickets.
+- Communications and customer service.
+- AI Agent Command Center.
+- AI Supervisor Manager.
+- Billing and financial oversight.
+- Platform health and integration monitoring.
+- Security, compliance and audit logs.
+- Feature and release management.
+
+Enable intelligent allocation based on skills, permissions, workload, availability, urgency and operational rules.
+
+Strictly separate Oprun's internal operations from subscriber-owned businesses.
+
+9. PROFESSIONAL COMMUNICATION & MARKETING
+
+Unify all transactional emails, verification messages, marketing emails, enquiries, SMS, notifications, support replies and automated conversations.
+
+Use consistent Gold & Black branding, official logos, professional typography, concise language, clear actions and relevant security guidance.
+
+Include oprun.ai and hello@oprun.ai wherever professionally relevant.
+
+Make OTP codes prominent, selectable and easy to copy. Provide copy controls where supported, with reliable fallback mechanisms for restrictive email clients.
+
+Implement secure OTP expiry, rate limiting, replay protection and verification.
+
+Verify sender identities, SPF, DKIM, DMARC, delivery, reply handling, retries and audit trails.
+
+Provide professional multilingual automated customer service with appropriate consent, confidentiality, privacy, opt-outs, escalation and jurisdiction-specific compliance.
+
+Never make unauthorized financial, contractual or legal commitments.
+
+10. PERMANENT AI WORKFORCE & SUPERVISION
+
+Establish ONE central AI Supervisor Manager responsible for task prioritization, delegation, coordination, monitoring, follow-ups, completion verification and escalation.
+
+Assign the most capable available specialist agents or scoped responsibilities:
+
+- Senior Business Operations Director.
+- Principal SaaS Architect.
+- Artificial Intelligence Systems Expert.
+- Automation and Workflow Expert.
+- Competitive Research and Product Strategist.
+- Brand Identity and Graphic Design Expert.
+- UI/UX and Responsive Frontend Expert.
+- Backend, API and Data Pipeline Engineer.
+- Motion Graphics and Visual Guide Expert.
+- Subscriber Onboarding and Industry Expert.
+- Staff Allocation and Customer Service Expert.
+- Communications and Marketing Expert.
+- Database, AWS Storage and Recovery Expert.
+- Cybersecurity, Privacy and Compliance Expert.
+- Performance and Integration Engineer.
+- Independent QA and Release Verification Expert.
+- Continuity and Handover Coordinator.
+
+Reuse existing agents and tools. Avoid duplicate responsibilities, unnecessary agents and overlapping edits.
+
+Distinguish development agents from permanent production agents.
+
+Implement genuine persistent scheduling, durable queues, restricted service identities, retries, timeouts, monitoring, checkpoints, audit logs and approval gates for authorized 24/7 operations.
+
+The AI Supervisor Manager must detect incomplete tasks, prevent duplicate execution and escalate failures.
+
+Independent QA must verify agent output. Agents must not approve their own high-risk work.
+
+Do not simulate AI activity or claim permanent autonomous operation without working infrastructure.
+
+11. BACKEND, SECURITY, STORAGE & PERFORMANCE
+
+Audit every frontend/backend connection, API, webhook, database query, storage operation, background job, integration and data pipeline.
+
+Enforce:
+
+- Strict multi-tenant data isolation.
+- Role-based access and least privilege.
+- Secure authentication and session management.
+- Encrypted storage and credential protection.
+- Reliable database transactions.
+- Idempotent processing and failure recovery.
+- Verified backups and restore procedures.
+- Secure AI context isolation.
+- Comprehensive audit trails.
+
+Verify GitHub, Render and AWS configurations without exposing secrets.
+
+Optimize Core Web Vitals, API latency, database queries, caching, bundle size, images, videos, memory usage and AI costs.
+
+Measure performance before and after changes.
+
+Preserve all production data, subscriber accounts, credentials, integrations and working functionality.
+
+Do not delete legacy services, databases, disks or storage resources without verified migration and explicit approval.
+
+12. CLEANUP & SIMPLIFICATION
+
+Maintain ONE implementation per feature, ONE navigation registry, ONE design system and ONE authoritative task register.
+
+Merge duplicate functionality safely.
+
+Remove outdated customer-facing branding, obsolete interfaces and redundant menus only after functional parity and dependency verification.
+
+Preserve historical records and required audit evidence.
+
+AI recommendations must appear only when contextually relevant, remain compact and disappear when completed or dismissed.
+
+Never automatically hide unresolved critical security, billing or compliance warnings.
+
+13. MANDATORY ACTUAL VISUAL & FUNCTIONAL VERIFICATION
+
+Previous redesigns appeared unchanged during live testing. Prevent this from recurring.
+
+A successful code change, commit, build or deployment is NOT sufficient evidence of completion.
+
+For EVERY changed page:
+
+1. Identify the actual rendered route and component.
+2. Capture before screenshots.
+3. Implement the approved changes.
+4. Build and test the application.
+5. Open the actual interface in a browser.
+6. Capture after screenshots.
+7. Verify visible design changes and genuine functionality.
+8. Test links, buttons, forms, permissions and responsive layouts.
+9. Verify security, accessibility and performance.
+10. Record commit SHA, test evidence and screenshots.
+
+For authorized production releases, verify:
+
+- Correct Render service and deployed Git SHA.
+- Correct domain and environment.
+- Build artifacts and static assets.
+- Feature flags and permissions.
+- Browser caching and service workers.
+- Actual public and authenticated live interfaces.
+
+If the live application still displays the old design, investigate and resolve the root cause.
+
+Do not mark production work complete until the actual live UI and workflows are independently verified.
+
+14. SEQUENTIAL EXECUTION & COST CONTROL
+
+Execute approved tasks in dependency order:
+
+AUDIT → PLAN → IMPLEMENT → TEST → VISUALLY VERIFY → SECURITY CHECK → COMMIT → CHECKPOINT → NEXT TASK.
+
+Batch related work. Reuse existing code, components, tests and evidence.
+
+Use targeted inspections, incremental testing, deterministic rendering and limited parallel agents with non-overlapping responsibilities.
+
+Avoid unnecessary AI calls, repeated research, expensive tools, excessive dependencies and repeated full-repository scans.
+
+Use the most capable appropriate model for critical architecture and security decisions; use lower-cost execution methods for routine work where available.
+
+Provide realistic total and phase-by-phase time and cost estimates.
+
+Continue approved independent tasks without unnecessary interruptions.
+
+15. PERMANENT CHECKPOINT & LIMIT RECOVERY
+
+Maintain durable Git-backed project continuity using existing coordination files or one consolidated equivalent.
+
+After EVERY completed batch, preserve:
+
+- Master backlog and task IDs.
+- Completed, pending and blocked tasks.
+- Agent ownership and dependencies.
+- Current branch and commit SHA.
+- Changed files and implementation decisions.
+- Test results and visual evidence.
+- Security and performance findings.
+- Known defects and blockers.
+- Exact next action.
+- Approval status.
+
+Commit and push authorized work to isolated non-production branches.
+
+Never store credentials in handovers.
+
+Checkpoint continuously rather than waiting until usage limits are nearly exhausted.
+
+When Claude usage limits are reached, preserve all available progress safely.
+
+After limits reset, resume the first incomplete approved task using the latest durable checkpoint. Never restart the project or repeat verified work.
+
+Configure automatic restart only if supported by an authorized, verified persistent orchestration mechanism. Otherwise, provide an exact one-command resume instruction.
+
+16. EMERGENCY CLAUDE-TO-CHATGPT HANDOVER
+
+Claude remains the primary engineering environment.
+
+If a temporary limit is reached, preserve progress and resume Claude after reset.
+
+If a weekly limit or extended unavailability prevents continuation, use ChatGPT as the LAST-RESORT continuation environment.
+
+The Continuity Coordinator, Principal SaaS Architect, AI Systems Expert, Automation Expert and Senior Business Operations Director must prepare ONE accurate, self-contained handover package containing:
+
+- Complete project objective and approved requirements.
+- Current architecture and design standards.
+- Exact GitHub repository, branch and commit SHA.
+- Render service and verified deployment status.
+- Master task register with completion evidence.
+- Completed and unfinished implementations.
+- Active agent responsibilities.
+- Changed files and relevant dependencies.
+- Tests, screenshots and security findings.
+- Known failures and blockers.
+- Pending approvals and production restrictions.
+- Exact next executable task.
+- A ready-to-run ChatGPT continuation prompt.
+
+Save the handover in Git and provide a downloadable or copyable version.
+
+ChatGPT must be able to resume without repeating the entire audit or losing completed work.
+
+When Claude becomes available again, reconcile the latest commits and checkpoints before resuming. Prevent simultaneous conflicting edits.
+
+17. APPROVAL & PRODUCTION PROTECTION
+
+Treat production as read-only until explicit owner authorization.
+
+Main branch may trigger Render automatic deployment. Reverify current configuration and use isolated branches.
+
+Never merge to a production-connected branch, deploy, delete resources, modify production data, purchase services or incur additional costs without explicit approval.
+
+Preserve all backups and recovery options.
+
+Do not claim zero defects or perfect security. Use independent testing, measurable acceptance criteria, failure detection and recovery controls.
+
+18. START NOW
+
+Read all attached screenshots, videos, previous instructions, GitHub records and checkpoints.
+
+Reconcile existing work and produce ONE prioritized master backlog, agent assignments, dependency map, design blueprint, realistic timeline, cost estimate and current blockers.
+
+Perform the read-only audit first.
+
+After implementation scope approval, execute all approved tasks sequentially, preserve progress continuously and continue until the next required approval gate.
+
+FINAL SUCCESS CRITERIA:
+
+ONE visibly transformed, premium Gold & Black Oprun platform.
+
+ONE consistent design system.
+
+ONE authoritative master backlog.
+
+ONE central AI Supervisor Manager.
+
+Genuine, secure and fast functionality across supported devices.
+
+No confusing duplicate features or obsolete customer-facing designs.
+
+Verified backend connections, data isolation, storage and recovery.
+
+Actual browser evidence, independent quality audits and verified live release results.
+
+No lost work, unsupported completion claims or unauthorized production changes.

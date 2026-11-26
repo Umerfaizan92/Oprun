@@ -1,3 +1,5 @@
+> **Superseded (26 Nov 2026):** use `docs/transformation/HANDOVER_FOR_CHATGPT.md`. This folder is kept for history.
+
 # Start here: Super Pro AI emergency handover
 
 Written 2026-10-30 (Perth time) when the Claude session ran low on usage. Nothing was deployed.

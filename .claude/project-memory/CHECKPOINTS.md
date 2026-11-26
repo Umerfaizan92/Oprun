@@ -3223,3 +3223,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Review PENDING_TASKS.md for the next unblocked task.
+
+## CP-231 2026-11-26T04:50:59+00:00 T-240 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-240 (IN_PROGRESS)
+- Completed steps: Read-only audit for the owner's FINAL MASTER TRANSFORMATION brief: docs/transformation/07_MASTER_BACKLOG.md (findings A1-A18, backlog MB-01..MB-29, order, estimates, costs, blockers). D-088: production read-only until approval. Handover updated.
+- Incomplete steps: Owner approves scope (which MB- items), MB-01/05/06 infra changes, and sends the Google demo video. Then add approved MB- items to PENDING_TASKS.md.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md; docs/chatgpt-emergency-handover/00_START_HERE.md; docs/transformation/00_START_HERE.md; docs/transformation/HANDOVER_FOR_CHATGPT.md; docs/transformation/07_MASTER_BACKLOG.md; docs/transformation/PROMPT_FINAL_2026-11-26.txt
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 296f0d1 (Project memory: release R-5 live); 1 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Wait for the owner's approval of 07_MASTER_BACKLOG.md; then start MB-04.

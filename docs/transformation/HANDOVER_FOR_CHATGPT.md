@@ -3,6 +3,23 @@
 Written 24 Nov 2026 by Claude at the end of a long session (updated after TR-43 and the TR-73 local drill). Owner: Faizan (reply in English; he may write in Hindi).
 Read this whole file, then `CLAUDE.md` (standing rules), then `.claude/project-memory/SESSION_HANDOVER.md`.
 
+## 0. Latest state (26 Nov 2026, read first)
+
+- Owner brief: `docs/transformation/PROMPT_FINAL_2026-11-26.txt`. Audit and the one master backlog (MB-01..MB-29):
+  `docs/transformation/07_MASTER_BACKLOG.md`. **Waiting for the owner's scope approval; implement nothing until then.**
+- Production is read-only (D-088): no merge to `main`, deploy, infrastructure change or new cost without explicit approval.
+- Live: `dep-dc3ql8ui0phs7388vfsg`, commit `b4880d3` (release R-5) plus an owner environment update.
+  Releases since this file was first written: R-2 (3ecf849), R-3 receptionist behind its flag (145ead2),
+  R-4 AI Website W-05..W-08 (2c37457), R-5 website connection card (b4880d3).
+- Work branch `claude/transformation-phase1`; register `.claude/project-memory/PENDING_TASKS.md`.
+- `docs/chatgpt-emergency-handover/` (20 Nov) is out of date; use this file.
+- Exact next action: when the owner approves, start with MB-04, then the approved infrastructure items, then MB-10/11.
+
+ChatGPT resume prompt: "You are continuing the Oprun AI project. Read docs/transformation/HANDOVER_FOR_CHATGPT.md
+section 0, then CLAUDE.md, then docs/transformation/07_MASTER_BACKLOG.md and .claude/project-memory/SESSION_HANDOVER.md.
+Do not merge to main or deploy. Continue with the first approved MB- task that is not in COMPLETED_TASKS.md,
+on branch claude/transformation-phase1, and record evidence with the npm run memory:* commands."
+
 ## 1. Where things are
 
 | Item | Value |

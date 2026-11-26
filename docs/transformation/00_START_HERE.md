@@ -1,5 +1,9 @@
 # Oprun AI master transformation (second wave): start here
 
+**Latest (26 Nov 2026): the owner's FINAL MASTER TRANSFORMATION brief ([PROMPT_FINAL_2026-11-26.txt](PROMPT_FINAL_2026-11-26.txt))
+supersedes earlier instructions. Its audit and the one master backlog are in [07_MASTER_BACKLOG.md](07_MASTER_BACKLOG.md).
+Production is read-only until the owner approves (D-088).**
+
 Brief: [PROMPT_ORIGINAL.txt](PROMPT_ORIGINAL.txt) (owner, 23 Nov 2026). This wave builds on the first redesign
 programme in [`docs/product-redesign/`](../product-redesign/00_START_HERE.md) (T-167 audit, T-168–T-176 delivered).
 It does not repeat that work.

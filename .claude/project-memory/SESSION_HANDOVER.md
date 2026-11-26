@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-155 (NOT_STARTED)
-LAST COMPLETED STEP: R-5 live: website connection card fixes (T-243).
-FILES MODIFIED: .claude/project-memory/PROGRESS.md
+CURRENT TASK: T-240 (IN_PROGRESS)
+LAST COMPLETED STEP: Read-only audit for the owner's FINAL MASTER TRANSFORMATION brief: docs/transformation/07_MASTER_BACKLOG.md (findings A1-A18, backlog MB-01..MB-29, order, estimates, costs, blockers). D-088: production read-only until approval. Handover updated.
+FILES MODIFIED: .claude/project-memory/DECISIONS.md; docs/chatgpt-emergency-handover/00_START_HERE.md; docs/transformation/00_START_HERE.md; docs/transformation/HANDOVER_FOR_CHATGPT.md; docs/transformation/07_MASTER_BACKLOG.md; docs/transformation/PROMPT_FINAL_2026-11-26.txt
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 1 file(s)
+UNCOMMITTED CHANGES: 6 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Review PENDING_TASKS.md for the next unblocked task.
+NEXT EXACT ACTION: Wait for the owner's approval of 07_MASTER_BACKLOG.md; then start MB-04.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-230 at 2026-11-26T02:40:17+00:00
+LAST CHECKPOINT: CP-231 at 2026-11-26T04:50:59+00:00
 <!-- handover:end -->
 
 ## Notes
