@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-260 (IN_PROGRESS)
-LAST COMPLETED STEP: MB-23 steps 1-2 (a3b3f28).
-FILES MODIFIED: .claude/project-memory/PROGRESS.md
+LAST COMPLETED STEP: MB-23 steps 1-3 (a90839d).
+FILES MODIFIED: .claude/project-memory/PROGRESS.md; qa/reports/mobile-workspace.json
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 1 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Inspect work/bookings at 390 px to see what pushes the calendar 1367 px down, then fix.
+NEXT EXACT ACTION: Inspect website/search and setup/automation gold buttons (Turn scheduled jobs on, Turn on) and make the secondary one plain.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-239 at 2026-11-26T06:54:19+00:00
+LAST CHECKPOINT: CP-240 at 2026-11-26T07:05:12+00:00
 <!-- handover:end -->
 
 ## Notes

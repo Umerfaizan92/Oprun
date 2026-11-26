@@ -3349,3 +3349,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Inspect work/bookings at 390 px to see what pushes the calendar 1367 px down, then fix.
+
+## CP-240 2026-11-26T07:05:12+00:00 T-260 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-260 (IN_PROGRESS)
+- Completed steps: MB-23 steps 1-3 (a90839d).
+- Incomplete steps: Step 4: website/search and setup/automation one gold action; seo-analytics sections; business settings length (4701 px) with Google-style grouped rows; then the founder console pass.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; qa/reports/mobile-workspace.json
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: a90839d (MB-23 step 3: Work pages start with the work, not empty counters); 20 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inspect website/search and setup/automation gold buttons (Turn scheduled jobs on, Turn on) and make the secondary one plain.
