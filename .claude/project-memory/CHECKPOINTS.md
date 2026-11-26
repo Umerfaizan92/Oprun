@@ -3293,3 +3293,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: MB-10: list what test-ui, quality-check, validate-release, smoke-test, test-visual and report-a11y-perf check on /saas/index.html and find a current page that carries the same product guide.
+
+## CP-236 2026-11-26T05:50:15+00:00 T-255 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-255 (NOT_STARTED)
+- Completed steps: MB-10 done (ac22301). Done on branch: MB-04, MB-10, MB-11, MB-12, MB-13, MB-15.
+- Incomplete steps: MB-20 Communications merge (T-255), MB-21, MB-22; MB-23 includes removing cyan from the home 3D hero; MB-05 after the backup check at 17:20 UTC.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: ac22301 (MB-10: retire the old landing page (/saas/index.html -> 301 /)); 12 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: MB-20: read MAPPING.json Communications items and their views; design one Phone & AI Receptionist page with tabs and aliases.

@@ -379,13 +379,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-06 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
-## T-249 MB-10 Retire /saas/index.html (301 to /)
-- Status: NOT_STARTED
-- Added: 2026-11-26
-- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-10.
-- Files: see 07_MASTER_BACKLOG.md
-- Acceptance: As written for MB-10 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
-
 ## T-253 MB-14 Decision: background work architecture
 - Status: NOT_STARTED
 - Added: 2026-11-26

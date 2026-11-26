@@ -129,3 +129,4 @@ One line per notable change, newest last (written by `npm run memory:task -- pro
 - 2026-11-25: Release R-3 live: dep-dc3l96rbc2fs738mkr1g (145ead2), startup diagnostics 16/16. Rollback point dep-dc3jq0e0tbcc73bu4e4g.
 - 2026-11-26: Release R-4 live: dep-dc3o9159el5s73aib3c0 (2c37457), startup diagnostics 16/16. Rollback point dep-dc3n8kmc6qcc73bafqrg.
 - 2026-11-26: Release R-5 live: dep-dc3pif29lscs73dddga0 (b4880d3), startup diagnostics 16/16. Rollback point dep-dc3o9159el5s73aib3c0.
+- 2026-11-26: Found during MB-10: the home page 3D hero uses cyan accents; the 26 Nov brief requires gold and black with no cyan. Fix in MB-23 (T-260).

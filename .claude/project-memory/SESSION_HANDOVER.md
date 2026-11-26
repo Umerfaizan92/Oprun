@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-249 (NOT_STARTED)
-LAST COMPLETED STEP: MB-12 brand library done (0e6bee1). Done on branch: MB-04, MB-11, MB-15, MB-13, MB-12.
-FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+CURRENT TASK: T-255 (NOT_STARTED)
+LAST COMPLETED STEP: MB-10 done (ac22301). Done on branch: MB-04, MB-10, MB-11, MB-12, MB-13, MB-15.
+FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 2 file(s)
+UNCOMMITTED CHANGES: 3 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: MB-10: list what test-ui, quality-check, validate-release, smoke-test, test-visual and report-a11y-perf check on /saas/index.html and find a current page that carries the same product guide.
+NEXT EXACT ACTION: MB-20: read MAPPING.json Communications items and their views; design one Phone & AI Receptionist page with tabs and aliases.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-235 at 2026-11-26T05:43:15+00:00
+LAST CHECKPOINT: CP-236 at 2026-11-26T05:50:15+00:00
 <!-- handover:end -->
 
 ## Notes
