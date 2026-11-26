@@ -1233,3 +1233,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/command-centre-rows.css, saas/workspace.html
 - Acceptance: Before/after at 390/768/1440; command-centre-loading, redesign, mobile-workspace, localization, navigation, ui suites pass; visual business no overflow; npm test passes
 - Evidence: Command Centre rows redesign: npm test 73/73; command-centre-loading, redesign, mobile-workspace, localization, navigation, ui suites pass; visual business 348 screens 0 overflow (baselines accepted); before/after docs/transformation/evidence/command-centre-before-after.jpg (recorded 2026-11-26 on claude/transformation-phase1 at ef90ff5)
+
+## T-266 Workflow Guidance showed 'Not available for your role' to owners
+- Added: 2026-11-26
+- Requirement: Owner's link (today/home?section=workflow-guidance) showed 7 of 8 stages as 'Not available for your role' because the pipeline figures were only requested when the navigation list (still loading) included 'enquiries'. Always request; the server decides permission. Also round gold icons on Your Workspace and Workflow Guidance tiles.
+- Files: saas/command-centre-sections.js, saas/command-centre-rows.css, saas/workspace.html
+- Acceptance: Owner sees live stage figures; redesign, pipeline, command-centre-loading, localization suites pass; npm test passes
+- Evidence: Owner sample business now shows 2 enquiries, 1 quote, 2 bookings, 3 to allocate, 1 unpaid; redesign-ui, pipeline-ui (15), command-centre-loading-ui, localization-ui pass; visual business 0 problems; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at ae582ff)

@@ -36,7 +36,7 @@ try {
     else if (p.startsWith('#')) { await page.evaluate((h) => { location.hash = h; }, p.slice(1)); await page.waitForFunction(() => !document.querySelector('#console-pages [aria-busy="true"]'), null, { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(1200); }
     else { await page.goto(server.base + p, { waitUntil: 'load' }); await page.waitForTimeout(800); }
     const file = path.join(out, `${p.replace(/^[/#~]/, '').replace(/[^a-z0-9]+/gi, '-').replace(/-+$/, '') || 'home'}-${width}.png`);
-    await page.screenshot({ path: file, fullPage: false });
+    await page.screenshot({ path: file, fullPage: process.env.FULL === '1' });
     if (!/^[#~]/.test(p) && new URL(page.url()).pathname !== p) throw new Error(`${p} redirected to ${page.url()}; the screenshot would show the wrong page`);
     console.log(file);
   }

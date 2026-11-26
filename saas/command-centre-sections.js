@@ -25,11 +25,13 @@
 
   // ---------- live data (shared by both sections) ----------
   let data = null, pipeline = null, loadedAt = 0, loading = null, failed = false;
+  // The server decides who may read the pipeline (403 leaves the stages as 'not available'); asking the navigation
+  // first returned an empty list while it was still loading, so owners saw 'Not available for your role'.
   async function refresh(force) {
     if (loading) return loading;
     if (!force && data && Date.now() - loadedAt < 30000) return data;
     loading = (async () => {
-      const [cc, pl] = await Promise.allSettled([get('/api/saas/command-centre'), allowedViews().has('enquiries') ? get('/api/saas/pipeline/overview') : Promise.reject(new Error('n/a'))]);
+      const [cc, pl] = await Promise.allSettled([get('/api/saas/command-centre'), get('/api/saas/pipeline/overview')]);
       failed = cc.status === 'rejected' && !data;
       if (cc.status === 'fulfilled') { data = cc.value; loadedAt = Date.now(); }
       if (pl.status === 'fulfilled') pipeline = pl.value;

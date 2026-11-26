@@ -44,3 +44,8 @@ html body.portal-workspace #dashboard-view .gx-board .gx-grid>.gx-skeleton .gx-i
   html body.portal-workspace #dashboard-view .gx-board .gx-tile .gx-label{font-size:.9rem}
   html body.portal-workspace #dashboard-view .gx-board .gx-tile .gx-sub{font-size:.76rem}
 }
+/* Same round gold icons on the Your Workspace and Workflow Guidance tabs, so the whole Command Centre matches. */
+html body.portal-workspace #dashboard-view .cc-tile-icon{width:36px;height:36px;border-radius:50%;border:0;color:var(--sp-gold-400,#E6B455);
+  background:color-mix(in srgb,var(--sp-gold-400,#E6B455) 18%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sp-gold-400,#E6B455) 32%,transparent)}
+html body.portal-workspace #dashboard-view .cc-tile{border-radius:16px}
+html body.portal-workspace #dashboard-view .wg-icon{border-radius:50%;color:var(--sp-gold-400,#E6B455);background:color-mix(in srgb,var(--sp-gold-400,#E6B455) 18%,transparent)}
