@@ -3405,3 +3405,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Shorten Business settings page (saas/workspace.html #onboarding-view): collapse #ob-interview and #setup-checklist into compact rows
+
+## CP-244 2026-11-26T12:00:27+00:00 T-261 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-261 (IN_PROGRESS)
+- Completed steps: R-7..R-10 released (Command Centre rows, Workflow Guidance fix, MB-25, MB-27). Lighthouse baseline 26 Nov: workspace 77-84 (target 85), LCP 3.8-4.1 s, TBT 180-560 ms; CSS bundle 92 KB gz (650 KB raw, 70 KB unused), DOM 4,130 elements, platform.js render-blocking 322 ms
+- Incomplete steps: MB-26: cut startup JS and CSS on workspace; MB-24 visual guides; MB-28 industry onboarding; MB-05/06 after 17:20 UTC backup check; Business settings shortening; founder console pass
+- Files modified (uncommitted at checkpoint): qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 512582c (MB-27: workspace dictionaries for Chinese, Vietnamese, Punjabi, Greek, Italian, Spanish, Nepali and Filipino (T-268))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Profile workspace startup scripts (bootup-time by bundle) and defer non-dashboard modules

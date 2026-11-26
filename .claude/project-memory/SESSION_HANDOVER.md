@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-266 (NOT_STARTED)
-LAST COMPLETED STEP: R-7 released and verified
-FILES MODIFIED: .claude/project-memory/PROGRESS.md
+CURRENT TASK: T-261 (IN_PROGRESS)
+LAST COMPLETED STEP: CSS bundle 92 KB gz (650 KB raw, 70 KB unused), DOM 4,130 elements, platform.js render-blocking 322 ms
+FILES MODIFIED: qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 1 file(s)
+UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Shorten Business settings page (saas/workspace.html #onboarding-view): collapse #ob-interview and #setup-checklist into compact rows
+NEXT EXACT ACTION: Profile workspace startup scripts (bootup-time by bundle) and defer non-dashboard modules
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-243 at 2026-11-26T10:20:00+00:00
+LAST CHECKPOINT: CP-244 at 2026-11-26T12:00:27+00:00
 <!-- handover:end -->
 
 ## Notes
