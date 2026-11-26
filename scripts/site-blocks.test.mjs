@@ -120,3 +120,38 @@ test('W-03..W-06 gate: new sections only for businesses listed in WEBSITE_BUILDE
   r = await O('PUT', `/api/saas/seo/pages/${id}`, { content: { title: 'Home page here', blocks: [{ type: 'hero', heading: 'Hi' }] } });
   assert.equal(r.status, 200, r.text);
 });
+
+test('W-08 speed budget: an over-budget page cannot publish until the owner accepts it', async (t) => {
+  const { speedBudget, SPEED_BUDGET } = await import('../src/seo/builder.js');
+  const lorem = 'We clear blocked drains for homes around Fremantle and give a written quote before any work starts. ';
+  const ok = page([{ type: 'hero', heading: 'Plumber', text: lorem }, { type: 'text', heading: 'About', text: lorem.repeat(4) }]);
+  assert.deepEqual(speedBudget(ok, { site }), [], 'a normal page is within budget');
+  // 41 photos is over the image limit; random text over the compressed HTML limit.
+  const many = page([{ type: 'hero', heading: 'Plumber' }, { type: 'gallery', images: Array.from({ length: SPEED_BUDGET.images + 1 }, (_, i) => ({ src: `/m/p${i}`, alt: `Job ${i}`, width: 800, height: 600 })) }]);
+  assert.match(speedBudget(many, { site }).join(' '), /has 41 images; the limit is 40/);
+  const noise = Array.from({ length: 30 }, (_, i) => ({ type: 'text', heading: `Section ${i}`, text: Array.from({ length: 450 }, () => Math.random().toString(36).slice(2, 10)).join(' ') }));
+  const big = page([{ type: 'hero', heading: 'Plumber' }, ...noise]);
+  assert.match(speedBudget(big, { site }).join(' '), /compressed; the limit is 60 KB/);
+  let c = prePublishChecks(big, { site });
+  assert.equal(c.blocked, true); assert.ok(c.checks.some((x) => x.level === 'budget'));
+  c = prePublishChecks({ ...big, speed_accepted: true }, { site });
+  assert.ok(!c.checks.some((x) => x.level === 'budget'), 'accepted: no longer blocks'); assert.ok(c.checks.some((x) => x.level === 'warn' && /^Accepted: /.test(x.text)), 'the accepted warning stays visible');
+  // Unsized images are advice only, so existing pages are not suddenly blocked.
+  c = prePublishChecks(page([{ type: 'hero', heading: 'Plumber', text: lorem }, { type: 'image', src: 'https://example.test/a.jpg', alt: 'Van' }]), { site });
+  assert.ok(c.checks.some((x) => x.group === 'speed' && x.level === 'warn' && /no width and height/.test(x.text))); assert.ok(!c.checks.some((x) => x.level === 'budget'));
+
+  // Through the API: refused with the speed message, then published after accepting.
+  const s = await startServer(); t.after(() => s.stop());
+  const owner = await seedOwner(s, { business: 'Big Page Co', email: 'big@big.example.test' });
+  const O = (m, u, b) => s.call(m, u, { cookie: owner.cookie, body: b });
+  await O('PUT', '/api/saas/seo/profile', { business_name: 'Big Page Co', services: ['Drains'], areas: ['Fremantle'], phone: '0400 000 002', website_url: '' });
+  let r = await O('POST', '/api/saas/seo/sites', { name: 'Big Page Co', slug: 'big-page-co' });
+  const pg = (await O('POST', `/api/saas/seo/sites/${r.json.site.id}/pages`, { title: 'Home', slug: 'home', template: 'home' })).json.page;
+  const content = { title: 'Plumber in Fremantle', meta_title: 'Plumber in Fremantle | Big Page Co', meta_description: 'Plumbing in Fremantle from Big Page Co. Written quotes before any work starts.', blocks: [{ type: 'hero', heading: 'Plumber in Fremantle', text: lorem }, ...noise] };
+  assert.equal((await O('PUT', `/api/saas/seo/pages/${pg.id}`, { content })).status, 200);
+  r = await O('POST', `/api/saas/seo/pages/${pg.id}/publish`, {});
+  assert.equal(r.status, 409); assert.match(r.json.error, /over the speed budget/);
+  assert.equal((await O('PUT', `/api/saas/seo/pages/${pg.id}`, { content: { ...content, speed_accepted: true }, note: 'Accept speed' })).status, 200);
+  r = await O('POST', `/api/saas/seo/pages/${pg.id}/publish`, {});
+  assert.equal(r.status, 201, r.text); assert.equal(r.json.run.status, 'awaiting_approval', 'then the normal first-release approval');
+});

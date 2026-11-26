@@ -28,7 +28,7 @@ const SENIOR = ['owner', 'admin', 'manager', 'super_admin', 'director'];
 const OWNERS = ['owner', 'admin', 'super_admin', 'director'];
 const slug = z.string().trim().toLowerCase().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'Use lowercase letters, numbers and dashes only.').min(2).max(60);
 const block = z.object({ type: z.enum(BLOCK_TYPES) }).passthrough().refine((b) => JSON.stringify(b).length < 20000, 'A section is too large.');
-const content = z.object({ title: z.string().trim().min(2).max(160), slug: slug.optional(), meta_title: z.string().trim().max(120).optional().default(''), meta_description: z.string().trim().max(320).optional().default(''), blocks: z.array(block).max(40), schema: z.array(z.record(z.string(), z.any())).max(10).optional().default([]) }).strict();
+const content = z.object({ title: z.string().trim().min(2).max(160), slug: slug.optional(), meta_title: z.string().trim().max(120).optional().default(''), meta_description: z.string().trim().max(320).optional().default(''), blocks: z.array(block).max(40), speed_accepted: z.boolean().optional(), schema: z.array(z.record(z.string(), z.any())).max(10).optional().default([]) }).strict();
 const OPS = ['seo_daily_monitor', 'seo_weekly_analysis', 'seo_monthly_report'];
 
 export function installSeoRoutes(app, { db, service, engine, requireSaasUser, requireSaasRole, platform, saasAudit = () => {}, env = process.env }) {

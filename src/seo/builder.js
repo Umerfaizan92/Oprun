@@ -2,6 +2,7 @@
 // A page is a list of blocks (hero, text, services, areas, faq, cta, contact, image, gallery, reviews). Rendering escapes
 // every value, produces one h1, accessible markup and responsive CSS from the business's brand colours. Reviews blocks
 // show only reviews the business imported from a real source, with that source named.
+import { gzipSync } from 'node:zlib';
 import { checkClaims, draftText } from './content.js';
 import { responsiveAttrs } from '../image-variants.js';
 
@@ -87,6 +88,22 @@ export function renderPage(page, { site = {}, theme = themeFrom(site.brand), can
 }
 
 // --------------------------------------------------------------------------------- checks before publishing ---
+export const SPEED_BUDGET = { html_gz: 60 * 1024, css_gz: 30 * 1024, images: 40 };
+export function speedBudget(page, { site = {}, theme } = {}) {
+  const html = renderPage(page, { site: { ...site, slug: site.slug || 'preview' }, ...(theme ? { theme } : {}) });
+  const css = (html.match(/<style>([\s\S]*?)<\/style>/) || [, ''])[1];
+  const gz = (x) => gzipSync(Buffer.from(x)).length, kb = (n) => `${Math.round(n / 1024)} KB`;
+  const over = [], h = gz(html), c = gz(css);
+  if (h > SPEED_BUDGET.html_gz) over.push(`The page is ${kb(h)} compressed; the limit is ${kb(SPEED_BUDGET.html_gz)}. Split it into more pages or shorten long sections.`);
+  if (c > SPEED_BUDGET.css_gz) over.push(`The page styles are ${kb(c)} compressed; the limit is ${kb(SPEED_BUDGET.css_gz)}.`);
+  const imgs = html.match(/<img\b[^>]*>/g) || [];
+  if (imgs.length > SPEED_BUDGET.images) over.push(`The page has ${imgs.length} images; the limit is ${SPEED_BUDGET.images}. Move some to another page.`);
+  const unsized = imgs.filter((t) => !/\bwidth="\d+"/.test(t) || !/\bheight="\d+"/.test(t)).length;
+  const scripts = (html.match(/<script\b(?![^>]*application\/ld\+json)[^>]*>/g) || []).filter((t) => !t.includes(CINEMATIC_LOADER));
+  if (scripts.length) over.push('The page loads scripts other than the cinematic hero.');
+  return over;
+}
+const unsizedImages = (html) => (html.match(/<img\b[^>]*>/g) || []).filter((t) => !/\bwidth="\d+"/.test(t) || !/\bheight="\d+"/.test(t)).length;
 export function prePublishChecks(page, { site = {}, theme = themeFrom(site.brand), sitePages = [], facts = {}, reviews = [] } = {}) {
   const out = [], add = (group, level, text) => out.push({ group, level, text });
   const blocks = page.blocks || [];
@@ -128,7 +145,11 @@ export function prePublishChecks(page, { site = {}, theme = themeFrom(site.brand
   // Claims
   const claims = checkClaims(draftText(page), facts);
   for (const c of claims) add('claims', c.level === 'blocked' ? 'block' : c.level === 'review' ? 'approval' : 'ok', `${c.reason} "${c.text}"`);
-  return { checks: out, blocked: out.some((c) => c.level === 'block'), needs_approval_for_claims: claims.some((c) => c.level === 'review'), claims };
+  // W-08 speed budget (docs/ai-website/02_ARCHITECTURE.md §5). Over budget stops publishing until the owner accepts it
+  // for this version (speed_accepted), so a slow page never goes live by accident.
+  { const n = unsizedImages(renderPage(page, { site: { ...site, slug: site.slug || 'preview' }, theme })); if (n) add('speed', 'warn', `${n} image(s) have no width and height, so the page can jump while loading. Choosing them from your photos records their size.`); }
+  for (const b of speedBudget(page, { site, theme })) add('speed', page.speed_accepted ? 'warn' : 'budget', page.speed_accepted ? `Accepted: ${b}` : b);
+  return { checks: out, blocked: out.some((c) => c.level === 'block' || c.level === 'budget'), needs_approval_for_claims: claims.some((c) => c.level === 'review'), claims };
 }
 
 // --------------------------------------------------------------------------------- change risk ---

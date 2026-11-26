@@ -271,7 +271,7 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
   function requestPublish(ownerKey, pageId, { publish_at = null } = {}, actor) {
     const p = pageRow(ownerKey, pageId); if (!p) return { ok: false, status: 404, error: 'Page not found.' };
     const out = pageOut(ownerKey, pageId);
-    if (out.checks.blocked) return { ok: false, status: 409, error: 'Fix the problems marked "must fix" before publishing.', checks: out.checks };
+    if (out.checks.blocked) return { ok: false, status: 409, error: out.checks.checks.some((c) => c.level === 'block') ? 'Fix the problems marked "must fix" before publishing.' : 'This page is over the speed budget. Make it lighter, or tick "Publish anyway" and save a version.', checks: out.checks };
     const engine = engineRef.current; if (!engine) return { ok: false, status: 503, error: 'Publishing approvals are not available.' };
     const r = engine.startRun({ id: null, scope: isPlatform(ownerKey) ? 'platform' : 'business', organisation_id: isPlatform(ownerKey) ? null : ownerKey, current_version: 0 }, { trigger: 'manual', key: `publish:${p.id}:v${p.draft_version}`, payload: { page_id: p.id, version: p.draft_version, publish_at }, definition: { trigger: 'manual', action: 'publish_site_page', conditions: [], params: { page_id: p.id, version: p.draft_version, publish_at: publish_at || null }, analysis: 'rules', always_approve: false, approval_expires_hours: 168 }, actor: actor ? { id: actor } : null });
     return { ok: true, run_id: r.id, duplicate: Boolean(r.duplicate), promise: r.promise };

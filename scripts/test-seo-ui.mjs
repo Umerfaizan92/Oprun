@@ -88,6 +88,22 @@ try {
     await live.close();
   });
 
+  await check('W-08: an over-budget page shows the speed problem and publishes only after "Publish anyway"', async () => {
+    const site = (await O('GET', '/api/saas/seo/sites')).json.sites.find((x) => x.slug === 'harbour-ui');
+    const pg = (await O('POST', `/api/saas/seo/sites/${site.id}/pages`, { title: 'Big page', slug: 'big-page', template: 'service' })).json.page;
+    const noise = Array.from({ length: 30 }, (_, i) => ({ type: 'text', heading: `Section ${i}`, text: Array.from({ length: 450 }, () => Math.random().toString(36).slice(2, 10)).join(' ') }));
+    assert.equal((await O('PUT', `/api/saas/seo/pages/${pg.id}`, { content: { title: 'Big page', meta_title: 'Big page | Harbour Plumbing', meta_description: 'A long page from Harbour Plumbing in Fremantle with written quotes.', blocks: [{ type: 'hero', heading: 'Big page', text: lorem }, ...noise] } })).status, 200);
+    await page.reload(); const v = await go('b06/builder', 'seobuilder');
+    await v.locator('tr', { hasText: 'big-page' }).getByRole('button', { name: 'Edit' }).click();
+    const ed = v.locator('.sx-editor'); await ed.waitFor();
+    assert.match(await ed.locator('.sx-checks').textContent(), /Over speed budget.*the limit is 60 KB/s);
+    const box = ed.getByLabel(/Publish anyway/); assert.equal(await box.isChecked(), false);
+    await box.check(); await ed.getByRole('button', { name: 'Save version' }).click();
+    await v.locator('.sx-editor .sx-checks').filter({ hasText: /Accepted: The page is/ }).waitFor();
+    assert.ok(await v.locator('.sx-editor').getByLabel(/Publish anyway/).isChecked(), 'the acceptance is kept on the new version');
+    assert.equal((await O('POST', `/api/saas/seo/pages/${pg.id}/publish`, {})).status, 201);
+  });
+
   await check('Technical Audit of the built site shows all 19 areas and the findings', async () => {
     const v = await go('b06/audit', 'seoaudit');
     await v.getByLabel('Website address').fill(s.base + '/sites/harbour-ui/');
