@@ -34,14 +34,14 @@ html body.portal-workspace::before{
   content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
     radial-gradient(1100px 620px at 8% -8%,color-mix(in srgb,var(--sp-gold-400) 13%,transparent),transparent 62%),
-    radial-gradient(900px 600px at 105% 10%,rgba(67,211,240,.08),transparent 60%),
+    radial-gradient(900px 600px at 105% 10%,rgba(201,206,216,.06),transparent 60%),
     radial-gradient(1000px 700px at 50% 120%,rgba(156,140,255,.07),transparent 62%),
     linear-gradient(180deg,#070B14 0%,#0A101C 55%,#070B14 100%);
 }
 html[data-theme="light"] body.portal-workspace::before{
   background:
     radial-gradient(1100px 620px at 8% -8%,color-mix(in srgb,var(--sp-gold-400) 16%,transparent),transparent 62%),
-    radial-gradient(900px 600px at 105% 10%,rgba(67,211,240,.10),transparent 60%),
+    radial-gradient(900px 600px at 105% 10%,rgba(201,206,216,.07),transparent 60%),
     linear-gradient(180deg,#F6F7FB 0%,#EEF1F7 100%);
 }
 
@@ -421,7 +421,7 @@ html body .ap-dot::before{content:"";width:9px;height:9px;border-radius:50%;back
 html body :is(.ap-dot,.ap-event)[data-type="appointment"]{--ap-c:var(--sp-gold-400)}
 html body :is(.ap-dot,.ap-event)[data-type="booking"]{--ap-c:#5AA9FF}
 html body :is(.ap-dot,.ap-event)[data-type="meeting"]{--ap-c:#3BD48F}
-html body :is(.ap-dot,.ap-event)[data-type="zoom"]{--ap-c:#9C8CFF}
+html body :is(.ap-dot,.ap-event)[data-type="zoom"]{--ap-c:#C9CED8}
 html body .ap-days{display:grid;gap:6px}
 html body .ap-day{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;padding:8px;border-radius:14px;border:1px solid var(--rf-edge)}
 html body .ap-day.ap-today{border-color:var(--rf-edge-strong);background:var(--sp-gold-soft)}

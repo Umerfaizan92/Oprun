@@ -32,9 +32,11 @@
      --sp-gold, which changes per theme. Lightest 100 → darkest 800. */
   --sp-gold-100:#FFE9A8;--sp-gold-200:#F6D98C;--sp-gold-300:#F0C46E;--sp-gold-400:#E6B455;
   --sp-gold-500:#D29E3E;--sp-gold-600:#A87829;--sp-gold-700:#7A5410;--sp-gold-800:#5C3F0C;
-  --sp-cyan:#43D3F0;          /* live, AI working, incoming signal */
-  --sp-cyan-soft:rgba(67,211,240,.13);
-  --sp-violet:#9C8CFF;        /* data series only */
+  /* MB-23 (brief 26 Nov 2026): gold and black only. The old cyan and violet accents are now silver; the token
+     names stay so nothing that uses them breaks. */
+  --sp-cyan:#C9CED8;          /* live, AI working, incoming signal (silver) */
+  --sp-cyan-soft:rgba(201,206,216,.10);
+  --sp-violet:#A9AFBC;        /* data series only (grey) */
   --sp-good:#4CC38A;
   --sp-warn:#F0A848;
   --sp-bad:#F2716B;
@@ -97,9 +99,9 @@
   --sp-gold-press:#664905;
   --sp-on-gold:#FFFFFF;
   --sp-gold-soft:rgba(138,100,8,.10);
-  --sp-cyan:#0B6F8C;
-  --sp-cyan-soft:rgba(11,111,140,.10);
-  --sp-violet:#5B48D6;
+  --sp-cyan:#475263;
+  --sp-cyan-soft:rgba(71,82,99,.08);
+  --sp-violet:#5D6575;
   --sp-good:#1E7A4E;
   --sp-warn:#8F5A0E;
   --sp-bad:#B3312B;

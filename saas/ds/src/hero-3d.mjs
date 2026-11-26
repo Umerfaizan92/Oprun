@@ -1,5 +1,5 @@
 // Cinematic hero: "Every action waits at your gate".
-// Four channels (calls, messages, email, website) send cyan signals along curved paths into the office core.
+// Four channels (calls, messages, email, website) send silver signals along curved paths into the office core.
 // Each signal stops at the approval gate, the gate flashes gold, and the signal leaves as a gold outcome.
 // One orchestrated opening, a short idle, then rendering stops; pointer and scroll move the camera gently.
 // Built with `npm run build:ds` (esbuild tree-shakes Three.js into saas/ds/hero-3d.js).
@@ -24,7 +24,7 @@ export function mountHero(container, { quality = 'high', onReady = () => {} } = 
   renderer.setPixelRatio(dpr);
   container.append(canvas);
 
-  const gold = new Color(css('--sp-gold', '#E6B455')), cyan = new Color(css('--sp-cyan', '#43D3F0'));
+  const gold = new Color(css('--sp-gold', '#E6B455')), cyan = new Color(css('--sp-cyan', '#C9CED8')); // MB-23: silver, so the scene is gold, black and white
   const midnight = new Color(css('--sp-midnight', '#070B14')), line = new Color(css('--sp-fg-muted', '#95A1B6'));
   const scene = new Scene();
   const world = new Group();

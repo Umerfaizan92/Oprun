@@ -51,7 +51,7 @@ html:not([data-theme="light"]) :is(.site-header,.portal-topbar,.workspace-topbar
 html:not([data-theme="light"]) :is(.portal-rail,.sidebar){background-color:#090E19}
 
 /* Live and AI states are cyan everywhere. */
-:is(.live-dot,.pulse-dot,.manual-live-dot,.sp-live-dot,.status-dot.live,.ai-status-dot,[data-live-indicator]){background:var(--sp-cyan)!important;box-shadow:0 0 0 0 transparent}
+:is(.live-dot,.pulse-dot,.manual-live-dot,.sp-live-dot,.status-dot.live,.ai-status-dot,[data-live-indicator]){background:var(--sp-good)!important;box-shadow:0 0 0 0 transparent}
 :is(.ai-chip,.ai-badge,.spai-status)[data-state="working"],.ai-live-chip,.preview-status.live{color:var(--sp-cyan)}
 
 /* One focus style. */
@@ -64,9 +64,9 @@ html:not([data-theme="light"]) :is(.portal-rail,.sidebar){background-color:#090E
 
 /* One ripple on a live indicator when its figures change (class set by app-motion.js). */
 .sp-live{position:relative}
-.sp-live.is-updated::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--sp-cyan);animation:sp-ripple 1.1s var(--sp-ease-out) 1}
+.sp-live.is-updated::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--sp-good);animation:sp-ripple 1.1s var(--sp-ease-out) 1}
 @keyframes sp-ripple{from{transform:scale(1);opacity:.7}to{transform:scale(3.4);opacity:0}}
-.gx-live i{background:var(--sp-cyan)!important}
+.gx-live i{background:var(--sp-good)!important}
 @media (prefers-reduced-motion:reduce){.sp-live.is-updated::after{animation:none}}
 
 /* Business OS surfaces that hard-code warm gradients: re-point to graphite, keep sizes and the pointer light. */

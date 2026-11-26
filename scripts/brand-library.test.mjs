@@ -56,3 +56,13 @@ test('retired icon addresses redirect permanently to the library', async (t) => 
     assert.equal((await fetch(s.base + to)).status, 200, to);
   }
 });
+
+test('MB-23: gold and black only; the old cyan and purple accents do not come back', () => {
+  const banned = /#(43D3F0|0B6F8C|9C8CFF|5B48D6|22D3EE|8B5CF6|6D28D9|0E7490)\b|67,\s*211,\s*240/i;
+  const files = ['saas/ds/tokens.css', 'saas/ds/retheme.css', 'saas/ds/components.css', 'saas/ds/site.css', 'saas/ds/refresh.css', 'saas/ds/src/hero-3d.mjs'];
+  for (const f of files) assert.doesNotMatch(fs.readFileSync(f, 'utf8'), banned, f);
+  const css = fs.readFileSync('saas/ds/tokens.css', 'utf8');
+  const hex = (css.match(/--sp-cyan:\s*(#[0-9A-Fa-f]{6})/) || [])[1];
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  assert.ok(Math.max(r, g, b) - Math.min(r, g, b) <= 40, `--sp-cyan ${hex} is a neutral silver, not a colour`);
+});
