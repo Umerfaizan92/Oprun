@@ -6458,6 +6458,8 @@ const websiteGenerator=createWebsiteGenerator({db,seo:seoService,ai:generateAiTe
 const websiteWizard=createWebsiteWizard({db,hub:websiteHub,seo:seoService,generator:websiteGenerator});
 websiteWizard.install(app,{requireSaasUser,requireSaasRole,staffAccess,saasAudit});
 if(env.NODE_ENV!=='test')setInterval(()=>{try{seoService.publishDue()}catch(e){console.warn('[seo] scheduled publishing:',e.message)}},60000).unref();
+// W-07: nightly check of every live business website against its Oprun details (first run 15 minutes after start).
+if(env.NODE_ENV!=='test'){const runSiteSync=()=>seoService.syncAllSiteFacts().then((r)=>{if(r.changed)console.log(`[seo] site sync: ${r.changed} page(s) updated from Oprun details`)}).catch(e=>console.warn('[seo] site sync:',e.message));setTimeout(runSiteSync,15*60000).unref?.();setInterval(runSiteSync,24*3600000).unref();}
 installAutomationRoutes(app,{db,engine:automationEngine,requireSaasUser,requireSaasRole,staffAccess,platform:platformIdentity,aiConfigured:()=>aiProviderStatus().configured});
 agentRegistry=createAgentRegistry({db,engine:automationEngine,log:(actor,action,section,id)=>platformIdentity.log(actor,action,section,id)});
 try{const made=agentRegistry.ensureDefaults(DEFAULT_AGENTS);if(made.length)console.log(`[agents] created ${made.length} standard agents`)}catch(e){console.warn('[agents] could not create the standard agents:',e.message)}

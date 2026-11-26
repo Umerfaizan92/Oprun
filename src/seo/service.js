@@ -297,6 +297,41 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
     const risk = classifyChange(before, after, { claims: checks.claims, firstRelease: !p.published_version });
     return { page: p, site: s, after, before, checks, risk, url: `/sites/${s.slug}/${p.slug === 'home' ? '' : p.slug}`, publish_at: publishAt };
   }
+  // W-07: keep live pages in step with the business's Oprun details. Only facts a section already shows are refreshed
+  // (the contact phone; the owner's login email is not their website email, so email is never changed); a page with unpublished edits is left alone. Each change is saved as a new version and
+  // goes through the normal publishing approval: it publishes alone only when the owner turned on the low-risk rule.
+  async function syncSiteFacts(ownerKey, { actor = 'system:site-sync' } = {}) {
+    const f = facts(ownerKey), out = [];
+    const want = { phone: String(f.phone || '').trim() };
+    const sites = db.prepare('SELECT id FROM seo_sites WHERE owner_key=?').all(ownerKey);
+    for (const site of sites) for (const p of db.prepare('SELECT * FROM seo_site_pages WHERE site_id=? AND published_version IS NOT NULL').all(site.id)) {
+      if (p.draft_version && p.draft_version !== p.published_version) { out.push({ page_id: p.id, title: p.title, skipped: 'This page has edits that are not published yet.' }); continue; }
+      const live = version(p.id, p.published_version); if (!live) continue;
+      const changes = [];
+      const blocks = (live.blocks || []).map((b) => {
+        if (b.type !== 'contact') return b;
+        const nb = { ...b };
+        for (const k of ['phone']) if (nb[k] && want[k] && nb[k] !== want[k]) { changes.push(`${k} ${nb[k]} → ${want[k]}`); nb[k] = want[k]; }
+        return nb;
+      });
+      if (!changes.length) continue;
+      const { slug, template, ...content } = live;
+      const r = saveVersion(ownerKey, p.id, { ...content, slug, blocks }, actor, `Updated from your Oprun details: ${changes.join('; ')}`.slice(0, 200));
+      if (!r.ok) { out.push({ page_id: p.id, title: p.title, error: r.error }); continue; }
+      const pub = requestPublish(ownerKey, p.id, {}, actor);
+      if (pub.ok && pub.promise) await pub.promise.catch(() => {});
+      let run = null;
+      for (let i = 0; pub.run_id && i < 80; i++) { run = db.prepare('SELECT status FROM automation_runs WHERE id=?').get(pub.run_id); if (run && !['received', 'queued', 'executing'].includes(run.status)) break; await new Promise((x) => setTimeout(x, 25)); }
+      out.push({ page_id: p.id, title: p.title, changes, run_id: pub.run_id || null, status: run?.status || (pub.ok ? 'requested' : pub.error) });
+    }
+    return { ok: true, pages: out };
+  }
+  async function syncAllSiteFacts() {
+    const owners = db.prepare('SELECT DISTINCT owner_key FROM seo_sites').all().map((r) => r.owner_key);
+    let changed = 0;
+    for (const o of owners) { try { changed += (await syncSiteFacts(o)).pages.filter((x) => x.changes).length; } catch (e) { console.warn('[seo] site sync:', String(e.message || e).slice(0, 160)); } }
+    return { owners: owners.length, changed };
+  }
   function rollback(ownerKey, pageId, v, actor) {
     const p = pageRow(ownerKey, pageId); if (!p) return { ok: false, status: 404, error: 'Page not found.' };
     const old = version(p.id, v); if (!old) return { ok: false, status: 404, error: 'Version not found.' };
@@ -419,5 +454,5 @@ export function createSeoService({ db, env = {}, fetchImpl = globalThis.fetch, r
   async function weekly(ownerKey) { const sync = await syncGoogle(ownerKey, { days: 28 }); const target = isPlatform(ownerKey) ? true : facts(ownerKey).website_url; if (target) await runAudit(ownerKey, { trigger: 'weekly' }); const plan = buildKeywordPlan(ownerKey); const r = report(ownerKey, 'weekly'); return { sync, clusters: plan.clusters.length, report_id: r.id }; }
   async function monthly(ownerKey) { const plan = buildKeywordPlan(ownerKey); const r = report(ownerKey, 'monthly'); return { clusters: plan.clusters.length, gaps: plan.gaps.length, report_id: r.id }; }
 
-  return { facts, googleStatus, verifyGoogle, syncGoogle, setLink, link, google, googleToken, runAudit, latestAudit, buildKeywordPlan, latestPlan, addKeywordInputs, studio, local, draftReviewReply, postReviewReply, sites, createSite, site, createPage, pageOut, saveVersion, requestPublish, publishVersion, publishDue, publishProposal, rollback, renderPublic, siteSitemap, siteRobots, siteLlms, aiCrawlers, setAiCrawlers, freshness, dashboard, report, daily, weekly, monthly, CONTENT_KINDS, siteBase: ownBase };
+  return { syncSiteFacts, syncAllSiteFacts, facts, googleStatus, verifyGoogle, syncGoogle, setLink, link, google, googleToken, runAudit, latestAudit, buildKeywordPlan, latestPlan, addKeywordInputs, studio, local, draftReviewReply, postReviewReply, sites, createSite, site, createPage, pageOut, saveVersion, requestPublish, publishVersion, publishDue, publishProposal, rollback, renderPublic, siteSitemap, siteRobots, siteLlms, aiCrawlers, setAiCrawlers, freshness, dashboard, report, daily, weekly, monthly, CONTENT_KINDS, siteBase: ownBase };
 }
