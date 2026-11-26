@@ -3391,3 +3391,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Design the settings page: grouped rows linking to its sections (Guided setup, Workspace checklist, Business profile, Modules, Brand, Locations) so the page opens compact.
+
+## CP-243 2026-11-26T10:20:00+00:00 T-266 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-266 (NOT_STARTED)
+- Completed steps: R-7 released and verified
+- Incomplete steps: Business settings page shortening; founder console simplicity; MB-25, MB-26, MB-24, MB-27, MB-28; MB-05/06 after backup check
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: ac76a8b (Command Centre: Google-style rows for the live figures (T-265))
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Shorten Business settings page (saas/workspace.html #onboarding-view): collapse #ob-interview and #setup-checklist into compact rows

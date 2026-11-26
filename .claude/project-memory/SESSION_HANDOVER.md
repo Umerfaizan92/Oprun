@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-260 (IN_PROGRESS)
-LAST COMPLETED STEP: R-6 live.
+CURRENT TASK: T-266 (NOT_STARTED)
+LAST COMPLETED STEP: R-7 released and verified
 FILES MODIFIED: .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Design the settings page: grouped rows linking to its sections (Guided setup, Workspace checklist, Business profile, Modules, Brand, Locations) so the page opens compact.
+NEXT EXACT ACTION: Shorten Business settings page (saas/workspace.html #onboarding-view): collapse #ob-interview and #setup-checklist into compact rows
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-242 at 2026-11-26T08:40:45+00:00
+LAST CHECKPOINT: CP-243 at 2026-11-26T10:20:00+00:00
 <!-- handover:end -->
 
 ## Notes
