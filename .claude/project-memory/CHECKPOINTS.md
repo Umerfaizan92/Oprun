@@ -3237,3 +3237,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Wait for the owner's approval of 07_MASTER_BACKLOG.md; then start MB-04.
+
+## CP-232 2026-11-26T05:01:55+00:00 T-254 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-254 (NOT_STARTED)
+- Completed steps: Owner approved the whole master backlog (D-089); 21 MB tasks registered T-244..T-264. MB-04 (T-246) and MB-11 (T-250) done on the branch (02685b1). Owner sent the Google reference video; notes in docs/transformation/08_VISUAL_GUIDE_REFERENCE.md. Render MCP cannot change health check or suspend services: MB-01, MB-05, MB-06 need the owner in the Render dashboard. Legacy service 'Oprun' (srv-dan4rdqjnfac73fceor0) daily S3 snapshot fails since at least 19 Nov (IAM user oprun-ai-app lacks s3:PutObject on bucket super-pro-ai-office-manager-prod-...).
+- Incomplete steps: MB-15 console-ui wait fix; MB-10 retire /saas/index.html after moving the product-guide tests (test-ui, quality-check, validate-release, smoke-test, visual, a11y report) to a current page; MB-13 AI Supervisor; then MB-12.
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 02685b1 (Project memory: MB-11 completed on the branch); 4 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Start MB-15 (T-254): fix the console-ui Feature access wait, then 5 consecutive passes.

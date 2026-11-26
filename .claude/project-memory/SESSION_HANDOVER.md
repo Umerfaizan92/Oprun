@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-240 (IN_PROGRESS)
-LAST COMPLETED STEP: Read-only audit for the owner's FINAL MASTER TRANSFORMATION brief: docs/transformation/07_MASTER_BACKLOG.md (findings A1-A18, backlog MB-01..MB-29, order, estimates, costs, blockers). D-088: production read-only until approval. Handover updated.
-FILES MODIFIED: .claude/project-memory/DECISIONS.md; docs/chatgpt-emergency-handover/00_START_HERE.md; docs/transformation/00_START_HERE.md; docs/transformation/HANDOVER_FOR_CHATGPT.md; docs/transformation/07_MASTER_BACKLOG.md; docs/transformation/PROMPT_FINAL_2026-11-26.txt
+CURRENT TASK: T-254 (NOT_STARTED)
+LAST COMPLETED STEP: notes in docs/transformation/08_VISUAL_GUIDE_REFERENCE.md. Render MCP cannot change health check or suspend services: MB-01, MB-05, MB-06 need the owner in the Render dashboard. Legacy service 'Oprun' (srv-dan4rdqjnfac73fceor0) daily S3 snapshot fails since at least 19 Nov (IAM user oprun-ai-app lacks s3:PutObject on bucket super-pro-ai-office-manager-prod-...).
+FILES MODIFIED: none
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 6 file(s)
+UNCOMMITTED CHANGES: none
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Wait for the owner's approval of 07_MASTER_BACKLOG.md; then start MB-04.
+NEXT EXACT ACTION: Start MB-15 (T-254): fix the console-ui Feature access wait, then 5 consecutive passes.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-231 at 2026-11-26T04:50:59+00:00
+LAST CHECKPOINT: CP-232 at 2026-11-26T05:01:55+00:00
 <!-- handover:end -->
 
 ## Notes
