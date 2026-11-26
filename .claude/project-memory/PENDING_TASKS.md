@@ -351,3 +351,142 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: docs/connections/OWNER-SETUP.md
 - Acceptance: Owner or tester records one successful live consent and one approved delivery per provider used
 
+## T-244 MB-01 Render health check path /healthz
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-01.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-01 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-245 MB-03 Restore drill recorded monthly on live
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-03.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-03 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-247 MB-05 Legacy paid Render service: inventory, back up, suspend
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-05.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-05 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-248 MB-06 Suspend the old public preview
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-06.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-06 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-249 MB-10 Retire /saas/index.html (301 to /)
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-10.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-10 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-250 MB-11 Oprun AI name on verification page, crawler and /healthz
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-11.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-11 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-251 MB-12 One brand asset library (logo, icons, favicon, PWA, email)
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-12.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-12 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-252 MB-13 AI Supervisor over the agent registry
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-13.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-13 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-253 MB-14 Decision: background work architecture
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-14.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-14 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-254 MB-15 Fix the console-ui timing wait
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-15.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-15 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-255 MB-20 Merge Communications phone and receptionist entries
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-20.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-20 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-256 MB-21 Merge Growth website and search entries
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-21.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-21 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-257 MB-22 Quotes and plan/billing in one place each
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-22.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-22 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-258 MB-23 Google-style simplicity pass on every page
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-23.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-23 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-259 MB-24 Visual guide engine and first demos
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-24.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-24 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-260 MB-25 Copy code on verification pages; email sender checks
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-25.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-25 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-261 MB-26 Workspace performance budget (with T-236)
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-26.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-26 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-262 MB-27 Translation coverage for top languages
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-27.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-27 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-263 MB-28 Industry onboarding to proposed workspace
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-28.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-28 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+
+## T-264 MB-29 Decision: Render region and plan
+- Status: NOT_STARTED
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-29.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-29 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes

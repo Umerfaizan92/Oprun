@@ -10,7 +10,7 @@
 import crypto from 'node:crypto';
 import { extractJsonLd, robotsAllows, publicHost } from '../visibility.js';
 
-const UA = 'SuperProSEOAudit/1.0 (+https://superpro.ai/answers.html)';
+const UA = 'OprunSEOAudit/1.0 (+https://oprun.ai/saas/answers.html)';
 const strip = (h) => String(h || '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<noscript[\s\S]*?<\/noscript>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").replace(/\s+/g, ' ').trim();
 const attr = (tag, name) => { const m = String(tag).match(new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i')); return m ? (m[1] ?? m[2] ?? m[3]) : undefined; };
 const tags = (html, name) => [...String(html).matchAll(new RegExp(`<${name}\\b[^>]*>`, 'gi'))].map((m) => m[0]);

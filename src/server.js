@@ -1112,7 +1112,7 @@ app.use(
 // Phase 03: preserve Claude's redesigned public website and clean routes.
 installMobileAssociations(app, env);
 installPublicSite(app, { env, siteRoot });
-app.get('/healthz', (req, res) => res.status(200).json({ ok: true, service: 'super-pro-ai-office-manager', time: new Date().toISOString() }));
+app.get('/healthz', (req, res) => res.status(200).json({ ok: true, service: 'oprun-ai', time: new Date().toISOString() }));
 
 app.get('/favicon.ico', (req,res)=>res.sendFile(path.join(siteRoot,'saas','favicon.ico'),{maxAge:'7d'}));
 app.get('/robots.txt', (req,res)=>{

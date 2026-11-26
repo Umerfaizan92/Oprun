@@ -1156,3 +1156,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/integration-transports.js, saas/integration-manager.js, saas/workspace.html, scripts/integration-tenant.test.mjs, scripts/test-connections-ui.mjs
 - Acceptance: integration-tenant test covers _oprun for new records, _superpro still verifying, another workspace's value refused, short-host message; connections-ui shows the saved address and the short host
 - Evidence: Commit 9ca541e. integration-tenant 10/10 incl. new test (_oprun for new records, _superpro record verifies unchanged, other workspace value refused, message names the short host). test-connections-ui PASS with saved address and short host checks. comms, ui, navigation-ui, mobile-workspace-ui pass. (recorded 2026-11-26 on claude/transformation-phase1 at 9ca541e)
+
+## T-246 MB-04 One ChatGPT handover
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-04.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-04 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Commit b7aca3e: docs/transformation/HANDOVER_FOR_CHATGPT.md section 0 is the one handover (live deploy, SHA, releases, next action, resume prompt); docs/chatgpt-emergency-handover/00_START_HERE.md marked superseded. (recorded 2026-11-26 on claude/transformation-phase1 at b7aca3e)
