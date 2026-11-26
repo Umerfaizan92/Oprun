@@ -305,6 +305,14 @@ async function loadIndustryRegistry(selected='custom'){
     const search=$('#industry-search');if(search&&!search.dataset.bound){search.dataset.bound='1';search.addEventListener('input',()=>renderIndustryBrowser(search.value))}
     const custom=$('#choose-custom-industry');if(custom&&!custom.dataset.bound){custom.dataset.bound='1';custom.addEventListener('click',()=>selectIndustryProfile('custom',{applySuggestions:true,announce:true}))}
     renderIndustryBrowser(search?.value||'');selectIndustryProfile(selectedIndustryCode,{applySuggestions:false});
+    // Business settings shortening (26 Nov 2026): once a profile is saved, the 33-profile catalogue folds away behind
+    // "Change business profile" (the chosen profile stays visible). "My business is not listed" and Smart setup reopen it.
+    const box=$('#onboarding-business-profile');
+    if(box&&selectedIndustryCode!=='custom'&&!box.dataset.foldBound){box.dataset.foldBound='1';box.classList.add('is-chosen');
+      const open=()=>{box.classList.remove('is-chosen');change.hidden=true};
+      const change=document.createElement('button');change.type='button';change.className='secondary-button compact industry-change';change.id='industry-change';change.textContent='Change business profile';change.addEventListener('click',()=>{open();$('#industry-search')?.focus()});
+      $('#selected-industry-card')?.after(change);
+      box.querySelector('[data-focus="industry-search"]')?.addEventListener('click',open,true);}
   }catch(err){console.warn('Industry registry could not load:',err.message);if($('#industry-result-count'))$('#industry-result-count').textContent='Business catalogue is temporarily unavailable. Custom setup remains available.'}
 }
 async function loadRegulatorySources(){

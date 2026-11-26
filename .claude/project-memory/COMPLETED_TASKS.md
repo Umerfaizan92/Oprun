@@ -1261,3 +1261,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/onboarding-questions.js, scripts/onboarding-proposal.test.mjs
 - Acceptance: Five industries produce fitting proposals; tests pass
 - Evidence: Trades, cleaning, dental, retail, NDIS (+vet) proposals asserted in onboarding-proposal.test.mjs (4/4); fixed 'dental clinic' and 'vet clinic' guessed as general healthcare ('clinic'/'practice' now weak words); onboarding-interview-ui PASS; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at 8bcac36)
+
+## T-270 Business settings: fold the industry catalogue once a profile is saved
+- Added: 2026-11-26
+- Requirement: Shorten Business settings: after a business profile is saved, hide the 33-profile catalogue behind 'Change business profile'; Smart setup and Change reopen it.
+- Files: saas/app.js, saas/command-centre-rows.css, saas/workspace.html
+- Acceptance: Page shorter on phone and laptop; Smart setup still focuses search; ui, visual and npm test pass
+- Evidence: Saved-profile business: phone 4701->3680 px, laptop 2946->2438 px; Change reopens and focuses search; ui 37 PASS; visual business 348 screens 0 problems; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at 663ad77)
