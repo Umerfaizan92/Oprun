@@ -28,7 +28,8 @@ try {
         const top = view.getBoundingClientRect().top + scrollY;
         const sections = [...view.querySelectorAll('h2')].filter(visible).length;
         const first = [...view.querySelectorAll('table,form,ul,ol,article,.card,[class*=card],[class*=list],[class*=grid]')].find((e) => visible(e) && e.getBoundingClientRect().height > 40);
-        const tips = [...view.querySelectorAll('[class*=tip],[class*=recommend],[class*=suggest],[class*=insight],[class*=hint]')].filter((e) => visible(e) && e.getBoundingClientRect().height > 30 && !e.querySelector('button[aria-label*="ismiss" i],button[aria-label*="lose" i],[data-dismiss]'));
+        // Tip or recommendation panels only (form hints and field examples are not panels); dismissible ones are fine.
+        const tips = [...view.querySelectorAll('[class*=tip],[class*=recommend],[class*=suggest],[class*=insight]')].filter((e) => !/dismiss/.test(e.className) && visible(e) && e.getBoundingClientRect().height > 30 && !e.querySelector('[class*=dismiss],button[aria-label*="ismiss" i],button[aria-label*="lose" i],[data-dismiss]'));
         return { height: Math.round(view.scrollHeight), primary_first_screen: actions.filter((e) => e.getBoundingClientRect().top < innerHeight).length, primary_total: actions.length,
           primary_labels: [...new Set(actions.map((e) => e.textContent.trim().replace(/\s+/g, ' ').slice(0, 40)))].slice(0, 6), sections, content_starts: first ? Math.round(first.getBoundingClientRect().top + scrollY - top) : null, undismissable_tips: tips.length,
           sideways: document.documentElement.scrollWidth > innerWidth + 1 };

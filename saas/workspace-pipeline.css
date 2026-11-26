@@ -1,5 +1,6 @@
 /* Phase 04 pipeline views (Enquiries, Quotes, Bookings, Invoices). Uses the Phase 03 tokens; no fixed colours. */
 .pl-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:0 0 16px}
+.pl-strip[hidden]{display:none!important} /* MB-23: an empty pipeline shows no counters */
 .pl-stage{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--sp-line,var(--line));border-radius:12px;background:var(--sp-graphite-1,var(--panel));color:var(--sp-fg-muted,var(--muted));text-decoration:none;min-width:0}
 .pl-stage b{font-size:22px;line-height:1.1;color:var(--sp-fg,var(--text));font-variant-numeric:tabular-nums}
 .pl-stage span{font-size:12px;line-height:1.3}

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-26T06:51:20.067Z",
+  "generated": "2026-11-26T07:04:55.765Z",
   "rows": [
     {
       "width": 390,
@@ -71,14 +71,14 @@
       "group": "Work",
       "label": "Enquiries",
       "path": "work/enquiries",
-      "height": 1816,
+      "height": 1501,
       "primary_first_screen": 0,
       "primary_total": 1,
       "primary_labels": [
         "Save enquiry"
       ],
       "sections": 1,
-      "content_starts": 575,
+      "content_starts": 261,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -87,14 +87,14 @@
       "group": "Work",
       "label": "Quotes",
       "path": "work/quotes",
-      "height": 769,
+      "height": 455,
       "primary_first_screen": 1,
       "primary_total": 1,
       "primary_labels": [
         "Capture an enquiry"
       ],
       "sections": 0,
-      "content_starts": 655,
+      "content_starts": 341,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -103,14 +103,14 @@
       "group": "Work",
       "label": "Bookings",
       "path": "work/bookings",
-      "height": 1481,
+      "height": 1167,
       "primary_first_screen": 1,
       "primary_total": 1,
       "primary_labels": [
         "New appointment"
       ],
       "sections": 1,
-      "content_starts": 1367,
+      "content_starts": 1053,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -205,7 +205,7 @@
       ],
       "sections": 1,
       "content_starts": 266,
-      "undismissable_tips": 1,
+      "undismissable_tips": 0,
       "sideways": false
     },
     {
@@ -331,7 +331,7 @@
       ],
       "sections": 0,
       "content_starts": 122,
-      "undismissable_tips": 1,
+      "undismissable_tips": 0,
       "sideways": false
     },
     {
@@ -716,12 +716,12 @@
       "group": "Money",
       "label": "Invoices",
       "path": "money/invoices",
-      "height": 648,
+      "height": 334,
       "primary_first_screen": 0,
       "primary_total": 0,
       "primary_labels": [],
       "sections": 0,
-      "content_starts": 510,
+      "content_starts": 196,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -816,7 +816,7 @@
       ],
       "sections": 4,
       "content_starts": 114,
-      "undismissable_tips": 1,
+      "undismissable_tips": 0,
       "sideways": false
     },
     {
@@ -1040,15 +1040,15 @@
       "group": "Work",
       "label": "Enquiries",
       "path": "work/enquiries",
-      "height": 1121,
-      "primary_first_screen": 1,
+      "height": 1026,
+      "primary_first_screen": 2,
       "primary_total": 2,
       "primary_labels": [
         "Capture an enquiry",
         "Save enquiry"
       ],
       "sections": 1,
-      "content_starts": 277,
+      "content_starts": 182,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -1057,14 +1057,14 @@
       "group": "Work",
       "label": "Quotes",
       "path": "work/quotes",
-      "height": 438,
+      "height": 343,
       "primary_first_screen": 1,
       "primary_total": 1,
       "primary_labels": [
         "Capture an enquiry"
       ],
       "sections": 0,
-      "content_starts": 324,
+      "content_starts": 229,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -1073,7 +1073,7 @@
       "group": "Work",
       "label": "Bookings",
       "path": "work/bookings",
-      "height": 1024,
+      "height": 928,
       "primary_first_screen": 2,
       "primary_total": 2,
       "primary_labels": [
@@ -1081,7 +1081,7 @@
         "New appointment"
       ],
       "sections": 1,
-      "content_starts": 910,
+      "content_starts": 814,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -1176,7 +1176,7 @@
       ],
       "sections": 1,
       "content_starts": 222,
-      "undismissable_tips": 1,
+      "undismissable_tips": 0,
       "sideways": false
     },
     {
@@ -1302,7 +1302,7 @@
       ],
       "sections": 0,
       "content_starts": 110,
-      "undismissable_tips": 1,
+      "undismissable_tips": 0,
       "sideways": false
     },
     {
@@ -1687,12 +1687,12 @@
       "group": "Money",
       "label": "Invoices",
       "path": "money/invoices",
-      "height": 363,
+      "height": 268,
       "primary_first_screen": 0,
       "primary_total": 0,
       "primary_labels": [],
       "sections": 0,
-      "content_starts": 225,
+      "content_starts": 130,
       "undismissable_tips": 0,
       "sideways": false
     },

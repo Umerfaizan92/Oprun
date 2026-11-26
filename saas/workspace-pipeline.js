@@ -175,6 +175,8 @@
     const host = el('nav', { class: 'pl-strip', 'aria-label': 'Work pipeline' });
     try {
       const { stages } = await api('/api/saas/pipeline/overview');
+      // MB-23: an empty pipeline shows nothing here; the empty-state guide above already says so and offers the first step.
+      if (stages.length && stages.every((st) => !st.count)) { host.hidden = true; host.dataset.empty = 'true'; }
       for (const st of stages) {
         host.append(el('a', { class: 'pl-stage' + (st.count ? ' has' : ''), href: '#' + STAGE_VIEW[st.key], 'data-stage': st.key },
           el('b', { text: String(st.count) }), el('span', { text: st.label }), st.total_cents ? el('small', { text: money(st.total_cents) }) : null));

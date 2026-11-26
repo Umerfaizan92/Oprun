@@ -21,7 +21,7 @@ try {
   await page.goto(s.base + '/saas/workspace.html');
   await page.locator('#workspace').waitFor({ state: 'visible' });
   await page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close()));
-  const go = async (hash) => { await page.evaluate((h) => { location.hash = h; }, hash); await page.locator(`#${{ 'b02/enquiries': 'enquiries', 'b02/quotes': 'quotes', 'b02/bookings': 'bookings', 'b07/invoices': 'businessinvoices' }[hash]}-view .pl-strip`).waitFor(); };
+  const go = async (hash) => { await page.evaluate((h) => { location.hash = h; }, hash); await page.locator(`#${{ 'b02/enquiries': 'enquiries', 'b02/quotes': 'quotes', 'b02/bookings': 'bookings', 'b07/invoices': 'businessinvoices' }[hash]}-view .pl-strip`).waitFor({ state: 'attached' }); };
   const status = (view) => page.locator(`#${view}-view [data-pl-status]`);
   const card = (view, title) => page.locator(`#${view}-view .pl-card`, { hasText: title });
 
