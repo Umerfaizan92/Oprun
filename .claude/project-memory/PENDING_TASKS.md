@@ -359,7 +359,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: As written for MB-03 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
 ## T-247 MB-05 Legacy paid Render service: inventory, back up, suspend
-- Status: NOT_STARTED
+- Status: BLOCKED
 - Added: 2026-11-26
 - Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-05.
 - Files: see 07_MASTER_BACKLOG.md
