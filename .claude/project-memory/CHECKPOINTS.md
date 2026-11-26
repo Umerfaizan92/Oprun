@@ -3321,3 +3321,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: MB-23 step 1: remove cyan from saas/ds/src/hero-3d.mjs (gold and black only), rebuild ds, before/after screenshots of / at 3 widths.
+
+## CP-238 2026-11-26T06:37:36+00:00 T-260 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-260 (IN_PROGRESS)
+- Completed steps: MB-23 step 1 colour clean-up (96dc529).
+- Incomplete steps: MB-23 steps: Google-style grouped rows for settings pages; one primary action per page; dismissible AI tips; Search/Help pills on long settings pages; legacy #080b10 in 4 stylesheets.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 96dc529 (MB-23 step 1: gold, black and silver only (no cyan or purple)); 16 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inventory the Setup group pages (Brand & Settings, Connections, Plans, Trust & Security, Help) and pick the first page for the grouped-row pattern from 08_VISUAL_GUIDE_REFERENCE.md.

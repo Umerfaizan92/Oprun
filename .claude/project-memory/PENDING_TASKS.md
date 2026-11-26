@@ -401,7 +401,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: As written for MB-24 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
 ## T-260 MB-25 Copy code on verification pages; email sender checks
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-26
 - Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-25.
 - Files: see 07_MASTER_BACKLOG.md

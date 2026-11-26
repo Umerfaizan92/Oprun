@@ -7,16 +7,16 @@ PROJECT: Oprun (Umerfaizan92/fleet-office-ai)
 CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
-CURRENT TASK: T-260 (NOT_STARTED)
-LAST COMPLETED STEP: MB-22 one quote flow done (132ea1e). Done on branch: MB-04, 10, 11, 12, 13, 15, 20, 21, 22.
-FILES MODIFIED: .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md
+CURRENT TASK: T-260 (IN_PROGRESS)
+LAST COMPLETED STEP: MB-23 step 1 colour clean-up (96dc529).
+FILES MODIFIED: .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
 TESTS PASSED: none
 TESTS FAILED: none
 UNCOMMITTED CHANGES: 2 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: MB-23 step 1: remove cyan from saas/ds/src/hero-3d.mjs (gold and black only), rebuild ds, before/after screenshots of / at 3 widths.
+NEXT EXACT ACTION: Inventory the Setup group pages (Brand & Settings, Connections, Plans, Trust & Security, Help) and pick the first page for the grouped-row pattern from 08_VISUAL_GUIDE_REFERENCE.md.
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-237 at 2026-11-26T06:07:10+00:00
+LAST CHECKPOINT: CP-238 at 2026-11-26T06:37:36+00:00
 <!-- handover:end -->
 
 ## Notes
