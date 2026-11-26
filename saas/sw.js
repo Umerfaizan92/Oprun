@@ -1,6 +1,5 @@
-const CACHE='superpro-public-20261112-9';
+const CACHE='superpro-public-20261126-10'; // MB-10: new version drops the cached old landing page
 const PUBLIC=[
-  '/saas/index.html',
   '/saas/intro.css?v=20261123.gold',
   '/saas/support.css?v=20261123.gold',
   '/saas/public-sections.css?v=20261123.gold',

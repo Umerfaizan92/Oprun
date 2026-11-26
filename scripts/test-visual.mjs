@@ -35,7 +35,7 @@ const FIXED_TIME = new Date('2026-10-28T10:00:00+08:00');
 const PUBLIC = [
   ['home', '/'], ['features', '/features'], ['feature-money', '/features/money'], ['industries', '/for'], ['industry-trades', '/for/trades'],
   ['pricing', '/pricing'], ['receptionist', '/receptionist'], ['stories', '/stories'], ['help', '/help'], ['contact', '/contact'],
-  ['legacy-landing', '/saas/index.html'], ['sign-in', '/saas/sign-in.html'], ['create-account', '/saas/create-account.html']
+  ['sign-in', '/saas/sign-in.html'], ['create-account', '/saas/create-account.html']
 ].map(([name, url]) => ({ group: 'public', name, url }));
 const mapping = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs', 'navigation', 'MAPPING.json'), 'utf8'));
 const safe = (s) => String(s).replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase();

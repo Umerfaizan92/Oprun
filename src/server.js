@@ -1142,9 +1142,11 @@ function serveSeoPublicHtml(fileName){return (req,res)=>{const base=(env.PUBLIC_
 // (old links, bookmarks, installed shortcuts) so nobody lands on the previous version; the file stays reachable
 // only at its explicit /saas/index.html address for preservation checks.
 app.get(['/saas','/saas/'],(req,res)=>res.redirect(302,'/'));
+// MB-10 (26 Nov 2026): the old page is retired too; its address redirects permanently. The file stays in the repository
+// as a historical record only.
+app.get('/saas/index.html',(req,res)=>res.redirect(301,'/'));
 // Public pages read from disk on each request: a generous per-visitor limit keeps file reads bounded.
 const publicPageLimiter=rateLimit({windowMs:60*1000,limit:300,standardHeaders:true,legacyHeaders:false});
-app.get('/saas/index.html',publicPageLimiter,serveSeoPublicHtml('index.html'));
 app.get('/saas/answers.html',publicPageLimiter,serveSeoPublicHtml('answers.html'));
 // T-050: legal pages carry a canonical address (they stay noindex and out of the sitemap).
 for(const f of ['trust-center','privacy','terms','complaints','subprocessors','policy-center'])app.get(`/saas/${f}.html`,publicPageLimiter,serveSeoPublicHtml(`${f}.html`));

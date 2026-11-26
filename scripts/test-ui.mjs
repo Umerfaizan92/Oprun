@@ -25,19 +25,9 @@ try{
   let ready=false;for(let i=0;i<100&&!ready;i++){if(child.exitCode!==null)throw Error(serverLog.slice(-2000));try{ready=(await fetch(base+'/healthz')).ok}catch{}if(!ready)await new Promise(r=>setTimeout(r,100))}assert.ok(ready,'local server starts');
   browser=await chromium.launch({headless:true,...(process.env.UI_CHROMIUM_PATH?{executablePath:process.env.UI_CHROMIUM_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']}:{} )});
   const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(15000);// E-036: 8s missed slow re-renders under CI load at different steps (lines 173, 220, 235); other UI suites use 10-12spage.on('pageerror',e=>errors.push(e.message));
-  await check('public landing keeps its palette and compact responsive layout',async()=>{
-    for(const width of [390,1440]){await page.setViewportSize({width,height:900});await page.goto(base+'/saas/index.html');await page.locator('.guide-card').waitFor({state:'visible'});assert.equal(await page.locator('.sp-motion-toggle').count(),0);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await screenshot(page,'landing-'+width);}
-  });
-  await check('landing chat and newsletter avoid viewport-sized blank gaps, including desktop mode on a tall phone',async()=>{
-    for(const width of [390,980,1440]){
-      await page.setViewportSize({width,height:1800});await page.goto(base+'/saas/index.html');await page.locator('.guide-card').waitFor();
-      const hero=await page.locator('.hero').boundingBox(),copy=await page.locator('.hero-copy').boundingBox(),guide=await page.locator('.guide-shell').boundingBox();
-      if(width<=1100)assert.ok(guide.y-copy.y-copy.height<=34,JSON.stringify({width,copy,guide}));
-      assert.ok(hero.height<1100,JSON.stringify({width,hero}));assert.ok((await page.locator('.guide-card').boundingBox()).height<=445);
-      const newsletter=await page.locator('.superpro-newsletter').boundingBox();if(newsletter)assert.ok(newsletter.height<500,JSON.stringify(newsletter));
-      const composer=await page.locator('.guide-card .chat-composer').boundingBox(),card=await page.locator('.guide-card').boundingBox();assert.ok(composer.y+composer.height<=card.y+card.height,JSON.stringify({composer,card}));
-      await screenshot(page,'compact-landing-'+width);
-    }
+  await check('MB-10: the retired old landing page address opens the current home page',async()=>{
+    await page.setViewportSize({width:390,height:900});await page.goto(base+'/saas/index.html');
+    assert.equal(new URL(page.url()).pathname,'/');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   });
   for(const width of [390,768,1440]){
     await page.setViewportSize({width,height:900});await page.goto(base+'/saas/sign-in.html');
