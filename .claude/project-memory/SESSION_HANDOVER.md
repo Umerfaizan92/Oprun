@@ -8,15 +8,15 @@ CURRENT BRANCH: claude/transformation-phase1
 LATEST VERIFIED COMMIT: 83832c6 (TR-72: record the inconclusive start-up ordering attempt (D-077))
 CURRENT PHASE: Idempotent generation and pre-submit draft preservation
 CURRENT TASK: T-261 (IN_PROGRESS)
-LAST COMPLETED STEP: CSS bundle 92 KB gz (650 KB raw, 70 KB unused), DOM 4,130 elements, platform.js render-blocking 322 ms
-FILES MODIFIED: qa/reports/LIGHTHOUSE.md; qa/reports/lighthouse.json
+LAST COMPLETED STEP: platform.js inline tried and not shipped (D-094)
+FILES MODIFIED: .claude/project-memory/DECISIONS.md
 TESTS PASSED: none
 TESTS FAILED: none
-UNCOMMITTED CHANGES: 2 file(s)
+UNCOMMITTED CHANGES: 1 file(s)
 KNOWN BLOCKERS: none
-NEXT EXACT ACTION: Profile workspace startup scripts (bootup-time by bundle) and defer non-dashboard modules
+NEXT EXACT ACTION: At 17:20 UTC read legacy service logs for the S3 snapshot result, then tell the owner whether suspending is safe
 APPROVALS REQUIRED: none
-LAST CHECKPOINT: CP-244 at 2026-11-26T12:00:27+00:00
+LAST CHECKPOINT: CP-245 at 2026-11-26T12:18:11+00:00
 <!-- handover:end -->
 
 ## Notes

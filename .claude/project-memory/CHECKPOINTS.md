@@ -3419,3 +3419,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Profile workspace startup scripts (bootup-time by bundle) and defer non-dashboard modules
+
+## CP-245 2026-11-26T12:18:11+00:00 T-261 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-261 (IN_PROGRESS)
+- Completed steps: R-11 (MB-28) released; MB-26 plan written (docs/transformation/MB-26_PERFORMANCE_PLAN.md); platform.js inline tried and not shipped (D-094)
+- Incomplete steps: MB-26 steps 1-2 (lazy page scripts and page CSS into lazy groups, measured with LH_ONLY runs and full visual regression); MB-24 visual guide engine; MB-05/06 after 17:20 UTC legacy backup check (trigger trig_01WGN25fmWhx2AAdRHf8oapJ); Business settings shortening; founder console pass; owner DNS DMARC step
+- Files modified (uncommitted at checkpoint): .claude/project-memory/DECISIONS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 404c625 (MB-26: measured causes and staged plan for workspace speed); 1 commit(s) not on origin/main
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: At 17:20 UTC read legacy service logs for the S3 snapshot result, then tell the owner whether suspending is safe
