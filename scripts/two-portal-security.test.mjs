@@ -530,7 +530,7 @@ test('language coverage is operator-only and exposes no user identifiers', t => 
   const r = await call('GET', '/api/operator/localization', null, 'a', {'x-admin-key':'founder-test-only'});
   assert.equal(r.status, 200);
   assert.ok(r.data.locales.length > 180);
-  assert.equal(r.data.dictionaries.length, 4);
+  assert.equal(r.data.dictionaries.length, 12, 'English plus eleven machine-draft dictionaries (MB-27)');
   assert.equal(r.data.locales.some(x => x.workspace_translation_certified), false);
   assert.deepEqual(r.data.preference_counts, []);
   assert.equal(JSON.stringify(r.data).includes('example.test'), false);

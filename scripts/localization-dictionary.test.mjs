@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { JSDOM } from 'jsdom';
-import { MESSAGES, SCREENS, DICTIONARY_REVIEW, DICTIONARY_VERSION, screenCoverage, formatMessage, message, localeCatalogue } from '../saas/locale-catalog.js';
+import { MESSAGES, SCREENS, DICTIONARY_REVIEW, DICTIONARY_VERSION, screenCoverage, formatMessage, message, localeCatalogue, LOADABLE } from '../saas/locale-catalog.js';
 
 const html = fs.readFileSync(new URL('../saas/workspace.html', import.meta.url), 'utf8');
 const doc = new JSDOM(html).window.document;
@@ -31,7 +31,7 @@ test('every Today key is tagged once in the page and every screen key exists in 
 
 test('pilot languages cover shell and Today, are marked unreviewed, and others fall back to English', () => {
   assert.match(DICTIONARY_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/);
-  for (const lang of ['hi', 'ur', 'ar']) {
+  assert.ok(LOADABLE.length >= 10, 'MB-27: ten languages besides English'); for (const lang of LOADABLE) {
     assert.ok(screenCoverage(lang).every((c) => c.translated === c.total), lang);
     assert.equal(DICTIONARY_REVIEW[lang], 'machine-draft-unreviewed');
     for (const key of screenKeys) if (!BRAND_ONLY.has(key) && /\p{L}/u.test(MESSAGES.en[key].replace(/\{[^{}]*\}/g, ''))) assert.notEqual(MESSAGES[lang][key], MESSAGES.en[key], `${lang} ${key} left in English`); // patterns made only of inserted values are language-neutral
@@ -65,7 +65,7 @@ test('live Today board patterns keep the exact English the board showed before a
   assert.equal(f('en', 'gx.conversations', { n: 1 }), 'conversation');
   assert.equal(f('en', 'gx.jobsSub', { awaiting: 0, team: 'team', allocated: 0 }), '0 awaiting a team, 0 lined up');
   assert.equal(f('en', 'gx.liveAt', { time: '3:47 AM' }), 'Live · 3:47 AM');
-  for (const lang of ['hi', 'ur', 'ar']) for (const key of SCREENS.todayLive) {
+  for (const lang of LOADABLE) for (const key of SCREENS.todayLive) {
     const out = formatMessage(lang, MESSAGES[lang][key], { n: 2, channel: 'email', jobs: 'Jobs', team: 'Team', awaiting: 1, allocated: 2, total: 3, attention: 1, expiring: 0, revenue: 'Income', revenueAmount: '$1', costs: 'costs', costAmount: '$0', industry: 'plumbing', time: '9:00' });
     assert.doesNotMatch(out, /[{}]/, `${lang} ${key} left a placeholder unformatted`);
   }

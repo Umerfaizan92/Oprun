@@ -1247,3 +1247,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: src/email-templates.js, saas/integration-manager.js, saas/app.js, scripts/email-templates.test.mjs, scripts/test-connections-ui.mjs, docs/transformation/MB-25_EMAIL_DNS_CHECK.md
 - Acceptance: Copy works (tested in connections-ui), email test asserts code first, DNS findings recorded, npm test passes
 - Evidence: email-templates 4/4 (code first line), connections-ui PASS with copy check, ui 37 PASS, npm test 73/73; DNS: SPF+DKIM present, DMARC missing, send.oprun.ai CNAME conflict documented for owner in docs/transformation/MB-25_EMAIL_DNS_CHECK.md (recorded 2026-11-26 on claude/transformation-phase1 at fb3ae1e)
+
+## T-268 MB-27 translation coverage: top Australian languages
+- Added: 2026-11-26
+- Requirement: Coverage report and fill the top customer languages for main flows (machine drafts, marked unreviewed).
+- Files: saas/locale/*.js, saas/locale-core.js, saas/locale-catalog.js, scripts/localization-dictionary.test.mjs, scripts/two-portal-security.test.mjs, docs/transformation/MB-27_TRANSLATION_COVERAGE.md
+- Acceptance: Coverage before/after recorded; every loadable language 100% of 559 keys; tests pass
+- Evidence: Added zh, vi, pa, el, it, es, ne, fil (559/559 keys each, validator OK, all marked machine-draft-unreviewed); ABS 2021 top-10 home languages all covered; localization tests pass; test-localization-ui PASS; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at 85c0d36)

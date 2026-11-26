@@ -401,7 +401,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: As written for MB-25 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
 ## T-261 MB-26 Workspace performance budget (with T-236)
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-26
 - Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-26.
 - Files: see 07_MASTER_BACKLOG.md
