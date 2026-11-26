@@ -1240,3 +1240,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/command-centre-sections.js, saas/command-centre-rows.css, saas/workspace.html
 - Acceptance: Owner sees live stage figures; redesign, pipeline, command-centre-loading, localization suites pass; npm test passes
 - Evidence: Owner sample business now shows 2 enquiries, 1 quote, 2 bookings, 3 to allocate, 1 unpaid; redesign-ui, pipeline-ui (15), command-centre-loading-ui, localization-ui pass; visual business 0 problems; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at ae582ff)
+
+## T-267 MB-25 codes: copy buttons, code first in plain text, mail DNS check
+- Added: 2026-11-26
+- Requirement: Copy code on web pages showing codes; code first in plain-text code emails; check SPF/DKIM/DMARC for oprun.ai and record owner steps.
+- Files: src/email-templates.js, saas/integration-manager.js, saas/app.js, scripts/email-templates.test.mjs, scripts/test-connections-ui.mjs, docs/transformation/MB-25_EMAIL_DNS_CHECK.md
+- Acceptance: Copy works (tested in connections-ui), email test asserts code first, DNS findings recorded, npm test passes
+- Evidence: email-templates 4/4 (code first line), connections-ui PASS with copy check, ui 37 PASS, npm test 73/73; DNS: SPF+DKIM present, DMARC missing, send.oprun.ai CNAME conflict documented for owner in docs/transformation/MB-25_EMAIL_DNS_CHECK.md (recorded 2026-11-26 on claude/transformation-phase1 at fb3ae1e)

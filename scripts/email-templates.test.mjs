@@ -72,6 +72,7 @@ test('verification uses the dedicated outbound key and retains legacy compatibil
   assert.equal(recovery.subject, 'Your Oprun password recovery code');
   assert.match(recovery.html, /Recover your account/);
   assert.match(recovery.text, /Recovery code: 123456/);
+  assert.match(recovery.text, /^Recovery code: 123456\n/, 'MB-25: the code is the first line of the plain-text email');
   assert.doesNotMatch(recovery.html.split('<table')[0], /123456/);
   assert.doesNotMatch(recovery.html, /<img/, 'nothing depends on remote images');
   assert.match(recovery.html, /Trust Center/);

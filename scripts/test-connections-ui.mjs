@@ -93,6 +93,10 @@ try{
  assert.equal(await web.getByLabel('Website address',{exact:true}).inputValue(),'https://synthetic-business.org','the saved address is filled in');
  const proofText=await web.locator('[data-im-website-proof]').innerText();
  assert.match(proofText,/Name \(Host\)\s*_superpro\s/);assert.match(proofText,/type only _superpro/);assert.match(proofText,/_superpro\.synthetic-business\.org/);
+ // MB-25: one-tap copy for the TXT value.
+ await page.context().grantPermissions(['clipboard-read','clipboard-write']).catch(()=>{});
+ const copyValue=web.locator('[data-im-copy="superpro-verification=synthetic"]');await copyValue.click();
+ await assert.doesNotReject(copyValue.filter({hasText:/Copied|Selected/}).waitFor({timeout:3000}),'copy button confirms');
  await page.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8'));
  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await page.waitForTimeout(450);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))).then(()=>Promise.race([Promise.all(document.getAnimations().filter(a=>a instanceof CSSTransition).map(a=>a.finished.catch(()=>{}))),new Promise(r=>setTimeout(r,3000))])));const violations=await page.evaluate(async()=>{const result=await axe.run(document.querySelector('#integrations-view'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}});return result.violations.filter(v=>['critical','serious'].includes(v.impact)).map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary,html:n.html}))}))});assert.deepEqual(violations,[],theme+' Connections accessibility');}
  assert.deepEqual(errors,[]);console.log('PASS Connections: 11 providers, pagination, three viewport sizes, truthful metrics, account confirm step, health light, capability list, resource save, switch account, own app keys, write-only credential form, clearing secrets, tenant webhook instructions and diagnostics.');

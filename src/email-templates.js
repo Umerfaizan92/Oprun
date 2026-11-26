@@ -110,8 +110,9 @@ ${frame.audience ? `<p style="margin:0 0 8px">${escapeHtml(frame.audience)}</p>`
 ${legal ? `<p style="margin:0">${legal}</p>` : ''}
 </td></tr></table></td></tr></table></body></html>`;
   const text = [
-    brand.name, ...(frame.eyebrow ? [frame.eyebrow.toUpperCase()] : []), '', frame.heading, '', ...paragraphs.flatMap(t => [t, '']),
+    // MB-25: a code comes first in the plain-text version, so phone previews and screen readers reach it at once.
     ...(verification ? [`${verification.label}: ${verification.code}`, verification.expires, ''] : []),
+    brand.name, ...(frame.eyebrow ? [frame.eyebrow.toUpperCase()] : []), '', frame.heading, '', ...paragraphs.flatMap(t => [t, '']),
     ...facts.map(([label, value]) => `${label}: ${value}`),
     ...(facts.length ? [''] : []), ...(callout ? [callout.text, ''] : []), ...(button ? [`${button.label}: ${button.url}`, ''] : []),
     ...notes.flatMap(t => [t, '']), ...(confidential ? [confidential, ''] : []), ...(frame.audience ? [frame.audience, ''] : []),
