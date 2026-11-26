@@ -351,13 +351,6 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: docs/connections/OWNER-SETUP.md
 - Acceptance: Owner or tester records one successful live consent and one approved delivery per provider used
 
-## T-244 MB-01 Render health check path /healthz
-- Status: NOT_STARTED
-- Added: 2026-11-26
-- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-01.
-- Files: see 07_MASTER_BACKLOG.md
-- Acceptance: As written for MB-01 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
-
 ## T-245 MB-03 Restore drill recorded monthly on live
 - Status: NOT_STARTED
 - Added: 2026-11-26

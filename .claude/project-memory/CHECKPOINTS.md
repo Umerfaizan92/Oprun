@@ -3363,3 +3363,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Inspect website/search and setup/automation gold buttons (Turn scheduled jobs on, Turn on) and make the secondary one plain.
+
+## CP-241 2026-11-26T08:34:11+00:00 T-260 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-260 (IN_PROGRESS)
+- Completed steps: Release R-6 live and verified. MB-01 closed.
+- Incomplete steps: MB-23 step 4: website/search and setup/automation one gold action; seo-analytics; business settings length with grouped rows; founder console pass. MB-05 after the backup check.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/COMPLETED_TASKS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: 591c8cb (Release R-6 started: MB-10..MB-23 step 3; rollback point dep-dc3rt2lg1s2s73ci3i70)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Inspect website/search (Run technical audit, Turn scheduled jobs on) and setup/automation (Open AI Automations, Turn on).

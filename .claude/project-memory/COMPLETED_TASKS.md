@@ -1219,3 +1219,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-22 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Commit 132ea1e. one-quote-flow.test 2/2 (Work quote gets number, valid-until and a line equal to its own amounts; totals unchanged; listed in Money; printable; GST-free quote gets FRE line; finance API still accepts quotations). pipeline, finance, automation suites, finance-ui (asserts the 'Quotes are made in Work' note), pipeline-ui, navigation-ui (sections updated), mobile-workspace-ui, localization pass. Evidence docs/transformation/evidence/MB-22_money-sales_before-after_1440.jpg. Not released. (recorded 2026-11-26 on claude/transformation-phase1 at 132ea1e)
+
+## T-244 MB-01 Render health check path /healthz
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-01.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-01 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Render service Oprun AI shows healthCheckPath /healthz (set by the owner in the dashboard, 26 Nov ~05:07 UTC); live /healthz returns 200 {ok:true, service:'oprun-ai'} after release R-6. (recorded 2026-11-26 on claude/transformation-phase1 at 591c8cb)
