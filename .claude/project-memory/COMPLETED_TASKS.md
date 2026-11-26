@@ -1254,3 +1254,10 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: saas/locale/*.js, saas/locale-core.js, saas/locale-catalog.js, scripts/localization-dictionary.test.mjs, scripts/two-portal-security.test.mjs, docs/transformation/MB-27_TRANSLATION_COVERAGE.md
 - Acceptance: Coverage before/after recorded; every loadable language 100% of 559 keys; tests pass
 - Evidence: Added zh, vi, pa, el, it, es, ne, fil (559/559 keys each, validator OK, all marked machine-draft-unreviewed); ABS 2021 top-10 home languages all covered; localization tests pass; test-localization-ui PASS; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at 85c0d36)
+
+## T-269 MB-28 industry onboarding: five industries end to end
+- Added: 2026-11-26
+- Requirement: Voice or text interview to proposed workspace for owner approval; five industries tested.
+- Files: src/onboarding-questions.js, scripts/onboarding-proposal.test.mjs
+- Acceptance: Five industries produce fitting proposals; tests pass
+- Evidence: Trades, cleaning, dental, retail, NDIS (+vet) proposals asserted in onboarding-proposal.test.mjs (4/4); fixed 'dental clinic' and 'vet clinic' guessed as general healthcare ('clinic'/'practice' now weak words); onboarding-interview-ui PASS; npm test 73/73 (recorded 2026-11-26 on claude/transformation-phase1 at 8bcac36)

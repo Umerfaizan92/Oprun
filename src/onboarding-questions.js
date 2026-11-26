@@ -29,8 +29,8 @@ export function guessIndustry(text) {
   // differences still match. Short keywords must appear as written.
   const words = t.match(/[a-z]{4,}/g) || [];
   // Specific words count more than short general ones ("plumber" beats "water").
-  const GENERIC = new Set(['repair', 'maintenance', 'service', 'services', 'water', 'gas', 'trade', 'other', 'support', 'custom', 'retail', 'online']);
-  const weight = (k) => { k = String(k || '').toLowerCase(); if (!k) return 0; if (GENERIC.has(k)) return t.includes(k) ? 1 : 0; if (t.includes(k)) return k.length >= 6 || k.includes(' ') ? 3 : 1; if (k.length < 5 || k.includes(' ')) return 0; const stem = k.slice(0, 5); return words.some((w) => w.startsWith(stem)) ? 2 : 0; };
+  const GENERIC = new Set(['repair', 'maintenance', 'service', 'services', 'water', 'gas', 'trade', 'other', 'support', 'custom', 'retail', 'online', 'clinic', 'practice']); // MB-28: 'clinic' is shared by dental, vet and allied health, so it no longer decides alone
+  const weight = (k) => { k = String(k || '').toLowerCase(); if (!k) return 0; if (GENERIC.has(k)) return t.includes(k) ? 0.5 : 0; if (t.includes(k)) return k.length >= 6 || k.includes(' ') ? 3 : 1; if (k.length < 5 || k.includes(' ')) return 0; const stem = k.slice(0, 5); return words.some((w) => w.startsWith(stem)) ? 2 : 0; };
   let best = null, score = 0;
   for (const row of INDUSTRY_REGISTRY) {
     if (row.code === 'custom') continue;

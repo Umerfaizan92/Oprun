@@ -125,3 +125,22 @@ test('declining changes nothing', async () => {
     db.close();
   } finally { await s.stop(); }
 });
+
+// MB-28: five industries from the owner's own words to a proposed workspace that fits them.
+test('five industries get a fitting proposal from plain answers', () => {
+  const propose = (business, services, team) => buildProposal({ answers: { business: { value: business }, services: { value: services }, team: { value: team } }, businessName: 'Test Co' });
+  const on = (p, key) => p.stages.find((s) => s.key === key).on;
+  const trades = propose('Residential plumbing and hot water repairs', 'Blocked drains, hot water systems', 'Me and two apprentices');
+  assert.equal(trades.industry.code, 'construction_trades'); assert.ok(on(trades, 'quotation') && on(trades, 'allocation'));
+  const cleaning = propose('Commercial office cleaning', 'Office cleaning, carpet cleaning', 'A team of eight cleaners');
+  assert.equal(cleaning.industry.code, 'cleaning_facilities'); assert.ok(on(cleaning, 'allocation'));
+  const dental = propose('Family dental clinic', 'Check-ups, fillings, teeth whitening', 'Two dentists and a receptionist');
+  assert.equal(dental.industry.code, 'dental', 'a dental clinic is a dental practice, not general healthcare');
+  assert.equal(on(dental, 'quotation'), false); assert.match(dental.templates.find((t) => t.key === 'reminder').body, /appointment/);
+  const shop = propose('Online clothing shop', 'Dresses, shirts', 'three staff');
+  assert.equal(shop.industry.code, 'retail_ecommerce'); assert.equal(on(shop, 'quotation'), false); assert.match(shop.templates.find((t) => t.key === 'reminder').body, /order/);
+  const ndis = propose('NDIS disability support services', 'Personal care, community access, respite', 'Twelve support workers');
+  assert.equal(ndis.industry.code, 'ndis'); assert.equal(on(ndis, 'quotation'), false);
+  for (const p of [trades, cleaning, dental, shop, ndis]) { assert.ok(p.services.length >= 2); assert.ok(p.modules.some((m) => m.on)); assert.match(p.templates[0].body, /Test Co/); }
+  assert.equal(buildProposal({ answers: { business: { value: 'Vet clinic for cats and dogs' } } }).industry.code, 'veterinary');
+});
