@@ -3209,3 +3209,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Read W-09 in docs/ai-website/10_IMPLEMENTATION_PLAN.md and start T-155.
+
+## CP-230 2026-11-26T02:40:17+00:00 T-155 NOT_STARTED
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-155 (NOT_STARTED)
+- Completed steps: R-5 live: website connection card fixes (T-243).
+- Incomplete steps: Website W-09/W-10 wait for the owner's Cloudflare items; receptionist waits for provider keys. Pick the next unblocked pending task.
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/transformation-phase1
+- Commit: b4880d3 (Release R-5 started: website connection card fixes; rollback point dep-dc3o9159el5s73aib3c0)
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Review PENDING_TASKS.md for the next unblocked task.
