@@ -84,7 +84,7 @@ Every page below was opened through its sidebar link at 1440 px and 390 px. List
 |---|---|---|---|
 | Profit & Payments | `money/ledger` | Overview → Jobs & payments → Get paid → Costs & overheads → Reports | PASS, both widths |
 | Invoices | `money/invoices` | Single content view; no additional tablist observed | PASS, both widths |
-| Quotes & Invoices | `money/sales` | Section: New quotation, estimate or invoice → Section: Documents | PASS, both widths |
+| Sales documents | `money/sales` | Section: New invoice or deposit invoice → Section: Documents | PASS, both widths |
 | Payments & Refunds | `money/payments` | Section: Receipts → Section: Refunds | PASS, both widths |
 | Bank Reconciliation | `money/reconcile` | Section: Import → Section: Bank lines | PASS, both widths |
 | Reports & GST | `money/reports` | Section: Summary → Section: Profit and loss → Section: GST (BAS draft) → Section: Owed to you → Section: Overdue: suggested follow-ups | PASS, both widths |

@@ -11,7 +11,7 @@ const GST_RATE = 0.1;
 
 export function gstFor(exCents, applies) { return applies ? Math.round(exCents * GST_RATE) : 0; }
 
-export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAccess, syncJobFinance, events = { emit() {} }, leadSources = { current: null } }) {
+export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAccess, syncJobFinance, events = { emit() {} }, leadSources = { current: null }, quoteHooks = {} }) {
   const cols = new Set(db.prepare('PRAGMA table_info(tenant_documents)').all().map((c) => c.name));
   for (const [name, type] of [['source_id', 'TEXT'], ['work_order_id', 'TEXT'], ['gst_applies', 'INTEGER NOT NULL DEFAULT 1'], ['gst_cents', 'INTEGER NOT NULL DEFAULT 0'], ['issued_at', 'TEXT'], ['due_at', 'TEXT'], ['paid_at', 'TEXT'], ['channel', 'TEXT'], ['reference', 'TEXT'], ['estimated_hours', 'REAL']]) {
     if (!cols.has(name)) db.exec(`ALTER TABLE tenant_documents ADD COLUMN ${name} ${type}`);
@@ -189,6 +189,8 @@ export function installPipeline(app, { db, requireSaasUser, saasAudit, staffAcce
         .run(id, org, e.customer_id, title || e.title, details ?? e.body, ex, gst_applies ? 1 : 0, gst, e.id, actorId, now, now);
       setStatus(org, e.id, 'quoted');
     })();
+    // MB-22 (D-090): every Work quote is also the formal quotation (number, valid-until date, GST line).
+    try { quoteHooks.formalise?.(org, id); } catch (err) { console.warn('[pipeline] quote document:', String(err.message || err).slice(0, 160)); }
     return { ok: true, id, enquiry_id: e.id, amount_cents: ex, gst_cents: gst, total_cents: ex + gst };
   }
   app.post('/api/saas/pipeline/enquiries/:id/quote', requireSaasUser, can('customers', 'create'), (req, res) => {

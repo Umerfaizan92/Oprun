@@ -844,7 +844,7 @@
         {
           "view": "businessinvoices",
           "path": "money/invoices",
-          "label": "Invoices & Quotes",
+          "label": "Invoices",
           "icon": "i-doc",
           "roles": [
             "owner",

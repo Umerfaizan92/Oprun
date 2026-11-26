@@ -1198,3 +1198,17 @@ Newest last. Never edit evidence after the fact; add a correcting entry instead.
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-10 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 - Evidence: Commit ac22301. /saas/index.html 301 to / (smoke-test asserts 301; test-ui checks the browser lands on / with no sideways scroll). Service worker no longer caches it; cache version bumped. ui, site-ui, quality-check, validate-release, legacy-branding, brand-library, report-a11y-perf pass. Evidence image docs/transformation/evidence/MB-10_old-landing-vs-redirect-target_390.jpg. Not released. (recorded 2026-11-26 on claude/transformation-phase1 at ac22301)
+
+## T-255 MB-20 Merge Communications phone and receptionist entries
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-20.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-20 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Already delivered by TR-21. Browser check 26 Nov as an owner (window.SuperProNav visible items): Communications shows 5 entries (Unified Inbox, Phone, AI Receptionist, Video Meetings, Team Chat); Growth shows 3 (Campaign Studio, Media Studio, Website); merged pages open as tabs and old addresses redirect (workspace-nav.js MERGED, takeRedirect). Audit A6/A7 corrected in 07_MASTER_BACKLOG.md. (recorded 2026-11-26 on claude/transformation-phase1 at 5b512ef)
+
+## T-256 MB-21 Merge Growth website and search entries
+- Added: 2026-11-26
+- Requirement: Approved by the owner 26 Nov 2026 (all of 07_MASTER_BACKLOG.md, in order). Full requirement, acceptance and estimate: docs/transformation/07_MASTER_BACKLOG.md row MB-21.
+- Files: see 07_MASTER_BACKLOG.md
+- Acceptance: As written for MB-21 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
+- Evidence: Already delivered by TR-21. Browser check 26 Nov as an owner (window.SuperProNav visible items): Communications shows 5 entries (Unified Inbox, Phone, AI Receptionist, Video Meetings, Team Chat); Growth shows 3 (Campaign Studio, Media Studio, Website); merged pages open as tabs and old addresses redirect (workspace-nav.js MERGED, takeRedirect). Audit A6/A7 corrected in 07_MASTER_BACKLOG.md. (recorded 2026-11-26 on claude/transformation-phase1 at 5b512ef)

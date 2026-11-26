@@ -97,7 +97,7 @@ Every canonical route and its aliases were checked against the current route reg
 | Money | Bank Reconciliation | `money/reconcile` | Section: Import → Section: Bank lines | DOM route/alias/peer PASS; visual pending |
 | Money | Reports & GST | `money/reports` | Section: Summary → Section: Profit and loss → Section: GST (BAS draft) → Section: Owed to you → Section: Overdue: suggested follow-ups | DOM route/alias/peer PASS; visual pending |
 | Money | Finance Settings & Compliance | `money/settings` | Section: Finance settings → Section: Compliance review → Section: Flagged for checking → Section: Audit trail | DOM route/alias/peer PASS; visual pending |
-| Money | Sales documents (older view) | `money/sales` | Section: New quotation, estimate or invoice → Section: Documents | DOM route/alias/peer PASS; visual pending |
+| Money | Sales documents (older view) | `money/sales` | Section: New invoice or deposit invoice → Section: Documents | DOM route/alias/peer PASS; visual pending |
 | Setup | Brand & Settings | `setup/settings` | Business profile → Contact details → Address → Workspace design → Appearance → Services & area → Approvals → AI preferences | DOM route/alias/peer PASS; visual pending |
 | Setup | Connections (social, WhatsApp, website) | `setup/connections` | Secure connection policy → Your business connections | DOM route/alias/peer PASS; visual pending |
 | Setup | Plans, Billing & Add-ons | `setup/plans` | Current access → Compare plans → Payment connections → Usage & add-ons → Billing safeguards → Plan features | DOM route/alias/peer PASS; visual pending |

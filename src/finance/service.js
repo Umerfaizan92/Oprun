@@ -217,6 +217,23 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     audit(org, actor, `finance.${kind}_created`, kind, id, { number, ai_prepared, total_cents: doc(org, id).amount_cents + doc(org, id).gst_cents });
     return { ok: true, document: get(org, id) };
   }
+  // MB-22 (D-090): Work → Quotes is the one quote flow. A pipeline quote is made a formal quotation here: it gets a
+  // quote number, a valid-until date and one line that copies its own amounts exactly (totals never change).
+  // Quotes that already have a number are left as they are.
+  function formaliseQuote(org, id) {
+    const d = doc(org, id); if (!d || d.kind !== 'quote') return E(404, 'Quote not found.');
+    if (d.number) return { ok: true, already: true, document: get(org, id) };
+    const s = settings(org), ex = d.amount_cents || 0, gst = d.gst_cents || 0;
+    db.transaction(() => {
+      db.prepare('UPDATE tenant_documents SET number=?,valid_until=COALESCE(valid_until,?),updated_at=? WHERE id=? AND organisation_id=?')
+        .run(nextNumber(org, 'quote'), iso(clock() + (s.quote_valid_days || 30) * DAY).slice(0, 10), now(), id, org);
+      if (!db.prepare('SELECT 1 FROM fin_lines WHERE document_id=? AND organisation_id=?').get(id, org))
+        db.prepare('INSERT INTO fin_lines (id,organisation_id,document_id,position,description,quantity,unit_cents,discount_cents,tax_code,ex_cents,gst_cents,inc_cents) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+          .run(uid(), org, id, 0, String(d.title || 'Quoted work').slice(0, 300), 1, ex, 0, gst > 0 ? 'GST' : 'FRE', ex, gst, ex + gst);
+    })();
+    audit(org, d.created_by || 'automation', 'finance.quote_formalised', 'quote', id, { total_cents: ex + gst });
+    return { ok: true, document: get(org, id) };
+  }
   function update(org, id, actor, { title, lines, customer_id, body, valid_until, prices_include_gst }) {
     const d = doc(org, id); if (!d || !FIN_KINDS.includes(d.kind)) return E(404, 'Document not found.');
     if (!['draft', 'approved'].includes(d.status)) return E(409, d.kind === 'invoice' || d.kind === 'deposit' ? 'An issued invoice cannot be changed. Issue an adjustment note instead.' : 'Only drafts can be changed.');
@@ -727,5 +744,5 @@ ${ein && !draft ? `<p><small>${esc(ein.text)}</small></p>` : ''}<p><small>Amount
     return { settings: settings(org), seller: seller(org), counts: { quotes_open: by('quote', ['draft', 'approved', 'sent']).length, estimates_open: by('estimate', ['draft', 'approved', 'sent']).length, invoices_draft: by('invoice', ['draft', 'approved']).length, invoices_unpaid: by('invoice', ['issued', 'part_paid', 'overdue']).length, overdue: [...by('invoice', ['overdue']), ...by('deposit', ['overdue'])].length, refunds_waiting: db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE organisation_id=? AND status IN ('pending_approval','awaiting_manual')").get(org).n, credit_notes_waiting: by('credit_note', ['pending_approval']).length, bank_unmatched: db.prepare("SELECT COUNT(*) n FROM fin_bank_lines WHERE organisation_id=? AND status='unmatched'").get(org).n, flags_open: db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n }, aged: aged(org).buckets, ruleset: rulesFor().id };
   }
 
-  return { settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
+  return { formaliseQuote, settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
 }

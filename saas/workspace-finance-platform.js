@@ -25,7 +25,7 @@
   const field = (label, input, hint) => { input.id ||= nid(); return el('div', { class: 'fx-field' }, el('label', { for: input.id, text: label }), input, hint ? el('small', { text: hint }) : null); };
   const check = (label, attrs = {}) => { const i = el('input', { type: 'checkbox', id: nid(), ...attrs }); return el('label', { class: 'fx-check', for: i.id }, i, ' ', label); };
   const VIEWS = {
-    finsales: ['Quotes & Invoices', 'Quotations, estimates, deposit invoices, tax invoices and adjustment notes. Every invoice is checked against the ATO tax invoice rules before it is issued, and issued invoices cannot be changed.'],
+    finsales: ['Sales documents', 'Invoices, deposit invoices and adjustment notes, plus the formal quotations made in Work → Quotes. Every invoice is checked against the ATO tax invoice rules before it is issued, and issued invoices cannot be changed.'],
     finpayments: ['Payments & Refunds', 'Receipts for money received, and refunds. Customer payments go straight to your own Stripe, PayPal or bank account. Every refund needs approval by an authorised person.'],
     finreconcile: ['Bank Reconciliation', 'Import your bank statement (CSV) and match each line to a recorded payment or an expense category. Oprun suggests matches; nothing is reconciled until you confirm it.'],
     finreports: ['Reports & GST', 'Profit and loss, GST (BAS draft), money owed to you, overdue follow-ups and a summary of your records. Reports are drafts for checking, not tax advice.'],
@@ -34,7 +34,7 @@
   };
   // T-169: outside Australia the page introductions do not mention the ATO, GST or BAS.
   const INTRO_INTL = {
-    finsales: 'Quotations, estimates, deposit invoices, invoices and credit notes. Every invoice is checked against the invoice rules for your country before it is issued, and issued invoices cannot be changed.',
+    finsales: 'Invoices, deposit invoices and credit notes, plus the formal quotations made in Work → Quotes. Every invoice is checked against the invoice rules for your country before it is issued, and issued invoices cannot be changed.',
     finreports: 'Profit and loss, a tax summary, money owed to you, overdue follow-ups and a summary of your records. Reports are drafts for checking, not tax advice.',
     fincompliance: 'Tax registration and invoice settings, a compliance review against the published rules for your country, flagged activity and the finance audit trail.'
   };
@@ -214,7 +214,8 @@
     R.finsales = ((orig) => async (b, id) => { const x = id || pendingOpen; pendingOpen = null; return orig(b, x); })(R.finsales);
 
     function creator(o, detail) {
-      const kind = el('select', { id: nid() }, [['invoice', 'Tax invoice'], ['deposit', 'Deposit invoice'], ['quote', 'Quotation'], ['estimate', 'Estimate']].map(([k, t]) => el('option', { value: k, text: t })));
+      // MB-22 (D-090): quotes are made in Work → Quotes (each one is the formal quotation); Money makes invoices only.
+      const kind = el('select', { id: nid() }, [['invoice', 'Tax invoice'], ['deposit', 'Deposit invoice']].map(([k, t]) => el('option', { value: k, text: t })));
       const title = el('input', { id: nid(), maxlength: '240', required: true });
       const cust = el('select', { id: nid() }, el('option', { value: '', text: 'No customer' }), o.customers.map((c) => el('option', { value: c.id, text: c.name })));
       const jobSel = el('select', { id: nid() }, el('option', { value: '', text: 'Choose the job' }), o.jobs.map((j) => el('option', { value: j.id, text: `${j.title}${j.has_invoice ? ' (has an invoice)' : ''}` })));
@@ -227,7 +228,7 @@
         el('div', { class: 'fx-grid' }, field('Type', kind), field('Title', title), field('Customer', cust), jobWrap), el('div', { class: 'fx-field' }, el('span', { class: 'fx-label', text: 'Items' }), lines.node), note(o.seller.gst_registered ? (o.seller.prices_include_gst ? 'Unit prices include GST.' : 'Unit prices exclude GST; GST is added.') : 'Not registered for GST: no GST is added.'),
         el('div', { class: 'pl-actions' }, el('button', { type: 'submit', class: 'portal-button primary', text: 'Save draft' })));
       sync();
-      return el('details', { class: 'portal-panel fx-panel' }, el('summary', { text: 'New quotation, estimate or invoice' }), form);
+      return el('details', { class: 'portal-panel fx-panel' }, el('summary', { text: 'New invoice or deposit invoice' }), el('p', { class: 'portal-note', 'data-quotes-moved': '' }, 'Quotes are made in ', el('a', { href: '#work/quotes', text: 'Work → Quotes' }), '. Each one appears here as a formal quotation with its number.'), form);
     }
     function draftFromJob(o, detail) {
       const done = o.jobs.filter((j) => j.completed_at && !j.has_invoice);

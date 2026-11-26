@@ -30,9 +30,9 @@ feature access; a 197-language catalogue with right-to-left support; industry re
 | A3 | SEO crawler identifies itself as `SuperProSEOAudit … superpro.ai`, a domain Oprun may not own | `src/seo/audit.js:13` | P1 brand/trust |
 | A4 | Public `/healthz` reports the old service name `super-pro-ai-office-manager` | `src/server.js:1115` | P3 |
 | A5 | Render has **no health check path**, so a broken start can still go live | Render service config | P0 stability (needs approval: infra) |
-| A6 | Duplicate navigation: Phone / Call Handling / AI Receptionist / Phone numbers setup / Calls & SMS setup (5 entries, one job) | MAPPING.json, Communications | P2 |
-| A7 | Duplicate navigation: Website, Pages & editor, Search & AI visibility, 7 "SEO ·" pages, Search readiness, Search connection, Links | MAPPING.json, Growth | P2 |
-| A8 | Quotes appear in Work, Money ("Invoices & Quotes") and "Sales documents"; "Plans, Billing & Add-ons" and "Change Plan" are separate | MAPPING.json | P2 |
+| A6 | ~~Duplicate navigation in Communications~~ **Corrected 26 Nov:** already merged by TR-21; the owner menu shows 5 entries (Unified Inbox, Phone, AI Receptionist, Video Meetings, Team Chat), the rest open as tabs. The audit counted registry rows, not the rendered menu | browser check of the owner menu | resolved |
+| A7 | ~~Duplicate navigation in Growth~~ **Corrected 26 Nov:** already merged; the owner menu shows Campaign Studio, Media Studio, Website (SEO pages are tabs) | browser check | resolved |
+| A8 | Two quote systems: Work → Quotes (job pipeline) and Money → Invoices & Quotes → Sales documents (formal quotation/estimate documents). "Change Plan" is already a tab of Plans, Billing & Add-ons | browser check, `src/finance/service.js` FIN_KINDS | P2 (owner decision) |
 | A9 | Two ChatGPT handover packages (`docs/chatgpt-emergency-handover/`, 20 Nov, out of date; `docs/transformation/HANDOVER_FOR_CHATGPT.md`) | docs | P1 continuity |
 | A10 | No animated feature demonstrations, registry or rendering pipeline exist; the Google demo video the brief refers to was not attached | repo search | P2 (BUILD) |
 | A11 | No single supervisor over the 13 agents: nothing detects stuck runs across agents, prevents duplicates across them or escalates | `src/agents/` | P1 (UPGRADE) |
@@ -124,3 +124,10 @@ that release**, and is checked on www.oprun.ai with screenshots and the live com
 
 If a session ends, the next one runs `npm run memory:resume`, reads `SESSION_HANDOVER.md` and this file, and
 continues with the first approved `MB-` task not yet in `COMPLETED_TASKS.md`.
+
+
+## 8. Correction (26 Nov, after MB-10)
+
+The owner menu measured in a browser has 31 entries: Today 4, Work 5, Customers 2, People 3, Communications 5,
+Growth 3, Money 4, Setup 5. MB-20 and MB-21 were already delivered by TR-21 and are closed with that evidence.
+MB-22 needs the owner's choice of one quote flow (section 6).

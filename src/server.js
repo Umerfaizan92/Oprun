@@ -6294,7 +6294,8 @@ const businessHubHooks={};
 installBusinessHub(app,{db,requireSaasUser,requireSaasRole,saasAudit,staffAccess,hooks:businessHubHooks});
 // Phase 04: connects enquiries, quotes, bookings and invoices to jobs, allocation, completion and payments.
 const leadSourcesRef={current:null};
-Object.assign(businessHubHooks,installPipeline(app,{db,requireSaasUser,saasAudit,staffAccess,syncJobFinance:saasPlatform.syncJobFinance,events:automationEvents,leadSources:leadSourcesRef}));
+const pipelineQuoteHooks={}; // MB-22: finance fills this in once it exists
+Object.assign(businessHubHooks,installPipeline(app,{db,requireSaasUser,saasAudit,staffAccess,syncJobFinance:saasPlatform.syncJobFinance,events:automationEvents,leadSources:leadSourcesRef,quoteHooks:pipelineQuoteHooks}));
 leadSourcesRef.current=installLeadSources(app,{db,env,requireSaasUser,saasAudit,staffAccess});
 businessHubHooks.emit=(...a)=>automationEvents.emit(...a);
 // Phase 04: offshore staff and the automation overview.
@@ -6304,6 +6305,7 @@ const mailCentre=installMailCentre(app,{db,env,transportEnv:org=>tenantTransport
 // Phase 06: SEO, Google and website platform (technical audits, keyword clusters, content studio, Google data, local SEO, website builder).
 // Phase 07: unified inbox, conversation intelligence, voice call flow, consent and campaigns.
 const subscriberFinance=createFinance({db,env,payments:paymentsApi,pipeline:businessHubHooks,syncJobFinance:saasPlatform.syncJobFinance,notify:notifications,engineRef:financeEngineRef});
+pipelineQuoteHooks.formalise=(org,id)=>subscriberFinance.formaliseQuote(org,id);
 const commsEngineRef={current:null};
 const commsService=createCommsService({db,env,transportEnv:org=>tenantTransports.environment(org,env),dispatch:saasPlatform.dispatch,pipeline:businessHubHooks,profileOf:seoCluster.profileOf,
   notify:(org,opts)=>notifications.notifyRoles(org,['owner','admin'],opts).catch(()=>{}),emit:(...a)=>automationEvents.emit(...a),

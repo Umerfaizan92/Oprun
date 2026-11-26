@@ -62,7 +62,8 @@ try {
 
   await check('Quotes & Invoices: create a tax invoice for a job, approve, issue, and create a card payment link', async () => {
     const v = await go('b07/sales', 'finsales');
-    await v.locator('summary').filter({hasText:'New quotation, estimate or invoice'}).click();
+    await v.locator('summary').filter({hasText:'New invoice or deposit invoice'}).click();
+    assert.match(await v.locator('[data-quotes-moved]').innerText(),/Quotes are made in Work → Quotes/,'MB-22: quotes point to Work');
     const f = v.locator('details.fx-panel form');
     await f.getByLabel('Job').selectOption({ label: 'Hot water service' });
     await f.getByLabel('Item description').first().fill('Replace hot water valve');
