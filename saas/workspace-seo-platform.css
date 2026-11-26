@@ -39,3 +39,9 @@
 @media print{.sx-founder-nav,.pl-actions,.sx-form,.pl-newwrap{display:none!important}}
 .sx-check{display:flex;gap:8px;align-items:center}
 .sx-check input{width:18px;height:18px;flex:0 0 auto;margin:0}
+/* MB-23: Search analytics before Google is connected: one next step, then compact one-line notes. */
+.sx-connect-first{display:grid;gap:8px;margin:0 0 16px;border-color:color-mix(in srgb,var(--sp-gold,#E6B455) 45%,var(--sp-line,#26314a))}
+.sx-connect-first h2{margin:0;font-size:18px}
+.sx-connect-first p{margin:0;color:var(--sp-fg-2,var(--text-2))}
+.sx-connect-first .portal-button{justify-self:start}
+html body.portal-workspace .portal-empty.is-compact{min-height:0;padding:8px 12px;text-align:left;font-size:14px}

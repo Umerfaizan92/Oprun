@@ -85,7 +85,7 @@
         const sched = section('Scheduled SEO jobs', el('p', { class: 'pl-meta', text: 'Daily: crawl errors, outages, indexing and broken pages. Weekly: Google data, opportunities and technical issues. Monthly: report, clusters and recommendations. They run through AI Automations and never change your website.' }),
           table([['label', 'Job'], ['frequency', 'When'], ['status', 'Status', (v) => chip(v === 'active' ? 'good' : 'setup', v === 'active' ? 'On' : v === 'not_set_up' ? 'Not set up' : 'Off')], ['last_run_at', 'Last run', (v, r) => (v ? `${when(v)} · ${String(r.last_status || '').replace(/_/g, ' ')}` : 'Not yet')]], d.schedules));
         const on = d.schedules.every((x) => x.status === 'active');
-        sched.append(el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button' + (on ? '' : ' primary'), text: on ? 'Turn scheduled jobs off' : 'Turn scheduled jobs on', onclick: (e) => busy(e.target, async () => { await post('/schedules', { enabled: !on }); say(on ? 'Scheduled SEO jobs are off.' : 'Scheduled SEO jobs are on.'); await render('seocentre'); }) })));
+        sched.append(el('div', { class: 'pl-actions' }, el('button', { type: 'button', class: 'portal-button', text: on ? 'Turn scheduled jobs off' : 'Turn scheduled jobs on', onclick: (e) => busy(e.target, async () => { await post('/schedules', { enabled: !on }); say(on ? 'Scheduled SEO jobs are off.' : 'Scheduled SEO jobs are on.'); await render('seocentre'); }) })));
         b.append(sched);
         if (!founder) b.append(section('Your sites', d.sites.length ? el('ul', { class: 'sx-list' }, d.sites.map((s) => el('li', {}, el('b', { text: s.name }), ` · ${s.live} of ${s.pages} page(s) live · `, el('a', { href: s.url, target: '_blank', rel: 'noopener', text: s.url })))) : empty('No sites built yet.'), el('button', { type: 'button', class: 'portal-button', text: 'Open Website Builder', onclick: () => go('seobuilder') })));
       },
@@ -309,6 +309,12 @@
             section('Core Web Vitals (PageSpeed Insights)', m.core_web_vitals ? table([['strategy', 'Device'], ['field', 'Real users (LCP / CLS / INP)', (v) => (v ? `${(v.lcp_ms / 1000).toFixed(1)} s / ${v.cls ?? '—'} / ${v.inp_ms ?? '—'} ms` : 'Not enough Chrome data')], ['lab', 'Lab test (LCP / CLS / score)', (v) => `${v.lcp_ms ? (v.lcp_ms / 1000).toFixed(1) + ' s' : '—'} / ${v.cls ?? '—'} / ${v.performance_score ?? '—'}`], ['fetched_at', 'Measured', when]], m.core_web_vitals) : empty('Not measured: run PageSpeed in Google.')),
             el('h2', { class: 'au-h', text: 'Estimates' }),
             section('Opportunities (Oprun estimates, not measurements)', d.estimates ? [table([['primary', 'Topic'], ['score', 'Priority'], ['reasons', 'Reasons', (v) => v.join('; ')]], d.estimates.priorities), source(d.estimates.source)] : empty('Build keyword clusters to see estimated opportunities.')));
+          // MB-23: nothing connected yet -> one clear next step at the top, and the empty boxes become one-line notes.
+          if (!founder && !sc && !m.analytics) out.prepend(el('article', { class: 'portal-panel sx-connect-first', 'data-connect-first': '' },
+            el('h2', { text: 'Connect Google to fill this page' }),
+            el('p', { text: 'Search clicks and website visits come from your own Google Search Console and Analytics. Leads and revenue below already come from Oprun.' }),
+            el('a', { class: 'portal-button primary', href: '#setup/connections', text: 'Connect Google' })));
+          out.querySelectorAll('.portal-empty').forEach((e) => e.classList.add('is-compact'));
         }
         await load();
       },

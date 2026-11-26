@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-26T07:04:55.765Z",
+  "generated": "2026-11-26T08:40:28.304Z",
   "rows": [
     {
       "width": 390,
@@ -483,10 +483,9 @@
       "path": "website/search",
       "height": 1733,
       "primary_first_screen": 1,
-      "primary_total": 2,
+      "primary_total": 1,
       "primary_labels": [
-        "Run technical audit",
-        "Turn scheduled jobs on"
+        "Run technical audit"
       ],
       "sections": 3,
       "content_starts": 1012,
@@ -592,12 +591,14 @@
       "group": "Growth",
       "label": "SEO · Analytics",
       "path": "website/seo-analytics",
-      "height": 1673,
-      "primary_first_screen": 0,
-      "primary_total": 0,
-      "primary_labels": [],
-      "sections": 8,
-      "content_starts": null,
+      "height": 1650,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Connect Google"
+      ],
+      "sections": 9,
+      "content_starts": 130,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -869,10 +870,9 @@
       "label": "Automation Settings",
       "path": "setup/automation",
       "height": 1551,
-      "primary_first_screen": 1,
-      "primary_total": 2,
+      "primary_first_screen": 0,
+      "primary_total": 1,
       "primary_labels": [
-        "Open AI Automations",
         "Turn on"
       ],
       "sections": 8,
@@ -1454,10 +1454,9 @@
       "path": "website/search",
       "height": 1150,
       "primary_first_screen": 1,
-      "primary_total": 2,
+      "primary_total": 1,
       "primary_labels": [
-        "Run technical audit",
-        "Turn scheduled jobs on"
+        "Run technical audit"
       ],
       "sections": 3,
       "content_starts": 666,
@@ -1563,12 +1562,14 @@
       "group": "Growth",
       "label": "SEO · Analytics",
       "path": "website/seo-analytics",
-      "height": 1386,
-      "primary_first_screen": 0,
-      "primary_total": 0,
-      "primary_labels": [],
-      "sections": 8,
-      "content_starts": null,
+      "height": 1323,
+      "primary_first_screen": 1,
+      "primary_total": 1,
+      "primary_labels": [
+        "Connect Google"
+      ],
+      "sections": 9,
+      "content_starts": 139,
       "undismissable_tips": 0,
       "sideways": false
     },
@@ -1841,10 +1842,9 @@
       "label": "Automation Settings",
       "path": "setup/automation",
       "height": 745,
-      "primary_first_screen": 2,
-      "primary_total": 2,
+      "primary_first_screen": 1,
+      "primary_total": 1,
       "primary_labels": [
-        "Open AI Automations",
         "Turn on"
       ],
       "sections": 8,
