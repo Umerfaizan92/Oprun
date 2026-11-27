@@ -133,7 +133,8 @@ export function home() {
   <div class="sp-page sp-hero__inner">
     <h1 class="sp-display" id="hero-title">Run your world.</h1>
     <div class="sp-film">
-      <video class="sp-film__video" src="/saas/oprun-reel.mp4" poster="/saas/oprun-icon-512.png" autoplay muted loop playsinline preload="metadata"></video>
+      <video class="sp-film__video" src="/saas/oprun-reel.mp4" poster="/saas/oprun-icon-512.png" autoplay muted loop playsinline preload="metadata" aria-label="Oprun feature demonstration with synchronised process captions"></video>
+      <p class="sp-film__caption" aria-live="off"><span class="sp-film__number"></span><strong class="sp-film__title">The world</strong><span class="sp-film__status">Ready.</span></p>
     </div>
     <div class="sp-hero__copy">
       <p class="sp-lede"><strong>Your office runs. You approve.</strong> Oprun answers enquiries, drafts quotes and invoices, and keeps your team's paperwork in order. Nothing leaves your business until you say yes.</p>
@@ -145,13 +146,19 @@ export function home() {
     </div>
   </div>
   <style>
-    .sp-hero--film{min-height:0;display:block}
-    .sp-hero--film .sp-hero__inner{padding-top:clamp(1.25rem,2vw,2rem)}
-    .sp-hero--film .sp-display{margin:0 0 1rem}
-    .sp-film{width:100%;background:#070b14;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--sp-gold) 32%,transparent)}
-    .sp-film__video{display:block;width:100%;height:auto;background:#070b14}
+    .sp-hero--film{min-height:0;display:block;padding-top:0;background:var(--sp-midnight)}
+    .sp-hero--film .sp-hero__inner{padding-top:clamp(1.25rem,2vw,2rem);min-width:0}
+    .sp-hero--film .sp-display{margin:0 0 1rem;font-size:clamp(2.25rem,6.5vw,4.75rem);overflow-wrap:break-word}
+    .sp-film{position:relative;isolation:isolate;width:100%;margin-inline:auto;background:transparent;border:0;border-radius:0;box-shadow:none;min-width:0}
+    .sp-film__video{display:block;width:100%;height:auto;max-height:min(65svh,760px);aspect-ratio:16/9;object-fit:contain;margin-inline:auto;background:var(--sp-midnight);mix-blend-mode:lighten;mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);mask-composite:intersect}
+    .sp-film__caption{position:absolute;inset:auto 4% 6%;display:flex;align-items:baseline;flex-wrap:wrap;gap:.3em .65em;margin:0;color:var(--sp-fg);font-size:clamp(.875rem,1.3vw,1.125rem);line-height:1.5;text-shadow:0 2px 8px #000;pointer-events:none}
+    .sp-film__number{color:var(--sp-gold);font-size:.8em;letter-spacing:.12em}
+    .sp-film__status{color:var(--sp-fg-2)}
     .sp-hero--film .sp-hero__copy{margin-top:1.5rem}
-    @media (prefers-reduced-motion:reduce){.sp-film__video{display:none}.sp-film{min-height:180px;background:#070b14 url('/saas/oprun-icon-512.png') center/180px no-repeat}}
+    .sp-hero--film ~ .sp-demo .sp-chat{grid-template-columns:minmax(0,1fr)}
+    @media(max-width:399px){body:has(.sp-hero--film) .sp-nav__inner{gap:.5rem}body:has(.sp-hero--film) .sp-nav__actions{gap:.25rem}body:has(.sp-hero--film) .sp-nav__actions .sp-btn{padding-inline:.6rem;font-size:.8rem}}
+    @media(max-width:599px){.sp-film__caption{position:static;justify-content:center;min-height:3.5em;padding:.5rem 0;text-align:center;text-shadow:none}}
+    @media (prefers-reduced-motion:reduce){.sp-film__video{visibility:hidden}.sp-film{background:transparent url('/saas/oprun-icon-512.png') center top/contain no-repeat}.sp-film__caption{display:none}}
   </style>
 </section>
 
@@ -265,7 +272,7 @@ ${storiesSection(true)}
 
 ${newsletter()}
 ${cta()}`;
-  return page({ path: '/', title: SITE.tagline, description: 'The AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with you approving what goes out.', body, scripts: ['/saas/product-guide.js?v=20261111.1'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
+  return page({ path: '/', title: SITE.tagline, description: 'The AI office manager for Australian service businesses: enquiries, quotes, jobs, invoices and staff compliance in one place, with you approving what goes out.', body, scripts: ['/saas/product-guide.js?v=20261111.1', '/saas/homepage-film.js?v=20261128.1'], graph: [{ '@type': 'WebSite', name: SITE.name, url: `${BASE}/` }, { '@type': 'SoftwareApplication', name: SITE.name, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: offers() }, faqLd(FAQ)] });
 }
 
 function workflowDemo() {
