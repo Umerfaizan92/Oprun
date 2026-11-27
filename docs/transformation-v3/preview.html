@@ -33,6 +33,19 @@ button,.btn,.btn.compact,.preview-tabs button,.stage-controls .btn,.page-heading
 .btn.icon-only,.app-tools .btn.icon-only{width:44px;min-width:44px}
 .public-links a,.text-link,.auth-between label{min-height:44px;display:inline-flex;align-items:center}
 .text-link{justify-content:center}
+
+/* Explicit intrinsic sizing: narrow proposals reflow instead of clipping. */
+.hero>div,.hero-art,.app-main,.app-body,.workspace-grid>*,.studio-layout>*,.founder-layout>*,.preview-bar>div{min-width:0}
+.hero-product{max-width:100%}
+.preview-tabs{max-width:100%}
+@media(max-width:420px){
+ .public-nav{flex-wrap:wrap;gap:14px;padding:18px 24px}
+ .public-actions{width:100%;min-width:0}
+ .public-actions>.btn:last-child{width:100%;justify-content:space-between}
+ .hero{padding-top:22px}
+ .hero-art{min-width:0;max-width:100%}
+ .float-card{max-width:100%;transform:none}
+}
 </style>
 </head>
 <body>
