@@ -129,24 +129,30 @@ export function home() {
     ['paid', '3:45', 'Paid before you leave', 'The customer pays by QR on their phone. The profit for the job updates.']
   ];
   const body = `
-<section class="sp-hero" aria-labelledby="hero-title">
-  <div class="sp-hero3d" data-hero3d>${posterSvg()}</div>
-  <div class="sp-hero__veil" aria-hidden="true"></div>
+<section class="sp-hero sp-hero--film" aria-labelledby="hero-title">
   <div class="sp-page sp-hero__inner">
+    <h1 class="sp-display" id="hero-title">Run your world.</h1>
+    <div class="sp-film">
+      <video class="sp-film__video" src="/saas/oprun-reel.mp4" poster="/saas/oprun-icon-512.png" autoplay muted loop playsinline preload="metadata"></video>
+    </div>
     <div class="sp-hero__copy">
-      <h1 class="sp-display" id="hero-title">Run your world.</h1>
       <p class="sp-lede"><strong>Your office runs. You approve.</strong> Oprun answers enquiries, drafts quotes and invoices, and keeps your team's paperwork in order. Nothing leaves your business until you say yes.</p>
       <div class="sp-actions">
         <a class="sp-btn sp-btn--primary sp-btn--lg" href="/start">Start your ${SITE.trialDays}-day free trial</a>
         <a class="sp-btn sp-btn--ghost sp-btn--lg" href="#demo">Ask it a question</a>
       </div>
       <p class="sp-hero__note">Plans from A$49 a month, plus GST.</p>
-      <ul class="sp-hero__key" aria-label="How to read the animation">
-        <li><span class="sp-key sp-key--cyan" aria-hidden="true"></span>Work arriving: calls, messages, email, web</li>
-        <li><span class="sp-key sp-key--gold" aria-hidden="true"></span>Leaves only after your approval</li>
-      </ul>
     </div>
   </div>
+  <style>
+    .sp-hero--film{min-height:0;display:block}
+    .sp-hero--film .sp-hero__inner{padding-top:clamp(1.25rem,2vw,2rem)}
+    .sp-hero--film .sp-display{margin:0 0 1rem}
+    .sp-film{width:100%;background:#070b14;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--sp-gold) 32%,transparent)}
+    .sp-film__video{display:block;width:100%;height:auto;background:#070b14}
+    .sp-hero--film .sp-hero__copy{margin-top:1.5rem}
+    @media (prefers-reduced-motion:reduce){.sp-film__video{display:none}.sp-film{min-height:180px;background:#070b14 url('/saas/oprun-icon-512.png') center/180px no-repeat}}
+  </style>
 </section>
 
 <section class="sp-section sp-demo" id="demo" aria-labelledby="demo-title">

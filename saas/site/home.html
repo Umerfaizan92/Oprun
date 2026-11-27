@@ -44,36 +44,30 @@
 </header>
 <main id="main" tabindex="-1">
 
-<section class="sp-hero" aria-labelledby="hero-title">
-  <div class="sp-hero3d" data-hero3d><svg class="sp-hero3d__poster" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-  <defs><radialGradient id="pg" cx="68%" cy="48%" r="38%"><stop offset="0" stop-color="var(--sp-gold)" stop-opacity=".22"/><stop offset="1" stop-color="var(--sp-gold)" stop-opacity="0"/></radialGradient></defs>
-  <rect width="1200" height="700" fill="url(#pg)"/>
-  <g fill="none" stroke="var(--sp-cyan)" stroke-opacity=".45" stroke-width="1.5">
-    <path d="M150 170 C 380 160, 520 260, 640 350"/><path d="M110 340 C 330 330, 500 330, 640 350"/><path d="M160 520 C 380 500, 520 420, 640 350"/><path d="M300 110 C 470 140, 560 250, 640 350"/>
-  </g>
-  <g fill="none" stroke="var(--sp-gold)" stroke-opacity=".5" stroke-width="1.5"><path d="M700 350 C 860 300, 960 210, 1110 170"/><path d="M700 350 C 880 350, 980 360, 1130 360"/><path d="M700 350 C 860 420, 980 500, 1100 540"/></g>
-  <g fill="none" stroke="var(--sp-cyan)" stroke-width="2"><rect x="128" y="150" width="36" height="36" rx="4"/><rect x="88" y="322" width="36" height="36" rx="4"/><rect x="140" y="502" width="36" height="36" rx="4"/><rect x="282" y="92" width="36" height="36" rx="4"/></g>
-  <ellipse cx="660" cy="350" rx="26" ry="70" fill="none" stroke="var(--sp-gold)" stroke-width="3"/>
-  <g transform="translate(780 260) rotate(8)" fill="none" stroke="var(--sp-gold)" stroke-width="2"><rect width="180" height="180" rx="6"/><path d="M0 0l40-30h180l-40 30M180 180l40-30V-30"/></g>
-  <circle cx="872" cy="352" r="22" fill="var(--sp-gold)" fill-opacity=".85"/>
-  <circle cx="420" cy="230" r="7" fill="var(--sp-cyan)"/><circle cx="520" cy="335" r="7" fill="var(--sp-cyan)"/><circle cx="980" cy="230" r="7" fill="var(--sp-gold)"/>
-</svg></div>
-  <div class="sp-hero__veil" aria-hidden="true"></div>
+<section class="sp-hero sp-hero--film" aria-labelledby="hero-title">
   <div class="sp-page sp-hero__inner">
+    <h1 class="sp-display" id="hero-title">Run your world.</h1>
+    <div class="sp-film">
+      <video class="sp-film__video" src="/saas/oprun-reel.mp4" poster="/saas/oprun-icon-512.png" autoplay muted loop playsinline preload="metadata"></video>
+    </div>
     <div class="sp-hero__copy">
-      <h1 class="sp-display" id="hero-title">Run your world.</h1>
       <p class="sp-lede"><strong>Your office runs. You approve.</strong> Oprun answers enquiries, drafts quotes and invoices, and keeps your team's paperwork in order. Nothing leaves your business until you say yes.</p>
       <div class="sp-actions">
         <a class="sp-btn sp-btn--primary sp-btn--lg" href="/start">Start your 14-day free trial</a>
         <a class="sp-btn sp-btn--ghost sp-btn--lg" href="#demo">Ask it a question</a>
       </div>
       <p class="sp-hero__note">Plans from A$49 a month, plus GST.</p>
-      <ul class="sp-hero__key" aria-label="How to read the animation">
-        <li><span class="sp-key sp-key--cyan" aria-hidden="true"></span>Work arriving: calls, messages, email, web</li>
-        <li><span class="sp-key sp-key--gold" aria-hidden="true"></span>Leaves only after your approval</li>
-      </ul>
     </div>
   </div>
+  <style>
+    .sp-hero--film{min-height:0;display:block}
+    .sp-hero--film .sp-hero__inner{padding-top:clamp(1.25rem,2vw,2rem)}
+    .sp-hero--film .sp-display{margin:0 0 1rem}
+    .sp-film{width:100%;background:#070b14;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb,var(--sp-gold) 32%,transparent)}
+    .sp-film__video{display:block;width:100%;height:auto;background:#070b14}
+    .sp-hero--film .sp-hero__copy{margin-top:1.5rem}
+    @media (prefers-reduced-motion:reduce){.sp-film__video{display:none}.sp-film{min-height:180px;background:#070b14 url('/saas/oprun-icon-512.png') center/180px no-repeat}}
+  </style>
 </section>
 
 <section class="sp-section sp-demo" id="demo" aria-labelledby="demo-title">
