@@ -54,13 +54,28 @@ try {
       results.push({ screen, width, overflow, seriousOrCritical: a11y });
       console.log(JSON.stringify(results.at(-1)));
       assert.equal(a11y.length, 0, 'Accessibility blockers: ' + JSON.stringify(a11y));
+      const otherScreen = screens[(screens.indexOf(screen) + 1) % screens.length];
+      await page.locator('[data-screen-select="' + otherScreen + '"]').click();
+      await page.locator('[data-screen="' + otherScreen + '"]').waitFor({ state: 'visible' });
       await select.focus();
       await page.keyboard.press('Enter');
-      assert.equal(await select.getAttribute('aria-pressed'), 'true', 'Keyboard activation');
+      await panel.waitFor({ state: 'visible' });
+      assert.equal(await select.getAttribute('aria-pressed'), 'true', 'Keyboard switches an inactive proposal');
+      assert.equal(await page.locator('[data-screen]:visible').count(), 1);
     }
     assert.deepEqual(failures, [], 'No runtime errors/external requests');
     await context.close();
   }
+  const motionContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference', serviceWorkers: 'block' });
+  await motionContext.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort());
+  const motionPage = await motionContext.newPage();
+  await motionPage.goto(origin, { waitUntil: 'networkidle' });
+  for (const screen of screens) {
+    await motionPage.locator('[data-screen-select="' + screen + '"]').click();
+    const infinite = await motionPage.evaluate(() => document.getAnimations().filter(a => a.effect?.getTiming().iterations === Infinity).length);
+    assert.equal(infinite, 0, 'Decorative motion must not loop forever: ' + screen);
+  }
+  await motionContext.close();
 } finally {
   await fs.writeFile(path.join(out, 'checks.json'), JSON.stringify({ proposedOnly: true, productionUntouched: true, baselineComparisonPending: true, results }, null, 2));
   await browser.close();
