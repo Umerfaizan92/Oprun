@@ -25,6 +25,14 @@
 @media(max-width:420px){.hero h1{font-size:47px}.hero-copy{font-size:15px}.hero-proof{gap:12px}.hero-art{min-height:410px}.hero-product{width:285px;padding:17px}.float-card{padding:9px 11px;gap:8px;font-size:9px}.float-card strong{font-size:10px}.float-card .circle-icon{width:26px;height:26px}.float-card.incoming{top:0;left:0}.float-card.complete{bottom:0;right:0}.workflow-strip{grid-template-columns:1fr 1fr}.workflow-step:after{display:none}.page-heading>.btn-group{display:none}.page-heading>.btn{white-space:nowrap}.page-heading h1{font-size:25px}.metric-detail{font-size:9px}.app-body{padding-left:16px;padding-right:16px}.auth-card{padding:23px}.auth-foot{gap:10px;flex-wrap:wrap}.preview-tabs button{font-size:11px;padding:5px 9px}.studio-layout{display:block}.studio-side{margin-top:17px}.health-strip .pill{margin-left:0}.library-demo{grid-template-columns:1fr}.supervisor-stat strong{font-size:18px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{.preview-bar,.rail,.mobile-dock,.app-tools,.toast{display:none!important}.view[hidden]{display:none!important}.app-shell{display:block}.app-body{padding:20px}}
+
+/* Independent source review: visible keyboard skip link and 44px touch controls. */
+.skip-link{position:fixed;top:8px;left:16px;z-index:100;transform:translateY(-160%);min-height:44px;padding:10px 16px;display:flex;align-items:center;border:2px solid var(--gold);border-radius:8px;background:var(--midnight);color:var(--gold-hover);font-weight:650}
+.skip-link:focus{transform:none}
+button,.btn,.btn.compact,.preview-tabs button,.stage-controls .btn,.page-heading .btn,.attention-item .btn,.app-tools .btn.icon-only{min-height:44px}
+.btn.icon-only,.app-tools .btn.icon-only{width:44px;min-width:44px}
+.public-links a,.text-link,.auth-between label{min-height:44px;display:inline-flex;align-items:center}
+.text-link{justify-content:center}
 </style>
 </head>
 <body>
@@ -59,7 +67,7 @@
 <symbol id="message" viewBox="0 0 24 24"><path d="M4 3h16v14H9l-5 4Z"/><path d="M8 8h8m-8 4h5"/></symbol>
 <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/></symbol>
 </defs></svg>
-<a class="sr" href="#proposal-content">Skip to proposed screen</a>
+<a class="skip-link" href="#proposal-content">Skip to proposed screen</a>
 <header class="preview-bar" aria-label="Design proposal controls">
 <div><span class="preview-label">Oprun · Design proposal</span><div class="preview-note">Synthetic data · Source prepared; browser rendering and responsive testing pending</div></div>
 <div class="preview-tabs" role="tablist" aria-label="Proposed screens">
@@ -172,7 +180,7 @@
 </section>
 </main>
 <div class="toast" id="demo-toast" role="status" aria-live="polite" hidden></div>
-<dialog id="preview-info" style="background:#0F1522;color:#EDF1F8;border:1px solid #26314A;border-radius:18px;max-width:min(460px,calc(100% - 32px));padding:25px"><h2 style="font-size:22px;margin-bottom:15px">Prototype interaction</h2><p id="preview-info-text" style="font-size:14px;line-height:1.7"></p><form method="dialog" style="margin-top:22px"><button class="btn gold">Close</button></form></dialog>
+<dialog id="preview-info" aria-labelledby="preview-info-title" style="background:#0F1522;color:#EDF1F8;border:1px solid #26314A;border-radius:18px;max-width:min(460px,calc(100% - 32px));padding:25px"><h2 id="preview-info-title" style="font-size:22px;margin-bottom:15px">Prototype interaction</h2><p id="preview-info-text" style="font-size:14px;line-height:1.7"></p><form method="dialog" style="margin-top:22px"><button class="btn gold">Close</button></form></dialog>
 <script>
 (function(){
 'use strict';
