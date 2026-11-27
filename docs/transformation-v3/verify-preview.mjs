@@ -41,7 +41,7 @@ try {
       const panel = page.locator('[data-screen="' + screen + '"]');
       await panel.waitFor({ state: 'visible' });
       await assert.equal(await page.locator('[data-screen]:visible').count(), 1, 'Only one proposal visible');
-      await assert.equal(await select.getAttribute('aria-pressed'), 'true', 'Selected proposal announced');
+      await assert.equal(await select.getAttribute('aria-selected'), 'true', 'Selected proposal announced');
       assert.ok(await panel.getByRole('heading').count(), screen + ' needs a visible heading');
       const overflow = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth }));
       assert.ok(overflow.scroll <= overflow.width + 1, screen + ' overflows at ' + width + ': ' + JSON.stringify(overflow));
@@ -60,7 +60,7 @@ try {
       await select.focus();
       await page.keyboard.press('Enter');
       await panel.waitFor({ state: 'visible' });
-      assert.equal(await select.getAttribute('aria-pressed'), 'true', 'Keyboard switches an inactive proposal');
+      assert.equal(await select.getAttribute('aria-selected'), 'true', 'Keyboard switches an inactive proposal');
       assert.equal(await page.locator('[data-screen]:visible').count(), 1);
     }
     assert.deepEqual(failures, [], 'No runtime errors/external requests');
