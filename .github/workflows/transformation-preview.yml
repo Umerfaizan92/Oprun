@@ -1,0 +1,35 @@
+name: Transformation preview
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/transformation-v3/preview.html'
+      - 'docs/transformation-v3/verify-preview.mjs'
+      - '.github/workflows/transformation-preview.yml'
+permissions:
+  contents: read
+concurrency:
+  group: transformation-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium
+      - name: Render and verify synthetic design proposals
+        run: node docs/transformation-v3/verify-preview.mjs
+      - name: Preserve proposed screens and checks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oprun-transformation-proposed-screens
+          path: qa/visual/transformation-v3/
+          if-no-files-found: error
+          retention-days: 14
