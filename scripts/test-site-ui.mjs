@@ -15,7 +15,9 @@ async function open(route, { width = 1440, height = 900, reducedMotion = 'reduce
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(`${route}: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(`${route}: ${m.text()}`); });
-  await page.goto(s.base + route, { waitUntil: 'networkidle' });
+  // Streaming media can keep the network active; test rendered controls, not network silence.
+  await page.goto(s.base + route, { waitUntil: 'domcontentloaded' });
+  await page.locator('main').waitFor({ state: 'visible' });
   return { page, ctx };
 }
 
@@ -164,12 +166,14 @@ try {
     const loaded = await page.evaluate(() => performance.getEntriesByType('resource').some((e) => e.name.includes('hero-3d.js')));
     assert.equal(loaded, false);
     assert.equal(await page.locator('[data-hero3d] canvas').count(), 0);
+    assert.ok(await page.locator('.sp-film__video').evaluate(video => video.paused));
     await ctx.close();
   });
 
-  await check('phone uses the still hero even when motion is allowed', async () => {
+  await check('phone plays the muted inline film without loading WebGL', async () => {
     const { page, ctx } = await open('/', { width: 390, height: 844, reducedMotion: 'no-preference' });
-    await page.waitForTimeout(2800);
+    await page.waitForFunction(() => document.querySelector('.sp-film__video')?.currentTime > 0, null, { timeout: 15000 });
+    assert.ok(await page.locator('.sp-film__video').evaluate(video => video.muted && video.loop && video.playsInline && !video.paused));
     assert.equal(await page.evaluate(() => performance.getEntriesByType('resource').some((e) => e.name.includes('hero-3d.js'))), false);
     assert.equal(await page.locator('[data-hero3d] canvas').count(), 0);
     await ctx.close();
