@@ -1,0 +1,13 @@
+# Audit batch 3 — Founder access restored, 27 November 2026
+
+Supersedes BATCH2 Operator credential blocker. User explicitly requested corrected-key retry. Secure key entry advanced to MFA; secure authenticator submission completed; fresh browser verified Founder Console at https://www.oprun.ai/office/. No credentials accessed through model-visible tools or written to disk. No new operator shortcut linked.
+
+Read-only UI inspections: Platform overview; Infrastructure File storage/Background jobs/Security posture; Storage & backups Database backups/Customer files/Restore drill; AI agents Command center/Performance. Inventoried 26 further navigation destinations without claiming workflow acceptance.
+
+Live observations: queue shows 127 succeeded, no queued/running/failed/dead. Backup panel says bucket configured, backups enabled, S3 default encryption, uploaded files included, ap-southeast-2, DB on persistent disk. Restore drill panel records 22 Nov 2026 7:31pm passed, 244 tables, 1.333s. This is recorded application evidence, not a new independent restore or proof of KMS/bucket policy.
+
+File storage reports Server disk / Ready No. Source trace establishes a diagnostics semantic defect, not proven upload outage: src/object-storage.js:37 defines ready only for S3 mode; src/observability.js:50 exposes it as primary_ready; office/console-platform.js:53 labels it generic Ready. Need disk writable/available check or distinct S3-configured wording before presenting disk mode as unready. Primary customer-file S3 use is not active according to current UI; never change settings without approval.
+
+AI Supervisor UI shows checking every minute with recent last-check timestamp and no open findings/escalations. Current performance card 100% success vs daily summary 139 runs/98%; possible different snapshot/window, investigate before calling defect. Observing a recent check does not independently prove crash recovery, persistent scheduling or complete agent capabilities. Historical claim no supervisor is outdated.
+
+Next action: continue protected Founder read-only page inventory and Business acceptance, trace identified readiness/metric inconsistencies, run safe isolated browser regression and independently record performance. Full audit, consolidated implementation approval, implementation, native/provider verification and explicit production release approval remain outstanding. Do not claim full completion or unattended continuation. Preserve existing Business and Founder browser sessions; reverify after session expiry. No production application/settings/data changes except normal authentication and UI preferences.
