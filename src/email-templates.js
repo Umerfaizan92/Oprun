@@ -21,8 +21,8 @@ export const PLATFORM_NAME = 'Oprun';
 export const platformBrand = (env) => ({
   name: PLATFORM_NAME,
   color: BRAND.colors.gold, // MB-12: the token gold, from the one brand source
-  // T-189: the Oprun mark is drawn in HTML (visible with images blocked); no remote image is needed.
-  logoSrc: '',
+  // Use the approved platform artwork; the existing text fallback remains available.
+  logoSrc: publicBase(env.PUBLIC_BASE_URL) + '/saas/oprun-icon-192.png',
   site: String(publicBase(env.PUBLIC_BASE_URL)).replace(/^https?:\/\/(www\.)?/, ''),
   address: String(env.SUPERPRO_POSTAL_ADDRESS || env.PLATFORM_POSTAL_ADDRESS || '').trim().slice(0, 160),
   links: communicationLinks(env.PUBLIC_BASE_URL),

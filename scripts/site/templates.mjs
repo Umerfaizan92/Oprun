@@ -132,11 +132,13 @@ export function home() {
 <section class="sp-hero sp-hero--film" aria-labelledby="hero-title">
   <div class="sp-page sp-hero__inner">
     <h1 class="sp-display" id="hero-title">Run your world.</h1>
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs><filter id="sp-film-background" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="table" tableValues="0.027451 0.027451 0.027451 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1.0"/><feFuncG type="table" tableValues="0.043137 0.043137 0.043137 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1.0"/><feFuncB type="table" tableValues="0.078431 0.078431 0.078431 0.1875 0.25 0.3125 0.375 0.4375 0.5 0.5625 0.625 0.6875 0.75 0.8125 0.875 0.9375 1.0"/></feComponentTransfer></filter></defs></svg>
     <div class="sp-film">
       <video class="sp-film__video" src="/saas/oprun-reel.mp4" poster="/saas/oprun-icon-512.png" autoplay muted loop playsinline preload="metadata" aria-label="Oprun feature demonstration with synchronised process captions"></video>
       <p class="sp-film__caption" aria-live="off"><span class="sp-film__number"></span><strong class="sp-film__title">The world</strong><span class="sp-film__status">Ready.</span></p>
     </div>
     <div class="sp-hero__copy">
+      <p class="sp-hero__approve">You approve.</p>
       <p class="sp-lede"><strong>Your office runs. You approve.</strong> Oprun answers enquiries, drafts quotes and invoices, and keeps your team's paperwork in order. Nothing leaves your business until you say yes.</p>
       <div class="sp-actions">
         <a class="sp-btn sp-btn--primary sp-btn--lg" href="/start">Start your ${SITE.trialDays}-day free trial</a>
@@ -149,12 +151,13 @@ export function home() {
     .sp-hero--film{min-height:0;display:block;padding-top:0;background:var(--sp-midnight)}
     .sp-hero--film .sp-hero__inner{padding-top:clamp(1.25rem,2vw,2rem);min-width:0}
     .sp-hero--film .sp-display{margin:0 0 1rem;font-size:clamp(2.25rem,6.5vw,4.75rem);overflow-wrap:break-word}
-    .sp-film{position:relative;isolation:isolate;width:100%;margin-inline:auto;background:transparent;border:0;border-radius:0;box-shadow:none;min-width:0}
-    .sp-film__video{display:block;width:100%;height:auto;max-height:min(65svh,760px);aspect-ratio:16/9;object-fit:contain;margin-inline:auto;background:var(--sp-midnight);mix-blend-mode:lighten;mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);mask-composite:intersect}
-    .sp-film__caption{position:absolute;inset:auto 4% 6%;display:flex;align-items:baseline;flex-wrap:wrap;gap:.3em .65em;margin:0;color:var(--sp-fg);font-size:clamp(.875rem,1.3vw,1.125rem);line-height:1.5;text-shadow:0 2px 8px #000;pointer-events:none}
+    .sp-film{position:relative;isolation:isolate;width:calc(100% + 2*var(--sp-gutter));margin-inline:calc(-1*var(--sp-gutter));padding-top:clamp(.5rem,1.5vw,1.25rem);background:transparent;border:0;border-radius:0;box-shadow:none;min-width:0}
+    .sp-film__video{display:block;width:100%;height:auto;max-height:min(74svh,900px);aspect-ratio:16/9;object-fit:contain;margin-inline:auto;margin-bottom:clamp(.75rem,3vw,2.5rem);transform:translateY(5%);background:var(--sp-midnight);filter:url(#sp-film-background);mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 95%,transparent);mask-composite:intersect}
+    .sp-film__caption{position:absolute;inset:auto 4% 6%;display:flex;align-items:baseline;flex-wrap:wrap;gap:.3em .65em;margin:0;color:var(--sp-fg);font-size:clamp(1rem,1.45vw,1.25rem);line-height:1.5;text-shadow:0 2px 8px #000;pointer-events:none}
     .sp-film__number{color:var(--sp-gold);font-size:.8em;letter-spacing:.12em}
     .sp-film__status{color:var(--sp-fg-2)}
     .sp-hero--film .sp-hero__copy{margin-top:1.5rem}
+    .sp-hero__approve{margin:0 0 1.25rem;font-family:var(--sp-font-display);font-size:clamp(2.75rem,6vw,5rem);line-height:1.08;letter-spacing:-.035em;color:var(--sp-gold);background:linear-gradient(180deg,#fff7e4 10%,var(--sp-gold) 78%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     .sp-hero--film ~ .sp-demo .sp-chat{grid-template-columns:minmax(0,1fr)}
     @media(max-width:399px){body:has(.sp-hero--film) .sp-nav__inner{gap:.5rem}body:has(.sp-hero--film) .sp-nav__actions{gap:.25rem}body:has(.sp-hero--film) .sp-nav__actions .sp-btn{padding-inline:.6rem;font-size:.8rem}}
     @media(max-width:599px){.sp-film__caption{position:static;justify-content:center;min-height:3.5em;padding:.5rem 0;text-align:center;text-shadow:none}}

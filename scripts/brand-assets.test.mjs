@@ -23,3 +23,20 @@ test('outbound website checks identify as Oprun', () => {
     assert.doesNotMatch(src, /SuperPro(VisibilityCheck|AI-OfficeManager)/, f);
   }
 });
+
+
+test('approved logo replacement removes inline compass artwork and preserves the workspace loader', () => {
+  const compass = 'M60 39 62.26 57.74 81 60';
+  const inspect = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const file = dir + '/' + entry.name;
+      if (entry.isDirectory()) inspect(file);
+      else if (/\.(html|js|svg)$/.test(entry.name)) assert.ok(!fs.readFileSync(file, 'utf8').includes(compass), file + ': retired compass artwork must not return');
+    }
+  };
+  for (const dir of ['saas', 'office', 'src', 'mobile']) inspect(dir);
+  const workspace = fs.readFileSync('saas/workspace.html', 'utf8');
+  assert.match(workspace, /id="workspace-loading"/);
+  assert.match(workspace, /<img class="ws-loading-mark" src="\/saas\/oprun-icon\.svg"/);
+  assert.match(fs.readFileSync('saas/premium-ui.js', 'utf8'), /src="\/saas\/oprun-mark\.svg"/);
+});

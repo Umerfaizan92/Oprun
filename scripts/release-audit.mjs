@@ -46,11 +46,18 @@ for (const [f, set] of before.forms) { const now = after.forms.get(f) || new Set
 // IDs that moved into a script-built view still exist at runtime; scan JS for the same id string.
 const js = filesAt(null).filter((f) => /^(saas|office|site|public)\/.*\.js$/.test(f)).map((f) => fs.readFileSync(f, 'utf8')).join('\n');
 const removedIdsReal = removedIds.filter((x) => { const id = x.split('#')[1]; return !js.includes(`'${id}'`) && !js.includes(`"${id}"`) && !js.includes(`#${id}`); });
+// Owner-approved logo replacement retires only the old inline artwork's paint-server IDs.
+// Accept this retirement only while the loader uses the existing canonical asset.
+const canonicalLoader = /<img\b[^>]*class="ws-loading-mark"[^>]*src="\/saas\/oprun-icon\.svg"/.test(read(null, 'saas/workspace.html'));
+const retiredArtwork = new Set(['saas/workspace.html#wsl-g', 'saas/workspace.html#wsl-bg']);
+const intentionalArtworkIds = canonicalLoader ? removedIdsReal.filter(id => retiredArtwork.has(id)) : [];
+const unexpectedRemovedIds = removedIdsReal.filter(id => !intentionalArtworkIds.includes(id));
 const report = {
   base, base_commit: git('rev-parse', '--short', base).trim(), head_commit: git('rev-parse', '--short', 'HEAD').trim(), generated_at: new Date().toISOString(),
   counts: Object.fromEntries(['routes', 'pages', 'views', 'sections', 'scripts'].map((k) => [k, { before: before[k].size, after: after[k].size, added: diff(after[k], before[k]).length, removed: diff(before[k], after[k]).length }])),
-  removed: { routes: diff(before.routes, after.routes), pages: diff(before.pages, after.pages), views: diff(before.views, after.views), console_sections: diff(before.sections, after.sections), npm_scripts: diff(before.scripts, after.scripts), element_ids: removedIdsReal, forms: removedForms },
+  removed: { routes: diff(before.routes, after.routes), pages: diff(before.pages, after.pages), views: diff(before.views, after.views), console_sections: diff(before.sections, after.sections), npm_scripts: diff(before.scripts, after.scripts), element_ids: unexpectedRemovedIds, forms: removedForms },
   element_ids: { before: [...before.ids.values()].reduce((n, s) => n + s.size, 0), after: [...after.ids.values()].reduce((n, s) => n + s.size, 0), moved_to_scripts: removedIds.length - removedIdsReal.length },
+  retired_artwork_ids: intentionalArtworkIds,
   added: { routes: diff(after.routes, before.routes).length, pages: diff(after.pages, before.pages), views: diff(after.views, before.views), console_sections: diff(after.sections, before.sections) }
 };
 fs.mkdirSync(path.dirname(out), { recursive: true });
@@ -59,10 +66,11 @@ report.intentional = Object.fromEntries(report.removed.routes.filter((x) => INTE
 report.removed.routes = report.removed.routes.filter((x) => !INTENTIONAL[x]);
 fs.writeFileSync(out, JSON.stringify(report, null, 2));
 for (const [k, v] of Object.entries(report.intentional)) console.log(`  intentional: ${k}: ${v}`);
+for (const id of intentionalArtworkIds) console.log(`  intentional artwork retirement: ${id} (approved canonical loader image)`);
 const r = report.removed, total = Object.values(r).reduce((n, a) => n + a.length, 0);
 console.log(`Baseline ${report.base} (${report.base_commit}) → HEAD ${report.head_commit}`);
 for (const [k, v] of Object.entries(report.counts)) console.log(`  ${k}: ${v.before} → ${v.after} (+${v.added}, -${v.removed})`);
 console.log(`  element ids: ${report.element_ids.before} → ${report.element_ids.after}`);
 if (total) { console.log('REMOVED since the baseline:'); for (const [k, v] of Object.entries(r)) for (const x of v) console.log(`  ${k}: ${x}`); }
-console.log(total ? `PRESERVATION AUDIT: ${total} item(s) removed. Review each one.` : 'PRESERVATION AUDIT PASSED: nothing that existed at the baseline has been removed.');
+console.log(total ? `PRESERVATION AUDIT: ${total} item(s) removed. Review each one.` : 'PRESERVATION AUDIT PASSED: no unexpected routes, controls or identifiers removed.');
 process.exitCode = total ? 1 : 0;
