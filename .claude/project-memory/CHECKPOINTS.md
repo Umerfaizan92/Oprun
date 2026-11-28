@@ -3461,3 +3461,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: ChatGPT reviews 234f56d..claude/prg02-queue-isolation-20261128; Claude waits for next assignment
+
+## CP-248 2026-11-28T02:43:06+00:00 T-271 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (TESTING)
+- Completed steps: Committed and pushed 99e27ae on claude/prg02-queue-isolation-20261128
+- Incomplete steps: ChatGPT independent review; SHA256SUMS.txt decision; scoped-key migration under PRG-04
+- Files modified (uncommitted at checkpoint): none
+- Tests executed: programme-queue-isolation 9/9; npm test
+- Test results: 9/9; ALL CHECKS PASSED 73/73 Node 22.23.5 at 99e27ae
+- Git branch: claude/prg02-queue-isolation-20261128
+- Commit: 99e27ae (PRG-02: isolate job queue idempotency by type and tenant scope (AUD-02)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: ChatGPT reviews 234f56d..99e27ae; Claude takes no further task until assigned
