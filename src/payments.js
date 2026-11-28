@@ -562,24 +562,49 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
         const p = findPayment(org, 'stripe', obj.id); if (p && p.status === 'pending') { db.prepare(`UPDATE job_payments SET status='expired',updated_at=? WHERE id=?`).run(iso(), p.id); outcome = 'expired'; }
       } else if (ev.type === 'charge.refunded' && obj.payment_intent) {
         const p = db.prepare(`SELECT * FROM job_payments WHERE organisation_id=? AND provider='stripe' AND reference=?`).get(org, obj.payment_intent);
-        // Stripe reports the running total refunded on the charge. Only the increase since the last message is applied, so
-        // several partial refunds, repeats and refunds Oprun already applied are each counted once (Phase 08 fix).
-        if (p && ['paid', 'refunded'].includes(p.status) && obj.currency && String(obj.currency).toLowerCase() !== String(p.currency || 'aud').toLowerCase()) {
-          outcome = 'currency_mismatch';
-          await flag(org, p, 'Stripe reported a refund in a different currency. Check Stripe before changing this job balance.');
-        } else if (p && ['paid', 'refunded'].includes(p.status) && ledgerFromStripeUnits(obj.amount_refunded, p.currency || 'aud') === null) {
-          outcome = 'amount_precision_review';
-          await flag(org, p, 'Stripe reported a refund amount that cannot be represented exactly in the ledger. Review the provider record before updating balances.');
-        } else if (p && ['paid', 'refunded'].includes(p.status)) {
-          // Ledger amounts are hundredths, whereas Stripe reports currency minor units.
-          const refundedCents = ledgerFromStripeUnits(obj.amount_refunded, p.currency || 'aud');
-          const total = Math.min(p.amount_cents, refundedCents), delta = total - (p.refunded_cents || 0), full = total >= p.amount_cents, at = iso();
-          if (delta > 0) {
-            db.transaction(() => { db.prepare(`UPDATE job_payments SET status=?,refunded_cents=?,note=?,updated_at=? WHERE id=?`).run(full ? 'refunded' : 'paid', total, full ? 'Refunded in Stripe' : `${money(total)} refunded in Stripe`, at, p.id); db.prepare(`UPDATE work_orders SET paid_cents=MAX(0,paid_cents-?),updated_at=? WHERE id=?`).run(delta, at, p.work_order_id); })();
-            syncJobFinance(org, p.work_order_id, null); audit(org, 'payment.refunded', p.id, { refunded_cents: delta, refunded_total_cents: total, full }); await flag(org, p, `${money(delta)} was refunded in Stripe. The job balance has been updated.`);
+        if (p && ['paid', 'refunded'].includes(p.status)) {
+          const currency = String(p.currency || 'aud').toLowerCase();
+          const previous = p.refunded_cents || 0;
+          const total = ledgerFromStripeUnits(obj.amount_refunded, currency);
+          if (typeof obj.currency !== 'string' || obj.currency.toLowerCase() !== currency) {
+            outcome = 'currency_mismatch';
+            await flag(org, p, 'Stripe reported a refund without the expected currency. Review the provider record before updating balances.');
+          } else if (total === null || stripeUnitsOrNull(p.amount_cents, currency) === null ||
+              stripeUnitsOrNull(previous, currency) === null || previous > p.amount_cents || total > p.amount_cents) {
+            outcome = 'amount_precision_review';
+            await flag(org, p, 'Stripe reported a refund that cannot be reconciled exactly against the stored payment. Review the provider record before updating balances.');
+          } else {
+            const delta = total - previous;
+            const full = total === p.amount_cents;
+            const at = iso();
+            const hasRefunds = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='fin_refunds'").get();
+            db.transaction(() => {
+              if (delta > 0) {
+                db.prepare(`UPDATE job_payments SET status=?,refunded_cents=?,note=?,updated_at=? WHERE id=? AND organisation_id=?`)
+                  .run(full ? 'refunded' : 'paid', total, full ? 'Refunded in Stripe' : `${money(total)} refunded in Stripe`, at, p.id, org);
+                db.prepare(`UPDATE work_orders SET paid_cents=MAX(0,paid_cents-?),updated_at=? WHERE id=? AND organisation_id=?`)
+                  .run(delta, at, p.work_order_id, org);
+              }
+              // The charge total moves the ledger. Individual provider receipts identify completed requests.
+              if (hasRefunds && total > 0 && Array.isArray(obj.refunds?.data)) {
+                const complete = db.prepare(`UPDATE fin_refunds SET status='completed',updated_at=?
+                  WHERE organisation_id=? AND payment_id=? AND provider='stripe'
+                    AND provider_ref=? AND amount_cents=? AND status='submitted'`);
+                for (const refund of obj.refunds.data) {
+                  if (refund?.status !== 'succeeded' || typeof refund.id !== 'string' || !refund.id ||
+                      typeof refund.currency !== 'string' || refund.currency.toLowerCase() !== currency) continue;
+                  const amount = ledgerFromStripeUnits(refund.amount, currency);
+                  if (amount > 0 && amount <= total) complete.run(at, org, p.id, refund.id, amount);
+                }
+              }
+            })();
+            if (delta > 0) {
+              syncJobFinance(org, p.work_order_id, null);
+              audit(org, 'payment.refunded', p.id, { refunded_cents: delta, refunded_total_cents: total, full });
+              await flag(org, p, `${money(delta)} was refunded in Stripe. The job balance has been updated.`);
+            }
+            outcome = delta > 0 ? 'refunded' : 'refund_already_applied';
           }
-          try { db.prepare("UPDATE fin_refunds SET status='completed',updated_at=? WHERE payment_id=? AND status='submitted'").run(at, p.id); } catch { /* finance module not installed */ }
-          outcome = delta > 0 ? 'refunded' : 'refund_already_applied';
         }
       }
     } catch (err) { db.prepare(`DELETE FROM payment_events WHERE provider='stripe' AND event_id=?`).run(String(ev.id)); console.error('[payments] stripe webhook failed:', err.message); return res.status(500).json({ ok: false }); }
@@ -630,10 +655,27 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
 
   // Phase 08: refunds go back through the business's own Stripe account (never a platform account). Idempotent by key.
   async function refundStripe(org, payment, amountCents, idempotencyKey) {
+    if (payment?.organisation_id !== org) throw Object.assign(new Error('Payment not found.'), { status: 404, permanent: true });
     const raw = settingsRow(org);
     if (!raw?.stripe_secret_enc) throw Object.assign(new Error('Connect Stripe in payment settings first.'), { status: 409, permanent: true });
     if (!payment?.reference) throw Object.assign(new Error('This payment has no Stripe payment reference, so it cannot be refunded automatically. Refund it in Stripe and record it.'), { status: 409, permanent: true });
-    const r = await stripeCall(raw, 'POST', 'refunds', { payment_intent: payment.reference, amount: requireStripeUnits(amountCents, payment.currency || 'aud'), reason: 'requested_by_customer', metadata: { payment_id: payment.id, organisation_id: org } }, idempotencyKey);
+    const currency = payment.currency || 'aud';
+    requireStripeUnits(payment.amount_cents, currency);
+    requireStripeUnits(payment.refunded_cents || 0, currency);
+    const amount = requireStripeUnits(amountCents, currency);
+    const needsReview = () => Object.assign(
+      new Error('Stripe did not confirm the refund details. Reconcile the provider record before changing balances.'),
+      { status: 502, permanent: true, code: 'REFUND_RECONCILIATION_REQUIRED' },
+    );
+    let r;
+    try {
+      r = await stripeCall(raw, 'POST', 'refunds', { payment_intent: payment.reference, amount, reason: 'requested_by_customer', metadata: { payment_id: payment.id, organisation_id: org } }, idempotencyKey);
+    } catch (error) {
+      if (error.status === 502) throw needsReview();
+      throw error;
+    }
+    if (typeof r?.id !== 'string' || !r.id || r.amount !== amount ||
+        !['succeeded', 'pending', 'requires_action'].includes(r.status)) throw needsReview();
     return { id: r.id, status: r.status, amount: r.amount };
   }
   return { runCycle, markPaid, createRequest, refundStripe };

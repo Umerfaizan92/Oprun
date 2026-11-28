@@ -6,7 +6,7 @@ import { installPayments } from '../src/payments.js';
 import { majorToLedgerExact, requireStripeUnits, ledgerFromStripeUnits } from '../src/payment-precision.js';
 import { createFinance } from '../src/finance/service.js';
 
-function fixture(currency) {
+function fixture(currency, providerResponse) {
   const db = createDb(':memory:'), routes = new Map(), calls = [];
   // The finance installer adds this column during real server startup.
   db.exec('ALTER TABLE job_payments ADD COLUMN refunded_cents INTEGER NOT NULL DEFAULT 0');
@@ -18,10 +18,10 @@ function fixture(currency) {
   db.prepare('INSERT INTO work_orders(id,organisation_id,title,start_at,price_cents,paid_cents,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').run(job, org, 'Synthetic paid job', now, 100000, 100000, now, now);
   db.prepare("INSERT INTO job_payments(id,organisation_id,work_order_id,provider,method,status,amount_cents,currency,reference,created_at,updated_at) VALUES (?,?,?,'stripe','card','paid',100000,?,'pi_synthetic',?,?)").run(id, org, job, currency.toLowerCase(), now, now);
   const payments = installPayments(app, { db, env: {}, runtime: { decryptBundle: v => ({ v }) }, requireSaasUser() {}, requireSaasRole: () => () => {}, saasAudit() {}, financeRoles: ['owner'], syncJobFinance() {},
-    fetchImpl: async (url, options) => { calls.push({ url, options, params: new URLSearchParams(options.body) }); return { ok: true, json: async () => ({ id: 'refund_synthetic', status: 'succeeded', amount: Number(calls.at(-1).params.get('amount')) }) }; } });
+    fetchImpl: async (url, options) => { calls.push({ url, options, params: new URLSearchParams(options.body) }); return { ok: true, json: async () => providerResponse ?? ({ id: 'refund_synthetic', status: 'succeeded', amount: Number(calls.at(-1).params.get('amount')) }) }; } });
   const payment = () => db.prepare('SELECT * FROM job_payments WHERE id=?').get(id);
-  const hook = async (amount, eventId = crypto.randomUUID(), eventCurrency = currency.toLowerCase()) => {
-    const body = { id: eventId, type: 'charge.refunded', data: { object: { payment_intent: 'pi_synthetic', amount_refunded: amount, currency: eventCurrency } } };
+  const hook = async (amount, eventId = crypto.randomUUID(), eventCurrency = currency.toLowerCase(), refunds) => {
+    const body = { id: eventId, type: 'charge.refunded', data: { object: { payment_intent: 'pi_synthetic', amount_refunded: amount, currency: eventCurrency, refunds } } };
     const rawBody = JSON.stringify(body), t = Math.floor(Date.now() / 1000), sig = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
     const req = { params: { orgId: org }, body, rawBody, get: () => `t=${t},v1=${sig}` };
     const res = { statusCode: 200, status(code) { this.statusCode = code; return this; }, json(value) { this.value = value; return this; } };
@@ -142,4 +142,60 @@ test('signed refund with a different currency leaves the ledger unchanged', asyn
     assert.equal(f.payment().refunded_cents, 0);
     assert.equal(f.db.prepare('SELECT paid_cents FROM work_orders WHERE id=?').get(f.job).paid_cents, 100000);
   } finally { f.db.close(); }
+});
+
+
+test('inexact historical totals and missing provider currency preserve balances', async () => {
+  const f = fixture('JPY');
+  try {
+    const before = f.payment();
+    assert.equal((await f.hook(50, undefined, null)).value.outcome, 'currency_mismatch');
+    assert.deepEqual(f.payment(), before);
+    f.db.prepare('UPDATE job_payments SET amount_cents=5050 WHERE id=?').run(before.id);
+    const legacy = f.payment();
+    assert.equal((await f.hook(51)).value.outcome, 'amount_precision_review');
+    assert.deepEqual(f.payment(), legacy);
+    await assert.rejects(f.payments.refundStripe(f.org, legacy, 5000, 'synthetic'), /precision/i);
+    assert.equal(f.calls.length, 0);
+  } finally { f.db.close(); }
+});
+
+test('only the matching tenant refund receipt completes a submitted request', async () => {
+  const f = fixture('AUD');
+  try {
+    f.db.exec('CREATE TABLE tenant_documents(id TEXT PRIMARY KEY,organisation_id TEXT)');
+    createFinance({ db: f.db });
+    const insert = f.db.prepare(`INSERT INTO fin_refunds
+      (id,organisation_id,payment_id,work_order_id,amount_cents,reason,status,provider,provider_ref,created_at,updated_at)
+      VALUES (?,?,?,?,?,'synthetic','submitted','stripe',?,'initial','initial')`);
+    const { id } = f.payment();
+    insert.run('matching', f.org, id, f.job, 5000, 'refund_match');
+    insert.run('other', f.org, id, f.job, 5000, 'refund_other');
+    insert.run('foreign', crypto.randomUUID(), id, f.job, 5000, 'refund_match');
+    await f.hook(0);
+    assert.equal(f.db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE status='completed'").get().n, 0);
+    const receipt = { id: 'refund_match', status: 'succeeded', currency: 'aud', amount: 5000 };
+    await f.hook(5000, undefined, 'aud', { data: [{ ...receipt, amount: 4999 }] });
+    assert.equal(f.db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE status='completed'").get().n, 0);
+    const event = crypto.randomUUID();
+    await f.hook(5000, event, 'aud', { data: [receipt] });
+    assert.equal((await f.hook(5000, event, 'aud', { data: [receipt] })).value.duplicate, true);
+    assert.deepEqual(f.db.prepare("SELECT id FROM fin_refunds WHERE status='completed'").all(), [{ id: 'matching' }]);
+    assert.equal(f.payment().refunded_cents, 5000);
+    assert.equal(f.db.prepare('SELECT paid_cents FROM work_orders WHERE id=?').get(f.job).paid_cents, 95000);
+  } finally { f.db.close(); }
+});
+
+test('ambiguous refund responses and foreign payments do not change local balances', async () => {
+  for (const response of [{}, { id: 'refund_synthetic', status: 'unknown', amount: 5000 },
+    { id: 'refund_synthetic', status: 'succeeded', amount: 4900 }]) {
+    const f = fixture('AUD', response);
+    try {
+      const before = f.payment();
+      await assert.rejects(f.payments.refundStripe(crypto.randomUUID(), before, 5000, 'synthetic'), { status: 404 });
+      assert.equal(f.calls.length, 0);
+      await assert.rejects(f.payments.refundStripe(f.org, before, 5000, 'synthetic'), { status: 502 });
+      assert.deepEqual(f.payment(), before);
+    } finally { f.db.close(); }
+  }
 });

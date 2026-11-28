@@ -360,11 +360,16 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   }
 
   // ---------------- refunds: Level 3 ----------------
+  const refundNeedsReview = db.prepare(`SELECT 1 FROM fin_refunds
+    WHERE organisation_id=? AND payment_id=? AND status='submitted' AND provider_ref IS NULL AND error IS NOT NULL`);
   function requestRefund(org, paymentId, actor, { amount_cents, reason }) {
     const p = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(paymentId, org); if (!p) return E(404, 'Payment not found.');
     if (p.status !== 'paid') return E(409, 'Only a received payment can be refunded.');
     if (p.provider === 'stripe') { try { requireStripeUnits(amount_cents, p.currency || 'aud'); } catch (err) { return E(400, err.message); } }
-    const waiting = db.prepare("SELECT COALESCE(SUM(amount_cents),0) n FROM fin_refunds WHERE payment_id=? AND status IN ('pending_approval','approved','submitted','awaiting_manual')").get(p.id).n;
+    if (refundNeedsReview.get(org, p.id)) {
+      return E(409, 'A refund needs provider reconciliation before another refund can be requested.');
+    }
+    const waiting = db.prepare("SELECT COALESCE(SUM(amount_cents),0) n FROM fin_refunds WHERE organisation_id=? AND payment_id=? AND status IN ('pending_approval','approved','submitted','awaiting_manual')").get(org, p.id).n;
     const max = p.amount_cents - (p.refunded_cents || 0) - waiting;
     if (!(amount_cents >= 1 && amount_cents <= max)) return E(400, max > 0 ? `Refund between $0.01 and ${moneyOf(org)(max)}.` : 'This payment is already fully refunded or has a refund waiting.');
     const id = uid(), at = now(), provider = p.provider === 'stripe' && p.reference ? 'stripe' : p.provider;
@@ -394,10 +399,24 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     const r = db.prepare('SELECT * FROM fin_refunds WHERE id=? AND organisation_id=?').get(p.refund_id, org);
     if (!r) throw Object.assign(new Error('Refund request not found.'), { permanent: true });
     if (['submitted', 'completed', 'awaiting_manual'].includes(r.status)) return { ref: r.id, summary: `Refund already ${r.status.replace('_', ' ')}.` };
-    const pay = db.prepare('SELECT * FROM job_payments WHERE id=?').get(r.payment_id);
+    const pay = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(r.payment_id, org);
+    if (!pay) throw Object.assign(new Error('Payment not found.'), { permanent: true });
     if (r.provider === 'stripe') {
+      if (refundNeedsReview.get(org, pay.id)) {
+        throw Object.assign(new Error('A refund needs provider reconciliation before another refund can execute.'), { permanent: true });
+      }
       if (!payments?.refundStripe) throw Object.assign(new Error('Stripe refunds are not available.'), { permanent: true });
-      const out = await payments.refundStripe(org, pay, r.amount_cents, `sp-refund-${r.id}`);
+      let out;
+      try {
+        out = await payments.refundStripe(org, pay, r.amount_cents, `sp-refund-${r.id}`);
+      } catch (error) {
+        if (error.code === 'REFUND_RECONCILIATION_REQUIRED') {
+          db.prepare("UPDATE fin_refunds SET status='submitted',error=?,updated_at=? WHERE id=? AND organisation_id=? AND status IN ('pending_approval','approved')")
+            .run(error.message, now(), r.id, org);
+          audit(org, approver, 'finance.refund_needs_review', 'fin_refund', r.id, { payment: pay.id });
+        }
+        throw error;
+      }
       db.prepare("UPDATE fin_refunds SET status=?,provider_ref=?,updated_at=? WHERE id=?").run(out.status === 'succeeded' ? 'completed' : 'submitted', out.id, now(), r.id);
       if (out.status === 'succeeded') { applyRefundTotal(org, pay.id, (pay.refunded_cents || 0) + r.amount_cents, 'Stripe'); syncJobFinance(org, r.work_order_id, approver); }
       audit(org, approver, 'finance.refund_submitted', 'fin_refund', r.id, { provider: 'stripe', provider_ref: out.id, status: out.status, amount_cents: r.amount_cents });

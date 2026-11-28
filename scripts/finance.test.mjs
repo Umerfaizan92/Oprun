@@ -47,6 +47,7 @@ async function mockStripe() {
       calls.push({ path: req.url, auth: req.headers.authorization, idem: req.headers['idempotency-key'], params });
       const send = (o) => { res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
       if (req.url === '/v1/checkout/sessions') return send({ id: 'cs_test_' + crypto.randomUUID().slice(0, 8), url: 'https://checkout.stripe.example/pay' });
+      if (req.url === '/v1/refunds' && params.payment_intent === 'pi_ambiguous') return send({});
       if (req.url === '/v1/refunds') return send({ id: 're_' + crypto.createHash('sha1').update(req.headers['idempotency-key'] || '').digest('hex').slice(0, 10), status: 'succeeded', amount: Number(params.amount) });
       res.writeHead(404); res.end('{}');
     });
@@ -188,9 +189,9 @@ test('adjustment notes and refunds need approval; refunds go through the busines
   assert.equal(refundCall.auth, `Bearer ${BIZ_KEY}`); assert.equal(refundCall.params.payment_intent, 'pi_test_2'); assert.equal(refundCall.params.amount, '5000'); assert.match(refundCall.idem, /^sp-refund-/);
   assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', job2)[0].paid_cents, 17000);
   // Stripe then reports the refund (running total 5000): already applied, so nothing changes. A later 3000 refund adds only 3000.
-  await stripeHook({ id: 'evt_ref_1', type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', amount_refunded: 5000 } } });
+  await stripeHook({ id: 'evt_ref_1', type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', currency: 'aud', amount_refunded: 5000 } } });
   assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', job2)[0].paid_cents, 17000, 'the same refund is not counted twice');
-  await stripeHook({ id: 'evt_ref_2', type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', amount_refunded: 8000 } } });
+  await stripeHook({ id: 'evt_ref_2', type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', currency: 'aud', amount_refunded: 8000 } } });
   assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', job2)[0].paid_cents, 14000);
   assert.equal(sql('SELECT refunded_cents FROM job_payments WHERE id=?', p2.id)[0].refunded_cents, 8000);
   // A rejected refund request closes and moves nothing.
@@ -203,6 +204,28 @@ test('adjustment notes and refunds need approval; refunds go through the busines
   const aud = await O('GET', '/api/saas/finance/audit'); assert.equal(aud.status, 200, aud.text); const ev = aud.json.events.map((e) => e.action);
   for (const a of ['finance.invoice_issued', 'finance.credit_note_requested', 'finance.credit_note_issued', 'finance.refund_requested', 'finance.refund_submitted', 'finance.refund_completed']) assert.ok(ev.includes(a), 'audit has ' + a);
   void s;
+});
+
+test('an ambiguous Stripe refund holds the payment for reconciliation and blocks another request', async (t) => {
+  const { stripe, owner, O, sql, job, approve, stop } = await setup();
+  t.after(stop);
+  const jobId = job('Synthetic refund review', 10000), payment = crypto.randomUUID();
+  const at = new Date().toISOString();
+  sql('UPDATE work_orders SET paid_cents=10000 WHERE id=?', jobId);
+  sql(`INSERT INTO job_payments (id,organisation_id,work_order_id,provider,method,status,amount_cents,currency,reference,created_at,updated_at)
+    VALUES (?,?,?,'stripe','card','paid',10000,'aud','pi_ambiguous',?,?)`, payment, owner.org, jobId, at, at);
+  const route = `/api/saas/finance/payments/${payment}/refund`;
+  const first = await O('POST', route, { amount: 10, reason: 'Synthetic provider response review' });
+  assert.equal(first.status, 201, first.text);
+  await approve(first.json.run_id);
+  const [refund] = sql('SELECT status,provider_ref,error FROM fin_refunds WHERE id=?', first.json.refund_id);
+  assert.equal(refund.status, 'submitted');
+  assert.equal(refund.provider_ref, null);
+  assert.match(refund.error, /Reconcile the provider record/);
+  assert.equal((await O('POST', route, { amount: 10, reason: 'Synthetic duplicate attempt' })).status, 409);
+  assert.equal(stripe.calls.filter(call => call.path === '/v1/refunds').length, 1);
+  assert.equal(sql('SELECT refunded_cents FROM job_payments WHERE id=?', payment)[0].refunded_cents, 0);
+  assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', jobId)[0].paid_cents, 10000);
 });
 
 test('reconciliation: bank import with duplicates ignored, suggested matches, confirm, categorise and learn, undo; recorded payments missing from the bank', async (t) => {
