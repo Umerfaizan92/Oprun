@@ -1,5 +1,7 @@
 # PRG-06 / T-273 — independent preservation and recommendation review
 
+UPDATE: The user subsequently supplied the original text and authorised a new documentation-only preservation commit. See GROK-PRG06-VERIFICATION-2026-11-28.md for current preservation, actual commit, source results and corrections. The missing-original findings below are retained as historical observations, not current blockers. Original Grok Git provenance remains unverified.
+
 Status: PARTIAL / BLOCKED on original report and Grok-local Git objects. This is a separate correction/review record, not a substitute for Grok's report.
 Reviewer: ChatGPT. Checked 28 November 2026. Stated research base: 234f56d9818da0590d5dabf1a4fa7b7a8139a7dd.
 User supplied instructions and four recommendations to challenge, but no report body, attachment, bundle or patch was available in this session. Original contents cannot be preserved or reviewed byte-for-byte until received. No claim adapters were started. Claude's assigned files and ownership remain unchanged.

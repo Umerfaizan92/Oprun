@@ -436,15 +436,29 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: JPY KWD AUD outbound and signed webhook refund tests; duplicate delivery and currency mismatch; finance and tenant regressions pass
 
 ## T-272 PRG-04 define exact monetary precision for three-decimal currencies
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-28
 - Requirement: Audit found internal hundredths cannot represent all externally initiated three-decimal refunds; release gate remains for this precision
 - Files: src/country-rules.js; src/payments.js; src/finance; schema and regression tests after scoped design review
 - Acceptance: Explicit supported currency precision contract; no silent ledger rounding; migration or safe unsupported-precision handling tested; independent review; no live data changes without approval
 
 ## T-280 PRG-02 queue tenant and type idempotency investigation - Claude reserved
-- Status: NOT_STARTED
+- Status: TESTING
 - Added: 2026-11-28
 - Requirement: Owner Claude proposed assignment; inspect INITIAL-CHECKPOINT Claude section; acceptance not assumed; reserve T-280 to avoid task ID collision across isolated branches
 - Files: src/job-queue.js; scripts/programme-queue-isolation.test.mjs; docs/programme/CLAUDE-PRG02.md
 - Acceptance: Synthetic tenant/type/platform duplicate tests and caller reachability; minimal data-preserving correction if confirmed; independent ChatGPT review; no deployment
+
+## T-273 PRG-06 independent Grok preservation and research review
+- Status: TESTING
+- Added: 2026-11-28
+- Requirement: Owner supplied verification instructions; original research report and claimed local commit inaccessible; preserve original separately and verify sources and code at stated base before adopting recommendations
+- Files: docs/programme/GROK-PRG06-REVIEW-2026-11-28.md; original research branch file only after exact original received
+- Acceptance: Remote branch and commit parent evidence; original byte preservation; correction matrix with official sources and base code; bounded assignments without changing active ownership
+
+## T-274 PRG-04 scoped queue idempotency migration and recovery design
+- Status: NOT_STARTED
+- Added: 2026-11-28
+- Requirement: Schedule true tenant/type-scoped idempotency after PRG-02 fail-closed fix; design only until migration and recovery approval; retain legacy keys, existing rows and automation resume key lookup
+- Files: docs/programme scoped-jobs design only; migrations and runtime files remain unassigned pending reviewed plan
+- Acceptance: Tenant/type/platform key-space contract; additive or reversible migration plan; legacy key and row preservation; concurrent writer, rollback, restore and deployment gates reviewed; no production migration

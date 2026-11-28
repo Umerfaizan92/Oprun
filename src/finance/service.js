@@ -8,6 +8,7 @@
 // Rules: issued documents never change. Corrections are made with an adjustment note. Refunds, credit notes and other
 // financial adjustments run through the automation engine as Level 3 actions, so a named person approves each one.
 import crypto from 'node:crypto';
+import { requireStripeUnits } from '../payment-precision.js';
 import { appendAuditLog } from '../db.js';
 import { taxRulesFor, formatMoney, formatDate, currencyFor, einvoicingWarning } from '../country-rules.js';
 import { rulesFor, rulesetById, documentTotals, lineAmounts, checkDocument, title as docTitle, abnValid, formatAbn, basDraft, TAX_CODES } from './rules.js';
@@ -362,6 +363,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   function requestRefund(org, paymentId, actor, { amount_cents, reason }) {
     const p = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(paymentId, org); if (!p) return E(404, 'Payment not found.');
     if (p.status !== 'paid') return E(409, 'Only a received payment can be refunded.');
+    if (p.provider === 'stripe') { try { requireStripeUnits(amount_cents, p.currency || 'aud'); } catch (err) { return E(400, err.message); } }
     const waiting = db.prepare("SELECT COALESCE(SUM(amount_cents),0) n FROM fin_refunds WHERE payment_id=? AND status IN ('pending_approval','approved','submitted','awaiting_manual')").get(p.id).n;
     const max = p.amount_cents - (p.refunded_cents || 0) - waiting;
     if (!(amount_cents >= 1 && amount_cents <= max)) return E(400, max > 0 ? `Refund between $0.01 and ${moneyOf(org)(max)}.` : 'This payment is already fully refunded or has a refund waiting.');

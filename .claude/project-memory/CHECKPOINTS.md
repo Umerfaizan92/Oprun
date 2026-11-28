@@ -3475,3 +3475,59 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T022436Z (048d8db)
 - Known errors: none
 - Next exact action: Independently review payment diff and regression evidence, then design and test exact currency precision handling under T-272; continue security audit
+
+## CP-249 2026-11-28T10:32:04+08:00 T-272 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-272 (IN_PROGRESS)
+- Completed steps: Reproduced eight precision and Stripe special-currency failures; exact amount helpers and payment/refund validation implemented; focused and finance regressions running
+- Incomplete steps: Complete negative boundary tests and full regression; independent review remains required
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; scripts/programme-payment-currency.test.mjs; src/finance/routes.js; src/finance/service.js; src/payments.js; src/payment-precision.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 348e2af (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 5 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T023204Z (107fa1a)
+- Known errors: none
+- Next exact action: Read T272 regression log, correct any failures, run full npm test, preserve evidence on audit branch
+
+## CP-250 2026-11-28T10:33:03+08:00 T-272 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-272 (TESTING)
+- Completed steps: 29 payment precision, finance and country regressions pass; exact decimal parsing and Stripe conversion guards implemented; D-095 records bounded no-migration approach
+- Incomplete steps: Full npm regression running; independent review and actual provider verification remain required; no production change
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; scripts/programme-payment-currency.test.mjs; src/finance/routes.js; src/finance/service.js; src/payments.js; src/payment-precision.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 348e2af (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 5 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T023303Z (d6ca457)
+- Known errors: none
+- Next exact action: Read full regression result, preserve T272 report and candidate remotely, then independent payment review and PRG03 security/recovery continuation
+
+## CP-251 2026-11-28T10:38:13+08:00 T-272 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-272 (TESTING)
+- Completed steps: 29 focused regressions pass; precision candidate and design D-095 preserved; T-273 source and provenance review recorded separately with original missing and no research publication
+- Incomplete steps: Full regression pending; independent payment review; original Grok report/bundle needed to verify commit parent and publish unchanged research file
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; scripts/programme-payment-currency.test.mjs; src/finance/routes.js; src/finance/service.js; src/payments.js; docs/programme/GROK-PRG06-REVIEW-2026-11-28.md; docs/programme/PRECISION-CHECKPOINT-2026-11-28.md; src/payment-precision.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 348e2af (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 5 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T023813Z (b4045c5)
+- Known errors: none
+- Next exact action: Finish T272 full regression then publish audit candidate; request exact Grok report and bundle, review all cited sources before research publication; keep Claude ownership
+
+## CP-252 2026-11-28T10:56:09+08:00 T-272 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-272 (TESTING)
+- Completed steps: T272 full Node22 regression 73/73, 131 contract files, focused 29/29 and metadata memory tests 6/6 pass; Grok user copy preserved as new commit 28b889f; Claude ancestry and initial strict review verified in separate checkout
+- Incomplete steps: Queue full review running; Claude test/report corrections and integration manifest gate; independent payment acceptance; Grok addenda text and four blocked sources
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/programme/GROK-PRG06-REVIEW-2026-11-28.md; docs/programme/PRECISION-CHECKPOINT-2026-11-28.md; scripts/memory/checkpoint.mjs; scripts/programme-payment-currency.test.mjs; src/finance/routes.js; src/finance/service.js; src/payment-precision.js; src/payments.js; docs/programme/GROK-PRG06-VERIFICATION-2026-11-28.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 348e2af (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 5 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T025609Z (9e4c764)
+- Known errors: none
+- Next exact action: Finish PRG02 full regression, publish isolated reviewer evidence and consolidated handover; route corrections through central coordinator without changing active ownership

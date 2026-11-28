@@ -1,6 +1,7 @@
 // Phase 08: HTTP routes for subscriber finance (/api/saas/finance/...), subscriber plan changes, and platform finance in
 // the Founder Console (/api/operator/finance/...). The organisation always comes from the signed-in session.
 import { z } from 'zod';
+import { majorToLedgerExact } from '../payment-precision.js';
 import rateLimit from 'express-rate-limit';
 import { RULESETS, rulesFor, TAX_CODES } from './rules.js';
 import { CATEGORIES } from './service.js';
@@ -70,7 +71,7 @@ export function installFinanceRoutes(app, { db, finance, platformFinance, requir
   app.get('/api/saas/finance/refunds', ...read, wrap((req, res) => res.json({ ok: true, refunds: finance.refunds(org(req)) })));
   app.post('/api/saas/finance/payments/:id/refund', limiter, ...money, wrap(async (req, res) => {
     const b = P(z.object({ amount: z.number().positive().max(1000000), reason: z.string().trim().min(5).max(500) }).strict(), req.body);
-    const r = finance.requestRefund(org(req), req.params.id, me(req), { amount_cents: cents(b.amount), reason: b.reason });
+    const r = finance.requestRefund(org(req), req.params.id, me(req), { amount_cents: majorToLedgerExact(b.amount), reason: b.reason });
     if (!r.ok) return send(res, r); await r.promise;
     res.status(201).json({ ok: true, refund_id: r.refund_id, run_id: r.run_id, message: 'Refund request sent for approval. No money moves until an authorised person approves it.' });
   }));
