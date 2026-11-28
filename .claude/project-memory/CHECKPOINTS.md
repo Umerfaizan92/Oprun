@@ -3559,3 +3559,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Coordinator reads docs/programme/CLAUDE-PRG03-INDEPENDENT-REVIEW.md and allocates implementation; Claude makes no code change to Codex's work
+
+## CP-255 2026-11-28T09:23:21+00:00 T-271 TESTING
+- Phase: Programme audit and independent acceptance
+- Task: T-271 (TESTING)
+- Completed steps: Independent PRG-03 re-acceptance of 09fcd0b: NOT ACCEPTED (G1, G2 unmet mandatory requirements)
+- Incomplete steps: Coordinator allocates G1, G2 (G3 optional); rerun mandatory suite on next correction head
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG03-REACCEPTANCE.md; qa/programme/prg03-reacceptance-characterisation.test.mjs; qa/programme/prg03-reacceptance-independent.test.mjs; qa/programme/prg03-reacceptance-worker.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/prg03-reacceptance-20261128
+- Commit: 3d00fec ([skip render] Record F1–F4 regression and reconciliation evidence); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG03-REACCEPTANCE.md
