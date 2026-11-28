@@ -3545,3 +3545,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T030145Z (0c01c70)
 - Known errors: none
 - Next exact action: Read consolidated handover, send bounded queue corrections through central coordinator, review next Claude SHA; obtain existing Grok addenda separately; do not merge/deploy
+
+## CP-254 2026-11-28T08:25:25+00:00 T-271 TESTING
+- Phase: Programme audit and independent acceptance
+- Task: T-271 (TESTING)
+- Completed steps: Independent PRG-03 financial review of 86f4589/22ef8fd; findings F1-F4 with reproducible tests
+- Incomplete steps: Coordinator allocates F1 (blocks acceptance item 4), F2, F3, F4
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG03-INDEPENDENT-REVIEW.md; qa/programme/prg03-independent-financial-review.test.mjs
+- Tests executed: review file x3; finance + programme-payment-currency; npm test; security:secrets
+- Test results: 32 tests 27 pass 0 fail 5 todo (exit 0); 29/29; ALL CHECKS PASSED 73/73 (132 files); PASS 920 files
+- Git branch: claude/prg03-independent-review-20261128
+- Commit: 22ef8fd ([skip render] Assemble isolated programme integration candidate); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG03-INDEPENDENT-REVIEW.md and allocates implementation; Claude makes no code change to Codex's work
