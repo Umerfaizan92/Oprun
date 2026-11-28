@@ -3531,3 +3531,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T025609Z (9e4c764)
 - Known errors: none
 - Next exact action: Finish PRG02 full regression, publish isolated reviewer evidence and consolidated handover; route corrections through central coordinator without changing active ownership
+
+## CP-253 2026-11-28T11:01:45+08:00 T-280 TESTING
+- Phase: Programme audit and independent acceptance
+- Task: T-280 (TESTING)
+- Completed steps: Queue full Node22 73/73,131 contracts; 88 targeted and strict8 pass; root T272 full73/73 and focused35 pass; original user research copy preserved as28b889f; qualified task-ID mapping D096; all ownership preserved
+- Incomplete steps: Claude test/report corrections and final integration manifest; independent payment acceptance; Grok R01/R02 bodies and blocked sources; production release gates
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/coordination/chatgpt.md; docs/programme/CONSOLIDATED-HANDOVER-2026-11-28.md
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: ff0f476 (fix: guard exact payment precision and preserve independent programme reviews); 6 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T030145Z (0c01c70)
+- Known errors: none
+- Next exact action: Read consolidated handover, send bounded queue corrections through central coordinator, review next Claude SHA; obtain existing Grok addenda separately; do not merge/deploy
