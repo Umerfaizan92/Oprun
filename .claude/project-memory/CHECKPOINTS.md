@@ -3545,3 +3545,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T030145Z (0c01c70)
 - Known errors: none
 - Next exact action: Read consolidated handover, send bounded queue corrections through central coordinator, review next Claude SHA; obtain existing Grok addenda separately; do not merge/deploy
+
+## CP-254 2026-11-28T09:00:13+00:00 PRG-04-REVIEW TESTING
+- Phase: Programme audit and independent acceptance
+- Task: PRG-04-REVIEW (TESTING)
+- Completed steps: Independent PRG-04 acceptance of e8ee522: CONDITIONALLY ACCEPTED
+- Incomplete steps: Coordinator allocates O4, O3, P1; combined-tree rerun
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG04-INDEPENDENT-REVIEW.md; qa/programme/prg04-independent-backend-review.test.mjs
+- Tests executed: review file x3; focused 7 files; db-schema; npm test; secrets
+- Test results: 10/10; 43/43; 7/7; ALL CHECKS PASSED 73/73; PASS 924
+- Git branch: claude/prg04-independent-review-20261128
+- Commit: e8ee522 ([skip render] Add owner-approved workspace configuration revisions); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG04-INDEPENDENT-REVIEW.md
