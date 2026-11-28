@@ -21,3 +21,7 @@ Linux x86_64, Node 22.23.5, npm 11.19.1, synthetic SQLite and provider stand-ins
 | `node scripts/verify-manifest.mjs`, `node scripts/secret-scan.mjs`, `node scripts/memory/validate.mjs` | All exit 0. |
 
 Independent review of this correction and separately authorised combined verification remain pending. Ambiguous legacy identity, conflicting chronology and unavailable credentials can require continued holds. The application cannot independently authenticate an external owner evidence reference. No live or Stripe test-mode account operation, production migration, deployment, data deletion, recovery upload or expenditure occurred.
+
+## Evidence clarification appended at Checkpoint 030 (E1)
+
+The original 26-case and 135-case commands in this receipt ran with NODE_ENV=test. Historical stand-ins exercised fingerprint compatibility where account lookup endpoints were absent. These are regression results. Production-path identity evidence comes separately from Claude's independent 12-case suite, whose synthetic workers run with NODE_ENV=production. Checkpoint 030 records versions, environment and the explicit test-only opt-in now required. See [Checkpoint 030](PRG03-FINANCIAL-CHECKPOINT-030.md).
