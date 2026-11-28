@@ -75,6 +75,48 @@ test('workers, contractors and other businesses stay inside their boundaries', a
         ]) await expect(`${role} ${url}`, method, url, c[role], [403, 404]);
       });
     }
+    await t.test('owner-only data exports are tenant-scoped, sanitised and audited', async () => {
+      const route = '/api/saas/data-export';
+      for (const cookie of [undefined, c.managerA, c.workerA, c.contractorA, c.employeeA]) {
+        await expect('export download denied', 'GET', route + '?download=1', cookie, [401, 403, 404]);
+      }
+      const query = new URLSearchParams({ organisation_id: d.orgs.b, download: '1' });
+      const response = await fetch(s.base + route + '?' + query, {
+        headers: { cookie: c.ownerA, origin: s.base },
+      });
+      assert.equal(response.status, 200);
+      assert.match(response.headers.get('content-disposition'), /^attachment;/);
+      assert.equal(response.headers.get('cache-control'), 'no-store');
+      const body = await response.json();
+      assert.equal(body.organisation_id, d.orgs.a);
+      assert.deepEqual(body.tables.organisation.map(row => row.id), [d.orgs.a]);
+      assert.ok(body.tables.work_orders.some(row => row.id === d.assignedJob));
+      assert.ok(!JSON.stringify(body).includes(d.jobB));
+      for (const row of body.tables.members) {
+        assert.equal(row.password_hash, undefined);
+        assert.equal(row.password_salt, undefined);
+        assert.equal(row.token_hash, undefined);
+      }
+      await expect('unknown export table', 'GET', route + '?table=payment_settings', c.ownerA, 400);
+      const csv = await fetch(s.base + route + '?format=csv&table=work_orders', {
+        headers: { cookie: c.ownerB, origin: s.base },
+      });
+      assert.equal(csv.status, 200);
+      assert.match(csv.headers.get('content-disposition'), /^attachment;/);
+      assert.equal(csv.headers.get('cache-control'), 'no-store');
+      const csvBody = await csv.text();
+      assert.ok(csvBody.includes(d.jobB));
+      assert.ok(!csvBody.includes(d.assignedJob));
+      const db = new Database(s.dbPath, { readonly: true });
+      try {
+        const rows = db.prepare("SELECT organisation_id,user_id,entity_id FROM audit_logs WHERE action='privacy.data_exported'").all();
+        for (const [tenant, owner] of [['a', 'ownerA'], ['b', 'ownerB']]) {
+          assert.ok(rows.some(row => row.organisation_id === d.orgs[tenant] &&
+            row.user_id === d.users[owner] && row.entity_id === d.orgs[tenant]));
+        }
+      } finally { db.close(); }
+    });
+
     await t.test('another business cannot read or change records by id', async () => {
       await expect('B reads A customer', 'GET', `/api/saas/customers/${d.customerA}`, c.ownerB, 404);
       await expect('B edits A customer', 'PATCH', `/api/saas/customers/${d.customerA}`, c.ownerB, [400, 404], { name: 'Hijacked' });
