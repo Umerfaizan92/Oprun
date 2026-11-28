@@ -68,3 +68,7 @@ Return maximum ten priority recommendations mapped to PRG IDs, with acceptance c
 Current work is documentation only. Publish this checkpoint on codex/programme-audit-20261128, never main/staging (which may auto-deploy). Record publication receipt in final reply and verify content.
 Next ChatGPT action: establish Node22/dependencies in isolated clone, run existing tenant/queue/payment/operator suites, inspect all enqueue callers, then verify Claude's PRG-02 diff against base. Ask owner to confirm Render workspace tea-dajtb13m8hqs739l6v50 before service reads; then retrieve live SHA/config and compare with main without mutations.
 No supported automatic cross-platform continuation has been configured. Resume requires reopening this checkpoint and checking current Git state; never rely on chat memory. Claude/Grok assignments have not been sent to or accepted by those platforms.
+
+## Coordination amendment — subsequent 28 November audit batch
+
+Render verification now exists in RENDER-CHECKPOINT-2026-11-28.md. Payment candidate and limitations are in PAYMENT-AUDIT-2026-11-28.md. ChatGPT owns T-271 (refund units) and T-272 (precision decision). Reserve T-280 for Claude PRG-02: use the existing task ID, or memory:task add --id T-280 if absent on the assigned exact-base branch. Do not allocate T-271/T-272 from that older base. Claude runtime boundaries and base SHA remain unchanged. Assignments are still proposed until their sessions accept them; no branch publication was observed at the latest check.

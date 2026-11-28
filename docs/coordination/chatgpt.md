@@ -1,5 +1,13 @@
 # ChatGPT coordination
 
+## 28 November 2026 — Programme audit PRG-03 / T-271
+
+- Current programme register and bounded Claude/Grok ownership: docs/programme/INITIAL-CHECKPOINT-2026-11-28.md. This index preserves legacy T/MB registers; delivery order follows the owner's current programme brief. Do not resume the old CP-245 timed legacy-service operation.
+- Owner confirmed Render My Workspace. Verified production a691cf5, deploy dep-dc4rgrg473hc73a0sdgg LIVE; health path configured, 6/6 fresh read-only smoke checks pass. Main 234f56d is one test-only commit ahead. Production auto-deploys main; staging also has auto-deploy configured. No main/staging push or deployment is authorized.
+- codex/programme-audit-20261128 owns audit and src/payments.js correction only. Claude PRG-02 owns src/job-queue.js and its assigned new test/report; untouched here. Grok PRG-06 owns research report; no other-platform acceptance/results assumed.
+- Node22 dependencies installed, baseline seven suites 51 assertions pass. Confirmed non-two-decimal refund defect using 4 expected failing assertions (JPY/KWD) plus AUD controls. Candidate corrects outbound/inbound units and refuses mismatched event currency for ledger mutation. Seven new refund tests pass; full npm regression passes 73/73 including 131 contract files. Candidate is not independently approved or deployed. T-272 tracks unresolved exact precision for zero/three-decimal currencies; those flows remain release-gated.
+- Report, limitations and reviewer checklist: docs/programme/PAYMENT-AUDIT-2026-11-28.md. Recovery checkpoints preserve WIP. Exact next action: independently review the preserved candidate, resolve T-272 precision design/validation, and continue PRG-03 security/recovery evidence. Claude uses reserved T-280 for PRG-02 to avoid task-ID collisions from the older base.
+
 ##21November2026 — Direction A approved; T194 candidate PR167
 
 - Owner selected A. D047/CP154–157 record authorization for staged implementation; production approval still separate. Branch codex/t194-media-studio is based on currentmain58fc72b with T195 docs preserved. No main change, deployment, funded call or new infrastructure.

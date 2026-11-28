@@ -559,8 +559,13 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
         const p = db.prepare(`SELECT * FROM job_payments WHERE organisation_id=? AND provider='stripe' AND reference=?`).get(org, obj.payment_intent);
         // Stripe reports the running total refunded on the charge. Only the increase since the last message is applied, so
         // several partial refunds, repeats and refunds Oprun already applied are each counted once (Phase 08 fix).
-        if (p && ['paid', 'refunded'].includes(p.status)) {
-          const total = Math.min(p.amount_cents, Number(obj.amount_refunded) || 0), delta = total - (p.refunded_cents || 0), full = total >= p.amount_cents, at = iso();
+        if (p && ['paid', 'refunded'].includes(p.status) && obj.currency && String(obj.currency).toLowerCase() !== String(p.currency || 'aud').toLowerCase()) {
+          outcome = 'currency_mismatch';
+          await flag(org, p, 'Stripe reported a refund in a different currency. Check Stripe before changing this job balance.');
+        } else if (p && ['paid', 'refunded'].includes(p.status)) {
+          // Ledger amounts are hundredths, whereas Stripe reports currency minor units.
+          const refundedCents = Math.round((Number(obj.amount_refunded) || 0) * 10 ** (2 - minorDigits(String(p.currency || 'aud').toUpperCase())));
+          const total = Math.min(p.amount_cents, refundedCents), delta = total - (p.refunded_cents || 0), full = total >= p.amount_cents, at = iso();
           if (delta > 0) {
             db.transaction(() => { db.prepare(`UPDATE job_payments SET status=?,refunded_cents=?,note=?,updated_at=? WHERE id=?`).run(full ? 'refunded' : 'paid', total, full ? 'Refunded in Stripe' : `${money(total)} refunded in Stripe`, at, p.id); db.prepare(`UPDATE work_orders SET paid_cents=MAX(0,paid_cents-?),updated_at=? WHERE id=?`).run(delta, at, p.work_order_id); })();
             syncJobFinance(org, p.work_order_id, null); audit(org, 'payment.refunded', p.id, { refunded_cents: delta, refunded_total_cents: total, full }); await flag(org, p, `${money(delta)} was refunded in Stripe. The job balance has been updated.`);
@@ -620,7 +625,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     const raw = settingsRow(org);
     if (!raw?.stripe_secret_enc) throw Object.assign(new Error('Connect Stripe in payment settings first.'), { status: 409, permanent: true });
     if (!payment?.reference) throw Object.assign(new Error('This payment has no Stripe payment reference, so it cannot be refunded automatically. Refund it in Stripe and record it.'), { status: 409, permanent: true });
-    const r = await stripeCall(raw, 'POST', 'refunds', { payment_intent: payment.reference, amount: amountCents, reason: 'requested_by_customer', metadata: { payment_id: payment.id, organisation_id: org } }, idempotencyKey);
+    const r = await stripeCall(raw, 'POST', 'refunds', { payment_intent: payment.reference, amount: toMinorUnits(amountCents, String(payment.currency || 'aud').toUpperCase()), reason: 'requested_by_customer', metadata: { payment_id: payment.id, organisation_id: org } }, idempotencyKey);
     return { id: r.id, status: r.status, amount: r.amount };
   }
   return { runCycle, markPaid, createRequest, refundStripe };

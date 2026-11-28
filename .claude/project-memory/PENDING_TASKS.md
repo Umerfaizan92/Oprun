@@ -428,3 +428,23 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-29 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
+## T-271 PRG-03 verify and correct Stripe refund currency units
+- Status: TESTING
+- Added: 2026-11-28
+- Requirement: Audit payment integrity; reproduce non-two-decimal refund errors locally and correct without provider calls
+- Files: src/payments.js; scripts/programme-payment-currency.test.mjs; docs/programme
+- Acceptance: JPY KWD AUD outbound and signed webhook refund tests; duplicate delivery and currency mismatch; finance and tenant regressions pass
+
+## T-272 PRG-04 define exact monetary precision for three-decimal currencies
+- Status: NOT_STARTED
+- Added: 2026-11-28
+- Requirement: Audit found internal hundredths cannot represent all externally initiated three-decimal refunds; release gate remains for this precision
+- Files: src/country-rules.js; src/payments.js; src/finance; schema and regression tests after scoped design review
+- Acceptance: Explicit supported currency precision contract; no silent ledger rounding; migration or safe unsupported-precision handling tested; independent review; no live data changes without approval
+
+## T-280 PRG-02 queue tenant and type idempotency investigation - Claude reserved
+- Status: NOT_STARTED
+- Added: 2026-11-28
+- Requirement: Owner Claude proposed assignment; inspect INITIAL-CHECKPOINT Claude section; acceptance not assumed; reserve T-280 to avoid task ID collision across isolated branches
+- Files: src/job-queue.js; scripts/programme-queue-isolation.test.mjs; docs/programme/CLAUDE-PRG02.md
+- Acceptance: Synthetic tenant/type/platform duplicate tests and caller reachability; minimal data-preserving correction if confirmed; independent ChatGPT review; no deployment

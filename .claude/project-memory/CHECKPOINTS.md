@@ -3433,3 +3433,45 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: At 17:20 UTC read legacy service logs for the S3 snapshot result, then tell the owner whether suspending is safe
+
+## CP-246 2026-11-28T10:15:14+08:00 T-271 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (IN_PROGRESS)
+- Completed steps: Node22 dependencies installed; baseline seven suites 51 assertions pass; JPY and KWD refund defect reproduced with four failing cases then corrected; seven focused regression tests pass
+- Incomplete steps: Complete full regression and independent review; publish isolated candidate; no production action
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; SHA256SUMS.txt; src/payments.js; scripts/programme-payment-currency.test.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 8bda6fd (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 2 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T021514Z (4444d75)
+- Known errors: none
+- Next exact action: Read /tmp/oprun-audit-full.log and finish candidate validation before publishing
+
+## CP-247 2026-11-28T10:18:25+08:00 T-271 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (TESTING)
+- Completed steps: Refund unit correction and seven regression tests pass; baseline security audit 51 assertions pass; T-272 records three-decimal ledger precision gap
+- Incomplete steps: Await full npm test, independent review and remote candidate publication; production unchanged
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/programme/PAYMENT-AUDIT-2026-11-28.md; scripts/programme-payment-currency.test.mjs; src/payments.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 8bda6fd (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 2 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T021825Z (0b2fd25)
+- Known errors: none
+- Next exact action: Read full regression outcome, preserve reviewed evidence on audit branch, then independent review of payment diff and precision design
+
+## CP-248 2026-11-28T10:24:36+08:00 T-271 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (TESTING)
+- Completed steps: Node22 full npm test 73/73 including 131 contract files; seven focused refund tests pass; baseline 51 assertions pass; confirmed refund unit candidate corrected; coordination and report updated
+- Incomplete steps: Independent review; T-272 exact precision gate; review Claude T-280 and Grok PRG-06 when published; no deployment
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/SESSION_HANDOVER.md; SHA256SUMS.txt; docs/coordination/chatgpt.md; docs/programme/INITIAL-CHECKPOINT-2026-11-28.md; docs/programme/PAYMENT-AUDIT-2026-11-28.md; qa/reports/tenant-sweep.json; scripts/programme-payment-currency.test.mjs; src/payments.js
+- Tests executed: none
+- Test results: none
+- Git branch: codex/programme-audit-20261128
+- Commit: 8bda6fd (Merge remote-tracking branch 'origin/codex/programme-audit-20261128' into codex/programme-audit-20261128); 2 commit(s) not on origin/codex/programme-audit-20261128
+- Recovery snapshot: refs/recovery/codex/programme-audit-20261128/20261128T022436Z (048d8db)
+- Known errors: none
+- Next exact action: Independently review payment diff and regression evidence, then design and test exact currency precision handling under T-272; continue security audit
