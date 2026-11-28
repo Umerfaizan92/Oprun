@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { createDb, verifyAuditChain } from './db.js';
+import { verifyWorkspaceConfigurationSchema } from './workspace-configuration-schema.js';
 
 const PERSISTENT_ROOT = '/var/data';
 const truthy = (v) => /^(1|true|yes|on)$/i.test(String(v ?? '').trim());
@@ -176,6 +177,11 @@ export function runDiagnostics({ db, env = process.env, storage, startedAt = Dat
     add('database.schema', state, driftCount
       ? `${driftCount} schema items were missing${repair ? `; ${schema.patched.length} patched, ${schema.failed.length} could not be patched` : ' (run with repair to patch)'}.`
       : `All ${schema.expectedTables} tables have every expected column, index and trigger.`, { missing: schema.missing, patched: schema.patched, failed: schema.failed });
+    const configuration = verifyWorkspaceConfigurationSchema(db);
+    add('database.workspace_configuration', configuration.state === 'invalid' ? 'fail' : 'pass',
+      configuration.state === 'invalid' ? 'Workspace configuration integrity failure: ' + configuration.problems.join('; ')
+        : configuration.state === 'verified' ? 'Workspace revision schema and immutability verified.'
+        : 'Workspace configuration has no prior installation or approval evidence.');
     const audit = verifyAuditChain(db);
     add('audit.chain', audit.ok ? 'pass' : 'fail', audit.ok ? `${audit.checked} audit rows verified${audit.legacy ? ` (${audit.legacy} written before the rebuild, checked against their original hash formula)` : ''}${audit.truncated ? ', first 100000 only' : ''}.` : `${audit.broken.length} audit rows failed verification.`, { checked: audit.checked, broken: audit.broken });
     const guarded = db.prepare(`SELECT COUNT(*) n FROM sqlite_master WHERE type='trigger' AND name IN ('audit_logs_no_update','audit_logs_no_delete')`).get().n === 2;

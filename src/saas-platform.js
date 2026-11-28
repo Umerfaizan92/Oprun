@@ -1,3 +1,4 @@
+import { exportWorkspaceConfiguration } from './workspace-configuration.js';
 import { resendOutboundKey } from './resend-outbound.js';
 import {renderEmail,tenantBrandFor} from './email-templates.js';
 import {communicationInbound,trackCommunication} from './message-delivery.js';
@@ -150,6 +151,7 @@ export function installSaasPlatform(app, deps) {
 
     organisation: (o) => db.prepare(`SELECT id,name,display_name,slug,status,timezone,abn,legal_name,state,postcode,brand_theme,brand_primary_color,brand_secondary_color,created_at,updated_at FROM organisations WHERE id=?`).all(o),
     members: (o) => db.prepare(`SELECT u.id user_id,u.email,u.phone,u.full_name,m.role,m.status,m.created_at FROM memberships m JOIN users u ON u.id=m.user_id WHERE m.organisation_id=?`).all(o),
+    workspace_configuration_revisions: (o) => exportWorkspaceConfiguration(db, o),
     onboarding_profile: (o) => db.prepare(`SELECT * FROM onboarding_profiles WHERE organisation_id=?`).all(o),
     workers: (o) => db.prepare(`SELECT * FROM workers WHERE organisation_id=?`).all(o),
     worker_skills: (o) => db.prepare(`SELECT s.* FROM worker_skills s JOIN workers w ON w.id=s.worker_id WHERE w.organisation_id=?`).all(o),

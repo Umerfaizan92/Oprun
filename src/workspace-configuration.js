@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { appendAuditLog } from './db.js';
+import { initialiseWorkspaceConfigurationSchema } from './workspace-configuration-schema.js';
 import { currencyFor, RULES_REVIEWED_AT } from './country-rules.js';
 import { INDUSTRY_REGISTRY, industrySources } from './industry-registry.js';
 
@@ -73,33 +74,30 @@ function validReferences({ packs, activities }) {
     activities.every(activity => packKeys.has(activity.pack_key));
 }
 
+const metadataText = z.string().nullable();
+const exportMetadata = z.object({
+  jurisdiction: z.object({
+    country: metadataText, region: metadataText, metadata_status: z.string(),
+    subdivision_status: z.string(), currency: metadataText, country_rules_reviewed_at: metadataText,
+  }),
+  packs: z.array(z.object({
+    key, industry_status: z.string(), regulated_capability: z.literal('unsupported'),
+    sources: z.array(z.object({ id: z.string(), authority: z.string(), jurisdiction: z.string(), url: z.string() })),
+  })),
+});
+
+export function exportWorkspaceConfiguration(db, organisationId) {
+  return db.prepare(`SELECT revision,schema_version,configuration_json,metadata_json,approved_by,approved_at,restored_from
+    FROM workspace_configuration_revisions WHERE organisation_id=? ORDER BY revision`).all(organisationId)
+    .map(({ configuration_json, metadata_json, ...approval }) => ({
+      ...approval,
+      configuration: config.parse(JSON.parse(configuration_json)),
+      metadata: exportMetadata.parse(JSON.parse(metadata_json)),
+    }));
+}
+
 export function installWorkspaceConfiguration(app, { db, requireSaasUser, getProviderCapabilities }) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS workspace_configuration_revisions (
-      organisation_id TEXT NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,
-      revision INTEGER NOT NULL CHECK(revision > 0),
-      schema_version INTEGER NOT NULL CHECK(schema_version = 1),
-      configuration_json TEXT NOT NULL,
-      metadata_json TEXT NOT NULL,
-      context_hash TEXT NOT NULL,
-      approved_by TEXT NOT NULL,
-      approved_at TEXT NOT NULL,
-      restored_from INTEGER,
-      PRIMARY KEY (organisation_id, revision)
-    );
-    CREATE TRIGGER IF NOT EXISTS workspace_configuration_no_update
-      BEFORE UPDATE ON workspace_configuration_revisions
-      BEGIN SELECT RAISE(ABORT, 'Approved workspace revisions are immutable'); END;
-    CREATE TRIGGER IF NOT EXISTS workspace_configuration_no_delete
-      BEFORE DELETE ON workspace_configuration_revisions
-      WHEN EXISTS (SELECT 1 FROM organisations WHERE id=OLD.organisation_id)
-      BEGIN SELECT RAISE(ABORT, 'Approved workspace revisions are immutable'); END;
-    CREATE TRIGGER IF NOT EXISTS workspace_configuration_no_replace
-      BEFORE INSERT ON workspace_configuration_revisions
-      WHEN EXISTS (SELECT 1 FROM workspace_configuration_revisions
-        WHERE organisation_id=NEW.organisation_id AND revision=NEW.revision)
-      BEGIN SELECT RAISE(ABORT, 'Approved workspace revisions are immutable'); END;
-  `);
+  initialiseWorkspaceConfigurationSchema(db);
   const owner = db.prepare(`SELECT 1 FROM memberships WHERE organisation_id=? AND user_id=?
     AND status='active' AND role='owner'`);
   const existing = db.prepare(`SELECT o.country, o.address_state, o.state, o.modules_json,
