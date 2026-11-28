@@ -46,6 +46,13 @@ async function mockStripe() {
       const params = Object.fromEntries(new URLSearchParams(body));
       calls.push({ path: req.url, auth: req.headers.authorization, idem: req.headers['idempotency-key'], params });
       const send = (o) => { res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
+      if (req.method === 'GET' && req.headers.authorization === `Bearer ${BIZ_KEY}`) {
+        if (req.url === '/v1/account') return send({ object: 'account', id: 'acct_FinanceFixture' });
+        if (req.url === '/v1/balance') return send({ object: 'balance', livemode: false });
+        for (const id of ['pi_test_2', 'pi_ambiguous']) {
+          if (req.url === `/v1/payment_intents/${id}`) return send({ object: 'payment_intent', id, currency: 'aud', livemode: false, status: 'succeeded' });
+        }
+      }
       if (req.url === '/v1/checkout/sessions') return send({ id: 'cs_test_' + crypto.randomUUID().slice(0, 8), url: 'https://checkout.stripe.example/pay' });
       if (req.url === '/v1/refunds' && params.payment_intent === 'pi_ambiguous') return send({});
       if (req.url === '/v1/refunds') return send({ id: 're_' + crypto.createHash('sha1').update(req.headers['idempotency-key'] || '').digest('hex').slice(0, 10), status: 'succeeded', amount: Number(params.amount) });
@@ -189,9 +196,9 @@ test('adjustment notes and refunds need approval; refunds go through the busines
   assert.equal(refundCall.auth, `Bearer ${BIZ_KEY}`); assert.equal(refundCall.params.payment_intent, 'pi_test_2'); assert.equal(refundCall.params.amount, '5000'); assert.match(refundCall.idem, /^sp-refund-/);
   assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', job2)[0].paid_cents, 17000);
   // Stripe then reports the refund (running total 5000): already applied, so nothing changes. A later 3000 refund adds only 3000.
-  await stripeHook({ id: 'evt_ref_1', type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', currency: 'aud', amount_refunded: 5000 } } });
+  await stripeHook({ id: 'evt_ref_1', livemode: false, type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', currency: 'aud', amount_refunded: 5000 } } });
   assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', job2)[0].paid_cents, 17000, 'the same refund is not counted twice');
-  await stripeHook({ id: 'evt_ref_2', type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', currency: 'aud', amount_refunded: 8000 } } });
+  await stripeHook({ id: 'evt_ref_2', livemode: false, type: 'charge.refunded', data: { object: { id: 'ch_1', payment_intent: 'pi_test_2', currency: 'aud', amount_refunded: 8000 } } });
   assert.equal(sql('SELECT paid_cents FROM work_orders WHERE id=?', job2)[0].paid_cents, 14000);
   assert.equal(sql('SELECT refunded_cents FROM job_payments WHERE id=?', p2.id)[0].refunded_cents, 8000);
   // A rejected refund request closes and moves nothing.

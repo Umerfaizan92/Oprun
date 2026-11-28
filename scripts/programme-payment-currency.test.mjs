@@ -7,7 +7,7 @@ import { majorToLedgerExact, requireStripeUnits, ledgerFromStripeUnits } from '.
 import { createFinance } from '../src/finance/service.js';
 
 function fixture(currency, providerResponse) {
-  const db = createDb(':memory:'), routes = new Map(), calls = [];
+  const db = createDb(':memory:'), routes = new Map(), calls = [], identityReads = [];
   // The finance installer adds this column during real server startup.
   db.exec('ALTER TABLE job_payments ADD COLUMN refunded_cents INTEGER NOT NULL DEFAULT 0');
   const app = Object.fromEntries(['get', 'post', 'put', 'delete', 'patch'].map(method => [method, (path, ...handlers) => routes.set(method + ' ' + path, handlers.at(-1))]));
@@ -18,17 +18,43 @@ function fixture(currency, providerResponse) {
   db.prepare('INSERT INTO work_orders(id,organisation_id,title,start_at,price_cents,paid_cents,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)').run(job, org, 'Synthetic paid job', now, 100000, 100000, now, now);
   db.prepare("INSERT INTO job_payments(id,organisation_id,work_order_id,provider,method,status,amount_cents,currency,reference,created_at,updated_at) VALUES (?,?,?,'stripe','card','paid',100000,?,'pi_synthetic',?,?)").run(id, org, job, currency.toLowerCase(), now, now);
   const payments = installPayments(app, { db, env: {}, runtime: { decryptBundle: v => ({ v }) }, requireSaasUser() {}, requireSaasRole: () => () => {}, saasAudit() {}, financeRoles: ['owner'], syncJobFinance() {},
-    fetchImpl: async (url, options) => { calls.push({ url, options, params: new URLSearchParams(options.body) }); return { ok: true, json: async () => providerResponse ?? ({ id: 'refund_synthetic', status: 'succeeded', amount: Number(calls.at(-1).params.get('amount')) }) }; } });
+    fetchImpl: async (url, options) => {
+      const path = new URL(url).pathname;
+      const reply = (body, status = 200) => ({ ok: status === 200, status, json: async () => body });
+      const responses = {
+        '/v1/account': { object: 'account', id: 'acct_CurrencyFixture' },
+        '/v1/balance': { object: 'balance', livemode: false },
+        '/v1/payment_intents/pi_synthetic': {
+          object: 'payment_intent', id: 'pi_synthetic', currency: currency.toLowerCase(), livemode: false, status: 'succeeded',
+        },
+      };
+      if (options.method === 'GET' && Object.hasOwn(responses, path)) {
+        identityReads.push(path);
+        return reply(responses[path]);
+      }
+      const params = new URLSearchParams(options.body);
+      calls.push({ url, options, params });
+      if (options.method !== 'POST' || path !== '/v1/refunds') return reply({}, 404);
+      return reply(providerResponse ?? {
+        id: 're_synthetic', object: 'refund', status: 'succeeded', amount: Number(params.get('amount')),
+        currency: currency.toLowerCase(), livemode: false, payment_intent: 'pi_synthetic',
+      });
+    } });
+  const refund = async (tenant, row, amount, key) => {
+    // Use the same verified account binding that the approval workflow passes to refundStripe.
+    const { binding } = await payments.refundAccount(org);
+    return payments.refundStripe(tenant, row, amount, key, undefined, binding);
+  };
   const payment = () => db.prepare('SELECT * FROM job_payments WHERE id=?').get(id);
   const hook = async (amount, eventId = crypto.randomUUID(), eventCurrency = currency.toLowerCase(), refunds) => {
-    const body = { id: eventId, type: 'charge.refunded', data: { object: { payment_intent: 'pi_synthetic', amount_refunded: amount, currency: eventCurrency, refunds } } };
+    const body = { id: eventId, livemode: false, type: 'charge.refunded', data: { object: { payment_intent: 'pi_synthetic', amount_refunded: amount, currency: eventCurrency, refunds } } };
     const rawBody = JSON.stringify(body), t = Math.floor(Date.now() / 1000), sig = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
     const req = { params: { orgId: org }, body, rawBody, get: () => `t=${t},v1=${sig}` };
     const res = { statusCode: 200, status(code) { this.statusCode = code; return this; }, json(value) { this.value = value; return this; } };
     await routes.get('post /api/webhooks/payments/stripe/:orgId')(req, res);
     return res;
   };
-  return { db, org, job, calls, payments, payment, hook, routes };
+  return { db, org, job, calls, identityReads, payments, payment, refund, hook, routes };
 }
 
 test('exact decimal parsing rejects rounding, unsafe values and unsupported granularity', () => {
@@ -75,7 +101,7 @@ test('fractional JPY saved-card charge is refused before creating a payment', as
 for (const [currency, providerAmount] of [['AUD', 5000], ['JPY', 50], ['KWD', 50000], ['ISK', 5000], ['UGX', 5000]]) {
   test(`${currency}: approved refund sends the currency's minor units`, async () => {
     const f = fixture(currency);
-    try { await f.payments.refundStripe(f.org, f.payment(), 5000, 'synthetic-refund'); assert.equal(f.calls[0].params.get('amount'), String(providerAmount)); }
+    try { await f.refund(f.org, f.payment(), 5000, 'synthetic-refund'); assert.equal(f.calls[0].params.get('amount'), String(providerAmount)); assert.ok(f.identityReads.includes('/v1/payment_intents/pi_synthetic')); }
     finally { f.db.close(); }
   });
   test(`${currency}: signed cumulative refund updates hundredths once`, async () => {
@@ -100,10 +126,10 @@ for (const [currency, providerAmount] of [['AUD', 5000], ['JPY', 50], ['KWD', 50
   });
 }
 
-test('fractional JPY refund is rejected before any provider request', async () => {
+test('fractional JPY refund is rejected without dispatching a provider refund', async () => {
   const f = fixture('JPY');
   try {
-    await assert.rejects(f.payments.refundStripe(f.org, f.payment(), 5050, 'synthetic-fraction'), /precision|whole/i);
+    await assert.rejects(f.refund(f.org, f.payment(), 5050, 'synthetic-fraction'), /precision|whole/i);
     assert.equal(f.calls.length, 0);
   } finally { f.db.close(); }
 });
@@ -155,7 +181,7 @@ test('inexact historical totals and missing provider currency preserve balances'
     const legacy = f.payment();
     assert.equal((await f.hook(51)).value.outcome, 'amount_precision_review');
     assert.deepEqual(f.payment(), legacy);
-    await assert.rejects(f.payments.refundStripe(f.org, legacy, 5000, 'synthetic'), /precision/i);
+    await assert.rejects(f.refund(f.org, legacy, 5000, 'synthetic'), /precision/i);
     assert.equal(f.calls.length, 0);
   } finally { f.db.close(); }
 });
@@ -193,8 +219,9 @@ test('ambiguous refund responses and foreign payments do not change local balanc
     try {
       const before = f.payment();
       await assert.rejects(f.payments.refundStripe(crypto.randomUUID(), before, 5000, 'synthetic'), { status: 404 });
+      assert.deepEqual(f.identityReads, []);
       assert.equal(f.calls.length, 0);
-      await assert.rejects(f.payments.refundStripe(f.org, before, 5000, 'synthetic'), { status: 502 });
+      await assert.rejects(f.refund(f.org, before, 5000, 'synthetic'), { status: 502 });
       assert.deepEqual(f.payment(), before);
     } finally { f.db.close(); }
   }
