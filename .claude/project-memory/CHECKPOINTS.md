@@ -3609,3 +3609,17 @@ The “Tests executed: none” and “Test results: none” fields in CP-255 do 
 ## Correction to CP-257 — PRG-03 closure review, claude/prg03-closure-acceptance-20261128
 
 The generated CP-257 metadata recorded the earlier checkout SHA `40fbc4e`, marked the branch unpublished, and recorded that no tests ran. The review was committed as `556ecb6af9bb552512912f9c1497f8ae703f84f1` and verified on the branch of the same name above. The signed-off technical evidence, including the test counts, environments, exit codes and R1 build failure, appears in `docs/programme/CLAUDE-PRG03-CLOSURE-ACCEPTANCE.md`. The original generated record is preserved above. R1 verification is recorded in `docs/programme/PRG03-R1-CHECKPOINT-034.md`.
+
+## CP-258 2026-11-28T12:09:26+00:00 T-271 TESTING
+- Phase: Programme audit and independent acceptance
+- Task: T-271 (TESTING)
+- Completed steps: Final R1 acceptance of a92db4a (tested 1799745): R1 files, plain npm test, npm test --manifest on Node 22.22.0; 24 strict tests on 22.22.0 and 22.23.5; historical suites with compat; report written. PRG-03 isolated technical acceptance ACCEPTED
+- Incomplete steps: Separate gates: PRG-08 P1/W1/L1/L2, provider verification, recovery, combined candidate, owner release approval
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG03-R1-ACCEPTANCE.md
+- Tests executed: none
+- Test results: none
+- Git branch: claude/prg03-r1-acceptance-20261128
+- Commit: a92db4a ([skip render] Record checkpoint 034 PRG-03 R1 build verification); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator records PRG-03 technical closure; Claude stands by
