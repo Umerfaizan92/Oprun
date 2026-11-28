@@ -3658,3 +3658,17 @@ The generated CP-257 metadata recorded the earlier checkout SHA `40fbc4e`, marke
 - PRG-03 payment T-271 is tracked independently on the financial line. Generated CP-258 referred to parent `a92db4a` and marked the review unpublished. The published R1 review is `a0a341a1315661788afc23c5edc5adb4b905e0d9` on `claude/prg03-r1-acceptance-20261128`. The review report supplies the actual verification evidence.
 - PRG-04 CP-254, branch `claude/prg04-independent-review-20261128`, is published as `dc32b68d6d20be024bbace3551cf8d648a2b18d7`. PRG-03 CP-254, branch `claude/prg03-independent-review-20261128`, is published as `0b86b34c165537862bc0a8053dbfb83f88ec2c47`.
 - PRG-04 CP-255, branch `claude/prg04-final-acceptance-20261128`, is published as `d232b4340006c8900ff8a0a9d239eda19d91d5d7`. PRG-03 CP-255, branch `claude/prg03-reacceptance-20261128`, is published as `431b44878093220b9366da04432b830903df4e5d`. These remote commits supersede the generated branch-publication metadata above. PRG-04 review identifiers and legacy task reservations keep their original branch-local meaning.
+
+## CP-259 2026-11-28T13:37:58+00:00 T-271 TESTING
+- Phase: Checkpoint 036 controlled backend integration
+- Task: T-271 (TESTING)
+- Completed steps: Combined backend acceptance of e648524/5afff00: provenance, runtime review, mandatory suites on both Node versions, restore drills, npm test plain and --manifest, browser checks, audit, manifest, secrets, memory. Combined technical ACCEPTED
+- Incomplete steps: Preserved gates: PRG-08 P1/W1, L1/L2 (+X1 export completeness), D1 runbook (+integration-key note), production recovery, Stripe test-mode, restricted keys, runtime alignment, owner approval
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-COMBINED-BACKEND-ACCEPTANCE.md; qa/programme/combined-acceptance-independent.test.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/combined-backend-acceptance-20261128
+- Commit: e648524 ([skip render] Record checkpoint 036 combined backend verification); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-COMBINED-BACKEND-ACCEPTANCE.md; Claude stops
