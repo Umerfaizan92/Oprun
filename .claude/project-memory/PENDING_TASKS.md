@@ -428,3 +428,9 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Files: see 07_MASTER_BACKLOG.md
 - Acceptance: As written for MB-29 in 07_MASTER_BACKLOG.md, including before/after screenshots for UI changes
 
+## T-271 PRG-02 Queue tenant/type idempotency isolation (AUD-02)
+- Status: TESTING
+- Added: 2026-11-28
+- Requirement: Per docs/programme/INITIAL-CHECKPOINT-2026-11-28.md (codex/programme-audit-20261128) Claude assignment: investigate global UNIQUE idempotency_key and key-only duplicate lookup in createJobQueue.enqueue; reproduce with synthetic two-tenant/type/platform-scope tests; trace callers; smallest backward-compatible fix; never return another tenant/type job; preserve rows; no destructive schema change; no queue rewrite or worker topology change. Base 234f56d. Branch claude/prg02-queue-isolation-20261128.
+- Files: src/job-queue.js, scripts/programme-queue-isolation.test.mjs, docs/programme/CLAUDE-PRG02.md
+- Acceptance: Same tenant/type duplicate dedupes; other tenant/type/platform scope never returns another job; null scope tested; legacy rows preserved; callers reviewed; npm test passes on Node 22; ChatGPT independent review pending

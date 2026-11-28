@@ -3433,3 +3433,31 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: At 17:20 UTC read legacy service logs for the S3 snapshot result, then tell the owner whether suspending is safe
+
+## CP-246 2026-11-28T02:11:05+00:00 T-271 IN_PROGRESS
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (IN_PROGRESS)
+- Completed steps: Branch from 234f56d; Node 22 deps; callers traced; synthetic tests written; defect reproduced (5/9 fail on base)
+- Incomplete steps: Fix src/job-queue.js enqueue; run suites; report
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PENDING_TASKS.md; scripts/programme-queue-isolation.test.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/prg02-queue-isolation-20261128
+- Commit: 234f56d ([skip render] Stabilize public website browser tests for streaming film); branch not on remote
+- Recovery snapshot: refs/recovery/claude/prg02-queue-isolation-20261128/20261128T021105Z (5aa5ac8)
+- Known errors: none
+- Next exact action: Implement scoped duplicate check in enqueue and rerun scripts/programme-queue-isolation.test.mjs
+
+## CP-247 2026-11-28T02:42:47+00:00 T-271 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (TESTING)
+- Completed steps: Fix + tests + report docs/programme/CLAUDE-PRG02.md
+- Incomplete steps: ChatGPT independent review; coordinator decision on SHA256SUMS.txt and scoped-key migration (PRG-04)
+- Files modified (uncommitted at checkpoint): .claude/project-memory/CHECKPOINTS.md; .claude/project-memory/DECISIONS.md; .claude/project-memory/PENDING_TASKS.md; .claude/project-memory/PROGRESS.md; .claude/project-memory/SESSION_HANDOVER.md; src/job-queue.js; docs/programme/CLAUDE-PRG02.md; scripts/programme-queue-isolation.test.mjs
+- Tests executed: node --test scripts/programme-queue-isolation.test.mjs; queue/tenant/agent/caller suites; npm test
+- Test results: 9/9; 79/79; ALL CHECKS PASSED 73/73 (131 contract files) Node 22.23.5
+- Git branch: claude/prg02-queue-isolation-20261128
+- Commit: 234f56d ([skip render] Stabilize public website browser tests for streaming film); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: ChatGPT reviews 234f56d..claude/prg02-queue-isolation-20261128; Claude waits for next assignment

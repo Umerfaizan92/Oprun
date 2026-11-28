@@ -37,14 +37,23 @@ export function createJobQueue({ db, log = console, workerId = 'w-' + crypto.ran
     handlers.set(type, { handler, maxAttempts, timeoutMs, baseDelayMs });
   }
 
+  // Idempotency keys are stored in one table-wide UNIQUE column (kept as is: changing it needs a table rebuild). A
+  // repeated key is a duplicate only when the existing job has the same type and the same tenant scope (null = the
+  // platform). A key held by another tenant, type or scope is refused with IDEMPOTENCY_KEY_CONFLICT and nothing about
+  // the other job is returned, so a collision can never hand one tenant's job (payload, result, error) to another.
   function enqueue(type, payload = {}, { organisationId = null, idempotencyKey = null, runAt = null, maxAttempts = null } = {}) {
     const h = handlers.get(type);
-    const now = iso(clock()), id = crypto.randomUUID();
-    const row = { id, type, organisation_id: organisationId, payload_json: JSON.stringify(payload ?? {}), idempotency_key: idempotencyKey, max_attempts: Math.min(25, Math.max(1, maxAttempts || h?.maxAttempts || 5)), run_at: runAt || now, created_at: now, updated_at: now };
-    const inserted = db.prepare(`INSERT INTO background_jobs (id,type,organisation_id,payload_json,idempotency_key,max_attempts,run_at,created_at,updated_at)
-      VALUES (@id,@type,@organisation_id,@payload_json,@idempotency_key,@max_attempts,@run_at,@created_at,@updated_at) ON CONFLICT(idempotency_key) DO NOTHING`).run(row);
-    if (!inserted.changes) return { duplicate: true, job: db.prepare('SELECT * FROM background_jobs WHERE idempotency_key=?').get(idempotencyKey) };
-    return { duplicate: false, job: db.prepare('SELECT * FROM background_jobs WHERE id=?').get(id) };
+    const now = iso(clock()), id = crypto.randomUUID(), org = organisationId ?? null;
+    const row = { id, type, organisation_id: org, payload_json: JSON.stringify(payload ?? {}), idempotency_key: idempotencyKey, max_attempts: Math.min(25, Math.max(1, maxAttempts || h?.maxAttempts || 5)), run_at: runAt || now, created_at: now, updated_at: now };
+    return db.transaction(() => {
+      const inserted = db.prepare(`INSERT INTO background_jobs (id,type,organisation_id,payload_json,idempotency_key,max_attempts,run_at,created_at,updated_at)
+        VALUES (@id,@type,@organisation_id,@payload_json,@idempotency_key,@max_attempts,@run_at,@created_at,@updated_at) ON CONFLICT(idempotency_key) DO NOTHING`).run(row);
+      if (inserted.changes) return { duplicate: false, job: db.prepare('SELECT * FROM background_jobs WHERE id=?').get(id) };
+      const job = db.prepare('SELECT * FROM background_jobs WHERE idempotency_key=? AND type=? AND organisation_id IS ?').get(idempotencyKey, type, org);
+      if (job) return { duplicate: true, job };
+      log.warn?.(`[jobs] idempotency key conflict refused for ${type} (${org ? 'tenant' : 'platform'} scope)`);
+      throw Object.assign(new Error('This idempotency key is already used by a different job.'), { code: 'IDEMPOTENCY_KEY_CONFLICT', status: 409 });
+    })();
   }
 
   // One job is claimed atomically; a "running" job whose lease ran out (the process died) becomes claimable again.
