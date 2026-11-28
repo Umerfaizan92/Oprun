@@ -3559,3 +3559,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Coordinator reads docs/programme/CLAUDE-PRG04-INDEPENDENT-REVIEW.md
+
+## CP-255 2026-11-28T10:12:47+00:00 PRG-04-REVIEW TESTING
+- Phase: Programme audit and independent acceptance
+- Task: PRG-04-REVIEW (TESTING)
+- Completed steps: Final independent acceptance of O3/O4: ACCEPTED (technical)
+- Incomplete steps: Combined-tree run and manifest regeneration by coordinator; P1 under PRG-08
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG04-FINAL-ACCEPTANCE.md; qa/programme/prg04-final-acceptance-independent.test.mjs; qa/programme/prg04-final-characterisation.test.mjs
+- Tests executed: final mandatory suite x3; original suite; Codex 55 set; test:fast; npm test; manifest; memory; secrets
+- Test results: 9/9; 8 pass 2 obsolete; 55/55; 69/69; ALL CHECKS PASSED 73/73; PASS; PASS; PASS 931
+- Git branch: claude/prg04-final-acceptance-20261128
+- Commit: 766fa58 ([skip render] Preserve checkpoint 024 operability evidence); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG04-FINAL-ACCEPTANCE.md
