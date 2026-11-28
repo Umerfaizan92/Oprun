@@ -7,6 +7,7 @@ import crypto from 'node:crypto';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import QRCode from 'qrcode';
+import { stripeRefundLedger } from './finance/stripe-refunds.js';
 import { appendAuditLog } from './db.js';
 import { sendBrandedEmail } from './mailer.js';
 import { renderEmail, tenantBrandFor, platformBrand } from './email-templates.js';
@@ -69,9 +70,15 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
   async function providerJson(url, init, label) {
     let r; try { r = await fetchImpl(url, { ...init, signal: AbortSignal.timeout(15000) }); } catch (err) { throw Object.assign(new Error(`${label} could not be reached. Try again shortly.`), { status: 502 }); }
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw Object.assign(new Error(`${label}: ${String(data?.error?.message || data?.message || data?.error_description || `HTTP ${r.status}`).slice(0, 200)}`), { status: 502 });
+    if (!r.ok) throw Object.assign(new Error(`${label}: ${String(data?.error?.message || data?.message || data?.error_description || `HTTP ${r.status}`).slice(0, 200)}`), { status: 502, providerStatus: r.status, providerCode: data?.error?.code, providerType: data?.error?.type });
     return data;
   }
+  const refundLedger = stripeRefundLedger(db);
+  const stripeBinding = raw => {
+    const secret = unsealed(raw?.stripe_secret_enc);
+    return secret ? crypto.createHash('sha256').update(secret).digest('hex') : null;
+  };
+  const refundAccount = org => stripeBinding(settingsRow(org));
   const form = (obj) => { const p = new URLSearchParams(); const walk = (o, pre) => { for (const [k, v] of Object.entries(o)) { const key = pre ? `${pre}[${k}]` : k; if (v && typeof v === 'object') walk(v, key); else if (v !== undefined && v !== null && v !== '') p.append(key, String(v)); } }; walk(obj, ''); return p; };
   const stripeCall = (s, method, path, body, idem) => providerJson(`${String(env.STRIPE_API_BASE_URL || "https://api.stripe.com").replace(/\/$/, "")}/v1/${path}`, { method, headers: { authorization: `Bearer ${unsealed(s.stripe_secret_enc)}`, ...(body ? { 'content-type': 'application/x-www-form-urlencoded' } : {}), ...(idem ? { 'idempotency-key': idem } : {}) }, body: body ? form(body).toString() : undefined }, 'Stripe');
   const paypalBase = (s) => (s.paypal_live ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com');
@@ -545,7 +552,16 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     const org = String(req.params.orgId), raw = settingsRow(org);
     if (!raw?.stripe_webhook_enc || !verifyStripeSignature(req.rawBody, req.get('stripe-signature'), unsealed(raw.stripe_webhook_enc))) return bad(res);
     const ev = req.body || {}, obj = ev.data?.object || {};
-    if (!ev.id || db.prepare(`INSERT OR IGNORE INTO payment_events (provider,event_id,organisation_id,event_type,received_at) VALUES ('stripe',?,?,?,?)`).run(String(ev.id), org, String(ev.type || ''), iso()).changes === 0) return res.json({ ok: true, duplicate: true });
+    if (!ev.id) return bad(res);
+    const eventId = String(ev.id);
+    const created = db.prepare(`INSERT OR IGNORE INTO payment_events (provider,event_id,organisation_id,event_type,received_at)
+      VALUES ('stripe',?,?,?,?)`).run(eventId, org, String(ev.type || ''), iso()).changes;
+    if (!created) {
+      const pending = ['refund.created','refund.updated','refund.failed','charge.refund.updated','charge.refunded'].includes(ev.type) &&
+        db.prepare("SELECT 1 FROM payment_events WHERE provider='stripe' AND event_id=? AND organisation_id=? AND event_type=? AND outcome IS NULL")
+          .get(eventId, org, ev.type);
+      if (!pending) return res.json({ ok: true, duplicate: true });
+    }
     let outcome = 'ignored';
     try {
       if (['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(ev.type)) {
@@ -560,48 +576,50 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
         if (p && p.status === 'pending') { db.prepare(`UPDATE job_payments SET status='failed',failure_reason='Payment was declined or failed',updated_at=? WHERE id=?`).run(iso(), p.id); await flag(org, p, `A payment of ${money(p.amount_cents)} failed. The customer can try again with a new link.`); outcome = 'failed'; }
       } else if (ev.type === 'checkout.session.expired') {
         const p = findPayment(org, 'stripe', obj.id); if (p && p.status === 'pending') { db.prepare(`UPDATE job_payments SET status='expired',updated_at=? WHERE id=?`).run(iso(), p.id); outcome = 'expired'; }
-      } else if (ev.type === 'charge.refunded' && obj.payment_intent) {
+      } else if (['refund.created','refund.updated','refund.failed','charge.refund.updated'].includes(ev.type) &&
+          obj.object === 'refund' && typeof obj.payment_intent === 'string' && !ev.account) {
+        const p = db.prepare("SELECT id FROM job_payments WHERE organisation_id=? AND provider='stripe' AND reference=?").get(org, obj.payment_intent);
+        if (p) {
+          const row = refundLedger.applyReceipt.immediate(org, p.id, obj, refundAccount(org), row => {
+            if (row.status === 'completed') syncJobFinance(org, row.work_order_id, null);
+            audit(org, 'payment.refund_receipt', row.payment_id, { refund_id: row.id, status: row.status, event_id: ev.id });
+          });
+          if (row) outcome = 'refund_' + row.status;
+        }
+      } else if (ev.type === 'charge.refunded' && obj.payment_intent && !ev.account) {
         const p = db.prepare(`SELECT * FROM job_payments WHERE organisation_id=? AND provider='stripe' AND reference=?`).get(org, obj.payment_intent);
         if (p && ['paid', 'refunded'].includes(p.status)) {
           const currency = String(p.currency || 'aud').toLowerCase();
-          const previous = p.refunded_cents || 0;
           const total = ledgerFromStripeUnits(obj.amount_refunded, currency);
           if (typeof obj.currency !== 'string' || obj.currency.toLowerCase() !== currency) {
             outcome = 'currency_mismatch';
             await flag(org, p, 'Stripe reported a refund without the expected currency. Review the provider record before updating balances.');
-          } else if (total === null || stripeUnitsOrNull(p.amount_cents, currency) === null ||
-              stripeUnitsOrNull(previous, currency) === null || previous > p.amount_cents || total > p.amount_cents) {
+          } else if (!refundLedger.validTotal(p, total)) {
             outcome = 'amount_precision_review';
             await flag(org, p, 'Stripe reported a refund that cannot be reconciled exactly against the stored payment. Review the provider record before updating balances.');
           } else {
-            const delta = total - previous;
-            const full = total === p.amount_cents;
-            const at = iso();
-            const hasRefunds = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='fin_refunds'").get();
-            db.transaction(() => {
-              if (delta > 0) {
-                db.prepare(`UPDATE job_payments SET status=?,refunded_cents=?,note=?,updated_at=? WHERE id=? AND organisation_id=?`)
-                  .run(full ? 'refunded' : 'paid', total, full ? 'Refunded in Stripe' : `${money(total)} refunded in Stripe`, at, p.id, org);
-                db.prepare(`UPDATE work_orders SET paid_cents=MAX(0,paid_cents-?),updated_at=? WHERE id=? AND organisation_id=?`)
-                  .run(delta, at, p.work_order_id, org);
+            const receipts = Array.isArray(obj.refunds?.data) ? obj.refunds.data : [];
+            const binding = refundAccount(org);
+            const delta = db.transaction(() => refundLedger.recordCharge(org, p.id, total, receipts, binding)).immediate();
+            const pending = refundLedger.unsettledBindings(org, p.id);
+            if (refundLedger.needsAllocation(p) && pending.length === 1 && pending[0].account_binding === binding) {
+              let verified;
+              try {
+                verified = await listStripeRefunds(org, p, binding);
+              } catch {
+                // The signed total is still useful. Keep the uncertain allocation held for read-only reconciliation.
               }
-              // The charge total moves the ledger. Individual provider receipts identify completed requests.
-              if (hasRefunds && total > 0 && Array.isArray(obj.refunds?.data)) {
-                const complete = db.prepare(`UPDATE fin_refunds SET status='completed',updated_at=?
-                  WHERE organisation_id=? AND payment_id=? AND provider='stripe'
-                    AND provider_ref=? AND amount_cents=? AND status='submitted'`);
-                for (const refund of obj.refunds.data) {
-                  if (refund?.status !== 'succeeded' || typeof refund.id !== 'string' || !refund.id ||
-                      typeof refund.currency !== 'string' || refund.currency.toLowerCase() !== currency) continue;
-                  const amount = ledgerFromStripeUnits(refund.amount, currency);
-                  if (amount > 0 && amount <= total) complete.run(at, org, p.id, refund.id, amount);
+              if (verified && refundAccount(org) === binding) {
+                const exactTotal = verified.filter(item => item.status === 'succeeded')
+                  .reduce((sum, item) => sum + ledgerFromStripeUnits(item.amount, currency), 0);
+                if (refundLedger.validTotal(p, exactTotal)) {
+                  db.transaction(() => refundLedger.recordCharge(org, p.id, exactTotal, verified, binding, true)).immediate();
                 }
               }
-            })();
+            }
             if (delta > 0) {
               syncJobFinance(org, p.work_order_id, null);
-              audit(org, 'payment.refunded', p.id, { refunded_cents: delta, refunded_total_cents: total, full });
-              await flag(org, p, `${money(delta)} was refunded in Stripe. The job balance has been updated.`);
+              audit(org, 'payment.refunded', p.id, { refunded_cents: delta, refunded_total_cents: total });
             }
             outcome = delta > 0 ? 'refunded' : 'refund_already_applied';
           }
@@ -654,11 +672,12 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
   });
 
   // Phase 08: refunds go back through the business's own Stripe account (never a platform account). Idempotent by key.
-  async function refundStripe(org, payment, amountCents, idempotencyKey) {
+  async function refundStripe(org, payment, amountCents, idempotencyKey, requestId, binding) {
     if (payment?.organisation_id !== org) throw Object.assign(new Error('Payment not found.'), { status: 404, permanent: true });
     const raw = settingsRow(org);
     if (!raw?.stripe_secret_enc) throw Object.assign(new Error('Connect Stripe in payment settings first.'), { status: 409, permanent: true });
     if (!payment?.reference) throw Object.assign(new Error('This payment has no Stripe payment reference, so it cannot be refunded automatically. Refund it in Stripe and record it.'), { status: 409, permanent: true });
+    if (binding && stripeBinding(raw) !== binding) throw Object.assign(new Error('Stripe account configuration changed.'), { permanent: true });
     const currency = payment.currency || 'aud';
     requireStripeUnits(payment.amount_cents, currency);
     requireStripeUnits(payment.refunded_cents || 0, currency);
@@ -669,14 +688,52 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     );
     let r;
     try {
-      r = await stripeCall(raw, 'POST', 'refunds', { payment_intent: payment.reference, amount, reason: 'requested_by_customer', metadata: { payment_id: payment.id, organisation_id: org } }, idempotencyKey);
+      r = await stripeCall(raw, 'POST', 'refunds', { payment_intent: payment.reference, amount, reason: 'requested_by_customer', metadata: { payment_id: payment.id, organisation_id: org, refund_request_id: requestId } }, idempotencyKey);
     } catch (error) {
+      if (error.providerStatus === 400 && error.providerType === 'invalid_request_error' &&
+          ['charge_already_refunded', 'amount_too_large', 'resource_missing', 'parameter_invalid_integer'].includes(error.providerCode)) {
+        throw Object.assign(new Error('Stripe definitively rejected the refund.'), { code: 'REFUND_REJECTED', status: 409, permanent: true });
+      }
       if (error.status === 502) throw needsReview();
       throw error;
     }
-    if (typeof r?.id !== 'string' || !r.id || r.amount !== amount ||
-        !['succeeded', 'pending', 'requires_action'].includes(r.status)) throw needsReview();
+    if (typeof r?.id !== 'string' || !r.id || r.amount !== amount || (r.object !== undefined && r.object !== 'refund') ||
+        !['succeeded', 'pending', 'requires_action', 'failed', 'canceled'].includes(r.status) ||
+        (r.currency !== undefined && String(r.currency).toLowerCase() !== String(currency).toLowerCase()) ||
+        (r.payment_intent !== undefined && r.payment_intent !== payment.reference) ||
+        (r.metadata?.refund_request_id !== undefined && r.metadata.refund_request_id !== requestId) ||
+        (r.metadata?.organisation_id !== undefined && r.metadata.organisation_id !== org) ||
+        (r.metadata?.payment_id !== undefined && r.metadata.payment_id !== payment.id)) throw needsReview();
     return { id: r.id, status: r.status, amount: r.amount };
   }
-  return { runCycle, markPaid, createRequest, refundStripe };
+  async function listStripeRefunds(org, payment, binding) {
+    const raw = settingsRow(org);
+    if (payment.organisation_id !== org || !binding || stripeBinding(raw) !== binding) {
+      throw Object.assign(new Error('The original Stripe credential binding cannot be verified.'), { status: 409 });
+    }
+    const data = [], seen = new Set();
+    let cursor;
+    for (let page = 0; page < 20; page++) {
+      const query = new URLSearchParams({ payment_intent: payment.reference, limit: '100' });
+      if (cursor) query.set('starting_after', cursor);
+      const result = await stripeCall(raw, 'GET', 'refunds?' + query);
+      if (!Array.isArray(result?.data) || typeof result.has_more !== 'boolean') break;
+      for (const entry of result.data) {
+        if (typeof entry?.id !== 'string' || seen.has(entry.id) || entry.payment_intent !== payment.reference ||
+            entry.currency?.toLowerCase() !== String(payment.currency || 'aud').toLowerCase() ||
+            ledgerFromStripeUnits(entry.amount, payment.currency || 'aud') === null ||
+            !['pending','requires_action','succeeded','failed','canceled'].includes(entry.status)) {
+          throw Object.assign(new Error('Stripe refund evidence is incomplete.'), { status: 409 });
+        }
+        seen.add(entry.id);
+        data.push(entry);
+      }
+      if (!result.has_more) return data;
+      const next = result.data.at(-1)?.id;
+      if (!next || next === cursor) break;
+      cursor = next;
+    }
+    throw Object.assign(new Error('Stripe refund evidence is incomplete.'), { status: 409 });
+  }
+  return { runCycle, markPaid, createRequest, refundStripe, refundAccount, listStripeRefunds };
 }

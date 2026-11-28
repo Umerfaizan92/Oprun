@@ -77,6 +77,11 @@ export function installFinanceRoutes(app, { db, finance, platformFinance, requir
   }));
   app.post('/api/saas/finance/refunds/:id/complete', limiter, ...money, wrap((req, res) => send(res, finance.completeManualRefund(org(req), req.params.id, me(req), P(z.object({ reference: z.string().trim().min(3).max(80) }).strict(), req.body).reference))));
 
+  app.post('/api/saas/finance/refunds/:id/reconcile', limiter, requireSaasUser, requireSaasRole('owner'), wrap(async (req, res) => {
+    const body = P(z.object({ evidence_reference: z.string().trim().min(8).max(120).optional(), confirmed_provider_rejection: z.literal(true).optional(), legacy_refund_id: z.string().regex(/^re_[a-zA-Z0-9_]{1,120}$/).optional() }).strict(), req.body);
+    send(res, await finance.reconcileStripeRefund(org(req), req.params.id, me(req), body));
+  }));
+
   // ---------------- reconciliation ----------------
   app.get('/api/saas/finance/reconciliation', ...read, wrap((req, res) => res.json({ ok: true, ...finance.reconciliation(org(req)) })));
   app.post('/api/saas/finance/bank/import', limiter, ...money, wrap((req, res) => { const b = P(z.object({ filename: z.string().max(120).optional(), csv: z.string().min(5).max(900000) }).strict(), req.body); send(res, finance.importBank(org(req), me(req), b), 201); }));

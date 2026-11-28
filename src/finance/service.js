@@ -8,7 +8,8 @@
 // Rules: issued documents never change. Corrections are made with an adjustment note. Refunds, credit notes and other
 // financial adjustments run through the automation engine as Level 3 actions, so a named person approves each one.
 import crypto from 'node:crypto';
-import { requireStripeUnits } from '../payment-precision.js';
+import { stripeRefundLedger } from './stripe-refunds.js';
+import { requireStripeUnits, ledgerFromStripeUnits } from '../payment-precision.js';
 import { appendAuditLog } from '../db.js';
 import { taxRulesFor, formatMoney, formatDate, currencyFor, einvoicingWarning } from '../country-rules.js';
 import { rulesFor, rulesetById, documentTotals, lineAmounts, checkDocument, title as docTitle, abnValid, formatAbn, basDraft, TAX_CODES } from './rules.js';
@@ -360,13 +361,17 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   }
 
   // ---------------- refunds: Level 3 ----------------
-  const refundNeedsReview = db.prepare(`SELECT 1 FROM fin_refunds
-    WHERE organisation_id=? AND payment_id=? AND status='submitted' AND provider_ref IS NULL AND error IS NOT NULL`);
-  function requestRefund(org, paymentId, actor, { amount_cents, reason }) {
+  const stripeLedger = stripeRefundLedger(db);
+  const refundNeedsReview = db.prepare(`SELECT 1 FROM fin_refunds r LEFT JOIN fin_stripe_refund_attempts a
+    ON a.organisation_id=r.organisation_id AND a.refund_id=r.id
+    WHERE r.organisation_id=? AND r.payment_id=? AND r.status='submitted' AND r.provider_ref IS NULL
+      AND (r.error IS NOT NULL OR a.started_at IS NULL OR a.started_at<=?)`);
+  const expiredAttempt = () => new Date(Date.now() - 60_000).toISOString();
+  const reserveRefund = db.transaction((org, paymentId, actor, { amount_cents, reason }) => {
     const p = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(paymentId, org); if (!p) return E(404, 'Payment not found.');
     if (p.status !== 'paid') return E(409, 'Only a received payment can be refunded.');
     if (p.provider === 'stripe') { try { requireStripeUnits(amount_cents, p.currency || 'aud'); } catch (err) { return E(400, err.message); } }
-    if (refundNeedsReview.get(org, p.id)) {
+    if (refundNeedsReview.get(org, p.id, expiredAttempt()) || p.provider === 'stripe' && stripeLedger.needsAllocation(p)) {
       return E(409, 'A refund needs provider reconciliation before another refund can be requested.');
     }
     const waiting = db.prepare("SELECT COALESCE(SUM(amount_cents),0) n FROM fin_refunds WHERE organisation_id=? AND payment_id=? AND status IN ('pending_approval','approved','submitted','awaiting_manual')").get(org, p.id).n;
@@ -374,9 +379,21 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     if (!(amount_cents >= 1 && amount_cents <= max)) return E(400, max > 0 ? `Refund between $0.01 and ${moneyOf(org)(max)}.` : 'This payment is already fully refunded or has a refund waiting.');
     const id = uid(), at = now(), provider = p.provider === 'stripe' && p.reference ? 'stripe' : p.provider;
     db.prepare("INSERT INTO fin_refunds (id,organisation_id,payment_id,work_order_id,amount_cents,reason,status,provider,requested_by,created_at,updated_at) VALUES (?,?,?,?,?,?,'pending_approval',?,?,?,?)").run(id, org, p.id, p.work_order_id, amount_cents, String(reason).trim().slice(0, 500), provider, actor, at, at);
-    const r = startLevel3(org, 'issue_refund', `refund:${id}`, { refund_id: id }, actor);
-    db.prepare('UPDATE fin_refunds SET run_id=? WHERE id=?').run(r.id, id);
-    audit(org, actor, 'finance.refund_requested', 'fin_refund', id, { payment: p.id, amount_cents, provider });
+    return { ok: true, id, provider };
+  });
+  function requestRefund(org, paymentId, actor, data) {
+    const reservation = reserveRefund.immediate(org, paymentId, actor, data);
+    if (!reservation.ok) return reservation;
+    const { id, provider } = reservation;
+    let r;
+    try {
+      r = startLevel3(org, 'issue_refund', `refund:${id}`, { refund_id: id }, actor);
+    } catch (error) {
+      db.prepare("UPDATE fin_refunds SET status='failed',updated_at=? WHERE organisation_id=? AND id=? AND status='pending_approval'").run(now(), org, id);
+      throw error;
+    }
+    db.prepare('UPDATE fin_refunds SET run_id=? WHERE id=? AND organisation_id=?').run(r.id, id, org);
+    audit(org, actor, 'finance.refund_requested', 'fin_refund', id, { payment: paymentId, amount_cents: data.amount_cents, provider });
     return { ok: true, refund_id: id, run_id: r.id, promise: r.promise };
   }
   function refundProposal(org, id) {
@@ -395,36 +412,155 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       return delta;
     })();
   }
-  async function executeRefund(org, p, approver) {
-    const r = db.prepare('SELECT * FROM fin_refunds WHERE id=? AND organisation_id=?').get(p.refund_id, org);
+  const refundRow = db.prepare('SELECT * FROM fin_refunds WHERE organisation_id=? AND id=?');
+  const claimRefund = db.transaction((org, id, approver) => {
+    const r = refundRow.get(org, id);
     if (!r) throw Object.assign(new Error('Refund request not found.'), { permanent: true });
-    if (['submitted', 'completed', 'awaiting_manual'].includes(r.status)) return { ref: r.id, summary: `Refund already ${r.status.replace('_', ' ')}.` };
-    const pay = db.prepare('SELECT * FROM job_payments WHERE id=? AND organisation_id=?').get(r.payment_id, org);
-    if (!pay) throw Object.assign(new Error('Payment not found.'), { permanent: true });
-    if (r.provider === 'stripe') {
-      if (refundNeedsReview.get(org, pay.id)) {
-        throw Object.assign(new Error('A refund needs provider reconciliation before another refund can execute.'), { permanent: true });
-      }
-      if (!payments?.refundStripe) throw Object.assign(new Error('Stripe refunds are not available.'), { permanent: true });
-      let out;
-      try {
-        out = await payments.refundStripe(org, pay, r.amount_cents, `sp-refund-${r.id}`);
-      } catch (error) {
-        if (error.code === 'REFUND_RECONCILIATION_REQUIRED') {
-          db.prepare("UPDATE fin_refunds SET status='submitted',error=?,updated_at=? WHERE id=? AND organisation_id=? AND status IN ('pending_approval','approved')")
-            .run(error.message, now(), r.id, org);
-          audit(org, approver, 'finance.refund_needs_review', 'fin_refund', r.id, { payment: pay.id });
-        }
-        throw error;
-      }
-      db.prepare("UPDATE fin_refunds SET status=?,provider_ref=?,updated_at=? WHERE id=?").run(out.status === 'succeeded' ? 'completed' : 'submitted', out.id, now(), r.id);
-      if (out.status === 'succeeded') { applyRefundTotal(org, pay.id, (pay.refunded_cents || 0) + r.amount_cents, 'Stripe'); syncJobFinance(org, r.work_order_id, approver); }
-      audit(org, approver, 'finance.refund_submitted', 'fin_refund', r.id, { provider: 'stripe', provider_ref: out.id, status: out.status, amount_cents: r.amount_cents });
-      return { ref: out.id, summary: `${moneyOf(org)(r.amount_cents)} refund ${out.status === 'succeeded' ? 'completed' : 'submitted'} in Stripe (${out.id}).` };
+    if (!['pending_approval','approved'].includes(r.status)) return { r };
+    if (r.provider !== 'stripe') {
+      db.prepare("UPDATE fin_refunds SET status='awaiting_manual',updated_at=? WHERE organisation_id=? AND id=?")
+        .run(now(), org, id);
+      return { r, manual: true };
     }
-    db.prepare("UPDATE fin_refunds SET status='awaiting_manual',updated_at=? WHERE id=?").run(now(), r.id);
-    audit(org, approver, 'finance.refund_approved_manual', 'fin_refund', r.id, { provider: r.provider, amount_cents: r.amount_cents });
-    return { ref: r.id, summary: `Approved. Pay ${moneyOf(org)(r.amount_cents)} back from your ${r.provider === 'paypal' ? 'PayPal' : 'bank'} account, then mark the refund done with its reference.`, manual: true };
+    const pay = stripeLedger.payment(org, r.payment_id);
+    if (!pay || pay.status !== 'paid' || !pay.reference) throw Object.assign(new Error('Refund payment is unavailable.'), { permanent: true });
+    if (refundNeedsReview.get(org, pay.id, expiredAttempt()) || stripeLedger.needsAllocation(pay)) {
+      throw Object.assign(new Error('A refund needs provider reconciliation before another refund can execute.'), { permanent: true });
+    }
+    requireStripeUnits(pay.amount_cents, pay.currency || 'aud');
+    requireStripeUnits(pay.refunded_cents || 0, pay.currency || 'aud');
+    requireStripeUnits(r.amount_cents, pay.currency || 'aud');
+    const reserved = db.prepare(`SELECT COALESCE(SUM(amount_cents),0) n FROM fin_refunds
+      WHERE organisation_id=? AND payment_id=? AND status='submitted'`).get(org, pay.id).n;
+    if (r.amount_cents > pay.amount_cents - (pay.refunded_cents || 0) - reserved) {
+      throw Object.assign(new Error('The refund exceeds the available payment balance.'), { permanent: true });
+    }
+    const binding = payments?.refundAccount?.(org);
+    if (!binding) throw Object.assign(new Error('Stripe refunds are not available.'), { permanent: true });
+    stripeLedger.initialise(pay);
+    db.prepare(`INSERT INTO fin_stripe_refund_attempts
+      (organisation_id,refund_id,payment_id,account_binding,approver,started_at) VALUES (?,?,?,?,?,?)`)
+      .run(org, r.id, pay.id, binding, approver, new Date().toISOString());
+    db.prepare("UPDATE fin_refunds SET status='submitted',updated_at=? WHERE organisation_id=? AND id=?").run(now(), org, r.id);
+    return { r, pay, binding };
+  });
+
+  function persistReceipt(org, r, pay, binding, receipt, actor, action) {
+    const row = stripeLedger.applyReceipt.immediate(org, pay.id, receipt, binding, row => {
+      if (row.status === 'completed') syncJobFinance(org, row.work_order_id, actor);
+      audit(org, actor, action, 'fin_refund', r.id, { provider: 'stripe', provider_ref: receipt.id, status: row.status, amount_cents: r.amount_cents });
+    });
+    if (!row) throw Object.assign(new Error('Stripe refund evidence does not match the approved request.'), { status: 409, permanent: true });
+    return row;
+  }
+
+  async function executeRefund(org, p, approver) {
+    const { r, pay, binding, manual } = claimRefund.immediate(org, p.refund_id, approver);
+    if (manual) {
+      audit(org, approver, 'finance.refund_approved_manual', 'fin_refund', r.id, { provider: r.provider, amount_cents: r.amount_cents });
+      return { ref: r.id, summary: `Approved. Pay ${moneyOf(org)(r.amount_cents)} back from your ${r.provider === 'paypal' ? 'PayPal' : 'bank'} account, then mark it done here with the reference.`, manual: true };
+    }
+    if (!pay) {
+      const saved = stripeLedger.attempt(org, r.id);
+      if (r.status === 'submitted' && saved?.receipt_json) {
+        const payment = stripeLedger.payment(org, r.payment_id);
+        const row = persistReceipt(org, r, payment, saved.account_binding, JSON.parse(saved.receipt_json), saved.approver, 'finance.refund_submitted');
+        return { ref: row.provider_ref, summary: `Refund recovered as ${row.status}.` };
+      }
+      return { ref: r.id, summary: `Refund already ${r.status.replaceAll('_', ' ')}.` };
+    }
+    let out;
+    try {
+      out = await payments.refundStripe(org, pay, r.amount_cents, `sp-refund-${r.id}`, r.id, binding);
+    } catch (error) {
+      db.transaction(() => {
+        const rejected = error.code === 'REFUND_REJECTED';
+        db.prepare(`UPDATE fin_refunds SET status=?,error=?,updated_at=? WHERE organisation_id=? AND id=?
+          AND status='submitted' AND provider_ref IS NULL`).run(rejected ? 'failed' : 'submitted', error.message, now(), org, r.id);
+        audit(org, approver, rejected ? 'finance.refund_rejected' : 'finance.refund_needs_review', 'fin_refund', r.id, { payment: pay.id });
+      }).immediate();
+      throw error;
+    }
+    const receipt = { ...out, currency: pay.currency || 'aud', payment_intent: pay.reference,
+      metadata: { organisation_id: org, payment_id: pay.id, refund_request_id: r.id } };
+    // Receipt durability precedes the atomic financial transaction. The original claim prevents another POST
+    // even if the process stops before it can write the receipt.
+    db.prepare('UPDATE fin_stripe_refund_attempts SET receipt_json=? WHERE organisation_id=? AND refund_id=?')
+      .run(JSON.stringify(receipt), org, r.id);
+    let row;
+    try {
+      row = persistReceipt(org, r, pay, binding, receipt, approver, 'finance.refund_submitted');
+    } catch (error) {
+      db.prepare("UPDATE fin_refunds SET error='Verified Stripe receipt awaits local application.',updated_at=? WHERE organisation_id=? AND id=? AND status='submitted'")
+        .run(now(), org, r.id);
+      throw error;
+    }
+    return { ref: row.provider_ref, summary: `${moneyOf(org)(r.amount_cents)} refund ${row.status} in Stripe (${row.provider_ref}).` };
+  }
+
+  async function reconcileStripeRefund(org, id, actor, { evidence_reference, confirmed_provider_rejection, legacy_refund_id } = {}) {
+    const r = refundRow.get(org, id);
+    if (!r || r.provider !== 'stripe') return E(404, 'Stripe refund not found.');
+    const owner = () => db.prepare("SELECT 1 FROM memberships WHERE organisation_id=? AND user_id=? AND role='owner' AND status='active'").get(org, actor);
+    if (!owner()) return E(403, 'An active workspace owner is required.');
+    const pay = stripeLedger.payment(org, r.payment_id);
+    const claim = stripeLedger.attempt(org, id);
+    const legacy = !claim && Boolean(legacy_refund_id && evidence_reference && r.status === 'submitted');
+    const binding = claim?.account_binding ?? (legacy ? payments?.refundAccount?.(org) : null);
+    if (!pay || !binding || !payments?.listStripeRefunds) return E(409, 'Original Stripe account evidence is unavailable.');
+    let receipts;
+    try {
+      receipts = await payments.listStripeRefunds(org, pay, binding);
+    } catch {
+      return E(409, 'Complete evidence from the original Stripe account is unavailable.');
+    }
+    const relevant = receipts.filter(item =>
+      item.id === r.provider_ref || item.metadata?.refund_request_id === id || legacy && item.id === legacy_refund_id);
+    if (relevant.length > 1) return E(409, 'Conflicting Stripe refund evidence.');
+    return db.transaction(() => {
+      if (!owner()) return E(403, 'An active workspace owner is required.');
+      if (payments.refundAccount(org) !== binding) return E(409, 'Stripe account configuration changed.');
+      const latest = refundRow.get(org, id);
+      if (latest.status !== 'submitted' && latest.status !== 'completed') return E(409, 'Refund state changed.');
+      if (relevant.length === 0) {
+        const ambiguousMatch = receipts.some(item =>
+          item.amount === requireStripeUnits(latest.amount_cents, pay.currency || 'aud') &&
+          !['failed', 'canceled'].includes(item.status) && !item.metadata?.refund_request_id);
+        if (!claim || ambiguousMatch || !confirmed_provider_rejection || !evidence_reference || latest.status !== 'submitted' || latest.provider_ref || stripeLedger.attempt(org, id).receipt_json ||
+            claim.started_at > expiredAttempt()) return E(409, 'Refund remains held pending authoritative evidence.');
+        // Evidence reference is an explicit owner attestation to a separately verified Stripe rejection.
+        // A missing list entry alone never releases a reservation.
+        db.prepare("UPDATE fin_refunds SET status='failed',error=NULL,updated_at=? WHERE organisation_id=? AND id=?").run(now(), org, id);
+        audit(org, actor, 'finance.refund_reconciled_rejection', 'fin_refund', id, { payment: pay.id, evidence_reference });
+        return { ok: true, status: 'failed' };
+      }
+      const receipt = relevant[0];
+      if (legacy) {
+        if (stripeLedger.attempt(org, id) || latest.status !== 'submitted' ||
+            latest.provider_ref && latest.provider_ref !== receipt.id ||
+            receipt.id !== legacy_refund_id || receipt.metadata?.organisation_id !== org ||
+            receipt.metadata?.payment_id !== pay.id ||
+            receipt.metadata?.refund_request_id && receipt.metadata.refund_request_id !== id ||
+            ledgerFromStripeUnits(receipt.amount, pay.currency || 'aud') !== latest.amount_cents) {
+          return E(409, 'Legacy refund evidence does not match this request.');
+        }
+        const conflicts = db.prepare(`SELECT 1 FROM fin_refunds WHERE organisation_id=? AND payment_id=? AND id<>?
+          AND (provider_ref=? OR (status='submitted' AND provider_ref IS NULL AND amount_cents=?))`)
+          .get(org, pay.id, id, receipt.id, latest.amount_cents);
+        if (conflicts) return E(409, 'Legacy refund evidence is ambiguous.');
+        db.prepare(`INSERT INTO fin_stripe_refund_attempts
+          (organisation_id,refund_id,payment_id,account_binding,started_at) VALUES (?,?,?,?,?)`)
+          .run(org, id, pay.id, binding, latest.updated_at);
+        db.prepare('UPDATE fin_refunds SET provider_ref=? WHERE organisation_id=? AND id=?').run(receipt.id, org, id);
+        audit(org, actor, 'finance.refund_legacy_evidence_linked', 'fin_refund', id, { evidence_reference, provider_ref: receipt.id });
+      }
+      const row = persistReceipt(org, latest, pay, binding, receipt, actor, 'finance.refund_reconciled');
+      const total = receipts.filter(item => item.status === 'succeeded')
+        .reduce((sum, item) => sum + ledgerFromStripeUnits(item.amount, pay.currency || 'aud'), 0);
+      stripeLedger.recordCharge(org, pay.id, total, receipts, binding, true);
+      syncJobFinance(org, latest.work_order_id, actor);
+      return { ok: true, status: row.status };
+    }).immediate();
   }
   function completeManualRefund(org, id, actor, reference) {
     const r = db.prepare('SELECT * FROM fin_refunds WHERE id=? AND organisation_id=?').get(id, org); if (!r) return E(404, 'Refund not found.');
@@ -765,5 +901,5 @@ ${ein && !draft ? `<p><small>${esc(ein.text)}</small></p>` : ''}<p><small>Amount
     return { settings: settings(org), seller: seller(org), counts: { quotes_open: by('quote', ['draft', 'approved', 'sent']).length, estimates_open: by('estimate', ['draft', 'approved', 'sent']).length, invoices_draft: by('invoice', ['draft', 'approved']).length, invoices_unpaid: by('invoice', ['issued', 'part_paid', 'overdue']).length, overdue: [...by('invoice', ['overdue']), ...by('deposit', ['overdue'])].length, refunds_waiting: db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE organisation_id=? AND status IN ('pending_approval','awaiting_manual')").get(org).n, credit_notes_waiting: by('credit_note', ['pending_approval']).length, bank_unmatched: db.prepare("SELECT COUNT(*) n FROM fin_bank_lines WHERE organisation_id=? AND status='unmatched'").get(org).n, flags_open: db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n }, aged: aged(org).buckets, ruleset: rulesFor().id };
   }
 
-  return { formaliseQuote, settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
+  return { formaliseQuote, settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, reconcileStripeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
 }
