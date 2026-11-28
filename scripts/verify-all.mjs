@@ -249,7 +249,7 @@ await stage('suites', 'Contract tests, final validation, quality gate', async ()
   // Render exposes runtime configuration at build time. Pass only host tooling
   // and the optional local restore-test binary to the verification subprocesses.
   const testEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-    /^(PATH|PATHEXT|SYSTEMROOT|WINDIR|TEMP|TMP|TMPDIR|LITESTREAM_BIN)$/i.test(key)));
+    /^(PATH|PATHEXT|SYSTEMROOT|WINDIR|TEMP|TMP|TMPDIR|LITESTREAM_BIN|OPRUN_TEST_STRIPE_COMPAT)$/i.test(key)));
   Object.assign(testEnv, { HOME: tempRoot, USERPROFILE: tempRoot, NODE_ENV: 'test', SUPERPRO_SKIP_DOTENV: '1' });
   await check(`${tests.length} contract test files pass`, () => {
     const r = run(process.execPath, ['--test', '--test-concurrency=1', ...tests], { timeout: 900000, env: testEnv }); // TR-71: the tenant sweep adds a few minutes on slow machines

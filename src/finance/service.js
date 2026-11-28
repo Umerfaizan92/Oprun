@@ -617,14 +617,17 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       .reduce((sum, item) => sum + ledgerFromStripeUnits(item.amount, pay.currency || 'aud'), 0);
     if (!stripeLedger.validTotal(pay, total)) return E(409, 'Stripe refund total is outside the local payment.');
     const matched = evidence.receipt && receipts.find(item => item.id === evidence.receipt.id &&
-      item.amount === evidence.receipt.amount && item.status === evidence.receipt.status);
+      item.amount === evidence.receipt.amount &&
+      (discrepancy.reason === 'event_order_conflict' || item.status === evidence.receipt.status));
     if (evidence.receipt && !matched || !evidence.receipt && total < evidence.total) return E(409, 'Provider evidence changed; discrepancy remains open.');
     try {
       return db.transaction(() => {
         if (!canResolve() || payments.refundCredential(org) !== identity.credential) return E(409, 'Owner authority or account changed.');
         if (lookup.get(org, eventId).resolved_at) return { ok: true, status: 'resolved' };
         if (matched) {
-          const row = stripeLedger.applyReceipt.immediate(org, pay.id, matched, binding, null, { ...evidence.lifecycle, authoritative: true });
+          const row = stripeLedger.applyReceipt.immediate(org, pay.id, matched, binding, null, {
+            ...evidence.lifecycle, authoritative: true, type: matched.status === 'failed' ? 'refund.failed' : 'refund.updated',
+          });
           if (!row) return E(409, 'Receipt cannot be matched safely.');
         }
         stripeLedger.recordCharge(org, pay.id, total, receipts, binding, true);
@@ -635,7 +638,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
         return { ok: true, status: 'resolved' };
       }).immediate();
     } catch (error) {
-      if (error.code === 'STRIPE_JOB_BALANCE_CONFLICT') return E(409, 'Local balances still conflict with the Stripe evidence.');
+      if (['STRIPE_JOB_BALANCE_CONFLICT', 'STRIPE_REFUND_ORDER_CONFLICT'].includes(error.code)) return E(409, 'Local balances still conflict with the Stripe evidence.');
       throw error;
     }
   }

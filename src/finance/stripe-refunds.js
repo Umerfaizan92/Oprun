@@ -125,7 +125,17 @@ export function stripeRefundLedger(db) {
     const prior = db.prepare(`SELECT * FROM fin_stripe_refund_lifecycle WHERE organisation_id=? AND refund_id=?
       ORDER BY rowid DESC LIMIT 1`).get(org, r.id);
     if (lifecycle && db.prepare('SELECT 1 FROM fin_stripe_refund_lifecycle WHERE organisation_id=? AND event_id=?').get(org, lifecycle.id)) return null;
-    if (prior?.event_created != null && lifecycle?.created != null && lifecycle.created <= prior.event_created) return null;
+    if (lifecycle?.expectedPrior && prior?.event_id !== lifecycle.expectedPrior) {
+      throw Object.assign(new Error('Refund state changed during provider verification.'), { code: 'STRIPE_REFUND_ORDER_CONFLICT' });
+    }
+    if (prior?.event_created != null && lifecycle?.created != null) {
+      if (lifecycle.created < prior.event_created) return null;
+      if (lifecycle.created === prior.event_created && receipt.status !== prior.provider_status && !lifecycle.authoritative) {
+        throw Object.assign(new Error('Distinct refund events share a timestamp.'), {
+          code: 'STRIPE_REFUND_ORDER_CONFLICT', priorEventId: prior.event_id,
+        });
+      }
+    }
     const reversal = r.status === 'completed' && lifecycle && (
       (lifecycle.type === 'refund.failed' && receipt.status === 'failed' &&
         (lifecycle.authoritative || lifecycle.created == null || lifecycle.created >= Math.floor(Date.parse(r.updated_at) / 1000))) ||

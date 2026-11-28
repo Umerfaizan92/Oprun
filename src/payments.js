@@ -79,8 +79,10 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     return secret ? crypto.createHash('sha256').update(secret).digest('hex') : null;
   };
   const refundCredential = org => stripeBinding(settingsRow(org));
-  const loopbackFixture = process.env.NODE_ENV === 'test' && /^http:\/\/127\.0\.0\.1:\d+$/.test(env.STRIPE_API_BASE_URL || '');
-  const legacyFixture = fetchImpl !== globalThis.fetch || loopbackFixture;
+  const syntheticCompatibility = process.env.NODE_ENV === 'test' && process.env.OPRUN_TEST_STRIPE_COMPAT === '1' &&
+    (!env.NODE_ENV || env.NODE_ENV === 'test');
+  const loopbackFixture = syntheticCompatibility && /^http:\/\/127\.0\.0\.1:\d+$/.test(env.STRIPE_API_BASE_URL || '');
+  const legacyFixture = syntheticCompatibility && (fetchImpl !== globalThis.fetch || loopbackFixture);
   async function refundAccount(org, raw = settingsRow(org)) {
     const credential = stripeBinding(raw);
     if (!credential) return null;
@@ -389,7 +391,28 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
   app.post('/api/saas/payments/settings/test', money_roles, async (req, res) => {
     const provider = req.body?.provider, org = req.saas.organisation_id, raw = settingsRow(org);
     try {
-      if (provider === 'stripe' && raw?.stripe_secret_enc) { await stripeCall(raw, 'GET', 'balance'); return res.json({ ok: true, message: 'Stripe accepted your key.' }); }
+      if (provider === 'stripe' && raw?.stripe_secret_enc) {
+        const identity = await refundAccount(org, raw);
+        if (!stableBinding(identity?.binding)) return res.status(409).json({ ok: false,
+          error: 'Stripe account and mode could not be verified. Check the direct-account key and account and balance read permissions.' });
+        const sampleId = req.body?.payment_id;
+        if (sampleId !== undefined && (typeof sampleId !== 'string' || !sampleId || sampleId.length > 64)) {
+          return res.status(400).json({ ok: false, error: 'Choose a valid workspace payment.' });
+        }
+        const sample = sampleId && refundLedger.payment(org, sampleId);
+        if (sampleId && !sample?.reference) return res.status(404).json({ ok: false, error: 'Stripe payment not found.' });
+        try {
+          if (sample) await verifyRefundIntent(raw, sample, identity.binding);
+          const refunds = await stripeCall(raw, 'GET', 'refunds?limit=1');
+          if (!Array.isArray(refunds?.data)) throw new Error('Invalid Stripe refund list.');
+        } catch {
+          return res.status(409).json({ ok: false, error: 'Check Refunds read permission and, for a sample payment, Payment Intents read permission and mode.' });
+        }
+        if (refundCredential(org) !== identity.credential) return res.status(409).json({ ok: false, error: 'Stripe settings changed. Run the check again.' });
+        return res.json({ ok: true, message: 'Stripe read checks passed. Confirm Refunds write in Stripe before enabling refunds.',
+          checks: { account: 'verified', balance_mode: identity.binding.endsWith(':live') ? 'live' : 'test',
+            payment_intent_read: sample ? 'verified' : 'not_checked', refund_read: 'verified', refund_write: 'not_checked' } });
+      }
       if (provider === 'paypal' && raw?.paypal_client_id) { await paypalToken(raw); return res.json({ ok: true, message: 'PayPal accepted your credentials.' }); }
       res.status(409).json({ ok: false, error: 'Save the keys for that provider first.' });
     } catch (err) { res.status(err.status || 502).json({ ok: false, error: err.message }); }
@@ -576,7 +599,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
       .run(crypto.randomUUID(), org, p?.work_order_id || null, paymentId, reason, 'stripe-refund:' + eventId, iso());
     audit(org, 'payment.needs_review', paymentId, { reason, event_id: eventId, ...details });
   }
-  app.post('/api/webhooks/payments/stripe/:orgId', limiter, async (req, res) => {
+  async function handleStripeWebhook(req, res) {
     const org = String(req.params.orgId), raw = settingsRow(org);
     if (!raw?.stripe_webhook_enc || !verifyStripeSignature(req.rawBody, req.get('stripe-signature'), unsealed(raw.stripe_webhook_enc))) return bad(res);
     const ev = req.body || {}, obj = ev.data?.object || {};
@@ -585,8 +608,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     const created = db.prepare(`INSERT OR IGNORE INTO payment_events (provider,event_id,organisation_id,event_type,received_at)
       VALUES ('stripe',?,?,?,?)`).run(eventId, org, String(ev.type || ''), iso()).changes;
     if (!created) {
-      const pending = ['refund.created','refund.updated','refund.failed','charge.refund.updated','charge.refunded'].includes(ev.type) &&
-        db.prepare("SELECT 1 FROM payment_events WHERE provider='stripe' AND event_id=? AND organisation_id=? AND event_type=? AND outcome IS NULL")
+      const pending = db.prepare("SELECT 1 FROM payment_events WHERE provider='stripe' AND event_id=? AND organisation_id=? AND event_type=? AND outcome IS NULL")
           .get(eventId, org, ev.type);
       if (!pending) return res.json({ ok: true, duplicate: true });
     }
@@ -598,7 +620,7 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
         else if (obj.payment_status !== 'paid') outcome = 'awaiting_funds';
         else if (stripeUnitsOrNull(p.amount_cents, p.currency || 'aud') === null) { outcome = 'amount_precision_review'; await flag(org, p, 'The requested amount cannot be represented exactly in this payment currency. Review the payment before updating its balance.'); }
         else if (obj.amount_total !== requireStripeUnits(p.amount_cents, p.currency || 'aud') || String(obj.currency).toLowerCase() !== String(p.currency || 'aud').toLowerCase()) { outcome = 'amount_mismatch'; await flag(org, p, `Stripe reported ${money(obj.amount_total || 0)} but ${money(p.amount_cents)} was requested. Check Stripe before treating this job as paid.`); }
-        else { await markPaid(p.id, { providerRef: obj.id, reference: typeof obj.payment_intent === 'string' ? obj.payment_intent : null }); outcome = 'paid'; try { if (await captureSavedCard(org, p, obj)) outcome = 'paid_card_saved'; } catch (e) { console.warn('[payments] saving the card reference failed:', e.message); } }
+        else { await markPaid(p.id, { providerRef: obj.id, reference: typeof obj.payment_intent === 'string' ? obj.payment_intent : null }); outcome = 'paid'; try { if (await captureSavedCard(org, p, obj)) outcome = 'paid_card_saved'; } catch (e) { console.warn('[payments] Stripe saved-card processing failed.'); } }
       } else if (ev.type === 'checkout.session.async_payment_failed') {
         const p = findPayment(org, 'stripe', obj.id);
         if (p && p.status === 'pending') { db.prepare(`UPDATE job_payments SET status='failed',failure_reason='Payment was declined or failed',updated_at=? WHERE id=?`).run(iso(), p.id); await flag(org, p, `A payment of ${money(p.amount_cents)} failed. The customer can try again with a new link.`); outcome = 'failed'; }
@@ -632,17 +654,42 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
           const lifecycle = { id: eventId, type: ev.type, created: eventTime };
           if (stableBinding(binding) && eventTime === null && obj.status === 'failed') lifecycle.type = 'refund.undated';
           refundEvidence = { payment: p.id, binding, receipt, lifecycle };
-          const row = refundLedger.applyReceipt.immediate(org, p.id, receipt, effective, row => {
+          const record = observedStatus => row => {
             if (row.status === 'completed' || row.reversed_cents) syncJobFinance(org, row.work_order_id, null);
             audit(org, row.reversed_cents ? 'finance.refund_failed_after_success' : 'payment.refund_receipt', row.payment_id,
               { refund_id: row.id, status: row.status, event_id: ev.id, reversed_cents: row.reversed_cents });
             if (row.reversed_cents) recordRefundReview(org, p.id, eventId,
               'Stripe reversed a previously successful refund.', { status: row.status });
-            else if (row.status === 'failed' && receipt.status === 'succeeded') recordRefundReview(org, p.id, eventId,
+            else if (row.status === 'failed' && observedStatus === 'succeeded') recordRefundReview(org, p.id, eventId,
               'Stripe reported a conflicting success for a failed refund.');
-            else if (row.status === 'completed' && ['failed', 'requires_action'].includes(receipt.status)) recordRefundReview(org, p.id, eventId,
+            else if (row.status === 'completed' && ['failed', 'requires_action'].includes(observedStatus)) recordRefundReview(org, p.id, eventId,
               'Stripe reported a reversal for a completed refund. Event chronology needs review.');
-          }, lifecycle);
+          };
+          let row;
+          try {
+            row = refundLedger.applyReceipt.immediate(org, p.id, receipt, effective, record(receipt.status), lifecycle);
+          } catch (error) {
+            if (error.code !== 'STRIPE_REFUND_ORDER_CONFLICT') throw error;
+            const payment = refundLedger.payment(org, p.id);
+            let current;
+            try {
+              const receipts = await listStripeRefunds(org, payment, binding);
+              current = receipts.find(item => item.id === receipt.id && item.amount === receipt.amount);
+            } catch {
+              // Keep the authenticated event as a discrepancy until an owner can verify the current state.
+            }
+            if (!current || refundCredential(org) !== identity.credential) throw error;
+            const verified = { ...lifecycle, authoritative: true, expectedPrior: error.priorEventId,
+              type: current.status === 'failed' ? 'refund.failed' : 'refund.updated' };
+            row = db.transaction(() => {
+              const resolved = refundLedger.applyReceipt.immediate(org, p.id, current, effective, record(current.status), verified);
+              if (!resolved) throw error;
+              db.prepare(`INSERT OR IGNORE INTO fin_stripe_refund_discrepancies
+                (organisation_id,event_id,payment_id,account_binding,evidence_json,reason,resolved_at) VALUES (?,?,?,?,?,?,?)`)
+                .run(org, eventId, p.id, binding, JSON.stringify(refundEvidence), 'event_order_verified', iso());
+              return resolved;
+            }).immediate();
+          }
           if (row) outcome = 'refund_' + row.status;
         }
       } else if (ev.type === 'charge.refunded' && obj.payment_intent && !ev.account) {
@@ -691,25 +738,37 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
         }
       }
     } catch (err) {
-      if (err.code === 'STRIPE_JOB_BALANCE_CONFLICT' && refundEvidence) {
+      if (['STRIPE_JOB_BALANCE_CONFLICT', 'STRIPE_REFUND_ORDER_CONFLICT'].includes(err.code) && refundEvidence) {
+        const ordering = err.code === 'STRIPE_REFUND_ORDER_CONFLICT';
         db.transaction(() => {
           const saved = db.prepare(`INSERT OR IGNORE INTO fin_stripe_refund_discrepancies
             (organisation_id,event_id,payment_id,account_binding,evidence_json,reason) VALUES (?,?,?,?,?,?)`)
-            .run(org, eventId, refundEvidence.payment, refundEvidence.binding, JSON.stringify(refundEvidence), 'local_balance_conflict');
+            .run(org, eventId, refundEvidence.payment, refundEvidence.binding, JSON.stringify(refundEvidence), ordering ? 'event_order_conflict' : 'local_balance_conflict');
           if (saved.changes) recordRefundReview(org, refundEvidence.payment, eventId,
-            'Stripe refund requires reconciliation with local balances.');
+            ordering ? 'Stripe refund events require a current provider check.' : 'Stripe refund requires reconciliation with local balances.');
           db.prepare("UPDATE payment_events SET outcome='refund_reconciliation_required' WHERE provider='stripe' AND event_id=? AND organisation_id=?")
             .run(eventId, org);
         }).immediate();
         return res.json({ ok: true, outcome: 'refund_reconciliation_required' });
       }
-      db.prepare("DELETE FROM payment_events WHERE provider='stripe' AND event_id=? AND outcome IS NULL").run(eventId);
-      console.error('[payments] stripe webhook failed:', err.code || 'local_write_error');
-      return res.status(500).json({ ok: false });
+      db.prepare("DELETE FROM payment_events WHERE provider='stripe' AND event_id=? AND organisation_id=? AND outcome IS NULL")
+        .run(eventId, org);
+      throw err;
     }
-    db.prepare(`UPDATE payment_events SET outcome=? WHERE provider='stripe' AND event_id=?`).run(outcome, String(ev.id));
-    res.json({ ok: true, outcome });
-  });
+    const saved = db.prepare("UPDATE payment_events SET outcome=? WHERE provider='stripe' AND event_id=? AND organisation_id=? AND outcome IS NULL")
+      .run(outcome, eventId, org);
+    if (!saved.changes) return res.json({ ok: true, duplicate: true });
+    return res.json({ ok: true, outcome });
+  }
+  // Express 4 does not consume rejected handler promises. This boundary includes admission,
+  // discrepancy storage, and completion writes. Leave incomplete rows eligible for redelivery.
+  app.post('/api/webhooks/payments/stripe/:orgId', limiter, (req, res, next) =>
+    handleStripeWebhook(req, res).catch(() => {
+      console.error('[payments] Stripe webhook could not be committed; retry required.');
+      if (res.headersSent) return next(new Error('Stripe webhook response interrupted.'));
+      return res.status(500).json({ ok: false });
+    }));
+
   async function capturePaypal(org, p) {
     const raw = settingsRow(org);
     const cap = await paypalCall(raw, 'POST', `/v2/checkout/orders/${encodeURIComponent(p.provider_ref)}/capture`, undefined, `sp-capture-${p.id}`);
@@ -753,23 +812,26 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
   });
 
   // Phase 08: refunds go back through the business's own Stripe account (never a platform account). Idempotent by key.
+  async function verifyRefundIntent(raw, payment, binding) {
+    const currency = payment.currency || 'aud';
+    let intent;
+    try { intent = await stripeCall(raw, 'GET', 'payment_intents/' + encodeURIComponent(payment.reference)); }
+    catch { throw Object.assign(new Error('Stripe payment identity could not be verified.'), { permanent: true }); }
+    if (intent?.object !== 'payment_intent' || intent.id !== payment.reference ||
+        String(intent.currency || '').toLowerCase() !== String(currency).toLowerCase() ||
+        !matchingMode(binding, intent.livemode)) {
+      throw Object.assign(new Error('Stripe payment identity does not match this refund.'), { permanent: true });
+    }
+  }
+
   async function refundStripe(org, payment, amountCents, idempotencyKey, requestId, binding) {
     if (payment?.organisation_id !== org) throw Object.assign(new Error('Payment not found.'), { status: 404, permanent: true });
     const raw = settingsRow(org);
     if (!raw?.stripe_secret_enc) throw Object.assign(new Error('Connect Stripe in payment settings first.'), { status: 409, permanent: true });
     if (!payment?.reference) throw Object.assign(new Error('This payment has no Stripe payment reference, so it cannot be refunded automatically. Refund it in Stripe and record it.'), { status: 409, permanent: true });
-    if (binding && (await refundAccount(org, raw))?.binding !== binding) throw Object.assign(new Error('Stripe account configuration changed.'), { permanent: true });
+    if ((!binding && !legacyFixture) || (binding && (await refundAccount(org, raw))?.binding !== binding)) throw Object.assign(new Error('Stripe account configuration changed.'), { permanent: true });
     const currency = payment.currency || 'aud';
-    if (stableBinding(binding)) {
-      let intent;
-      try { intent = await stripeCall(raw, 'GET', 'payment_intents/' + encodeURIComponent(payment.reference)); }
-      catch { throw Object.assign(new Error('Stripe payment identity could not be verified.'), { permanent: true }); }
-      if (intent?.object !== 'payment_intent' || intent.id !== payment.reference ||
-          String(intent.currency || '').toLowerCase() !== String(currency).toLowerCase() ||
-          !matchingMode(binding, intent.livemode)) {
-        throw Object.assign(new Error('Stripe payment identity does not match this refund.'), { permanent: true });
-      }
-    }
+    if (stableBinding(binding)) await verifyRefundIntent(raw, payment, binding);
     requireStripeUnits(payment.amount_cents, currency);
     requireStripeUnits(payment.refunded_cents || 0, currency);
     const amount = requireStripeUnits(amountCents, currency);
