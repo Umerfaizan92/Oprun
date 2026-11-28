@@ -3577,3 +3577,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 ### Evidence correction to PRG-03 / claude/prg03-reacceptance-20261128 / CP-255
 
 The “Tests executed: none” and “Test results: none” fields in CP-255 do not capture the independent runs recorded in docs/programme/CLAUDE-PRG03-REACCEPTANCE.md at 431b44878093220b9366da04432b830903df4e5d. The mandatory run on the frozen baseline reported 23 passes and 3 failures, exit 1, with zero TODOs or skips. Three characterisation checks passed, including the repeated G3 failure behaviour. The historical record above is preserved. See docs/programme/PRG03-FINANCIAL-CHECKPOINT-025.md for the separate correction evidence.
+
+## CP-256 2026-11-28T09:55:25+00:00 T-271 TESTING
+- Phase: Programme audit and independent acceptance
+- Task: T-271 (TESTING)
+- Completed steps: Final independent acceptance of G1-G3: technical CONDITIONALLY ACCEPTED (H3, H1 conditions); release NOT READY
+- Incomplete steps: Coordinator allocates H3, H1, H2, E1; rerun final suite and characterisation on next head
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG03-FINAL-ACCEPTANCE.md; qa/programme/prg03-final-acceptance-independent.test.mjs; qa/programme/prg03-final-characterisation.test.mjs; qa/programme/prg03-final-worker.mjs
+- Tests executed: final production-path suite x4; unchanged 26-test suite; Codex 135 set; characterisation; npm test; manifest; memory; secrets
+- Test results: 12/12; 26/26 (NODE_ENV=test); 135/135 (NODE_ENV=test); 3/3; ALL CHECKS PASSED 73/73; PASS; PASS; PASS 933
+- Git branch: claude/prg03-final-acceptance-20261128
+- Commit: fb855ce ([skip render] Preserve checkpoint 025 financial evidence); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG03-FINAL-ACCEPTANCE.md
