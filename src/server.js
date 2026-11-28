@@ -24,6 +24,7 @@ import { installPlatformTeam } from './platform-team.js';
 import { installPlatformAssignments } from './platform-assignments.js';
 import { installOnboardingInterview } from './onboarding-interview.js';
 import { installOnboardingProposal } from './onboarding-proposal.js';
+import { installWorkspaceConfiguration } from './workspace-configuration.js';
 import { createAgentRegistry } from './agents/registry.js';
 import { createSupervisor } from './agents/supervisor.js';
 import { installAgentRoutes } from './agents/routes.js';
@@ -3102,6 +3103,7 @@ const staffPresence=installStaffPresence(app,{db,requireSaasUser});
 const moduleRules=installModuleRules(app,{db,requireSaasUser,saasAudit});
 const onboardingInterview=installOnboardingInterview(app,{db,requireSaasUser,requireSaasRole,saasAudit});
 const onboardingProposal=installOnboardingProposal(app,{db,requireSaasUser,requireSaasRole,saasAudit,interview:onboardingInterview});
+installWorkspaceConfiguration(app,{db,requireSaasUser,getProviderCapabilities:integrationCapabilities});
 app.get('/api/saas/staff-availability',requireSaasUser,(req,res)=>{
   const manager=seniorRole(req.saas.role);
   const includeInactive=manager&&req.query.include_inactive==='1';
