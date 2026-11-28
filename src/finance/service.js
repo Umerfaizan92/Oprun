@@ -448,11 +448,11 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     return { r, pay, binding };
   });
 
-  function persistReceipt(org, r, pay, binding, receipt, actor, action) {
+  function persistReceipt(org, r, pay, binding, receipt, actor, action, lifecycle) {
     const row = stripeLedger.applyReceipt.immediate(org, pay.id, receipt, binding, row => {
-      if (row.status === 'completed') syncJobFinance(org, row.work_order_id, actor);
-      audit(org, actor, action, 'fin_refund', r.id, { provider: 'stripe', provider_ref: receipt.id, status: row.status, amount_cents: r.amount_cents });
-    });
+      if (row.status === 'completed' || row.reversed_cents) syncJobFinance(org, row.work_order_id, actor);
+      audit(org, actor, action, 'fin_refund', r.id, { provider: 'stripe', provider_ref: receipt.id, status: row.status, amount_cents: r.amount_cents, reversed_cents: row.reversed_cents || 0 });
+    }, lifecycle);
     if (!row) throw Object.assign(new Error('Stripe refund evidence does not match the approved request.'), { status: 409, permanent: true });
     return row;
   }
@@ -583,7 +583,9 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
         db.prepare('UPDATE fin_refunds SET provider_ref=? WHERE organisation_id=? AND id=?').run(receipt.id, org, id);
         audit(org, actor, 'finance.refund_legacy_evidence_linked', 'fin_refund', id, { evidence_reference, provider_ref: receipt.id });
       }
-      const row = persistReceipt(org, latest, pay, binding, receipt, actor, 'finance.refund_reconciled');
+      const lifecycle = { id: 'owner-reconcile:' + crypto.randomUUID(),
+        type: receipt.status === 'failed' ? 'refund.failed' : 'refund.updated', authoritative: true };
+      const row = persistReceipt(org, latest, pay, binding, receipt, actor, 'finance.refund_reconciled', lifecycle);
       const total = receipts.filter(item => item.status === 'succeeded')
         .reduce((sum, item) => sum + ledgerFromStripeUnits(item.amount, pay.currency || 'aud'), 0);
       stripeLedger.recordCharge(org, pay.id, total, receipts, binding, true);
@@ -622,7 +624,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
         if (!canResolve() || payments.refundCredential(org) !== identity.credential) return E(409, 'Owner authority or account changed.');
         if (lookup.get(org, eventId).resolved_at) return { ok: true, status: 'resolved' };
         if (matched) {
-          const row = stripeLedger.applyReceipt.immediate(org, pay.id, matched, binding, null, evidence.lifecycle);
+          const row = stripeLedger.applyReceipt.immediate(org, pay.id, matched, binding, null, { ...evidence.lifecycle, authoritative: true });
           if (!row) return E(409, 'Receipt cannot be matched safely.');
         }
         stripeLedger.recordCharge(org, pay.id, total, receipts, binding, true);

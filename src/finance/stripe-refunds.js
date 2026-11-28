@@ -128,15 +128,15 @@ export function stripeRefundLedger(db) {
     if (prior?.event_created != null && lifecycle?.created != null && lifecycle.created <= prior.event_created) return null;
     const reversal = r.status === 'completed' && lifecycle && (
       (lifecycle.type === 'refund.failed' && receipt.status === 'failed' &&
-        (lifecycle.created == null || lifecycle.created >= Math.floor(Date.parse(r.updated_at) / 1000))) ||
+        (lifecycle.authoritative || lifecycle.created == null || lifecycle.created >= Math.floor(Date.parse(r.updated_at) / 1000))) ||
       (lifecycle.type === 'refund.updated' && receipt.status === 'requires_action' &&
-        Boolean(receipt.next_action?.type) && Number.isSafeInteger(lifecycle.created) &&
-        lifecycle.created > Math.floor(Date.parse(r.updated_at) / 1000))
+        Boolean(receipt.next_action?.type) && (lifecycle.authoritative || (Number.isSafeInteger(lifecycle.created) &&
+        lifecycle.created > Math.floor(Date.parse(r.updated_at) / 1000))))
     );
     if (r.status !== 'submitted' && !reversal) return r;
     // Once a refund re-enters requires_action, an older success or an undated snapshot cannot settle it again.
     if (r.status === 'submitted' && prior?.provider_status === 'requires_action' && prior.delta_cents < 0 &&
-        receipt.status === 'succeeded' && (!lifecycle || !Number.isSafeInteger(lifecycle.created))) return null;
+        receipt.status === 'succeeded' && (!lifecycle || !lifecycle.authoritative && !Number.isSafeInteger(lifecycle.created))) return null;
     const status = { succeeded: 'completed', failed: 'failed', canceled: 'canceled', pending: 'submitted', requires_action: 'submitted' }[receipt.status];
     if (!['submitted', 'completed', 'failed', 'canceled'].includes(status)) return null;
     db.prepare('UPDATE fin_refunds SET status=?,provider_ref=?,error=NULL,updated_at=? WHERE organisation_id=? AND id=?')

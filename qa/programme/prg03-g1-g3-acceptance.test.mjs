@@ -147,3 +147,16 @@ test('G3: a manual adjustment preserves durable evidence, acknowledges duplicate
   assert.equal(f.provider.posts,0);
   assert.equal(verifyAuditChain(f.db,f.org).ok,true);
 });
+
+test('G1: owner reconciliation resolves a stale-looking reversal using current read-only evidence', async t => {
+  const f = fixture(t);
+  const id = f.request(2000).refund_id;
+  await f.exec(id);
+  const failed = { ...f.provider.receipts[0], status: 'failed' };
+  await f.hook('evt_unordered','refund.failed',failed,{ created: 1 });
+  assert.deepEqual(f.balances(),[2000,8000]);
+  f.provider.receipts = [failed];
+  assert.deepEqual(await f.reconcile(id),{ ok: true,status: 'failed' });
+  assert.deepEqual(f.balances(),[0,10000]);
+  assert.equal(f.provider.posts,1);
+});
