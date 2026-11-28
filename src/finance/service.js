@@ -413,7 +413,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     })();
   }
   const refundRow = db.prepare('SELECT * FROM fin_refunds WHERE organisation_id=? AND id=?');
-  const claimRefund = db.transaction((org, id, approver) => {
+  const claimRefund = db.transaction((org, id, approver, identity) => {
     const r = refundRow.get(org, id);
     if (!r) throw Object.assign(new Error('Refund request not found.'), { permanent: true });
     if (!['pending_approval','approved'].includes(r.status)) return { r };
@@ -435,8 +435,11 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     if (r.amount_cents > pay.amount_cents - (pay.refunded_cents || 0) - reserved) {
       throw Object.assign(new Error('The refund exceeds the available payment balance.'), { permanent: true });
     }
-    const binding = payments?.refundAccount?.(org);
-    if (!binding) throw Object.assign(new Error('Stripe refunds are not available.'), { permanent: true });
+    const binding = identity?.binding;
+    if (!binding || payments.refundCredential(org) !== identity.credential) throw Object.assign(new Error('Stripe refunds are not available.'), { permanent: true });
+    if (stripeLedger.paymentBindings(org, pay.id).some(value => value !== binding)) {
+      throw Object.assign(new Error('Stripe account or environment does not match this payment.'), { permanent: true });
+    }
     stripeLedger.initialise(pay);
     db.prepare(`INSERT INTO fin_stripe_refund_attempts
       (organisation_id,refund_id,payment_id,account_binding,approver,started_at) VALUES (?,?,?,?,?,?)`)
@@ -455,7 +458,10 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
   }
 
   async function executeRefund(org, p, approver) {
-    const { r, pay, binding, manual } = claimRefund.immediate(org, p.refund_id, approver);
+    const request = refundRow.get(org, p.refund_id);
+    const identity = request?.provider === 'stripe' && ['pending_approval','approved'].includes(request.status)
+      ? await payments?.refundAccount?.(org) : null;
+    const { r, pay, binding, manual } = claimRefund.immediate(org, p.refund_id, approver, identity);
     if (manual) {
       audit(org, approver, 'finance.refund_approved_manual', 'fin_refund', r.id, { provider: r.provider, amount_cents: r.amount_cents });
       return { ref: r.id, summary: `Approved. Pay ${moneyOf(org)(r.amount_cents)} back from your ${r.provider === 'paypal' ? 'PayPal' : 'bank'} account, then mark it done here with the reference.`, manual: true };
@@ -498,7 +504,7 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     return { ref: row.provider_ref, summary: `${moneyOf(org)(r.amount_cents)} refund ${row.status} in Stripe (${row.provider_ref}).` };
   }
 
-  async function reconcileStripeRefund(org, id, actor, { evidence_reference, confirmed_provider_rejection, legacy_refund_id } = {}) {
+  async function reconcileStripeRefund(org, id, actor, { evidence_reference, confirmed_provider_rejection, legacy_refund_id, legacy_account_id, legacy_livemode } = {}) {
     const r = refundRow.get(org, id);
     if (!r || r.provider !== 'stripe') return E(404, 'Stripe refund not found.');
     const owner = () => db.prepare("SELECT 1 FROM memberships WHERE organisation_id=? AND user_id=? AND role='owner' AND status='active'").get(org, actor);
@@ -506,7 +512,16 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     const pay = stripeLedger.payment(org, r.payment_id);
     const claim = stripeLedger.attempt(org, id);
     const legacy = !claim && Boolean(legacy_refund_id && evidence_reference && r.status === 'submitted');
-    const binding = claim?.account_binding ?? (legacy ? payments?.refundAccount?.(org) : null);
+    const identity = await payments?.refundAccount?.(org);
+    const binding = identity?.binding;
+    const prior = claim?.account_binding;
+    const changed = Boolean(prior && prior !== binding);
+    const stable = value => typeof value === 'string' && value.startsWith('stripe:acct_');
+    const syntheticContinuity = changed && !stable(prior) && !stable(binding);
+    const upgrade = changed && !stable(prior) && stable(binding) &&
+      (prior === identity?.credential || Boolean(evidence_reference && legacy_refund_id &&
+        typeof legacy_livemode === 'boolean' && binding === `stripe:${legacy_account_id}:${legacy_livemode ? 'live' : 'test'}`));
+    if (changed && !syntheticContinuity && !upgrade) return E(409, 'Original Stripe account evidence is unavailable.');
     if (!pay || !binding || !payments?.listStripeRefunds) return E(409, 'Original Stripe account evidence is unavailable.');
     let receipts;
     try {
@@ -519,14 +534,14 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
     if (relevant.length > 1) return E(409, 'Conflicting Stripe refund evidence.');
     return db.transaction(() => {
       if (!owner()) return E(403, 'An active workspace owner is required.');
-      if (payments.refundAccount(org) !== binding) return E(409, 'Stripe account configuration changed.');
+      if (payments.refundCredential(org) !== identity.credential) return E(409, 'Stripe account configuration changed.');
       const latest = refundRow.get(org, id);
       if (latest.status !== 'submitted' && latest.status !== 'completed') return E(409, 'Refund state changed.');
       if (relevant.length === 0) {
         const ambiguousMatch = receipts.some(item =>
           item.amount === requireStripeUnits(latest.amount_cents, pay.currency || 'aud') &&
           !['failed', 'canceled'].includes(item.status) && !item.metadata?.refund_request_id);
-        if (!claim || ambiguousMatch || !confirmed_provider_rejection || !evidence_reference || latest.status !== 'submitted' || latest.provider_ref || stripeLedger.attempt(org, id).receipt_json ||
+        if (changed || !claim || ambiguousMatch || !confirmed_provider_rejection || !evidence_reference || latest.status !== 'submitted' || latest.provider_ref || stripeLedger.attempt(org, id).receipt_json ||
             claim.started_at > expiredAttempt()) return E(409, 'Refund remains held pending authoritative evidence.');
         // Evidence reference is an explicit owner attestation to a separately verified Stripe rejection.
         // A missing list entry alone never releases a reservation.
@@ -535,6 +550,20 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
         return { ok: true, status: 'failed' };
       }
       const receipt = relevant[0];
+      if (changed) {
+        const meta = receipt.metadata;
+        if (meta?.organisation_id !== org || meta?.payment_id !== pay.id || meta?.refund_request_id !== id ||
+            (latest.provider_ref && latest.provider_ref !== receipt.id) ||
+            (legacy_refund_id && receipt.id !== legacy_refund_id) ||
+            ledgerFromStripeUnits(receipt.amount, pay.currency || 'aud') !== latest.amount_cents ||
+            stripeLedger.attempt(org, id)?.account_binding !== prior) {
+          return E(409, 'Legacy account evidence does not identify this refund.');
+        }
+        db.prepare('UPDATE fin_stripe_refund_attempts SET account_binding=? WHERE organisation_id=? AND refund_id=?').run(binding, org, id);
+        audit(org, actor, 'finance.refund_account_evidence_verified', 'fin_refund', id,
+          { provider_ref: receipt.id, evidence_reference: evidence_reference || null });
+      }
+
       if (legacy) {
         if (stripeLedger.attempt(org, id) || latest.status !== 'submitted' ||
             latest.provider_ref && latest.provider_ref !== receipt.id ||
@@ -562,6 +591,53 @@ export function createFinance({ db, env = {}, payments = null, pipeline = null, 
       return { ok: true, status: row.status };
     }).immediate();
   }
+  function stripeDiscrepancies(org) {
+    return db.prepare(`SELECT event_id,payment_id,reason,resolved_at FROM fin_stripe_refund_discrepancies
+      WHERE organisation_id=? ORDER BY rowid DESC LIMIT 300`).all(org);
+  }
+
+  async function resolveStripeDiscrepancy(org, eventId, actor) {
+    const canResolve = () => db.prepare("SELECT 1 FROM memberships WHERE organisation_id=? AND user_id=? AND role='owner' AND status='active'").get(org, actor);
+    if (!canResolve()) return E(403, 'An active workspace owner is required.');
+    const lookup = db.prepare('SELECT * FROM fin_stripe_refund_discrepancies WHERE organisation_id=? AND event_id=?');
+    const discrepancy = lookup.get(org, eventId);
+    if (!discrepancy) return E(404, 'Stripe discrepancy not found.');
+    if (discrepancy.resolved_at) return { ok: true, status: 'resolved' };
+    const pay = stripeLedger.payment(org, discrepancy.payment_id);
+    const binding = discrepancy.account_binding;
+    const evidence = JSON.parse(discrepancy.evidence_json);
+    const identity = await payments?.refundAccount?.(org);
+    if (!pay || !binding || identity?.binding !== binding) return E(409, 'Original Stripe account evidence is unavailable.');
+    let receipts;
+    try { receipts = await payments.listStripeRefunds(org, pay, binding); }
+    catch { return E(409, 'Verified Stripe refund evidence is unavailable.'); }
+    const total = receipts.filter(item => item.status === 'succeeded')
+      .reduce((sum, item) => sum + ledgerFromStripeUnits(item.amount, pay.currency || 'aud'), 0);
+    if (!stripeLedger.validTotal(pay, total)) return E(409, 'Stripe refund total is outside the local payment.');
+    const matched = evidence.receipt && receipts.find(item => item.id === evidence.receipt.id &&
+      item.amount === evidence.receipt.amount && item.status === evidence.receipt.status);
+    if (evidence.receipt && !matched || !evidence.receipt && total < evidence.total) return E(409, 'Provider evidence changed; discrepancy remains open.');
+    try {
+      return db.transaction(() => {
+        if (!canResolve() || payments.refundCredential(org) !== identity.credential) return E(409, 'Owner authority or account changed.');
+        if (lookup.get(org, eventId).resolved_at) return { ok: true, status: 'resolved' };
+        if (matched) {
+          const row = stripeLedger.applyReceipt.immediate(org, pay.id, matched, binding, null, evidence.lifecycle);
+          if (!row) return E(409, 'Receipt cannot be matched safely.');
+        }
+        stripeLedger.recordCharge(org, pay.id, total, receipts, binding, true);
+        syncJobFinance(org, pay.work_order_id, actor);
+        db.prepare('UPDATE fin_stripe_refund_discrepancies SET resolved_at=? WHERE organisation_id=? AND event_id=?')
+          .run(now(), org, eventId);
+        audit(org, actor, 'finance.stripe_discrepancy_resolved', 'job_payment', pay.id, { event_id: eventId });
+        return { ok: true, status: 'resolved' };
+      }).immediate();
+    } catch (error) {
+      if (error.code === 'STRIPE_JOB_BALANCE_CONFLICT') return E(409, 'Local balances still conflict with the Stripe evidence.');
+      throw error;
+    }
+  }
+
   function completeManualRefund(org, id, actor, reference) {
     const r = db.prepare('SELECT * FROM fin_refunds WHERE id=? AND organisation_id=?').get(id, org); if (!r) return E(404, 'Refund not found.');
     if (r.status !== 'awaiting_manual') return E(409, r.status === 'pending_approval' ? 'This refund has not been approved yet.' : 'This refund is not waiting to be marked done.');
@@ -901,5 +977,5 @@ ${ein && !draft ? `<p><small>${esc(ein.text)}</small></p>` : ''}<p><small>Amount
     return { settings: settings(org), seller: seller(org), counts: { quotes_open: by('quote', ['draft', 'approved', 'sent']).length, estimates_open: by('estimate', ['draft', 'approved', 'sent']).length, invoices_draft: by('invoice', ['draft', 'approved']).length, invoices_unpaid: by('invoice', ['issued', 'part_paid', 'overdue']).length, overdue: [...by('invoice', ['overdue']), ...by('deposit', ['overdue'])].length, refunds_waiting: db.prepare("SELECT COUNT(*) n FROM fin_refunds WHERE organisation_id=? AND status IN ('pending_approval','awaiting_manual')").get(org).n, credit_notes_waiting: by('credit_note', ['pending_approval']).length, bank_unmatched: db.prepare("SELECT COUNT(*) n FROM fin_bank_lines WHERE organisation_id=? AND status='unmatched'").get(org).n, flags_open: db.prepare("SELECT COUNT(*) n FROM fin_flags WHERE organisation_id=? AND status='open'").get(org).n }, aged: aged(org).buckets, ruleset: rulesFor().id };
   }
 
-  return { formaliseQuote, settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, reconcileStripeRefund, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
+  return { formaliseQuote, settings, saveSettings, seller, locale, orgRules, list, get, create, update, approve, issue, cancel, convert, paymentLink, receipts, requestCreditNote, creditProposal, sendProposal, requestSend, applyCreditNote, requestRefund, refundProposal, executeRefund, reconcileStripeRefund, stripeDiscrepancies, resolveStripeDiscrepancy, completeManualRefund, applyRefundTotal, refunds, importBank, bankLines, confirmMatch, undoMatch, reconciliation, discrepancies, followUps, scanFlags, resolveFlag, profitAndLoss, gstReport, aged, summary, csv, draftFromJob, complianceReview, auditTrail, render, renderReceipt, overview, categorise, rulesetById, syncRunStates };
 }

@@ -38,6 +38,7 @@ function fixture({ currency = 'aud', amount = 10000, reference = 'pi_shared', fi
   // Programmable provider: each POST /v1/refunds takes the next behaviour (default: echo a succeeded refund).
   const plan = [];
   const fetchImpl = async (url, options) => {
+    if (new URL(url).pathname === '/v1/account') return { ok: false, status: 404, json: async () => ({}) };
     const params = new URLSearchParams(options.body || '');
     const call = { url, idem: options.headers?.['idempotency-key'], params };
     calls.push(call);

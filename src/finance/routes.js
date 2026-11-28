@@ -78,8 +78,18 @@ export function installFinanceRoutes(app, { db, finance, platformFinance, requir
   app.post('/api/saas/finance/refunds/:id/complete', limiter, ...money, wrap((req, res) => send(res, finance.completeManualRefund(org(req), req.params.id, me(req), P(z.object({ reference: z.string().trim().min(3).max(80) }).strict(), req.body).reference))));
 
   app.post('/api/saas/finance/refunds/:id/reconcile', limiter, requireSaasUser, requireSaasRole('owner'), wrap(async (req, res) => {
-    const body = P(z.object({ evidence_reference: z.string().trim().min(8).max(120).optional(), confirmed_provider_rejection: z.literal(true).optional(), legacy_refund_id: z.string().regex(/^re_[a-zA-Z0-9_]{1,120}$/).optional() }).strict(), req.body);
+    const body = P(z.object({ evidence_reference: z.string().trim().min(8).max(120).optional(), confirmed_provider_rejection: z.literal(true).optional(), legacy_refund_id: z.string().regex(/^re_[a-zA-Z0-9_]{1,120}$/).optional(),
+      legacy_account_id: z.string().regex(/^acct_[a-zA-Z0-9]+$/).max(80).optional(),
+      legacy_livemode: z.boolean().optional() }).strict(), req.body);
     send(res, await finance.reconcileStripeRefund(org(req), req.params.id, me(req), body));
+  }));
+
+  app.get('/api/saas/finance/stripe-discrepancies', requireSaasUser, requireSaasRole('owner'), wrap((req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ ok: true, discrepancies: finance.stripeDiscrepancies(org(req)) });
+  }));
+  app.post('/api/saas/finance/stripe-discrepancies/:id/reconcile', limiter, requireSaasUser, requireSaasRole('owner'), wrap(async (req, res) => {
+    send(res, await finance.resolveStripeDiscrepancy(org(req), req.params.id, me(req)));
   }));
 
   // ---------------- reconciliation ----------------
