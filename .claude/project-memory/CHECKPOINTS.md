@@ -3573,3 +3573,7 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Coordinator reads docs/programme/CLAUDE-PRG03-REACCEPTANCE.md
+
+### Evidence correction to PRG-03 / claude/prg03-reacceptance-20261128 / CP-255
+
+The “Tests executed: none” and “Test results: none” fields in CP-255 do not capture the independent runs recorded in docs/programme/CLAUDE-PRG03-REACCEPTANCE.md at 431b44878093220b9366da04432b830903df4e5d. The mandatory run on the frozen baseline reported 23 passes and 3 failures, exit 1, with zero TODOs or skips. Three characterisation checks passed, including the repeated G3 failure behaviour. The historical record above is preserved. See docs/programme/PRG03-FINANCIAL-CHECKPOINT-025.md for the separate correction evidence.
