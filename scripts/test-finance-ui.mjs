@@ -13,7 +13,34 @@ import { startServer } from './test-server.mjs';
 import { seedOwner, ownerContext } from './visual/session.mjs';
 
 const calls = [];
-const mock = http.createServer((req, res) => { let b = ''; req.on('data', (c) => { b += c; }); req.on('end', () => { const p = Object.fromEntries(new URLSearchParams(b)); calls.push({ path: req.url, auth: req.headers.authorization, p }); res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(req.url === '/v1/refunds' ? { id: 're_ui_1', status: 'succeeded', amount: Number(p.amount) } : { id: 'cs_ui_' + crypto.randomUUID().slice(0, 6), url: 'https://checkout.stripe.example/pay/ui' })); }); });
+const mock = http.createServer(async (req, res) => {
+  let body = '';
+  for await (const chunk of req) body += chunk;
+  const params = Object.fromEntries(new URLSearchParams(body));
+  calls.push({ path: req.url, auth: req.headers.authorization, p: params });
+  const send = (data, status = 200) => {
+    res.writeHead(status, { 'content-type': 'application/json' });
+    res.end(JSON.stringify(data));
+  };
+  if (req.headers.authorization !== `Bearer ${KEY}`) return send({}, 401);
+  if (req.method === 'GET') {
+    if (req.url === '/v1/account') return send({ object: 'account', id: 'acct_FinanceUIFixture' });
+    if (req.url === '/v1/balance') return send({ object: 'balance', livemode: false });
+    if (req.url === '/v1/payment_intents/pi_ui_1') {
+      return send({ object: 'payment_intent', id: 'pi_ui_1', status: 'succeeded', currency: 'aud', livemode: false });
+    }
+  }
+  if (req.method === 'POST' && req.url === '/v1/refunds') {
+    return send({
+      id: 're_ui_1', object: 'refund', status: 'succeeded', amount: Number(params.amount),
+      currency: 'aud', livemode: false, payment_intent: params.payment_intent,
+    });
+  }
+  if (req.method === 'POST' && req.url === '/v1/checkout/sessions') {
+    return send({ id: 'cs_ui_' + crypto.randomUUID().slice(0, 6), url: 'https://checkout.stripe.example/pay/ui' });
+  }
+  return send({}, 404);
+});
 await new Promise((r) => mock.listen(0, '127.0.0.1', r));
 // Fake keys built at run time (random, never real) so secret scanners do not mistake them for credentials.
 const WHSEC = 'whsec_' + crypto.randomBytes(12).toString('hex'), KEY = ['sk', 'test', ''].join('_') + crypto.randomBytes(12).toString('hex');
