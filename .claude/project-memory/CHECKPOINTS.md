@@ -3591,3 +3591,17 @@ The “Tests executed: none” and “Test results: none” fields in CP-255 do 
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Coordinator reads docs/programme/CLAUDE-PRG03-FINAL-ACCEPTANCE.md
+
+## CP-257 2026-11-28T10:46:07+00:00 T-271 TESTING
+- Phase: Programme audit and independent acceptance
+- Task: T-271 (TESTING)
+- Completed steps: PRG-03 closure acceptance review of H1-H3/E1 at e247fef; strict suite qa/programme/prg03-closure-independent.test.mjs; report written
+- Incomplete steps: Codex fixes R1 (historical fixtures need account/balance endpoints, or owner-approved build env); allocate W1 under PRG-08
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG03-CLOSURE-ACCEPTANCE.md; qa/programme/prg03-closure-independent.test.mjs
+- Tests executed: none
+- Test results: none
+- Git branch: claude/prg03-closure-acceptance-20261128
+- Commit: 40fbc4e ([skip render] Record checkpoint 030 verification and E1 clarification); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator allocates R1; Claude re-runs plain npm test and mandatory suites on the next head
