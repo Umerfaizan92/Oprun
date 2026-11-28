@@ -740,16 +740,16 @@ export function installPayments(app, { db, env, runtime, requireSaasUser, requir
     } catch (err) {
       if (['STRIPE_JOB_BALANCE_CONFLICT', 'STRIPE_REFUND_ORDER_CONFLICT'].includes(err.code) && refundEvidence) {
         const ordering = err.code === 'STRIPE_REFUND_ORDER_CONFLICT';
-        db.transaction(() => {
+        const committed = db.transaction(() => {
           const saved = db.prepare(`INSERT OR IGNORE INTO fin_stripe_refund_discrepancies
             (organisation_id,event_id,payment_id,account_binding,evidence_json,reason) VALUES (?,?,?,?,?,?)`)
             .run(org, eventId, refundEvidence.payment, refundEvidence.binding, JSON.stringify(refundEvidence), ordering ? 'event_order_conflict' : 'local_balance_conflict');
           if (saved.changes) recordRefundReview(org, refundEvidence.payment, eventId,
             ordering ? 'Stripe refund events require a current provider check.' : 'Stripe refund requires reconciliation with local balances.');
-          db.prepare("UPDATE payment_events SET outcome='refund_reconciliation_required' WHERE provider='stripe' AND event_id=? AND organisation_id=?")
-            .run(eventId, org);
+          return db.prepare("UPDATE payment_events SET outcome='refund_reconciliation_required' WHERE provider='stripe' AND event_id=? AND organisation_id=? AND outcome IS NULL")
+            .run(eventId, org).changes;
         }).immediate();
-        return res.json({ ok: true, outcome: 'refund_reconciliation_required' });
+        return res.json(committed ? { ok: true, outcome: 'refund_reconciliation_required' } : { ok: true, duplicate: true });
       }
       db.prepare("DELETE FROM payment_events WHERE provider='stripe' AND event_id=? AND organisation_id=? AND outcome IS NULL")
         .run(eventId, org);

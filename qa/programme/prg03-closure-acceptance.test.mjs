@@ -47,9 +47,14 @@ test('H1: tracing wrappers and a test flag cannot bypass restricted identity in 
   const original = process.env.OPRUN_TEST_STRIPE_COMPAT;
   process.env.OPRUN_TEST_STRIPE_COMPAT = '1';
   try {
-    for (const status of [401, 403, 500]) {
+    for (const status of [401, 403, 500, 'empty', 'invalid']) {
       const s = stand(status);
-      const u = unit({ fetchImpl: (...args) => s.f(...args), nodeEnv: 'production' });
+      const u = unit({ fetchImpl: (url, options) => {
+        if (typeof status === 'string' && new URL(url).pathname === '/v1/account') {
+          return Promise.resolve({ ok: true, status: 200, json: async () => status === 'empty' ? null : { object: 'account', id: 'invalid' } });
+        }
+        return s.f(url, options);
+      }, nodeEnv: 'production' });
       try {
         assert.equal(await u.payments.refundAccount(u.org), null);
         const id = u.finance.requestRefund(u.org, u.payment, 'r', { amount_cents: 1000, reason: 'synthetic' }).refund_id;
