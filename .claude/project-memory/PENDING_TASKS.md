@@ -457,7 +457,7 @@ T-062 historical stop-before-deploy instruction is superseded operationally by t
 - Acceptance: Remote branch and commit parent evidence; original byte preservation; correction matrix with official sources and base code; bounded assignments without changing active ownership
 
 ## T-274 PRG-04 scoped queue idempotency migration and recovery design
-- Status: NOT_STARTED
+- Status: IN_PROGRESS
 - Added: 2026-11-28
 - Requirement: Schedule true tenant/type-scoped idempotency after PRG-02 fail-closed fix; design only until migration and recovery approval; retain legacy keys, existing rows and automation resume key lookup
 - Files: docs/programme scoped-jobs design only; migrations and runtime files remain unassigned pending reviewed plan
