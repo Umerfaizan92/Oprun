@@ -3605,3 +3605,7 @@ The “Tests executed: none” and “Test results: none” fields in CP-255 do 
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Coordinator allocates R1; Claude re-runs plain npm test and mandatory suites on the next head
+
+## Correction to CP-257 — PRG-03 closure review, claude/prg03-closure-acceptance-20261128
+
+The generated CP-257 metadata recorded the earlier checkout SHA `40fbc4e`, marked the branch unpublished, and recorded that no tests ran. The review was committed as `556ecb6af9bb552512912f9c1497f8ae703f84f1` and verified on the branch of the same name above. The signed-off technical evidence, including the test counts, environments, exit codes and R1 build failure, appears in `docs/programme/CLAUDE-PRG03-CLOSURE-ACCEPTANCE.md`. The original generated record is preserved above. R1 verification is recorded in `docs/programme/PRG03-R1-CHECKPOINT-034.md`.
