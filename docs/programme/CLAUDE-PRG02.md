@@ -1,79 +1,87 @@
 # PRG-02 — Queue tenant/type idempotency isolation (AUD-02)
-Owner: Claude. Legacy task: T-271. Status: implementation complete on feature branch; **awaiting ChatGPT independent review. Not release approval.**
-Base: `234f56d9818da0590d5dabf1a4fa7b7a8139a7dd` (main HEAD when checked, 2026-11-28). Branch: `claude/prg02-queue-isolation-20261128`.
-Head: see the commit that adds this file (`git log -1 -- docs/programme/CLAUDE-PRG02.md`).
+Owner: Claude (implementation). Task identifiers: **PRG-02::claude-branch T-271** (this branch's historical local ID,
+kept unchanged) and shared **T-280** (independent review entry, tracked by ChatGPT). The audit branch's T-271 is a
+different task (payment refund units); the two are never merged by bare number (coordinator decision D-096).
+Status: **TESTING — awaiting independent acceptance. Not release approval.**
+Base: `234f56d9818da0590d5dabf1a4fa7b7a8139a7dd`. Branch: `claude/prg02-queue-isolation-20261128`.
+History: `99e27ae` (fix, tests, report) → `b85ef4c` (memory checkpoint) → corrections commit (adds this revision; see
+`git log -1 -- docs/programme/CLAUDE-PRG02.md`). Independent review: `codex/prg02-independent-review-20261128` @ `8d0349c`.
 
-## Changed paths
-- `src/job-queue.js`: `enqueue` only (one function).
-- `scripts/programme-queue-isolation.test.mjs`: new, 9 synthetic tests.
+## Changed paths (whole branch vs base)
+- `src/job-queue.js`: `enqueue` only. **Unchanged by the corrections round.**
+- `scripts/programme-queue-isolation.test.mjs`: new; strengthened in the corrections round (12 tests).
 - `docs/programme/CLAUDE-PRG02.md`: this report.
-- `.claude/project-memory/*`: mandatory bookkeeping through `npm run memory:*` (T-271 task, checkpoints).
-Not changed: schema, other runtime files, worker topology, render.yaml. `qa/reports/tenant-sweep.json` is rewritten by
-`scripts/tenant-sweep.test.mjs` on every test run; it was restored to base and is **not** part of this change. Coordinator to decide whether that generated report should stay tracked.
+- `.claude/project-memory/*`: bookkeeping through `npm run memory:*` only.
+Not changed: schema, stored keys/rows, other runtime files, worker topology, render.yaml, SHA256SUMS.txt.
 
 ## Defect (confirmed in core, reproduced)
-`src/job-queue.js` (base): column `idempotency_key TEXT UNIQUE` is table-wide (line 15). `enqueue` inserted with
-`ON CONFLICT(idempotency_key) DO NOTHING` and on conflict returned `SELECT * … WHERE idempotency_key=?`, the full row
-of whichever job held the key, with no check of `type` or `organisation_id`.
-Reproduced on base with the new test file (`node --test scripts/programme-queue-isolation.test.mjs` with base
-`src/job-queue.js`; TAP summary `# tests 9 # pass 4 # fail 5`). Reviewers can repeat it with
-`git show 234f56d:src/job-queue.js > src/job-queue.js` on a scratch checkout. **5 of 9 tests failed:**
-- tenant B reusing tenant A's key received tenant A's full job row (payload included);
-- the same tenant reusing a key for another job type received the other type's job;
-- platform scope (null tenant) and a tenant received each other's jobs in both directions;
-- the legacy-row and two-writer cases showed the same cross-tenant hand-over.
-The 4 that passed on base (same-scope dedupe, null/omitted org dedupe, no-key jobs, and "a refused collision creates no
-row", which base satisfied by handing back the other job instead of inserting) guard the behaviour that must keep working.
+At base, `idempotency_key TEXT UNIQUE` is table-wide (`src/job-queue.js:15`), and `enqueue` on conflict returned
+`SELECT * … WHERE idempotency_key=?`: the full row of whichever job held the key, with no check of `type` or
+`organisation_id`. A tenant, another job type or the platform scope reusing a key received another scope's job,
+including its payload, result and error.
 
-## Caller reachability (external exposure)
-Every `enqueue` caller at base, all building keys on the server:
-| Caller | Type | Key | Tenant |
+## Caller reachability
+Six `enqueue` callers exist at base; all were traced by Claude and independently re-traced by the reviewer. Each builds
+the queue key on the server from a type prefix plus server-generated or server-held identifiers:
+| Caller | Type | Key | Scope |
 |---|---|---|---|
-| src/server.js:6290 daily audit | audit.verify_chain | `audit.verify_chain:<date>` | null (platform) |
-| src/server.js:6364 commsService.enqueueSend | campaign.send | `campaign.send:<id>:<ms>:<random>` (effectively unique) | owner or null for platform |
+| src/server.js:6290 daily audit | audit.verify_chain | `audit.verify_chain:<date>` | platform (null) |
+| src/server.js:6364 commsService.enqueueSend | campaign.send | `campaign.send:<id>:<ms>:<random>` | owner, or null for platform |
 | src/studio-editor.js:32 | studio.export | `studio.export:<org>:<server uuid>` | org |
 | src/reel-maker.js:160 | reel.render | `reel.render:<org>:<server uuid>` | org |
-| src/automation/engine.js:354 | automation.execute | `automation.execute:<run uuid>[:n]` | run.organisation_id |
-| src/comms/receptionist-followups.js:34 | receptionist.followup | `rxf:<followup id>:<attempts>` | f.organisation_id |
-Client-supplied `idempotency_key` values (studio, reel) are stored only in their own tables, which are already unique per
-`(organisation_id, idempotency_key)`; they never reach the queue key. **Conclusion:** the defect is real in the core,
-but no current caller can trigger a cross-tenant collision (keys are type-prefixed and carry server-generated IDs).
-It is a latent isolation/integrity defect that any future caller passing a client or shared key would expose.
+| src/automation/engine.js:354 | automation.execute | `automation.execute:<run id>[:n]` | run.organisation_id |
+| src/comms/receptionist-followups.js:34 (optional queue) | receptionist.followup | `rxf:<follow-up id>:<attempts>` | f.organisation_id |
+Client-supplied `idempotency_key` values (studio, reel) are stored only in their own tables, unique per
+`(organisation_id, idempotency_key)`, and are not used as the queue key. **No current raw client-controlled
+cross-tenant collision path was established.** That is not a proof that collisions are impossible: a future caller, a
+data fault or an untraced indirect path could still produce one, which is why the core fix is needed.
 
-## Fix (smallest backward-compatible)
-In `enqueue`, inside one transaction: insert as before; on conflict return the existing job **only if**
-`type` matches and `organisation_id IS` the caller's scope (`undefined`/`null` both mean platform). Otherwise throw
-`Error` with `code: 'IDEMPOTENCY_KEY_CONFLICT'`, `status: 409`, a generic message, no job attached, and a warning log
-naming only the caller's own type and scope. No row is created on refusal.
-Preserved: column, UNIQUE constraint, stored key strings (so `automation/engine.js:351` `LIKE 'automation.execute:<run>%'` still works), existing rows, return shape `{duplicate, job}`, same-scope dedupe semantics.
-Nested use inside `db.transaction` (studio-editor) is fine: better-sqlite3 uses a savepoint.
+## Fix (unchanged since 99e27ae)
+Inside one transaction: insert as before; on conflict return the existing job only if `type` matches and
+`organisation_id IS` the caller's scope (`null`, omitted and `undefined` all mean platform). Otherwise throw an `Error`
+with message `This idempotency key is already used by a different job.`, own enumerable properties exactly
+`code: 'IDEMPOTENCY_KEY_CONFLICT'` and `status: 409`, nothing about the other job, and one warning naming only the
+caller's own type and scope. No row is created or changed. Preserved: column, UNIQUE constraint, stored key strings (so
+`automation/engine.js:351` `LIKE 'automation.execute:<run>%'` still works), existing rows, the `{duplicate, job}` return
+shape and same-scope dedupe. Inside a caller's `db.transaction`, better-sqlite3 uses a savepoint.
 
-## Trade-offs and limits (for review)
-- **Fail closed, not namespaced.** Because the UNIQUE constraint stays table-wide, a key held by tenant A still blocks tenant B (now with an error instead of a leak). With today's callers this cannot happen. True per-scope key spaces need a table rebuild/migration (non-destructive copy + swap) and belong with the PRG-04 backend/scoped-jobs work; not done here per "no destructive schema changes".
-- Callers that do not catch: studio-editor and reel-maker would surface a 500 (transaction rolled back, no orphan export/reel row); audit check and receptionist follow-up already catch and log. No caller can reach this today.
-- Payload differences on a same-scope duplicate are still ignored (unchanged behaviour).
-- Concurrency: single SQLite file, `numInstances: 1`; test covers two connections to one file. A true multi-process race was not load-tested.
-- Existing legacy rows are not inspected for past collisions. A read-only check for reviewers: `SELECT idempotency_key FROM background_jobs WHERE idempotency_key IS NOT NULL GROUP BY idempotency_key HAVING COUNT(*)>1` is always empty due to UNIQUE; a past wrong hand-over would not have left a row, so it cannot be detected from the table.
+## Caller behaviour on a conflict (corrected)
+The earlier report said studio-editor and reel-maker "would surface a 500". That was wrong for studio: the reviewer's
+injected collision through the real studio route returned **HTTP 409** with a generic body and **no orphan export row**
+(the route's transaction rolled back). Reel-maker was not exercised through its route; its behaviour is not claimed.
+The audit check and receptionist follow-up catch and log. This does not establish that every caller has a tested JSON
+error envelope or retry policy, and the injection is not evidence of a current client exploit path.
 
-## Tests (Node v22.23.5, isolated in-memory or temp-file databases, no network)
-- `node --test scripts/programme-queue-isolation.test.mjs`: base 4 pass / 5 fail (reproduction); after fix 9/9 pass.
-- Queue/tenant/agent regressions: job-queue, job-lifecycle, tenant-isolation, integration-tenant, tenant-sweep, automation-engine, reliability, agent-supervisor: 59/59 pass.
-- Callers' suites: comms, receptionist-followups, reel-maker, studio-editor: 20/20 pass.
-- Full `npm test`: see "Full suite" below.
+## Tests — actual counts (Node v22.23.5, synthetic in-memory/temp-file databases, no network or providers)
+| Scope | Fixed tree | Base queue | Notes |
+|---|---|---|---|
+| `scripts/programme-queue-isolation.test.mjs` (12 tests) | 12/12 PASS, 5 repeat runs all 12/12 | 4 PASS / 8 FAIL | The 4 base passes are must-keep-working cases: same-scope dedupe, platform self-dedupe, keyless jobs, same-scope concurrent dedupe |
+| Named regressions (job-queue, job-lifecycle, tenant-isolation, integration-tenant, tenant-sweep, automation-engine, reliability, agent-supervisor, comms, receptionist-followups, reel-maker, studio-editor) | 79/79 PASS | not run | Existing tests; not new coverage |
+| Reviewer's `qa/programme/queue-independent-review.test.mjs` @ 8d0349c, run against this tree from a temporary uncommitted copy | 8/8 PASS | reviewer reports 1 PASS / 7 FAIL | Adopted as evidence for nested rollback/savepoints and the real studio HTTP 409 route; not committed here |
+| Full `npm test` | see "Full suite" | — | 131 contract files including this one |
+| `npm run security:secrets` | see "Full suite" | — | Pattern scan, not proof no secret exists |
+The first round's 9-test file (9/9 fixed, 4/5 base) is superseded: the reviewer found conditional assertions in it
+that accepted silence or another outcome. The new file has none. Every collision must throw the exact message, code,
+status and property set; rows must be deep-equal before and after; error and log must contain no foreign job ID,
+organisation, payload, result or error sentinel; and exactly one warning is logged.
+
+Concurrency coverage:
+- Test 10 uses two connections to one file **called one after the other**. It is labelled sequential and claims nothing about concurrency.
+- Tests 11 and 12 are genuine overlapping writers: four worker threads, each with its own WAL connection to one temp file, released together by an Atomics barrier, three rounds each. Same scope: exactly one insert, three duplicates of the same job. Cross-tenant: exactly one winner receiving only its own job, three exact 409 conflicts revealing nothing foreign. The barrier makes the writers overlap, but SQLite serialises writes (busy_timeout), so this does not prove every possible interleaving.
+- **Not certified:** multi-process, multi-host, network filesystems, or sustained load. Production runs one instance on one SQLite disk.
 
 ## Full suite
-`npm test` (scripts/verify-all.mjs) on Node v22.23.5, with the fix applied: **ALL CHECKS PASSED: 73/73**, exit 0,
-10m54s; the suites stage ran 131 contract test files, including the new one (621s). This replaces the "historical 73/73"
-claim for this candidate only. A first attempt was cut off by this session's 10-minute background limit while still
-running (no failure); it was rerun to completion.
-Also: `npm run security:secrets` PASS (901 files).
+`npm test` on Node v22.23.5 with the strengthened test file: **ALL CHECKS PASSED: 73/73**, exit 0, 11m20s; contract stage 131 files (646.8s). The report file was edited during that run; `npm test` does not read `docs/programme/*.md`. `npm run security:secrets`: PASS (903 tracked files, 13 credential classes).
 
-## Coordination needed (outside PRG-02 boundary, not committed)
-- **SHA256SUMS.txt**: `npm run verify:manifest` fails on the branch with `Hash mismatch src/job-queue.js` because the
-  manifest is outside the allowed files. `manifest:update` changes only 3 lines (job-queue.js hash, plus entries for the
-  two new files), after which `verify:manifest` passes (922 files); that was checked and reverted. `npm test` does not run
-  the manifest check (it needs `--manifest`). Whoever merges should run `npm run manifest:update` on the merge commit, or approve adding SHA256SUMS.txt to this branch.
-- **qa/reports/tenant-sweep.json**: rewritten by every test run (generated timestamps); restored and not committed.
+## Limitations (for review)
+- **Fail closed, not namespaced.** The UNIQUE constraint stays table-wide, so a key held by one scope still blocks another (now an exact 409 instead of a leak). True per-scope key spaces need a reviewed migration: T-274 (PRG-04 design, ChatGPT). Not attempted here.
+- Payload differences on a same-scope duplicate are still ignored (unchanged behaviour).
+- Past wrong hand-overs, if any ever happened, left no row and cannot be detected from the table.
+
+## Coordination (outside PRG-02 boundary, not committed)
+- **SHA256SUMS.txt**: `verify:manifest` fails on this branch (`src/job-queue.js` hash mismatch). Per the coordinator, it is regenerated and verified on the final approved integration tree; this branch does not bypass or weaken that check. `npm test` does not include the manifest check.
+- **qa/reports/tenant-sweep.json**: rewritten by every test run; restored, not committed.
 
 ## Next action
-ChatGPT: independently review the diff `234f56d..claude/prg02-queue-isolation-20261128` for `src/job-queue.js` and the new test; decide whether to schedule the scoped-key migration under PRG-04. Claude does not merge, deploy or start PRG-05 until assigned.
+ChatGPT: independently re-review the corrections commit (diff `b85ef4c..<head>`: test file and this report only). Claude
+keeps PRG-02::claude-branch T-271 in TESTING and starts nothing else (no PRG-05, merge, deploy, migration or snapshot upload).

@@ -3475,3 +3475,17 @@ Do not edit past entries; add a new checkpoint to correct one.
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: ChatGPT reviews 234f56d..99e27ae; Claude takes no further task until assigned
+
+## CP-249 2026-11-28T03:20:47+00:00 T-271 TESTING
+- Phase: Idempotent generation and pre-submit draft preservation
+- Task: T-271 (TESTING)
+- Completed steps: PRG-02 bounded corrections 1-9 (tests + report only)
+- Incomplete steps: Independent re-review (T-280); coordinator regenerates SHA256SUMS.txt on final integration tree; scoped keys under T-274
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG02.md; scripts/programme-queue-isolation.test.mjs
+- Tests executed: programme-queue-isolation x5; 12 regression files; reviewer QA copy; npm test; security:secrets
+- Test results: 12/12; 79/79; 8/8; ALL CHECKS PASSED 73/73 (131 files) Node 22.23.5; PASS 903 files
+- Git branch: claude/prg02-queue-isolation-20261128
+- Commit: b85ef4c (PRG-02: checkpoint after push (T-271 TESTING, awaiting review)); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: ChatGPT re-reviews b85ef4c..HEAD; Claude starts nothing else until assigned
