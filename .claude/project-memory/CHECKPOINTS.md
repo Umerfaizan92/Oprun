@@ -3624,7 +3624,7 @@ The generated CP-257 metadata recorded the earlier checkout SHA `40fbc4e`, marke
 - Known errors: none
 - Next exact action: Coordinator records PRG-03 technical closure; Claude stands by
 
-## CP-254 2026-11-28T09:00:13+00:00 PRG-04-REVIEW TESTING
+## PRG-04 / CP-254 2026-11-28T09:00:13+00:00 PRG-04-REVIEW TESTING
 - Phase: Programme audit and independent acceptance
 - Task: PRG-04-REVIEW (TESTING)
 - Completed steps: Independent PRG-04 acceptance of e8ee522: CONDITIONALLY ACCEPTED
@@ -3638,7 +3638,7 @@ The generated CP-257 metadata recorded the earlier checkout SHA `40fbc4e`, marke
 - Known errors: none
 - Next exact action: Coordinator reads docs/programme/CLAUDE-PRG04-INDEPENDENT-REVIEW.md
 
-## CP-255 2026-11-28T10:12:47+00:00 PRG-04-REVIEW TESTING
+## PRG-04 / CP-255 2026-11-28T10:12:47+00:00 PRG-04-REVIEW TESTING
 - Phase: Programme audit and independent acceptance
 - Task: PRG-04-REVIEW (TESTING)
 - Completed steps: Final independent acceptance of O3/O4: ACCEPTED (technical)
