@@ -3623,3 +3623,38 @@ The generated CP-257 metadata recorded the earlier checkout SHA `40fbc4e`, marke
 - Recovery snapshot: not requested
 - Known errors: none
 - Next exact action: Coordinator records PRG-03 technical closure; Claude stands by
+
+## CP-254 2026-11-28T09:00:13+00:00 PRG-04-REVIEW TESTING
+- Phase: Programme audit and independent acceptance
+- Task: PRG-04-REVIEW (TESTING)
+- Completed steps: Independent PRG-04 acceptance of e8ee522: CONDITIONALLY ACCEPTED
+- Incomplete steps: Coordinator allocates O4, O3, P1; combined-tree rerun
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG04-INDEPENDENT-REVIEW.md; qa/programme/prg04-independent-backend-review.test.mjs
+- Tests executed: review file x3; focused 7 files; db-schema; npm test; secrets
+- Test results: 10/10; 43/43; 7/7; ALL CHECKS PASSED 73/73; PASS 924
+- Git branch: claude/prg04-independent-review-20261128
+- Commit: e8ee522 ([skip render] Add owner-approved workspace configuration revisions); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG04-INDEPENDENT-REVIEW.md
+
+## CP-255 2026-11-28T10:12:47+00:00 PRG-04-REVIEW TESTING
+- Phase: Programme audit and independent acceptance
+- Task: PRG-04-REVIEW (TESTING)
+- Completed steps: Final independent acceptance of O3/O4: ACCEPTED (technical)
+- Incomplete steps: Combined-tree run and manifest regeneration by coordinator; P1 under PRG-08
+- Files modified (uncommitted at checkpoint): .claude/project-memory/PROGRESS.md; docs/programme/CLAUDE-PRG04-FINAL-ACCEPTANCE.md; qa/programme/prg04-final-acceptance-independent.test.mjs; qa/programme/prg04-final-characterisation.test.mjs
+- Tests executed: final mandatory suite x3; original suite; Codex 55 set; test:fast; npm test; manifest; memory; secrets
+- Test results: 9/9; 8 pass 2 obsolete; 55/55; 69/69; ALL CHECKS PASSED 73/73; PASS; PASS; PASS 931
+- Git branch: claude/prg04-final-acceptance-20261128
+- Commit: 766fa58 ([skip render] Preserve checkpoint 024 operability evidence); branch not on remote
+- Recovery snapshot: not requested
+- Known errors: none
+- Next exact action: Coordinator reads docs/programme/CLAUDE-PRG04-FINAL-ACCEPTANCE.md
+
+## Checkpoint 036 source qualifications
+
+- PRG-02 queue implementation T-271 is from branch `claude/prg02-queue-isolation-20261128` at `44fb79c30e5a36fc998cb4401f5bd39a6a3f81cf`. Its bounded T-280 acceptance is from `codex/prg02-acceptance-20261128` at `a88d777605480fba58aeff2e07f8981773b6a7bc`. The queue branch's historical memory remains available at those exact commits.
+- PRG-03 payment T-271 is tracked independently on the financial line. Generated CP-258 referred to parent `a92db4a` and marked the review unpublished. The published R1 review is `a0a341a1315661788afc23c5edc5adb4b905e0d9` on `claude/prg03-r1-acceptance-20261128`. The review report supplies the actual verification evidence.
+- PRG-04 CP-254, branch `claude/prg04-independent-review-20261128`, is published as `dc32b68d6d20be024bbace3551cf8d648a2b18d7`. PRG-03 CP-254, branch `claude/prg03-independent-review-20261128`, is published as `0b86b34c165537862bc0a8053dbfb83f88ec2c47`.
+- PRG-04 CP-255, branch `claude/prg04-final-acceptance-20261128`, is published as `d232b4340006c8900ff8a0a9d239eda19d91d5d7`. PRG-03 CP-255, branch `claude/prg03-reacceptance-20261128`, is published as `431b44878093220b9366da04432b830903df4e5d`. These remote commits supersede the generated branch-publication metadata above. PRG-04 review identifiers and legacy task reservations keep their original branch-local meaning.
